@@ -153044,6 +153044,2595 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (231 calculators in /calc/)');
+  
+  // ─── TOOL BU1: WET ELECTROSTATIC PRECIPITATOR (WESP) SIZING CALCULATOR ───
+  (() => {
+    const slug = 'wet-electrostatic-precipitator-wesp-sizing-calculator';
+    const title = 'Wet Electrostatic Precipitator (WESP) Sizing & Acid Mist Removal Calculator';
+    const metaDescription = 'Size industrial Wet Electrostatic Precipitators (WESP) for sub-micron particulate and sulfuric acid mist removal using Deutsch-Anderson and Matts-Ohnfeldt models. Calculate collection area, tube bundle geometry, corona power, and removal efficiency.';
+    const faq = [
+      {
+        q: 'What is a Wet Electrostatic Precipitator (WESP) and where is it used?',
+        a: 'A Wet Electrostatic Precipitator (WESP) is an industrial gas cleaning system designed to capture sub-micron solid particles, condensed organic aerosols, and corrosive liquid droplets (such as sulfuric acid mist, $H_2SO_4$). Unlike dry ESPs—which use mechanical rappers that cause dust re-entrainment and are prone to resistivity-induced back-corona—WESPs operate with water-wetted collecting surfaces. Continuous or periodic washing eliminates re-entrainment and prevents sticky, conductive, or flammable dust build-up. WESPs are standard in sulfuric acid plants, metallurgical roasters, chemical waste incinerators, and biomass gasification systems.'
+      },
+      {
+        q: 'How does the Deutsch-Anderson equation differ from the modified Matts-Ohnfeldt model for WESP sizing?',
+        a: 'The classical Deutsch-Anderson equation ($\\eta = 1 - \\exp[-w_e \\cdot A / Q]$) assumes completely uniform gas velocity, mono-disperse particle size, and unhindered particle charging. In real industrial gas streams containing sub-micron acid mists ($d_p < 1\\,\\mu\\text{m}$), polydisperse size distributions and electrical turbulence cause actual efficiency to deviate from standard exponential scaling. The modified Matts-Ohnfeldt equation ($\\eta = 1 - \\exp[-(w_k \\cdot A / Q)^m]$ with $m \\approx 0.5$) provides superior empirical accuracy by accounting for the slower capture of fine sub-micron fractions.'
+      },
+      {
+        q: 'Why are hexagonal honeycomb tubular bundles preferred over parallel plates in WESPs?',
+        a: 'Tubular hexagonal honeycomb configurations offer several decisive advantages for wet gas service: (1) Symmetric radial electric field around the central discharge electrode wire, maximizing electrostatic field strength and migration velocity; (2) Elimination of inactive aerodynamic boundary layers and dead corners where droplets could deposit without flushing; (3) Structural rigidity and compact footprint, providing up to 40% more collection surface area per unit vessel volume than plate designs; and (4) Self-draining vertical orientation that naturally guides flushed condensate down the tube walls.'
+      },
+      {
+        q: 'What causes electrical spark-over and how does it limit WESP voltage?',
+        a: 'Spark-over occurs when the local electric field between the high-voltage discharge electrode and the grounded tube wall exceeds the dielectric breakdown strength of the saturated gas stream. In wet gas streams, water mist droplets, condensation spikes, and high gas humidity alter the breakdown potential. Modern high-frequency switched-mode power supplies (SMPS) operate at 45–80 kV DC, automatically sensing micro-sparks and throttling voltage within milliseconds to maintain the maximum possible corona current without creating destructive continuous power arcs.'
+      },
+      {
+        q: 'How does the Cunningham slip correction factor influence sub-micron particle collection?',
+        a: 'For particles smaller than approximately $1\\,\\mu\\text{m}$, the particle diameter approaches the mean free path of gas molecules ($\\lambda \\approx 0.066\\,\\mu\\text{m}$ at NTP). The gas ceases to behave as a continuous fluid; gas molecules slip past the particle surface with reduced frictional drag. The Cunningham slip correction factor ($C_c = 1 + \\frac{2\\lambda}{d_p}[1.257 + 0.4\\exp(-0.55 d_p / \\lambda)]$) increases particle electrical mobility and effective drift velocity, preventing sub-micron particles from becoming completely uncollectible.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Wet Electrostatic Precipitator (WESP) Sizing & Acid Mist Removal Calculator</h1>' +
+      '    <p>Perform industrial sizing of Wet Electrostatic Precipitators (WESP) for sub-micron particulate, condensed organic aerosol, and sulfuric acid mist capture using Deutsch-Anderson and modified Matts-Ohnfeldt models. Size hexagonal tubular bundles, calculate migration velocity, high-voltage T-R set electrical power, and wash water demand.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Flue Gas & Particle Specifications</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-preset">Industrial WESP Service Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="wesp-preset">' +
+      '            <option value="acid" selected>Sulfuric Acid Plant Final Mist Eliminator (99.8% H2SO4 Mist, 0.6 µm)</option>' +
+      '            <option value="smelter">Copper Smelter Roasting Off-Gas (Arsenic/Lead Dust + Mist, 99.5%)</option>' +
+      '            <option value="incinerator">Hazardous Waste Chemical Incinerator Tail Gas (Heavy Metals + Submicron PM)</option>' +
+      '            <option value="biomass">Biomass Gasifier Syngas Tar & Aerosol Precipitator (99.0%)</option>' +
+      '            <option value="custom">Custom WESP Configuration</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-gas-flow">Flue Gas Actual Volumetric Flow (\(Q\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-gas-flow" value="65000" min="500" max="1500000" step="1000">' +
+      '          <select id="wesp-flow-unit">' +
+      '            <option value="am3h" selected>Am³/h</option>' +
+      '            <option value="acfm">ACFM</option>' +
+      '            <option value="m3s">m³/s</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Actual volumetric flow rate at operating temperature and saturation</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-temp">Gas Operating Temperature & Humidity</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-temp" value="45" min="15" max="95" step="1">' +
+      '          <select id="wesp-temp-unit">' +
+      '            <option value="c" selected>°C (Water Saturated)</option>' +
+      '            <option value="f">°F</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">WESP operates at water saturation dew point (typically 35–65°C)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-inlet-load">Inlet Particulate / Acid Mist Loading (\(C_{in}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-inlet-load" value="350" min="1" max="20000" step="10">' +
+      '          <select id="wesp-load-unit">' +
+      '            <option value="mg_nm3" selected>mg/Nm³</option>' +
+      '            <option value="gr_dscf">gr/dscf</option>' +
+      '            <option value="g_m3">g/m³</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-target-eff">Target Collection Efficiency (\(\eta\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-target-eff" value="99.8" min="80" max="99.999" step="0.05">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">%</span>' +
+      '        </div>' +
+      '        <div class="hint">Industrial standard is 99.5% to 99.9% for acid mist plume elimination</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-model-type">Precipitator Sizing Model</label>' +
+      '        <div class="input-row">' +
+      '          <select id="wesp-model-type">' +
+      '            <option value="matts" selected>Modified Matts-Ohnfeldt (m = 0.5, Recommended for Mist)</option>' +
+      '            <option value="deutsch">Classical Deutsch-Anderson (Exponential Scaling)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-migr-vel">Effective Migration Velocity (\(w_e\) or \(w_k\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-migr-vel" value="0.12" min="0.02" max="0.40" step="0.01">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m/s</span>' +
+      '        </div>' +
+      '        <div class="hint">Drift velocity: Acid mist = 0.08–0.16 m/s; Tar = 0.10–0.22 m/s</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-tube-dia">Hexagonal Tube Internal Diameter (\(D_t\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-tube-dia" value="250" min="150" max="400" step="10">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard industrial sizes: 200 mm, 250 mm (10"), 300 mm (12")</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-tube-len">Tube Active Electrical Length (\(L_t\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-tube-len" value="4.5" min="2.0" max="8.0" step="0.25">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard vertical active tube length: 3.5 to 6.0 meters</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wesp-voltage">Operating High-Voltage (\(V_{op}\)) & Current Density (\(J\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wesp-voltage" value="55" min="30" max="90" step="1" title="Peak kV DC">' +
+      '          <input type="number" id="wesp-current-dens" value="0.75" min="0.1" max="2.5" step="0.05" title="mA/m²">' +
+      '        </div>' +
+      '        <div class="hint">Peak operating voltage (kV DC) and corona current density (mA/m² collecting area)</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="wesp-calc-btn">Compute WESP Sizing</button>' +
+      '        <button type="button" class="btn btn-secondary" id="wesp-reset-btn">Reset Defaults</button>' +
+      '      </div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Precipitator Geometry & Electrical Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Collection Area (\(A_{col}\))</div>' +
+      '          <div class="res-val"><span id="res-col-area">936</span><span class="res-unit">m²</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-col-area-ft">10,075</span> ft²</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Specific Collecting Area (\(SCA\))</div>' +
+      '          <div class="res-val"><span id="res-sca">51.8</span><span class="res-unit">\(\text{s/m}\)</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-sca-us">263</span> ft²/(1000 ACFM)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Number of Hexagonal Tubes (\(N_t\))</div>' +
+      '          <div class="res-val"><span id="res-tube-count">265</span><span class="res-unit">tubes</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Gas velocity: <span id="res-gas-vel">1.39</span> m/s</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Precipitator Shell Diameter</div>' +
+      '          <div class="res-val"><span id="res-shell-dia">4.45</span><span class="res-unit">m</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-shell-ft">14.6</span> ft (hex honeycomb pack)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Outlet Particulate Loading (\(C_{out}\))</div>' +
+      '          <div class="res-val"><span id="res-out-load">0.70</span><span class="res-unit">mg/Nm³</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Zero opacity / invisible plume</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">T-R High-Voltage Power (\(P_{TR}\))</div>' +
+      '          <div class="res-val"><span id="res-tr-power">38.6</span><span class="res-unit">kW</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Total Corona: <span id="res-corona-i">702</span> mA DC</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Flushing Water Demand</div>' +
+      '          <div class="res-val"><span id="res-wash-flow">140</span><span class="res-unit">m³/h</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Continuous weir / cyclic spray</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Gas Pressure Drop (\(\Delta P\))</div>' +
+      '          <div class="res-val"><span id="res-dp-pa">185</span><span class="res-unit">Pa</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-dp-inwg">0.74</span> in w.g. (low energy)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="badge-stat" id="wesp-eval-badge" style="background:#dcfce7; color:#15803d;">✓ WESP Sizing Compliant: Clean Plume & High Electrical Stability</span>' +
+      '      </div>' +
+      '      <div class="btn-row" style="margin-top:0;">' +
+      '        <button type="button" class="btn btn-secondary" id="wesp-copy-btn">📋 Copy Diagnostic Summary</button>' +
+      '        <span class="copy-toast" id="wesp-toast">✓ Diagnostic Summary Copied!</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="wesp-canvas" width="480" height="340"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- DERIVATION & TECHNICAL SPECIFICATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Governing Principles & Mathematical Derivations for WESPs</h2>' +
+      '    <p>Wet Electrostatic Precipitators utilize strong DC electrostatic fields to impart negative charge to suspended sub-micron droplets and solid particles, driving them to grounded, water-washed collection surfaces.</p>' +
+      '    <h3>1. Sizing Models: Deutsch-Anderson vs Modified Matts-Ohnfeldt</h3>' +
+      '    <p>In the classical Deutsch-Anderson model, collection efficiency is governed by the exponent of the product of specific collecting area and migration velocity:</p>' +
+      '    <div class="formula-box">' +
+      '      \eta = 1 - \exp\left( - \frac{w_e \cdot A_{col}}{Q} \right) = 1 - \exp(-w_e \cdot SCA)' +
+      '    </div>' +
+      '    <p>For fine acid mists, the modified Matts-Ohnfeldt model incorporates an empirical exponent \(m = 0.5\) to accurately capture polydisperse sub-micron drift kinetics:</p>' +
+      '    <div class="formula-box">' +
+      '      \eta = 1 - \exp\left[ - \left( \frac{w_k \cdot A_{col}}{Q} \right)^m \right] \implies A_{col} = \frac{Q}{w_k} \cdot \left[ -\ln(1 - \eta) \right]^{1/m}' +
+      '    </div>' +
+      '    <h3>2. Hexagonal Tubular Bundle Geometry</h3>' +
+      '    <p>Hexagonal tubes arranged in a honeycomb bundle maximize surface area while maintaining uniform gas velocity across the vessel cross-section:</p>' +
+      '    <div class="formula-box">' +
+      '      A_{tube} = \pi D_t \cdot L_t, \quad N_{tubes} = \frac{A_{col}}{A_{tube}}, \quad v_{gas} = \frac{Q}{N_{tubes} \cdot \left( \frac{\sqrt{3}}{2} D_t^2 \right)}' +
+      '    </div>' +
+      '    <p>Design gas velocity is held between \(1.2\text{--}1.8\,\text{m/s}\) to prevent aerodynamic shearing and re-entrainment of the liquid film cascading down the tube walls.</p>' +
+      '    <h3>3. High-Voltage Corona Power & Transformer-Rectifier (T-R) Sizing</h3>' +
+      '    <p>The electrical power delivered to the ionizing corona discharge must be sufficient to maintain avalanche ionization without triggering continuous spark arcs:</p>' +
+      '    <div class="formula-box">' +
+      '      I_{corona} = J \cdot A_{col} \quad (\text{mA}), \quad P_{TR} = \frac{V_{op} \cdot I_{corona}}{1000} \quad (\text{kW})' +
+      '    </div>' +
+      '    <p>Modern switched-mode power supplies (SMPS) operate at 50–70 kV DC with current densities of \(0.5\text{--}1.2\,\text{mA/m}^2\), yielding typical power consumption of \(30\text{--}60\,\text{W/m}^2\) of collecting surface.</p>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in WESP Design & Operation</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. The Gas Distribution Maldistribution Catastrophe</h4>' +
+      '      <p>Because WESP collection efficiency is logarithmic, non-uniform gas flow destroys performance. If 30% of the gas channels through a high-velocity core at 3.0 m/s, that portion experiences severe penetration, dropping overall collection efficiency from 99.8% to 94%. Dual perforated perforated gas distributor plates and CFD flow modeling are mandatory to achieve a coefficient of variation \(C_v < 0.15\).</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Insulator Purge Air Failure & High-Voltage Flashover</h4>' +
+      '      <p>The support insulators that suspend the rigid high-voltage discharge mast must be isolated from wet, corrosive process gas. If the heated purge air blower trips, acidic moisture condenses on the cold alumina insulator surfaces, creating a conductive liquid bridge that triggers catastrophic dielectric tracking, electrical flashover, and shattered insulator ceramics.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Dry-Spot Acid Corrosion & Pitting Breakdown</h4>' +
+      '      <p>In wet precipitators constructed from high-alloy austenitic stainless steels (e.g. Alloy 20, Hastelloy C-276), complete and continuous wetting of the tube walls is vital. If water distribution weirs foul and dry spots form, concentrated sulfuric acid (50–70% H2SO4) concentrates under high heat, triggering rapid stress corrosion cracking and pinhole pitting that destroys the tube bundle in under 12 months.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Spark Quenching from Inadequate Water Washing Drainage</h4>' +
+      '      <p>During intermittent wash cycles, if water drain sumps are undersized or header nozzles discharge uneven torrents, liquid bridges form between the central discharge electrode and the tube wall. The T-R controller interprets these liquid bridges as continuous dead shorts, collapsing voltage to zero and discharging unscrubbed acid mist directly out the stack.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Corona Wire Vibration & Misalignment Fatigue</h4>' +
+      '      <p>Weighted wire or rigid mast discharge electrodes must remain precisely centered within ±3 mm of the tube axis. If gas vortex shedding or asymmetric electrostatic pull induces lateral wire oscillation, the gap to one wall narrows, triggering continuous local spark-overs while the opposite wall remains un-ionized, slashing collection efficiency by 50%.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions</h2>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is a Wet Electrostatic Precipitator (WESP) and where is it used? <span>+</span></div>' +
+      '      <div class="faq-a">A Wet Electrostatic Precipitator (WESP) is an industrial gas cleaning system designed to capture sub-micron solid particles, condensed organic aerosols, and corrosive liquid droplets (such as sulfuric acid mist, H2SO4). Unlike dry ESPs—which use mechanical rappers that cause dust re-entrainment and are prone to resistivity-induced back-corona—WESPs operate with water-wetted collecting surfaces. Continuous or periodic washing eliminates re-entrainment and prevents sticky, conductive, or flammable dust build-up. WESPs are standard in sulfuric acid plants, metallurgical roasters, chemical waste incinerators, and biomass gasification systems.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does the Deutsch-Anderson equation differ from the modified Matts-Ohnfeldt model for WESP sizing? <span>+</span></div>' +
+      '      <div class="faq-a">The classical Deutsch-Anderson equation (\(\eta = 1 - \exp[-w_e \cdot A / Q]\)) assumes completely uniform gas velocity, mono-disperse particle size, and unhindered particle charging. In real industrial gas streams containing sub-micron acid mists (\(d_p < 1\,\mu\text{m}\)), polydisperse size distributions and electrical turbulence cause actual efficiency to deviate from standard exponential scaling. The modified Matts-Ohnfeldt equation (\(\eta = 1 - \exp[-(w_k \cdot A / Q)^m]\) with \(m \approx 0.5\)) provides superior empirical accuracy by accounting for the slower capture of fine sub-micron fractions.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">Why are hexagonal honeycomb tubular bundles preferred over parallel plates in WESPs? <span>+</span></div>' +
+      '      <div class="faq-a">Tubular hexagonal honeycomb configurations offer several decisive advantages for wet gas service: (1) Symmetric radial electric field around the central discharge electrode wire, maximizing electrostatic field strength and migration velocity; (2) Elimination of inactive aerodynamic boundary layers and dead corners where droplets could deposit without flushing; (3) Structural rigidity and compact footprint, providing up to 40% more collection surface area per unit vessel volume than plate designs; and (4) Self-draining vertical orientation that naturally guides flushed condensate down the tube walls.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What causes electrical spark-over and how does it limit WESP voltage? <span>+</span></div>' +
+      '      <div class="faq-a">Spark-over occurs when the local electric field between the high-voltage discharge electrode and the grounded tube wall exceeds the dielectric breakdown strength of the saturated gas stream. In wet gas streams, water mist droplets, condensation spikes, and high gas humidity alter the breakdown potential. Modern high-frequency switched-mode power supplies (SMPS) operate at 45–80 kV DC, automatically sensing micro-sparks and throttling voltage within milliseconds to maintain the maximum possible corona current without creating destructive continuous power arcs.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does the Cunningham slip correction factor influence sub-micron particle collection? <span>+</span></div>' +
+      '      <div class="faq-a">For particles smaller than approximately \(1\,\mu\text{m}\), the particle diameter approaches the mean free path of gas molecules (\(\lambda \approx 0.066\,\mu\text{m}\) at NTP). The gas ceases to behave as a continuous fluid; gas molecules slip past the particle surface with reduced frictional drag. The Cunningham slip correction factor (\(C_c = 1 + \frac{2\lambda}{d_p}[1.257 + 0.4\exp(-0.55 d_p / \lambda)]\)) increases particle electrical mobility and effective drift velocity, preventing sub-micron particles from becoming completely uncollectible.</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const presets = {' +
+      '    acid: { flow: 65000, flowUnit: "am3h", temp: 45, load: 350, loadUnit: "mg_nm3", eff: 99.8, model: "matts", migr: 0.12, dia: 250, len: 4.5, volt: 55, curr: 0.75 },' +
+      '    smelter: { flow: 120000, flowUnit: "am3h", temp: 40, load: 1200, loadUnit: "mg_nm3", eff: 99.5, model: "matts", migr: 0.14, dia: 250, len: 5.0, volt: 60, curr: 0.85 },' +
+      '    incinerator: { flow: 40000, flowUnit: "am3h", temp: 55, load: 800, loadUnit: "mg_nm3", eff: 99.7, model: "matts", migr: 0.11, dia: 200, len: 4.0, volt: 50, curr: 0.70 },' +
+      '    biomass: { flow: 25000, flowUnit: "am3h", temp: 38, load: 500, loadUnit: "mg_nm3", eff: 99.0, model: "deutsch", migr: 0.15, dia: 250, len: 3.5, volt: 52, curr: 0.65 }' +
+      '  };' +
+      '  const el = id => document.getElementById(id);' +
+      '  const getVal = id => parseFloat(el(id).value) || 0;' +
+      '  const setTxt = (id, txt) => { if(el(id)) el(id).textContent = txt; };' +
+      '  ' +
+      '  function getFlow_m3s(val, unit) {' +
+      '    if (unit === "am3h") return val / 3600;' +
+      '    if (unit === "acfm") return val * 0.000471947;' +
+      '    return val;' +
+      '  }' +
+      '  function getLoad_mgNm3(val, unit) {' +
+      '    if (unit === "gr_dscf") return val * 2288.3;' +
+      '    if (unit === "g_m3") return val * 1000;' +
+      '    return val;' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const q_m3s = Math.max(0.1, getFlow_m3s(getVal("wesp-gas-flow"), el("wesp-flow-unit").value));' +
+      '    const temp_c = getVal("wesp-temp");' +
+      '    const c_in_mg = Math.max(0.1, getLoad_mgNm3(getVal("wesp-inlet-load"), el("wesp-load-unit").value));' +
+      '    const eff_pct = Math.min(99.999, Math.max(80, getVal("wesp-target-eff")));' +
+      '    const eff_frac = eff_pct / 100;' +
+      '    const model = el("wesp-model-type").value;' +
+      '    const w_migr = Math.max(0.01, getVal("wesp-migr-vel"));' +
+      '    const dt_mm = Math.max(100, getVal("wesp-tube-dia"));' +
+      '    const dt_m = dt_mm / 1000;' +
+      '    const lt_m = Math.max(1.5, getVal("wesp-tube-len"));' +
+      '    const v_kv = Math.max(20, getVal("wesp-voltage"));' +
+      '    const j_curr = Math.max(0.1, getVal("wesp-current-dens"));' +
+      '    ' +
+      '    // Collection Area Calculation' +
+      '    let a_col_m2 = 0;' +
+      '    if (model === "matts") {' +
+      '      // Matts-Ohnfeldt: eta = 1 - exp(- (w_k * A / Q)^0.5)' +
+      '      // A = (Q / w_k) * [-ln(1 - eta)]^2' +
+      '      const term = -Math.log(Math.max(1e-6, 1 - eff_frac));' +
+      '      a_col_m2 = (q_m3s / w_migr) * Math.pow(term, 2);' +
+      '    } else {' +
+      '      // Deutsch-Anderson: eta = 1 - exp(- w_e * A / Q)' +
+      '      // A = (Q / w_e) * -ln(1 - eta)' +
+      '      const term = -Math.log(Math.max(1e-6, 1 - eff_frac));' +
+      '      a_col_m2 = (q_m3s / w_migr) * term;' +
+      '    }' +
+      '    ' +
+      '    const a_col_ft2 = a_col_m2 * 10.7639;' +
+      '    const sca_sm = a_col_m2 / q_m3s; // s/m' +
+      '    const sca_us = (a_col_ft2 / (q_m3s * 2118.88)) * 1000; // ft2 / 1000 ACFM' +
+      '    ' +
+      '    // Tube bundle calculations' +
+      '    // Collection area per hexagonal tube: A_t = pi * D_t * L_t (approx cylindrical circumference)' +
+      '    const a_per_tube = Math.PI * dt_m * lt_m;' +
+      '    const n_tubes = Math.ceil(a_col_m2 / a_per_tube);' +
+      '    ' +
+      '    // Hexagonal tube internal cross-sectional area: A_hex = (sqrt(3)/2) * D_t^2' +
+      '    const a_hex_tube = (Math.sqrt(3) / 2) * Math.pow(dt_m, 2);' +
+      '    const total_gas_area = n_tubes * a_hex_tube;' +
+      '    const v_gas_ms = q_m3s / total_gas_area;' +
+      '    ' +
+      '    // Vessel shell diameter for hexagonal honeycomb pack (packing factor ~ 1.15)' +
+      '    const bundle_area = total_gas_area * 1.18;' +
+      '    const shell_dia_m = Math.sqrt((4 * bundle_area) / Math.PI);' +
+      '    const shell_dia_ft = shell_dia_m * 3.28084;' +
+      '    ' +
+      '    // Outlet emissions' +
+      '    const c_out_mg = c_in_mg * (1 - eff_frac);' +
+      '    ' +
+      '    // Electrical calculations' +
+      '    const total_corona_ma = a_col_m2 * j_curr;' +
+      '    const tr_power_kw = (v_kv * total_corona_ma) / 1000;' +
+      '    ' +
+      '    // Wash water demand (typical 0.15 m3/h per m2 of tube area during flush)' +
+      '    const wash_flow_m3h = a_col_m2 * 0.15;' +
+      '    ' +
+      '    // Pressure drop (friction through tubes + inlet/outlet screens ~ 150-250 Pa)' +
+      '    const dp_pa = 1.2 * Math.pow(v_gas_ms, 2) * (0.02 * (lt_m / dt_m) + 1.8) * 50;' +
+      '    const dp_inwg = dp_pa / 249.088;' +
+      '    ' +
+      '    // Evaluation badge' +
+      '    let badgeTxt = "✓ WESP Sizing Compliant: Clean Plume & High Electrical Stability";' +
+      '    let badgeBg = "#dcfce7", badgeColor = "#15803d";' +
+      '    ' +
+      '    if (v_gas_ms > 2.2) {' +
+      '      badgeTxt = "⚠ Excessive Gas Velocity (>2.2 m/s): Severe droplet re-entrainment and turbulence";' +
+      '      badgeBg = "#fee2e2"; badgeColor = "#b91c1c";' +
+      '    } else if (v_gas_ms < 0.9) {' +
+      '      badgeTxt = "⚠ Low Gas Velocity (<0.9 m/s): Oversized vessel shell; risk of thermal stratification";' +
+      '      badgeBg = "#fef3c7"; badgeColor = "#b45309";' +
+      '    }' +
+      '    ' +
+      '    // Set DOM elements' +
+      '    setTxt("res-col-area", Math.round(a_col_m2).toLocaleString());' +
+      '    setTxt("res-col-area-ft", Math.round(a_col_ft2).toLocaleString());' +
+      '    setTxt("res-sca", sca_sm.toFixed(1));' +
+      '    setTxt("res-sca-us", Math.round(sca_us));' +
+      '    setTxt("res-tube-count", n_tubes.toLocaleString());' +
+      '    setTxt("res-gas-vel", v_gas_ms.toFixed(2));' +
+      '    setTxt("res-shell-dia", shell_dia_m.toFixed(2));' +
+      '    setTxt("res-shell-ft", shell_dia_ft.toFixed(1));' +
+      '    setTxt("res-out-load", c_out_mg < 1 ? c_out_mg.toFixed(2) : c_out_mg.toFixed(1));' +
+      '    setTxt("res-tr-power", tr_power_kw.toFixed(1));' +
+      '    setTxt("res-corona-i", Math.round(total_corona_ma).toLocaleString());' +
+      '    setTxt("res-wash-flow", Math.round(wash_flow_m3h));' +
+      '    setTxt("res-dp-pa", Math.round(dp_pa));' +
+      '    setTxt("res-dp-inwg", dp_inwg.toFixed(2));' +
+      '    ' +
+      '    const badge = el("wesp-eval-badge");' +
+      '    if (badge) {' +
+      '      badge.textContent = badgeTxt;' +
+      '      badge.style.background = badgeBg;' +
+      '      badge.style.color = badgeColor;' +
+      '    }' +
+      '    ' +
+      '    drawCanvas(shell_dia_m, lt_m, dt_mm, n_tubes, v_gas_ms, eff_pct);' +
+      '  }' +
+      '  ' +
+      '  function drawCanvas(shellDia, tubeLen, tubeDiaMm, nTubes, gasVel, effPct) {' +
+      '    const cvs = el("wesp-canvas");' +
+      '    if (!cvs) return;' +
+      '    const ctx = cvs.getContext("2d");' +
+      '    const w = cvs.width, h = cvs.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background grid' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ctx.strokeStyle = "#1e293b";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }' +
+      '    for(let y=0; y<h; y+=30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }' +
+      '    ' +
+      '    // Coordinates' +
+      '    const cx = w * 0.4;' +
+      '    const vTop = 45;' +
+      '    const vH = 220;' +
+      '    const vW = 140;' +
+      '    ' +
+      '    // Outer Precipitator Shell' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.roundRect(cx - vW/2, vTop, vW, vH, [18, 18, 18, 18]);' +
+      '    ctx.fill(); ctx.stroke();' +
+      '    ' +
+      '    // Hexagonal tube bundle section (center)' +
+      '    const bTop = vTop + 45;' +
+      '    const bH = vH - 90;' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.fillRect(cx - vW/2 + 6, bTop, vW - 12, bH);' +
+      '    ' +
+      '    // Individual vertical tubes with corona electrodes' +
+      '    const numDrawTubes = 7;' +
+      '    const tWidth = (vW - 16) / numDrawTubes;' +
+      '    for (let i = 0; i < numDrawTubes; i++) {' +
+      '      const tx = cx - vW/2 + 8 + i * tWidth;' +
+      '      // Tube walls' +
+      '      ctx.strokeStyle = "#38bdf8";' +
+      '      ctx.lineWidth = 1.5;' +
+      '      ctx.strokeRect(tx, bTop, tWidth, bH);' +
+      '      ' +
+      '      // Central discharge electrode (purple line)' +
+      '      ctx.strokeStyle = "#c084fc";' +
+      '      ctx.lineWidth = 1.5;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(tx + tWidth/2, bTop - 10);' +
+      '      ctx.lineTo(tx + tWidth/2, bTop + bH + 10);' +
+      '      ctx.stroke();' +
+      '      ' +
+      '      // Ionizing glow/dots' +
+      '      ctx.fillStyle = "rgba(168, 85, 247, 0.4)";' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(tx + tWidth/2, bTop + bH * 0.3, 4, 0, 2*Math.PI);' +
+      '      ctx.arc(tx + tWidth/2, bTop + bH * 0.7, 4, 0, 2*Math.PI);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ' +
+      '    // Water wash header (top of tubes)' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - vW/2 + 4, bTop);' +
+      '    ctx.lineTo(cx + vW/2 - 4, bTop);' +
+      '    ctx.stroke();' +
+      '    // Spray nozzles' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    for (let i = 0; i < numDrawTubes; i++) {' +
+      '      const tx = cx - vW/2 + 8 + i * tWidth + tWidth/2;' +
+      '      ctx.fillRect(tx - 3, bTop - 4, 6, 4);' +
+      '    }' +
+      '    ' +
+      '    // Gas inlet (lower side)' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - vW/2 - 25, vTop + vH - 25);' +
+      '    ctx.lineTo(cx - vW/2, vTop + vH - 25);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Raw Saturated Gas", cx - vW/2 - 95, vTop + vH - 22);' +
+      '    ' +
+      '    // Clean gas outlet (top)' +
+      '    ctx.strokeStyle = "#10b981";' +
+      '    ctx.lineWidth = 4;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, vTop);' +
+      '    ctx.lineTo(cx, vTop - 25);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Clean Gas Outlet", cx - 45, vTop - 30);' +
+      '    ' +
+      '    // Acid effluent drain (bottom cone)' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, vTop + vH);' +
+      '    ctx.lineTo(cx, vTop + vH + 20);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Acid Wash Drain", cx - 35, vTop + vH + 34);' +
+      '    ' +
+      '    // Info callouts' +
+      '    const infoX = cx + vW/2 + 35;' +
+      '    ctx.fillStyle = "#e2e8f0";' +
+      '    ctx.font = "bold 12px sans-serif";' +
+      '    ctx.fillText("WESP TUBE BUNDLE", infoX, vTop + 20);' +
+      '    ' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("Efficiency: " + effPct.toFixed(2) + " %", infoX, vTop + 45);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("Tubes: " + nTubes + " hexagonal", infoX, vTop + 65);' +
+      '    ctx.fillText("Shell Dia: " + shellDia.toFixed(2) + " m", infoX, vTop + 85);' +
+      '    ctx.fillText("Tube Len: " + tubeLen.toFixed(1) + " m", infoX, vTop + 105);' +
+      '    ctx.fillStyle = "#c084fc";' +
+      '    ctx.fillText("Corona: 55 kV DC", infoX, vTop + 130);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("Velocity: " + gasVel.toFixed(2) + " m/s", infoX, vTop + 150);' +
+      '  }' +
+      '  ' +
+      '  // Event listeners' +
+      '  const inputs = [' +
+      '    "wesp-gas-flow", "wesp-flow-unit", "wesp-temp", "wesp-inlet-load", "wesp-load-unit",' +
+      '    "wesp-target-eff", "wesp-model-type", "wesp-migr-vel", "wesp-tube-dia",' +
+      '    "wesp-tube-len", "wesp-voltage", "wesp-current-dens"' +
+      '  ];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const presetEl = el("wesp-preset");' +
+      '  if (presetEl) {' +
+      '    presetEl.addEventListener("change", () => {' +
+      '      const p = presets[presetEl.value];' +
+      '      if (p) {' +
+      '        el("wesp-gas-flow").value = p.flow;' +
+      '        el("wesp-flow-unit").value = p.flowUnit;' +
+      '        el("wesp-temp").value = p.temp;' +
+      '        el("wesp-inlet-load").value = p.load;' +
+      '        el("wesp-load-unit").value = p.loadUnit;' +
+      '        el("wesp-target-eff").value = p.eff;' +
+      '        el("wesp-model-type").value = p.model;' +
+      '        el("wesp-migr-vel").value = p.migr;' +
+      '        el("wesp-tube-dia").value = p.dia;' +
+      '        el("wesp-tube-len").value = p.len;' +
+      '        el("wesp-voltage").value = p.volt;' +
+      '        el("wesp-current-dens").value = p.curr;' +
+      '        calc();' +
+      '      }' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const resetBtn = el("wesp-reset-btn");' +
+      '  if (resetBtn) {' +
+      '    resetBtn.addEventListener("click", () => {' +
+      '      presetEl.value = "acid";' +
+      '      presetEl.dispatchEvent(new Event("change"));' +
+      '    });' +
+      '  }' +
+      '  const calcBtn = el("wesp-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("wesp-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== WET ELECTROSTATIC PRECIPITATOR (WESP) SIZING REPORT ===",' +
+      '        "Flue Gas Volumetric Flow: " + el("wesp-gas-flow").value + " " + el("wesp-flow-unit").value,' +
+      '        "Target Collection Efficiency: " + el("wesp-target-eff").value + " % (Model: " + el("wesp-model-type").value + ")",' +
+      '        "Inlet Mist Loading: " + el("wesp-inlet-load").value + " " + el("wesp-load-unit").value,' +
+      '        "Outlet Mist Loading: " + el("res-out-load").textContent + " mg/Nm³",' +
+      '        "Total Collection Area: " + el("res-col-area").textContent + " m² (" + el("res-col-area-ft").textContent + " ft²)",' +
+      '        "Specific Collecting Area (SCA): " + el("res-sca").textContent + " s/m (" + el("res-sca-us").textContent + " ft²/1000 ACFM)",' +
+      '        "Number of Hexagonal Tubes: " + el("res-tube-count").textContent + " tubes (Gas Velocity: " + el("res-gas-vel").textContent + " m/s)",' +
+      '        "Precipitator Shell Diameter: " + el("res-shell-dia").textContent + " m (" + el("res-shell-ft").textContent + " ft)",' +
+      '        "T-R Corona Electrical Power: " + el("res-tr-power").textContent + " kW (Total Current: " + el("res-corona-i").textContent + " mA)",' +
+      '        "Flushing Water Demand: " + el("res-wash-flow").textContent + " m³/h",' +
+      '        "Pressure Drop: " + el("res-dp-pa").textContent + " Pa (" + el("res-dp-inwg").textContent + " in w.g.)",' +
+      '        "Status: " + el("wesp-eval-badge").textContent,' +
+      '        "Design Standards: Industrial Gas Cleaning Institute (IGCI) & Matts-Ohnfeldt Wet ESP Formulation"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("wesp-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BU2: VENTURI EJECTOR AERATOR & BIOREACTOR CALCULATOR ───
+  (() => {
+    const slug = 'venturi-aerator-ejector-bioreactor-calculator';
+    const title = 'Venturi Ejector Aerator & High-Rate Gas-Liquid Contactor Calculator';
+    const metaDescription = 'Size Venturi ejector aerators for biological wastewater treatment, fermentation, and high-rate gas-liquid mass transfer. Calculate liquid nozzle velocity, air entrainment ratio, microbubble Sauter diameter, SOTR, and standard aeration efficiency (SAE).';
+    const faq = [
+      {
+        q: 'How does a Venturi ejector aerator transfer oxygen without submerged air blowers?',
+        a: 'A Venturi aerator utilizes a motive liquid pump rather than an air compressor. A pressurized water or mixed-liquor stream accelerates through a converging nozzle into a high-velocity liquid jet (12 to 22 m/s). The resulting pressure drop at the nozzle exit creates an intense vacuum according to Bernoulli\'s principle, naturally sucking in atmospheric air or pure oxygen through an intake port. In the mixing throat, intense turbulent shear shatters the entrained gas into sub-millimeter microbubbles ($d_b < 1\\,\\text{mm}$), producing an immense interfacial area ($a > 1000\\,\\text{m}^2/\\text{m}^3$) before discharging at high momentum across the basin floor.'
+      },
+      {
+        q: 'Why do Venturi aerators achieve higher Oxygen Transfer Efficiency (OTE) than porous diffusers?',
+        a: 'Conventional membrane or ceramic floor diffusers generate bubbles in the 3 to 5 mm range, where buoyancy forces cause rapid upward rising ($v_b \\approx 0.3\\,\\text{m/s}$), limiting gas contact time to under 15 seconds in standard 4.5 m aeration tanks. In contrast, Venturi ejectors produce microbubbles ($0.5\\text{--}0.8\\,\\text{mm}$) discharged in a high-velocity horizontal jet near the basin floor. The fine bubble size multiplies interfacial area by $4\\times$ ($a \\propto 1/d_b$) while the horizontal liquid jet creates circular basin circulation, tripling gas residence time. As a result, OTE jumps from 15–20% to 30–45%.'
+      },
+      {
+        q: 'What is Standard Aeration Efficiency (SAE) and what are typical industrial benchmarks?',
+        a: 'Standard Aeration Efficiency ($SAE$) is the mass of dissolved oxygen transferred per kilowatt-hour of electricity consumed at standard conditions (clean water, 20°C, 1 atm, zero initial dissolved oxygen):\\n$$SAE = \\frac{SOTR}{P_{total}} \\quad [\\text{kg } O_2 / \\text{kWh}]$$\\nHigh-efficiency Venturi aerators achieve $SAE = 2.5\\text{--}4.5\\,\\text{kg } O_2/\\text{kWh}$, significantly outperforming surface mechanical aerators ($1.2\\text{--}1.8\\,\\text{kg}/\\text{kWh}$) and coarse bubble diffusers ($0.8\\text{--}1.4\\,\\text{kg}/\\text{kWh}$) while matching or exceeding deep-basin fine-bubble grids without fouling-prone membranes.'
+      },
+      {
+        q: 'How does basin water depth influence hydrostatic backpressure and oxygen dissolution?',
+        a: 'According to Henry\'s Law, gas solubility is directly proportional to partial pressure ($C^* = H \\cdot P_{O2}$). As basin depth increases, hydrostatic pressure raises the effective oxygen saturation concentration ($C^*_{\\infty, 20} = C^*_{surface} \\cdot [1 + \\rho g H_{sub} / (2 P_{atm})]$). In a 6-meter deep tank, mid-depth pressure is approximately 1.3 bar, boosting driving force ($C^* - C_L$) by 30%. However, the motive liquid pump must deliver higher head to overcome the liquid backpressure at the submerged nozzle discharge.'
+      },
+      {
+        q: 'What prevents clogging in Venturi aerator nozzles when pumping viscous biological sludge?',
+        a: 'Venturi ejector nozzles are engineered with large clear internal passages (typically 25 to 65 mm free throat diameter), completely eliminating the micro-perforations that cause fouling, biofilm scaling, and calcium carbonate clogging in fine-bubble membrane discs. Non-clog recessed impeller or chopper motive pumps allow the system to circulate concentrated biological mixed liquor (MLSS > 8,000–15,000 mg/L) without maintenance shutdowns.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Venturi Ejector Aerator & High-Rate Gas-Liquid Contactor Calculator</h1>' +
+      '    <p>Perform hydraulic and mass transfer sizing for Venturi jet aerators in biological wastewater treatment basins, fermentation vessels, and chemical contactors. Calculate liquid jet velocity, air suction entrainment ratio, microbubble Sauter diameter, Standard Oxygen Transfer Rate (SOTR), and Standard Aeration Efficiency (SAE).</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Operating Conditions & Nozzle Geometry</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-preset">Industrial Aeration Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="vent-preset">' +
+      '            <option value="municipal" selected>Municipal Activated Sludge Basin (5.0 m Depth, 150 m³/h Liquid)</option>' +
+      '            <option value="industrial">High-BOD Industrial Effluent Tank (6.5 m Depth, 250 m³/h)</option>' +
+      '            <option value="ferment">Pilot Fermentation Aerobic Contactor (3.5 m Depth, 45 m³/h, Pure O2)</option>' +
+      '            <option value="daf">Dissolved Air Flotation DAF Saturator (80 m³/h, High Pressure)</option>' +
+      '            <option value="custom">Custom Venturi Aerator</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-liq-flow">Motive Liquid Flow Rate (\(Q_L\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="vent-liq-flow" value="150" min="5" max="5000" step="10">' +
+      '          <select id="vent-flow-unit">' +
+      '            <option value="m3h" selected>m³/h</option>' +
+      '            <option value="gpm">GPM (US)</option>' +
+      '            <option value="ls">L/s</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Liquid recirculation pumped through the Venturi ejector nozzle</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-nozzle-dia">Nozzle Discharge Diameter (\(d_n\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="vent-nozzle-dia" value="55" min="10" max="200" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Clear internal diameter of primary convergent motive nozzle</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-throat-dia">Mixing Throat Diameter (\(d_t\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="vent-throat-dia" value="85" min="15" max="300" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Area ratio \(R_A = (d_t / d_n)^2 \approx 2.0\text{--}2.6\)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-submerge">Aerator Submergence Depth (\(H_{sub}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="vent-submerge" value="5.0" min="1.0" max="15.0" step="0.25">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m</span>' +
+      '        </div>' +
+      '        <div class="hint">Depth of ejector below basin water surface (governs hydrostatic backpressure)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-gas-type">Process Gas Feed</label>' +
+      '        <div class="input-row">' +
+      '          <select id="vent-gas-type">' +
+      '            <option value="air" selected>Atmospheric Air (20.95% O2, Free Suction)</option>' +
+      '            <option value="oxygen">Enriched / Pure Oxygen (93–99% O2)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-water-temp">Basin Water Temperature</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="vent-water-temp" value="20" min="5" max="45" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">°C</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="vent-pump-eff">Recirculation Pump Efficiency (\(\eta_p\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="vent-pump-eff" value="75" min="50" max="92" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">%</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="vent-calc-btn">Compute Performance</button>' +
+      '        <button type="button" class="btn btn-secondary" id="vent-reset-btn">Reset Defaults</button>' +
+      '      </div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Hydraulic & Mass Transfer Sizing Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Nozzle Jet Velocity (\(v_n\))</div>' +
+      '          <div class="res-val"><span id="res-v-nozzle">17.5</span><span class="res-unit">m/s</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Ideal: 14 to 22 m/s</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Suction Air Flow Rate (\(Q_G\))</div>' +
+      '          <div class="res-val"><span id="res-gas-flow">180</span><span class="res-unit">Nm³/h</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Entrainment ratio: <span id="res-ratio-rv">1.20</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Sauter Microbubble Dia (\(d_{32}\))</div>' +
+      '          <div class="res-val"><span id="res-bubble-dia">0.68</span><span class="res-unit">mm</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Interfacial area \(a\): <span id="res-spec-area">1,840</span> m²/m³</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Oxygen Transfer (SOTR)</div>' +
+      '          <div class="res-val"><span id="res-sotr">52.4</span><span class="res-unit">kg O₂/h</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">OTE: <span id="res-ote">36.2</span>% in basin</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Aeration Efficiency (SAE)</div>' +
+      '          <div class="res-val"><span id="res-sae">3.45</span><span class="res-unit">kg/kWh</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Standard clean water rating</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Motive Pump Power (\(P_p\))</div>' +
+      '          <div class="res-val"><span id="res-pump-power">15.2</span><span class="res-unit">kW</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Discharge Head: <span id="res-pump-head">28.4</span> m H₂O</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Plume Discharge Jet Velocity</div>' +
+      '          <div class="res-val"><span id="res-v-plume">4.8</span><span class="res-unit">m/s</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Penetration: <span id="res-plume-len">14.2</span> m throw</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Volumetric Transfer \(k_L a\)</div>' +
+      '          <div class="res-val"><span id="res-kla">0.068</span><span class="res-unit">s⁻¹</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-kla-hr">245</span> hr⁻¹ (in plume zone)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="badge-stat" id="vent-eval-badge" style="background:#dcfce7; color:#15803d;">✓ Venturi Aerator Optimal: Stable Self-Aspirating Cavity</span>' +
+      '      </div>' +
+      '      <div class="btn-row" style="margin-top:0;">' +
+      '        <button type="button" class="btn btn-secondary" id="vent-copy-btn">📋 Copy Diagnostic Summary</button>' +
+      '        <span class="copy-toast" id="vent-toast">✓ Diagnostic Summary Copied!</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="vent-canvas" width="480" height="340"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- DERIVATION & TECHNICAL SPECIFICATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Governing Principles & Mathematical Derivations for Venturi Aeration</h2>' +
+      '    <p>Venturi ejector aerators couple high-speed fluid mechanics with two-phase mass transfer kinetics. Pressurized motive liquid converts static pressure head into dynamic kinetic energy, creating a localized vacuum that entrains gas and breaks it into fine microbubbles.</p>' +
+      '    <h3>1. Nozzle Jet Hydraulics & Momentum Transfer</h3>' +
+      '    <p>The liquid jet velocity leaving the convergent primary nozzle of diameter \(d_n\) is:</p>' +
+      '    <div class="formula-box">' +
+      '      v_n = \frac{4 Q_L}{\pi d_n^2}, \quad \Delta H_n = \frac{v_n^2}{2g \cdot C_d^2}' +
+      '    </div>' +
+      '    <p>Where \(C_d \approx 0.95\text{--}0.98\) is the nozzle discharge coefficient. The total pump head required must overcome the nozzle acceleration differential, downstream pipe friction, and submergence depth:</p>' +
+      '    <div class="formula-box">' +
+      '      H_{pump} = \Delta H_n + H_{sub} + H_{friction}' +
+      '    </div>' +
+      '    <h3>2. Gas Entrainment Ratio & Mixing Throat Dynamics</h3>' +
+      '    <p>Gas entrainment occurs by momentum exchange between the liquid core and the annular gas envelope inside the mixing tube of diameter \(d_t\):</p>' +
+      '    <div class="formula-box">' +
+      '      R_v = \frac{Q_G}{Q_L} = C_e \cdot \left( \frac{v_n^2}{2g H_{sub}} \right)^{0.38} \cdot \left( \frac{d_t^2 - d_n^2}{d_n^2} \right)^{0.45}' +
+      '    </div>' +
+      '    <p>Where \(R_v\) typically ranges between 0.8 and 1.8 for submerged aeration ejectors.</p>' +
+      '    <h3>3. Microbubble Breakage & Sauter Diameter (Hinze Theory)</h3>' +
+      '    <p>Turbulent kinetic energy dissipation in the throat shatters the gas jet into microbubbles. Per Kolmogorov-Hinze turbulence theory:</p>' +
+      '    <div class="formula-box">' +
+      '      d_{32} = C_H \cdot \left( \frac{\sigma}{\rho_L} \right)^{3/5} \epsilon_{diss}^{-2/5}, \quad \epsilon_{diss} \approx \frac{\Delta P_{throat} \cdot v_m}{\rho_L \cdot L_{throat}}' +
+      '    </div>' +
+      '    <p>Yielding Sauter diameters of \(0.4\text{--}0.9\,\text{mm}\), creating specific interfacial area \(a = \frac{6 \epsilon_G}{d_{32}}\).</p>' +
+      '    <h3>4. Standard Oxygen Transfer Rate (SOTR) & Efficiency (SAE)</h3>' +
+      '    <p>The standard oxygen transfer rate is calculated per ASCE 2-06 standards:</p>' +
+      '    <div class="formula-box">' +
+      '      SOTR = k_L a_{20} \cdot C^*_{\infty, 20} \cdot V_{basin} = \dot{m}_{O2,in} \cdot OTE' +
+      '    </div>' +
+      '    <div class="formula-box">' +
+      '      SAE = \frac{SOTR}{P_{pump}} = \frac{SOTR}{\frac{\rho_L g Q_L H_{pump}}{1000 \cdot \eta_p}} \quad [\text{kg } O_2/\text{kWh}]' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Venturi Jet Aerators</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Submergence Hydrostatic Choking (The Vacuum Collapse Trap)</h4>' +
+      '      <p>Placing a standard Venturi ejector too deep (e.g. >6.5 m) without increasing nozzle jet velocity causes the hydrostatic backpressure of the liquid column to exceed the suction vacuum generated by the jet. The suction port flips from negative pressure to positive back-flow, blowing wastewater up the air suction pipe and flooding external silencers.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Nozzle Throat Erosion & Velocity Loss</h4>' +
+      '      <p>Using standard stainless steel (304/316) nozzles in abrasive slurries or sandy wastewater causes rapid erosive wear. An increase in nozzle throat diameter of just 10% drops jet velocity by 18%, slashing dynamic suction vacuum by 33%, causing the air entrainment ratio to collapse and biological basins to go septic.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Secondary Coalescence from Inadequate Basin Circulation</h4>' +
+      '      <p>Venturi aerators generate sub-millimeter microbubbles at the discharge, but if the aerator is aimed directly at a nearby tank wall or corner (<3 m), high-density bubble collisions occur within the decelerating plume. Microbubbles rapidly coalesce into 10–20 mm coarse bubbles, slashing interfacial area and dropping SOTR by 40%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Cavitation Noise & Diffuser Pitting Breakdown</h4>' +
+      '      <p>If the suction air intake valve is throttled or restricted while motive pump pressure is high, the throat pressure drops below the vapor pressure of water ($P_{throat} < P_{vap}$). Intense acoustic cavitation erupts in the mixing tube, eroding diffuser walls and causing severe low-frequency vibration that fractures piping supports.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Siphon Back-Flow on Pump Trip Disaster</h4>' +
+      '      <p>When the motive recirculation pump trips, the high liquid level in the basin instantly siphons backwards through the submerged ejector nozzle and up the air intake pipe. Without an automatic vacuum breaker and high-integrity check valve, wastewater floods the above-ground air intake manifold and contaminates clean utility headers.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions</h2>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does a Venturi ejector aerator transfer oxygen without submerged air blowers? <span>+</span></div>' +
+      '      <div class="faq-a">A Venturi aerator utilizes a motive liquid pump rather than an air compressor. A pressurized water or mixed-liquor stream accelerates through a converging nozzle into a high-velocity liquid jet (12 to 22 m/s). The resulting pressure drop at the nozzle exit creates an intense vacuum according to Bernoulli\'s principle, naturally sucking in atmospheric air or pure oxygen through an intake port. In the mixing throat, intense turbulent shear shatters the entrained gas into sub-millimeter microbubbles (\(d_b < 1\,\text{mm}\)), producing an immense interfacial area (\(a > 1000\,\text{m}^2/\text{m}^3\)) before discharging at high momentum across the basin floor.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">Why do Venturi aerators achieve higher Oxygen Transfer Efficiency (OTE) than porous diffusers? <span>+</span></div>' +
+      '      <div class="faq-a">Conventional membrane or ceramic floor diffusers generate bubbles in the 3 to 5 mm range, where buoyancy forces cause rapid upward rising (\(v_b \approx 0.3\,\text{m/s}\)), limiting gas contact time to under 15 seconds in standard 4.5 m aeration tanks. In contrast, Venturi ejectors produce microbubbles (\(0.5\text{--}0.8\,\text{mm}\)) discharged in a high-velocity horizontal jet near the basin floor. The fine bubble size multiplies interfacial area by \(4\times\) (\(a \propto 1/d_b\)) while the horizontal liquid jet creates circular basin circulation, tripling gas residence time. As a result, OTE jumps from 15–20% to 30–45%.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is Standard Aeration Efficiency (SAE) and what are typical industrial benchmarks? <span>+</span></div>' +
+      '      <div class="faq-a">Standard Aeration Efficiency (\(SAE\)) is the mass of dissolved oxygen transferred per kilowatt-hour of electricity consumed at standard conditions (clean water, 20°C, 1 atm, zero initial dissolved oxygen):\n$$SAE = \frac{SOTR}{P_{total}} \quad [\text{kg } O_2 / \text{kWh}]$$\nHigh-efficiency Venturi aerators achieve \(SAE = 2.5\text{--}4.5\,\text{kg } O_2/\text{kWh}\), significantly outperforming surface mechanical aerators (\(1.2\text{--}1.8\,\text{kg}/\text{kWh}\)) and coarse bubble diffusers (\(0.8\text{--}1.4\,\text{kg}/\text{kWh}\)) while matching or exceeding deep-basin fine-bubble grids without fouling-prone membranes.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does basin water depth influence hydrostatic backpressure and oxygen dissolution? <span>+</span></div>' +
+      '      <div class="faq-a">According to Henry\'s Law, gas solubility is directly proportional to partial pressure (\(C^* = H \cdot P_{O2}\)). As basin depth increases, hydrostatic pressure raises the effective oxygen saturation concentration (\(C^*_{\infty, 20} = C^*_{surface} \cdot [1 + \rho g H_{sub} / (2 P_{atm})]\)). In a 6-meter deep tank, mid-depth pressure is approximately 1.3 bar, boosting driving force (\(C^* - C_L\)) by 30%. However, the motive liquid pump must deliver higher head to overcome the liquid backpressure at the submerged nozzle discharge.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What prevents clogging in Venturi aerator nozzles when pumping viscous biological sludge? <span>+</span></div>' +
+      '      <div class="faq-a">Venturi ejector nozzles are engineered with large clear internal passages (typically 25 to 65 mm free throat diameter), completely eliminating the micro-perforations that cause fouling, biofilm scaling, and calcium carbonate clogging in fine-bubble membrane discs. Non-clog recessed impeller or chopper motive pumps allow the system to circulate concentrated biological mixed liquor (MLSS > 8,000–15,000 mg/L) without maintenance shutdowns.</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const presets = {' +
+      '    municipal: { liqFlow: 150, flowUnit: "m3h", nozDia: 55, thrDia: 85, depth: 5.0, gas: "air", temp: 20, eff: 75 },' +
+      '    industrial: { liqFlow: 250, flowUnit: "m3h", nozDia: 68, thrDia: 105, depth: 6.5, gas: "air", temp: 25, eff: 78 },' +
+      '    ferment: { liqFlow: 45, flowUnit: "m3h", nozDia: 32, thrDia: 50, depth: 3.5, gas: "oxygen", temp: 28, eff: 72 },' +
+      '    daf: { liqFlow: 80, flowUnit: "m3h", nozDia: 38, thrDia: 60, depth: 4.5, gas: "air", temp: 18, eff: 70 }' +
+      '  };' +
+      '  const el = id => document.getElementById(id);' +
+      '  const getVal = id => parseFloat(el(id).value) || 0;' +
+      '  const setTxt = (id, txt) => { if(el(id)) el(id).textContent = txt; };' +
+      '  ' +
+      '  function getFlow_m3s(val, unit) {' +
+      '    if (unit === "m3h") return val / 3600;' +
+      '    if (unit === "gpm") return val * 0.00006309;' +
+      '    if (unit === "ls") return val / 1000;' +
+      '    return val;' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const ql_m3s = Math.max(0.001, getFlow_m3s(getVal("vent-liq-flow"), el("vent-flow-unit").value));' +
+      '    const dn_mm = Math.max(5, getVal("vent-nozzle-dia"));' +
+      '    const dn_m = dn_mm / 1000;' +
+      '    const dt_mm = Math.max(dn_mm * 1.1, getVal("vent-throat-dia"));' +
+      '    const dt_m = dt_mm / 1000;' +
+      '    const h_sub_m = Math.max(0.5, getVal("vent-submerge"));' +
+      '    const gasType = el("vent-gas-type").value;' +
+      '    const temp_c = getVal("vent-water-temp");' +
+      '    const pump_eff_pct = Math.min(95, Math.max(40, getVal("vent-pump-eff")));' +
+      '    const eta_p = pump_eff_pct / 100;' +
+      '    ' +
+      '    // Nozzle area and jet velocity' +
+      '    const a_noz = (Math.PI / 4) * Math.pow(dn_m, 2);' +
+      '    const v_noz = ql_m3s / a_noz;' +
+      '    ' +
+      '    // Dynamic head across nozzle (Cd ~ 0.95)' +
+      '    const cd = 0.96;' +
+      '    const deltaH_noz = Math.pow(v_noz, 2) / (2 * 9.81 * Math.pow(cd, 2));' +
+      '    const h_pump = deltaH_noz + h_sub_m + 2.5; // nozzle head + depth + 2.5m friction' +
+      '    ' +
+      '    // Area ratio and entrainment ratio Rv = Qg / Ql' +
+      '    const area_ratio = Math.pow(dt_m / dn_m, 2);' +
+      '    const froude = Math.pow(v_noz, 2) / (2 * 9.81 * h_sub_m);' +
+      '    // Semi-empirical correlation for submerged liquid jet aerators' +
+      '    let rv = 0.45 * Math.pow(froude, 0.38) * Math.pow(area_ratio - 1, 0.42);' +
+      '    rv = Math.min(2.5, Math.max(0.3, rv));' +
+      '    ' +
+      '    // Suction gas volumetric flow' +
+      '    const qg_m3s = ql_m3s * rv;' +
+      '    const qg_nm3h = qg_m3s * 3600;' +
+      '    ' +
+      '    // Plume discharge velocity in mixing diffuser' +
+      '    const a_throat = (Math.PI / 4) * Math.pow(dt_m, 2);' +
+      '    const v_plume = (ql_m3s + qg_m3s) / (a_throat * 1.8); // diffuser exit vel' +
+      '    const plume_throw_m = Math.min(25, v_plume * 3.0);' +
+      '    ' +
+      '    // Sauter mean bubble diameter d32 (Hinze theory)' +
+      '    const rho_l = 1000;' +
+      '    const sigma = 0.0728; // N/m' +
+      '    const dp_throat = 0.5 * rho_l * Math.pow(v_noz, 2);' +
+      '    const eps_diss = (dp_throat * v_noz) / (rho_l * (dt_m * 4));' +
+      '    let d32_m = 0.725 * Math.pow(sigma / rho_l, 0.6) * Math.pow(Math.max(10, eps_diss), -0.4);' +
+      '    d32_m = Math.min(0.002, Math.max(0.00035, d32_m));' +
+      '    const d32_mm = d32_m * 1000;' +
+      '    ' +
+      '    // Interfacial area a = 6 * eps_g / d32' +
+      '    const eps_g = qg_m3s / (ql_m3s + qg_m3s);' +
+      '    const a_spec = (6 * eps_g) / d32_m; // m2/m3 in contactor' +
+      '    ' +
+      '    // Mass transfer kla' +
+      '    const kl = 2.2e-4; // m/s' +
+      '    const kla_s = kl * a_spec * 0.16; // average in plume volume' +
+      '    const kla_hr = kla_s * 3600;' +
+      '    ' +
+      '    // Oxygen Transfer Efficiency (OTE) & SOTR' +
+      '    const o2_frac = gasType === "oxygen" ? 0.95 : 0.2095;' +
+      '    const o2_mass_in_kgh = (qg_nm3h * 1.293) * (o2_frac * 32 / 28.97);' +
+      '    // OTE typically 25% to 45% based on bubble depth and size' +
+      '    const depth_factor = 1 + (h_sub_m / 10);' +
+      '    const ote_pct = Math.min(85, Math.max(15, (22 / (d32_mm * 1.1)) * depth_factor * (gasType === "oxygen" ? 1.4 : 1.0)));' +
+      '    const sotr_kgh = (o2_mass_in_kgh * ote_pct) / 100;' +
+      '    ' +
+      '    // Pump power' +
+      '    const p_hyd_kw = (rho_l * 9.81 * ql_m3s * h_pump) / 1000;' +
+      '    const p_elec_kw = p_hyd_kw / eta_p;' +
+      '    const sae = sotr_kgh / Math.max(0.5, p_elec_kw); // kg O2 / kWh' +
+      '    ' +
+      '    // Evaluation badge' +
+      '    let badgeTxt = "✓ Venturi Aerator Optimal: Stable Self-Aspirating Cavity";' +
+      '    let badgeBg = "#dcfce7", badgeColor = "#15803d";' +
+      '    ' +
+      '    if (v_noz < 12.0) {' +
+      '      badgeTxt = "⚠ Low Jet Velocity (<12 m/s): Insufficient suction vacuum; risk of liquid back-siphon";' +
+      '      badgeBg = "#fee2e2"; badgeColor = "#b91c1c";' +
+      '    } else if (v_noz > 24.0) {' +
+      '      badgeTxt = "⚠ Excessive Nozzle Velocity (>24 m/s): High pressure drop; severe cavitation erosion risk";' +
+      '      badgeBg = "#fef3c7"; badgeColor = "#b45309";' +
+      '    }' +
+      '    ' +
+      '    // Set DOM outputs' +
+      '    setTxt("res-v-nozzle", v_noz.toFixed(1));' +
+      '    setTxt("res-gas-flow", Math.round(qg_nm3h));' +
+      '    setTxt("res-ratio-rv", rv.toFixed(2));' +
+      '    setTxt("res-bubble-dia", d32_mm.toFixed(2));' +
+      '    setTxt("res-spec-area", Math.round(a_spec).toLocaleString());' +
+      '    setTxt("res-sotr", sotr_kgh.toFixed(1));' +
+      '    setTxt("res-ote", ote_pct.toFixed(1));' +
+      '    setTxt("res-sae", sae.toFixed(2));' +
+      '    setTxt("res-pump-power", p_elec_kw.toFixed(1));' +
+      '    setTxt("res-pump-head", h_pump.toFixed(1));' +
+      '    setTxt("res-v-plume", v_plume.toFixed(1));' +
+      '    setTxt("res-plume-len", plume_throw_m.toFixed(1));' +
+      '    setTxt("res-kla", kla_s.toFixed(3));' +
+      '    setTxt("res-kla-hr", Math.round(kla_hr));' +
+      '    ' +
+      '    const badge = el("vent-eval-badge");' +
+      '    if (badge) {' +
+      '      badge.textContent = badgeTxt;' +
+      '      badge.style.background = badgeBg;' +
+      '      badge.style.color = badgeColor;' +
+      '    }' +
+      '    ' +
+      '    drawCanvas(v_noz, rv, d32_mm, sotr_kgh, sae, h_sub_m);' +
+      '  }' +
+      '  ' +
+      '  function drawCanvas(vNoz, rv, d32, sotr, sae, hSub) {' +
+      '    const cvs = el("vent-canvas");' +
+      '    if (!cvs) return;' +
+      '    const ctx = cvs.getContext("2d");' +
+      '    const w = cvs.width, h = cvs.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background grid' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ctx.strokeStyle = "#1e293b";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }' +
+      '    for(let y=0; y<h; y+=30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }' +
+      '    ' +
+      '    // Basin water level' +
+      '    const waterY = 50;' +
+      '    ctx.fillStyle = "rgba(2, 132, 199, 0.2)";' +
+      '    ctx.fillRect(0, waterY, w, h - waterY);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(0, waterY); ctx.lineTo(w, waterY);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Basin Liquid Surface (Depth = " + hSub.toFixed(1) + " m)", 15, waterY - 8);' +
+      '    ' +
+      '    // Venturi Ejector body (horizontal near bottom)' +
+      '    const ey = h - 90;' +
+      '    const ex = 70;' +
+      '    ' +
+      '    // Motive liquid pipe (entering left)' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 16;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(0, ey); ctx.lineTo(ex, ey);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#7dd3fc";' +
+      '    ctx.font = "bold 10px sans-serif";' +
+      '    ctx.fillText("Motive Liquid (Q_L)", 5, ey - 14);' +
+      '    ' +
+      '    // Converging Nozzle' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(ex, ey - 15);' +
+      '    ctx.lineTo(ex + 30, ey - 6);' +
+      '    ctx.lineTo(ex + 30, ey + 6);' +
+      '    ctx.lineTo(ex, ey + 15);' +
+      '    ctx.closePath();' +
+      '    ctx.fill(); ctx.stroke();' +
+      '    ' +
+      '    // Suction suction chamber & air snorkel pipe (from surface)' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.lineWidth = 6;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(ex + 38, ey - 14);' +
+      '    ctx.lineTo(ex + 38, waterY - 25);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.font = "bold 10px sans-serif";' +
+      '    ctx.fillText("Atmospheric Air Suction", ex + 45, waterY - 12);' +
+      '    ' +
+      '    // Mixing throat tube' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.fillRect(ex + 30, ey - 14, 45, 28);' +
+      '    ctx.strokeRect(ex + 30, ey - 14, 45, 28);' +
+      '    ' +
+      '    // Divergent diffuser' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(ex + 75, ey - 14);' +
+      '    ctx.lineTo(ex + 120, ey - 24);' +
+      '    ctx.lineTo(ex + 120, ey + 24);' +
+      '    ctx.lineTo(ex + 75, ey + 14);' +
+      '    ctx.closePath();' +
+      '    ctx.fill(); ctx.stroke();' +
+      '    ' +
+      '    // Two-Phase Microbubble Plume (Jet expanding to right)' +
+      '    const grad = ctx.createRadialGradient(ex + 120, ey, 10, ex + 260, ey, 140);' +
+      '    grad.addColorStop(0, "rgba(56, 189, 248, 0.9)");' +
+      '    grad.addColorStop(0.5, "rgba(16, 185, 129, 0.6)");' +
+      '    grad.addColorStop(1, "rgba(2, 132, 199, 0.05)");' +
+      '    ctx.fillStyle = grad;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(ex + 120, ey - 24);' +
+      '    ctx.lineTo(w - 20, ey - 85);' +
+      '    ctx.lineTo(w - 20, ey + 75);' +
+      '    ctx.lineTo(ex + 120, ey + 24);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ' +
+      '    // Microbubbles inside plume' +
+      '    ctx.fillStyle = "#ffffff";' +
+      '    for(let i=0; i<35; i++) {' +
+      '      const bx = ex + 135 + Math.random() * (w - ex - 165);' +
+      '      const spread = (bx - ex - 120) * 0.35;' +
+      '      const by = ey + (Math.random() - 0.5) * spread * 2;' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(bx, by, Math.random() * 2.2 + 0.8, 0, 2*Math.PI);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ' +
+      '    // Annotations overlay' +
+      '    ctx.fillStyle = "#e2e8f0";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("VENTURI JET AERATION", w - 170, 30);' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("Jet Vel: " + vNoz.toFixed(1) + " m/s", w - 170, 50);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("SOTR: " + sotr.toFixed(1) + " kg O2/h", w - 170, 70);' +
+      '    ctx.fillText("SAE: " + sae.toFixed(2) + " kg/kWh", w - 170, 90);' +
+      '    ctx.fillStyle = "#c084fc";' +
+      '    ctx.fillText("Bubble: " + d32.toFixed(2) + " mm", w - 170, 110);' +
+      '  }' +
+      '  ' +
+      '  // Event listeners' +
+      '  const inputs = [' +
+      '    "vent-liq-flow", "vent-flow-unit", "vent-nozzle-dia", "vent-throat-dia",' +
+      '    "vent-submerge", "vent-gas-type", "vent-water-temp", "vent-pump-eff"' +
+      '  ];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const presetEl = el("vent-preset");' +
+      '  if (presetEl) {' +
+      '    presetEl.addEventListener("change", () => {' +
+      '      const p = presets[presetEl.value];' +
+      '      if (p) {' +
+      '        el("vent-liq-flow").value = p.liqFlow;' +
+      '        el("vent-flow-unit").value = p.flowUnit;' +
+      '        el("vent-nozzle-dia").value = p.nozDia;' +
+      '        el("vent-throat-dia").value = p.thrDia;' +
+      '        el("vent-submerge").value = p.depth;' +
+      '        el("vent-gas-type").value = p.gas;' +
+      '        el("vent-water-temp").value = p.temp;' +
+      '        el("vent-pump-eff").value = p.eff;' +
+      '        calc();' +
+      '      }' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const resetBtn = el("vent-reset-btn");' +
+      '  if (resetBtn) {' +
+      '    resetBtn.addEventListener("click", () => {' +
+      '      presetEl.value = "municipal";' +
+      '      presetEl.dispatchEvent(new Event("change"));' +
+      '    });' +
+      '  }' +
+      '  const calcBtn = el("vent-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("vent-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== VENTURI EJECTOR AERATOR PERFORMANCE REPORT ===",' +
+      '        "Motive Liquid Recirculation: " + el("vent-liq-flow").value + " " + el("vent-flow-unit").value,' +
+      '        "Nozzle Diameter: " + el("vent-nozzle-dia").value + " mm (Jet Velocity: " + el("res-v-nozzle").textContent + " m/s)",' +
+      '        "Mixing Throat Diameter: " + el("vent-throat-dia").value + " mm",' +
+      '        "Submergence Depth: " + el("vent-submerge").value + " m",' +
+      '        "Gas Suction Flow Rate: " + el("res-gas-flow").textContent + " Nm³/h (Entrainment Ratio: " + el("res-ratio-rv").textContent + ")",' +
+      '        "Sauter Microbubble Diameter: " + el("res-bubble-dia").textContent + " mm (Area: " + el("res-spec-area").textContent + " m²/m³)",' +
+      '        "Standard Oxygen Transfer Rate (SOTR): " + el("res-sotr").textContent + " kg O₂/h (OTE: " + el("res-ote").textContent + " %)",' +
+      '        "Standard Aeration Efficiency (SAE): " + el("res-sae").textContent + " kg O₂/kWh",' +
+      '        "Motive Pump Absorbed Power: " + el("res-pump-power").textContent + " kW (Head: " + el("res-pump-head").textContent + " m)",' +
+      '        "Volumetric Mass Transfer (kLa): " + el("res-kla").textContent + " s⁻¹ (" + el("res-kla-hr").textContent + " hr⁻¹)",' +
+      '        "Status: " + el("vent-eval-badge").textContent,' +
+      '        "Design Standards: ASCE 2-06 Standard Guidelines for In-Process Oxygen Transfer Testing"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("vent-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BU3: DUAL-BED PSA CYCLE & GAS SEPARATION SIZING CALCULATOR ───
+  (() => {
+    const slug = 'pressure-swing-adsorption-psa-cycle-sizing-calculator';
+    const title = 'Dual-Bed Pressure Swing Adsorption (PSA) Cycle & Gas Separation Sizing Calculator';
+    const metaDescription = 'Size dual-bed Pressure Swing Adsorption (PSA) systems for nitrogen generation, oxygen enrichment, and hydrogen recovery. Calculate adsorbent bed mass, cycle timing, purge-to-feed ratio, and recovery yield.';
+    const faq = [
+      {
+        q: 'How does a dual-bed Pressure Swing Adsorption (PSA) system produce continuous high-purity gas?',
+        a: 'A PSA system separates gas mixtures by exploiting the differing adsorption affinities or kinetic diffusion rates of gas molecules on porous solid adsorbents under pressure. In a dual-bed Skarstrom cycle, while Bed A operates at high pressure (6 to 10 bar) adsorbing the unwanted gas (e.g., oxygen and CO2 on Carbon Molecular Sieve) and discharging pure product gas, Bed B is regenerated at low pressure (atmospheric or vacuum). Bed B undergoes counter-current depressurization (blowdown) and is purged with a slipstream of pure product gas to desorb the captured impurities. The beds continuously swap roles via automated switching valves, ensuring non-stop product delivery.'
+      },
+      {
+        q: 'What is the role of the pressure equalization step between the two beds?',
+        a: 'Pressure equalization connects the top of the newly exhausted high-pressure bed to the top of the freshly regenerated low-pressure bed for 2 to 6 seconds before switching. This transfers pressurized, product-rich gas from the void spaces of the retiring bed into the incoming bed, conserving roughly 40% to 50% of the compression energy that would otherwise be vented to atmosphere during blowdown. Equalization drastically reduces feed compressor power demand and prevents pressure shocks.'
+      },
+      {
+        q: 'Why does product recovery yield decrease drastically as nitrogen purity increases from 95% to 99.999%?',
+        a: 'On Carbon Molecular Sieve (CMS), oxygen molecules diffuse into the micropores faster than nitrogen molecules due to oxygen\'s slightly smaller kinetic diameter (3.46 Å vs 3.64 Å). To produce 95% N2, a relatively large residual oxygen slip is tolerated, allowing long adsorption times and minimal regeneration purge (Air Factor $R_{air} \\approx 2.0\\text{--}2.2$). To reach ultra-high purity (99.999% N2, <10 ppm O2), adsorption cycle times must be drastically shortened (e.g., from 120s down to 45s) and purge gas flow must be increased to ensure deep desorption, driving the Air Factor up to $5.5\\text{--}7.0$ (recovery yield drops from 50% to under 20%).'
+      },
+      {
+        q: 'What is the minimum Purge-to-Feed (P/F) ratio required for bed regeneration?',
+        a: 'Thermodynamic regeneration requires that the volume of purge gas passing through the bed at low desorption pressure ($P_{low}$) exceeds the volume of feed gas processed at high adsorption pressure ($P_{high}$), scaled by the separation factor: $(P/F)_{vol} \\ge P_{low} / (P_{high} \\cdot \\alpha_{sep})$. If the purge flow is throttled below this critical threshold, desorbed impurity molecules are not swept out of the column, causing residual contamination to accumulate and permanently poisoning product purity within a few cycles.'
+      },
+      {
+        q: 'What causes adsorbent attrition and dusting inside PSA vessels?',
+        a: 'Adsorbent pellets or extrudates (CMS, Zeolite 13X/LiX) are brittle ceramic-like materials. If bed superficial gas velocity during rapid depressurization (blowdown) or repressurization exceeds the minimum fluidization threshold, particles fluidize, rub against each other, and abrade into fine powder. Adsorbent dusting blinds exit dust filters, creates bed voids, and causes catastrophic channeling. High-quality PSA designs incorporate heavy top spring-loaded hold-down plates and flow-throttled blowdown valves.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Dual-Bed Pressure Swing Adsorption (PSA) Cycle Sizing Calculator</h1>' +
+      '    <p>Perform industrial sizing and cycle optimization for dual-bed Pressure Swing Adsorption (PSA) systems. Compute adsorbent inventory (CMS / Zeolite), half-cycle step timing, feed air compressor demand, purge-to-feed ratio, and product recovery yield.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Gas Separation & Cycle Parameters</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-preset">Industrial PSA Application Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="psa-preset">' +
+      '            <option value="n2_995" selected>Nitrogen Generator 99.5% N2 (Carbon Molecular Sieve CMS-240)</option>' +
+      '            <option value="n2_ultra">Ultra-High Purity N2 99.999% (5.0 Grade, CMS High Recovery)</option>' +
+      '            <option value="o2_vpsa">Medical / Industrial Oxygen 93% O2 (Zeolite 13X / LiX)</option>' +
+      '            <option value="h2_smr">Hydrogen Recovery from SMR Syngas (99.99% H2, Activated Carbon/Zeolite)</option>' +
+      '            <option value="custom">Custom PSA System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-prod-flow">Product Gas Flow Rate (\(Q_{prod}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="psa-prod-flow" value="100" min="1" max="10000" step="10">' +
+      '          <select id="psa-flow-unit">' +
+      '            <option value="nm3h" selected>Nm³/h</option>' +
+      '            <option value="scfm">SCFM</option>' +
+      '            <option value="kgh">kg/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Desired pure product delivery flow rate</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-p-high">Adsorption Operating Pressure (\(P_{high}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="psa-p-high" value="7.5" min="2.0" max="35" step="0.5">' +
+      '          <select id="psa-p-unit">' +
+      '            <option value="barg" selected>bar(g)</option>' +
+      '            <option value="psig">psi(g)</option>' +
+      '            <option value="mpa">MPa(g)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Operating pressure during feed adsorption step (typically 7–8 bar(g))</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-p-low">Regeneration Desorption Pressure (\(P_{low}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="psa-p-low" value="0.2" min="0.05" max="1.5" step="0.05">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">bar(g)</span>' +
+      '        </div>' +
+      '        <div class="hint">Pressure during purge step (near atmospheric exhaust)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-t-ads">Half-Cycle Adsorption Time (\(t_{ads}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="psa-t-ads" value="60" min="15" max="300" step="5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">seconds</span>' +
+      '        </div>' +
+      '        <div class="hint">Step duration per bed before swapping (CMS: 45–90s; Zeolite: 30–60s)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-t-eq">Equalization Step Duration (\(t_{eq}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="psa-t-eq" value="3" min="1" max="15" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">seconds</span>' +
+      '        </div>' +
+      '        <div class="hint">Pressure equalization time between beds (typically 2–5 seconds)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-adsorbent-type">Adsorbent Media & Selectivity</label>' +
+      '        <div class="input-row">' +
+      '          <select id="psa-adsorbent-type">' +
+      '            <option value="cms" selected>Carbon Molecular Sieve CMS (Bulk Density 660 kg/m³, Δq = 18 Nm³/t)</option>' +
+      '            <option value="zeolite13x">Zeolite 13X / LiX (Bulk Density 700 kg/m³, Δq = 24 Nm³/t)</option>' +
+      '            <option value="actcarbon">Activated Carbon Granular (Bulk Density 480 kg/m³, Δq = 28 Nm³/t)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="psa-purity">Target Product Purity</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="psa-purity" value="99.5" min="90" max="99.999" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">%</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="psa-calc-btn">Compute PSA Sizing</button>' +
+      '        <button type="button" class="btn btn-secondary" id="psa-reset-btn">Reset Defaults</button>' +
+      '      </div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. PSA Sizing & Cycle Timing Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Adsorbent Mass per Bed</div>' +
+      '          <div class="res-val"><span id="res-ads-mass">1,250</span><span class="res-unit">kg</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Total 2 beds: <span id="res-total-mass">2,500</span> kg</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Bed Diameter & Height</div>' +
+      '          <div class="res-val"><span id="res-bed-dim">0.95 × 2.6</span><span class="res-unit">m</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Vol: <span id="res-bed-vol">1.89</span> m³ (L/D = 2.7)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Feed Air Compressor Demand</div>' +
+      '          <div class="res-val"><span id="res-feed-flow">320</span><span class="res-unit">Nm³/h</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Air Factor: <span id="res-air-factor">3.20</span> Nm³ air / Nm³ prod</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Product Recovery Yield (\(\eta_{rec}\))</div>' +
+      '          <div class="res-val"><span id="res-yield">39.8</span><span class="res-unit">%</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Oxygen / N2 extraction yield</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Regeneration Purge Flow</div>' +
+      '          <div class="res-val"><span id="res-purge-flow">18.5</span><span class="res-unit">Nm³/h</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">P/F ratio: <span id="res-pf-ratio">0.185</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Air Compressor Power</div>' +
+      '          <div class="res-val"><span id="res-comp-power">34.5</span><span class="res-unit">kW</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Specific: <span id="res-spec-power">0.345</span> kWh/Nm³</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Complete Cycle Time</div>' +
+      '          <div class="res-val"><span id="res-cycle-time">126</span><span class="res-unit">sec</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">2 × (60s ads + 3s eq)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Superficial Bed Velocity (\(u_s\))</div>' +
+      '          <div class="res-val"><span id="res-us">0.15</span><span class="res-unit">m/s</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Fluidization check: Safe (<0.35 m/s)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="badge-stat" id="psa-eval-badge" style="background:#dcfce7; color:#15803d;">✓ PSA Cycle Stable: Optimal Bed Fluidization Margin</span>' +
+      '      </div>' +
+      '      <div class="btn-row" style="margin-top:0;">' +
+      '        <button type="button" class="btn btn-secondary" id="psa-copy-btn">📋 Copy Diagnostic Summary</button>' +
+      '        <span class="copy-toast" id="psa-toast">✓ Diagnostic Summary Copied!</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="psa-canvas" width="480" height="340"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- DERIVATION & TECHNICAL SPECIFICATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Governing Principles & Mathematical Derivations for PSA Systems</h2>' +
+      '    <p>Pressure Swing Adsorption couples transient multi-component adsorption equilibrium with non-steady-state gas dynamics. The dual-bed Skarstrom architecture enables continuous production while cyclically regenerating adsorbent beds.</p>' +
+      '    <h3>1. Dynamic Adsorbent Capacity & Bed Mass</h3>' +
+      '    <p>The mass of adsorbent required per vessel (\(M_{bed}\)) is governed by the volume of impurity gas captured during one adsorption half-cycle (\(t_{ads}\)):</p>' +
+      '    <div class="formula-box">' +
+      '      M_{bed} = \frac{Q_{impurity} \cdot \left( \frac{t_{ads}}{3600} \right)}{\Delta q_{working}} \cdot \phi_{safety}' +
+      '    </div>' +
+      '    <p>Where \(\Delta q_{working}\) is the cyclic dynamic working capacity (\(\text{Nm}^3\text{ adsorbed / metric ton}\)) under high operating pressure \(P_{high}\) and desorption pressure \(P_{low}\), with safety design factor \(\phi_{safety} \approx 1.15\text{--}1.25\).</p>' +
+      '    <h3>2. Air Factor & Product Recovery Yield</h3>' +
+      '    <p>The recovery yield of the target product gas (e.g. nitrogen in air separation) depends on purity specifications:</p>' +
+      '    <div class="formula-box">' +
+      '      R_{air} = \frac{Q_{feed}}{Q_{prod}} = \frac{y_{prod}}{y_{feed} \cdot \eta_{rec}}' +
+      '    </div>' +
+      '    <p>For 99.5% N2, \(R_{air} \approx 3.0\text{--}3.4\); for 99.999% N2, \(R_{air} \approx 5.5\text{--}6.8\). The required feed compressor power is calculated using isentropic compression:</p>' +
+      '    <div class="formula-box">' +
+      '      P_{comp} = \frac{\gamma}{\gamma - 1} \frac{P_1 Q_{feed}}{1000 \cdot \eta_{comp}} \left[ \left( \frac{P_{high}}{P_{1}} \right)^{\frac{\gamma - 1}{\gamma}} - 1 \right]' +
+      '    </div>' +
+      '    <h3>3. Purge-to-Feed Ratio (\(P/F\))</h3>' +
+      '    <p>To ensure complete desorption of impurities without re-adsorption, the purge gas volumetric flow at regeneration pressure must satisfy:</p>' +
+      '    <div class="formula-box">' +
+      '      \left( \frac{P}{F} \right)_{std} = \frac{Q_{purge}}{Q_{feed}} \ge \frac{P_{low}}{P_{high}} \cdot \frac{1}{\alpha_{sep}}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Dual-Bed PSA Systems</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Bed Fluidization & Attrition Dusting during Fast Depressurization</h4>' +
+      '      <p>Opening the bottom blowdown exhaust valve too rapidly causes gas velocity to exceed the minimum fluidization velocity ($u_{blowdown} > 0.45\,\text{m/s}$). The entire molecular sieve bed levitates and collides, grinding pellets into dust. Within 500 operating hours, powdered CMS escapes into silencers, voids form in the bed, and gas channels directly through the bed, collapsing purity.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Compressed Air Oil & Moisture Poisoning</h4>' +
+      '      <p>Carbon Molecular Sieves (CMS) and Zeolites have sub-nanometer pores (3 to 10 Å). If upstream coalescing filters or refrigerated air dryers fail, aerosolized lubricating oil droplets or liquid water enter the bed. Oil permanently clogs the micropores, irreversibly destroying adsorption capacity and forcing a complete, expensive adsorbent re-bedding.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Equalization Valve Timing Desynchronization</h4>' +
+      '      <p>If the pneumatic top equalization valve sticks or opening time is set too long (>8s), the beds reach full pressure equilibrium before the valve closes, wasting pure product gas. If set too short (<1.5s), incomplete pressure transfer occurs, forcing the feed air compressor to work 35% harder on every half-cycle.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Purge Gas Flow Throttling (Regeneration Starvation)</h4>' +
+      '      <p>Operators trying to boost product yield often throttle the purge needle valve to conserve gas. Reducing purge flow below the critical P/F ratio leaves residual oxygen desorbed inside the bed. Within 20 cycles, the bed becomes saturated, and product oxygen concentration surges from 10 ppm to over 20,000 ppm.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Thermal Swing Desorption Neglect (Adiabatic Temperature Drop)</h4>' +
+      '      <p>Adsorption is exothermic and desorption is endothermic. In short-cycle PSA, the bed interior cools during desorption and warms during adsorption. In cold winter climates or unheated plant buildings, the bed temperature drops significantly, reducing gas desorption kinetics and cutting effective throughput by 20% to 30%.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions</h2>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does a dual-bed Pressure Swing Adsorption (PSA) system produce continuous high-purity gas? <span>+</span></div>' +
+      '      <div class="faq-a">A PSA system separates gas mixtures by exploiting the differing adsorption affinities or kinetic diffusion rates of gas molecules on porous solid adsorbents under pressure. In a dual-bed Skarstrom cycle, while Bed A operates at high pressure (6 to 10 bar) adsorbing the unwanted gas (e.g., oxygen and CO2 on Carbon Molecular Sieve) and discharging pure product gas, Bed B is regenerated at low pressure (atmospheric or vacuum). Bed B undergoes counter-current depressurization (blowdown) and is purged with a slipstream of pure product gas to desorb the captured impurities. The beds continuously swap roles via automated switching valves, ensuring non-stop product delivery.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the role of the pressure equalization step between the two beds? <span>+</span></div>' +
+      '      <div class="faq-a">Pressure equalization connects the top of the newly exhausted high-pressure bed to the top of the freshly regenerated low-pressure bed for 2 to 6 seconds before switching. This transfers pressurized, product-rich gas from the void spaces of the retiring bed into the incoming bed, conserving roughly 40% to 50% of the compression energy that would otherwise be vented to atmosphere during blowdown. Equalization drastically reduces feed compressor power demand and prevents pressure shocks.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">Why does product recovery yield decrease drastically as nitrogen purity increases from 95% to 99.999%? <span>+</span></div>' +
+      '      <div class="faq-a">On Carbon Molecular Sieve (CMS), oxygen molecules diffuse into the micropores faster than nitrogen molecules due to oxygen\'s slightly smaller kinetic diameter (3.46 Å vs 3.64 Å). To produce 95% N2, a relatively large residual oxygen slip is tolerated, allowing long adsorption times and minimal regeneration purge (Air Factor \(R_{air} \approx 2.0\text{--}2.2\)). To reach ultra-high purity (99.999% N2, <10 ppm O2), adsorption cycle times must be drastically shortened (e.g., from 120s down to 45s) and purge gas flow must be increased to ensure deep desorption, driving the Air Factor up to \(5.5\text{--}7.0\) (recovery yield drops from 50% to under 20%).</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the minimum Purge-to-Feed (P/F) ratio required for bed regeneration? <span>+</span></div>' +
+      '      <div class="faq-a">Thermodynamic regeneration requires that the volume of purge gas passing through the bed at low desorption pressure (\(P_{low}\)) exceeds the volume of feed gas processed at high adsorption pressure (\(P_{high}\)), scaled by the separation factor: \((P/F)_{vol} \ge P_{low} / (P_{high} \cdot \alpha_{sep})\). If the purge flow is throttled below this critical threshold, desorbed impurity molecules are not swept out of the column, causing residual contamination to accumulate and permanently poisoning product purity within a few cycles.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What causes adsorbent attrition and dusting inside PSA vessels? <span>+</span></div>' +
+      '      <div class="faq-a">Adsorbent pellets or extrudates (CMS, Zeolite 13X/LiX) are brittle ceramic-like materials. If bed superficial gas velocity during rapid depressurization (blowdown) or repressurization exceeds the minimum fluidization threshold, particles fluidize, rub against each other, and abrade into fine powder. Adsorbent dusting blinds exit dust filters, creates bed voids, and causes catastrophic channeling. High-quality PSA designs incorporate heavy top spring-loaded hold-down plates and flow-throttled blowdown valves.</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const presets = {' +
+      '    n2_995: { flow: 100, flowUnit: "nm3h", phigh: 7.5, pUnit: "barg", plow: 0.2, tads: 60, teq: 3, ads: "cms", purity: 99.5 },' +
+      '    n2_ultra: { flow: 50, flowUnit: "nm3h", phigh: 8.5, pUnit: "barg", plow: 0.1, tads: 45, teq: 4, ads: "cms", purity: 99.999 },' +
+      '    o2_vpsa: { flow: 80, flowUnit: "nm3h", phigh: 3.5, pUnit: "barg", plow: 0.15, tads: 35, teq: 2, ads: "zeolite13x", purity: 93.0 },' +
+      '    h2_smr: { flow: 250, flowUnit: "nm3h", phigh: 18.0, pUnit: "barg", plow: 0.3, tads: 90, teq: 5, ads: "actcarbon", purity: 99.99 }' +
+      '  };' +
+      '  const el = id => document.getElementById(id);' +
+      '  const getVal = id => parseFloat(el(id).value) || 0;' +
+      '  const setTxt = (id, txt) => { if(el(id)) el(id).textContent = txt; };' +
+      '  ' +
+      '  function getFlow_nm3h(val, unit) {' +
+      '    if (unit === "scfm") return val * 1.699;' +
+      '    if (unit === "kgh") return val * 0.8;' +
+      '    return val;' +
+      '  }' +
+      '  function getP_barg(val, unit) {' +
+      '    if (unit === "psig") return val * 0.0689476;' +
+      '    if (unit === "mpa") return val * 10;' +
+      '    return val;' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const q_prod_nm3h = Math.max(0.5, getFlow_nm3h(getVal("psa-prod-flow"), el("psa-flow-unit").value));' +
+      '    const p_high_barg = Math.max(1.0, getP_barg(getVal("psa-p-high"), el("psa-p-unit").value));' +
+      '    const p_low_barg = Math.max(0.05, getVal("psa-p-low"));' +
+      '    const t_ads_s = Math.max(10, getVal("psa-t-ads"));' +
+      '    const t_eq_s = Math.max(1, getVal("psa-t-eq"));' +
+      '    const adsType = el("psa-adsorbent-type").value;' +
+      '    const purity_pct = Math.min(99.9999, Math.max(85, getVal("psa-purity")));' +
+      '    ' +
+      '    // Adsorbent physical properties' +
+      '    let rho_bulk = 660; // kg/m3' +
+      '    let delta_q = 18; // Nm3 impurity / ton adsorbent' +
+      '    if (adsType === "zeolite13x") { rho_bulk = 700; delta_q = 24; }' +
+      '    else if (adsType === "actcarbon") { rho_bulk = 480; delta_q = 28; }' +
+      '    ' +
+      '    // Air Factor R_air based on purity' +
+      '    let air_factor = 2.4;' +
+      '    if (purity_pct <= 95.5) air_factor = 2.1;' +
+      '    else if (purity_pct <= 98.0) air_factor = 2.5;' +
+      '    else if (purity_pct <= 99.5) air_factor = 3.2;' +
+      '    else if (purity_pct <= 99.9) air_factor = 4.1;' +
+      '    else if (purity_pct <= 99.99) air_factor = 5.2;' +
+      '    else air_factor = 6.2; // 99.999%' +
+      '    ' +
+      '    if (adsType === "zeolite13x") air_factor = 3.8; // O2 VPSA' +
+      '    if (adsType === "actcarbon") air_factor = 1.35; // H2 SMR' +
+      '    ' +
+      '    // Feed flow rate' +
+      '    const q_feed_nm3h = q_prod_nm3h * air_factor;' +
+      '    const recovery_yield_pct = (1 / air_factor) * 100 * (adsType === "cms" ? (1/0.781) : 1);' +
+      '    const yield_clamped = Math.min(85, Math.max(14, recovery_yield_pct));' +
+      '    ' +
+      '    // Impurity volume to adsorb per half-cycle' +
+      '    const impurity_frac = adsType === "cms" ? 0.219 : (adsType === "zeolite13x" ? 0.79 : 0.25);' +
+      '    const q_imp_nm3h = q_feed_nm3h * impurity_frac;' +
+      '    const imp_per_cycle_nm3 = q_imp_nm3h * (t_ads_s / 3600);' +
+      '    ' +
+      '    // Adsorbent mass per bed' +
+      '    const m_ads_ton = (imp_per_cycle_nm3 / delta_q) * 1.25; // 25% design safety margin' +
+      '    const m_ads_kg = m_ads_ton * 1000;' +
+      '    const m_total_kg = m_ads_kg * 2;' +
+      '    ' +
+      '    // Vessel bed volume & dimensions (aspect ratio L/D ~ 2.7)' +
+      '    const v_bed_m3 = m_ads_kg / rho_bulk;' +
+      '    const d_bed_m = Math.pow((4 * v_bed_m3) / (Math.PI * 2.7), 1/3);' +
+      '    const l_bed_m = d_bed_m * 2.7;' +
+      '    ' +
+      '    // Superficial velocity during adsorption' +
+      '    const p_abs_bar = p_high_barg + 1.013;' +
+      '    const q_feed_act_m3s = (q_feed_nm3h / 3600) / p_abs_bar;' +
+      '    const a_bed = (Math.PI / 4) * Math.pow(d_bed_m, 2);' +
+      '    const u_s_ms = q_feed_act_m3s / a_bed;' +
+      '    ' +
+      '    // Purge flow and P/F ratio' +
+      '    const pf_ratio = 0.18 + (purity_pct > 99.9 ? 0.08 : 0);' +
+      '    const q_purge_nm3h = q_prod_nm3h * pf_ratio;' +
+      '    ' +
+      '    // Compressor power (adiabatic compression from 1 atm)' +
+      '    const gamma = 1.4;' +
+      '    const pr = (p_high_barg + 1.013) / 1.013;' +
+      '    const eta_comp = 0.72;' +
+      '    const w_comp_kw = ((gamma / (gamma - 1)) * (101325 * (q_feed_nm3h / 3600)) / (1000 * eta_comp)) * (Math.pow(pr, (gamma - 1) / gamma) - 1);' +
+      '    const spec_power = w_comp_kw / q_prod_nm3h;' +
+      '    ' +
+      '    // Cycle times' +
+      '    const t_half_s = t_ads_s + t_eq_s;' +
+      '    const t_full_cycle_s = t_half_s * 2;' +
+      '    ' +
+      '    // Evaluation badge' +
+      '    let badgeTxt = "✓ PSA Cycle Stable: Optimal Bed Fluidization Margin";' +
+      '    let badgeBg = "#dcfce7", badgeColor = "#15803d";' +
+      '    ' +
+      '    if (u_s_ms > 0.28) {' +
+      '      badgeTxt = "⚠ High Superficial Velocity (>0.28 m/s): Fluidization and sieve dusting risk during blowdown";' +
+      '      badgeBg = "#fee2e2"; badgeColor = "#b91c1c";' +
+      '    } else if (l_bed_m / d_bed_m < 1.8) {' +
+      '      badgeTxt = "⚠ Low Aspect Ratio (<1.8): Flow maldistribution and wall bypassing risk";' +
+      '      badgeBg = "#fef3c7"; badgeColor = "#b45309";' +
+      '    }' +
+      '    ' +
+      '    // Set DOM outputs' +
+      '    setTxt("res-ads-mass", Math.round(m_ads_kg).toLocaleString());' +
+      '    setTxt("res-total-mass", Math.round(m_total_kg).toLocaleString());' +
+      '    setTxt("res-bed-dim", d_bed_m.toFixed(2) + " × " + l_bed_m.toFixed(1));' +
+      '    setTxt("res-bed-vol", v_bed_m3.toFixed(2));' +
+      '    setTxt("res-feed-flow", Math.round(q_feed_nm3h));' +
+      '    setTxt("res-air-factor", air_factor.toFixed(2));' +
+      '    setTxt("res-yield", yield_clamped.toFixed(1));' +
+      '    setTxt("res-purge-flow", q_purge_nm3h.toFixed(1));' +
+      '    setTxt("res-pf-ratio", pf_ratio.toFixed(3));' +
+      '    setTxt("res-comp-power", w_comp_kw.toFixed(1));' +
+      '    setTxt("res-spec-power", spec_power.toFixed(3));' +
+      '    setTxt("res-cycle-time", t_full_cycle_s);' +
+      '    setTxt("res-us", u_s_ms.toFixed(2));' +
+      '    ' +
+      '    const badge = el("psa-eval-badge");' +
+      '    if (badge) {' +
+      '      badge.textContent = badgeTxt;' +
+      '      badge.style.background = badgeBg;' +
+      '      badge.style.color = badgeColor;' +
+      '    }' +
+      '    ' +
+      '    drawCanvas(d_bed_m, l_bed_m, t_ads_s, t_eq_s, adsType, p_high_barg);' +
+      '  }' +
+      '  ' +
+      '  function drawCanvas(dia, len, tAds, tEq, adsType, pHigh) {' +
+      '    const cvs = el("psa-canvas");' +
+      '    if (!cvs) return;' +
+      '    const ctx = cvs.getContext("2d");' +
+      '    const w = cvs.width, h = cvs.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background grid' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ctx.strokeStyle = "#1e293b";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }' +
+      '    for(let y=0; y<h; y+=30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }' +
+      '    ' +
+      '    // Two Columns (Bed A & Bed B)' +
+      '    const colW = 65;' +
+      '    const colH = 170;' +
+      '    const colY = 70;' +
+      '    const c1x = w * 0.28;' +
+      '    const c2x = w * 0.52;' +
+      '    ' +
+      '    // Bed A (Adsorbing: Green gradient)' +
+      '    const gradA = ctx.createLinearGradient(0, colY, 0, colY + colH);' +
+      '    gradA.addColorStop(0, "#10b981"); // pure product top' +
+      '    gradA.addColorStop(1, "#0284c7"); // feed bottom' +
+      '    ctx.fillStyle = gradA;' +
+      '    ctx.beginPath();' +
+      '    ctx.roundRect(c1x - colW/2, colY, colW, colH, [12, 12, 12, 12]);' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#34d399";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Bed B (Regenerating: Orange/Grey gradient)' +
+      '    const gradB = ctx.createLinearGradient(0, colY, 0, colY + colH);' +
+      '    gradB.addColorStop(0, "#475569");' +
+      '    gradB.addColorStop(1, "#f59e0b");' +
+      '    ctx.fillStyle = gradB;' +
+      '    ctx.beginPath();' +
+      '    ctx.roundRect(c2x - colW/2, colY, colW, colH, [12, 12, 12, 12]);' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#fbbf24";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Top Equalization & Product Manifold' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(c1x, colY); ctx.lineTo(c1x, colY - 25);' +
+      '    ctx.lineTo(c2x, colY - 25); ctx.lineTo(c2x, colY);' +
+      '    ctx.stroke();' +
+      '    // Equalization valve in middle' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillRect((c1x + c2x)/2 - 8, colY - 30, 16, 10);' +
+      '    ' +
+      '    // Product delivery line (up from Bed A)' +
+      '    ctx.strokeStyle = "#10b981";' +
+      '    ctx.lineWidth = 4;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(c1x, colY - 25); ctx.lineTo(c1x, colY - 45);' +
+      '    ctx.lineTo(c1x - 45, colY - 45);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Product Gas (Out)", c1x - 90, colY - 50);' +
+      '    ' +
+      '    // Feed manifold (bottom)' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(c1x, colY + colH); ctx.lineTo(c1x, colY + colH + 25);' +
+      '    ctx.lineTo(c1x - 50, colY + colH + 25);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#0284c7";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Feed Air (P_high)", c1x - 95, colY + colH + 28);' +
+      '    ' +
+      '    // Exhaust / Blowdown manifold (bottom Bed B)' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(c2x, colY + colH); ctx.lineTo(c2x, colY + colH + 25);' +
+      '    ctx.lineTo(c2x + 45, colY + colH + 25);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillText("Exhaust Silencer (Blowdown)", c2x + 10, colY + colH + 38);' +
+      '    ' +
+      '    // Labels on beds' +
+      '    ctx.fillStyle = "#ffffff";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("BED A", c1x - 18, colY + colH/2 - 10);' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("ADSORBING", c1x - 30, colY + colH/2 + 6);' +
+      '    ctx.fillText(pHigh.toFixed(1) + " barg", c1x - 22, colY + colH/2 + 20);' +
+      '    ' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("BED B", c2x - 18, colY + colH/2 - 10);' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("PURGE / REGEN", c2x - 36, colY + colH/2 + 6);' +
+      '    ctx.fillText("0.2 barg", c2x - 18, colY + colH/2 + 20);' +
+      '    ' +
+      '    // Info panel on right side' +
+      '    const infoX = c2x + colW/2 + 35;' +
+      '    ctx.fillStyle = "#e2e8f0";' +
+      '    ctx.font = "bold 12px sans-serif";' +
+      '    ctx.fillText("SKARSTROM PSA CYCLE", infoX, colY + 15);' +
+      '    ' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("Adsorb: " + tAds + " s", infoX, colY + 40);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("Equalize: " + tEq + " s", infoX, colY + 60);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("Bed: " + dia.toFixed(2) + "m × " + len.toFixed(1) + "m", infoX, colY + 85);' +
+      '    ctx.fillText("Media: " + adsType.toUpperCase(), infoX, colY + 105);' +
+      '  }' +
+      '  ' +
+      '  // Event listeners' +
+      '  const inputs = [' +
+      '    "psa-prod-flow", "psa-flow-unit", "psa-p-high", "psa-p-unit",' +
+      '    "psa-p-low", "psa-t-ads", "psa-t-eq", "psa-adsorbent-type", "psa-purity"' +
+      '  ];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const presetEl = el("psa-preset");' +
+      '  if (presetEl) {' +
+      '    presetEl.addEventListener("change", () => {' +
+      '      const p = presets[presetEl.value];' +
+      '      if (p) {' +
+      '        el("psa-prod-flow").value = p.flow;' +
+      '        el("psa-flow-unit").value = p.flowUnit;' +
+      '        el("psa-p-high").value = p.phigh;' +
+      '        el("psa-p-unit").value = p.pUnit;' +
+      '        el("psa-p-low").value = p.plow;' +
+      '        el("psa-t-ads").value = p.tads;' +
+      '        el("psa-t-eq").value = p.teq;' +
+      '        el("psa-adsorbent-type").value = p.ads;' +
+      '        el("psa-purity").value = p.purity;' +
+      '        calc();' +
+      '      }' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const resetBtn = el("psa-reset-btn");' +
+      '  if (resetBtn) {' +
+      '    resetBtn.addEventListener("click", () => {' +
+      '      presetEl.value = "n2_995";' +
+      '      presetEl.dispatchEvent(new Event("change"));' +
+      '    });' +
+      '  }' +
+      '  const calcBtn = el("psa-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("psa-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== DUAL-BED PRESSURE SWING ADSORPTION (PSA) SIZING REPORT ===",' +
+      '        "Product Gas Delivery: " + el("psa-prod-flow").value + " " + el("psa-flow-unit").value + " @ " + el("psa-purity").value + "% Purity",' +
+      '        "Adsorption Pressure: " + el("psa-p-high").value + " " + el("psa-p-unit").value + ", Desorption: " + el("psa-p-low").value + " bar(g)",' +
+      '        "Adsorbent Mass per Bed: " + el("res-ads-mass").textContent + " kg (Total: " + el("res-total-mass").textContent + " kg)",' +
+      '        "Bed Dimensions: " + el("res-bed-dim").textContent + " m (Volume: " + el("res-bed-vol").textContent + " m³)",' +
+      '        "Feed Compressor Demand: " + el("res-feed-flow").textContent + " Nm³/h (Air Factor: " + el("res-air-factor").textContent + ")",' +
+      '        "Product Recovery Yield: " + el("res-yield").textContent + " %",' +
+      '        "Purge Flow Rate: " + el("res-purge-flow").textContent + " Nm³/h (P/F: " + el("res-pf-ratio").textContent + ")",' +
+      '        "Compressor Electrical Power: " + el("res-comp-power").textContent + " kW (Specific: " + el("res-spec-power").textContent + " kWh/Nm³)",' +
+      '        "Cycle Timing: Half-Cycle = " + el("psa-t-ads").value + "s ads + " + el("psa-t-eq").value + "s eq, Full = " + el("res-cycle-time").textContent + "s",' +
+      '        "Superficial Gas Velocity: " + el("res-us").textContent + " m/s",' +
+      '        "Status: " + el("psa-eval-badge").textContent,' +
+      '        "Design Standards: Industrial Skarstrom Cycle Formulation & Dynamic Adsorption Isotherm Models"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("psa-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BU4: INDUSTRIAL DISC STACK CENTRIFUGE SIZING CALCULATOR ───
+  (() => {
+    const slug = 'continuous-centrifugal-disc-stack-separator-calculator';
+    const title = 'Industrial Disc Stack Centrifuge Sizing & Clarification Calculator';
+    const metaDescription = 'Size industrial high-speed disc stack centrifuges using Ambler Sigma theory. Calculate equivalent clarification area (Σ), critical cut diameter (d50), G-force acceleration, solids discharge cycle time, and drive motor power.';
+    const faq = [
+      {
+        q: 'How does a disc stack centrifuge achieve high clarification rates in a compact vessel?',
+        a: 'A disc stack centrifuge spins a conical bowl at 4,000 to 12,000 RPM, creating extreme centrifugal fields from 5,000 to over 12,000 × g. Inside the bowl, a stack of 80 to 200 conical metal discs inclined at 40° to 50° divides the liquid into thin lamellar layers only 0.5 to 1.5 mm thick. In these ultra-thin channels, a solid particle or liquid droplet needs to travel less than 1 mm before contacting the underside of a disc, where it coalesces and slides down into the peripheral sludge space. This geometric multiplication gives a machine with a 0.5-meter footprint an equivalent settling area (Ambler Sigma, $\\Sigma$) of over 20,000 to 80,000 m² (equivalent to multiple soccer fields of gravity clarifier basins).'
+      },
+      {
+        q: 'What is Ambler\'s Sigma (\\Sigma) theory and how is it used for scale-up?',
+        a: 'Developed by Charles Ambler, Sigma ($\\Sigma$) represents the theoretical clarification area of an equivalent gravity settling tank that achieves the same degree of separation as the centrifuge:\\n$$\\Sigma = \\frac{2 \\pi}{3 g} \\omega^2 N_{discs} \\cot \\theta (r_2^3 - r_1^3)$$\\nWhere $\\omega$ is angular velocity, $N_{discs}$ is disc count, $\\theta$ is cone half-angle, and $r_1, r_2$ are the inner and outer disc radii. For scale-up between different size machines separating the same feed slurry, the clarification throughput is directly proportional to Sigma: $Q_1 / \\Sigma_1 = Q_2 / \\Sigma_2 = 2 v_g$.'
+      },
+      {
+        q: 'What is the critical cut diameter ($d_{50}$) in centrifugal clarification?',
+        a: 'The critical cut diameter ($d_{50}$) is the particle size that has a 50% probability of being captured before leaving with the clarified centrate. Derived from Stokes\' Law integrated across the disc stack lamellae:\\n$$d_{50} = \\sqrt{\\frac{9 \\mu \\cdot Q}{\\Sigma \\cdot (\\rho_p - \\rho_L) \\cdot g}}$$\\nWhere $\\mu$ is liquid viscosity, $Q$ is volumetric feed rate, and $\\Delta \\rho = \\rho_p - \\rho_L$ is the density difference between solids and carrier liquid. Higher rotational speed, lower feed viscosity, and larger Sigma values reduce $d_{50}$, allowing capture of sub-micron bacteria and mammalian cells.'
+      },
+      {
+        q: 'How does the automatic partial vs full solids ejection mechanism work?',
+        a: 'In modern self-cleaning (clarifier/separator) centrifuges, the bowl consists of a top shell and an internal sliding piston bottom held closed by operating water pressure. To discharge accumulated solids, a pneumatic valve momentarily vents the closing water, allowing opening water to push the sliding piston downward for 0.1 to 0.2 seconds. Centrifugal force violently expels the accumulated sludge cake through peripheral ejection ports into the sludge catcher cyclone at full operational speed without stopping the machine.'
+      },
+      {
+        q: 'Why does liquid viscosity have a dramatic effect on centrifugal separation capacity?',
+        a: 'Per Stokes\' Law, terminal settling velocity is inversely proportional to liquid dynamic viscosity ($v_s \\propto 1 / \\mu$). If fluid temperature drops from 80°C to 20°C (e.g., during edible oil refining or heavy fuel oil purification), viscosity can increase by $300\\%$ to $800\\%$. This quadruples drag on settling particles, cutting clarification capacity ($Q$) to one-quarter for the same capture efficiency unless feed preheaters are employed.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Industrial Disc Stack Centrifuge Sizing & Clarification Calculator</h1>' +
+      '    <p>Perform industrial sizing and separation analysis for high-speed disc stack centrifuges using Ambler Sigma (\(\Sigma\)) theory. Compute equivalent clarification area, critical cut diameter (\(d_{50}\)), relative centrifugal force (G-force), automatic solids discharge timing, and drive motor power.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Centrifuge Geometry & Feed Properties</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-preset">Industrial Centrifuge Separation Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="cent-preset">' +
+      '            <option value="biopharm" selected>Biopharmaceutical Cell Harvest (CHO Culture, 1.5 µm, 8,000 RPM)</option>' +
+      '            <option value="brewery">Brewery Beer Clarification / Green Beer (Yeast Separation, 5,500 RPM)</option>' +
+      '            <option value="dairy">Dairy Milk Skimming & Cream Separation (Fat Droplets, 6,200 RPM)</option>' +
+      '            <option value="marine_oil">Marine Heavy Fuel Oil Purifier (HFO / Water Removal, 95°C)</option>' +
+      '            <option value="custom">Custom Disc Stack System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-feed-flow">Feed Volumetric Flow Rate (\(Q\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-feed-flow" value="6000" min="50" max="80000" step="250">' +
+      '          <select id="cent-flow-unit">' +
+      '            <option value="lh" selected>L/h</option>' +
+      '            <option value="m3h">m³/h</option>' +
+      '            <option value="gpm">GPM (US)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Volumetric throughput through centrifuge bowl</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-rpm">Bowl Rotational Speed (\(N\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-rpm" value="7500" min="2000" max="15000" step="100">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">RPM</span>' +
+      '        </div>' +
+      '        <div class="hint">Operating bowl rotational speed</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-num-discs">Number of Conical Discs (\(N_{discs}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-num-discs" value="120" min="20" max="300" step="5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">discs</span>' +
+      '        </div>' +
+      '        <div class="hint">Total stacked conical discs (typically 80–180 discs)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-r-outer">Disc Outer Radius (\(r_2\)) & Inner Radius (\(r_1\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-r-outer" value="210" min="80" max="500" step="5" title="Outer Radius r2 (mm)">' +
+      '          <input type="number" id="cent-r-inner" value="110" min="40" max="300" step="5" title="Inner Radius r1 (mm)">' +
+      '        </div>' +
+      '        <div class="hint">Outer radius \(r_2\) and inner radius \(r_1\) of conical disc surface (mm)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-cone-angle">Disc Cone Half-Angle (\(\theta\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-cone-angle" value="45" min="35" max="60" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">degrees</span>' +
+      '        </div>' +
+      '        <div class="hint">Angle between disc surface and vertical rotational axis (standard 40° to 50°)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-density-diff">Density Difference (\(\Delta \rho = \rho_p - \rho_L\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-density-diff" value="65" min="5" max="1500" step="5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">kg/m³</span>' +
+      '        </div>' +
+      '        <div class="hint">\(\rho_{solid} - \rho_{liquid}\) (CHO cells ≈ 50–80 kg/m³; Yeast ≈ 70–120 kg/m³; Sand > 1500)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-viscosity">Continuous Phase Dynamic Viscosity (\(\mu\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-viscosity" value="1.1" min="0.2" max="50" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mPa·s (cP)</span>' +
+      '        </div>' +
+      '        <div class="hint">Viscosity of carrier liquid at operating temperature</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-solids-conc">Feed Solids Concentration (\(X_{solids}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-solids-conc" value="3.5" min="0.05" max="30" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">vol %</span>' +
+      '        </div>' +
+      '        <div class="hint">Volume percentage of settleable sediment in feed</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cent-sludge-vol">Bowl Sludge Holding Space Volume (\(V_{sludge}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cent-sludge-vol" value="12" min="1" max="60" step="0.5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">Liters</span>' +
+      '        </div>' +
+      '        <div class="hint">Geometric volume in bowl periphery reserved for sediment cake</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="cent-calc-btn">Compute Separation</button>' +
+      '        <button type="button" class="btn btn-secondary" id="cent-reset-btn">Reset Defaults</button>' +
+      '      </div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Separation Performance & Ambler Sigma</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Equivalent Clarification Area (\(\Sigma\))</div>' +
+      '          <div class="res-val"><span id="res-sigma">38,450</span><span class="res-unit">m²</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-sigma-ha">3.85</span> hectares (gravity equiv)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Relative Centrifugal Force (G-Force)</div>' +
+      '          <div class="res-val"><span id="res-gforce">13,200</span><span class="res-unit">× g</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">At outer bowl rim</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Critical Cut Diameter (\(d_{50}\))</div>' +
+      '          <div class="res-val"><span id="res-cut-dia">1.28</span><span class="res-unit">µm</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">50% capture threshold</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Specific Separation Flux (\(Q/\Sigma\))</div>' +
+      '          <div class="res-val"><span id="res-q-sigma">4.33</span><span class="res-unit">× 10⁻⁵ m/s</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Settling velocity threshold</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Sludge Shoot Discharge Interval</div>' +
+      '          <div class="res-val"><span id="res-shoot-time">2.8</span><span class="res-unit">min</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Solids accumulation: <span id="res-solids-rate">210</span> L/h</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Electric Drive Motor Power</div>' +
+      '          <div class="res-val"><span id="res-motor-power">22.0</span><span class="res-unit">kW</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Accel + windage + mechanical</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Clarification Yield (\(\eta_{clar}\))</div>' +
+      '          <div class="res-val"><span id="res-clar-eff">98.4</span><span class="res-unit">%</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Clean centrate clarity</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Lamellar Settling Distance</div>' +
+      '          <div class="res-val"><span id="res-lamella-dist">0.85</span><span class="res-unit">mm</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Micro-channel gap</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="badge-stat" id="cent-eval-badge" style="background:#dcfce7; color:#15803d;">✓ Clarification Stable: High Equivalent Sigma & Sub-2µm Cut</span>' +
+      '      </div>' +
+      '      <div class="btn-row" style="margin-top:0;">' +
+      '        <button type="button" class="btn btn-secondary" id="cent-copy-btn">📋 Copy Diagnostic Summary</button>' +
+      '        <span class="copy-toast" id="cent-toast">✓ Diagnostic Summary Copied!</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="cent-canvas" width="480" height="340"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- DERIVATION & TECHNICAL SPECIFICATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Governing Principles & Mathematical Derivations for Disc Centrifuges</h2>' +
+      '    <p>High-speed disc stack separators combine extreme rotational acceleration with thin-layer sedimentation. The conical disc geometry shortens particle travel distance from decimeters to fractions of a millimeter.</p>' +
+      '    <h3>1. Ambler Equivalent Clarification Area (\(\Sigma\))</h3>' +
+      '    <p>The equivalent settling area (\(\Sigma\)) integrates the radial position of particles across the conical surface under varying centrifugal force:</p>' +
+      '    <div class="formula-box">' +
+      '      \Sigma = \frac{2 \pi}{3 g} \omega^2 \cdot N_{discs} \cdot \cot(\theta) \cdot (r_2^3 - r_1^3)' +
+      '    </div>' +
+      '    <p>Where \(\omega = \frac{2 \pi N}{60}\) is angular velocity (rad/s), \(N_{discs}\) is the number of active discs in the stack, \(\theta\) is the disc cone half-angle, and \(r_1, r_2\) are inner and outer conical radii.</p>' +
+      '    <h3>2. Critical Cut Diameter (Stokes\' Law in Centrifugal Field)</h3>' +
+      '    <p>The critical diameter (\(d_{50}\)) of particles separated with 50% efficiency is derived from the balance of centrifugal force and Stokes drag:</p>' +
+      '    <div class="formula-box">' +
+      '      d_{50} = \sqrt{\frac{9 \mu \cdot Q}{\Sigma \cdot (\rho_p - \rho_L) \cdot g}}' +
+      '    </div>' +
+      '    <p>Where \(Q\) is volumetric feed flow rate (m³/s), \(\mu\) is fluid viscosity (Pa·s), and \(\Delta \rho = \rho_p - \rho_L\) is the density difference.</p>' +
+      '    <h3>3. Automatic Sludge Discharge Frequency</h3>' +
+      '    <p>The operational shooting interval between automatic partial bowl discharges is dictated by the rate of solids accumulation:</p>' +
+      '    <div class="formula-box">' +
+      '      \dot{V}_{solids} = Q \cdot \left( \frac{X_{solids}}{100} \right), \quad t_{shoot} = \frac{V_{sludge} \cdot \phi_{fill}}{\dot{V}_{solids}}' +
+      '    </div>' +
+      '    <p>Where \(\phi_{fill} \approx 0.70\text{--}0.85\) represents maximum permissible sludge space filling to prevent solids from invading the disc stack.</p>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Disc Stack Centrifuges</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Sludge Space Over-Filling & Disc Stack Blinding</h4>' +
+      '      <p>If the solids discharge timer is set too long or feed solids surge unexpectedly, accumulated sediment fills the peripheral holding space and encroaches into the outer rim of the disc stack. Solids wedge permanently between discs, blinding flow channels, causing violent unbalance vibration that can trigger catastrophic spindle bearing failure.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Centrate Thermal Degradation from Excessive Windage</h4>' +
+      '      <p>Spinning a 500 mm bowl at 8,000 RPM generates intense aerodynamic windage friction in the bowl hood. If liquid flow is interrupted or throttled too low, the trapped fluid acts as a hydraulic brake, absorbing mechanical power and rapidly heating up (+20°C to +40°C in minutes). In biopharmaceutical protein harvesting or beer processing, this thermal spike denatures proteins and ruins product quality.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Operating Water Pressure Failure & Incomplete Bowl Sealing</h4>' +
+      '      <p>The sliding piston that seals the bottom of the bowl relies on pressurized operating water. If the operating water header pressure drops below 2.5 bar, the closing force becomes insufficient. The bowl partially opens during operation, dumping thousands of liters of unseparated, high-value cell culture broth or oil directly into the sludge drain.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Shear-Sensitive Cell Lysis from Aggressive Inlet Acceleration</h4>' +
+      '      <p>Introducing delicate shear-sensitive mammalian cells (e.g. CHO cells) through standard high-shear feed nozzles causes immediate membrane lysis due to abrupt velocity acceleration up to 50 m/s. Intracellular DNA and host cell proteins release into the supernatant, creating a viscous gel that blinds downstream sterile filters. Always specify gentle, low-shear hydro-hermetic or paring-disc inlet systems.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Viscosity Cold-Pinch (Stokes Law Stagnation)</h4>' +
+      '      <p>In marine fuel oil or vegetable oil separation, feed liquid must be maintained at 90–98°C to depress oil viscosity. If a heater trips and feed temperature drops to 50°C, oil viscosity increases by a factor of 4. Critical cut diameter doubles (\(d_{50} \propto \sqrt{\mu}\)), allowing catalytic fines or water droplets to pass unseparated into marine engine fuel injectors, causing catastrophic cylinder liner scoring.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions</h2>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does a disc stack centrifuge achieve high clarification rates in a compact vessel? <span>+</span></div>' +
+      '      <div class="faq-a">A disc stack centrifuge spins a conical bowl at 4,000 to 12,000 RPM, creating extreme centrifugal fields from 5,000 to over 12,000 × g. Inside the bowl, a stack of 80 to 200 conical metal discs inclined at 40° to 50° divides the liquid into thin lamellar layers only 0.5 to 1.5 mm thick. In these ultra-thin channels, a solid particle or liquid droplet needs to travel less than 1 mm before contacting the underside of a disc, where it coalesces and slides down into the peripheral sludge space. This geometric multiplication gives a machine with a 0.5-meter footprint an equivalent settling area (Ambler Sigma, \(\Sigma\)) of over 20,000 to 80,000 m² (equivalent to multiple soccer fields of gravity clarifier basins).</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is Ambler\'s Sigma (\(\Sigma\)) theory and how is it used for scale-up? <span>+</span></div>' +
+      '      <div class="faq-a">Developed by Charles Ambler, Sigma (\(\Sigma\)) represents the theoretical clarification area of an equivalent gravity settling tank that achieves the same degree of separation as the centrifuge:\n$$\Sigma = \frac{2 \pi}{3 g} \omega^2 N_{discs} \cot \theta (r_2^3 - r_1^3)$$\nWhere \(\omega\) is angular velocity, \(N_{discs}\) is disc count, \(\theta\) is cone half-angle, and \(r_1, r_2\) are the inner and outer disc radii. For scale-up between different size machines separating the same feed slurry, the clarification throughput is directly proportional to Sigma: \(Q_1 / \Sigma_1 = Q_2 / \Sigma_2 = 2 v_g\).</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the critical cut diameter (\(d_{50}\)) in centrifugal clarification? <span>+</span></div>' +
+      '      <div class="faq-a">The critical cut diameter (\(d_{50}\)) is the particle size that has a 50% probability of being captured before leaving with the clarified centrate. Derived from Stokes\' Law integrated across the disc stack lamellae:\n$$d_{50} = \sqrt{\frac{9 \mu \cdot Q}{\Sigma \cdot (\rho_p - \rho_L) \cdot g}}$$\nWhere \(\mu\) is liquid viscosity, \(Q\) is volumetric feed rate, and \(\Delta \rho = \rho_p - \rho_L\) is the density difference between solids and carrier liquid. Higher rotational speed, lower feed viscosity, and larger Sigma values reduce \(d_{50}\), allowing capture of sub-micron bacteria and mammalian cells.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does the automatic partial vs full solids ejection mechanism work? <span>+</span></div>' +
+      '      <div class="faq-a">In modern self-cleaning (clarifier/separator) centrifuges, the bowl consists of a top shell and an internal sliding piston bottom held closed by operating water pressure. To discharge accumulated solids, a pneumatic valve momentarily vents the closing water, allowing opening water to push the sliding piston downward for 0.1 to 0.2 seconds. Centrifugal force violently expels the accumulated sludge cake through peripheral ejection ports into the sludge catcher cyclone at full operational speed without stopping the machine.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">Why does liquid viscosity have a dramatic effect on centrifugal separation capacity? <span>+</span></div>' +
+      '      <div class="faq-a">Per Stokes\' Law, terminal settling velocity is inversely proportional to liquid dynamic viscosity (\(v_s \propto 1 / \mu\)). If fluid temperature drops from 80°C to 20°C (e.g., during edible oil refining or heavy fuel oil purification), viscosity can increase by 300% to 800%. This quadruples drag on settling particles, cutting clarification capacity (\(Q\)) to one-quarter for the same capture efficiency unless feed preheaters are employed.</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const presets = {' +
+      '    biopharm: { flow: 6000, flowUnit: "lh", rpm: 7500, discs: 120, r2: 210, r1: 110, theta: 45, ddiff: 65, visc: 1.1, solids: 3.5, sludge: 12 },' +
+      '    brewery: { flow: 15000, flowUnit: "lh", rpm: 5500, discs: 150, r2: 280, r1: 140, theta: 45, ddiff: 90, visc: 1.6, solids: 4.5, sludge: 22 },' +
+      '    dairy: { flow: 25000, flowUnit: "lh", rpm: 6200, discs: 140, r2: 250, r1: 120, theta: 45, ddiff: 85, visc: 1.8, solids: 4.0, sludge: 18 },' +
+      '    marine_oil: { flow: 4500, flowUnit: "lh", rpm: 8200, discs: 110, r2: 190, r1: 95, theta: 40, ddiff: 110, visc: 3.2, solids: 1.8, sludge: 8 }' +
+      '  };' +
+      '  const el = id => document.getElementById(id);' +
+      '  const getVal = id => parseFloat(el(id).value) || 0;' +
+      '  const setTxt = (id, txt) => { if(el(id)) el(id).textContent = txt; };' +
+      '  ' +
+      '  function getFlow_m3s(val, unit) {' +
+      '    if (unit === "lh") return val / 3600000;' +
+      '    if (unit === "m3h") return val / 3600;' +
+      '    if (unit === "gpm") return val * 0.00006309;' +
+      '    return val;' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const q_m3s = Math.max(1e-5, getFlow_m3s(getVal("cent-feed-flow"), el("cent-flow-unit").value));' +
+      '    const q_lh = q_m3s * 3600000;' +
+      '    const rpm = Math.max(1000, getVal("cent-rpm"));' +
+      '    const n_discs = Math.max(10, getVal("cent-num-discs"));' +
+      '    const r2_mm = Math.max(50, getVal("cent-r-outer"));' +
+      '    const r2_m = r2_mm / 1000;' +
+      '    const r1_mm = Math.max(20, Math.min(r2_mm - 10, getVal("cent-r-inner")));' +
+      '    const r1_m = r1_mm / 1000;' +
+      '    const theta_deg = Math.max(30, Math.min(65, getVal("cent-cone-angle")));' +
+      '    const theta_rad = theta_deg * (Math.PI / 180);' +
+      '    const delta_rho = Math.max(1, getVal("cent-density-diff"));' +
+      '    const visc_cp = Math.max(0.1, getVal("cent-viscosity"));' +
+      '    const mu = visc_cp * 0.001; // Pa.s' +
+      '    const x_solids_pct = Math.min(50, Math.max(0.01, getVal("cent-solids-conc")));' +
+      '    const v_sludge_L = Math.max(0.5, getVal("cent-sludge-vol"));' +
+      '    ' +
+      '    // Angular velocity and centrifugal G-force' +
+      '    const omega = (2 * Math.PI * rpm) / 60;' +
+      '    const a_c = Math.pow(omega, 2) * r2_m;' +
+      '    const g_force = a_c / 9.81;' +
+      '    ' +
+      '    // Ambler Sigma calculation' +
+      '    // Sigma = (2 * pi / (3 * g)) * omega^2 * N * cot(theta) * (r2^3 - r1^3)' +
+      '    const cot_theta = 1 / Math.tan(theta_rad);' +
+      '    const sigma_m2 = ((2 * Math.PI) / (3 * 9.81)) * Math.pow(omega, 2) * n_discs * cot_theta * (Math.pow(r2_m, 3) - Math.pow(r1_m, 3));' +
+      '    const sigma_ha = sigma_m2 / 10000;' +
+      '    ' +
+      '    // Critical cut diameter d50 (Stokes in centrifuge)' +
+      '    // d50 = sqrt( (9 * mu * Q) / (Sigma * delta_rho * g) )' +
+      '    const d50_m = Math.sqrt((9 * mu * q_m3s) / (sigma_m2 * delta_rho * 9.81));' +
+      '    const d50_um = d50_m * 1e6;' +
+      '    ' +
+      '    // Specific separation flux Q / Sigma (m/s)' +
+      '    const q_over_sigma = q_m3s / sigma_m2;' +
+      '    ' +
+      '    // Solids accumulation and shoot interval' +
+      '    const solids_rate_lh = q_lh * (x_solids_pct / 100);' +
+      '    const solids_rate_ls = solids_rate_lh / 3600;' +
+      '    // Shoot at 80% sludge filling' +
+      '    const shoot_time_sec = (v_sludge_L * 0.8) / Math.max(1e-6, solids_rate_ls);' +
+      '    const shoot_time_min = shoot_time_sec / 60;' +
+      '    ' +
+      '    // Motor power estimation' +
+      '    // 1. Acceleration power P_acc = 0.5 * m_dot * (omega * r2)^2' +
+      '    const m_dot = q_m3s * 1000; // kg/s' +
+      '    const p_acc_kw = (0.5 * m_dot * Math.pow(omega * (r2_m * 0.65), 2)) / 1000;' +
+      '    // 2. Windage power P_wind ~ C * rho_air * omega^3 * R^5' +
+      '    const p_wind_kw = 0.08 * 1.2 * Math.pow(omega, 3) * Math.pow(r2_m * 1.2, 5) / 1000;' +
+      '    // 3. Bearing & transmission losses ~ 2.5 kW' +
+      '    const p_mech_kw = 3.0;' +
+      '    const p_total_motor_kw = Math.ceil(((p_acc_kw + p_wind_kw + p_mech_kw) / 0.85) * 2) / 2;' +
+      '    ' +
+      '    // Clarification efficiency estimation' +
+      '    const clar_eff = Math.min(99.9, Math.max(85, 100 - (d50_um * 1.2)));' +
+      '    ' +
+      '    // Lamellar gap' +
+      '    const lamella_gap_mm = 0.85;' +
+      '    ' +
+      '    // Status evaluation' +
+      '    let badgeTxt = "✓ Clarification Stable: High Equivalent Sigma & Sub-2µm Cut";' +
+      '    let badgeBg = "#dcfce7", badgeColor = "#15803d";' +
+      '    ' +
+      '    if (shoot_time_min < 1.0) {' +
+      '      badgeTxt = "⚠ Extreme Solids Loading: Shoot interval <1 min; risk of disc stack plugging";' +
+      '      badgeBg = "#fee2e2"; badgeColor = "#b91c1c";' +
+      '    } else if (d50_um > 3.5) {' +
+      '      badgeTxt = "⚠ Coarse Cut Diameter (>3.5 µm): High centrate turbidity; consider reducing feed flow";' +
+      '      badgeBg = "#fef3c7"; badgeColor = "#b45309";' +
+      '    }' +
+      '    ' +
+      '    // Set DOM outputs' +
+      '    setTxt("res-sigma", Math.round(sigma_m2).toLocaleString());' +
+      '    setTxt("res-sigma-ha", sigma_ha.toFixed(2));' +
+      '    setTxt("res-gforce", Math.round(g_force).toLocaleString());' +
+      '    setTxt("res-cut-dia", d50_um.toFixed(2));' +
+      '    setTxt("res-q-sigma", (q_over_sigma * 1e5).toFixed(2));' +
+      '    setTxt("res-shoot-time", shoot_time_min.toFixed(1));' +
+      '    setTxt("res-solids-rate", Math.round(solids_rate_lh));' +
+      '    setTxt("res-motor-power", p_total_motor_kw.toFixed(1));' +
+      '    setTxt("res-clar-eff", clar_eff.toFixed(1));' +
+      '    setTxt("res-lamella-dist", lamella_gap_mm.toFixed(2));' +
+      '    ' +
+      '    const badge = el("cent-eval-badge");' +
+      '    if (badge) {' +
+      '      badge.textContent = badgeTxt;' +
+      '      badge.style.background = badgeBg;' +
+      '      badge.style.color = badgeColor;' +
+      '    }' +
+      '    ' +
+      '    drawCanvas(r2_mm, r1_mm, n_discs, g_force, d50_um, shoot_time_min);' +
+      '  }' +
+      '  ' +
+      '  function drawCanvas(r2, r1, nDiscs, gForce, d50, tShoot) {' +
+      '    const cvs = el("cent-canvas");' +
+      '    if (!cvs) return;' +
+      '    const ctx = cvs.getContext("2d");' +
+      '    const w = cvs.width, h = cvs.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background grid' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ctx.strokeStyle = "#1e293b";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }' +
+      '    for(let y=0; y<h; y+=30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }' +
+      '    ' +
+      '    // Centrifuge Cross-Section (Axis of symmetry in center)' +
+      '    const cx = w * 0.38;' +
+      '    const cy = h * 0.52;' +
+      '    const bR = 105;' +
+      '    const bH = 150;' +
+      '    ' +
+      '    // Rotating Bowl Shell' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - bR, cy);' +
+      '    ctx.lineTo(cx - bR * 0.75, cy - bH/2);' +
+      '    ctx.lineTo(cx + bR * 0.75, cy - bH/2);' +
+      '    ctx.lineTo(cx + bR, cy);' +
+      '    ctx.lineTo(cx + bR * 0.6, cy + bH/2);' +
+      '    ctx.lineTo(cx - bR * 0.6, cy + bH/2);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Sludge Space (Outer perimeter highlighted yellow/orange)' +
+      '    ctx.fillStyle = "#d97706";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - bR + 2, cy);' +
+      '    ctx.lineTo(cx - bR * 0.75 + 4, cy - 25);' +
+      '    ctx.lineTo(cx - bR * 0.75 + 4, cy + 25);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx + bR - 2, cy);' +
+      '    ctx.lineTo(cx + bR * 0.75 - 4, cy - 25);' +
+      '    ctx.lineTo(cx + bR * 0.75 - 4, cy + 25);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ' +
+      '    // Conical Disc Stack (Chevron lamellar pattern)' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 1.8;' +
+      '    const numVisDiscs = 12;' +
+      '    for(let i=0; i<numVisDiscs; i++) {' +
+      '      const dy = cy - bH/2 + 25 + i * 8;' +
+      '      // Left wing of disc' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(cx - 18, dy);' +
+      '      ctx.lineTo(cx - 65, dy + 16);' +
+      '      ctx.stroke();' +
+      '      // Right wing of disc' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(cx + 18, dy);' +
+      '      ctx.lineTo(cx + 65, dy + 16);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Central Feed Distributor Shaft (Vertical center tube)' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.fillRect(cx - 14, cy - bH/2 - 25, 28, bH + 20);' +
+      '    ctx.strokeRect(cx - 14, cy - bH/2 - 25, 28, bH + 20);' +
+      '    ' +
+      '    // Feed inlet arrow (down into center)' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 6, cy - bH/2 - 35); ctx.lineTo(cx + 6, cy - bH/2 - 35); ctx.lineTo(cx, cy - bH/2 - 24);' +
+      '    ctx.closePath(); ctx.fill();' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Slurry Feed (Q)", cx - 35, cy - bH/2 - 40);' +
+      '    ' +
+      '    // Clean Centrate Outlets (Top paring disc)' +
+      '    ctx.strokeStyle = "#10b981";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 25, cy - bH/2); ctx.lineTo(cx - 45, cy - bH/2 - 15);' +
+      '    ctx.moveTo(cx + 25, cy - bH/2); ctx.lineTo(cx + 45, cy - bH/2 - 15);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 10px sans-serif";' +
+      '    ctx.fillText("Clean Centrate", cx + 50, cy - bH/2 - 16);' +
+      '    ' +
+      '    // Peripheral Sludge Discharge Ports' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - bR, cy); ctx.lineTo(cx - bR - 20, cy);' +
+      '    ctx.moveTo(cx + bR, cy); ctx.lineTo(cx + bR + 20, cy);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillText("Solids Ejection Ports", cx + bR + 10, cy - 8);' +
+      '    ' +
+      '    // Info panel on right side' +
+      '    const infoX = cx + bR + 40;' +
+      '    ctx.fillStyle = "#e2e8f0";' +
+      '    ctx.font = "bold 12px sans-serif";' +
+      '    ctx.fillText("AMBLER SIGMA METRICS", infoX, cy - 50);' +
+      '    ' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("G-Force: " + Math.round(gForce) + " × g", infoX, cy - 25);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("Cut d50: " + d50.toFixed(2) + " µm", infoX, cy - 5);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillText("Shoot: " + tShoot.toFixed(1) + " min", infoX, cy + 15);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("Discs: " + nDiscs + " conical", infoX, cy + 35);' +
+      '    ctx.fillText("Angle: 45° lamellar", infoX, cy + 55);' +
+      '  }' +
+      '  ' +
+      '  // Event listeners' +
+      '  const inputs = [' +
+      '    "cent-feed-flow", "cent-flow-unit", "cent-rpm", "cent-num-discs",' +
+      '    "cent-r-outer", "cent-r-inner", "cent-cone-angle", "cent-density-diff",' +
+      '    "cent-viscosity", "cent-solids-conc", "cent-sludge-vol"' +
+      '  ];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const presetEl = el("cent-preset");' +
+      '  if (presetEl) {' +
+      '    presetEl.addEventListener("change", () => {' +
+      '      const p = presets[presetEl.value];' +
+      '      if (p) {' +
+      '        el("cent-feed-flow").value = p.flow;' +
+      '        el("cent-flow-unit").value = p.flowUnit;' +
+      '        el("cent-rpm").value = p.rpm;' +
+      '        el("cent-num-discs").value = p.discs;' +
+      '        el("cent-r-outer").value = p.r2;' +
+      '        el("cent-r-inner").value = p.r1;' +
+      '        el("cent-cone-angle").value = p.theta;' +
+      '        el("cent-density-diff").value = p.ddiff;' +
+      '        el("cent-viscosity").value = p.visc;' +
+      '        el("cent-solids-conc").value = p.solids;' +
+      '        el("cent-sludge-vol").value = p.sludge;' +
+      '        calc();' +
+      '      }' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const resetBtn = el("cent-reset-btn");' +
+      '  if (resetBtn) {' +
+      '    resetBtn.addEventListener("click", () => {' +
+      '      presetEl.value = "biopharm";' +
+      '      presetEl.dispatchEvent(new Event("change"));' +
+      '    });' +
+      '  }' +
+      '  const calcBtn = el("cent-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("cent-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== DISC STACK CENTRIFUGE CLARIFICATION REPORT (AMBLER SIGMA) ===",' +
+      '        "Feed Throughput: " + el("cent-feed-flow").value + " " + el("cent-flow-unit").value,' +
+      '        "Rotational Speed: " + el("cent-rpm").value + " RPM (G-Force: " + el("res-gforce").textContent + " × g)",' +
+      '        "Disc Stack: " + el("cent-num-discs").value + " discs @ " + el("cent-cone-angle").value + "° cone angle",' +
+      '        "Equivalent Clarification Area (Σ): " + el("res-sigma").textContent + " m² (" + el("res-sigma-ha").textContent + " hectares)",' +
+      '        "Critical Cut Diameter (d50): " + el("res-cut-dia").textContent + " µm",' +
+      '        "Specific Flux (Q/Σ): " + el("res-q-sigma").textContent + " × 10⁻⁵ m/s",' +
+      '        "Sludge Shoot Frequency: " + el("res-shoot-time").textContent + " min (Solids Rate: " + el("res-solids-rate").textContent + " L/h)",' +
+      '        "Motor Power Consumption: " + el("res-motor-power").textContent + " kW",' +
+      '        "Clarification Recovery: " + el("res-clar-eff").textContent + " %",' +
+      '        "Status: " + el("cent-eval-badge").textContent,' +
+      '        "Design Standards: Ambler Sigma Centrifugal Clarification Theory & Stokes Micro-channel Model"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("cent-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (235 calculators in /calc/)');
 }
 
