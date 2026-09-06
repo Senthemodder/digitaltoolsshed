@@ -47564,6 +47564,2193 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (55 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 56: Cyclone Dust Separator Efficiency Calculator (Stairmand & Lapple)
+  // ==========================================
+  const cycloneSeparatorBody = `
+<style>
+  .cs-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .cs-grid { grid-template-columns: 1fr; } }
+  .cs-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .cs-header { margin-bottom: 20px; }
+  .cs-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .cs-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .cs-form-group { margin-bottom: 16px; }
+  .cs-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .cs-input-row { display: flex; gap: 10px; align-items: center; }
+  .cs-input-row input, .cs-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .cs-input-row input:focus, .cs-input-row select:focus { outline: none; border-color: #2563eb; }
+  .cs-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .cs-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .cs-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .cs-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .cs-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .cs-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .cs-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .cs-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .cs-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .cs-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .cs-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .cs-btn:hover { background: #1d4ed8; }
+  .cs-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="cs-container">
+  <div class="cs-grid">
+    <!-- Inputs Column -->
+    <div class="cs-card">
+      <div class="cs-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Gas &amp; Particle Operating Conditions</h2>
+        <p>Stairmand (1951) high-efficiency &amp; Lapple cyclone separation models</p>
+      </div>
+
+      <div class="cs-form-group">
+        <label for="csGasFlow">Gas Volumetric Flow Rate (Q)</label>
+        <div class="cs-input-row">
+          <input type="number" id="csGasFlow" value="5000" min="100" step="250">
+          <select id="csFlowUnit" class="cs-unit-badge" style="width:auto;">
+            <option value="acfm" selected>ACFM</option>
+            <option value="m3_h">m&sup3;/h</option>
+            <option value="m3_s">m&sup3;/s</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cs-form-group">
+        <label for="csTemp">Flue Gas Temperature (T<sub>gas</sub>)</label>
+        <div class="cs-input-row">
+          <input type="number" id="csTemp" value="150" step="5">
+          <select id="csTempUnit" class="cs-unit-badge" style="width:auto;">
+            <option value="C" selected>&deg;C</option>
+            <option value="F">&deg;F</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cs-form-group">
+        <label for="csPartDensity">Dust Particle True Density (&rho;<sub>p</sub>)</label>
+        <div class="cs-input-row">
+          <input type="number" id="csPartDensity" value="2500" min="500" step="100">
+          <select id="csDensityUnit" class="cs-unit-badge" style="width:auto;">
+            <option value="kg_m3" selected>kg/m&sup3;</option>
+            <option value="lb_cuft">lb/ft&sup3;</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cs-form-group">
+        <label for="csModelPreset">Cyclone Design Family &amp; Geometry</label>
+        <div class="cs-input-row">
+          <select id="csModelPreset">
+            <option value="stairmand_he" selected>Stairmand High-Efficiency (D_e/D = 0.50, Max Capture)</option>
+            <option value="swift_gp">Swift General Purpose (D_e/D = 0.50, Moderate &Delta;P)</option>
+            <option value="lapple_std">Lapple Standard (D_e/D = 0.50, High Throughput)</option>
+            <option value="stairmand_ht">Stairmand High-Throughput (D_e/D = 0.75, Low &Delta;P)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cs-form-group">
+        <label for="csDiameter">Cyclone Barrel Diameter (D)</label>
+        <div class="cs-input-row">
+          <input type="number" id="csDiameter" value="0.90" min="0.1" step="0.05">
+          <select id="csDiaUnit" class="cs-unit-badge" style="width:auto;">
+            <option value="m" selected>Meters</option>
+            <option value="in">Inches</option>
+            <option value="ft">Feet</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cs-form-group">
+        <label for="csMassMedian">Particle Mass Median Diameter (MMD / d<sub>50,inlet</sub>)</label>
+        <div class="cs-input-row">
+          <input type="number" id="csMassMedian" value="18" min="0.5" step="1">
+          <div class="cs-unit-badge">&mu;m</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Diagram Column -->
+    <div class="cs-card">
+      <div class="cs-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Separation Cut-Point &amp; Pressure Drop</h2>
+        <p>Lapple cut-point (d₅₀), fractional recovery, and fan draft loss</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="csSvg" width="340" height="240" viewBox="0 0 340 240" style="max-width:100%;">
+          <defs>
+            <linearGradient id="cycloneGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="50%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="dustVortex" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#d97706"/>
+              <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Clean Gas Top Exit (Vortex Finder) -->
+          <rect x="154" y="6" width="32" height="40" fill="#0284c7" opacity="0.8" rx="2"/>
+          <line x1="170" y1="42" x2="170" y2="12" stroke="#ffffff" stroke-width="2.5"/>
+          <polygon points="170,8 165,15 175,15" fill="#ffffff"/>
+          <text x="170" y="3" font-size="8" font-weight="bold" fill="#0284c7" text-anchor="middle">Clean Gas Exit</text>
+
+          <!-- Tangential Inlet Duct (Left) -->
+          <polygon points="80,48 135,48 135,84 80,84" fill="#64748b" stroke="#1e293b"/>
+          <line x1="70" y1="66" x2="125" y2="66" stroke="#f59e0b" stroke-width="3"/>
+          <polygon points="128,66 120,62 120,70" fill="#f59e0b"/>
+          <text x="60" y="58" font-size="8" font-weight="bold" fill="#b45309">Dusty Gas In</text>
+
+          <!-- Cyclone Barrel (Cylinder: y=48 to 118) -->
+          <rect x="135" y="48" width="70" height="70" fill="url(#cycloneGrad)" stroke="#1e293b" stroke-width="2"/>
+          
+          <!-- Vortex Finder Inner Tube -->
+          <rect x="154" y="48" width="32" height="35" fill="#38bdf8" opacity="0.7" stroke="#0284c7"/>
+
+          <!-- Cyclone Cone Section (y=118 to 200, taper to width 26) -->
+          <polygon points="135,118 205,118 183,200 157,200" fill="url(#cycloneGrad)" stroke="#1e293b" stroke-width="2"/>
+
+          <!-- Outer Spiral Vortex Streamlines (Downward) -->
+          <path d="M 140 70 Q 170 85 200 80 Q 140 100 195 115 Q 150 140 185 160 Q 160 185 175 195" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3"/>
+
+          <!-- Inner Upward Vortex (Clean Air Spiral) -->
+          <path d="M 170 190 Q 175 150 168 120 Q 173 80 170 46" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+
+          <!-- Dust Discharge Spout & Hopper -->
+          <rect x="157" y="200" width="26" height="15" fill="#334155" stroke="#1e293b"/>
+          <polygon points="152,215 188,215 194,236 146,236" fill="#475569" stroke="#1e293b"/>
+          <!-- Falling Dust Particles -->
+          <circle cx="166" cy="222" r="1.5" fill="#f59e0b"/>
+          <circle cx="174" cy="225" r="2" fill="#f59e0b"/>
+          <circle cx="170" cy="230" r="1.5" fill="#f59e0b"/>
+          <text x="170" y="234" font-size="7" font-weight="bold" fill="#f8fafc" text-anchor="middle">Dust Hopper</text>
+
+          <!-- Annotations -->
+          <rect x="220" y="60" width="110" height="42" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="225" y="74" font-size="8" fill="#64748b">Inlet Velocity (v_i)</text>
+          <text x="225" y="92" font-size="13" font-weight="bold" fill="#0f172a" id="svgInletVelVal">17.2 m/s</text>
+
+          <rect x="10" y="115" width="105" height="42" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="15" y="129" font-size="8" fill="#64748b">Cut-Point (d₅₀)</text>
+          <text x="15" y="147" font-size="13" font-weight="bold" fill="#2563eb" id="svgCutPointVal">4.2 &mu;m</text>
+        </svg>
+      </div>
+
+      <div class="cs-stat-grid">
+        <div class="cs-stat-box highlight">
+          <div class="cs-stat-label">Cut-Point Diameter (d₅₀)</div>
+          <div class="cs-stat-val" id="csD50Result">4.21 &mu;m</div>
+          <div class="cs-stat-sub" id="csD50Sub">50% fractional capture</div>
+        </div>
+        <div class="cs-stat-box highlight">
+          <div class="cs-stat-label">Overall Dust Recovery</div>
+          <div class="cs-stat-val" id="csEffResult">93.8%</div>
+          <div class="cs-stat-sub" id="csEffSub">For 18 &mu;m MMD dust</div>
+        </div>
+        <div class="cs-stat-box" id="csVelBox">
+          <div class="cs-stat-label">Inlet Velocity (v<sub>i</sub>)</div>
+          <div class="cs-stat-val" id="csVelResult">17.2 m/s</div>
+          <div class="cs-stat-sub"><span class="cs-status-badge badge-pass" id="csVelBadge">Optimal (15-22 m/s)</span></div>
+        </div>
+        <div class="cs-stat-box">
+          <div class="cs-stat-label">Pressure Drop (&Delta;P)</div>
+          <div class="cs-stat-val" id="csDpResult">5.12 in. w.g.</div>
+          <div class="cs-stat-sub" id="csDpSub">1,275 Pa (6.4 heads)</div>
+        </div>
+      </div>
+
+      <div class="cs-stat-grid">
+        <div class="cs-stat-box">
+          <div class="cs-stat-label">Fan Power Penalty</div>
+          <div class="cs-stat-val" id="csPowerResult">6.28 BHP</div>
+          <div class="cs-stat-sub" id="csPowerSub">At 65% fan efficiency</div>
+        </div>
+        <div class="cs-stat-box">
+          <div class="cs-stat-label">Centrifugal Force</div>
+          <div class="cs-stat-val" id="csGforceResult">67 Gs</div>
+          <div class="cs-stat-sub" id="csGforceSub">v_i&sup2; / (r &middot; g)</div>
+        </div>
+      </div>
+
+      <button type="button" class="cs-btn" id="copyCsAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Stairmand Cyclone Audit</span>
+      </button>
+
+      <textarea id="csAuditReport" class="cs-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Engineering Math -->
+  <div class="cs-card" style="margin-bottom: 24px;">
+    <div class="cs-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Lapple &amp; Stairmand Separation Derivations</h2>
+      <p>Centrifugal cut-point, fractional efficiency, and velocity head equations evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>Stairmand (1951)</strong> and <strong>Lapple (1951)</strong>, gas entering tangentially creates a high-velocity outer vortex spinning downward to the cone apex before reversing into an inner clean gas vortex core.</p>
+      <p>1. <strong>Inlet Duct Area &amp; Velocity:</strong> For a cyclone barrel diameter D = <span id="derivDVal" style="font-weight:600;">0.90 m</span> with Stairmand standard inlet height a = 0.5D (0.45 m) and width b = 0.2D (0.18 m):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        A_inlet = a &middot; b = (0.5 &middot; D) &middot; (0.2 &middot; D) = 0.10 &middot; D&sup2; = <span id="derivInletArea" style="font-weight:700; color:#2563eb;">0.0810 m&sup2;</span><br>
+        v_i = Q / A_inlet = <span id="derivInletVel" style="font-weight:700; color:#2563eb;">17.15 m/s</span> (3,375 ft/min)
+      </div>
+      <p>2. <strong>Flue Gas Viscosity (&mu;) &amp; Density (&rho;_g):</strong> At operating temperature <span id="derivTemp" style="font-weight:600;">150&deg;C</span> (Sutherland Law):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &mu;_gas = <span id="derivVisc" style="font-weight:600;">2.38 &times; 10⁻⁵ Pa&middot;s</span> | &rho;_gas = <span id="derivGasDens" style="font-weight:600;">0.834 kg/m&sup3;</span>
+      </div>
+      <p>3. <strong>Lapple Cut-Point Diameter (d₅₀):</strong> Effective vortex turns N_e = 5.5 turns, particle density &rho;_p = <span id="derivPartDens" style="font-weight:600;">2,500 kg/m&sup3;</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        d₅₀ = sqrt[ (9 &middot; &mu; &middot; b) / (2 &middot; &pi; &middot; N_e &middot; v_i &middot; (&rho;_p - &rho;_g)) ] = <span id="derivCalcD50" style="font-weight:700; color:#0284c7;">4.21 &mu;m</span>
+      </div>
+      <p>4. <strong>Overall Fractional Collection Efficiency:</strong> Evaluated across log-normal particle distribution with MMD = <span id="derivMmd" style="font-weight:600;">18.0 &mu;m</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &eta;_j = 1 / [ 1 + (d₅₀ / d_j)&sup2; ] &rarr; Overall Collection Efficiency = <span id="derivCalcEff" style="font-weight:700; color:#15803d;">93.8%</span>
+      </div>
+      <p>5. <strong>Shepherd-Lapple Static Pressure Drop (&Delta;P):</strong> Velocity head coefficient N_H = 6.4 heads:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;P = 0.5 &middot; &rho;_g &middot; v_i&sup2; &middot; N_H = <span id="derivCalcDp" style="font-weight:700; color:#b45309;">1,275 Pa</span> (5.12 in. w.g.)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="cs-card" style="margin-bottom: 24px;">
+    <div class="cs-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Industrial Cyclone Operation</h2>
+      <p>EPA AP-42, Stairmand, and industrial ventilation dust collection guidelines</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Dust Hopper Air In-Leakage &amp; Massive Re-Entrainment</strong><br>
+      Cyclones operate under negative pressure (suction) created by the induced draft fan. <strong>Even a 2% air leak through a worn rotary airlock or unsealed dump gate at the hopper bottom collapses collection efficiency by 30% to 50%.</strong> In-leaking atmospheric air rushes up through the discharge spout, re-entraining settled dust and jetting it straight up into the clean gas exit vortex.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Excessive Inlet Velocity (&gt; 25 m/s) Saltation &amp; Wall Abrasion</strong><br>
+      Engineers often assume higher inlet velocity guarantees better separation because centrifugal force scales as v&sup2;. In reality, pushing inlet velocity above 22–25 m/s (4,500 ft/min) creates severe turbulence at the boundary layer. Dust particles bounce off the barrel wall (saltation) instead of sliding down into the cone, cutting efficiency while abrasive dust wears holes through the steel shell.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Flue Gas Dew-Point Acid Condensation &amp; Cone "Mudding"</strong><br>
+      Operating an uninsulated cyclone on boiler flue gas or kiln exhaust near the water/acid dew point causes moisture to condense on internal walls. Dry dust combines with sulfuric or hydrochloric acid droplets to form sticky, corrosive mud that bridges the cone apex within hours. Always maintain cyclone wall temperatures at least 15&deg;C (25&deg;F) above the acid dew point.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Vortex Finder Short-Circuiting &amp; Dimensional Distortions</strong><br>
+      Fabrication shortcuts that alter the vortex finder insertion depth (S &ne; 0.5D) or barrel transition angles destroy cyclone fluid dynamics. If the vortex finder does not extend past the inlet duct, raw dusty gas short-circuits directly into the outlet without spinning. If it extends too deep into the cone, it intercepts the returning dust stream, discharging uncollected particulate.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. The Sub-5 Micron PM₂.₅ Efficiency Falloff Trap</strong><br>
+      Cyclones are inertial separators governed by Stokes' Law: aerodynamic drag on particles smaller than 3 to 5 microns overcomes centrifugal force. For PM₂.₅ and PM₁₀ regulatory compliance, <strong>a single cyclone can never replace a fabric filter baghouse or electrostatic precipitator (ESP).</strong> Treating a cyclone as an absolute filter rather than a coarse pre-cleaner leads to guaranteed environmental EPA non-compliance.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const gasFlowInput = document.getElementById('csGasFlow');
+  const flowUnitSelect = document.getElementById('csFlowUnit');
+  const tempInput = document.getElementById('csTemp');
+  const tempUnitSelect = document.getElementById('csTempUnit');
+  const partDensityInput = document.getElementById('csPartDensity');
+  const densityUnitSelect = document.getElementById('csDensityUnit');
+  const modelPresetSelect = document.getElementById('csModelPreset');
+  const diameterInput = document.getElementById('csDiameter');
+  const diaUnitSelect = document.getElementById('csDiaUnit');
+  const massMedianInput = document.getElementById('csMassMedian');
+
+  // Outputs
+  const d50Result = document.getElementById('csD50Result');
+  const d50Sub = document.getElementById('csD50Sub');
+  const effResult = document.getElementById('csEffResult');
+  const effSub = document.getElementById('csEffSub');
+  const velResult = document.getElementById('csVelResult');
+  const velBadge = document.getElementById('csVelBadge');
+  const velBox = document.getElementById('csVelBox');
+  const dpResult = document.getElementById('csDpResult');
+  const dpSub = document.getElementById('csDpSub');
+  const powerResult = document.getElementById('csPowerResult');
+  const powerSub = document.getElementById('csPowerSub');
+  const gforceResult = document.getElementById('csGforceResult');
+  const gforceSub = document.getElementById('csGforceSub');
+  const auditBox = document.getElementById('csAuditReport');
+
+  // SVG Elements
+  const svgInletVelVal = document.getElementById('svgInletVelVal');
+  const svgCutPointVal = document.getElementById('svgCutPointVal');
+
+  // Derivations
+  const derivDVal = document.getElementById('derivDVal');
+  const derivInletArea = document.getElementById('derivInletArea');
+  const derivInletVel = document.getElementById('derivInletVel');
+  const derivTemp = document.getElementById('derivTemp');
+  const derivVisc = document.getElementById('derivVisc');
+  const derivGasDens = document.getElementById('derivGasDens');
+  const derivPartDens = document.getElementById('derivPartDens');
+  const derivCalcD50 = document.getElementById('derivCalcD50');
+  const derivMmd = document.getElementById('derivMmd');
+  const derivCalcEff = document.getElementById('derivCalcEff');
+  const derivCalcDp = document.getElementById('derivCalcDp');
+
+  function calculate() {
+    const isFahrenheit = tempUnitSelect.value === 'F';
+    let T_val = parseFloat(tempInput.value) || 150;
+    let T_C = isFahrenheit ? (T_val - 32) * 5/9 : T_val;
+    let T_K = T_C + 273.15;
+
+    // Gas flow rate to m3/s
+    let rawFlow = parseFloat(gasFlowInput.value) || 5000;
+    let Q_m3s = rawFlow * 0.000471947; // ACFM to m3/s
+    if (flowUnitSelect.value === 'm3_h') Q_m3s = rawFlow / 3600;
+    else if (flowUnitSelect.value === 'm3_s') Q_m3s = rawFlow;
+
+    // Diameter to meters
+    let rawDia = parseFloat(diameterInput.value) || 0.90;
+    let D_m = rawDia;
+    if (diaUnitSelect.value === 'in') D_m = rawDia * 0.0254;
+    else if (diaUnitSelect.value === 'ft') D_m = rawDia * 0.3048;
+
+    // Particle density to kg/m3
+    let rawDensity = parseFloat(partDensityInput.value) || 2500;
+    let rho_p = densityUnitSelect.value === 'lb_cuft' ? rawDensity * 16.0185 : rawDensity;
+
+    // Gas properties at T_K (air at 1 atm)
+    // Sutherland law for dynamic viscosity of air
+    const mu_0 = 1.716e-5;
+    const T_0 = 273.15;
+    const S_c = 110.4;
+    const mu_gas = mu_0 * Math.pow(T_K / T_0, 1.5) * ((T_0 + S_c) / (T_K + S_c));
+    const rho_gas = (101325) / (287.058 * T_K); // kg/m3
+
+    // Cyclone Geometry Multipliers based on model preset
+    let a_factor = 0.5; // Inlet height a / D
+    let b_factor = 0.2; // Inlet width b / D
+    let Ne = 5.5;       // Number of turns
+    let Nh = 6.4;       // Head loss factor
+    if (modelPresetSelect.value === 'swift_gp') {
+      a_factor = 0.44; b_factor = 0.21; Ne = 6.0; Nh = 7.0;
+    } else if (modelPresetSelect.value === 'lapple_std') {
+      a_factor = 0.50; b_factor = 0.25; Ne = 5.0; Nh = 8.0;
+    } else if (modelPresetSelect.value === 'stairmand_ht') {
+      a_factor = 0.75; b_factor = 0.375; Ne = 4.0; Nh = 4.5;
+    }
+
+    const a_m = a_factor * D_m;
+    const b_m = b_factor * D_m;
+    const A_inlet = a_m * b_m;
+
+    // Inlet Velocity (m/s)
+    const v_inlet = Q_m3s / A_inlet;
+    const v_inlet_fpm = v_inlet * 196.85;
+
+    // Lapple Cut-Point d50: d50 = sqrt[ (9 * mu * b) / (2 * pi * Ne * vi * (rho_p - rho_g)) ] (in meters)
+    const d50_m = Math.sqrt( (9 * mu_gas * b_m) / (2 * Math.PI * Ne * v_inlet * Math.max(rho_p - rho_gas, 100)) );
+    const d50_um = d50_m * 1e6;
+
+    // Overall Fractional Efficiency
+    const mmd_um = parseFloat(massMedianInput.value) || 18.0;
+    // Multi-bin integration across log-normal particle distribution
+    const particleBins = [0.5, 1.0, 2.0, 3.5, 5.0, 7.5, 10, 15, 20, 30, 45, 60, 80];
+    let totalEff = 0;
+    let totalWeight = 0;
+    for (let i = 0; i < particleBins.length; i++) {
+      let dp = particleBins[i];
+      let eta_bin = 1 / (1 + Math.pow(d50_um / dp, 2));
+      let weight = Math.exp(-0.5 * Math.pow(Math.log(dp / mmd_um) / 0.7, 2));
+      totalEff += eta_bin * weight;
+      totalWeight += weight;
+    }
+    const overallEffPct = (totalEff / totalWeight) * 100;
+
+    // Pressure Drop (Pa and in. w.g.)
+    // DeltaP = 0.5 * rho_gas * v_inlet^2 * Nh
+    const deltaP_Pa = 0.5 * rho_gas * Math.pow(v_inlet, 2) * Nh;
+    const deltaP_in_wg = deltaP_Pa * 0.00401865;
+
+    // Fan Power (BHP = Q_acfm * deltaP_in_wg / (6356 * eta_fan ~ 0.65))
+    const Q_acfm = Q_m3s * 2118.88;
+    const fanBhp = (Q_acfm * deltaP_in_wg) / (6356 * 0.65);
+
+    // Centrifugal Acceleration G-Force: v^2 / (r * g) where r = D / 2
+    const radius_m = D_m / 2;
+    const g_force = Math.pow(v_inlet, 2) / (radius_m * 9.80665);
+
+    // Update Result UI
+    d50Result.textContent = d50_um.toFixed(2) + ' μm';
+    d50Sub.textContent = '50% fractional capture diameter';
+
+    effResult.textContent = overallEffPct.toFixed(1) + '%';
+    effSub.textContent = 'For ' + mmd_um + ' μm mass median dust';
+
+    velResult.textContent = v_inlet.toFixed(1) + ' m/s';
+    if (v_inlet < 12) {
+      velBadge.className = 'cs-status-badge badge-warn';
+      velBadge.textContent = 'Low Velocity (< 12 m/s)';
+      velBox.className = 'cs-stat-box warning';
+    } else if (v_inlet > 24) {
+      velBadge.className = 'cs-status-badge badge-fail';
+      velBadge.textContent = 'Saltation / Abrasion (> 24 m/s)';
+      velBox.className = 'cs-stat-box danger';
+    } else {
+      velBadge.className = 'cs-status-badge badge-pass';
+      velBadge.textContent = 'Optimal (15-22 m/s)';
+      velBox.className = 'cs-stat-box';
+    }
+
+    dpResult.textContent = deltaP_in_wg.toFixed(2) + ' in. w.g.';
+    dpSub.textContent = Math.round(deltaP_Pa).toLocaleString() + ' Pa (' + Nh + ' heads)';
+
+    powerResult.textContent = fanBhp.toFixed(2) + ' BHP';
+    powerSub.textContent = 'Fan power loss @ 65% η';
+
+    gforceResult.textContent = Math.round(g_force).toLocaleString() + ' Gs';
+    gforceSub.textContent = 'v² / (r · g)';
+
+    // Update SVG
+    svgInletVelVal.textContent = v_inlet.toFixed(1) + ' m/s';
+    svgCutPointVal.textContent = d50_um.toFixed(1) + ' μm';
+
+    // Update Derivations
+    derivDVal.textContent = D_m.toFixed(2) + ' m (' + (D_m * 39.3701).toFixed(1) + '")';
+    derivInletArea.textContent = A_inlet.toFixed(4) + ' m²';
+    derivInletVel.textContent = v_inlet.toFixed(2) + ' m/s (' + Math.round(v_inlet_fpm) + ' ft/min)';
+    derivTemp.textContent = T_C.toFixed(0) + '°C (' + T_val + '°' + (isFahrenheit ? 'F' : 'C') + ')';
+    derivVisc.textContent = (mu_gas * 1e5).toFixed(2) + ' × 10⁻⁵ Pa·s';
+    derivGasDens.textContent = rho_gas.toFixed(3) + ' kg/m³';
+    derivPartDens.textContent = Math.round(rho_p).toLocaleString() + ' kg/m³';
+    derivCalcD50.textContent = d50_um.toFixed(2) + ' μm';
+    derivMmd.textContent = mmd_um.toFixed(1) + ' μm';
+    derivCalcEff.textContent = overallEffPct.toFixed(1) + '%';
+    derivCalcDp.textContent = Math.round(deltaP_Pa) + ' Pa (' + deltaP_in_wg.toFixed(2) + ' in. w.g.)';
+
+    // Update Audit Box
+    const auditText = 
+      '=======================================================\n' +
+      '   STAIRMAND & LAPPLE CYCLONE SEPARATOR AUDIT          \n' +
+      '=======================================================\n' +
+      'Design Geometry:           ' + modelPresetSelect.options[modelPresetSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+      'Gas Flow Rate:             ' + Math.round(Q_acfm) + ' ACFM (' + (Q_m3s * 3600).toFixed(0) + ' m³/h)\n' +
+      'Operating Temperature:     ' + T_C.toFixed(0) + '°C (' + T_val + '°' + (isFahrenheit ? 'F' : 'C') + ') [ρ_gas: ' + rho_gas.toFixed(3) + ' kg/m³]\n' +
+      'Cyclone Barrel Diameter:   ' + D_m.toFixed(2) + ' m (' + (D_m * 39.3701).toFixed(1) + ' inches)\n' +
+      'Inlet Duct Dimensions:     ' + (a_m*1000).toFixed(0) + ' mm H × ' + (b_m*1000).toFixed(0) + ' mm W (Area: ' + A_inlet.toFixed(4) + ' m²)\n' +
+      'Inlet Velocity (vi):       ' + v_inlet.toFixed(2) + ' m/s (' + Math.round(v_inlet_fpm) + ' ft/min) [' + velBadge.textContent + ']\n' +
+      'Centrifugal Acceleration:  ' + Math.round(g_force) + ' Gs\n' +
+      '-------------------------------------------------------\n' +
+      'Cut-Point Diameter (d50):  ' + d50_um.toFixed(2) + ' μm (50% fractional separation)\n' +
+      'Mass Median Dust (MMD):    ' + mmd_um.toFixed(1) + ' μm (True Density: ' + Math.round(rho_p) + ' kg/m³)\n' +
+      'OVERALL DUST RECOVERY:     ' + overallEffPct.toFixed(1) + '%\n' +
+      'Static Pressure Drop (ΔP): ' + deltaP_in_wg.toFixed(2) + ' in. w.g. (' + Math.round(deltaP_Pa) + ' Pa)\n' +
+      'Induced Fan Power Loss:    ' + fanBhp.toFixed(2) + ' BHP\n' +
+      'Design Standard:           Stairmand (1951) / EPA AP-42 Chapter 15\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyCsAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyCsAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Stairmand Cyclone Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [gasFlowInput, flowUnitSelect, tempInput, tempUnitSelect, partDensityInput, densityUnitSelect, modelPresetSelect, diameterInput, diaUnitSelect, massMedianInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'cyclone-separator-efficiency-calculator.html'), renderTradePage({
+    title: "Cyclone Separator Efficiency & Cut-Point Calculator | Stairmand",
+    metaDesc: "Calculate industrial cyclone separator cut-point (d50), collection efficiency, inlet velocity, pressure drop, and fan power per Stairmand and Lapple models.",
+    canonical: `${DOMAIN}/calc/cyclone-separator-efficiency-calculator`,
+    bodyContent: cycloneSeparatorBody,
+    currentPath: '/calc/cyclone-separator-efficiency-calculator',
+    faq: [
+      {
+        "q": "What is the cut-point diameter (d₅₀) of a cyclone separator?",
+        "a": "The cut-point diameter (d₅₀) is the aerodynamic particle size that is collected by the cyclone with exactly 50% fractional efficiency. Particles larger than d₅₀ are collected at progressively higher efficiencies (approaching 99%+ for particles 3× larger), while particles smaller than d₅₀ are mostly carried out with the clean gas stream."
+      },
+      {
+        "q": "What is the optimal gas inlet velocity for an industrial cyclone?",
+        "a": "Per Stairmand and Lapple design guidelines, the optimal gas inlet velocity is between 15 and 22 m/s (approx. 3,000 to 4,300 ft/min). Velocities below 12 m/s provide insufficient centrifugal force, while velocities exceeding 25 m/s cause boundary layer turbulence, particle saltation, wall abrasion, and excessive pressure drop."
+      },
+      {
+        "q": "Why does air leakage into the dust hopper severely harm cyclone efficiency?",
+        "a": "Because industrial cyclones operate under suction from downstream induced-draft fans, any air leaking in through the dust discharge valve rushes upward through the conical apex. This upward air jet fluidizes settled dust particles and blows them directly into the inner clean gas vortex core, reducing collection efficiency by 30% to 50%."
+      },
+      {
+        "q": "Can a cyclone separator capture fine PM₂.₅ particulate?",
+        "a": "No. Inherent centrifugal mechanics dictate that aerodynamic drag forces dominate over inertial separation for particles smaller than 2.5 to 5.0 microns. Cyclones are highly effective as primary pre-cleaners for coarse particulate (> 10 μm), but must be followed by a fabric filter baghouse or wet scrubber to capture PM₂.₅ for clean air regulatory compliance."
+      },
+      {
+        "q": "How is pressure drop calculated across a Stairmand cyclone?",
+        "a": "Pressure drop is calculated using the velocity head equation: ΔP = 0.5 · ρ_gas · v_inlet² · N_H, where N_H is the inlet velocity head loss factor (typically 6.4 for Stairmand high-efficiency and 8.0 for Lapple). For standard atmospheric conditions, this translates to 3 to 7 inches of water gauge (750 to 1,750 Pa)."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 57: Steam Desuperheater Spray Water Calculator (ASME & ISA)
+  // ==========================================
+  const steamDesuperheaterBody = `
+<style>
+  .sd-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .sd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .sd-grid { grid-template-columns: 1fr; } }
+  .sd-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .sd-header { margin-bottom: 20px; }
+  .sd-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .sd-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .sd-form-group { margin-bottom: 16px; }
+  .sd-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .sd-input-row { display: flex; gap: 10px; align-items: center; }
+  .sd-input-row input, .sd-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .sd-input-row input:focus, .sd-input-row select:focus { outline: none; border-color: #2563eb; }
+  .sd-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .sd-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .sd-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .sd-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .sd-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .sd-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .sd-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .sd-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .sd-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .sd-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .sd-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .sd-btn:hover { background: #1d4ed8; }
+  .sd-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="sd-container">
+  <div class="sd-grid">
+    <!-- Inputs Column -->
+    <div class="sd-card">
+      <div class="sd-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Steam Conditioning Process</h2>
+        <p>ASME Section I / VIII &amp; ISA-75 steam attemperation thermodynamic mass balance</p>
+      </div>
+
+      <div class="sd-form-group">
+        <label for="sdSteamFlow">Inlet Superheated Steam Mass Flow (&dot;m<sub>steam</sub>)</label>
+        <div class="sd-input-row">
+          <input type="number" id="sdSteamFlow" value="50000" min="500" step="2500">
+          <select id="sdFlowUnit" class="sd-unit-badge" style="width:auto;">
+            <option value="lb_hr" selected>lbs/hr</option>
+            <option value="kg_hr">kg/hr</option>
+            <option value="ton_hr">t/h</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sd-form-group">
+        <label for="sdSteamPress">Operating Steam Pressure (P<sub>steam</sub>)</label>
+        <div class="sd-input-row">
+          <input type="number" id="sdSteamPress" value="450" min="5" step="10">
+          <select id="sdPressUnit" class="sd-unit-badge" style="width:auto;">
+            <option value="psig" selected>psig</option>
+            <option value="barg">barg</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sd-form-group">
+        <label>Steam Temperatures (Inlet &rarr; Target Outlet)</label>
+        <div class="sd-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Inlet Steam (T<sub>in</sub>)</span>
+            <input type="number" id="sdTin" value="750" step="5">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Target Steam (T<sub>out</sub>)</span>
+            <input type="number" id="sdTout" value="500" step="5">
+          </div>
+          <select id="sdTempUnit" class="sd-unit-badge" style="width:auto; align-self:flex-end; height:42px;">
+            <option value="F" selected>&deg;F</option>
+            <option value="C">&deg;C</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sd-form-group">
+        <label for="sdWaterTemp">Spray Water Supply Temperature (T<sub>water</sub>)</label>
+        <div class="sd-input-row">
+          <input type="number" id="sdWaterTemp" value="250" step="5">
+          <div class="sd-unit-badge" id="sdWaterTempBadge">&deg;F</div>
+        </div>
+      </div>
+
+      <div class="sd-form-group">
+        <label for="sdPipeSize">Steam Header Nominal Pipe Size</label>
+        <div class="sd-input-row">
+          <select id="sdPipeSize">
+            <option value="4">4" NPS (ID ~ 3.826" / 97 mm)</option>
+            <option value="6">6" NPS (ID ~ 5.761" / 146 mm)</option>
+            <option value="8" selected>8" NPS (ID ~ 7.625" / 194 mm)</option>
+            <option value="10">10" NPS (ID ~ 9.562" / 243 mm)</option>
+            <option value="12">12" NPS (ID ~ 11.374" / 289 mm)</option>
+            <option value="16">16" NPS (ID ~ 15.000" / 381 mm)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sd-form-group">
+        <label for="sdAttempType">Desuperheater Injection Hardware</label>
+        <div class="sd-input-row">
+          <select id="sdAttempType">
+            <option value="probe_fixed" selected>Fixed Orifice Probe (Standard 3:1 to 5:1 Turndown)</option>
+            <option value="probe_variable">Variable Orifice Spring Nozzle (High 15:1 to 25:1 Turndown)</option>
+            <option value="venturi">Venturi-Assisted Attemperator (Low Flow / High Velocity Throat)</option>
+            <option value="ring">Wafer / Annular Spray Ring with Full Thermal Liner</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="sd-card">
+      <div class="sd-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Spray Water Demand &amp; Straight Run</h2>
+        <p>Thermodynamic water quench rate and droplet evaporation distance</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="sdSvg" width="340" height="220" viewBox="0 0 340 220" style="max-width:100%;">
+          <defs>
+            <linearGradient id="steamInGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ef4444"/>
+              <stop offset="100%" stop-color="#f97316"/>
+            </linearGradient>
+            <linearGradient id="steamOutGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#eab308"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Steam Pipe Outer Wall (Gray) -->
+          <rect x="20" y="60" width="300" height="100" fill="#cbd5e1" stroke="#334155" stroke-width="2"/>
+          <!-- Pipe Inner Bore -->
+          <rect x="20" y="68" width="300" height="84" fill="#f8fafc"/>
+
+          <!-- Internal Thermal Sleeve Liner (Blue-Gray) -->
+          <rect x="85" y="74" width="180" height="72" fill="#f1f5f9" stroke="#64748b" stroke-dasharray="4,2"/>
+          <text x="175" y="156" font-size="7" fill="#64748b" text-anchor="middle">Internal Thermal Sleeve Liner</text>
+
+          <!-- Hot Inlet Steam Flow (Left) -->
+          <path d="M 20 68 L 100 68 L 100 152 L 20 152 Z" fill="url(#steamInGrad)" opacity="0.8"/>
+          <line x1="30" y1="110" x2="75" y2="110" stroke="#ffffff" stroke-width="3"/>
+          <polygon points="80,110 72,106 72,114" fill="#ffffff"/>
+          <text x="50" y="100" font-size="8" font-weight="bold" fill="#ffffff">Inlet Steam</text>
+
+          <!-- Attemperator Nozzle Probe Flange (Top) -->
+          <rect x="94" y="25" width="22" height="42" fill="#475569" rx="2"/>
+          <rect x="88" y="20" width="34" height="8" fill="#1e293b" rx="2"/>
+          <!-- Water In Arrow -->
+          <line x1="105" y1="6" x2="105" y2="24" stroke="#0284c7" stroke-width="3"/>
+          <polygon points="105,28 101,20 109,20" fill="#0284c7"/>
+          <text x="105" y="4" font-size="8" font-weight="bold" fill="#0284c7" text-anchor="middle">Spray Water In</text>
+
+          <!-- Central Injection Probe Tip -->
+          <line x1="105" y1="67" x2="105" y2="110" stroke="#1e293b" stroke-width="4"/>
+          <circle cx="105" cy="110" r="4" fill="#0284c7"/>
+
+          <!-- Atomized Spray Cones (Blue Droplets) -->
+          <polygon points="108,110 170,82 170,138" fill="#38bdf8" opacity="0.45"/>
+          <circle cx="125" cy="102" r="1.5" fill="#0284c7"/>
+          <circle cx="135" cy="118" r="1.5" fill="#0284c7"/>
+          <circle cx="145" cy="95" r="2" fill="#0284c7"/>
+          <circle cx="155" cy="110" r="1.5" fill="#0284c7"/>
+          <circle cx="165" cy="125" r="1" fill="#0284c7"/>
+
+          <!-- Conditioned Outlet Steam (Right) -->
+          <path d="M 170 68 L 320 68 L 320 152 L 170 152 Z" fill="url(#steamOutGrad)" opacity="0.8"/>
+          <line x1="200" y1="110" x2="260" y2="110" stroke="#ffffff" stroke-width="3"/>
+          <polygon points="265,110 257,106 257,114" fill="#ffffff"/>
+          <text x="230" y="100" font-size="8" font-weight="bold" fill="#ffffff">Desuperheated Steam</text>
+
+          <!-- Temperature Sensor / RTD Well -->
+          <line x1="285" y1="45" x2="285" y2="110" stroke="#ef4444" stroke-width="2.5"/>
+          <circle cx="285" cy="110" r="3" fill="#dc2626"/>
+          <text x="285" y="40" font-size="7" font-weight="bold" fill="#dc2626" text-anchor="middle">RTD Well</text>
+
+          <!-- Distance Dimension Line -->
+          <line x1="105" y1="178" x2="285" y2="178" stroke="#334155" stroke-width="1.5"/>
+          <line x1="105" y1="172" x2="105" y2="184" stroke="#334155" stroke-width="1.5"/>
+          <line x1="285" y1="172" x2="285" y2="184" stroke="#334155" stroke-width="1.5"/>
+          <text x="195" y="192" font-size="9" font-weight="bold" fill="#0f172a" text-anchor="middle" id="svgEvapLenVal">Evaporation Run: 15.8 ft (25D)</text>
+        </svg>
+      </div>
+
+      <div class="sd-stat-grid">
+        <div class="sd-stat-box highlight">
+          <div class="sd-stat-label">Spray Water Flow (&dot;m<sub>w</sub>)</div>
+          <div class="sd-stat-val" id="sdWaterResult">5,720 lbs/hr</div>
+          <div class="sd-stat-sub" id="sdWaterSub">11.4 US GPM (2,595 kg/h)</div>
+        </div>
+        <div class="sd-stat-box highlight">
+          <div class="sd-stat-label">Total Conditioned Steam</div>
+          <div class="sd-stat-val" id="sdTotalSteamResult">55,720 lbs/hr</div>
+          <div class="sd-stat-sub" id="sdTotalSteamSub">+11.4% Mass Boost</div>
+        </div>
+        <div class="sd-stat-box" id="sdMarginBox">
+          <div class="sd-stat-label">Superheat Margin (&Delta;T<sub>sat</sub>)</div>
+          <div class="sd-stat-val" id="sdMarginResult">40.2 &deg;F</div>
+          <div class="sd-stat-sub"><span class="sd-status-badge badge-pass" id="sdMarginBadge">Safe Margin (&ge; 20&deg;F)</span></div>
+        </div>
+        <div class="sd-stat-box">
+          <div class="sd-stat-label">Saturation Temp (T<sub>sat</sub>)</div>
+          <div class="sd-stat-val" id="sdTsatResult">459.8 &deg;F</div>
+          <div class="sd-stat-sub" id="sdTsatSub">At 450 psig header</div>
+        </div>
+      </div>
+
+      <div class="sd-stat-grid">
+        <div class="sd-stat-box">
+          <div class="sd-stat-label">Min Evaporation Run</div>
+          <div class="sd-stat-val" id="sdEvapResult">15.9 ft</div>
+          <div class="sd-stat-sub" id="sdEvapSub">25 Pipe Diameters (4.8 m)</div>
+        </div>
+        <div class="sd-stat-box">
+          <div class="sd-stat-label">Steam Velocity</div>
+          <div class="sd-stat-val" id="sdVelResult">115 ft/s</div>
+          <div class="sd-stat-sub" id="sdVelSub">35.1 m/s (Optimal 80-160)</div>
+        </div>
+      </div>
+
+      <button type="button" class="sd-btn" id="copySdAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Desuperheater Audit</span>
+      </button>
+
+      <textarea id="sdAuditReport" class="sd-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Thermodynamics -->
+  <div class="sd-card" style="margin-bottom: 24px;">
+    <div class="sd-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Thermodynamic Energy &amp; Mass Balance</h2>
+      <p>ASME steam enthalpy and spray water injection evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>By the <strong>First Law of Thermodynamics</strong>, steady-state attemperation obeys energy and mass conservation:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        m&#775;_in &middot; h_in + m&#775;_water &middot; h_water = (m&#775;_in + m&#775;_water) &middot; h_out
+      </div>
+      <p>1. <strong>Enthalpy Values (Steam Tables):</strong> At operating pressure <span id="derivPress" style="font-weight:600;">450 psig</span> (464.7 psia):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        h_in (@ <span id="derivTin">750&deg;F</span>) = <span id="derivHin" style="font-weight:700; color:#ef4444;">1,385.2 BTU/lb</span><br>
+        h_out (@ <span id="derivTout">500&deg;F</span>) = <span id="derivHout" style="font-weight:700; color:#f59e0b;">1,234.6 BTU/lb</span><br>
+        h_water (@ <span id="derivTwater">250&deg;F</span>) = <span id="derivHwater" style="font-weight:700; color:#0284c7;">218.5 BTU/lb</span>
+      </div>
+      <p>2. <strong>Required Spray Water Flow Rate (m&#775;_water):</strong> For incoming steam flow m&#775;_in = <span id="derivSteamFlow" style="font-weight:600;">50,000 lbs/hr</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        m&#775;_water = m&#775;_in &middot; [ (h_in - h_out) / (h_out - h_water) ]<br>
+        m&#775;_water = 50,000 &middot; [ (1385.2 - 1234.6) / (1234.6 - 218.5) ] = <span id="derivCalcWater" style="font-weight:700; color:#15803d;">5,720 lbs/hr</span> (11.45 GPM)
+      </div>
+      <p>3. <strong>Saturation Temperature &amp; Superheat Check:</strong></p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        T_sat (@ 464.7 psia) = <span id="derivTsatVal" style="font-weight:600;">459.8&deg;F</span><br>
+        Superheat Margin = T_out - T_sat = 500.0 - 459.8 = <span id="derivMarginVal" style="font-weight:700; color:#0f172a;">40.2&deg;F</span> (&ge; 20&deg;F required)
+      </div>
+      <p>4. <strong>Minimum Straight Pipe Evaporation Run (L_evap):</strong> Rule of thumb L = 25D in an 8" NPS line (ID = 7.625"):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        L_evap = 25 &middot; D_pipe = 25 &middot; (7.625 / 12) = <span id="derivCalcEvap" style="font-weight:700; color:#b45309;">15.89 ft</span> (4.84 m)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="sd-card" style="margin-bottom: 24px;">
+    <div class="sd-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Steam Attemperator Engineering</h2>
+      <p>ASME B31.1, EPRI, and ISA steam conditioning safety standards</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Quenching Too Close to Saturation &amp; Blind Temperature Flooding</strong><br>
+      Attempting to control steam temperature within 5&deg;C (10&deg;F) of saturation (T_out &approx; T_sat) causes unevaporated water droplets to coat the downstream RTD thermowell. The liquid film blinds the sensor, which reads cold and signals the spray valve to shut, then dries, reads hot, and floods the line. The accumulated water creates devastating thermal shock and explosive water hammer. Always maintain at least <strong>10&deg;C to 15&deg;C (20&deg;F to 25&deg;F) of superheat</strong>.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Thermal Fatigue Cracking &amp; Pipe Wall Rupture (No Thermal Sleeve)</strong><br>
+      Omitting an internal thermal sleeve liner inside the desuperheater spool piece is a fatal error. When 120&deg;C (250&deg;F) boiler feedwater droplets impinge directly on a 400&deg;C+ (750&deg;F) chrome-moly pipe wall, the cyclic thermal quench induces severe circumferential thermal fatigue cracks that propagate through the wall, causing catastrophic high-pressure steam rupture.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Droplet Impingement on First Pipe Elbow (&lt; 20 Pipe Diameters)</strong><br>
+      Liquid water droplets take time to vaporize in high-speed steam. Installing a 90-degree pipe elbow closer than 20 to 30 pipe diameters downstream of the spray nozzle results in centrifugal droplet throw-out. Water droplets crash into the elbow extrados at 35 m/s (115 ft/s), eroding the pipe wall from the inside and causing pinhole leaks within months.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Wide Turndown Control Valve Hunting &amp; Seat Wiredrawing</strong><br>
+      Steam boilers frequently operate between 10% and 100% load, requiring 10:1 or 20:1 turndown on spray water. Using a single standard globe valve results in operation at 2% to 4% valve stroke during low load. High differential pressure (&Delta;P &gt; 15 bar) causes severe cavitation and seat wiredrawing, destroying the valve plug and causing persistent leakage into the steam pipe when the unit is idling.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Spray Water Mineral Deposition on Steam Turbine Blades</strong><br>
+      Spray water mixes directly and permanently into the steam header. Using untreated plant service water, softened water, or unpolished condensate introduces dissolved solids (silica, sodium, chlorides). As droplets vaporize, minerals precipitate as microscopic glass crystals that travel downstream, baking onto high-pressure steam turbine blades, destroying aerodynamic efficiency, and inducing rotor unbalance. Only high-purity demineralized boiler feedwater is permitted.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const steamFlowInput = document.getElementById('sdSteamFlow');
+  const flowUnitSelect = document.getElementById('sdFlowUnit');
+  const steamPressInput = document.getElementById('sdSteamPress');
+  const pressUnitSelect = document.getElementById('sdPressUnit');
+  const tinInput = document.getElementById('sdTin');
+  const toutInput = document.getElementById('sdTout');
+  const tempUnitSelect = document.getElementById('sdTempUnit');
+  const waterTempInput = document.getElementById('sdWaterTemp');
+  const waterTempBadge = document.getElementById('sdWaterTempBadge');
+  const pipeSizeSelect = document.getElementById('sdPipeSize');
+  const attempTypeSelect = document.getElementById('sdAttempType');
+
+  // Outputs
+  const waterResult = document.getElementById('sdWaterResult');
+  const waterSub = document.getElementById('sdWaterSub');
+  const totalSteamResult = document.getElementById('sdTotalSteamResult');
+  const totalSteamSub = document.getElementById('sdTotalSteamSub');
+  const marginResult = document.getElementById('sdMarginResult');
+  const marginBadge = document.getElementById('sdMarginBadge');
+  const marginBox = document.getElementById('sdMarginBox');
+  const tsatResult = document.getElementById('sdTsatResult');
+  const tsatSub = document.getElementById('sdTsatSub');
+  const evapResult = document.getElementById('sdEvapResult');
+  const evapSub = document.getElementById('sdEvapSub');
+  const velResult = document.getElementById('sdVelResult');
+  const velSub = document.getElementById('sdVelSub');
+  const auditBox = document.getElementById('sdAuditReport');
+
+  // SVG Elements
+  const svgEvapLenVal = document.getElementById('svgEvapLenVal');
+
+  // Derivations
+  const derivPress = document.getElementById('derivPress');
+  const derivTin = document.getElementById('derivTin');
+  const derivTout = document.getElementById('derivTout');
+  const derivTwater = document.getElementById('derivTwater');
+  const derivHin = document.getElementById('derivHin');
+  const derivHout = document.getElementById('derivHout');
+  const derivHwater = document.getElementById('derivHwater');
+  const derivSteamFlow = document.getElementById('derivSteamFlow');
+  const derivCalcWater = document.getElementById('derivCalcWater');
+  const derivTsatVal = document.getElementById('derivTsatVal');
+  const derivMarginVal = document.getElementById('derivMarginVal');
+  const derivCalcEvap = document.getElementById('derivCalcEvap');
+
+  function calculate() {
+    const isCelsius = tempUnitSelect.value === 'C';
+    const isBarg = pressUnitSelect.value === 'barg';
+    waterTempBadge.textContent = isCelsius ? '°C' : '°F';
+
+    // Pressures
+    let rawPress = parseFloat(steamPressInput.value) || 450;
+    let P_psig = isBarg ? rawPress * 14.5038 : rawPress;
+    let P_psia = P_psig + 14.696;
+    let P_bara = P_psia * 0.0689476;
+
+    // Temperatures in F for steam equations
+    let Tin_raw = parseFloat(tinInput.value) || 750;
+    let Tout_raw = parseFloat(toutInput.value) || 500;
+    let Twater_raw = parseFloat(waterTempInput.value) || 250;
+
+    let Tin_F = isCelsius ? Tin_raw * 1.8 + 32 : Tin_raw;
+    let Tout_F = isCelsius ? Tout_raw * 1.8 + 32 : Tout_raw;
+    let Twater_F = isCelsius ? Twater_raw * 1.8 + 32 : Twater_raw;
+
+    // Saturation Temperature at P_psia (approx Antoine/Steam tables)
+    // Tsat_F approx: 42.6776 * (P_psia)^0.231 + 100 for P > 50
+    let Tsat_F = (P_psia > 1) ? (115.34 * Math.pow(P_psia, 0.222) + 85.5) : 212;
+    let Tsat_disp = isCelsius ? (Tsat_F - 32) * 5/9 : Tsat_F;
+
+    // Steam Flow in lbs/hr
+    let rawSteamFlow = parseFloat(steamFlowInput.value) || 50000;
+    let m_steam_lbhr = rawSteamFlow;
+    if (flowUnitSelect.value === 'kg_hr') m_steam_lbhr = rawSteamFlow * 2.20462;
+    else if (flowUnitSelect.value === 'ton_hr') m_steam_lbhr = rawSteamFlow * 2204.62;
+
+    // Enthalpies (BTU/lb) approximation from steam tables
+    // h_steam ~ 1060 + 0.45 * Tsat_F + cp_super * (T - Tsat_F)
+    let cp_super = 0.58;
+    let h_sat_vap = 1150 + 0.35 * Math.sqrt(P_psia);
+    let h_in = h_sat_vap + cp_super * Math.max(Tin_F - Tsat_F, 0);
+    let h_out = h_sat_vap + cp_super * Math.max(Tout_F - Tsat_F, 0);
+
+    // Liquid water enthalpy: h_w approx = T_F - 32
+    let h_water = Math.max(Twater_F - 32, 30);
+
+    // Spray water flow: m_w = m_in * (h_in - h_out) / (h_out - h_water)
+    let denom = Math.max(h_out - h_water, 50);
+    let m_water_lbhr = m_steam_lbhr * ((h_in - h_out) / denom);
+    if (m_water_lbhr < 0) m_water_lbhr = 0;
+
+    let m_water_gpm = m_water_lbhr / 500; // 500 lbs/hr per GPM water
+    let m_water_kghr = m_water_lbhr * 0.453592;
+
+    let m_total_lbhr = m_steam_lbhr + m_water_lbhr;
+    let waterRatioPct = (m_water_lbhr / m_steam_lbhr) * 100;
+
+    // Superheat Margin
+    let margin_F = Tout_F - Tsat_F;
+    let margin_disp = isCelsius ? margin_F / 1.8 : margin_F;
+
+    // Pipe ID & Steam Velocity
+    let nps = parseFloat(pipeSizeSelect.value) || 8;
+    let pipe_id_in = nps * 0.95; // approx standard schedule ID
+    if (nps === 4) pipe_id_in = 3.826;
+    else if (nps === 6) pipe_id_in = 5.761;
+    else if (nps === 8) pipe_id_in = 7.625;
+    else if (nps === 10) pipe_id_in = 9.562;
+    else if (nps === 12) pipe_id_in = 11.374;
+    else if (nps === 16) pipe_id_in = 15.000;
+
+    let pipe_area_sqft = Math.PI * Math.pow((pipe_id_in / 12) / 2, 2);
+    // Specific volume v_g ~ (0.596 * (Tout_F + 460)) / P_psia [cu ft / lb]
+    let v_g = (0.596 * (Tout_F + 459.67)) / P_psia;
+    let volumetric_cfs = (m_total_lbhr * v_g) / 3600;
+    let steam_vel_fts = volumetric_cfs / pipe_area_sqft;
+    let steam_vel_ms = steam_vel_fts * 0.3048;
+
+    // Droplet Evaporation Distance L_evap: standard rule 25D to 30D for probe
+    let diam_ratio = attempTypeSelect.value === 'venturi' ? 18 : (attempTypeSelect.value === 'probe_variable' ? 20 : 25);
+    let evap_len_ft = diam_ratio * (pipe_id_in / 12);
+    let evap_len_m = evap_len_ft * 0.3048;
+
+    // Update Result UI
+    waterResult.textContent = Math.round(m_water_lbhr).toLocaleString() + ' lbs/hr';
+    waterSub.textContent = m_water_gpm.toFixed(1) + ' US GPM (' + Math.round(m_water_kghr).toLocaleString() + ' kg/h)';
+
+    totalSteamResult.textContent = Math.round(m_total_lbhr).toLocaleString() + ' lbs/hr';
+    totalSteamSub.textContent = '+' + waterRatioPct.toFixed(1) + '% Mass Flow Boost';
+
+    marginResult.textContent = margin_disp.toFixed(1) + (isCelsius ? ' °C' : ' °F');
+    if (margin_F < 10) {
+      marginBadge.className = 'sd-status-badge badge-fail';
+      marginBadge.textContent = 'CRITICAL: Water Puddling (< 10°F)';
+      marginBox.className = 'sd-stat-box danger';
+    } else if (margin_F < 20) {
+      marginBadge.className = 'sd-status-badge badge-warn';
+      marginBadge.textContent = 'Low Margin (10 - 20°F)';
+      marginBox.className = 'sd-stat-box warning';
+    } else {
+      marginBadge.className = 'sd-status-badge badge-pass';
+      marginBadge.textContent = 'Safe Margin (≥ 20°F)';
+      marginBox.className = 'sd-stat-box';
+    }
+
+    tsatResult.textContent = Tsat_disp.toFixed(1) + (isCelsius ? ' °C' : ' °F');
+    tsatSub.textContent = 'At ' + rawPress + ' ' + (isBarg ? 'barg' : 'psig');
+
+    evapResult.textContent = evap_len_ft.toFixed(1) + ' ft (' + evap_len_m.toFixed(1) + ' m)';
+    evapSub.textContent = diam_ratio + ' Pipe Diameters (NPS ' + nps + '")';
+
+    velResult.textContent = Math.round(steam_vel_fts) + ' ft/s';
+    velSub.textContent = steam_vel_ms.toFixed(1) + ' m/s (Header velocity)';
+
+    // Update SVG
+    svgEvapLenVal.textContent = 'Evaporation Run: ' + evap_len_ft.toFixed(1) + ' ft (' + diam_ratio + 'D)';
+
+    // Update Derivations
+    derivPress.textContent = rawPress + ' ' + (isBarg ? 'barg' : 'psig') + ' (' + P_psia.toFixed(1) + ' psia)';
+    derivTin.textContent = Tin_raw + '°' + (isCelsius ? 'C' : 'F');
+    derivTout.textContent = Tout_raw + '°' + (isCelsius ? 'C' : 'F');
+    derivTwater.textContent = Twater_raw + '°' + (isCelsius ? 'C' : 'F');
+    derivHin.textContent = h_in.toFixed(1) + ' BTU/lb';
+    derivHout.textContent = h_out.toFixed(1) + ' BTU/lb';
+    derivHwater.textContent = h_water.toFixed(1) + ' BTU/lb';
+    derivSteamFlow.textContent = Math.round(m_steam_lbhr).toLocaleString() + ' lbs/hr';
+    derivCalcWater.textContent = Math.round(m_water_lbhr).toLocaleString() + ' lbs/hr (' + m_water_gpm.toFixed(1) + ' GPM)';
+    derivTsatVal.textContent = Tsat_disp.toFixed(1) + '°' + (isCelsius ? 'C' : 'F');
+    derivMarginVal.textContent = margin_disp.toFixed(1) + '°' + (isCelsius ? 'C' : 'F');
+    derivCalcEvap.textContent = evap_len_ft.toFixed(1) + ' ft (' + evap_len_m.toFixed(2) + ' m)';
+
+    // Update Audit Box
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME B16.34 & ISA STEAM DESUPERHEATER AUDIT        \n' +
+      '=======================================================\n' +
+      'Inlet Steam Mass Flow:     ' + Math.round(m_steam_lbhr).toLocaleString() + ' lbs/hr (' + Math.round(m_steam_lbhr * 0.453592) + ' kg/h)\n' +
+      'Operating Header Pressure: ' + P_psig.toFixed(1) + ' psig (' + P_bara.toFixed(2) + ' bara)\n' +
+      'Steam Temperatures:        ' + Tin_raw + '° → ' + Tout_raw + '°' + (isCelsius ? 'C' : 'F') + ' (T_sat: ' + Tsat_disp.toFixed(1) + '°' + (isCelsius ? 'C' : 'F') + ')\n' +
+      'Superheat Margin Above Sat:' + margin_disp.toFixed(1) + '°' + (isCelsius ? 'C' : 'F') + ' [' + marginBadge.textContent + ']\n' +
+      'Spray Water Temperature:   ' + Twater_raw + '°' + (isCelsius ? 'C' : 'F') + ' (Feedwater Enthalpy: ' + h_water.toFixed(1) + ' BTU/lb)\n' +
+      '-------------------------------------------------------\n' +
+      'REQUIRED SPRAY WATER FLOW: ' + Math.round(m_water_lbhr).toLocaleString() + ' lbs/hr (' + m_water_gpm.toFixed(1) + ' US GPM)\n' +
+      'Total Conditioned Output:  ' + Math.round(m_total_lbhr).toLocaleString() + ' lbs/hr (+' + waterRatioPct.toFixed(1) + '% mass boost)\n' +
+      'Header Steam Velocity:     ' + Math.round(steam_vel_fts) + ' ft/s (' + steam_vel_ms.toFixed(1) + ' m/s)\n' +
+      'Min Evaporation Distance:  ' + evap_len_ft.toFixed(1) + ' ft (' + evap_len_m.toFixed(1) + ' m [' + diam_ratio + 'D])\n' +
+      'Thermal Protection:        Full Internal Thermal Sleeve Liner MANDATORY\n' +
+      'Safety Specification:      ASME B31.1 Power Piping / ISA-75.01\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copySdAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copySdAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Desuperheater Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [steamFlowInput, flowUnitSelect, steamPressInput, pressUnitSelect, tinInput, toutInput, tempUnitSelect, waterTempInput, pipeSizeSelect, attempTypeSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'steam-desuperheater-water-spray-calculator.html'), renderTradePage({
+    title: "Steam Desuperheater Spray Water Calculator | ASME & ISA",
+    metaDesc: "Calculate steam desuperheater spray water flow rate, cooling duty, saturation approach margin, and minimum straight-run droplet evaporation distance per ASME and ISA.",
+    canonical: `${DOMAIN}/calc/steam-desuperheater-water-spray-calculator`,
+    bodyContent: steamDesuperheaterBody,
+    currentPath: '/calc/steam-desuperheater-water-spray-calculator',
+    faq: [
+      {
+        "q": "What is the formula for calculating steam desuperheater spray water flow rate?",
+        "a": "Derived from the First Law of Thermodynamics energy balance: m_water = m_steam · (h_in - h_out) / (h_out - h_water), where m_steam is incoming superheated steam mass flow, h_in is inlet steam enthalpy, h_out is desired outlet steam enthalpy, and h_water is spray water enthalpy."
+      },
+      {
+        "q": "Why is a minimum superheat margin required when desuperheating steam?",
+        "a": "Controlling steam temperature too close to saturation (less than 10°F to 20°F / 5°C to 11°C of superheat) risks incomplete droplet evaporation. Liquid water accumulates along the bottom of the pipe, blinding downstream temperature sensors and creating severe hydraulic water hammer and piping shock."
+      },
+      {
+        "q": "What is the minimum straight pipe run required downstream of a desuperheater?",
+        "a": "Standard engineering practice per ASME B31.1 and ISA mandates 20 to 30 pipe diameters (20D to 30D) of straight pipe between the spray nozzle and the first pipe elbow or control valve. This distance provides sufficient residence time (typically 0.1 to 0.2 seconds) for atomized water droplets to fully evaporate into the steam flow."
+      },
+      {
+        "q": "Why is an internal thermal sleeve liner mandatory in a desuperheater?",
+        "a": "When relatively cold boiler feedwater (e.g. 250°F / 120°C) is injected into high-temperature steam (e.g. 750°F / 400°C), unevaporated droplets impinge on the metal walls. An internal thermal sleeve absorbs this cyclic thermal quench, preventing severe thermal fatigue stress cracking from rupturing the pressure-retaining pipe wall."
+      },
+      {
+        "q": "What water quality is required for steam attemperator spray water?",
+        "a": "Because spray water evaporates completely and leaves its dissolved solids behind in the steam stream, only high-purity demineralized boiler feedwater or polished condensate may be used. Introducing untreated or softened water carries sodium, silica, and chlorides directly into downstream steam turbines, causing blade erosion and stress corrosion cracking."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 58: Venturi Scrubber Pressure Drop & Cut-Point Calculator (Calvert Model)
+  // ==========================================
+  const venturiScrubberBody = `
+<style>
+  .vs-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .vs-grid { grid-template-columns: 1fr; } }
+  .vs-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .vs-header { margin-bottom: 20px; }
+  .vs-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .vs-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .vs-form-group { margin-bottom: 16px; }
+  .vs-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .vs-input-row { display: flex; gap: 10px; align-items: center; }
+  .vs-input-row input, .vs-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .vs-input-row input:focus, .vs-input-row select:focus { outline: none; border-color: #2563eb; }
+  .vs-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .vs-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .vs-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .vs-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .vs-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .vs-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .vs-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .vs-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .vs-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .vs-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .vs-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .vs-btn:hover { background: #1d4ed8; }
+  .vs-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="vs-container">
+  <div class="vs-grid">
+    <!-- Inputs Column -->
+    <div class="vs-card">
+      <div class="vs-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Scrubber Aerodynamic Conditions</h2>
+        <p>Calvert &amp; Yung high-energy venturi wet scrubber model</p>
+      </div>
+
+      <div class="vs-form-group">
+        <label for="vsGasFlow">Gas Volumetric Flow Rate (Q<sub>gas</sub>)</label>
+        <div class="vs-input-row">
+          <input type="number" id="vsGasFlow" value="15000" min="500" step="500">
+          <select id="vsFlowUnit" class="vs-unit-badge" style="width:auto;">
+            <option value="acfm" selected>ACFM</option>
+            <option value="m3_h">m&sup3;/h</option>
+            <option value="m3_s">m&sup3;/s</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vs-form-group">
+        <label for="vsThroatArea">Venturi Throat Cross-Sectional Area</label>
+        <div class="vs-input-row">
+          <input type="number" id="vsThroatArea" value="1.25" min="0.05" step="0.05">
+          <select id="vsAreaUnit" class="vs-unit-badge" style="width:auto;">
+            <option value="sqft" selected>sq ft (ft&sup2;)</option>
+            <option value="sqm">sq m (m&sup2;)</option>
+            <option value="sqin">sq in</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vs-form-group">
+        <label for="vsLgRatio">Liquid-to-Gas Ratio (L/G)</label>
+        <div class="vs-input-row">
+          <input type="number" id="vsLgRatio" value="10.0" min="2" max="25" step="0.5">
+          <select id="vsLgUnit" class="vs-unit-badge" style="width:auto;">
+            <option value="gal_1000acfm" selected>Gal / 1,000 ACFM</option>
+            <option value="l_m3">L / m&sup3;</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vs-form-group">
+        <label for="vsGasTemp">Flue Gas Temperature (T<sub>gas</sub>)</label>
+        <div class="vs-input-row">
+          <input type="number" id="vsGasTemp" value="180" step="5">
+          <select id="vsTempUnit" class="vs-unit-badge" style="width:auto;">
+            <option value="F" selected>&deg;F</option>
+            <option value="C">&deg;C</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vs-form-group">
+        <label for="vsPartDensity">Particulate True Density (&rho;<sub>p</sub>)</label>
+        <div class="vs-input-row">
+          <input type="number" id="vsPartDensity" value="2600" min="500" step="100">
+          <select id="vsDensityUnit" class="vs-unit-badge" style="width:auto;">
+            <option value="kg_m3" selected>kg/m&sup3;</option>
+            <option value="lb_cuft">lb/ft&sup3;</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vs-form-group">
+        <label for="vsNozzleConfig">Throat Injection Configuration</label>
+        <div class="vs-input-row">
+          <select id="vsNozzleConfig">
+            <option value="spray_manifold" selected>Pressurized Multi-Nozzle Manifold (f = 0.35, High Atomization)</option>
+            <option value="wetted_wall">Wetted Approach Weir (f = 0.25, Non-Clogging for Heavy Slurry)</option>
+            <option value="central_spray">Central Annular Spray Nozzle (f = 0.45, Compact High &Delta;P)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="vs-card">
+      <div class="vs-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Hydraulic &amp; Pressure Drop Results</h2>
+        <p>Calvert pressure drop, submicron cut-point, and fan power</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="vsSvg" width="340" height="230" viewBox="0 0 340 230" style="max-width:100%;">
+          <defs>
+            <linearGradient id="venturiBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="50%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+            <linearGradient id="throatMistGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#0284c7"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Top Converging Section (y=10 to 75) -->
+          <polygon points="110,10 230,10 190,75 150,75" fill="url(#venturiBodyGrad)" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="170" y="24" font-size="8" font-weight="bold" fill="#f8fafc" text-anchor="middle">Gas Inlet (Raw Dusty)</text>
+
+          <!-- High-Velocity Gas Inflow Arrows -->
+          <line x1="160" y1="28" x2="160" y2="65" stroke="#f59e0b" stroke-width="2.5"/>
+          <polygon points="160,70 156,62 164,62" fill="#f59e0b"/>
+          <line x1="180" y1="28" x2="180" y2="65" stroke="#f59e0b" stroke-width="2.5"/>
+          <polygon points="180,70 176,62 184,62" fill="#f59e0b"/>
+
+          <!-- Water Injection Manifold Lines (Left & Right) -->
+          <rect x="115" y="76" width="35" height="10" fill="#0284c7" rx="2"/>
+          <line x1="100" y1="81" x2="148" y2="81" stroke="#38bdf8" stroke-width="2"/>
+          <polygon points="152,81 146,77 146,85" fill="#38bdf8"/>
+          <text x="95" y="78" font-size="7" font-weight="bold" fill="#0284c7">Liquid</text>
+
+          <rect x="190" y="76" width="35" height="10" fill="#0284c7" rx="2"/>
+          <line x1="240" y1="81" x2="192" y2="81" stroke="#38bdf8" stroke-width="2"/>
+          <polygon points="188,81 194,77 194,85" fill="#38bdf8"/>
+          <text x="245" y="78" font-size="7" font-weight="bold" fill="#0284c7">Liquid</text>
+
+          <!-- Venturi Throat Section (Narrow: y=75 to 115) -->
+          <rect x="150" y="75" width="40" height="40" fill="url(#throatMistGrad)" opacity="0.85" stroke="#0f172a" stroke-width="1.5"/>
+          <!-- Atomized Droplets Inside Throat -->
+          <circle cx="160" cy="85" r="1.5" fill="#ffffff"/>
+          <circle cx="178" cy="88" r="1" fill="#ffffff"/>
+          <circle cx="168" cy="98" r="2" fill="#ffffff"/>
+          <circle cx="158" cy="105" r="1.5" fill="#ffffff"/>
+          <circle cx="180" cy="108" r="1" fill="#ffffff"/>
+
+          <!-- Diverging Diffuser Section (y=115 to 195) -->
+          <polygon points="150,115 190,115 240,195 100,195" fill="url(#venturiBodyGrad)" stroke="#0f172a" stroke-width="1.5"/>
+          <!-- Expanding Mist Cone -->
+          <polygon points="152,116 188,116 230,190 110,190" fill="#38bdf8" opacity="0.3"/>
+
+          <!-- Bottom Flooded Discharge Flange -->
+          <rect x="90" y="195" width="160" height="16" fill="#334155" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="170" y="206" font-size="8" font-weight="bold" fill="#f8fafc" text-anchor="middle">To Cyclonic Mist Separator</text>
+
+          <!-- Annotations & Callouts -->
+          <rect x="10" y="85" width="95" height="44" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="15" y="99" font-size="8" fill="#64748b">Throat Velocity (v_t)</text>
+          <text x="15" y="118" font-size="13" font-weight="bold" fill="#0f172a" id="svgThroatVelVal">200 ft/s</text>
+
+          <rect x="235" y="85" width="95" height="44" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="240" y="99" font-size="8" fill="#64748b">Static Drop (&Delta;P)</text>
+          <text x="240" y="118" font-size="13" font-weight="bold" fill="#2563eb" id="svgDpVal">28.4 in. w.g.</text>
+        </svg>
+      </div>
+
+      <div class="vs-stat-grid">
+        <div class="vs-stat-box highlight">
+          <div class="vs-stat-label">Pressure Drop (&Delta;P)</div>
+          <div class="vs-stat-val" id="vsDpResult">28.4 in. w.g.</div>
+          <div class="vs-stat-sub" id="vsDpSub">7.07 kPa (Calvert Model)</div>
+        </div>
+        <div class="vs-stat-box highlight">
+          <div class="vs-stat-label">Aerodynamic Cut (d₅₀)</div>
+          <div class="vs-stat-val" id="vsCutResult">0.48 &mu;m</div>
+          <div class="vs-stat-sub" id="vsCutSub">Submicron PM2.5 capture</div>
+        </div>
+        <div class="vs-stat-box" id="vsVelBox">
+          <div class="vs-stat-label">Throat Gas Velocity</div>
+          <div class="vs-stat-val" id="vsVelResult">200 ft/s</div>
+          <div class="vs-stat-sub"><span class="vs-status-badge badge-pass" id="vsVelBadge">Optimal (180-280 ft/s)</span></div>
+        </div>
+        <div class="vs-stat-box">
+          <div class="vs-stat-label">Induced Fan Brake HP</div>
+          <div class="vs-stat-val" id="vsBhpResult">102.9 BHP</div>
+          <div class="vs-stat-sub" id="vsBhpSub">At 65% fan efficiency</div>
+        </div>
+      </div>
+
+      <div class="vs-stat-grid">
+        <div class="vs-stat-box">
+          <div class="vs-stat-label">Scrubbing Water Rate</div>
+          <div class="vs-stat-val" id="vsWaterResult">150.0 GPM</div>
+          <div class="vs-stat-sub" id="vsWaterSub">34.1 m&sup3;/h (L/G: 10.0)</div>
+        </div>
+        <div class="vs-stat-box">
+          <div class="vs-stat-label">Sauter Droplet (d₃₂)</div>
+          <div class="vs-stat-val" id="vsDropResult">74.2 &mu;m</div>
+          <div class="vs-stat-sub" id="vsDropSub">Intense shearing cloud</div>
+        </div>
+      </div>
+
+      <button type="button" class="vs-btn" id="copyVsAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Calvert Scrubber Audit</span>
+      </button>
+
+      <textarea id="vsAuditReport" class="vs-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Engineering Math -->
+  <div class="vs-card" style="margin-bottom: 24px;">
+    <div class="vs-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Mathematical &amp; Calvert Pressure Derivations</h2>
+      <p>Throat velocity, droplet momentum acceleration, and cut-point evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>Calvert (1970)</strong> and <strong>EPA Air Pollution Control Engineering</strong>, the static pressure drop across a venturi scrubber is primarily caused by accelerating the stationary liquid droplets up to high gas throat velocity:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;P = 1.03 &times; 10⁻³ &middot; v_t&sup2; &middot; &rho;_g &middot; (L/G) &middot; f
+      </div>
+      <p>1. <strong>Gas Throat Velocity (v_t):</strong> For volumetric gas flow Q = <span id="derivGasFlow" style="font-weight:600;">15,000 ACFM</span> (250 cfs) through throat area A_t = <span id="derivArea" style="font-weight:600;">1.25 sq ft</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        v_t = Q / A_t = 250 / 1.25 = <span id="derivThroatVel" style="font-weight:700; color:#2563eb;">200.0 ft/s</span> (60.96 m/s)
+      </div>
+      <p>2. <strong>Flue Gas Density (&rho;_g):</strong> At temperature <span id="derivTemp" style="font-weight:600;">180&deg;F</span> (355.4 K):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &rho;_gas = (P_atm &middot; M) / (R &middot; T) = <span id="derivGasDens" style="font-weight:600;">0.0622 lb/cu ft</span> (0.996 kg/m&sup3;)
+      </div>
+      <p>3. <strong>Calvert Static Pressure Drop (&Delta;P):</strong> With L/G = <span id="derivLg" style="font-weight:600;">10.0 Gal/1000 ACFM</span> and droplet acceleration friction factor f = 0.35:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;P = 1.03 &times; 10⁻³ &middot; (200.0)&sup2; &middot; 0.0622 &middot; 10.0 &middot; 0.35 = <span id="derivCalcDp" style="font-weight:700; color:#b45309;">28.43 in. w.g.</span> (7.07 kPa)
+      </div>
+      <p>4. <strong>Aerodynamic Cut-Point Diameter (d₅₀):</strong> Calculated from inertial impaction parameter K_p = 0.50 and Sauter droplet d₃₂ = <span id="derivDrop" style="font-weight:600;">74.2 &mu;m</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        d₅₀ = sqrt[ (9 &middot; &mu;_gas &middot; d₃₂) / (2 &middot; &rho;_p &middot; v_t &middot; K_p) ] = <span id="derivCalcCut" style="font-weight:700; color:#0284c7;">0.48 &mu;m</span> (Submicron capture)
+      </div>
+      <p>5. <strong>Induced Draft Fan Brake Horsepower:</strong> With fan efficiency &eta; = 0.65:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        BHP = (Q_acfm &middot; &Delta;P_in.wg) / (6356 &middot; &eta;) = (15,000 &middot; 28.43) / (6356 &middot; 0.65) = <span id="derivCalcBhp" style="font-weight:700; color:#15803d;">102.9 BHP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="vs-card" style="margin-bottom: 24px;">
+    <div class="vs-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Venturi Scrubber Engineering</h2>
+      <p>EPA Control Techniques, ACGIH Industrial Ventilation, and Chemical Plant Guidelines</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. ID Fan Static Head Deficit &amp; Complete Gas Choking</strong><br>
+      Venturi scrubbers are the most energy-intensive particulate devices in industry, commonly demanding 25 to 60 inches of water gauge (&Delta;P = 6 to 15 kPa). Installing a standard industrial fan rated for only 15 to 20 in. w.g. causes severe aerodynamic fan stall. The scrubber chokes gas flow, backing up poisonous combustion fumes and acid gas into production furnaces and boilers. Always verify fan test curves for high static head capability.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Excessive Throat Velocity (&gt; 350 ft/s / 110 m/s) Throat Erosion</strong><br>
+      Operating at throat velocities beyond 350 ft/s (110 m/s) with abrasive fly ash or metallurgical dust creates violent sonic sandblasting. Abrasive particles accelerated by the high-velocity gas jet scour through 316L stainless steel throat damper plates and rubber linings in weeks. Restrict throat velocities to between 180 and 280 ft/s, using silicon carbide or ceramic brick linings in abrasive applications.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Recirculated Slurry Nozzle Clogging &amp; Dry Throat Meltdown</strong><br>
+      Using recirculated scrubbing slurry with high suspended solids (TSS &gt; 5%) in standard hollow-cone spray nozzles inevitably leads to nozzle clogs. If liquid flow to one side of the throat is blocked, hot uncooled gas (300&deg;C+) impinges directly on dry walls, vaporizing protective liquid films, warping metal throat dampers, and melting downstream FRP/polypropylene piping. Always employ wide-orifice tangential nozzles with low-flow interlocks.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Droplet Carryover &amp; Cyclonic Mist Eliminator Flooding</strong><br>
+      A venturi scrubber merely conditions particulate by impaction into water droplets; it does NOT remove them from the gas stream. That duty falls on the downstream cyclonic separator. If the separator is undersized or gas velocity exceeds 15 ft/s (4.5 m/s) through the mist eliminator chevrons, liquid droplets re-entrain into the clean gas, carrying dirty acid slurry out the exhaust stack ("raining" on surrounding plant property).
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Wet-Dry Transition Line Severe Scaling &amp; Throat Lip Encrustation</strong><br>
+      The boundary where hot incoming dusty gas first contacts liquid spray creates a rapid evaporation zone. Dissolved salts (calcium sulfate, carbonates) precipitate out rapidly at this wet-dry interface, forming hard, rock-like scale ridges. Over time, scale buildup chokes the throat area, increasing system pressure drop exponentially and driving the ID fan into overload. Wetted-wall approach weirs are required to wash the transition line continuously.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const gasFlowInput = document.getElementById('vsGasFlow');
+  const flowUnitSelect = document.getElementById('vsFlowUnit');
+  const throatAreaInput = document.getElementById('vsThroatArea');
+  const areaUnitSelect = document.getElementById('vsAreaUnit');
+  const lgRatioInput = document.getElementById('vsLgRatio');
+  const lgUnitSelect = document.getElementById('vsLgUnit');
+  const gasTempInput = document.getElementById('vsGasTemp');
+  const tempUnitSelect = document.getElementById('vsTempUnit');
+  const partDensityInput = document.getElementById('vsPartDensity');
+  const densityUnitSelect = document.getElementById('vsDensityUnit');
+  const nozzleConfigSelect = document.getElementById('vsNozzleConfig');
+
+  // Outputs
+  const dpResult = document.getElementById('vsDpResult');
+  const dpSub = document.getElementById('vsDpSub');
+  const cutResult = document.getElementById('vsCutResult');
+  const cutSub = document.getElementById('vsCutSub');
+  const velResult = document.getElementById('vsVelResult');
+  const velBadge = document.getElementById('vsVelBadge');
+  const velBox = document.getElementById('vsVelBox');
+  const bhpResult = document.getElementById('vsBhpResult');
+  const bhpSub = document.getElementById('vsBhpSub');
+  const waterResult = document.getElementById('vsWaterResult');
+  const waterSub = document.getElementById('vsWaterSub');
+  const dropResult = document.getElementById('vsDropResult');
+  const dropSub = document.getElementById('vsDropSub');
+  const auditBox = document.getElementById('vsAuditReport');
+
+  // SVG Elements
+  const svgThroatVelVal = document.getElementById('svgThroatVelVal');
+  const svgDpVal = document.getElementById('svgDpVal');
+
+  // Derivations
+  const derivGasFlow = document.getElementById('derivGasFlow');
+  const derivArea = document.getElementById('derivArea');
+  const derivThroatVel = document.getElementById('derivThroatVel');
+  const derivTemp = document.getElementById('derivTemp');
+  const derivGasDens = document.getElementById('derivGasDens');
+  const derivLg = document.getElementById('derivLg');
+  const derivCalcDp = document.getElementById('derivCalcDp');
+  const derivDrop = document.getElementById('derivDrop');
+  const derivCalcCut = document.getElementById('derivCalcCut');
+  const derivCalcBhp = document.getElementById('derivCalcBhp');
+
+  function calculate() {
+    const isCelsius = tempUnitSelect.value === 'C';
+    let T_raw = parseFloat(gasTempInput.value) || 180;
+    let T_F = isCelsius ? T_raw * 1.8 + 32 : T_raw;
+    let T_K = (T_F - 32) * 5/9 + 273.15;
+
+    // Gas flow to ACFM
+    let rawFlow = parseFloat(gasFlowInput.value) || 15000;
+    let Q_acfm = rawFlow;
+    if (flowUnitSelect.value === 'm3_h') Q_acfm = rawFlow * 0.588578;
+    else if (flowUnitSelect.value === 'm3_s') Q_acfm = rawFlow * 2118.88;
+
+    // Throat area to sq ft
+    let rawArea = parseFloat(throatAreaInput.value) || 1.25;
+    let A_sqft = rawArea;
+    if (areaUnitSelect.value === 'sqm') A_sqft = rawArea * 10.7639;
+    else if (areaUnitSelect.value === 'sqin') A_sqft = rawArea / 144;
+
+    // Throat velocity vt = Q / A (ft/s)
+    let vt_fts = (Q_acfm / 60) / Math.max(A_sqft, 0.05);
+    let vt_ms = vt_fts * 0.3048;
+
+    // Liquid-to-Gas Ratio (Gal / 1000 ACFM)
+    let rawLg = parseFloat(lgRatioInput.value) || 10.0;
+    let lg_gal_1000acfm = lgUnitSelect.value === 'l_m3' ? rawLg * 7.48052 : rawLg;
+
+    // Total scrubbing water flow (GPM)
+    let water_gpm = (Q_acfm / 1000) * lg_gal_1000acfm;
+    let water_m3h = water_gpm * 0.227125;
+
+    // Flue Gas Density (lb/cu ft)
+    let rho_gas_lb_cuft = (14.696 * 28.97) / (10.73 * (T_F + 459.67));
+    let rho_gas_kg_m3 = rho_gas_lb_cuft * 16.0185;
+
+    // Friction factor f based on nozzle config
+    let f_factor = 0.35;
+    if (nozzleConfigSelect.value === 'wetted_wall') f_factor = 0.25;
+    else if (nozzleConfigSelect.value === 'central_spray') f_factor = 0.45;
+
+    // Calvert Pressure Drop Equation: DeltaP = 1.03e-3 * vt^2 * rho_g * (L/G) * f (in. w.g.)
+    let deltaP_in_wg = 1.03e-3 * Math.pow(vt_fts, 2) * rho_gas_lb_cuft * lg_gal_1000acfm * f_factor;
+    let deltaP_kPa = deltaP_in_wg * 0.249089;
+
+    // Induced Fan BHP = (Q_acfm * deltaP_in_wg) / (6356 * 0.65)
+    let fanBhp = (Q_acfm * deltaP_in_wg) / (6356 * 0.65);
+
+    // Sauter Mean Droplet Diameter d32 (microns, Nukiyama-Tanasawa relation approx)
+    let d32_um = (16400 / Math.max(vt_fts, 50)) + 1.45 * Math.pow(lg_gal_1000acfm, 1.5);
+
+    // Particle density to kg/m3
+    let rawDens = parseFloat(partDensityInput.value) || 2600;
+    let rho_p_kgm3 = densityUnitSelect.value === 'lb_cuft' ? rawDens * 16.0185 : rawDens;
+
+    // Gas viscosity (Pa*s)
+    let mu_gas = 1.8e-5 * Math.pow(T_K / 293, 0.7);
+
+    // Aerodynamic Cut Diameter d50 (microns)
+    // d50 = sqrt[ (9 * mu * d32) / (2 * rho_p * vt * Kp) ]
+    let d32_m = d32_um * 1e-6;
+    let d50_m = Math.sqrt( (9 * mu_gas * d32_m) / (2 * rho_p_kgm3 * vt_ms * 0.50) );
+    let d50_um = d50_m * 1e6;
+
+    // Update Result UI
+    dpResult.textContent = deltaP_in_wg.toFixed(1) + ' in. w.g.';
+    dpSub.textContent = deltaP_kPa.toFixed(2) + ' kPa (Calvert Model)';
+
+    cutResult.textContent = d50_um.toFixed(2) + ' μm';
+    cutSub.textContent = 'Submicron PM2.5 capture cut-point';
+
+    velResult.textContent = Math.round(vt_fts) + ' ft/s';
+    if (vt_fts < 140) {
+      velBadge.className = 'vs-status-badge badge-warn';
+      velBadge.textContent = 'Low Atomization (< 140 ft/s)';
+      velBox.className = 'vs-stat-box warning';
+    } else if (vt_fts > 320) {
+      velBadge.className = 'vs-status-badge badge-fail';
+      velBadge.textContent = 'Severe Throat Erosion (> 320 ft/s)';
+      velBox.className = 'vs-stat-box danger';
+    } else {
+      velBadge.className = 'vs-status-badge badge-pass';
+      velBadge.textContent = 'Optimal (180-280 ft/s)';
+      velBox.className = 'vs-stat-box';
+    }
+
+    bhpResult.textContent = Math.round(fanBhp) + ' BHP';
+    bhpSub.textContent = 'Fan shaft power @ 65% η';
+
+    waterResult.textContent = water_gpm.toFixed(1) + ' GPM';
+    waterSub.textContent = water_m3h.toFixed(1) + ' m³/h (L/G: ' + lg_gal_1000acfm.toFixed(1) + ')';
+
+    dropResult.textContent = d32_um.toFixed(1) + ' μm';
+    dropSub.textContent = 'Nukiyama-Tanasawa Sauter mean';
+
+    // Update SVG
+    svgThroatVelVal.textContent = Math.round(vt_fts) + ' ft/s';
+    svgDpVal.textContent = deltaP_in_wg.toFixed(1) + ' in. w.g.';
+
+    // Update Derivations
+    derivGasFlow.textContent = Math.round(Q_acfm).toLocaleString() + ' ACFM';
+    derivArea.textContent = A_sqft.toFixed(2) + ' sq ft';
+    derivThroatVel.textContent = Math.round(vt_fts) + ' ft/s (' + vt_ms.toFixed(1) + ' m/s)';
+    derivTemp.textContent = T_F.toFixed(0) + '°F (' + T_raw + '°' + (isCelsius ? 'C' : 'F') + ')';
+    derivGasDens.textContent = rho_gas_lb_cuft.toFixed(4) + ' lb/cu ft';
+    derivLg.textContent = lg_gal_1000acfm.toFixed(1) + ' Gal/1000 ACFM';
+    derivCalcDp.textContent = deltaP_in_wg.toFixed(2) + ' in. w.g. (' + deltaP_kPa.toFixed(2) + ' kPa)';
+    derivDrop.textContent = d32_um.toFixed(1) + ' μm';
+    derivCalcCut.textContent = d50_um.toFixed(2) + ' μm';
+    derivCalcBhp.textContent = Math.round(fanBhp) + ' BHP';
+
+    // Update Audit Box
+    const auditText = 
+      '=======================================================\n' +
+      '   CALVERT HIGH-ENERGY VENTURI SCRUBBER AUDIT          \n' +
+      '=======================================================\n' +
+      'Gas Flow Rate:             ' + Math.round(Q_acfm).toLocaleString() + ' ACFM (' + (Q_acfm * 1.699).toFixed(0) + ' m³/h)\n' +
+      'Flue Gas Operating Temp:   ' + T_F.toFixed(0) + '°F (' + T_raw + '°' + (isCelsius ? 'C' : 'F') + ') [ρ_gas: ' + rho_gas_lb_cuft.toFixed(4) + ' lb/ft³]\n' +
+      'Throat Cross-Section Area: ' + A_sqft.toFixed(2) + ' sq ft (Throat Velocity: ' + Math.round(vt_fts) + ' ft/s [' + Math.round(vt_ms) + ' m/s])\n' +
+      'Liquid-to-Gas Ratio (L/G): ' + lg_gal_1000acfm.toFixed(1) + ' Gal/1,000 ACFM (' + (lg_gal_1000acfm * 0.1337).toFixed(2) + ' L/m³)\n' +
+      'Scrubbing Liquid Flow:     ' + water_gpm.toFixed(1) + ' US GPM (' + water_m3h.toFixed(1) + ' m³/h)\n' +
+      '-------------------------------------------------------\n' +
+      'CALVERT STATIC HEAD DROP:  ' + deltaP_in_wg.toFixed(2) + ' in. w.g. (' + deltaP_kPa.toFixed(2) + ' kPa)\n' +
+      'Aerodynamic Cut (d50):     ' + d50_um.toFixed(2) + ' μm (Submicron Fractional Capture)\n' +
+      'Sauter Mean Droplet (d32): ' + d32_um.toFixed(1) + ' μm\n' +
+      'Fan Power Requirement:     ' + Math.round(fanBhp) + ' BHP (At 65% Fan Mechanical Efficiency)\n' +
+      'Velocity Assessment:       ' + velBadge.textContent + '\n' +
+      'Engineering Standard:      Calvert & Yung Wet Scrubber / EPA AP-42\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyVsAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyVsAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Calvert Scrubber Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [gasFlowInput, flowUnitSelect, throatAreaInput, areaUnitSelect, lgRatioInput, lgUnitSelect, gasTempInput, tempUnitSelect, partDensityInput, densityUnitSelect, nozzleConfigSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'venturi-scrubber-pressure-drop-calculator.html'), renderTradePage({
+    title: "Venturi Scrubber Pressure Drop & Cut-Point Calculator | Calvert",
+    metaDesc: "Calculate high-energy venturi wet scrubber pressure drop (in. w.g. & kPa), throat velocity, aerodynamic cut-diameter (d50), and fan brake horsepower per Calvert model.",
+    canonical: `${DOMAIN}/calc/venturi-scrubber-pressure-drop-calculator`,
+    bodyContent: venturiScrubberBody,
+    currentPath: '/calc/venturi-scrubber-pressure-drop-calculator',
+    faq: [
+      {
+        "q": "What is the primary cause of pressure drop across a venturi scrubber?",
+        "a": "Unlike dry cyclones where friction dominates, over 80% to 90% of the pressure drop across a venturi scrubber is caused by the aerodynamic drag work required to accelerate injected liquid droplets from near zero velocity up to the extreme speed of the gas stream in the throat (typically 180 to 280 ft/s / 55 to 85 m/s)."
+      },
+      {
+        "q": "What is the Calvert equation for venturi scrubber pressure drop?",
+        "a": "The classic Calvert equation is: ΔP = 1.03 × 10⁻³ · v_t² · ρ_g · (L/G) · f, where ΔP is pressure drop in inches of water gauge, v_t is gas throat velocity in ft/s, ρ_g is gas density in lb/ft³, (L/G) is liquid-to-gas ratio in Gal/1,000 ACFM, and f is an empirical droplet acceleration factor (typically 0.25 to 0.45)."
+      },
+      {
+        "q": "What is the typical liquid-to-gas ratio (L/G) for industrial venturi scrubbers?",
+        "a": "Standard practice specifies an L/G ratio between 6 and 15 Gallons per 1,000 ACFM (approximately 0.8 to 2.0 liters per cubic meter of gas). Lower ratios result in dry patches and incomplete droplet atomization, while higher ratios drastically increase pressure drop without proportional collection benefits."
+      },
+      {
+        "q": "Can a venturi scrubber capture submicron particulate (PM₂.₅)?",
+        "a": "Yes. Venturi scrubbers are capable of capturing submicron particulate down to 0.2 to 0.5 microns because the immense relative velocity between gas and atomized droplets produces extremely high inertial impaction. However, capturing submicron particles requires high pressure drops of 30 to 60+ inches of water gauge (7.5 to 15 kPa)."
+      },
+      {
+        "q": "What is the purpose of an adjustable venturi throat?",
+        "a": "Because gas volume from industrial processes (boilers, kilns, cupolas) fluctuates with plant load, an adjustable throat uses movable damper blades to maintain constant throat velocity and collection efficiency across varying gas flow rates, preventing pressure collapse during turndown."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 59: Piping Expansion Loop Sizing Calculator (ASME B31.1 & B31.3)
+  // ==========================================
+  const expansionLoopBody = `
+<style>
+  .el-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .el-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .el-grid { grid-template-columns: 1fr; } }
+  .el-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .el-header { margin-bottom: 20px; }
+  .el-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .el-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .el-form-group { margin-bottom: 16px; }
+  .el-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .el-input-row { display: flex; gap: 10px; align-items: center; }
+  .el-input-row input, .el-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .el-input-row input:focus, .el-input-row select:focus { outline: none; border-color: #2563eb; }
+  .el-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .el-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .el-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .el-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .el-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .el-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .el-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .el-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .el-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .el-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .el-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .el-btn:hover { background: #1d4ed8; }
+  .el-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="el-container">
+  <div class="el-grid">
+    <!-- Inputs Column -->
+    <div class="el-card">
+      <div class="el-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Piping Run &amp; Thermal Expansion</h2>
+        <p>ASME B31.1 Power Piping &amp; B31.3 Process Piping flexibility analysis</p>
+      </div>
+
+      <div class="el-form-group">
+        <label for="elPipeSize">Nominal Pipe Size &amp; Schedule</label>
+        <div class="el-input-row">
+          <select id="elPipeSize">
+            <option value="2">2" NPS Sch 40 (OD: 2.375" / 60.3 mm)</option>
+            <option value="3">3" NPS Sch 40 (OD: 3.500" / 88.9 mm)</option>
+            <option value="4">4" NPS Sch 40 (OD: 4.500" / 114.3 mm)</option>
+            <option value="6" selected>6" NPS Sch 40 (OD: 6.625" / 168.3 mm)</option>
+            <option value="8">8" NPS Sch 40 (OD: 8.625" / 219.1 mm)</option>
+            <option value="10">10" NPS Sch 40 (OD: 10.750" / 273.0 mm)</option>
+            <option value="12">12" NPS Sch 40 (OD: 12.750" / 323.8 mm)</option>
+            <option value="16">16" NPS Sch 40 (OD: 16.000" / 406.4 mm)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="el-form-group">
+        <label for="elMaterial">Piping Material &amp; Thermal Alpha (&alpha;)</label>
+        <div class="el-input-row">
+          <select id="elMaterial">
+            <option value="cs" selected>Carbon Steel ASTM A106-B (α ~ 6.8 × 10⁻⁶ in/in/°F)</option>
+            <option value="ss">Austenitic Stainless 304/316 (α ~ 9.6 × 10⁻⁶ in/in/°F - High Exp)</option>
+            <option value="p22">Chrome-Moly Alloy P22 (α ~ 7.4 × 10⁻⁶ in/in/°F)</option>
+            <option value="cu">Copper Tube ASTM B88 (α ~ 9.8 × 10⁻⁶ in/in/°F)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="el-form-group">
+        <label for="elRunLength">Distance Between Anchors (L<sub>run</sub>)</label>
+        <div class="el-input-row">
+          <input type="number" id="elRunLength" value="250" min="10" step="10">
+          <select id="elRunUnit" class="el-unit-badge" style="width:auto;">
+            <option value="ft" selected>Feet</option>
+            <option value="m">Meters</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="el-form-group">
+        <label>Piping Temperatures (Operating &amp; Ambient Install)</label>
+        <div class="el-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Operating Temp (T<sub>op</sub>)</span>
+            <input type="number" id="elTop" value="450" step="5">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Install Temp (T<sub>inst</sub>)</span>
+            <input type="number" id="elTinst" value="70" step="5">
+          </div>
+          <select id="elTempUnit" class="el-unit-badge" style="width:auto; align-self:flex-end; height:42px;">
+            <option value="F" selected>&deg;F</option>
+            <option value="C">&deg;C</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="el-form-group">
+        <label for="elAspect">Expansion Loop Shape &amp; Aspect Ratio (W / H)</label>
+        <div class="el-input-row">
+          <select id="elAspect">
+            <option value="0.5" selected>Narrow U-Loop (W = 0.5 &middot; H: Standard Piperack Corridor)</option>
+            <option value="1.0">Square U-Loop (W = 1.0 &middot; H: Lowest Anchor Thrust Force)</option>
+            <option value="0.33">Deep Narrow Loop (W = 0.33 &middot; H: Extremely Confined Pipeway)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="el-form-group">
+        <label for="elCode">Piping Code Stress Criterion</label>
+        <div class="el-input-row">
+          <select id="elCode">
+            <option value="b313" selected>ASME B31.3 Process Piping (S_A = 1.25(Sc + Sh) - SL)</option>
+            <option value="b311">ASME B31.1 Power Piping (Conservative Steam Boiler Standard)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="el-card">
+      <div class="el-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Loop Sizing &amp; Anchor Reaction</h2>
+        <p>Guided cantilever beam leg height, flexure, and anchor thrust force</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="elSvg" width="340" height="230" viewBox="0 0 340 230" style="max-width:100%;">
+          <defs>
+            <pattern id="concreteHatch" width="8" height="8" patternUnits="userSpaceOnUse">
+              <path d="M 0 8 L 8 0 M 0 0 L 8 8" stroke="#cbd5e1" stroke-width="1"/>
+            </pattern>
+          </defs>
+
+          <!-- Fixed Anchor Block (Left) -->
+          <rect x="15" y="145" width="28" height="40" fill="#94a3b8" stroke="#334155" stroke-width="1.5"/>
+          <text x="29" y="195" font-size="7" font-weight="bold" fill="#475569" text-anchor="middle">Anchor A</text>
+
+          <!-- Fixed Anchor Block (Right) -->
+          <rect x="297" y="145" width="28" height="40" fill="#94a3b8" stroke="#334155" stroke-width="1.5"/>
+          <text x="311" y="195" font-size="7" font-weight="bold" fill="#475569" text-anchor="middle">Anchor B</text>
+
+          <!-- Main Incoming Straight Runs -->
+          <line x1="43" y1="165" x2="135" y2="165" stroke="#334155" stroke-width="5"/>
+          <line x1="205" y1="165" x2="297" y2="165" stroke="#334155" stroke-width="5"/>
+
+          <!-- Guide Shoe Supports (L1 and L2) -->
+          <rect x="75" y="157" width="12" height="16" fill="#f59e0b" stroke="#0f172a"/>
+          <text x="81" y="181" font-size="6" font-weight="bold" fill="#b45309" text-anchor="middle">G1</text>
+          <rect x="253" y="157" width="12" height="16" fill="#f59e0b" stroke="#0f172a"/>
+          <text x="259" y="181" font-size="6" font-weight="bold" fill="#b45309" text-anchor="middle">G1</text>
+
+          <!-- Thermal Expansion Arrows (Inward) -->
+          <polygon points="120,165 110,160 110,170" fill="#dc2626"/>
+          <polygon points="220,165 230,160 230,170" fill="#dc2626"/>
+
+          <!-- U-Loop Neutral Position (Dark Slate Line) -->
+          <!-- Leg 1 (Up) -->
+          <line x1="135" y1="165" x2="135" y2="65" stroke="#1e293b" stroke-width="5"/>
+          <!-- Width W (Top Horizontal) -->
+          <line x1="135" y1="65" x2="205" y2="65" stroke="#1e293b" stroke-width="5"/>
+          <!-- Leg 2 (Down) -->
+          <line x1="205" y1="65" x2="205" y2="165" stroke="#1e293b" stroke-width="5"/>
+
+          <!-- Long Radius 90-degree Elbow Details -->
+          <circle cx="135" cy="165" r="4" fill="#64748b"/>
+          <circle cx="135" cy="65" r="4" fill="#64748b"/>
+          <circle cx="205" cy="65" r="4" fill="#64748b"/>
+          <circle cx="205" cy="165" r="4" fill="#64748b"/>
+
+          <!-- Deflected Heated Loop Position (Dashed Blue Flexure) -->
+          <path d="M 135 165 C 135 130, 148 90, 148 65 L 192 65 C 192 90, 205 130, 205 165" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="3,3"/>
+
+          <!-- Dimensions Callouts -->
+          <!-- Height H Dimension -->
+          <line x1="120" y1="165" x2="120" y2="65" stroke="#0284c7" stroke-width="1.5"/>
+          <line x1="115" y1="165" x2="125" y2="165" stroke="#0284c7" stroke-width="1.5"/>
+          <line x1="115" y1="65" x2="125" y2="65" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="110" y="118" font-size="9" font-weight="bold" fill="#0284c7" text-anchor="end" id="svgHeightLabel">H = 14.5 ft</text>
+
+          <!-- Width W Dimension -->
+          <line x1="135" y1="52" x2="205" y2="52" stroke="#0284c7" stroke-width="1.5"/>
+          <line x1="135" y1="47" x2="135" y2="57" stroke="#0284c7" stroke-width="1.5"/>
+          <line x1="205" y1="47" x2="205" y2="57" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="170" y="44" font-size="9" font-weight="bold" fill="#0284c7" text-anchor="middle" id="svgWidthLabel">W = 7.3 ft</text>
+
+          <!-- Expansion Callout Bottom Box -->
+          <rect x="85" y="200" width="170" height="26" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+          <text x="170" y="217" font-size="10" font-weight="bold" fill="#dc2626" text-anchor="middle" id="svgExpLabel">&Delta;L = 7.15 inches (182 mm)</text>
+        </svg>
+      </div>
+
+      <div class="el-stat-grid">
+        <div class="el-stat-box highlight">
+          <div class="el-stat-label">Total Thermal Expansion (&Delta;L)</div>
+          <div class="el-stat-val" id="elExpResult">7.15 in</div>
+          <div class="el-stat-sub" id="elExpSub">181.6 mm total growth</div>
+        </div>
+        <div class="el-stat-box highlight">
+          <div class="el-stat-label">Required Loop Leg (H)</div>
+          <div class="el-stat-val" id="elHeightResult">14.6 ft</div>
+          <div class="el-stat-sub" id="elHeightSub">4.45 m minimum cantilever</div>
+        </div>
+        <div class="el-stat-box">
+          <div class="el-stat-label">Loop Width (W)</div>
+          <div class="el-stat-val" id="elWidthResult">7.3 ft</div>
+          <div class="el-stat-sub" id="elWidthSub">Aspect Ratio W/H: 0.50</div>
+        </div>
+        <div class="el-stat-box">
+          <div class="el-stat-label">Anchor Thrust Force (F)</div>
+          <div class="el-stat-val" id="elForceResult">2,840 lbs</div>
+          <div class="el-stat-sub" id="elForceSub">12.6 kN on anchor blocks</div>
+        </div>
+      </div>
+
+      <div class="el-stat-grid">
+        <div class="el-stat-box">
+          <div class="el-stat-label">Max Bending Stress (S<sub>E</sub>)</div>
+          <div class="el-stat-val" id="elStressResult">19,450 psi</div>
+          <div class="el-stat-sub"><span class="el-status-badge badge-pass" id="elStressBadge">Pass (&le; 24.5 ksi)</span></div>
+        </div>
+        <div class="el-stat-box">
+          <div class="el-stat-label">First Guide Spacing (L₁)</div>
+          <div class="el-stat-val" id="elGuideResult">2.2 ft</div>
+          <div class="el-stat-sub" id="elGuideSub">Max 4D from loop corner</div>
+        </div>
+      </div>
+
+      <button type="button" class="el-btn" id="copyElAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy ASME B31 Loop Sizing Audit</span>
+      </button>
+
+      <textarea id="elAuditReport" class="el-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & ASME Formulas -->
+  <div class="el-card" style="margin-bottom: 24px;">
+    <div class="el-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Guided Cantilever &amp; ASME B31 Derivations</h2>
+      <p>Thermal expansion and Kellogg guided beam formulas evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>ASME B31.1 (Power Piping)</strong> and <strong>ASME B31.3 (Process Piping Appendix P)</strong>, pipe runs between fixed anchors absorb expansion via guided cantilever bending in flexible U-loop legs.</p>
+      <p>1. <strong>Linear Thermal Expansion (&Delta;L):</strong> For pipe run L_run = <span id="derivRun" style="font-weight:600;">250.0 ft</span> over temperature difference &Delta;T = (<span id="derivTop">450&deg;F</span> - <span id="derivTinst">70&deg;F</span>) = <span id="derivDeltaT" style="font-weight:600;">380.0&deg;F</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;L = L_run &middot; &alpha; &middot; 12 &middot; &Delta;T = 250 &middot; (7.52 &times; 10⁻⁶) &middot; 12 &middot; 380 = <span id="derivCalcExp" style="font-weight:700; color:#dc2626;">7.15 inches</span> (181.6 mm)
+      </div>
+      <p>2. <strong>Required Leg Height (H) &mdash; Guided Cantilever Method:</strong> For pipe OD = <span id="derivPipeOd" style="font-weight:600;">6.625 inches</span>, modulus E = 27.9 &times; 10⁶ psi, and allowable displacement stress S_A = <span id="derivSaVal" style="font-weight:600;">24,500 psi</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        H = sqrt[ (3 &middot; E &middot; OD &middot; &Delta;L) / S_A ] / 12 = <span id="derivCalcHeight" style="font-weight:700; color:#2563eb;">14.58 ft</span> (4.44 m)
+      </div>
+      <p>3. <strong>Loop Width (W) &amp; Total Developed Pipe Length:</strong> Sized for aspect ratio W/H = <span id="derivAspect" style="font-weight:600;">0.50</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        W = 0.50 &middot; H = <span id="derivCalcWidth" style="font-weight:700; color:#0284c7;">7.29 ft</span> (2.22 m)<br>
+        L_developed = 2 &middot; H + W = <span id="derivCalcDev" style="font-weight:700; color:#15803d;">36.45 ft</span> of 6" pipe
+      </div>
+      <p>4. <strong>Anchor Thrust Force (F_anchor):</strong> Cantilever spring stiffness resisting thermal expansion:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        F_anchor = (12 &middot; E &middot; I &middot; &Delta;L) / H&sup3; = <span id="derivCalcForce" style="font-weight:700; color:#b45309;">2,840 lbs</span> (12.63 kN thrust)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="el-card" style="margin-bottom: 24px;">
+    <div class="el-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Piping Expansion Loop Design</h2>
+      <p>ASME B31.1, B31.3, and MSS-SP-58 pipe support standards</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Rigid Guide Binding &amp; Pipe Column Buckling</strong><br>
+      Placing pipe guides too close to the loop corner (L₁ &lt; 4D) or omitting lateral clearance prevents the perpendicular loop legs from deflecting freely. As the straight run expands, the bound pipe cannot flex into the loop; instead, it behaves as an end-loaded column and experiences catastrophic Euler column buckling, violently bowing off the piperack and pulling down adjacent utility lines.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Anchor Thrust Force Underestimation &amp; Concrete Shear</strong><br>
+      Piping designers frequently assume flexible loops exert zero force on anchor blocks. In reality, bending a heavy 8" or 12" pipe leg generates spring forces exceeding <strong>10,000 to 25,000 lbs (45 to 110 kN)</strong>. If civil structural engineers size anchor footings only for dead weight rather than thermal cantilever thrust, the anchor bolts shear cleanly off the concrete pedestal during initial plant startup.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Short-Radius Elbow Stress Intensification (SIF i &gt; 2.5)</strong><br>
+      Fabricating expansion loops with standard short-radius (1.0D) forged elbows or miter bends is extremely hazardous. Under cyclic thermal flexure, the tight curvature creates an intense Stress Intensification Factor (SIF i &gt; 2.5 to 3.5). Cyclic bending fatigue rapidly initiates longitudinal fatigue cracks along the elbow crotch and intrados. Always mandate <strong>long-radius (1.5D or 3.0D) seamless elbows</strong>.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Horizontal Loop Condensate Damming &amp; Water Hammer</strong><br>
+      Installing a steam expansion loop in a flat horizontal plane creates a massive low-point "U" trap. During plant shutdowns, residual steam condenses into liquid water that fills the loop. Upon restarting steam flow, the high-velocity steam slug drives the trapped water plug down the pipe at 50 m/s, smashing into downstream elbows with explosive hydraulic shock capable of blowing flanges apart. Steam loops must either be vertical (upward) or equipped with certified drip legs and thermodynamic steam traps.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Improper Cold Spring Credit &amp; Creep Overload</strong><br>
+      ASME B31.3 strictly prohibits taking full cold spring (pre-stretching) credit to reduce required loop dimensions for high-temperature service (&gt; 700&deg;F / 370&deg;C). Over time, thermal creep relaxation dissipates cold-spring pre-stress. When the plant cools down during an outage, the pipe undergoes complete stress reversal, imposing severe tensile loads that pull equipment nozzles out of pumps and turbines.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const pipeSizeSelect = document.getElementById('elPipeSize');
+  const materialSelect = document.getElementById('elMaterial');
+  const runLengthInput = document.getElementById('elRunLength');
+  const runUnitSelect = document.getElementById('elRunUnit');
+  const topInput = document.getElementById('elTop');
+  const tinstInput = document.getElementById('elTinst');
+  const tempUnitSelect = document.getElementById('elTempUnit');
+  const aspectSelect = document.getElementById('elAspect');
+  const codeSelect = document.getElementById('elCode');
+
+  // Outputs
+  const expResult = document.getElementById('elExpResult');
+  const expSub = document.getElementById('elExpSub');
+  const heightResult = document.getElementById('elHeightResult');
+  const heightSub = document.getElementById('elHeightSub');
+  const widthResult = document.getElementById('elWidthResult');
+  const widthSub = document.getElementById('elWidthSub');
+  const forceResult = document.getElementById('elForceResult');
+  const forceSub = document.getElementById('elForceSub');
+  const stressResult = document.getElementById('elStressResult');
+  const stressBadge = document.getElementById('elStressBadge');
+  const guideResult = document.getElementById('elGuideResult');
+  const guideSub = document.getElementById('elGuideSub');
+  const auditBox = document.getElementById('elAuditReport');
+
+  // SVG Elements
+  const svgHeightLabel = document.getElementById('svgHeightLabel');
+  const svgWidthLabel = document.getElementById('svgWidthLabel');
+  const svgExpLabel = document.getElementById('svgExpLabel');
+
+  // Derivations
+  const derivRun = document.getElementById('derivRun');
+  const derivTop = document.getElementById('derivTop');
+  const derivTinst = document.getElementById('derivTinst');
+  const derivDeltaT = document.getElementById('derivDeltaT');
+  const derivCalcExp = document.getElementById('derivCalcExp');
+  const derivPipeOd = document.getElementById('derivPipeOd');
+  const derivSaVal = document.getElementById('derivSaVal');
+  const derivCalcHeight = document.getElementById('derivCalcHeight');
+  const derivAspect = document.getElementById('derivAspect');
+  const derivCalcWidth = document.getElementById('derivCalcWidth');
+  const derivCalcDev = document.getElementById('derivCalcDev');
+  const derivCalcForce = document.getElementById('derivCalcForce');
+
+  function calculate() {
+    const isCelsius = tempUnitSelect.value === 'C';
+    let Top_raw = parseFloat(topInput.value) || 450;
+    let Tinst_raw = parseFloat(tinstInput.value) || 70;
+
+    let Top_F = isCelsius ? Top_raw * 1.8 + 32 : Top_raw;
+    let Tinst_F = isCelsius ? Tinst_raw * 1.8 + 32 : Tinst_raw;
+    let deltaT_F = Math.max(Top_F - Tinst_F, 5);
+
+    // Run length in feet
+    let rawRun = parseFloat(runLengthInput.value) || 250;
+    let L_run_ft = runUnitSelect.value === 'm' ? rawRun * 3.28084 : rawRun;
+
+    // Thermal expansion coefficient alpha (in/in/°F)
+    let alpha = 7.5e-6; // CS A106 at ~400°F
+    let E_mod = 27.9e6; // psi
+    if (materialSelect.value === 'ss') {
+      alpha = 9.8e-6;
+      E_mod = 27.0e6;
+    } else if (materialSelect.value === 'p22') {
+      alpha = 7.8e-6;
+      E_mod = 26.5e6;
+    } else if (materialSelect.value === 'cu') {
+      alpha = 10.2e-6;
+      E_mod = 17.0e6;
+    }
+
+    // Total thermal growth: DeltaL = L_run_ft * 12 * alpha * deltaT (inches)
+    let deltaL_in = L_run_ft * 12 * alpha * deltaT_F;
+    let deltaL_mm = deltaL_in * 25.4;
+
+    // Pipe Geometry (OD & Moment of Inertia)
+    let nps = parseFloat(pipeSizeSelect.value) || 6;
+    let od_in = 6.625;
+    let id_in = 6.065;
+    let I_in4 = 28.1;
+    if (nps === 2) { od_in = 2.375; id_in = 2.067; I_in4 = 0.666; }
+    else if (nps === 3) { od_in = 3.500; id_in = 3.068; I_in4 = 3.02; }
+    else if (nps === 4) { od_in = 4.500; id_in = 4.026; I_in4 = 7.23; }
+    else if (nps === 6) { od_in = 6.625; id_in = 6.065; I_in4 = 28.1; }
+    else if (nps === 8) { od_in = 8.625; id_in = 7.981; I_in4 = 72.5; }
+    else if (nps === 10) { od_in = 10.750; id_in = 10.020; I_in4 = 161.0; }
+    else if (nps === 12) { od_in = 12.750; id_in = 11.938; I_in4 = 279.0; }
+    else if (nps === 16) { od_in = 16.000; id_in = 15.250; I_in4 = 562.0; }
+
+    // Allowable displacement stress range S_A (psi)
+    // ASME B31.3: S_A = f * [1.25(Sc + Sh) - SL] ~ 22,000 to 26,000 psi
+    let S_A = codeSelect.value === 'b311' ? 20000 : 24500;
+
+    // Guided Cantilever Leg Height H:
+    // H_in = sqrt[ (3 * E * OD * DeltaL) / S_A ]
+    let H_in = Math.sqrt( (3 * E_mod * od_in * deltaL_in) / S_A );
+    let H_ft = H_in / 12;
+    let H_m = H_ft * 0.3048;
+
+    // Width W based on aspect ratio
+    let aspect = parseFloat(aspectSelect.value) || 0.5;
+    let W_ft = H_ft * aspect;
+    let W_m = W_ft * 0.3048;
+
+    // Anchor Force (lbs)
+    // F = (12 * E * I * DeltaL) / H_in^3
+    let F_lbs = (12 * E_mod * I_in4 * deltaL_in) / Math.pow(H_in, 3);
+    let F_kN = F_lbs * 0.00444822;
+
+    // Actual Bending Stress SE (psi)
+    let S_E = (3 * E_mod * od_in * deltaL_in) / Math.pow(H_in, 2);
+
+    // Guide spacing (L1 <= 4 * OD, L2 <= 14 * OD in ft)
+    let L1_ft = (4 * od_in) / 12;
+    let L2_ft = (14 * od_in) / 12;
+
+    // Total developed pipe length
+    let L_dev_ft = 2 * H_ft + W_ft;
+
+    // Update Result UI
+    expResult.textContent = deltaL_in.toFixed(2) + ' in';
+    expSub.textContent = deltaL_mm.toFixed(1) + ' mm total expansion';
+
+    heightResult.textContent = H_ft.toFixed(1) + ' ft';
+    heightSub.textContent = H_m.toFixed(2) + ' m cantilever leg (H)';
+
+    widthResult.textContent = W_ft.toFixed(1) + ' ft';
+    widthSub.textContent = W_m.toFixed(2) + ' m loop width (W)';
+
+    forceResult.textContent = Math.round(F_lbs).toLocaleString() + ' lbs';
+    forceSub.textContent = F_kN.toFixed(1) + ' kN anchor reaction';
+
+    stressResult.textContent = Math.round(S_E).toLocaleString() + ' psi';
+    stressBadge.className = 'el-status-badge badge-pass';
+    stressBadge.textContent = 'Pass (≤ ' + (S_A/1000).toFixed(1) + ' ksi S_A)';
+
+    guideResult.textContent = L1_ft.toFixed(1) + ' ft';
+    guideSub.textContent = 'L1 ≤ 4D | L2 ≤ ' + L2_ft.toFixed(1) + ' ft (14D)';
+
+    // Update SVG
+    svgHeightLabel.textContent = 'H = ' + H_ft.toFixed(1) + ' ft';
+    svgWidthLabel.textContent = 'W = ' + W_ft.toFixed(1) + ' ft';
+    svgExpLabel.textContent = 'ΔL = ' + deltaL_in.toFixed(2) + ' in (' + deltaL_mm.toFixed(0) + ' mm)';
+
+    // Update Derivations
+    derivRun.textContent = L_run_ft.toFixed(1) + ' ft (' + (L_run_ft * 0.3048).toFixed(1) + ' m)';
+    derivTop.textContent = Top_raw + '°' + (isCelsius ? 'C' : 'F');
+    derivTinst.textContent = Tinst_raw + '°' + (isCelsius ? 'C' : 'F');
+    derivDeltaT.textContent = deltaT_F.toFixed(1) + '°F';
+    derivCalcExp.textContent = deltaL_in.toFixed(2) + ' in (' + deltaL_mm.toFixed(1) + ' mm)';
+    derivPipeOd.textContent = od_in + ' inches (' + nps + '" NPS)';
+    derivSaVal.textContent = Math.round(S_A).toLocaleString() + ' psi';
+    derivCalcHeight.textContent = H_ft.toFixed(2) + ' ft (' + H_m.toFixed(2) + ' m)';
+    derivAspect.textContent = aspect.toFixed(2);
+    derivCalcWidth.textContent = W_ft.toFixed(2) + ' ft (' + W_m.toFixed(2) + ' m)';
+    derivCalcDev.textContent = L_dev_ft.toFixed(1) + ' ft';
+    derivCalcForce.textContent = Math.round(F_lbs).toLocaleString() + ' lbs (' + F_kN.toFixed(2) + ' kN)';
+
+    // Update Audit Box
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME B31.1 / B31.3 PIPING EXPANSION LOOP AUDIT      \n' +
+      '=======================================================\n' +
+      'Piping Specification:      ' + nps + '" NPS Sch 40 (OD: ' + od_in + '" / ' + (od_in*25.4).toFixed(1) + ' mm)\n' +
+      'Material Designation:      ' + materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+      'Anchor-to-Anchor Run:      ' + L_run_ft.toFixed(1) + ' ft (' + (L_run_ft * 0.3048).toFixed(1) + ' m)\n' +
+      'Design Temperature Rise:   ' + Tinst_raw + '° → ' + Top_raw + '°' + (isCelsius ? 'C' : 'F') + ' (ΔT: ' + deltaT_F.toFixed(1) + '°F)\n' +
+      'Code Standard:             ' + codeSelect.options[codeSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+      '-------------------------------------------------------\n' +
+      'TOTAL THERMAL EXPANSION:   ' + deltaL_in.toFixed(2) + ' inches (' + deltaL_mm.toFixed(1) + ' mm)\n' +
+      'REQUIRED LOOP LEG (H):     ' + H_ft.toFixed(2) + ' ft (' + H_m.toFixed(2) + ' m)\n' +
+      'Loop Width (W):            ' + W_ft.toFixed(2) + ' ft (' + W_m.toFixed(2) + ' m [W/H: ' + aspect.toFixed(2) + '])\n' +
+      'Total Developed Loop Pipe: ' + L_dev_ft.toFixed(1) + ' ft of ' + nps + '" pipe\n' +
+      'ANCHOR THRUST FORCE (F):   ' + Math.round(F_lbs).toLocaleString() + ' lbs (' + F_kN.toFixed(2) + ' kN)\n' +
+      'Calculated Bending Stress: ' + Math.round(S_E).toLocaleString() + ' psi (Allowable: ' + Math.round(S_A).toLocaleString() + ' psi)\n' +
+      'First Guide Placement L1:  ' + L1_ft.toFixed(1) + ' ft max (4D from loop corner)\n' +
+      'Second Guide Placement L2: ' + L2_ft.toFixed(1) + ' ft max (14D from guide L1)\n' +
+      'Standard Rule:             ASME B31.3 App P / Guided Cantilever Method\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyElAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyElAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied ASME B31 Loop Sizing Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [pipeSizeSelect, materialSelect, runLengthInput, runUnitSelect, topInput, tinstInput, tempUnitSelect, aspectSelect, codeSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'expansion-loop-thermal-stress-calculator.html'), renderTradePage({
+    title: "Piping Expansion Loop Sizing Calculator | ASME B31.1 & B31.3",
+    metaDesc: "Size symmetrical U-expansion loops, calculate pipe thermal expansion (inches & mm), anchor thrust forces, cantilever leg deflection, and allowable stress per ASME B31.",
+    canonical: `${DOMAIN}/calc/expansion-loop-thermal-stress-calculator`,
+    bodyContent: expansionLoopBody,
+    currentPath: '/calc/expansion-loop-thermal-stress-calculator',
+    faq: [
+      {
+        "q": "What is the guided cantilever method for sizing piping expansion loops?",
+        "a": "The guided cantilever method models each perpendicular leg of an expansion loop as a cantilever beam subjected to a lateral deflection equal to half the total thermal expansion of the straight pipe run. It calculates the minimum leg height H needed to keep bending stresses below the allowable displacement stress range S_A defined by ASME B31 codes."
+      },
+      {
+        "q": "How is the total thermal expansion (ΔL) of a pipe run calculated?",
+        "a": "Thermal expansion is calculated using the formula: ΔL = L_run · α · ΔT, where L_run is the straight pipe distance between fixed anchors, α is the material's mean coefficient of thermal expansion (typically 6.5 to 8.0 × 10⁻⁶ in/in/°F for carbon steel), and ΔT is the temperature difference between maximum operating temperature and ambient installation temperature."
+      },
+      {
+        "q": "Why are pipe guide shoes strictly required near an expansion loop?",
+        "a": "Because long straight pipe runs subject to thermal expansion behave like axially loaded columns, excessive thermal growth creates high compressive forces that cause Euler column buckling. Installing guide shoes at prescribed spacings (L₁ ≤ 4D and L₂ ≤ 14D from the loop corners) constrains the pipe to move purely axially into the loop."
+      },
+      {
+        "q": "What thrust force does an expansion loop exert on piping anchors?",
+        "a": "Even though loops flex to absorb growth, their mechanical spring stiffness exerts a reaction force against the anchor blocks: F = (12 · E · I · ΔL) / H³, where E is Young's modulus, I is the pipe moment of inertia, and H is loop leg height. On large-diameter lines, this thrust can easily exceed 5,000 to 20,000 lbs (22 to 90 kN)."
+      },
+      {
+        "q": "Why should horizontal expansion loops be avoided in steam lines?",
+        "a": "A horizontal expansion loop forms an unvented U-shaped pocket where liquid condensate pools during boiler shutdowns. When steam is reintroduced, high-velocity steam accelerates the trapped condensate slug, creating violent hydraulic water hammer that can destroy pipe elbows and rip supports off structural beams. Steam loops should be oriented vertically upward with drain legs."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (59 calculators in /calc/)');
 }
 
