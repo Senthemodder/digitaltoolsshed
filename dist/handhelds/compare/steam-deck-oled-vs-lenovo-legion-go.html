@@ -112,26 +112,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Valve Steam Deck OLED vs Lenovo Legion Go free to use?",
+      "name": "Which handheld has better battery life, Valve Steam Deck OLED or Lenovo Legion Go?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Valve Steam Deck OLED vs Lenovo Legion Go on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Valve Steam Deck OLED features a 50 Whr battery (3.5 - 12 Hours (depending on TDP cap)), while Lenovo Legion Go is equipped with a 49.2 Whr battery (1.5 - 4.5 Hours). Runtimes vary depending on the chosen APU TDP power profile and display brightness."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Which device performs better in AAA gaming: Valve Steam Deck OLED or Lenovo Legion Go?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Valve Steam Deck OLED averages ~38 - 45 FPS (800p Low FSR Balanced) in Cyberpunk 2077 powered by 8 RDNA 2 CUs @ 1.6 GHz (1.6 TFLOPS), while Lenovo Legion Go averages ~42 - 55 FPS (1200p Low FSR Balanced) powered by 12 RDNA 3 CUs @ 2.7 GHz (8.6 TFLOPS)."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Valve Steam Deck OLED vs Lenovo Legion Go work on mobile devices?",
+      "name": "What are the display differences between Valve Steam Deck OLED and Lenovo Legion Go?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Valve Steam Deck OLED is equipped with a 7.4\" 1280x800 HDR OLED (90Hz, 1,000 nits peak, 0.1ms), while Lenovo Legion Go features a 8.8\" QHD+ 2560x1600 IPS (144Hz, 500 nits, 97% DCI-P3)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do the weights compare for handheld portability?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Valve Steam Deck OLED weighs 640 g (1.41 lbs) compared to Lenovo Legion Go at 854 g (Controllers Attached) / 640 g (Base). The lighter device reduces arm and wrist fatigue during extended gaming sessions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can both handhelds run third-party game stores like Epic Games and Battle.net?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. On Lenovo Legion Go (Windows 11 Home (Legion Space)), third-party launchers install natively like on any Windows desktop. On Valve Steam Deck OLED (SteamOS 3.5 (Arch Linux / Proton)), third-party launchers run smoothly via Heroic Games Launcher, Non-Steam Game shortcuts with Proton, or native dual-booting."
       }
     }
   ]
@@ -1033,42 +1049,161 @@
           
       <div class="article-container" style="max-width:1050px;">
         <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
-          <a href="/">Home</a> &gt; <a href="/handhelds/">Handhelds</a> &gt; Showdown
+          <a href="/">Home</a> &gt; <a href="/handhelds/">Handhelds</a> &gt; Showdown: Valve Steam Deck OLED vs Lenovo Legion Go
         </nav>
 
         <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">
           <span class="badge badge-purple">Handheld Showdown</span>
           <span class="badge badge-green">Valve vs Lenovo</span>
+          <span class="badge badge-blue">Direct Head-to-Head</span>
         </div>
 
-        <h1 style="font-family:var(--serif);font-size:2.3rem;line-height:1.2;margin-bottom:0.75rem;">Valve Steam Deck OLED vs Lenovo Legion Go</h1>
+        <h1 style="font-family:var(--serif);font-size:2.3rem;line-height:1.2;margin-bottom:0.75rem;">Valve Steam Deck OLED vs Lenovo Legion Go [Head-to-Head Comparison]</h1>
         <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:2rem;">
-          Side-by-side technical comparison between the Valve Steam Deck OLED and Lenovo Legion Go. Compare real-world battery life under load, display quality, PWM eye safety, and frame rates in Cyberpunk 2077 and Elden Ring.
+          Side-by-side technical comparison between the Valve Steam Deck OLED and Lenovo Legion Go. Compare real-world battery runtimes under load, display technologies, PWM eye safety, and frame rates in Cyberpunk 2077 and Elden Ring.
         </p>
+
+        <!-- ACTIONABLE UTILITY DIAGNOSTIC COPY CARD -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <div style="font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--fg);">Actionable Showdown Summary</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">Export side-by-side benchmark metrics and architectural comparisons in one click.</div>
+          </div>
+          <button id="btnCopyShowdownReport" type="button" class="btn btn-primary" onclick="copyShowdownReport()" style="padding:0.6rem 1.25rem;font-family:var(--mono);font-size:0.85rem;cursor:pointer;">
+            📋 Copy Showdown Specs
+          </button>
+        </div>
 
         <!-- SIDE BY SIDE TABLE -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:2.5rem;overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-size:0.9rem;line-height:1.6;">
             <thead>
               <tr style="border-bottom:2px solid var(--border);text-align:left;">
-                <th style="padding:0.75rem;width:28%;">Specification</th>
-                <th style="padding:0.75rem;width:36%;font-weight:700;color:var(--primary);"><a href="/handhelds/steam-deck-oled" style="color:inherit;text-decoration:none;">Valve Steam Deck OLED</a></th>
-                <th style="padding:0.75rem;width:36%;font-weight:700;color:#6366f1;"><a href="/handhelds/lenovo-legion-go" style="color:inherit;text-decoration:none;">Lenovo Legion Go</a></th>
+                <th style="padding:0.75rem;width:26%;">Specification</th>
+                <th style="padding:0.75rem;width:37%;font-weight:700;color:var(--primary);"><a href="/handhelds/steam-deck-oled" style="color:inherit;text-decoration:none;">Valve Steam Deck OLED</a></th>
+                <th style="padding:0.75rem;width:37%;font-weight:700;color:#6366f1;"><a href="/handhelds/lenovo-legion-go" style="color:inherit;text-decoration:none;">Lenovo Legion Go</a></th>
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Processor / APU</td><td style="padding:0.6rem 0.75rem;">Custom AMD Sephiroth APU (Zen 2 4C/8T @ 3.5 GHz)</td><td style="padding:0.6rem 0.75rem;">AMD Ryzen Z1 Extreme (Zen 4 8C/16T @ 5.1 GHz)</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Processor / APU</td><td style="padding:0.6rem 0.75rem;font-weight:600;">Custom AMD Sephiroth APU (Zen 2 4C/8T @ 3.5 GHz)</td><td style="padding:0.6rem 0.75rem;font-weight:600;">AMD Ryzen Z1 Extreme (Zen 4 8C/16T @ 5.1 GHz)</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Graphics</td><td style="padding:0.6rem 0.75rem;">8 RDNA 2 CUs @ 1.6 GHz (1.6 TFLOPS)</td><td style="padding:0.6rem 0.75rem;">12 RDNA 3 CUs @ 2.7 GHz (8.6 TFLOPS)</td></tr>
-              <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">RAM</td><td style="padding:0.6rem 0.75rem;">16 GB LPDDR5-6400 (Quad 32-bit channels)</td><td style="padding:0.6rem 0.75rem;">16 GB LPDDR5X-7500</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">System RAM</td><td style="padding:0.6rem 0.75rem;">16 GB LPDDR5-6400 (Quad 32-bit channels)</td><td style="padding:0.6rem 0.75rem;">16 GB LPDDR5X-7500</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Display Panel</td><td style="padding:0.6rem 0.75rem;">7.4" 1280x800 HDR OLED (90Hz, 1,000 nits peak, 0.1ms)</td><td style="padding:0.6rem 0.75rem;">8.8" QHD+ 2560x1600 IPS (144Hz, 500 nits, 97% DCI-P3)</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Battery Whr</td><td style="padding:0.6rem 0.75rem;font-weight:700;color:#10b981;">50 Whr</td><td style="padding:0.6rem 0.75rem;font-weight:700;color:#10b981;">49.2 Whr</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Weight</td><td style="padding:0.6rem 0.75rem;">640 g (1.41 lbs)</td><td style="padding:0.6rem 0.75rem;">854 g (Controllers Attached) / 640 g (Base)</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">TDP Range</td><td style="padding:0.6rem 0.75rem;">3W - 15W APU Power</td><td style="padding:0.6rem 0.75rem;">8W - 30W Configurable</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Gaming Battery Run</td><td style="padding:0.6rem 0.75rem;">3.5 - 12 Hours (depending on TDP cap)</td><td style="padding:0.6rem 0.75rem;">1.5 - 4.5 Hours</td></tr>
-              <tr><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Cyberpunk 2077 FPS</td><td style="padding:0.6rem 0.75rem;font-weight:600;">38 - 45 FPS (800p Low FSR Balanced)</td><td style="padding:0.6rem 0.75rem;font-weight:600;">42 - 55 FPS (1200p Low FSR Balanced)</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Cyberpunk 2077 FPS</td><td style="padding:0.6rem 0.75rem;font-weight:600;">38 - 45 FPS (800p Low FSR Balanced)</td><td style="padding:0.6rem 0.75rem;font-weight:600;">42 - 55 FPS (1200p Low FSR Balanced)</td></tr>
+              <tr><td style="padding:0.6rem 0.75rem;color:var(--text-muted);">Operating System</td><td style="padding:0.6rem 0.75rem;">SteamOS 3.5 (Arch Linux / Proton)</td><td style="padding:0.6rem 0.75rem;">Windows 11 Home (Legion Space)</td></tr>
             </tbody>
           </table>
         </div>
+
+        <!-- 5 CRITICAL SHOWDOWN TRAPS & ARCHITECTURAL TRADE-OFFS -->
+        <div style="margin:2.5rem 0;">
+          <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:0.5rem;color:var(--fg);">⚠️ 5 Critical Showdown Trade-Offs & Traps</h2>
+          <p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">Direct engineering trade-offs when choosing between Valve Steam Deck OLED and Lenovo Legion Go:</p>
+          
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">1. Operating System Architecture: SteamOS Linux vs Windows 11 Overhead</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Valve Steam Deck OLED uses SteamOS 3.5 (Arch Linux / Proton) while Lenovo Legion Go runs Windows 11 Home (Legion Space). SteamOS provides instant sleep/wake and console-grade controller navigation, whereas Windows 11 offers universal game pass and anti-cheat compatibility at the expense of desktop clutter and background resource overhead.</p>
+        </div>
+      
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">2. Display Panel Technology: True-Black OLED vs High-Refresh VRR IPS</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Comparing 7.4" 1280x800 HDR OLED (90Hz, 1,000 nits peak, 0.1ms) against 8.8" QHD+ 2560x1600 IPS (144Hz, 500 nits, 97% DCI-P3). OLED delivers infinite contrast and pixel-instant response times, whereas high-refresh FreeSync/VRR IPS panels prevent screen tearing when frame rates fluctuate dynamically.</p>
+        </div>
+      
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">3. Battery Capacity vs Chassis Portability & Arm Strain</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Valve Steam Deck OLED packs 50 Whr at 640 g (1.41 lbs), compared to Lenovo Legion Go's 49.2 Whr battery at 854 g (Controllers Attached) / 640 g (Base). Higher battery capacity increases runtime, but heavier chassis design directly accelerates wrist and forearm fatigue in mobile handheld gaming.</p>
+        </div>
+      
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">4. APU Power Curve: Sub-10W Efficiency vs High-TDP Raw Brute Force</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Custom AMD Sephiroth APU (Zen 2 4C/8T @ 3.5 GHz) operates at 3W - 15W APU Power while AMD Ryzen Z1 Extreme (Zen 4 8C/16T @ 5.1 GHz) runs at 8W - 30W Configurable. Low-wattage tuned chips dominate 2D indie battery runtimes, whereas 25W–30W high-TDP processors deliver superior 1080p frame rates in dense AAA blockbusters.</p>
+        </div>
+      
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">5. Internal Storage & Aftermarket NVMe Upgrade Form Factors</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Upgrading internal SSD storage requires specific M.2 form factors. Make sure to verify whether your target handheld accepts compact M.2 2230, M.2 2242, or standard full-length desktop M.2 2280 NVMe SSD drives before purchasing upgrade kits.</p>
+        </div>
+      
+        </div>
+
+        <!-- FAQ -->
+        <div style="margin:2.5rem 0;">
+          <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2>
+          
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Which handheld has better battery life, Valve Steam Deck OLED or Lenovo Legion Go?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Valve Steam Deck OLED features a 50 Whr battery (3.5 - 12 Hours (depending on TDP cap)), while Lenovo Legion Go is equipped with a 49.2 Whr battery (1.5 - 4.5 Hours). Runtimes vary depending on the chosen APU TDP power profile and display brightness.</div>
+        </details>
+      
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Which device performs better in AAA gaming: Valve Steam Deck OLED or Lenovo Legion Go?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Valve Steam Deck OLED averages ~38 - 45 FPS (800p Low FSR Balanced) in Cyberpunk 2077 powered by 8 RDNA 2 CUs @ 1.6 GHz (1.6 TFLOPS), while Lenovo Legion Go averages ~42 - 55 FPS (1200p Low FSR Balanced) powered by 12 RDNA 3 CUs @ 2.7 GHz (8.6 TFLOPS).</div>
+        </details>
+      
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What are the display differences between Valve Steam Deck OLED and Lenovo Legion Go?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Valve Steam Deck OLED is equipped with a 7.4" 1280x800 HDR OLED (90Hz, 1,000 nits peak, 0.1ms), while Lenovo Legion Go features a 8.8" QHD+ 2560x1600 IPS (144Hz, 500 nits, 97% DCI-P3).</div>
+        </details>
+      
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How do the weights compare for handheld portability?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Valve Steam Deck OLED weighs 640 g (1.41 lbs) compared to Lenovo Legion Go at 854 g (Controllers Attached) / 640 g (Base). The lighter device reduces arm and wrist fatigue during extended gaming sessions.</div>
+        </details>
+      
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Can both handhelds run third-party game stores like Epic Games and Battle.net?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Yes. On Lenovo Legion Go (Windows 11 Home (Legion Space)), third-party launchers install natively like on any Windows desktop. On Valve Steam Deck OLED (SteamOS 3.5 (Arch Linux / Proton)), third-party launchers run smoothly via Heroic Games Launcher, Non-Steam Game shortcuts with Proton, or native dual-booting.</div>
+        </details>
+      
+        </div>
       </div>
+
+      <script>
+        function copyShowdownReport() {
+          var report = [
+            '=== HANDHELD SHOWDOWN SPECIFICATIONS ===',
+            'Matchup: Valve Steam Deck OLED vs Lenovo Legion Go',
+            '',
+            '[Valve Steam Deck OLED]',
+            'SoC: Custom AMD Sephiroth APU (Zen 2 4C/8T @ 3.5 GHz)',
+            'Graphics: 8 RDNA 2 CUs @ 1.6 GHz (1.6 TFLOPS)',
+            'Display: 7.4\" 1280x800 HDR OLED (90Hz, 1,000 nits peak, 0.1ms)',
+            'Battery: 50 Whr (3.5 - 12 Hours (depending on TDP cap))',
+            'Weight: 640 g (1.41 lbs)',
+            'Cyberpunk FPS: 38 - 45 FPS (800p Low FSR Balanced)',
+            '',
+            '[Lenovo Legion Go]',
+            'SoC: AMD Ryzen Z1 Extreme (Zen 4 8C/16T @ 5.1 GHz)',
+            'Graphics: 12 RDNA 3 CUs @ 2.7 GHz (8.6 TFLOPS)',
+            'Display: 8.8\" QHD+ 2560x1600 IPS (144Hz, 500 nits, 97% DCI-P3)',
+            'Battery: 49.2 Whr (1.5 - 4.5 Hours)',
+            'Weight: 854 g (Controllers Attached) / 640 g (Base)',
+            'Cyberpunk FPS: 42 - 55 FPS (1200p Low FSR Balanced)',
+            '',
+            'Full Analysis: https://digitaltoolsshed.com/handhelds/compare/steam-deck-oled-vs-lenovo-legion-go'
+          ].join('\n');
+
+          navigator.clipboard.writeText(report).then(function() {
+            var btn = document.getElementById('btnCopyShowdownReport');
+            if (btn) {
+              var old = btn.innerHTML;
+              btn.innerHTML = '✓ Showdown Specs Copied!';
+              btn.style.borderColor = '#10b981';
+              btn.style.color = '#10b981';
+              setTimeout(function() {
+                btn.innerHTML = old;
+                btn.style.borderColor = '';
+                btn.style.color = '';
+              }, 2500);
+            }
+          });
+        }
+      </script>
     
 
           
