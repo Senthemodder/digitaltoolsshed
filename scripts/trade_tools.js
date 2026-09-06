@@ -8192,6 +8192,2081 @@ export function buildTradeTools() {
   }));
 
 
+    // ─────────────────────────────────────────────────────────────────────────────
+  // 34. SOLAR ANGLE, SUN ALTITUDE & OPTIMAL PANEL TILT CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const solarAngleBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Solar Angle Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Renewable Energy &amp; Solar Photovoltaic</span>
+          <span class="badge badge-green">Solar Declination &amp; Hour Angle</span>
+          <span class="badge badge-blue">Seasonal Optimum Panel Tilt</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Solar Angle, Solar Noon &amp; Panel Tilt Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate real-time solar elevation (altitude), solar azimuth, solar declination, and exact solar noon for any geographic latitude. Determine the <strong>optimum photovoltaic panel tilt angle</strong> for summer, winter, and year-round energy capture while avoiding inter-row winter shading.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: Location & Coordinates -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Geographic Latitude</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="sa-lat-input" class="input-field" value="39.75" min="-90" max="90" step="0.25" style="width: 100%;" oninput="calcSolarAngle()">
+              <select id="sa-hemisphere" class="input-field" style="width: 130px;" onchange="calcSolarAngle()">
+                <option value="N" selected>North (°N)</option>
+                <option value="S">South (°S)</option>
+              </select>
+            </div>
+            <small style="color: var(--text-muted);">e.g. Denver: 39.8°, London: 51.5°, Sydney: -33.9°</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Day of Year / Calendar Date</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="date" id="sa-date-picker" class="input-field" style="width: 100%;" onchange="applyDateFromPicker()">
+              <select id="sa-season-preset" class="input-field" style="width: 160px;" onchange="applySeasonPreset()">
+                <option value="custom">Preset Date...</option>
+                <option value="80">Spring Equinox (Mar 21)</option>
+                <option value="172" selected>Summer Solstice (Jun 21)</option>
+                <option value="264">Autumn Equinox (Sep 21)</option>
+                <option value="355">Winter Solstice (Dec 21)</option>
+              </select>
+            </div>
+            <small id="sa-day-num-hint" style="color: var(--text-muted);">Day 172 of 365</small>
+          </div>
+        </div>
+
+        <!-- Row 2: Solar Time & Tracking Preference -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Local Solar Time of Day</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="range" id="sa-time-slider" min="5" max="19" step="0.25" value="12" style="width: 100%;" oninput="updateTimeSlider()">
+              <span id="sa-time-display" style="font-weight: bold; min-width: 75px;">12:00 PM</span>
+            </div>
+            <small style="color: var(--text-muted);">Solar Time (12:00 = Solar Noon / peak solar altitude)</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Mounting Strategy</label>
+            <select id="sa-mount-type" class="input-field" style="width: 100%;" onchange="calcSolarAngle()">
+              <option value="fixed_year" selected>Fixed Year-Round Angle (Set and Forget)</option>
+              <option value="seasonal_2">Seasonal 2-Position Adjustment (Summer / Winter)</option>
+              <option value="seasonal_4">Seasonal 4-Position Adjustment (Quarterly)</option>
+              <option value="single_axis">Single-Axis Horizontal Tracking (East-West)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Current Solar Altitude (α)</div>
+            <div id="res-sa-altitude" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-sa-altitude-status" style="font-size: 0.8rem; color: var(--text-muted);">-- above horizon</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Optimal Fixed Panel Tilt</div>
+            <div id="res-sa-opt-tilt" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-sa-tilt-season" style="font-size: 0.8rem; color: var(--text-muted);">Year-Round Optimal</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Solar Azimuth Angle</div>
+            <div id="res-sa-azimuth" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-sa-azimuth-compass" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Solar Noon Peak Altitude</div>
+            <div id="res-sa-noon-alt" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-sa-declination" style="font-size: 0.8rem; color: var(--text-muted);">Declination: --°</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-sa-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copySaSummary()">
+            <span>📋</span> Copy Solar Position &amp; Tilt Engineering Brief
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Celestial Sun Arc &amp; Photovoltaic Tilt Geometry</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Real-time 2D hemisphere projection showing solar horizon, altitude elevation angle ($\alpha$), and optimal panel orientation confronting the solar vector.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="sa-dome-svg" viewBox="0 0 720 300" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Solar Ephemeris Derivations &amp; Equations</h3>
+        <div id="sa-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal Solar Angle &amp; Tilt Mounting Traps</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Installing solar panels at generic roof angles or misinterpreting solar geometry leads to massive winter energy shortfalls, self-shading, and severe thermal losses.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 1. The Fixed 30° Tilt Angle Myth (45% Winter Collapse)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Many installers default to a standard 30&deg; tilt regardless of latitude. At northern latitudes (e.g. Minneapolis or Seattle at 45&deg;&ndash;48&deg;N), the winter solstice sun reaches a peak altitude of only <strong>18&deg; above the horizon</strong>. A panel tilted at 30&deg; receives solar rays at a severe oblique angle of over 40&deg;, reducing insolation by over <strong>45%</strong> precisely when heating demand and off-grid battery loads peak. Winter tilt should be set to $\text{Latitude} + 15^\circ$ (e.g. 60&deg;).
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🧭</span> 2. Magnetic South vs. True South Compass Heading Error (Up to 20° Deviation)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Solar panels in the Northern Hemisphere must face <strong>True Solar South</strong>, not Magnetic South. In North America, magnetic declination ranges from +16&deg; West (in Washington state) to -16&deg; East (in Maine). Aligning a ground-mount array with a handheld magnetic compass without applying local magnetic declination correction can skew the array by up to 20&deg;, causing a permanent <strong>8% to 12% loss</strong> in annual kilowatt-hour harvest.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>❄️</span> 3. Inter-Row Shadow Casting at Winter Solstice
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When mounting multi-row ground arrays or commercial flat-roof ballasted systems, steep tilts create long winter shadows. At a winter sun altitude of 22&deg;, the shadow cast by a panel row is <strong>2.5&times; the vertical height</strong> of the row. If rows are spaced too closely to save roof space, row 1 will cast a continuous shadow across the bottom 6 inches of row 2. Because solar cells are wired in series, shading just one bottom row of cells triggers bypass diodes or collapses the entire string's power output by 80%.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔥</span> 4. Blazing Summer Temperature Coefficient Power Derating
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Homeowners expect peak solar production at midday on 100&deg;F summer days when the sun is highest. However, standard monocrystalline silicon panels have a temperature power coefficient ($\gamma$) of approximately <strong>-0.35% to -0.40% per &deg;C</strong> above STC (25&deg;C / 77&deg;F). Dark panels baking in direct sun reach 65&deg;C (149&deg;F)&mdash;a 40&deg;C rise. This thermal rise slashes power output by <strong>16%</strong>, meaning a 400W panel produces barely 336W at high noon. Adequate underside airflow ventilation is essential.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>💧</span> 5. Flat Mount Soiling &amp; Snow Shedding Failure (&lt;10° Tilt Trap)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Mounting panels completely flat (0&deg; to 8&deg;) to minimize wind loading on flat roofs is an operational nightmare. Rain cannot sheet off panels tilted under <strong>10&deg;</strong>; instead, dirty water pools along the bottom aluminum frame edge. As water evaporates, it leaves a stubborn band of dirt, pollen, and grime (&quot;soiling lip&quot;) that completely obscures the bottom row of cells. Furthermore, snow requires a minimum 25&deg; to 30&deg; tilt to initiate gravity shedding.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: Solar Angle &amp; Panel Tilt</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the rule of thumb for optimal year-round solar panel tilt?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The classic rule of thumb for a fixed, year-round solar installation is to set the tilt angle equal to your <strong>geographic latitude</strong>. More refined empirical formulas (such as King et al. from Sandia National Laboratories) suggest <code>Tilt = Latitude * 0.76 + 3.1°</code> in temperate latitudes, which biases the tilt slightly flatter to optimize summer production when daylight hours are longest.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How much more energy does seasonal tilt adjustment generate?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Adjusting panel tilt twice a year (setting tilt to <code>Latitude - 15°</code> in summer and <code>Latitude + 15°</code> in winter) increases annual energy yield by approximately <strong>4% to 6%</strong> overall. However, during the winter months, seasonal tilt increases winter electricity generation by up to <strong>25% to 35%</strong>, which is critical for off-grid systems operating on limited battery reserves.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is solar declination and how does it change through the year?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Solar declination ($\delta$) is the angle between the Earth's equatorial plane and the line joining the centers of the Earth and the Sun. Due to Earth's 23.45° axial tilt, declination varies sinusoidally from <strong>+23.45° on the Summer Solstice</strong> (around June 21) down to <strong>-23.45° on the Winter Solstice</strong> (around December 21), crossing exactly 0° on the spring and autumn equinoxes.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the difference between Solar Noon and 12:00 PM clock time?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Solar Noon is the precise instant when the sun crosses the local celestial meridian and reaches its highest elevation of the day (due South in the Northern Hemisphere). Clock noon (12:00 PM) rarely matches solar noon due to: (1) your location's longitude offset within its standard time zone (up to &plusmn;30 minutes), (2) Daylight Saving Time (+1 hour offset), and (3) the Equation of Time (orbital eccentricity, causing up to a &plusmn;16 minute shift).
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Which direction should solar panels face in the Southern Hemisphere?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              In the Southern Hemisphere (e.g. Australia, New Zealand, South Africa, South America), the sun travels across the northern sky. Therefore, solar panels must face <strong>True North</strong> rather than South, and optimal summer months occur in December/January with winter solstice in June.
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      var currentDayOfYear = 172;
+
+      function updateTimeSlider() {
+        var val = parseFloat(document.getElementById('sa-time-slider').value);
+        var hrs = Math.floor(val);
+        var mins = Math.round((val - hrs) * 60);
+        var ampm = hrs >= 12 ? 'PM' : 'AM';
+        var dispH = hrs > 12 ? hrs - 12 : (hrs === 0 ? 12 : hrs);
+        document.getElementById('sa-time-display').textContent = dispH + ':' + (mins < 10 ? '0' : '') + mins + ' ' + ampm;
+        calcSolarAngle();
+      }
+
+      function applySeasonPreset() {
+        var val = document.getElementById('sa-season-preset').value;
+        if (val !== 'custom') {
+          currentDayOfYear = parseInt(val);
+          document.getElementById('sa-day-num-hint').textContent = 'Day ' + currentDayOfYear + ' of 365';
+          calcSolarAngle();
+        }
+      }
+
+      function applyDateFromPicker() {
+        var picker = document.getElementById('sa-date-picker').value;
+        if (picker) {
+          var d = new Date(picker + 'T00:00:00');
+          var start = new Date(d.getFullYear(), 0, 0);
+          var diff = d - start;
+          var oneDay = 1000 * 60 * 60 * 24;
+          currentDayOfYear = Math.floor(diff / oneDay);
+          document.getElementById('sa-day-num-hint').textContent = 'Day ' + currentDayOfYear + ' of 365';
+          document.getElementById('sa-season-preset').value = 'custom';
+          calcSolarAngle();
+        }
+      }
+
+      function calcSolarAngle() {
+        var lat = parseFloat(document.getElementById('sa-lat-input').value) || 39.75;
+        var hemi = document.getElementById('sa-hemisphere').value;
+        var phi = hemi === 'S' ? -Math.abs(lat) : Math.abs(lat);
+        var phiRad = phi * (Math.PI / 180);
+
+        var n = currentDayOfYear;
+
+        // 1. Solar Declination delta: delta = 23.45 * sin((360/365)*(284 + n))
+        var declDeg = 23.45 * Math.sin(((360 / 365) * (284 + n)) * (Math.PI / 180));
+        var declRad = declDeg * (Math.PI / 180);
+
+        // 2. Hour Angle h: h = (SolarTime - 12) * 15°
+        var solarTime = parseFloat(document.getElementById('sa-time-slider').value) || 12.0;
+        var hourAngleDeg = (solarTime - 12.0) * 15.0;
+        var hRad = hourAngleDeg * (Math.PI / 180);
+
+        // 3. Solar Altitude alpha: sin(alpha) = sin(phi)*sin(delta) + cos(phi)*cos(delta)*cos(h)
+        var sinAlpha = Math.sin(phiRad) * Math.sin(declRad) + Math.cos(phiRad) * Math.cos(declRad) * Math.cos(hRad);
+        var alphaRad = Math.asin(Math.max(-1, Math.min(1, sinAlpha)));
+        var alphaDeg = alphaRad * (180 / Math.PI);
+
+        // 4. Solar Noon Peak Altitude: alpha_noon = 90 - phi + delta (for North)
+        var noonAltDeg = 90 - Math.abs(phi) + (phi >= 0 ? declDeg : -declDeg);
+        if (noonAltDeg > 90) noonAltDeg = 180 - noonAltDeg;
+
+        // 5. Solar Azimuth gamma
+        // cos(gamma) = (sin(alpha)*sin(phi) - sin(delta)) / (cos(alpha)*cos(phi))
+        var azimuthDeg = 180;
+        if (alphaDeg > 0) {
+          var cosGamma = (Math.sin(alphaRad) * Math.sin(phiRad) - Math.sin(declRad)) / (Math.cos(alphaRad) * Math.cos(phiRad));
+          cosGamma = Math.max(-1, Math.min(1, cosGamma));
+          var gammaAcos = Math.acos(cosGamma) * (180 / Math.PI);
+          azimuthDeg = hourAngleDeg >= 0 ? 180 + gammaAcos : 180 - gammaAcos;
+        }
+
+        // 6. Optimal Tilt Recommendations
+        var absLat = Math.abs(phi);
+        var optYearTilt = absLat * 0.76 + 3.1;
+        var optSummerTilt = Math.max(10, absLat - 15);
+        var optWinterTilt = Math.min(75, absLat + 15);
+
+        // UI Metric Updates
+        var altEl = document.getElementById('res-sa-altitude');
+        altEl.textContent = alphaDeg > 0 ? alphaDeg.toFixed(1) + '°' : 'Below Horizon';
+        altEl.style.color = alphaDeg > 0 ? '#3b82f6' : '#94a3b8';
+
+        var altStat = document.getElementById('res-sa-altitude-status');
+        altStat.textContent = alphaDeg > 0 ? (alphaDeg > 60 ? '✓ High Sun (Peak Absorption)' : 'Moderate Angle') : 'Night / Sun Down';
+
+        document.getElementById('res-sa-opt-tilt').textContent = optYearTilt.toFixed(1) + '° Tilt';
+        document.getElementById('res-sa-tilt-season').textContent = 'Summer: ' + optSummerTilt.toFixed(0) + '° | Winter: ' + optWinterTilt.toFixed(0) + '°';
+
+        document.getElementById('res-sa-azimuth').textContent = alphaDeg > 0 ? azimuthDeg.toFixed(1) + '°' : '--';
+        var azCompass = 'South';
+        if (azimuthDeg < 45 || azimuthDeg >= 315) azCompass = 'North';
+        else if (azimuthDeg < 135) azCompass = 'East / SE';
+        else if (azimuthDeg < 225) azCompass = 'South / Direct';
+        else azCompass = 'West / SW';
+        document.getElementById('res-sa-azimuth-compass').textContent = 'Heading: ' + azCompass;
+
+        document.getElementById('res-sa-noon-alt').textContent = noonAltDeg.toFixed(1) + '° at Solar Noon';
+        document.getElementById('res-sa-declination').textContent = 'Declination δ: ' + (declDeg >= 0 ? '+' : '') + declDeg.toFixed(2) + '°';
+
+        renderSaSvg(phi, declDeg, alphaDeg, optYearTilt, solarTime, noonAltDeg);
+        renderSaDerivation(phi, n, declDeg, solarTime, hourAngleDeg, alphaDeg, noonAltDeg, optYearTilt, optSummerTilt, optWinterTilt);
+      }
+
+      function renderSaSvg(phi, decl, alpha, tilt, time, noonAlt) {
+        var svg = document.getElementById('sa-dome-svg');
+        if (!svg) return;
+
+        var cx = 220, cy = 210, r = 140;
+        var svgHtml = '';
+
+        // Horizon Ground Line
+        svgHtml += '<line x1="40" y1="' + cy + '" x2="400" y2="' + cy + '" stroke="#475569" stroke-width="2" />';
+        svgHtml += '<text x="50" y="' + (cy + 18) + '" fill="#94a3b8" font-size="11">East</text>';
+        svgHtml += '<text x="370" y="' + (cy + 18) + '" fill="#94a3b8" font-size="11">West</text>';
+        svgHtml += '<text x="' + cx + '" y="' + (cy + 18) + '" fill="#94a3b8" font-size="11" text-anchor="middle">South Horizon</text>';
+
+        // Celestial Dome Semi-Circle
+        svgHtml += '<path d="M ' + (cx - r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 0 1 ' + (cx + r) + ' ' + cy + '" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="4,4" />';
+
+        // Sun Position Vector
+        if (alpha > 0) {
+          var sunAngleRad = (alpha) * (Math.PI / 180);
+          // Position sun along arc
+          var tFrac = (time - 6) / 12; // 0 at 6 AM, 0.5 at 12 PM, 1.0 at 6 PM
+          var arcAngle = Math.PI - (tFrac * Math.PI);
+          var sx = cx + r * Math.cos(arcAngle);
+          var sy = cy - r * Math.sin(arcAngle) * (noonAlt / 90);
+
+          // Solar Ray Beam
+          svgHtml += '<line x1="' + cx + '" y1="' + cy + '" x2="' + sx + '" y2="' + sy + '" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3" />';
+
+          // Sun Marker
+          svgHtml += '<circle cx="' + sx + '" cy="' + sy + '" r="12" fill="#f59e0b" stroke="#ffffff" stroke-width="2" />';
+          svgHtml += '<text x="' + sx + '" y="' + (sy - 16) + '" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">Sun (' + alpha.toFixed(1) + '°)</text>';
+        }
+
+        // Solar Panel on Ground with Tilt Angle
+        var panelLen = 60;
+        var tiltRad = tilt * (Math.PI / 180);
+        var px2 = cx + panelLen * Math.cos(tiltRad);
+        var py2 = cy - panelLen * Math.sin(tiltRad);
+
+        svgHtml += '<line x1="' + cx + '" y1="' + cy + '" x2="' + px2 + '" y2="' + py2 + '" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" />';
+        svgHtml += '<text x="' + (cx + 35) + '" y="' + (cy - 12) + '" fill="#60a5fa" font-size="10.5" font-weight="bold">Tilt ' + tilt.toFixed(0) + '°</text>';
+
+        // Dashboard Right Panel
+        svgHtml += '<g transform="translate(440, 30)">';
+        svgHtml += '<rect x="0" y="0" width="250" height="220" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<text x="125" y="28" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Solar Geometry Summary</text>';
+        
+        svgHtml += '<text x="20" y="60" fill="#94a3b8" font-size="11">• Latitude: <tspan fill="#38bdf8" font-weight="bold">' + Math.abs(phi).toFixed(1) + '° ' + (phi >= 0 ? 'N' : 'S') + '</tspan></text>';
+        svgHtml += '<text x="20" y="85" fill="#94a3b8" font-size="11">• Declination (δ): <tspan fill="#f59e0b" font-weight="bold">' + (decl >= 0 ? '+' : '') + decl.toFixed(2) + '°</tspan></text>';
+        svgHtml += '<text x="20" y="110" fill="#94a3b8" font-size="11">• Noon Elevation: <tspan fill="#10b981" font-weight="bold">' + noonAlt.toFixed(1) + '°</tspan></text>';
+        svgHtml += '<text x="20" y="135" fill="#94a3b8" font-size="11">• Optimal Fixed Tilt: <tspan fill="#60a5fa" font-weight="bold">' + tilt.toFixed(1) + '°</tspan></text>';
+
+        svgHtml += '<rect x="15" y="155" width="220" height="50" rx="6" fill="rgba(16, 185, 129, 0.1)" stroke="#10b981" stroke-width="0.8" />';
+        svgHtml += '<text x="125" y="176" text-anchor="middle" fill="#10b981" font-size="10.5" font-weight="bold">Orientation: Face True South</text>';
+        svgHtml += '<text x="125" y="194" text-anchor="middle" fill="#94a3b8" font-size="9.5">Apply Local Magnetic Declination</text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderSaDerivation(phi, n, decl, time, h, alpha, noonAlt, optYear, optSummer, optWinter) {
+        var el = document.getElementById('sa-derivation-content');
+        if (!el) return;
+
+        var html = '';
+        html += '<p><strong>Step 1: Compute Solar Declination Angle (Cooper Equation)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\delta = 23.45^\\\\circ \\\\sin \\\\left( \\\\frac{360}{365} (284 + ' + n + ') \\\\right) = \\\\mathbf{' + (decl >= 0 ? '+' : '') + decl.toFixed(2) + '^\\\\circ}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Calculate Solar Elevation Altitude Angle (α)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\sin(\\\\alpha) = \\\\sin(\\\\phi) \\\\sin(\\\\delta) + \\\\cos(\\\\phi) \\\\cos(\\\\delta) \\\\cos(h)$$<br>';
+        html += '$$\\\\text{At Solar Time } ' + time.toFixed(2) + ' \\\\quad (h = ' + h.toFixed(1) + '^\\\\circ) \\\\implies \\\\alpha = \\\\mathbf{' + (alpha > 0 ? alpha.toFixed(1) : 0) + '^\\\\circ}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Solar Noon Elevation &amp; Optimum Tilt Angles</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\alpha_{\\\\text{noon}} = 90^\\\\circ - |\\\\phi| + \\\\delta = 90^\\\\circ - ' + Math.abs(phi).toFixed(1) + '^\\\\circ + (' + decl.toFixed(2) + '^\\\\circ) = \\\\mathbf{' + noonAlt.toFixed(1) + '^\\\\circ}$$<br>';
+        html += '$$\\\\text{Year-Round Fixed Tilt } = |\\\\phi| \\\\times 0.76 + 3.1^\\\\circ = \\\\mathbf{' + optYear.toFixed(1) + '^\\\\circ}$$<br>';
+        html += '$$\\\\text{Seasonal 2-Position: Summer } = ' + optSummer.toFixed(0) + '^\\\\circ \\\\quad \\\\text{Winter } = ' + optWinter.toFixed(0) + '^\\\\circ$$';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copySaSummary() {
+        var lat = document.getElementById('sa-lat-input').value;
+        var hemi = document.getElementById('sa-hemisphere').value;
+        var time = document.getElementById('sa-time-display').textContent;
+        var alt = document.getElementById('res-sa-altitude').textContent;
+        var tilt = document.getElementById('res-sa-opt-tilt').textContent;
+        var season = document.getElementById('res-sa-tilt-season').textContent;
+        var az = document.getElementById('res-sa-azimuth').textContent;
+        var noon = document.getElementById('res-sa-noon-alt').textContent;
+        var decl = document.getElementById('res-sa-declination').textContent;
+
+        var text = '=== SOLAR POSITION & PHOTOVOLTAIC TILT REPORT ===\\n' +
+          'Location Latitude: ' + lat + '°' + hemi + '\\n' +
+          'Local Solar Time: ' + time + '\\n' +
+          '----------------------------------------------\\n' +
+          'Solar Altitude (Elevation): ' + alt + '\\n' +
+          'Solar Azimuth: ' + az + '\\n' +
+          'Peak Solar Noon Elevation: ' + noon + '\\n' +
+          decl + '\\n' +
+          'Recommended Year-Round Tilt: ' + tilt + '\\n' +
+          'Seasonal Strategy: ' + season + '\\n' +
+          'Orientation: Face True South (Apply Mag Declination)\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/solar-angle-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-sa-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Solar Report!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcSolarAngle);
+      } else {
+        calcSolarAngle();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'solar-angle-calculator.html'), renderTradePage({
+    title: "Solar Angle, Solar Noon & Panel Tilt Calculator | Digital Tools Shed",
+    metaDesc: "Calculate solar altitude elevation, azimuth, solar noon time, and optimal seasonal photovoltaic panel tilt angle for summer, winter, and year-round.",
+    canonical: `${DOMAIN}/calc/solar-angle-calculator`,
+    bodyContent: solarAngleBody,
+    currentPath: '/calc/solar-angle-calculator',
+    faq: [
+      {
+        "q": "What is the rule of thumb for optimal year-round solar panel tilt?",
+        "a": "The general rule of thumb is setting panel tilt equal to your geographic latitude. A more precise Sandia National Lab formula is Tilt = Latitude * 0.76 + 3.1°, which optimizes annual kilowatt-hour harvest by favoring longer summer days."
+      },
+      {
+        "q": "How much more energy does seasonal tilt adjustment generate?",
+        "a": "Adjusting panel tilt twice a year (Latitude - 15° in summer, Latitude + 15° in winter) boosts total annual production by 4% to 6%, but increases winter power generation by 25% to 35%, essential for off-grid winter survival."
+      },
+      {
+        "q": "What is solar declination and how does it change through the year?",
+        "a": "Solar declination is the angle between the Earth-Sun line and Earth's equatorial plane, oscillating between +23.45° on the summer solstice and -23.45° on the winter solstice due to axial tilt."
+      },
+      {
+        "q": "What is the difference between Solar Noon and 12:00 PM clock time?",
+        "a": "Solar Noon is when the sun crosses the local celestial meridian at its highest daily elevation. Clock noon differs due to longitude within the time zone, Daylight Saving Time, and orbital eccentricity (Equation of Time)."
+      },
+      {
+        "q": "Which direction should solar panels face in the Southern Hemisphere?",
+        "a": "In the Southern Hemisphere (Australia, New Zealand, South America), panels must face True North because the sun tracks across the northern sky."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 35. ELECTRICAL VOLTAGE DROP & WIRE SIZING CALCULATOR (NEC 2023/2026)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const voltageDropBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Voltage Drop Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">National Electrical Code (NEC)</span>
+          <span class="badge badge-green">Single &amp; Three-Phase Sizing</span>
+          <span class="badge badge-blue">NEC 3% Branch &amp; 5% Feeder Limit</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Electrical Voltage Drop &amp; Wire Sizing Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate precise voltage drop ($V_d$), percentage loss ($\%V_d$), and receiving end voltage across single-phase and three-phase circuits under NEC Chapter 9 Table 8. Get automated <strong>upsized AWG wire recommendations</strong> to maintain code compliance on long EV charger, subpanel, and outbuilding runs.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: System Voltage & Phase -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Circuit System Voltage</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="vd-voltage-preset" class="input-field" style="width: 100%;" onchange="applyVoltagePreset()">
+                <option value="120,1" selected>120V (Single-Phase Residential Branch)</option>
+                <option value="240,1">240V (Single-Phase Dryer / EV / Subpanel)</option>
+                <option value="208,1">208V (Single-Phase Commercial Leg)</option>
+                <option value="208,3">208V (Three-Phase Commercial)</option>
+                <option value="277,1">277V (Single-Phase Commercial Lighting)</option>
+                <option value="480,3">480V (Three-Phase Industrial Power)</option>
+                <option value="custom">Custom Voltage &amp; Phase...</option>
+              </select>
+            </div>
+            <small style="color: var(--text-muted);">Nominal system supply voltage</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Circuit Load Current (Amperes)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="vd-current-input" class="input-field" value="20" min="0.5" max="2000" step="1" style="width: 100%;" oninput="calcVoltageDrop()">
+              <span style="font-weight: bold; min-width: 35px;">Amps</span>
+            </div>
+            <small style="color: var(--text-muted);">Actual continuous or design load (e.g. 16A on 20A breaker)</small>
+          </div>
+        </div>
+
+        <!-- Row 2: Conductor Material & Gauge -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Conductor Metal &amp; Wire Size (AWG / kcmil)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="vd-metal-type" class="input-field" style="width: 130px;" onchange="calcVoltageDrop()">
+                <option value="cu" selected>Copper (Cu)</option>
+                <option value="al">Aluminum (Al)</option>
+              </select>
+              <select id="vd-wire-gauge" class="input-field" style="width: 100%;" onchange="calcVoltageDrop()">
+                <option value="4110">14 AWG (15A Branch)</option>
+                <option value="6530" selected>12 AWG (20A Branch)</option>
+                <option value="10380">10 AWG (30A Water Heater/A/C)</option>
+                <option value="16510">8 AWG (40A Range/Subpanel)</option>
+                <option value="26240">6 AWG (50A EV/Range)</option>
+                <option value="41740">4 AWG (70A Subpanel)</option>
+                <option value="52620">3 AWG (85A Feeder)</option>
+                <option value="66360">2 AWG (100A Subpanel)</option>
+                <option value="83690">1 AWG (115A Feeder)</option>
+                <option value="105600">1/0 AWG (125A Feeder)</option>
+                <option value="133100">2/0 AWG (150A Service)</option>
+                <option value="167800">3/0 AWG (175A Service)</option>
+                <option value="211600">4/0 AWG (200A Service)</option>
+                <option value="250000">250 kcmil (Commercial Feeder)</option>
+                <option value="350000">350 kcmil (Heavy Feeder)</option>
+                <option value="500000">500 kcmil (Main Distribution)</option>
+              </select>
+            </div>
+            <small style="color: var(--text-muted);">Standard NEC Chapter 9 Table 8 conductor cross-section</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">One-Way Circuit Run Distance</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="vd-distance-ft" class="input-field" value="100" min="5" max="5000" step="5" style="width: 100%;" oninput="calcVoltageDrop()">
+              <span style="font-weight: bold; min-width: 25px;">ft</span>
+            </div>
+            <small style="color: var(--text-muted);">Distance from source panel to load (one-way length)</small>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Voltage Drop (V_d)</div>
+            <div id="res-vd-volts" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-vd-volts-at-load" style="font-size: 0.8rem; color: var(--text-muted);">-- V at load end</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Percentage Drop (%V_d)</div>
+            <div id="res-vd-pct" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-vd-code-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Recommended AWG for &lt;3%</div>
+            <div id="res-vd-rec-wire" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-vd-rec-gauge-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Conductor Heat Dissipation</div>
+            <div id="res-vd-power-loss" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-vd-resist-total" style="font-size: 0.8rem; color: var(--text-muted);">-- Ω loop resistance</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-vd-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyVdSummary()">
+            <span>📋</span> Copy Electrical Wire &amp; Voltage Drop Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Circuit Loop Run &amp; Load Voltage Attenuation</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Real-time schematic diagram of electrical feeder/branch run showing source panel, wire distance ($L$), and delivered terminal voltage against the NEC 3% threshold limit.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="vd-circuit-svg" viewBox="0 0 720 280" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live NEC Derivation &amp; Circular Mil Equations</h3>
+        <div id="vd-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal Electrical Voltage Drop &amp; Wire Sizing Traps</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Sizing wire strictly from ampacity tables while ignoring length-dependent resistance leads to melted outlets, burned out motors, and electrical inspector red tags.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔥</span> 1. Level 2 EV Charger Continuous Duty Receptacle Meltdown
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Electric vehicle charging draws maximum continuous load (typically 32A to 40A) for 6 to 10 hours uninterrupted. If an installer runs #8 AWG NM-B Romex on a 100-foot run to a detached garage, the voltage drop hits <strong>4.8%</strong>. That missing voltage turns directly into <strong>over 450 watts of pure resistive heat</strong> concentrated inside the wall cavity and NEMA 14-50 receptacle terminals. Under sustained heat, residential-grade outlets soften, char, and ignite. EV charger circuits over 50 feet should always be upsized to #6 AWG copper.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚡</span> 2. The 120V Voltage Drop Sensitivity Multiplier vs. 240V
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              A 6-volt drop on a 240V circuit is only a minor <strong>2.5% loss</strong>. However, that exact same 6-volt drop on a standard 120V branch circuit represents a massive <strong>5.0% loss</strong>. At 114V or lower, inductive refrigerator compressors and well pumps draw higher running amperage to compensate for lower voltage, causing their internal thermal overload switches to cycle continuously until the motor windings burn out. 120V circuits running to sheds or landscape lighting must be upsized much sooner than 240V circuits.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 3. Copper-Clad Aluminum (CCA) Wire Fire Hazard
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Cheap imported building wire and extension cords frequently substitute Copper-Clad Aluminum (CCA) for pure solid copper. Aluminum has an electrical resistivity constant of <strong>$K = 21.2$</strong> compared to <strong>$12.9$ for copper</strong>&mdash;meaning aluminum possesses <strong>65% higher resistance</strong> for the same gauge size! Calculating voltage drop assuming pure copper when using CCA leads to severe conductor overheating, molten insulation, and dangerous arc faults.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>☀️</span> 4. Attic &amp; Rooftop Conduit Thermal Resistance Spike
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              The electrical resistance of metals increases with temperature. Electrical engineering formulas assume a conductor operating temperature of 75&deg;C (167&deg;F). When conduit is routed across an unconditioned attic (140&deg;F) or exposed to direct sun on a commercial rooftop, ambient heat spikes conductor temperatures toward 90&deg;C+. Resistance increases by an additional <strong>10% to 15%</strong>, transforming a circuit calculated at an acceptable 2.9% drop into an out-of-spec 3.4% failure during peak summer cooling hours.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🧲</span> 5. Ferrous Steel Conduit Inductive Reactance on Large Conductors
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              For small branch circuits (#14 to #10 AWG), AC inductive reactance ($X_L$) is negligible compared to ohmic DC resistance. However, for heavy commercial feeders (3/0 AWG to 500 kcmil) installed inside magnetic steel conduit (RMC or EMT), alternating magnetic fields induce substantial inductive reactance. Failing to calculate combined AC impedance ($Z = \sqrt{R^2 + X_L^2}$) underestimates voltage drop by <strong>20% to 35%</strong>, causing low voltage at switchboards and tripping undervoltage relays.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: Electrical Voltage Drop</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the National Electrical Code (NEC) limit on voltage drop?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Under NEC Informational Note 210.19(A) and 215.2(A)(1): conductors should be sized to prevent a voltage drop exceeding <strong>3% at the farthest outlet</strong> of power, heating, and lighting loads. Furthermore, the maximum total combined voltage drop on both the feeder and the branch circuit combined should not exceed <strong>5%</strong> for reasonable efficiency of operation.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the formula for calculating voltage drop?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              For single-phase circuits: <code>V_d = (2 * K * I * L) / CM</code>.<br>
+              For three-phase balanced circuits: <code>V_d = (1.732 * K * I * L) / CM</code>.<br>
+              Where <em>K</em> is conductor resistivity (12.9 for copper, 21.2 for aluminum at 75°C), <em>I</em> is current in Amps, <em>L</em> is one-way distance in feet, and <em>CM</em> is conductor cross-sectional area in Circular Mils (from NEC Chapter 9 Table 8).
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Why is three-phase voltage drop lower than single-phase?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              In a single-phase circuit, current must travel out along the hot conductor and return along the neutral conductor, requiring a factor of <code>2 * L</code>. In a balanced three-phase circuit, return currents cancel each other out vectorially at 120-degree phase angles, requiring a factor of only <code>√3 * L ≈ 1.732 * L</code> (approximately 14% lower voltage drop for identical wire and current).
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">At what distance does voltage drop require upsizing wire?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              As a standard rule of thumb on a 120V circuit loaded to 80% capacity (16A on a 20A circuit with 12 AWG copper), voltage drop exceeds the NEC 3% threshold at approximately <strong>50 to 60 feet</strong>. Any 120V branch run exceeding 60 to 70 feet should typically be upsized one wire size (e.g. from 12 AWG to 10 AWG).
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is a Circular Mil (cmil)?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              A Circular Mil is an electrical unit of area defined as the area of a circle with a diameter of 1 mil (0.001 inch). It simplifies conductor area math because <code>Area (cmil) = Diameter (mils)²</code>, eliminating the need to multiply by π/4. For example, 1,000 circular mils is abbreviated as 1 kcmil (or MCM).
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      var currentSourceVolts = 120;
+      var currentPhase = 1;
+
+      var wireGaugeTable = [
+        { name: '14 AWG', cm: 4110 },
+        { name: '12 AWG', cm: 6530 },
+        { name: '10 AWG', cm: 10380 },
+        { name: '8 AWG', cm: 16510 },
+        { name: '6 AWG', cm: 26240 },
+        { name: '4 AWG', cm: 41740 },
+        { name: '3 AWG', cm: 52620 },
+        { name: '2 AWG', cm: 66360 },
+        { name: '1 AWG', cm: 83690 },
+        { name: '1/0 AWG', cm: 105600 },
+        { name: '2/0 AWG', cm: 133100 },
+        { name: '3/0 AWG', cm: 167800 },
+        { name: '4/0 AWG', cm: 211600 },
+        { name: '250 kcmil', cm: 250000 },
+        { name: '350 kcmil', cm: 350000 },
+        { name: '500 kcmil', cm: 500000 }
+      ];
+
+      function applyVoltagePreset() {
+        var val = document.getElementById('vd-voltage-preset').value;
+        if (val !== 'custom') {
+          var parts = val.split(',');
+          currentSourceVolts = parseFloat(parts[0]);
+          currentPhase = parseInt(parts[1]);
+          calcVoltageDrop();
+        }
+      }
+
+      function calcVoltageDrop() {
+        var vSource = currentSourceVolts;
+        var phase = currentPhase;
+        var I = parseFloat(document.getElementById('vd-current-input').value) || 20;
+        var metal = document.getElementById('vd-metal-type').value;
+        var cm = parseFloat(document.getElementById('vd-wire-gauge').value) || 6530;
+        var L = parseFloat(document.getElementById('vd-distance-ft').value) || 100;
+
+        // K constant at 75°C: Cu = 12.9, Al = 21.2
+        var K = metal === 'al' ? 21.2 : 12.9;
+
+        // Formula:
+        // 1-phase: Vd = (2 * K * I * L) / CM
+        // 3-phase: Vd = (1.732 * K * I * L) / CM
+        var factor = phase === 3 ? 1.73205 : 2.0;
+        var vd = (factor * K * I * L) / cm;
+        var pctDrop = (vd / vSource) * 100;
+        var vLoad = vSource - vd;
+
+        // Loop resistance: R = (factor * K * L) / CM
+        var rLoop = (factor * K * L) / cm;
+        var powerLossWatts = Math.pow(I, 2) * rLoop;
+
+        // Find Recommended Wire Gauge for < 3.0% drop
+        var recWire = '14 AWG';
+        for (var i = 0; i < wireGaugeTable.length; i++) {
+          var testVd = (factor * K * I * L) / wireGaugeTable[i].cm;
+          var testPct = (testVd / vSource) * 100;
+          if (testPct <= 3.0) {
+            recWire = wireGaugeTable[i].name;
+            break;
+          }
+          if (i === wireGaugeTable.length - 1) {
+            recWire = 'Parallel / >500kcmil';
+          }
+        }
+
+        // UI Metric Updates
+        document.getElementById('res-vd-volts').textContent = vd.toFixed(2) + ' V';
+        document.getElementById('res-vd-volts-at-load').textContent = vLoad.toFixed(1) + ' V at load end';
+
+        var pctEl = document.getElementById('res-vd-pct');
+        pctEl.textContent = pctDrop.toFixed(2) + '%';
+        var statEl = document.getElementById('res-vd-code-status');
+
+        if (pctDrop <= 3.0) {
+          pctEl.style.color = '#10b981';
+          statEl.textContent = '✓ PASS (<3% NEC Branch Limit)';
+          statEl.style.color = '#10b981';
+        } else if (pctDrop <= 5.0) {
+          pctEl.style.color = '#f59e0b';
+          statEl.textContent = '⚠️ Marginal (3%–5% Feeder Only)';
+          statEl.style.color = '#f59e0b';
+        } else {
+          pctEl.style.color = '#ef4444';
+          statEl.textContent = '❌ CODE VIOLATION (>5% Exceeded)';
+          statEl.style.color = '#ef4444';
+        }
+
+        document.getElementById('res-vd-rec-wire').textContent = recWire;
+        var recStat = document.getElementById('res-vd-rec-gauge-status');
+        var selGaugeName = document.getElementById('vd-wire-gauge').selectedOptions[0].text.split(' ')[0];
+        if (pctDrop <= 3.0) {
+          recStat.textContent = 'Current gauge is compliant';
+          recStat.style.color = '#10b981';
+        } else {
+          recStat.textContent = 'Upsize from ' + selGaugeName + ' to ' + recWire;
+          recStat.style.color = '#ef4444';
+        }
+
+        document.getElementById('res-vd-power-loss').textContent = Math.round(powerLossWatts).toLocaleString() + ' Watts';
+        document.getElementById('res-vd-resist-total').textContent = rLoop.toFixed(3) + ' Ω loop resistance';
+
+        renderVdSvg(vSource, vLoad, vd, pctDrop, L, I, phase);
+        renderVdDerivation(vSource, phase, I, L, K, cm, factor, vd, pctDrop, vLoad, rLoop, powerLossWatts, recWire);
+      }
+
+      function renderVdSvg(vSource, vLoad, vd, pct, L, I, phase) {
+        var svg = document.getElementById('vd-circuit-svg');
+        if (!svg) return;
+
+        var startX = 70;
+        var endX = 650;
+        var lineY1 = 100;
+        var lineY2 = 180;
+
+        var barW = 200;
+        var pctClamped = Math.min(100, (pct / 6) * barW);
+        var barColor = pct <= 3.0 ? '#10b981' : (pct <= 5.0 ? '#f59e0b' : '#ef4444');
+
+        var svgHtml = '';
+
+        // Source Panel Box on Left
+        svgHtml += '<rect x="' + (startX - 35) + '" y="60" width="70" height="150" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2" />';
+        svgHtml += '<text x="' + startX + '" y="80" fill="#93c5fd" font-size="10" font-weight="bold" text-anchor="middle">PANEL</text>';
+        svgHtml += '<text x="' + startX + '" y="130" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">' + vSource + 'V</text>';
+        svgHtml += '<text x="' + startX + '" y="150" fill="#94a3b8" font-size="9" text-anchor="middle">' + (phase === 1 ? '1-Phase' : '3-Phase') + '</text>';
+
+        // Hot Outgoing Conductor
+        svgHtml += '<line x1="' + (startX + 35) + '" y1="' + lineY1 + '" x2="' + (endX - 35) + '" y2="' + lineY1 + '" stroke="#ef4444" stroke-width="3.5" />';
+        svgHtml += '<text x="' + ((startX + endX) / 2) + '" y="' + (lineY1 - 10) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="middle">Conductor Run L = ' + L + ' ft (' + I + ' Amps)</text>';
+
+        // Neutral / Return Conductor
+        svgHtml += '<line x1="' + (startX + 35) + '" y1="' + lineY2 + '" x2="' + (endX - 35) + '" y2="' + lineY2 + '" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="6,4" />';
+        svgHtml += '<text x="' + ((startX + endX) / 2) + '" y="' + (lineY2 + 20) + '" fill="#94a3b8" font-size="10" text-anchor="middle">Return Path (' + (phase === 1 ? 'Neutral / 2×L' : 'Balanced Vector / √3×L') + ')</text>';
+
+        // Load Box on Right
+        svgHtml += '<rect x="' + (endX - 35) + '" y="60" width="70" height="150" rx="6" fill="#1e293b" stroke="' + barColor + '" stroke-width="2" />';
+        svgHtml += '<text x="' + endX + '" y="80" fill="#f8fafc" font-size="10" font-weight="bold" text-anchor="middle">LOAD</text>';
+        svgHtml += '<text x="' + endX + '" y="130" fill="' + barColor + '" font-size="14" font-weight="bold" text-anchor="middle">' + vLoad.toFixed(1) + 'V</text>';
+        svgHtml += '<text x="' + endX + '" y="150" fill="#94a3b8" font-size="9" text-anchor="middle">-' + vd.toFixed(1) + 'V Loss</text>';
+
+        // Attenuation Gauge Banner on Bottom
+        svgHtml += '<g transform="translate(240, 225)">';
+        svgHtml += '<rect x="0" y="0" width="240" height="40" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<rect x="10" y="10" width="' + barW + '" height="12" rx="4" fill="#334155" />';
+        svgHtml += '<rect x="10" y="10" width="' + Math.min(barW, pctClamped) + '" height="12" rx="4" fill="' + barColor + '" />';
+        svgHtml += '<text x="120" y="34" fill="' + barColor + '" font-size="10.5" font-weight="bold" text-anchor="middle">' + pct.toFixed(2) + '% Total Drop (' + (pct <= 3 ? 'NEC Compliant' : 'Exceeds 3%') + ')</text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderVdDerivation(vSource, phase, I, L, K, cm, factor, vd, pct, vLoad, rLoop, watts, recWire) {
+        var el = document.getElementById('vd-derivation-content');
+        if (!el) return;
+
+        var formStr = phase === 3 ?
+          'V_d = \\\\frac{\\\\sqrt{3} \\\\cdot K \\\\cdot I \\\\cdot L}{CM}' :
+          'V_d = \\\\frac{2 \\\\cdot K \\\\cdot I \\\\cdot L}{CM}';
+
+        var html = '';
+        html += '<p><strong>Step 1: Compute Voltage Drop via Ohm\\'s Law &amp; Circular Mil Table</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$' + formStr + ' = \\\\frac{' + factor + ' \\\\times ' + K + ' \\\\times ' + I + ' \\\\times ' + L + '}{' + cm + '} = \\\\mathbf{' + vd.toFixed(2) + '\\\\text{ Volts}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Percentage Voltage Drop &amp; Terminal Delivery</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\%V_d = \\\\frac{V_d}{V_{\\\\text{source}}} \\\\times 100\\\\% = \\\\frac{' + vd.toFixed(2) + '}{' + vSource + '} \\\\times 100\\\\% = \\\\mathbf{' + pct.toFixed(2) + '\\\\%}$$<br>';
+        html += '$$V_{\\\\text{load}} = V_{\\\\text{source}} - V_d = ' + vSource + ' - ' + vd.toFixed(2) + ' = \\\\mathbf{' + vLoad.toFixed(1) + '\\\\text{ Volts}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Line Thermal Power Loss &amp; Wire Upsize Solution</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$P_{\\\\text{loss}} = I^2 \\\\cdot R = ' + I + '^2 \\\\times ' + rLoop.toFixed(3) + '\\,\\\\Omega = \\\\mathbf{' + Math.round(watts).toLocaleString() + '\\\\text{ Watts Dissipated as Heat}}$$<br>';
+        html += 'NEC 3.0% Maximum Compliance Recommendation = <strong>' + recWire + '</strong>';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyVdSummary() {
+        var volts = currentSourceVolts;
+        var phase = currentPhase;
+        var current = document.getElementById('vd-current-input').value;
+        var metal = document.getElementById('vd-metal-type').selectedOptions[0].text;
+        var wire = document.getElementById('vd-wire-gauge').selectedOptions[0].text;
+        var dist = document.getElementById('vd-distance-ft').value;
+        var vd = document.getElementById('res-vd-volts').textContent;
+        var pct = document.getElementById('res-vd-pct').textContent;
+        var stat = document.getElementById('res-vd-code-status').textContent;
+        var rec = document.getElementById('res-vd-rec-wire').textContent;
+        var watts = document.getElementById('res-vd-power-loss').textContent;
+
+        var text = '=== ELECTRICAL VOLTAGE DROP & WIRE SIZING REPORT ===\\n' +
+          'Circuit: ' + volts + 'V (' + phase + '-Phase) | Current: ' + current + ' Amps\\n' +
+          'Conductor: ' + wire + ' ' + metal + ' | Run Length: ' + dist + ' ft (one-way)\\n' +
+          '--------------------------------------------------\\n' +
+          'Voltage Drop: ' + vd + ' (' + pct + ')\\n' +
+          'NEC Code Compliance: ' + stat + '\\n' +
+          'Recommended Minimum Gauge (<3%): ' + rec + '\\n' +
+          'Line Resistive Power Loss: ' + watts + '\\n' +
+          'Standard: NEC Chapter 9 Table 8 & Informational Note 210.19(A)\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/voltage-drop-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-vd-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Electrical Report!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcVoltageDrop);
+      } else {
+        calcVoltageDrop();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'voltage-drop-calculator.html'), renderTradePage({
+    title: "Electrical Voltage Drop & Wire Sizing Calculator (NEC 2023/2026) | Digital Tools Shed",
+    metaDesc: "Calculate electrical voltage drop and wire size for single-phase and three-phase copper and aluminum conductors. Verify NEC 3% branch and 5% feeder limits.",
+    canonical: `${DOMAIN}/calc/voltage-drop-calculator`,
+    bodyContent: voltageDropBody,
+    currentPath: '/calc/voltage-drop-calculator',
+    faq: [
+      {
+        "q": "What is the National Electrical Code (NEC) limit on voltage drop?",
+        "a": "Under NEC Informational Notes 210.19(A) and 215.2(A)(1), conductors should be sized to maintain a maximum voltage drop of 3% at the farthest outlet, with total combined feeder and branch drop not exceeding 5%."
+      },
+      {
+        "q": "What is the formula for calculating voltage drop?",
+        "a": "For single-phase: Vd = (2 * K * I * L) / CM. For three-phase: Vd = (1.732 * K * I * L) / CM, where K is conductor resistivity (12.9 for copper, 21.2 for aluminum at 75°C), I is current in Amps, L is length in feet, and CM is Circular Mils from NEC Chapter 9 Table 8."
+      },
+      {
+        "q": "Why is three-phase voltage drop lower than single-phase?",
+        "a": "In single-phase, return current flows entirely through the neutral (2 * L). In balanced three-phase, currents cancel out vectorially at 120° angles, reducing the length factor to √3 * L ≈ 1.732 * L (about 14% lower voltage drop)."
+      },
+      {
+        "q": "At what distance does voltage drop require upsizing wire?",
+        "a": "On a standard 120V 20A branch loaded to 16A with 12 AWG copper, voltage drop exceeds 3% at around 55 to 60 feet. Runs beyond 60 feet should typically be upsized to 10 AWG."
+      },
+      {
+        "q": "What is a Circular Mil (cmil)?",
+        "a": "A Circular Mil is the area of a circle with a diameter of 1 mil (0.001 inch). It simplifies electrical conductor math because Area (cmil) = Diameter (mils)², avoiding π/4 factors."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 36. REFRIGERANT SUBCOOLING & SUPERHEAT HVAC DIAGNOSTIC CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const subcoolBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Subcooling &amp; Superheat Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">HVAC Refrigeration &amp; Heat Pump</span>
+          <span class="badge badge-green">4-Quadrant Diagnostic Matrix</span>
+          <span class="badge badge-blue">R-410A, R-454B, R-32 &amp; R-22 PT Charts</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Refrigerant Subcooling &amp; Superheat Diagnostic Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Diagnose heat pump and air conditioning performance using exact saturation temperature PT math. Instantly evaluate liquid line subcooling ($SC$), suction line superheat ($SH$), and pinpoint <strong>undercharge, overcharge, liquid line restrictions, or dirty coil airflow starvation</strong>.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: Refrigerant & Metering Device -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Refrigerant Type</label>
+            <select id="sc-refrigerant" class="input-field" style="width: 100%;" onchange="calcSubcoolSuperheat()">
+              <option value="r410a" selected>R-410A (Puron — Standard Residential)</option>
+              <option value="r454b">R-454B (Opteon XL41 — New 2025/2026 Low GWP A2L)</option>
+              <option value="r32">R-32 (Daikin / Modern Inverter A2L)</option>
+              <option value="r22">R-22 (Legacy Freon)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Expansion / Metering Device</label>
+            <select id="sc-metering-device" class="input-field" style="width: 100%;" onchange="calcSubcoolSuperheat()">
+              <option value="txv" selected>TXV / EEV (Thermal Expansion Valve — Charge by Subcooling)</option>
+              <option value="piston">Fixed Orifice / Piston (Cap Tube — Charge by Superheat)</option>
+            </select>
+            <small style="color: var(--text-muted);">TXV systems maintain constant superheat; charge by subcooling</small>
+          </div>
+        </div>
+
+        <!-- Row 2: High Side (Liquid Line / Subcooling) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">High-Side Liquid Pressure (Head)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="sc-high-psi" class="input-field" value="335" min="50" max="600" step="5" style="width: 100%;" oninput="calcSubcoolSuperheat()">
+              <span style="font-weight: bold; min-width: 45px;">PSIG</span>
+            </div>
+            <small style="color: var(--text-muted);">Measured at small liquid line service port</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Liquid Line Pipe Temperature</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="sc-liquid-temp" class="input-field" value="94" min="30" max="160" step="1" style="width: 100%;" oninput="calcSubcoolSuperheat()">
+              <span style="font-weight: bold;">°F</span>
+            </div>
+            <small style="color: var(--text-muted);">Thermistor clamp on liquid copper pipe near outdoor unit</small>
+          </div>
+        </div>
+
+        <!-- Row 3: Low Side (Suction Line / Superheat) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Low-Side Suction Pressure (Vapor)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="sc-low-psi" class="input-field" value="118" min="10" max="300" step="2" style="width: 100%;" oninput="calcSubcoolSuperheat()">
+              <span style="font-weight: bold; min-width: 45px;">PSIG</span>
+            </div>
+            <small style="color: var(--text-muted);">Measured at large insulated suction service port</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Suction Line Pipe Temperature</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="sc-suction-temp" class="input-field" value="52" min="10" max="110" step="1" style="width: 100%;" oninput="calcSubcoolSuperheat()">
+              <span style="font-weight: bold;">°F</span>
+            </div>
+            <small style="color: var(--text-muted);">Thermistor clamp on large vapor pipe insulated from ambient air</small>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Liquid Subcooling (SC)</div>
+            <div id="res-sc-val" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-sc-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Suction Superheat (SH)</div>
+            <div id="res-sh-val" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-sh-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">4-Quadrant System Diagnosis</div>
+            <div id="res-diag-banner" style="font-size: 1.4rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-diag-action" style="font-size: 0.8rem; color: var(--text-muted);">Action required</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Coil Evap Saturation Temp</div>
+            <div id="res-evap-sat" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-cond-sat" style="font-size: 0.8rem; color: var(--text-muted);">Condenser Sat: --°F</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-sc-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyScSummary()">
+            <span>📋</span> Copy HVAC Refrigerant Diagnostic Brief
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">4-Quadrant Subcooling vs. Superheat Matrix</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Real-time operating crosshairs plotted against optimal charging boundary box (Green: 8°–12°F Subcooling, 8°–15°F Superheat) and diagnostic fault zones.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="sc-matrix-svg" viewBox="0 0 720 300" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Thermodynamic Derivation &amp; PT Calculations</h3>
+        <div id="sc-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal HVAC Charging Traps &amp; Diagnostic Pitfalls</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Charging refrigerant without understanding the thermodynamic relationship between subcooling, superheat, and airflow ruins compressors and wastes thousands in service calls.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 1. Attempting to Charge a TXV System Using Superheat
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Thermal Expansion Valves (TXVs) are active mechanical regulators designed to keep superheat relatively constant (usually around 10&deg;F to 14&deg;F). If an uneducated technician sees a high superheat and adds refrigerant expecting superheat to drop, the TXV simply throttles down. The added refrigerant backs up into the condenser, causing subcooling and head pressure to skyrocket past 450 PSIG. The compressor overheats, trips on internal thermal overload, or blows its internal relief valve. <strong>Always charge TXV systems by subcooling!</strong>
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🌊</span> 2. Liquid Slugging &amp; Compressor Hydro-Lock (&lt;5°F Superheat)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Compressors are designed strictly to pump vapor. Superheat ensures that all liquid refrigerant has completely boiled off into vapor before entering the compressor. If suction superheat drops below <strong>5&deg;F (or 0&deg;F)</strong>, raw liquid refrigerant droplets enter the compressor scroll or reciprocating cylinders. Liquids cannot be compressed; the resulting hydraulic shock (&quot;liquid slugging&quot;) bends connecting rods, shatters scroll plates, and dilutes crankcase oil, leading to total compressor destruction.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🌪️</span> 3. Charging During Airflow Starvation (Dirty Filter / Frozen Coil Trap)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              If a furnace filter is clogged with dust or the blower wheel is caked in grime, the indoor evaporator coil cannot absorb heat from the house. Low heat load drops suction pressure and drops both subcooling and superheat to near zero. A technician who mistakes low suction pressure for an undercharged system will pump pounds of unnecessary refrigerant into the unit. When the homeowner eventually changes the air filter, the system becomes grossly overcharged, causing high head pressure shutdown. Always check filter and static pressure before attaching manifold gauges!
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🌡️</span> 4. Uninsulated Suction Line Thermistor Placement Error
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              To measure superheat, a temperature clamp must be fastened tightly to clean, unpainted copper on the suction line and <strong>thoroughly insulated from ambient air</strong>. In an unconditioned 110&deg;F outdoor setting, an uninsulated thermistor absorbs ambient radiant heat, reading 8&deg;F to 12&deg;F higher than the actual refrigerant gas temperature inside the pipe. This creates a phantom &quot;high superheat&quot; reading that leads to incorrect refrigerant additions.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🧪</span> 5. Vapor Charging Fractionation on Blended Refrigerants (R-410A / R-454B)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              R-410A (50% R-32 / 50% R-125) and R-454B (68.9% R-32 / 31.1% R-1234yf) are zeotropic blends. Because each chemical component boils at a slightly different temperature, charging vapor from the top of the tank vaporizes the lighter component first (&quot;fractionation&quot;), altering the chemical ratio inside both the bottle and the A/C unit. Blended refrigerants must <strong>always be charged as pure liquid</strong> (tank inverted) into the suction line through an orifice throttling valve to avoid liquid flooding the compressor.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: Subcooling &amp; Superheat</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is subcooling and what is a normal subcooling value?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Subcooling is the temperature drop of liquid refrigerant below its saturation (condensing) temperature at a given head pressure: <code>Subcooling = T_sat(high) - T_liquid_line</code>. A typical modern residential TXV system requires <strong>10°F to 12°F of subcooling</strong> (check the manufacturer dataplate on the outdoor condenser for the exact target). Subcooling confirms that a solid column of liquid refrigerant is reaching the expansion valve.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is superheat and what is a normal superheat value?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Superheat is the temperature rise of vapor refrigerant above its boiling (evaporator saturation) temperature: <code>Superheat = T_suction_line - T_sat(low)</code>. For fixed orifice/piston systems, target superheat varies between 8°F and 20°F depending on indoor wet-bulb and outdoor ambient temperatures. For TXV systems, superheat is typically maintained automatically between <strong>8°F and 15°F</strong>.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What does high superheat and high subcooling indicate?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              High superheat combined with high subcooling is the classic textbook symptom of a <strong>liquid line restriction</strong>. Refrigerant backs up in the condenser (creating high subcooling), but cannot pass through a plugged filter drier or stuck-closed TXV into the evaporator (starving the evaporator and creating high superheat).
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What does low superheat and low subcooling indicate?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Low superheat combined with low subcooling indicates <strong>low indoor airflow</strong> (severely dirty air filter, failing blower motor, collapsed ductwork, or dirty evaporator fins). Because little heat is absorbed in the evaporator, liquid does not boil off completely, causing suction pressure and superheat to drop, while the condenser has little heat to reject.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What are the operating pressures of R-410A vs R-22?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              R-410A operates at approximately <strong>50% to 60% higher pressure</strong> than legacy R-22. On a 95°F day, an R-410A system typically runs at 118–125 PSIG suction (40°F–44°F evap) and 335–375 PSIG head (105°F–112°F condensing). In contrast, an R-22 system under identical conditions runs around 68–75 PSIG suction and 210–230 PSIG head.
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Approximated Saturation Pressure-Temperature (PT) conversion functions
+      function getSatTempF(refrig, psig) {
+        var p = Math.max(1, psig);
+        if (refrig === 'r410a') {
+          // Antoine-type fit for R410A: Tsat = -135.5 + 47.8 * ln(P)
+          return -135.5 + 47.8 * Math.log(p);
+        } else if (refrig === 'r454b') {
+          // R454B operates very close to R410A (~2% lower pressure)
+          return -133.0 + 47.2 * Math.log(p);
+        } else if (refrig === 'r32') {
+          // R32 runs slightly higher sat temp for same pressure
+          return -138.0 + 48.0 * Math.log(p);
+        } else {
+          // R-22: Tsat = -98.2 + 37.5 * ln(P)
+          return -98.2 + 37.5 * Math.log(p);
+        }
+      }
+
+      function calcSubcoolSuperheat() {
+        var refrig = document.getElementById('sc-refrigerant').value;
+        var metering = document.getElementById('sc-metering-device').value;
+
+        var pHigh = parseFloat(document.getElementById('sc-high-psi').value) || 335;
+        var tLiq = parseFloat(document.getElementById('sc-liquid-temp').value) || 94;
+        var pLow = parseFloat(document.getElementById('sc-low-psi').value) || 118;
+        var tSuc = parseFloat(document.getElementById('sc-suction-temp').value) || 52;
+
+        // Saturation temperatures
+        var satHigh = getSatTempF(refrig, pHigh);
+        var satLow = getSatTempF(refrig, pLow);
+
+        // Subcooling = SatHigh - Tliquid
+        var sc = satHigh - tLiq;
+
+        // Superheat = Tsuction - SatLow
+        var sh = tSuc - satLow;
+
+        // 4-Quadrant Diagnosis
+        var banner = '';
+        var bannerColor = '';
+        var actionText = '';
+
+        var isScLow = sc < 7.0;
+        var isScHigh = sc > 15.0;
+        var isShLow = sh < 7.0;
+        var isShHigh = sh > 18.0;
+
+        if (!isScLow && !isScHigh && !isShLow && !isShHigh) {
+          banner = '✓ OPTIMAL CHARGE & FLOW';
+          bannerColor = '#10b981';
+          actionText = 'System operating in prime target efficiency window.';
+        } else if (isScLow && isShHigh) {
+          banner = '⚠️ UNDERCHARGED (LEAK)';
+          bannerColor = '#f59e0b';
+          actionText = 'Low refrigerant charge or leak. Check for oily fittings and add charge.';
+        } else if (isScHigh && isShLow) {
+          banner = '❌ OVERCHARGED SYSTEM';
+          bannerColor = '#ef4444';
+          actionText = 'Excess refrigerant liquid backing into condenser and risking compressor floodback.';
+        } else if (isScHigh && isShHigh) {
+          banner = '🛑 RESTRICTION / BAD TXV';
+          bannerColor = '#ef4444';
+          actionText = 'Liquid line filter drier plugged or TXV metering valve stuck closed.';
+        } else if (isScLow && isShLow) {
+          banner = '⚠️ LOW INDOOR AIRFLOW';
+          bannerColor = '#f59e0b';
+          actionText = 'Dirty air filter, failed blower fan, or blocked return grille. Clean filter first!';
+        } else if (isScLow) {
+          banner = '⚠️ LOW SUBCOOLING';
+          bannerColor = '#f59e0b';
+          actionText = 'Slight undercharge or high condensing ambient heat load.';
+        } else if (isShHigh) {
+          banner = '⚠️ HIGH SUPERHEAT';
+          bannerColor = '#f59e0b';
+          actionText = 'Evaporator starvation or excessive return air heat gain.';
+        } else {
+          banner = '⚠️ ACCEPTABLE TOLERANCE';
+          bannerColor = '#3b82f6';
+          actionText = 'Within broad operating limits. Monitor performance.';
+        }
+
+        // UI Metric Updates
+        var scEl = document.getElementById('res-sc-val');
+        scEl.textContent = sc.toFixed(1) + '°F';
+        var scStat = document.getElementById('res-sc-status');
+        if (sc >= 8 && sc <= 13) {
+          scEl.style.color = '#10b981';
+          scStat.textContent = '✓ Optimal Target (8°–12°F)';
+          scStat.style.color = '#10b981';
+        } else if (sc < 8) {
+          scEl.style.color = '#f59e0b';
+          scStat.textContent = '⚠️ Low Subcooling (<8°F)';
+          scStat.style.color = '#f59e0b';
+        } else {
+          scEl.style.color = '#ef4444';
+          scStat.textContent = '❌ High Subcooling (>14°F)';
+          scStat.style.color = '#ef4444';
+        }
+
+        var shEl = document.getElementById('res-sh-val');
+        shEl.textContent = sh.toFixed(1) + '°F';
+        var shStat = document.getElementById('res-sh-status');
+        if (sh >= 8 && sh <= 16) {
+          shEl.style.color = '#10b981';
+          shStat.textContent = '✓ Optimal Target (8°–15°F)';
+          shStat.style.color = '#10b981';
+        } else if (sh < 8) {
+          shEl.style.color = '#ef4444';
+          shStat.textContent = '❌ Low Superheat (<8°F Slug Risk)';
+          shStat.style.color = '#ef4444';
+        } else {
+          shEl.style.color = '#f59e0b';
+          shStat.textContent = '⚠️ High Superheat (>16°F)';
+          shStat.style.color = '#f59e0b';
+        }
+
+        var banEl = document.getElementById('res-diag-banner');
+        banEl.textContent = banner;
+        banEl.style.color = bannerColor;
+        document.getElementById('res-diag-action').textContent = actionText;
+
+        document.getElementById('res-evap-sat').textContent = satLow.toFixed(1) + '°F Evap';
+        document.getElementById('res-cond-sat').textContent = 'Condenser Sat: ' + satHigh.toFixed(1) + '°F (' + pHigh + ' PSIG)';
+
+        renderScSvg(sc, sh, banner, bannerColor);
+        renderScDerivation(refrig, pHigh, satHigh, tLiq, sc, pLow, satLow, tSuc, sh, banner);
+      }
+
+      function renderScSvg(sc, sh, banner, color) {
+        var svg = document.getElementById('sc-matrix-svg');
+        if (!svg) return;
+
+        var w = 720, h = 300;
+        var padL = 90, padR = 240, padT = 30, padB = 45;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        // SC axis: 0 to 24°F
+        // SH axis: 0 to 32°F
+        var maxSc = 24, maxSh = 32;
+
+        var ptX = padL + (Math.max(0, Math.min(maxSc, sc)) / maxSc) * plotW;
+        var ptY = (padT + plotH) - (Math.max(0, Math.min(maxSh, sh)) / maxSh) * plotH;
+
+        var svgHtml = '';
+
+        // Quadrant Background Zones
+        // Optimal Green Box: SC 8-13, SH 8-16
+        var boxX = padL + (8 / maxSc) * plotW;
+        var boxW = (5 / maxSc) * plotW;
+        var boxY = (padT + plotH) - (16 / maxSh) * plotH;
+        var boxH = (8 / maxSh) * plotH;
+
+        // Undercharge Zone (Low SC, High SH): SC 0-8, SH 16-32
+        var ucW = (8 / maxSc) * plotW;
+        var ucH = (16 / maxSh) * plotH;
+        svgHtml += '<rect x="' + padL + '" y="' + padT + '" width="' + ucW + '" height="' + ucH + '" fill="rgba(245, 158, 11, 0.12)" />';
+        svgHtml += '<text x="' + (padL + ucW / 2) + '" y="' + (padT + ucH / 2) + '" fill="#f59e0b" font-size="10" text-anchor="middle" font-weight="bold">UNDERCHARGE</text>';
+
+        // Overcharge Zone (High SC, Low SH): SC 13-24, SH 0-8
+        var ocX = padL + (13 / maxSc) * plotW;
+        var ocW = (11 / maxSc) * plotW;
+        var ocY = (padT + plotH) - (8 / maxSh) * plotH;
+        var ocH = (8 / maxSh) * plotH;
+        svgHtml += '<rect x="' + ocX + '" y="' + ocY + '" width="' + ocW + '" height="' + ocH + '" fill="rgba(239, 68, 68, 0.12)" />';
+        svgHtml += '<text x="' + (ocX + ocW / 2) + '" y="' + (ocY + ocH / 2 + 4) + '" fill="#ef4444" font-size="10" text-anchor="middle" font-weight="bold">OVERCHARGE</text>';
+
+        // Restriction Zone (High SC, High SH): SC 13-24, SH 16-32
+        svgHtml += '<rect x="' + ocX + '" y="' + padT + '" width="' + ocW + '" height="' + ucH + '" fill="rgba(239, 68, 68, 0.18)" />';
+        svgHtml += '<text x="' + (ocX + ocW / 2) + '" y="' + (padT + ucH / 2) + '" fill="#ef4444" font-size="10" text-anchor="middle" font-weight="bold">RESTRICTION / TXV</text>';
+
+        // Airflow Starvation (Low SC, Low SH): SC 0-8, SH 0-8
+        svgHtml += '<rect x="' + padL + '" y="' + ocY + '" width="' + ucW + '" height="' + ocH + '" fill="rgba(59, 130, 246, 0.12)" />';
+        svgHtml += '<text x="' + (padL + ucW / 2) + '" y="' + (ocY + ocH / 2 + 4) + '" fill="#3b82f6" font-size="10" text-anchor="middle" font-weight="bold">LOW AIRFLOW</text>';
+
+        // Target Optimal Green Box
+        svgHtml += '<rect x="' + boxX + '" y="' + boxY + '" width="' + boxW + '" height="' + boxH + '" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" stroke-width="2" stroke-dasharray="4,2" />';
+        svgHtml += '<text x="' + (boxX + boxW / 2) + '" y="' + (boxY + boxH / 2 + 4) + '" fill="#10b981" font-size="11" text-anchor="middle" font-weight="bold">TARGET</text>';
+
+        // Axes
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="#475569" stroke-width="1.5" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="#475569" stroke-width="1.5" />';
+
+        // Axis labels
+        svgHtml += '<text x="' + (padL + plotW / 2) + '" y="' + (padT + plotH + 34) + '" fill="#94a3b8" font-size="11" text-anchor="middle">Liquid Subcooling (°F)</text>';
+        svgHtml += '<text x="' + (padL - 45) + '" y="' + (padT + plotH / 2) + '" fill="#94a3b8" font-size="11" text-anchor="middle" transform="rotate(-90 ' + (padL - 45) + ' ' + (padT + plotH / 2) + ')">Suction Superheat (°F)</text>';
+
+        // Current Crosshair Position Marker
+        svgHtml += '<circle cx="' + ptX + '" cy="' + ptY + '" r="9" fill="' + color + '" stroke="#ffffff" stroke-width="2.5" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + ptY + '" x2="' + (padL + plotW) + '" y2="' + ptY + '" stroke="' + color + '" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />';
+        svgHtml += '<line x1="' + ptX + '" y1="' + padT + '" x2="' + ptX + '" y2="' + (padT + plotH) + '" stroke="' + color + '" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />';
+
+        // Info Card on Right
+        svgHtml += '<g transform="translate(' + (w - 220) + ', ' + padT + ')">';
+        svgHtml += '<rect x="0" y="0" width="210" height="225" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<text x="105" y="26" text-anchor="middle" fill="#f8fafc" font-size="12.5" font-weight="bold">Operating Point</text>';
+        svgHtml += '<text x="15" y="55" fill="#94a3b8" font-size="11">• Subcooling: <tspan fill="#3b82f6" font-weight="bold">' + sc.toFixed(1) + '°F</tspan></text>';
+        svgHtml += '<text x="15" y="80" fill="#94a3b8" font-size="11">• Superheat: <tspan fill="#10b981" font-weight="bold">' + sh.toFixed(1) + '°F</tspan></text>';
+        
+        svgHtml += '<rect x="10" y="105" width="190" height="100" rx="6" fill="rgba(255,255,255,0.03)" stroke="' + color + '" stroke-width="1" />';
+        svgHtml += '<text x="105" y="130" text-anchor="middle" fill="' + color + '" font-size="10.5" font-weight="bold">' + banner + '</text>';
+        svgHtml += '<text x="105" y="152" text-anchor="middle" fill="#94a3b8" font-size="9.5">Target Box: 8°–12° SC</text>';
+        svgHtml += '<text x="105" y="170" text-anchor="middle" fill="#94a3b8" font-size="9.5">Target Box: 8°–15° SH</text>';
+        svgHtml += '<text x="105" y="190" text-anchor="middle" fill="#38bdf8" font-size="9">Charge &amp; Flow Verified</text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderScDerivation(refrig, pHigh, satHigh, tLiq, sc, pLow, satLow, tSuc, sh, banner) {
+        var el = document.getElementById('sc-derivation-content');
+        if (!el) return;
+
+        var html = '';
+        html += '<p><strong>Step 1: Compute High-Side Liquid Subcooling (SC)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{At Head Pressure } ' + pHigh + '\\\\text{ PSIG (' + refrig.toUpperCase() + ')} \\\\implies T_{\\\\text{sat,cond}} = \\\\mathbf{' + satHigh.toFixed(1) + '^\\\\circ\\\\text{F}}$$<br>';
+        html += '$$\\\\text{Subcooling } SC = T_{\\\\text{sat,cond}} - T_{\\\\text{liquid\\\\_line}} = ' + satHigh.toFixed(1) + '^\\\\circ\\\\text{F} - ' + tLiq + '^\\\\circ\\\\text{F} = \\\\mathbf{' + sc.toFixed(1) + '^\\\\circ\\\\text{F}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Compute Low-Side Suction Superheat (SH)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{At Suction Pressure } ' + pLow + '\\\\text{ PSIG (' + refrig.toUpperCase() + ')} \\\\implies T_{\\\\text{sat,evap}} = \\\\mathbf{' + satLow.toFixed(1) + '^\\\\circ\\\\text{F}}$$<br>';
+        html += '$$\\\\text{Superheat } SH = T_{\\\\text{suction\\\\_line}} - T_{\\\\text{sat,evap}} = ' + tSuc + '^\\\\circ\\\\text{F} - ' + satLow.toFixed(1) + '^\\\\circ\\\\text{F} = \\\\mathbf{' + sh.toFixed(1) + '^\\\\circ\\\\text{F}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: 4-Quadrant Cross-Referenced System Diagnosis</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += 'Operating Matrix Result: <strong>' + banner + '</strong><br>';
+        html += 'Nominal Target Range: <strong>Subcooling 8&deg;&ndash;12&deg;F | Superheat 8&deg;&ndash;15&deg;F</strong>';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyScSummary() {
+        var refrig = document.getElementById('sc-refrigerant').selectedOptions[0].text;
+        var pHigh = document.getElementById('sc-high-psi').value;
+        var tLiq = document.getElementById('sc-liquid-temp').value;
+        var pLow = document.getElementById('sc-low-psi').value;
+        var tSuc = document.getElementById('sc-suction-temp').value;
+        var sc = document.getElementById('res-sc-val').textContent;
+        var sh = document.getElementById('res-sh-val').textContent;
+        var banner = document.getElementById('res-diag-banner').textContent;
+        var action = document.getElementById('res-diag-action').textContent;
+
+        var text = '=== HVAC REFRIGERANT SUBCOOLING & SUPERHEAT REPORT ===\\n' +
+          'Refrigerant: ' + refrig + '\\n' +
+          'High Side: ' + pHigh + ' PSIG | Liquid Line: ' + tLiq + '°F\\n' +
+          'Low Side: ' + pLow + ' PSIG | Suction Line: ' + tSuc + '°F\\n' +
+          '-----------------------------------------------------\\n' +
+          'Liquid Subcooling: ' + sc + '\\n' +
+          'Suction Superheat: ' + sh + '\\n' +
+          'Diagnostic Assessment: ' + banner + '\\n' +
+          'Action: ' + action + '\\n' +
+          'Standard: ACCA 5 QI & AHRI 210/240 Charging Protocols\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/subcooling-superheat-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-sc-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Refrigerant Report!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcSubcoolSuperheat);
+      } else {
+        calcSubcoolSuperheat();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'subcooling-superheat-calculator.html'), renderTradePage({
+    title: "Refrigerant Subcooling & Superheat HVAC Diagnostic Calculator | Digital Tools Shed",
+    metaDesc: "Diagnose heat pump and A/C refrigerant charge with 4-quadrant subcooling and superheat analysis. PT saturation charts for R-410A, R-454B, R-32, and R-22.",
+    canonical: `${DOMAIN}/calc/subcooling-superheat-calculator`,
+    bodyContent: subcoolBody,
+    currentPath: '/calc/subcooling-superheat-calculator',
+    faq: [
+      {
+        "q": "What is subcooling and what is a normal subcooling value?",
+        "a": "Subcooling is the temperature drop of liquid refrigerant below its saturation temperature at a given head pressure: SC = Tsat(high) - Tliquid. A typical residential TXV system requires 10°F to 12°F of subcooling to guarantee a solid column of liquid enters the metering valve."
+      },
+      {
+        "q": "What is superheat and what is a normal superheat value?",
+        "a": "Superheat is the temperature rise of vapor refrigerant above its boiling point: SH = Tsuction - Tsat(low). TXV systems typically regulate superheat automatically between 8°F and 15°F, preventing raw liquid from entering and destroying the compressor."
+      },
+      {
+        "q": "What does high superheat and high subcooling indicate?",
+        "a": "High superheat combined with high subcooling indicates a liquid line restriction, such as a plugged filter drier or stuck-closed TXV, which stacks refrigerant in the condenser while starving the evaporator."
+      },
+      {
+        "q": "What does low superheat and low subcooling indicate?",
+        "a": "Low superheat combined with low subcooling indicates low indoor airflow caused by a dirty air filter, failing blower motor, or iced evaporator coil, preventing adequate heat absorption."
+      },
+      {
+        "q": "What are the operating pressures of R-410A vs R-22?",
+        "a": "R-410A operates at 50% to 60% higher pressure than legacy R-22. Typical R-410A summer operating pressures are 118–125 PSIG suction and 335–375 PSIG head, whereas R-22 runs at 68–75 PSIG suction and 210–230 PSIG head."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 37. ENGINE COMPRESSION RATIO & DISPLACEMENT CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const engineCrBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Engine Compression Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">High-Performance Automotive Engineering</span>
+          <span class="badge badge-green">Static (SCR) &amp; Dynamic (DCR) Compression</span>
+          <span class="badge badge-blue">Quench / Squish Height &amp; Octane Rating</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Engine Compression Ratio &amp; Displacement Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate exact static compression ratio (SCR), dynamic compression ratio (DCR), quench squish height, and engine displacement (CID &amp; Liters). Accounts for combustion chamber volume, piston dish/dome cc, head gasket thickness, deck clearance, and <strong>intake valve closing (IVC) camshaft timing</strong>.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: Engine Architecture Presets -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Engine Architecture Preset</label>
+            <select id="cr-engine-preset" class="input-field" style="width: 100%;" onchange="applyEnginePreset()">
+              <option value="4.000,3.480,8,64,0,0.039,4.100,0.015,60" selected>Chevy Small Block 350 (4.000" Bore × 3.480" Stroke, 8 Cyl)</option>
+              <option value="4.000,3.750,8,64,-5,0.039,4.125,0.015,65">Chevy Stroker 383 (4.000" Bore × 3.750" Stroke, 8 Cyl)</option>
+              <option value="4.065,3.622,8,68,-3,0.051,4.100,0.005,62">GM Gen IV LS3 6.2L (4.065" Bore × 3.622" Stroke, 8 Cyl)</option>
+              <option value="4.000,3.000,8,58,0,0.040,4.060,0.010,58">Ford Small Block 302 (4.000" Bore × 3.000" Stroke, 8 Cyl)</option>
+              <option value="3.630,3.650,8,52,-1,0.036,3.670,0.000,64">Ford Coyote 5.0L DOHC (3.630" Bore × 3.650" Stroke, 8 Cyl)</option>
+              <option value="3.386,3.386,4,50,0,0.030,3.420,0.010,55">Honda K20 / K24 2.0L (86mm Bore × 86mm Stroke, 4 Cyl)</option>
+              <option value="custom">Custom Bore, Stroke &amp; Volumes...</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Cylinder Count &amp; Bore Diameter</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <select id="cr-cyl-count" class="input-field" style="width: 110px;" onchange="calcEngineCr()">
+                <option value="4">4 Cyl</option>
+                <option value="6">6 Cyl</option>
+                <option value="8" selected>8 Cyl (V8)</option>
+                <option value="10">10 Cyl</option>
+                <option value="12">12 Cyl</option>
+              </select>
+              <input type="number" id="cr-bore" class="input-field" value="4.000" min="1.5" max="6.0" step="0.005" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold;">" Bore</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Stroke & Chamber Volumes -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Crankshaft Stroke (S)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="cr-stroke" class="input-field" value="3.480" min="1.0" max="6.5" step="0.010" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Piston travel distance</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Cylinder Head Chamber</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="cr-chamber-cc" class="input-field" value="64.0" min="20" max="150" step="0.5" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold; min-width: 30px;">cc</span>
+            </div>
+            <small style="color: var(--text-muted);">Combustion chamber volume</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Piston Dome (+) / Dish (-)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="cr-piston-cc" class="input-field" value="0.0" min="-50" max="50" step="0.5" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold; min-width: 30px;">cc</span>
+            </div>
+            <small style="color: var(--text-muted);">Dish/relief = negative; Dome = positive</small>
+          </div>
+        </div>
+
+        <!-- Row 3: Gasket, Deck Clearance & Cam Timing -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Head Gasket Compressed Thickness</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="cr-gasket-thick" class="input-field" value="0.039" min="0.015" max="0.120" step="0.002" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Compressed thickness (e.g. 0.039", 0.040")</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Gasket Bore Diameter</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="cr-gasket-bore" class="input-field" value="4.100" min="1.5" max="6.5" step="0.010" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Typically bore + 0.060" to 0.100"</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Piston Deck Clearance</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="cr-deck-height" class="input-field" value="0.015" min="-0.030" max="0.100" step="0.002" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Distance below block deck at TDC</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Cam Intake Close (IVC @ 0.050")</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="cr-ivc-angle" class="input-field" value="60" min="20" max="95" step="1" style="width: 100%;" oninput="calcEngineCr()">
+              <span style="font-weight: bold;">° ABDC</span>
+            </div>
+            <small style="color: var(--text-muted);">For Dynamic Compression Ratio</small>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Static Compression (SCR)</div>
+            <div id="res-cr-static" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-cr-disp-total" style="font-size: 0.8rem; color: var(--text-muted);">-- CID / -- Liters</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Dynamic Compression (DCR)</div>
+            <div id="res-cr-dynamic" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-cr-octane" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Total Quench / Squish Height</div>
+            <div id="res-cr-quench" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-cr-quench-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Total Clearance Volume</div>
+            <div id="res-cr-clearance-cc" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-cr-swept-cc" style="font-size: 0.8rem; color: var(--text-muted);">Swept: -- cc/cyl</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-cr-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyCrSummary()">
+            <span>📋</span> Copy Engine Builder Spec Sheet
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Combustion Chamber &amp; Cylinder Geometry Cross-Section</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Cutaway schematic showing cylinder bore ($B$), piston stroke travel ($S$), compressed head gasket squish band, and deck clearance quench dimension.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="cr-cylinder-svg" viewBox="0 0 720 300" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Engine Kinematics &amp; Compression Math</h3>
+        <div id="cr-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal Engine Compression Traps &amp; Detonation Pitfalls</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Chasing high compression without calculating dynamic intake valve closing and quench distance leads to blown head gaskets, melted ring lands, and engine block destruction.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 1. The 0.060"–0.100" Detonation &quot;No-Man's Land&quot; Quench Trap
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Quench (squish) distance is the gap between the flat top of the piston and the flat pad on the cylinder head at Top Dead Center. Tight quench (<strong>0.035&quot; to 0.045&quot;</strong>) aggressively squeezes the fuel-air mixture into the combustion chamber, generating turbulence that speeds flame travel and cools end-gases. If quench exceeds <strong>0.060&quot;</strong> (common when pairing deep rebuilder pistons with thick 0.051&quot; gaskets), the gap is too wide to quench heat, yet too narrow to support rapid flame propagation. This &quot;no-man's land&quot; triggers violent low-RPM pinging and pre-ignition.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>💥</span> 2. High Static CR with a Short Camshaft (Dynamic Detonation Trap)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Static Compression Ratio (SCR) is purely a geometric ratio. True in-cylinder cylinder pressure depends on <strong>Dynamic Compression Ratio (DCR)</strong>, which only begins building pressure after the intake valve closes (IVC). If an engine builder pairs an 11.0:1 static ratio with a short, mild RV camshaft (IVC of 50&deg; ABDC), the dynamic compression spikes to <strong>8.8:1+</strong>. Cylinder cranking compression exceeds 225 PSI, violently detonating 93-octane pump gas and hammering rod bearings into powder.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚙️</span> 3. Milling Cylinder Heads Without Piston-to-Valve Clearance Check
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Shaving 0.030&quot; off a cylinder head deck surface reduces chamber volume by ~5cc to bump compression. However, milling moves the valves 0.030&quot; closer to the piston crown across the entire engine cycle. At 6,500 RPM, connecting rods stretch by 0.015&quot; and valve float delays closure. If piston-to-valve (PTV) clearance drops below <strong>0.080&quot; on the intake or 0.100&quot; on the exhaust</strong>, valves will impact piston valve reliefs, snapping valve heads and windowing the engine block.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📐</span> 4. Out-of-the-Box Uncompressed Head Gasket Thickness Error
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Measuring a composite head gasket with dial calipers before installation reveals a thickness of ~0.048&quot; to 0.052&quot;. When torqued to 70 ft-lbs, the fire ring and composite core crush down to its rated <strong>compressed thickness of 0.039&quot; to 0.041&quot;</strong>. Calculating compression ratio with uncompressed measurements introduces a 0.3 to 0.4 point error in CR and miscalculates quench clearance. Always use the manufacturer's specified compressed thickness.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔨</span> 5. Negative Deck Height Piston-to-Head Collision at High RPM
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When engine blocks are &quot;zero decked&quot; (milling the block so the piston crown sits flush with the deck at TDC), aftermarket forged pistons with slight tolerance stacks can protrude <strong>0.005&quot; to 0.010&quot; above the block</strong> (negative deck height). If an ultra-thin 0.027&quot; MLS gasket is installed, total static quench drops to 0.017&quot;. At 7,000 RPM, thermal piston expansion and high-RPM connecting rod elongation cause the piston to physically kiss the cylinder head surface, peening the spark plug closed.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: Engine Compression &amp; Quench</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the formula for calculating static compression ratio (SCR)?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Static Compression Ratio is: <code>SCR = (V_d + V_c) / V_c</code>, where <em>V_d</em> is cylinder swept volume (<code>(π/4) * Bore² * Stroke</code>) and <em>V_c</em> is total clearance volume (chamber cc + piston relief cc + head gasket cc + deck clearance cc).
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is Dynamic Compression Ratio (DCR) and why does it matter?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Dynamic Compression Ratio measures the actual compression achieved after the intake valve closes (IVC). While the piston moves upward from Bottom Dead Center (BDC), air-fuel mixture is pushed back into the intake manifold until the intake valve seals. DCR dictates true cylinder cranking pressure and octane requirement: <strong>7.8:1 to 8.2:1 DCR</strong> is optimal for 91–93 octane pump gas.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the ideal quench (squish) distance for a performance engine?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The sweet spot for quench distance (deck clearance + compressed gasket thickness) is <strong>0.035&quot; to 0.045&quot;</strong> for steel connecting rods (and 0.050&quot; to 0.060&quot; for aluminum rods). This tight clearance promotes intense combustion chamber charge swirl, resisting pre-ignition and allowing up to 1 full point higher compression on pump gas without knocking.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How is head gasket volume calculated in cubic centimeters (cc)?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Gasket volume is calculated as a short cylinder: <code>V_g = (π / 4) * GasketBore² * CompressedThickness * 16.387064</code> (converting cubic inches to cc). For example, a 4.100&quot; bore gasket with 0.039&quot; thickness has a volume of <code>0.7854 * 4.100² * 0.039 * 16.387 = 8.43 cc</code>.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How does piston dish vs dome affect compression ratio?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              A dished piston or valve relief pocket adds volume to the combustion chamber, lowering compression ratio (ideal for supercharged or turbocharged engines). A domed piston protrudes upward into the combustion chamber, displacing space and raising compression ratio (used in naturally aspirated racing engines).
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function applyEnginePreset() {
+        var val = document.getElementById('cr-engine-preset').value;
+        if (val !== 'custom') {
+          var p = val.split(',');
+          document.getElementById('cr-bore').value = p[0];
+          document.getElementById('cr-stroke').value = p[1];
+          document.getElementById('cr-cyl-count').value = p[2];
+          document.getElementById('cr-chamber-cc').value = p[3];
+          document.getElementById('cr-piston-cc').value = p[4];
+          document.getElementById('cr-gasket-thick').value = p[5];
+          document.getElementById('cr-gasket-bore').value = p[6];
+          document.getElementById('cr-deck-height').value = p[7];
+          document.getElementById('cr-ivc-angle').value = p[8];
+          calcEngineCr();
+        }
+      }
+
+      function calcEngineCr() {
+        var bore = parseFloat(document.getElementById('cr-bore').value) || 4.0;
+        var stroke = parseFloat(document.getElementById('cr-stroke').value) || 3.48;
+        var cyl = parseInt(document.getElementById('cr-cyl-count').value) || 8;
+        var chamberCc = parseFloat(document.getElementById('cr-chamber-cc').value) || 64;
+        var pistonCc = parseFloat(document.getElementById('cr-piston-cc').value) || 0; // positive = dome (reduces Vc), negative = dish (adds Vc)
+        var gThick = parseFloat(document.getElementById('cr-gasket-thick').value) || 0.039;
+        var gBore = parseFloat(document.getElementById('cr-gasket-bore').value) || (bore + 0.1);
+        var deck = parseFloat(document.getElementById('cr-deck-height').value) || 0.015;
+        var ivc = parseFloat(document.getElementById('cr-ivc-angle').value) || 60;
+
+        // Conversion constant: 1 cu in = 16.387064 cc
+        var CUIN_TO_CC = 16.387064;
+
+        // 1. Swept Displacement Volume per Cylinder (Vd)
+        var sweptCuIn = (Math.PI / 4) * Math.pow(bore, 2) * stroke;
+        var sweptCc = sweptCuIn * CUIN_TO_CC;
+        var totalDispCuIn = sweptCuIn * cyl;
+        var totalDispLiters = (sweptCc * cyl) / 1000;
+
+        // 2. Gasket Volume (cc)
+        var gasketCuIn = (Math.PI / 4) * Math.pow(gBore, 2) * gThick;
+        var gasketCc = gasketCuIn * CUIN_TO_CC;
+
+        // 3. Deck Clearance Volume (cc)
+        var deckCuIn = (Math.PI / 4) * Math.pow(bore, 2) * deck;
+        var deckCc = deckCuIn * CUIN_TO_CC;
+
+        // 4. Total Clearance Volume (Vc in cc)
+        // Dish adds cc, dome displaces cc
+        var effectivePistonCc = -pistonCc;
+        var clearanceCc = chamberCc + gasketCc + deckCc + effectivePistonCc;
+        if (clearanceCc <= 5) clearanceCc = 5;
+
+        // 5. Static Compression Ratio (SCR)
+        var scr = (sweptCc + clearanceCc) / clearanceCc;
+
+        // 6. Dynamic Compression Ratio (DCR)
+        // Effective stroke based on IVC angle ABDC
+        // Rod ratio approximation: effective stroke = stroke * ((1 + cos(ivc)) / 2)
+        var ivcRad = ivc * (Math.PI / 180);
+        var strokeEff = stroke * ((1 + Math.cos(ivcRad)) / 2);
+        var sweptEffCc = ((Math.PI / 4) * Math.pow(bore, 2) * strokeEff) * CUIN_TO_CC;
+        var dcr = (sweptEffCc + clearanceCc) / clearanceCc;
+
+        // 7. Quench / Squish Height
+        var quench = deck + gThick;
+
+        // Octane rating recommendation
+        var octaneRec = '87 Octane Regular';
+        var octColor = '#10b981';
+        if (dcr >= 8.8) {
+          octaneRec = '100+ Octane Race / E85';
+          octColor = '#ef4444';
+        } else if (dcr >= 8.3) {
+          octaneRec = '93 Octane Premium';
+          octColor = '#f59e0b';
+        } else if (dcr >= 7.8) {
+          octaneRec = '89–91 Octane Mid/Prem';
+          octColor = '#3b82f6';
+        }
+
+        // UI Updates
+        document.getElementById('res-cr-static').textContent = scr.toFixed(2) + ' : 1';
+        document.getElementById('res-cr-disp-total').textContent = Math.round(totalDispCuIn) + ' CID (' + totalDispLiters.toFixed(2) + 'L)';
+
+        var dcrEl = document.getElementById('res-cr-dynamic');
+        dcrEl.textContent = dcr.toFixed(2) + ' : 1 DCR';
+        var octEl = document.getElementById('res-cr-octane');
+        octEl.textContent = octaneRec;
+        octEl.style.color = octColor;
+
+        var qEl = document.getElementById('res-cr-quench');
+        qEl.textContent = quench.toFixed(3) + '\\"';
+        var qStat = document.getElementById('res-cr-quench-status');
+        if (quench >= 0.035 && quench <= 0.045) {
+          qEl.style.color = '#10b981';
+          qStat.textContent = '✓ Optimal Quench (0.035–0.045\\")';
+          qStat.style.color = '#10b981';
+        } else if (quench < 0.035) {
+          qEl.style.color = '#ef4444';
+          qStat.textContent = '❌ Collision Risk (<0.035\\")';
+          qStat.style.color = '#ef4444';
+        } else if (quench <= 0.060) {
+          qEl.style.color = '#3b82f6';
+          qStat.textContent = 'Acceptable (0.045–0.060\\")';
+          qStat.style.color = '#3b82f6';
+        } else {
+          qEl.style.color = '#f59e0b';
+          qStat.textContent = '⚠️ Detonation Zone (>0.060\\")';
+          qStat.style.color = '#f59e0b';
+        }
+
+        document.getElementById('res-cr-clearance-cc').textContent = clearanceCc.toFixed(1) + ' cc Total Vc';
+        document.getElementById('res-cr-swept-cc').textContent = 'Swept: ' + Math.round(sweptCc) + ' cc/cyl';
+
+        renderCrSvg(bore, stroke, deck, gThick, quench, scr);
+        renderCrDerivation(bore, stroke, cyl, chamberCc, gasketCc, deckCc, effectivePistonCc, clearanceCc, sweptCc, scr, ivc, strokeEff, dcr, quench);
+      }
+
+      function renderCrSvg(bore, stroke, deck, gThick, quench, scr) {
+        var svg = document.getElementById('cr-cylinder-svg');
+        if (!svg) return;
+
+        var cx = 220, cy = 180;
+        var cylW = 160;
+        var cylH = 180;
+
+        var svgHtml = '';
+
+        // Cylinder Wall Outlines
+        svgHtml += '<rect x="' + (cx - cylW / 2 - 12) + '" y="30" width="12" height="' + cylH + '" fill="#334155" stroke="#475569" stroke-width="1" />';
+        svgHtml += '<rect x="' + (cx + cylW / 2) + '" y="30" width="12" height="' + cylH + '" fill="#334155" stroke="#475569" stroke-width="1" />';
+
+        // Cylinder Head Deck Pad at top
+        svgHtml += '<rect x="' + (cx - cylW / 2 - 20) + '" y="15" width="' + (cylW + 40) + '" height="15" fill="#475569" stroke="#64748b" stroke-width="1.5" />';
+        svgHtml += '<text x="' + cx + '" y="10" text-anchor="middle" fill="#94a3b8" font-size="10.5">Cylinder Head Surface</text>';
+
+        // Combustion Chamber Dome Pocket in Head
+        svgHtml += '<path d="M ' + (cx - 50) + ' 30 Q ' + cx + ' 8 ' + (cx + 50) + ' 30 Z" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="1.5" />';
+        svgHtml += '<circle cx="' + cx + '" cy="18" r="3" fill="#ffffff" />'; // spark plug
+
+        // Head Gasket Layer
+        svgHtml += '<rect x="' + (cx - cylW / 2) + '" y="30" width="' + cylW + '" height="6" fill="#10b981" opacity="0.8" />';
+
+        // Piston at Top Dead Center (TDC)
+        var pistonTopY = 44;
+        var pistonH = 90;
+        svgHtml += '<rect x="' + (cx - cylW / 2 + 3) + '" y="' + pistonTopY + '" width="' + (cylW - 6) + '" height="' + pistonH + '" fill="#1e293b" stroke="#3b82f6" stroke-width="2" rx="4" />';
+        svgHtml += '<text x="' + cx + '" y="' + (pistonTopY + 45) + '" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">Piston Crown (TDC)</text>';
+
+        // Piston Rings
+        svgHtml += '<line x1="' + (cx - cylW / 2 + 3) + '" y1="' + (pistonTopY + 12) + '" x2="' + (cx - cylW / 2 + 10) + '" y2="' + (pistonTopY + 12) + '" stroke="#94a3b8" stroke-width="2" />';
+        svgHtml += '<line x1="' + (cx - cylW / 2 + 3) + '" y1="' + (pistonTopY + 20) + '" x2="' + (cx - cylW / 2 + 10) + '" y2="' + (pistonTopY + 20) + '" stroke="#94a3b8" stroke-width="2" />';
+        svgHtml += '<line x1="' + (cx + cylW / 2 - 10) + '" y1="' + (pistonTopY + 12) + '" x2="' + (cx + cylW / 2 - 3) + '" y2="' + (pistonTopY + 12) + '" stroke="#94a3b8" stroke-width="2" />';
+        svgHtml += '<line x1="' + (cx + cylW / 2 - 10) + '" y1="' + (pistonTopY + 20) + '" x2="' + (cx + cylW / 2 - 3) + '" y2="' + (pistonTopY + 20) + '" stroke="#94a3b8" stroke-width="2" />';
+
+        // Stroke Travel Indicator (BDC)
+        var bdcY = pistonTopY + 70;
+        svgHtml += '<line x1="' + (cx - cylW / 2 + 10) + '" y1="' + bdcY + '" x2="' + (cx + cylW / 2 - 10) + '" y2="' + bdcY + '" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,3" />';
+        svgHtml += '<text x="' + cx + '" y="' + (bdcY + 14) + '" text-anchor="middle" fill="#94a3b8" font-size="10">BDC Position (Stroke = ' + stroke.toFixed(3) + '\\")</text>';
+
+        // Quench / Squish Dimension Bracket
+        svgHtml += '<line x1="' + (cx + cylW / 2 + 25) + '" y1="30" x2="' + (cx + cylW / 2 + 25) + '" y2="' + pistonTopY + '" stroke="#f59e0b" stroke-width="2" />';
+        svgHtml += '<line x1="' + (cx + cylW / 2 + 20) + '" y1="30" x2="' + (cx + cylW / 2 + 30) + '" y2="30" stroke="#f59e0b" stroke-width="2" />';
+        svgHtml += '<line x1="' + (cx + cylW / 2 + 20) + '" y1="' + pistonTopY + '" x2="' + (cx + cylW / 2 + 30) + '" y2="' + pistonTopY + '" stroke="#f59e0b" stroke-width="2" />';
+        svgHtml += '<text x="' + (cx + cylW / 2 + 38) + '" y="' + (30 + (pistonTopY - 30) / 2 + 4) + '" fill="#f59e0b" font-size="11" font-weight="bold">Quench: ' + quench.toFixed(3) + '\\"</text>';
+
+        // Right Info Card
+        svgHtml += '<g transform="translate(450, 25)">';
+        svgHtml += '<rect x="0" y="0" width="240" height="230" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<text x="120" y="26" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Combustion Geometry</text>';
+        
+        svgHtml += '<text x="20" y="55" fill="#94a3b8" font-size="11">• Cylinder Bore: <tspan fill="#3b82f6" font-weight="bold">' + bore.toFixed(3) + '\\"</tspan></text>';
+        svgHtml += '<text x="20" y="78" fill="#94a3b8" font-size="11">• Piston Stroke: <tspan fill="#3b82f6" font-weight="bold">' + stroke.toFixed(3) + '\\"</tspan></text>';
+        svgHtml += '<text x="20" y="101" fill="#94a3b8" font-size="11">• Static CR: <tspan fill="#10b981" font-weight="bold">' + scr.toFixed(2) + ':1</tspan></text>';
+        svgHtml += '<text x="20" y="124" fill="#94a3b8" font-size="11">• Squish Gap: <tspan fill="#f59e0b" font-weight="bold">' + quench.toFixed(3) + '\\"</tspan></text>';
+        
+        var qColor = (quench >= 0.035 && quench <= 0.045) ? '#10b981' : (quench < 0.035 ? '#ef4444' : '#f59e0b');
+        svgHtml += '<rect x="15" y="145" width="210" height="65" rx="6" fill="rgba(255,255,255,0.03)" stroke="' + qColor + '" stroke-width="1" />';
+        svgHtml += '<text x="120" y="168" text-anchor="middle" fill="' + qColor + '" font-size="11" font-weight="bold">' + (quench >= 0.035 && quench <= 0.045 ? '✓ Optimal Quench Band' : (quench < 0.035 ? '❌ Piston Collision Danger' : '⚠️ Wide Quench (>0.045\\")')) + '</text>';
+        svgHtml += '<text x="120" y="190" text-anchor="middle" fill="#94a3b8" font-size="9.5">Target: 0.035"–0.045" Squish</text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderCrDerivation(bore, stroke, cyl, chamber, gasket, deck, piston, vc, vd, scr, ivc, strokeEff, dcr, quench) {
+        var el = document.getElementById('cr-derivation-content');
+        if (!el) return;
+
+        var html = '';
+        html += '<p><strong>Step 1: Compute Cylinder Swept Volume (Vd) &amp; Total Clearance Volume (Vc)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$V_d = \\\\frac{\\\\pi}{4} \\\\times \\\\text{Bore}^2 \\\\times \\\\text{Stroke} \\\\times 16.387 = \\\\mathbf{' + Math.round(vd) + '\\\\text{ cc per cylinder}}$$<br>';
+        html += '$$V_c = V_{\\\\text{chamber}} + V_{\\\\text{gasket}} + V_{\\\\text{deck}} + V_{\\\\text{piston}}$$<br>';
+        html += '$$V_c = ' + chamber.toFixed(1) + ' + ' + gasket.toFixed(2) + ' + ' + deck.toFixed(2) + ' + (' + piston.toFixed(1) + ') = \\\\mathbf{' + vc.toFixed(1) + '\\\\text{ cc}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Static Compression Ratio (SCR)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{SCR} = \\\\frac{V_d + V_c}{V_c} = \\\\frac{' + Math.round(vd) + ' + ' + vc.toFixed(1) + '}{' + vc.toFixed(1) + '} = \\\\mathbf{' + scr.toFixed(2) + ' : 1}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Dynamic Compression Ratio (DCR) &amp; Quench Distance</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{Effective Stroke at ' + ivc + '^\\\\circ IVC} = ' + strokeEff.toFixed(3) + '\\" \\\\implies \\\\text{DCR} = \\\\mathbf{' + dcr.toFixed(2) + ' : 1}$$<br>';
+        html += '$$\\\\text{Quench Height} = \\\\text{Deck Clearance} + \\\\text{Compressed Gasket} = ' + (quench).toFixed(3) + '\\"$$';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyCrSummary() {
+        var engine = document.getElementById('cr-engine-preset').selectedOptions[0].text;
+        var bore = document.getElementById('cr-bore').value;
+        var stroke = document.getElementById('cr-stroke').value;
+        var scr = document.getElementById('res-cr-static').textContent;
+        var dcr = document.getElementById('res-cr-dynamic').textContent;
+        var octane = document.getElementById('res-cr-octane').textContent;
+        var quench = document.getElementById('res-cr-quench').textContent;
+        var qStat = document.getElementById('res-cr-quench-status').textContent;
+        var disp = document.getElementById('res-cr-disp-total').textContent;
+        var vc = document.getElementById('res-cr-clearance-cc').textContent;
+
+        var text = '=== HIGH-PERFORMANCE ENGINE BUILDER SPEC SHEET ===\\n' +
+          'Engine: ' + engine + '\\n' +
+          'Bore: ' + bore + '" | Stroke: ' + stroke + '"\\n' +
+          'Displacement: ' + disp + '\\n' +
+          '------------------------------------------------\\n' +
+          'Static Compression (SCR): ' + scr + '\\n' +
+          'Dynamic Compression (DCR): ' + dcr + '\\n' +
+          'Octane Recommendation: ' + octane + '\\n' +
+          'Total Quench Height: ' + quench + ' [' + qStat + ']\\n' +
+          'Total Clearance Volume: ' + vc + '\\n' +
+          'Calculated via Digital Tools Shed (https://digitaltoolsshed.com/calc/engine-compression-ratio-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-cr-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Engine Spec Sheet!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcEngineCr);
+      } else {
+        calcEngineCr();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'engine-compression-ratio-calculator.html'), renderTradePage({
+    title: "Engine Compression Ratio & Displacement Calculator (SCR & DCR) | Digital Tools Shed",
+    metaDesc: "Calculate static compression ratio (SCR), dynamic compression ratio (DCR), quench squish height, and engine displacement (CID & cc) with cam IVC timing.",
+    canonical: `${DOMAIN}/calc/engine-compression-ratio-calculator`,
+    bodyContent: engineCrBody,
+    currentPath: '/calc/engine-compression-ratio-calculator',
+    faq: [
+      {
+        "q": "What is the formula for calculating static compression ratio (SCR)?",
+        "a": "Static Compression Ratio is calculated as SCR = (Vd + Vc) / Vc, where Vd is cylinder swept volume ((π/4) * Bore² * Stroke) and Vc is total combustion clearance volume (chamber cc + gasket cc + deck clearance cc + piston relief cc)."
+      },
+      {
+        "q": "What is Dynamic Compression Ratio (DCR) and why does it matter?",
+        "a": "Dynamic Compression Ratio accounts for the intake valve closing (IVC) point ABDC. Compression pressure cannot build until the intake valve seals. DCR directly dictates cylinder cranking pressure and octane requirement: 7.8:1 to 8.3:1 DCR is ideal for 91-93 octane pump gasoline."
+      },
+      {
+        "q": "What is the ideal quench (squish) distance for a performance engine?",
+        "a": "The ideal quench distance (deck clearance + compressed gasket thickness) is 0.035\" to 0.045\" for steel rods. Tight quench creates charge turbulence that accelerates burn rate and cools end gases, preventing detonation."
+      },
+      {
+        "q": "How is head gasket volume calculated in cubic centimeters (cc)?",
+        "a": "Head gasket volume is Vg = (π / 4) * GasketBore² * CompressedThickness * 16.387064 (converting cu in to cc). For example, a 4.100\" bore gasket with 0.039\" compressed thickness has a volume of 8.43 cc."
+      },
+      {
+        "q": "How does piston dish vs dome affect compression ratio?",
+        "a": "A dished piston or valve relief pocket adds volume to the clearance space, lowering compression ratio (used for boost/turbos). A domed piston displaces chamber space, raising compression ratio (used in naturally aspirated race engines)."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
