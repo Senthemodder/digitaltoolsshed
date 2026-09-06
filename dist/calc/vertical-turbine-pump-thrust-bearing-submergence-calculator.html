@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator</title>
+  <title>Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/double-pipe-hairpin-heat-exchanger-sizing-calculator">
-  <meta property="og:title" content="Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/vertical-turbine-pump-thrust-bearing-submergence-calculator">
+  <meta property="og:title" content="Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/double-pipe-hairpin-heat-exchanger-sizing-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/vertical-turbine-pump-thrust-bearing-submergence-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator">
+  <meta name="twitter:title" content="Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Double Pipe Hairpin Heat Exchanger Sizing Calculator",
-      "item": "https://digitaltoolsshed.com/calc/double-pipe-hairpin-heat-exchanger-sizing-calculator"
+      "name": "Vertical Turbine Pump Thrust Bearing Submergence Calculator",
+      "item": "https://digitaltoolsshed.com/calc/vertical-turbine-pump-thrust-bearing-submergence-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator",
-  "url": "https://digitaltoolsshed.com/calc/double-pipe-hairpin-heat-exchanger-sizing-calculator",
+  "name": "Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator",
+  "url": "https://digitaltoolsshed.com/calc/vertical-turbine-pump-thrust-bearing-submergence-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -86,7 +86,7 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "5.0",
-    "ratingCount": 909,
+    "ratingCount": 1351,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Why are double-pipe hairpin heat exchangers preferred for high-pressure and temperature cross duties?",
+      "name": "What causes axial hydraulic downthrust in vertical turbine pumps?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Hairpin heat exchangers excel in two distinct scenarios: 1) Severe Temperature Crosses: Because hairpins provide pure 100% counter-current flow, they achieve an LMTD correction factor of F = 1.0, enabling close temperature approaches where multi-pass shell-and-tube exchangers suffer temperature crosses and thermal stall. 2) High Pressure Extremes: Because small-diameter pipes (2\" to 4\" outer shell) naturally resist extreme pressures (up to 350 bar / 5,000 psi) with standard pipe wall schedules, hairpins are vastly more economical and compact than massive high-pressure shell-and-tube vessels."
+        "text": "In a vertical turbine pump, discharge pressure developed by each enclosed impeller acts upon the exterior surfaces of the upper and lower impeller shrouds. Because the lower shroud has a large suction eye opening while the upper shroud is solid (except for the shaft), a massive unbalanced pressure area exists. The resulting downward hydraulic force (F_down = K_t · ρ · g · H · (A_eye - A_shaft)) presses downward on the entire lineshaft, transferring tens of thousands of pounds of force to the motor thrust bearing."
       }
     },
     {
       "@type": "Question",
-      "name": "When should longitudinal fins be used instead of bare inner pipes?",
+      "name": "What is momentary \"upthrust\" and why does it destroy standard electric motors?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Longitudinal fins should be specified whenever the fluid flowing in the annulus has a heat transfer coefficient (h_o) that is substantially lower (by a factor of 2 or more) than the tube-side fluid (h_i)—such as viscous heavy oils, lubricating fluids, or compressed gases flowing against condensing steam or cooling water. Longitudinal fins extend external surface area by 200% to 400% without blocking the annular flow channel, balancing thermal resistances."
+        "text": "During initial pump startup, the discharge pipe is empty and head is near zero (runout condition). Flow velocity through the impeller eye reaches maximum, generating an upward momentum force (F_up = ρ · Q · v_eye) that can exceed the dead weight of the rotating assembly. If the motor thrust bearing is only designed for unidirectional downthrust, the lineshaft lifts vertically, jamming the impellers against the top bowl casings and destroying bearings within seconds."
       }
     },
     {
       "@type": "Question",
-      "name": "What is Fin Efficiency (η_fin) and how does it limit fin height?",
+      "name": "How does Hydraulic Institute HI 9.8 define minimum submergence (S)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Heat must conduct through the thin metal fin from the pipe wall before it can transfer to the fluid. As fin height increases, thermal resistance along the fin creates a temperature gradient, so the fin tip operates at a lower temperature difference than the fin root. Fin efficiency is calculated via the hyperbolic tangent relation: η_fin = tanh(m · b) / (m · b), where m = √(2·h_o / (k_fin · δ)). For standard carbon steel fins in oil, efficiency remains above 85% for fin heights up to 12.7 mm (0.5 in)."
+        "text": "ANSI/HI Standard 9.8 establishes the minimum liquid submergence depth above the pump intake suction bellmouth to prevent the formation of Type 3 to Type 6 air-entraining free-surface vortices. The formula is S = D + 0.574 · Q / √(g · D³), where D is the suction bell outer diameter and Q is flow rate. Insufficient submergence pulls concentrated air funnels into the first-stage impeller, inducing cavitation, severe vibration, and loss of prime."
       }
     },
     {
       "@type": "Question",
-      "name": "How does equivalent diameter (De) differ between heat transfer and pressure drop in finned annuli?",
+      "name": "Why must lineshaft elastic elongation (shaft stretch) be calculated during commissioning?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "In a longitudinally finned annulus, two different equivalent diameters must be calculated: 1) Hydraulic Diameter for Friction (D_e = 4 · A_flow / P_wetted), where wetted perimeter includes all fin surfaces and both inner and outer pipe walls, and 2) Equivalent Diameter for Heat Transfer (D_eq = 4 · A_flow / P_heat), where only heat-exchanging surfaces are included in the perimeter. Conflating these two values leads to severe errors in Nusselt number and friction factor."
+        "text": "Deep-well and cooling tower pumps utilize lineshafts up to 100+ meters in length. Under thousands of kilograms of hydraulic tension, the steel shaft stretches elastically per Hooke law: ΔL = (F_thrust · L) / (A_shaft · E). If the impeller-to-bowl axial clearance is set to 4 mm but hydraulic stretch under full operating head is 6 mm, the impellers will grind into the bottom of the bowl diffusers, shearing keys and seizing the pump."
       }
     },
     {
       "@type": "Question",
-      "name": "How are series vs. parallel hairpin banks configured to manage pressure drop?",
+      "name": "How does motor thrust bearing L10h life evaluate operating reliability?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Hairpins are modular units consisting of two straight legs connected by a 180° return bend. If process fluid pressure drop exceeds the allowable limit (typically 70 kPa / 10 psi), hairpins can be split into two or more parallel banks. Parallel arrangement halves the velocity and cuts pressure drop by roughly a factor of four, though it lowers the Reynolds number and film coefficient."
+        "text": "Per ISO 281, bearing L10h rating represents the operating hours during which 90% of a population of identical bearings will survive without fatigue spalling: L10h = (C_dyn / F_total)^p · (10^6 / (60 · N)), where p = 10/3 for spherical roller bearings and p = 3 for angular contact ball bearings. Industrial specifications typically demand a minimum L10h life of 50,000 to 100,000 hours under maximum continuous downthrust."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Double-Pipe Hairpin Heat Exchanger Thermal & Finned Tube Sizing Calculator</span>
+            <span>Vertical Turbine Pump Axial Thrust, Submergence & Shaft Stretch Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1081,147 +1081,130 @@ canvas { width: 100%; height: 100%; display: block; border-radius: 8px; }
     <div class="panel">
       <div class="panel-title">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Thermal Duty & Hairpin Geometry
+        Pump Hydraulic & Mechanical Ratings (ANSI/HI)
       </div>
 
       <div class="input-group">
-        <label>Total Thermal Heat Duty (Q) & Flow Orientation</label>
+        <label>Total Dynamic Head (TDH) & Operating Flow Rate (Q)</label>
         <div class="input-row">
-          <input type="number" id="heat_duty" value="350" step="25" min="10" max="15000" title="Thermal heat duty (kW)">
-          <span class="unit-badge">Duty kW</span>
-          <select id="flow_config">
-            <option value="counter" selected>Pure Counter-Current Flow (F = 1.0)</option>
-            <option value="co_current">Co-Current Flow (Parallel)</option>
+          <input type="number" id="pump_head" value="120" step="5" min="5" max="600" title="Total pump dynamic head (m)">
+          <span class="unit-badge">TDH (m)</span>
+          <input type="number" id="pump_flow" value="450" step="10" min="10" max="15000" title="Volumetric flow rate (m³/h)">
+          <span class="unit-badge">m³/h</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Number of Stages & Pump Operating Speed (RPM)</label>
+        <div class="input-row">
+          <input type="number" id="num_stages" value="4" step="1" min="1" max="25" title="Number of impeller bowl stages">
+          <span class="unit-badge">Stages</span>
+          <input type="number" id="pump_rpm" value="1480" step="10" min="400" max="3600" title="Rotational speed (RPM)">
+          <span class="unit-badge">RPM</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Impeller Eye & Lineshaft Diameters</label>
+        <div class="input-row">
+          <input type="number" id="dia_eye" value="195" step="5" min="50" max="800" title="Impeller suction eye diameter (mm)">
+          <span class="unit-badge">Eye mm</span>
+          <input type="number" id="dia_shaft" value="55" step="2" min="20" max="200" title="Lineshaft diameter (mm)">
+          <span class="unit-badge">Shaft mm</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Suction Bellmouth Diameter & Total Pump Setting Depth</label>
+        <div class="input-row">
+          <input type="number" id="dia_bell" value="380" step="10" min="100" max="2500" title="Suction bell outer diameter D (mm)">
+          <span class="unit-badge">Bell D mm</span>
+          <input type="number" id="pump_depth" value="28" step="1" min="2" max="300" title="Overall pump setting depth / lineshaft length (m)">
+          <span class="unit-badge">Depth (m)</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Impeller Shroud Type & Thrust Coefficient (K_t)</label>
+        <div class="input-row">
+          <select id="impeller_type" onchange="updateKt()">
+            <option value="enclosed_nobalance" selected>Enclosed Impeller without Balance Holes (Kt = 0.85)</option>
+            <option value="enclosed_balance">Enclosed Impeller with Balance Holes & Top Ring (Kt = 0.35)</option>
+            <option value="semi_open">Semi-Open Impeller with Back Ribs (Kt = 0.65)</option>
           </select>
         </div>
       </div>
 
       <div class="input-group">
-        <label>Hot Stream Temperatures (Inlet & Outlet)</label>
+        <label>Total Rotating Mechanical Dead Weight</label>
         <div class="input-row">
-          <input type="number" id="th_in" value="130" step="2" min="-50" max="450" title="Hot stream inlet temperature (°C)">
-          <span class="unit-badge">Th_in °C</span>
-          <input type="number" id="th_out" value="70" step="2" min="-50" max="450" title="Hot stream outlet temperature (°C)">
-          <span class="unit-badge">Th_out °C</span>
+          <input type="number" id="mech_weight" value="480" step="10" min="20" max="15000" title="Weight of impellers, lineshaft, and motor rotor (kg)">
+          <span class="unit-badge">kg Weight</span>
+          <input type="number" id="thrust_coeff" value="0.85" step="0.05" min="0.2" max="1.0" title="Axial hydraulic thrust coefficient Kt">
+          <span class="unit-badge">K_t Factor</span>
         </div>
       </div>
 
       <div class="input-group">
-        <label>Cold Stream Temperatures (Inlet & Outlet)</label>
+        <label>Motor Thrust Bearing Dynamic Capacity (C_dyn)</label>
         <div class="input-row">
-          <input type="number" id="tc_in" value="30" step="2" min="-50" max="400" title="Cold stream inlet temperature (°C)">
-          <span class="unit-badge">Tc_in °C</span>
-          <input type="number" id="tc_out" value="65" step="2" min="-50" max="400" title="Cold stream outlet temperature (°C)">
-          <span class="unit-badge">Tc_out °C</span>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label>Outer Pipe (Shell) & Inner Pipe Nominal Schedule Sizes</label>
-        <div class="input-row">
-          <select id="outer_pipe">
-            <option value="3_sch40" selected>3" NPS Sch 40 (ID = 77.9 mm, OD = 88.9 mm)</option>
-            <option value="4_sch40">4" NPS Sch 40 (ID = 102.3 mm, OD = 114.3 mm)</option>
-            <option value="2.5_sch40">2.5" NPS Sch 40 (ID = 62.7 mm, OD = 73.0 mm)</option>
-          </select>
-          <select id="inner_pipe">
-            <option value="1.5_sch40" selected>1.5" NPS Sch 40 (ID = 40.9 mm, OD = 48.3 mm)</option>
-            <option value="2_sch40">2" NPS Sch 40 (ID = 52.5 mm, OD = 60.3 mm)</option>
-            <option value="1_sch40">1" NPS Sch 40 (ID = 26.6 mm, OD = 33.4 mm)</option>
+          <input type="number" id="bearing_cdyn" value="180" step="5" min="20" max="1500" title="Basic dynamic load rating C of thrust bearing (kN)">
+          <span class="unit-badge">C_dyn kN</span>
+          <select id="bearing_type">
+            <option value="spherical_roller" selected>Spherical Roller Thrust (p = 10/3)</option>
+            <option value="angular_ball">Angular Contact Ball (p = 3.0)</option>
           </select>
         </div>
       </div>
 
-      <div class="input-group">
-        <label>Inner Pipe Surface Type (Longitudinal Fins vs. Bare)</label>
-        <div class="input-row">
-          <select id="fin_type" onchange="toggleFinInputs()">
-            <option value="finned" selected>Longitudinally Finned (24 to 36 Fins)</option>
-            <option value="bare">Bare Pipe (No Fins, Smooth OD)</option>
-          </select>
-          <input type="number" id="fin_count" value="28" step="2" min="12" max="48" title="Number of longitudinal fins">
-          <span class="unit-badge">Fins</span>
-        </div>
-      </div>
-
-      <div class="input-group" id="group_fin_details">
-        <label>Fin Height & Fin Thickness</label>
-        <div class="input-row">
-          <input type="number" id="fin_height" value="12.7" step="0.5" min="5.0" max="25.0" title="Fin height (mm)">
-          <span class="unit-badge">b (mm)</span>
-          <input type="number" id="fin_thick" value="0.8" step="0.1" min="0.5" max="2.5" title="Fin thickness (mm)">
-          <span class="unit-badge">δ (mm)</span>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label>Estimated Film Coefficients: Inner Tube (hi) & Annulus (ho)</label>
-        <div class="input-row">
-          <input type="number" id="coeff_hi" value="1400" step="50" min="100" max="10000" title="Tube-side film coefficient hi (W/m²·K)">
-          <span class="unit-badge">hi W/m²K</span>
-          <input type="number" id="coeff_ho" value="450" step="25" min="50" max="5000" title="Annulus-side film coefficient ho (W/m²·K)">
-          <span class="unit-badge">ho W/m²K</span>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label>Standard Hairpin Leg Length & Combined Fouling Margin</label>
-        <div class="input-row">
-          <input type="number" id="leg_length" value="6.0" step="0.5" min="3.0" max="12.0" title="Nominal straight leg length (m)">
-          <span class="unit-badge">Leg m (2/HP)</span>
-          <input type="number" id="fouling_res" value="0.00035" step="0.00005" min="0" max="0.002" title="Total fouling resistance R_f (m²·K/W)">
-          <span class="unit-badge">Rf m²K/W</span>
-        </div>
-      </div>
-
-      <button class="btn-calc" onclick="calculateHairpin()">Calculate Hairpin Heat Exchanger</button>
+      <button class="btn-calc" onclick="calculateVTPThrust()">Calculate Axial Thrust & Submergence</button>
     </div>
 
     <!-- DIAGNOSTICS & RESULTS PANEL -->
     <div class="panel">
       <div class="panel-title">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        Hairpin Sizing & Thermal Performance Summary
+        Axial Thrust, Submergence & Reliability Outputs
       </div>
 
       <div class="canvas-holder">
-        <canvas id="hairpinCanvas"></canvas>
+        <canvas id="vtpCanvas"></canvas>
       </div>
 
       <div class="metric-card">
-        <div class="metric-label">Required Number of Hairpin Sections</div>
+        <div class="metric-label">Total Continuous Net Downthrust (F_total)</div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div class="metric-val" id="res_hairpins">4 Hairpins</div>
-          <span class="status-badge status-stable" id="res_status_badge">PURE COUNTER-CURRENT</span>
+          <div class="metric-val" id="res_thrust_kn">31.8 kN</div>
+          <span class="status-badge status-stable" id="res_status_badge">STABLE DOWNTHRUST</span>
         </div>
-        <div class="metric-sub" id="res_hp_desc">Total 8 legs (48 meters total effective pipe length).</div>
+        <div class="metric-sub" id="res_thrust_lbs">7,149 lbf (3,242 kgf) acting downward on motor bearing.</div>
       </div>
 
       <div class="calc-grid" style="margin-bottom: 0.75rem; gap: 0.75rem;">
         <div class="metric-card" style="margin-bottom: 0;">
-          <div class="metric-label">Log Mean Temp Diff (LMTD)</div>
-          <div class="metric-val" id="res_lmtd">51.9 °C</div>
-          <div class="metric-sub" id="res_lmtd_sub">F-factor = 1.00 (Pure Counter)</div>
+          <div class="metric-label">HI 9.8 Minimum Submergence (S)</div>
+          <div class="metric-val" id="res_submergence">1.18 m</div>
+          <div class="metric-sub" id="res_sub_sub">46.5 in above bellmouth lip</div>
         </div>
 
         <div class="metric-card" style="margin-bottom: 0;">
-          <div class="metric-label">Overall Design U (U_design)</div>
-          <div class="metric-val" id="res_udesign">265 W/m²·K</div>
-          <div class="metric-sub" id="res_uclean">U_clean: 320 W/m²·K</div>
+          <div class="metric-label">Lineshaft Elastic Stretch (ΔL)</div>
+          <div class="metric-val" id="res_stretch">1.82 mm</div>
+          <div class="metric-sub" id="res_stretch_sub">Must be &lt; bowl axial clearance (4 mm)</div>
         </div>
       </div>
 
       <div class="calc-grid" style="margin-bottom: 0.75rem; gap: 0.75rem;">
         <div class="metric-card" style="margin-bottom: 0;">
-          <div class="metric-label">Total Required Surface Area</div>
-          <div class="metric-val" id="res_area">25.4 m²</div>
-          <div class="metric-sub" id="res_area_per_hp">6.35 m² external per hairpin</div>
+          <div class="metric-label">Bearing L10h Fatigue Life</div>
+          <div class="metric-val" id="res_l10h">324,500 hrs</div>
+          <div class="metric-sub" id="res_l10h_sub">&gt;35 years continuous operation</div>
         </div>
 
         <div class="metric-card" style="margin-bottom: 0;">
-          <div class="metric-label">Fin Surface Efficiency (Ω)</div>
-          <div class="metric-val" id="res_fineff">88.4%</div>
-          <div class="metric-sub" id="res_fin_ext">Area Extended: 3.2× vs bare</div>
+          <div class="metric-label">Momentary Startup Upthrust Risk</div>
+          <div class="metric-val" id="res_upthrust_net">-3.8 kN</div>
+          <div class="metric-sub" id="res_upthrust_sub">Dead weight prevents upthrust liftoff</div>
         </div>
       </div>
 
@@ -1233,40 +1216,40 @@ canvas { width: 100%; height: 100%; display: block; border-radius: 8px; }
 
   <!-- FATAL TRAPS SECTION -->
   <div style="margin-top: 2rem;">
-    <h3 style="color: #f8fafc; font-size: 1.35rem; margin-bottom: 1rem;">5 Critical Engineering Traps in Hairpin Heat Exchangers</h3>
+    <h3 style="color: #f8fafc; font-size: 1.35rem; margin-bottom: 1rem;">5 Critical Engineering Traps in Vertical Turbine Pumps</h3>
     
     <div class="trap-card" style="border-left: 4px solid #ef4444;">
-      <h4 style="color: #ef4444; margin: 0 0 0.5rem 0; font-size: 1.05rem;">1. The Annular Fin Root Choking and Heavy Oil Fouling Trap</h4>
+      <h4 style="color: #ef4444; margin: 0 0 0.5rem 0; font-size: 1.05rem;">1. Impeller Bowl Grinding Caused by Uncalculated Lineshaft Stretch</h4>
       <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; line-height: 1.5;">
-        While longitudinal fins dramatically increase surface area, the narrow gap between adjacent fin tips (often only 2 to 4 mm) creates dead zones. When cooling crude oils, asphaltenes, or slurries in the annulus, thermal cracking and wax crystallization rapidly pack the root of the fins. The heavy deposits choke the annular flow channels, turning 70% of the fin surface into an insulating stagnant layer that cannot be mechanically cleaned with hydroblasting without pulling the entire inner hairpin element.
+        A vertical turbine lineshaft acts as a long elastic spring. Under 30 to 60 kN of continuous downward hydraulic thrust, a 30-meter shaft elongates by 2 to 4 mm. During dry assembly, maintenance mechanics frequently set cold impeller axial clearance using a standard 2 mm feeler gauge. When the pump reaches full operating head, the downward stretch exceeds this gap, causing the bronze or Duplex impellers to machine directly into the cast iron bowl wear surfaces, seizing the pump within 10 minutes.
       </p>
     </div>
 
     <div class="trap-card" style="border-left: 4px solid #f59e0b;">
-      <h4 style="color: #f59e0b; margin: 0 0 0.5rem 0; font-size: 1.05rem;">2. U-Bend Thermal Expansion Differential Binding</h4>
+      <h4 style="color: #f59e0b; margin: 0 0 0.5rem 0; font-size: 1.05rem;">2. Upthrust Motor Bearing Failure During Low-Head Startup</h4>
       <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; line-height: 1.5;">
-        Hairpin exchangers handle large temperature differentials between hot and cold streams (often >150°C). The inner tube expands longitudinally at a significantly different rate than the outer shell pipe. Quality hairpin exchangers utilize proprietary floating tube return heads or sliding gland packings. Rigidly welding both ends of the inner pipe to the outer shell without expansion joints causes intense thermal stress that buckles the inner pipe or rips the shell nozzle welds.
+        When starting a VTP against an unpressurized or drained discharge header, the pump operates momentarily at the far-right end of its performance curve (runout condition). Head drops to near zero, eliminating downthrust, while flow rate surges to 150% of rated capacity. The upward momentum of the high-velocity liquid entering the impeller eye generates upward thrust that exceeds the rotor dead weight. If the motor is not equipped with an anti-reversing ratchet and a double-acting upthrust bearing, the rotor lifts and destroys the motor top end.
       </p>
     </div>
 
     <div class="trap-card" style="border-left: 4px solid #10b981;">
-      <h4 style="color: #10b981; margin: 0 0 0.5rem 0; font-size: 1.05rem;">3. Assuming Co-Current LMTD Equals Counter-Current LMTD</h4>
+      <h4 style="color: #10b981; margin: 0 0 0.5rem 0; font-size: 1.05rem;">3. Free-Surface Submergence Vortex Ingestion (HI 9.8 Violation)</h4>
       <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; line-height: 1.5;">
-        Plumbing a hairpin exchanger backward into parallel (co-current) flow is a disastrous field installation error. In co-current flow, the cold stream outlet temperature can never exceed the hot stream outlet temperature. If a process requires heating a cold stream to 65°C using a hot stream cooling to 70°C, co-current flow suffers an immediate thermodynamic pinch. Reversing the piping into counter-current flow restores pure LMTD driving force (F = 1.0).
+        Cooling tower sumps and river intake pits often operate with water levels below the Hydraulic Institute HI 9.8 minimum submergence line. As fluid accelerates toward the bellmouth, rotation forms powerful air-entraining free-surface vortices (Type 5 and 6 vortices). Continuous gulping of concentrated air funnels creates cyclical hydraulic unbalance, severe 1X and 2X vibration harmonics, and explosive cavitation pitting on the first-stage impeller vanes.
       </p>
     </div>
 
     <div class="trap-card" style="border-left: 4px solid #3b82f6;">
-      <h4 style="color: #3b82f6; margin: 0 0 0.5rem 0; font-size: 1.05rem;">4. Ignoring Fin Thermal Conductivity Degradation at High Temperatures</h4>
+      <h4 style="color: #3b82f6; margin: 0 0 0.5rem 0; font-size: 1.05rem;">4. Balance Hole Wear and Uncontrolled Downthrust Surge</h4>
       <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; line-height: 1.5;">
-        Designers calculating fin efficiency (η_fin) frequently take carbon steel conductivity k at ambient room temperature (k ≈ 52 W/m·K). At elevated process temperatures (250°C to 350°C), thermal conductivity drops to 38 W/m·K. Furthermore, if austenitic stainless steel (SS316) is specified for corrosive services, k drops to only 16 W/m·K. This causes fin efficiency to plummet from 88% down to 55%, leaving the exchanger 30% undersized.
+        To reduce motor thrust bearing size, manufacturers often drill balance holes through the upper impeller shroud and install a rear wear ring, cutting thrust by 60% (Kt from 0.85 to 0.35). However, in abrasive or sandy water, the rear wear ring clearances expand rapidly over time. As back-leakage climbs, balance chamber pressure rises to full discharge pressure. Downthrust unexpectedly surges to full unmitigated levels, overloading the motor thrust bearing and causing catastrophic bearing spalling.
       </p>
     </div>
 
     <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
-      <h4 style="color: #8b5cf6; margin: 0 0 0.5rem 0; font-size: 1.05rem;">5. Annular Flow Stratification in Horizontal Viscous Service</h4>
+      <h4 style="color: #8b5cf6; margin: 0 0 0.5rem 0; font-size: 1.05rem;">5. Reverse Rotation Waterhammer on Power Failure</h4>
       <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; line-height: 1.5;">
-        When viscous hydrocarbons flow through a horizontal double-pipe annulus at low Reynolds numbers (laminar regime, Re < 2,000), buoyancy causes hot, less-dense fluid to stratify at the top of the annulus while cold, viscous fluid settles at the bottom. This thermal bypass starves the bottom fins and creates severe circumferential temperature stresses across the inner pipe wall. For viscous laminar fluids, vertical hairpin mounting or internal twisted swirl tape inserts are required.
+        When electric power cuts out during full-flow pumping, the water column inside a long vertical discharge column reverses direction. The reverse flow acts like a water turbine, driving the pump backward at up to 150% of rated forward speed. If a motor non-reverse ratchet jams or if the operator attempts to restart the motor while spinning backward, the torsional shock shears threaded lineshaft couplings and destroys the motor windings.
       </p>
     </div>
   </div>
@@ -1275,29 +1258,27 @@ canvas { width: 100%; height: 100%; display: block; border-radius: 8px; }
   <div class="panel" style="margin-top: 2rem;">
     <div class="panel-title">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      Double-Pipe Finned Hairpin Heat Transfer Formulations
+      Vertical Turbine Pump Hydraulic Formulations & HI 9.8 Standards
     </div>
     <div style="color: #cbd5e1; line-height: 1.7; font-size: 0.95rem;">
-      <p>Hairpin sizing combines pure counter-current log-mean temperature difference with longitudinal fin conduction efficiency:</p>
+      <p>Axial thrust and submergence are governed by force equilibrium on the rotating element and free-surface hydrodynamic vortex criteria:</p>
       
       <div style="background: #0f172a; padding: 1rem; border-radius: 6px; font-family: monospace; color: #38bdf8; margin: 1rem 0;">
-        1. Pure Counter-Current LMTD (F = 1.0):<br>
-           &Delta;T_1 = T_h,in - T_c,out | &Delta;T_2 = T_h,out - T_c,in<br>
-           LMTD = [ &Delta;T_1 - &Delta;T_2 ] / ln( &Delta;T_1 / &Delta;T_2 )<br><br>
-        2. Longitudinal Fin Efficiency (&eta;_fin):<br>
-           m = &radic;[ (2 &middot; h_o) / (k_fin &middot; &delta;_fin) ]<br>
-           &eta;_fin = tanh( m &middot; b_fin ) / ( m &middot; b_fin )<br><br>
-        3. Weighted Total Outer Surface Efficiency (&Omega;):<br>
-           &Omega; = 1 - ( A_fin / A_total ) &middot; ( 1 - &eta;_fin )<br><br>
-        4. Overall Design Heat Transfer Coefficient (U_d based on outer area A_total):<br>
-           1 / U_d = ( A_total / (A_i &middot; h_i) ) + R_di &middot; (A_total / A_i) + R_wall + R_do + 1 / (&Omega; &middot; h_o)<br><br>
-        5. Required Heat Transfer Area & Hairpin Count:<br>
-           A_req = Q_duty / ( U_d &middot; LMTD )<br>
-           A_hairpin = 2 &middot; L_leg &middot; (Surface Area per unit length)<br>
-           N_hairpins = &lceil; A_req / A_hairpin &rceil;
+        1. Downward Hydraulic Thrust Force (N):<br>
+           F_down = K_t &middot; &rho; &middot; g &middot; H_stage &middot; (A_eye - A_shaft) &middot; n_stages<br><br>
+        2. Upward Momentum Force (N):<br>
+           F_up = &rho; &middot; Q &middot; v_eye = &rho; &middot; Q &middot; [ Q / A_eye ]<br><br>
+        3. Total Continuous Downward Thrust on Motor Bearing:<br>
+           F_total = F_down - F_up + (W_mech &middot; g)<br><br>
+        4. Lineshaft Elastic Tensile Elongation (Hooke Law):<br>
+           &Delta;L = [ F_total &middot; L_shaft ] / [ A_shaft &middot; E_steel ] (where E &approx; 200 GPa)<br><br>
+        5. Hydraulic Institute (HI 9.8) Minimum Submergence Depth (m):<br>
+           S = D_bell + 0.574 &middot; [ Q_m3s / &radic;(g &middot; D_bell&sup3;) ]<br><br>
+        6. ISO 281 Motor Thrust Bearing L10h Life:<br>
+           L_10h = ( C_dyn / F_total )^p &middot; [ 10^6 / (60 &middot; RPM) ] (p = 10/3 for roller bearings)
       </div>
 
-      <p>Where ( b_{fin} ) is fin height, ( delta_{fin} ) is fin thickness, ( k_{fin} ) is fin material thermal conductivity (W/m·K), and ( L_{leg} ) is straight pipe leg length.</p>
+      <p>Where ( K_t ) is the empirical impeller shroud pressure distribution coefficient, ( A_{eye} ) is suction eye area, ( A_{shaft} ) is shaft cross-sectional area, and ( D_{bell} ) is suction bellmouth outer lip diameter.</p>
     </div>
   </div>
 
@@ -1306,211 +1287,197 @@ canvas { width: 100%; height: 100%; display: block; border-radius: 8px; }
     <h3 style="color: #f8fafc; font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions (FAQ)</h3>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">
-        Why are double-pipe hairpin heat exchangers preferred for high-pressure and temperature cross duties?
+        What causes axial hydraulic downthrust in vertical turbine pumps?
         <span>+</span>
       </div>
       <div class="faq-a">
-        Hairpin heat exchangers excel in two distinct scenarios: 1) Severe Temperature Crosses: Because hairpins provide pure 100% counter-current flow, they achieve an LMTD correction factor of F = 1.0, enabling close temperature approaches where multi-pass shell-and-tube exchangers suffer temperature crosses and thermal stall. 2) High Pressure Extremes: Because small-diameter pipes (2" to 4" outer shell) naturally resist extreme pressures (up to 350 bar / 5,000 psi) with standard pipe wall schedules, hairpins are vastly more economical and compact than massive high-pressure shell-and-tube vessels.
+        In a vertical turbine pump, discharge pressure developed by each enclosed impeller acts upon the exterior surfaces of the upper and lower impeller shrouds. Because the lower shroud has a large suction eye opening while the upper shroud is solid (except for the shaft), a massive unbalanced pressure area exists. The resulting downward hydraulic force (F_down = K_t · ρ · g · H · (A_eye - A_shaft)) presses downward on the entire lineshaft, transferring tens of thousands of pounds of force to the motor thrust bearing.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">
-        When should longitudinal fins be used instead of bare inner pipes?
+        What is momentary "upthrust" and why does it destroy standard electric motors?
         <span>+</span>
       </div>
       <div class="faq-a">
-        Longitudinal fins should be specified whenever the fluid flowing in the annulus has a heat transfer coefficient (h_o) that is substantially lower (by a factor of 2 or more) than the tube-side fluid (h_i)—such as viscous heavy oils, lubricating fluids, or compressed gases flowing against condensing steam or cooling water. Longitudinal fins extend external surface area by 200% to 400% without blocking the annular flow channel, balancing thermal resistances.
+        During initial pump startup, the discharge pipe is empty and head is near zero (runout condition). Flow velocity through the impeller eye reaches maximum, generating an upward momentum force (F_up = ρ · Q · v_eye) that can exceed the dead weight of the rotating assembly. If the motor thrust bearing is only designed for unidirectional downthrust, the lineshaft lifts vertically, jamming the impellers against the top bowl casings and destroying bearings within seconds.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">
-        What is Fin Efficiency (η_fin) and how does it limit fin height?
+        How does Hydraulic Institute HI 9.8 define minimum submergence (S)?
         <span>+</span>
       </div>
       <div class="faq-a">
-        Heat must conduct through the thin metal fin from the pipe wall before it can transfer to the fluid. As fin height increases, thermal resistance along the fin creates a temperature gradient, so the fin tip operates at a lower temperature difference than the fin root. Fin efficiency is calculated via the hyperbolic tangent relation: η_fin = tanh(m · b) / (m · b), where m = √(2·h_o / (k_fin · δ)). For standard carbon steel fins in oil, efficiency remains above 85% for fin heights up to 12.7 mm (0.5 in).
+        ANSI/HI Standard 9.8 establishes the minimum liquid submergence depth above the pump intake suction bellmouth to prevent the formation of Type 3 to Type 6 air-entraining free-surface vortices. The formula is S = D + 0.574 · Q / √(g · D³), where D is the suction bell outer diameter and Q is flow rate. Insufficient submergence pulls concentrated air funnels into the first-stage impeller, inducing cavitation, severe vibration, and loss of prime.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">
-        How does equivalent diameter (De) differ between heat transfer and pressure drop in finned annuli?
+        Why must lineshaft elastic elongation (shaft stretch) be calculated during commissioning?
         <span>+</span>
       </div>
       <div class="faq-a">
-        In a longitudinally finned annulus, two different equivalent diameters must be calculated: 1) Hydraulic Diameter for Friction (D_e = 4 · A_flow / P_wetted), where wetted perimeter includes all fin surfaces and both inner and outer pipe walls, and 2) Equivalent Diameter for Heat Transfer (D_eq = 4 · A_flow / P_heat), where only heat-exchanging surfaces are included in the perimeter. Conflating these two values leads to severe errors in Nusselt number and friction factor.
+        Deep-well and cooling tower pumps utilize lineshafts up to 100+ meters in length. Under thousands of kilograms of hydraulic tension, the steel shaft stretches elastically per Hooke law: ΔL = (F_thrust · L) / (A_shaft · E). If the impeller-to-bowl axial clearance is set to 4 mm but hydraulic stretch under full operating head is 6 mm, the impellers will grind into the bottom of the bowl diffusers, shearing keys and seizing the pump.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">
-        How are series vs. parallel hairpin banks configured to manage pressure drop?
+        How does motor thrust bearing L10h life evaluate operating reliability?
         <span>+</span>
       </div>
       <div class="faq-a">
-        Hairpins are modular units consisting of two straight legs connected by a 180° return bend. If process fluid pressure drop exceeds the allowable limit (typically 70 kPa / 10 psi), hairpins can be split into two or more parallel banks. Parallel arrangement halves the velocity and cuts pressure drop by roughly a factor of four, though it lowers the Reynolds number and film coefficient.
+        Per ISO 281, bearing L10h rating represents the operating hours during which 90% of a population of identical bearings will survive without fatigue spalling: L10h = (C_dyn / F_total)^p · (10^6 / (60 · N)), where p = 10/3 for spherical roller bearings and p = 3 for angular contact ball bearings. Industrial specifications typically demand a minimum L10h life of 50,000 to 100,000 hours under maximum continuous downthrust.
       </div>
     </div>
   </div>
 </div>
 
 <script>
-let lastHairpinResults = null;
+let lastVTPResults = null;
 
-function toggleFinInputs() {
-  const type = document.getElementById('fin_type').value;
-  const grp = document.getElementById('group_fin_details');
-  const cnt = document.getElementById('fin_count');
-  if (type === 'bare') {
-    grp.style.display = 'none';
-    cnt.disabled = true;
-  } else {
-    grp.style.display = 'block';
-    cnt.disabled = false;
-  }
-  calculateHairpin();
+function updateKt() {
+  const type = document.getElementById('impeller_type').value;
+  let kt = 0.85;
+  if (type === 'enclosed_balance') kt = 0.35;
+  else if (type === 'semi_open') kt = 0.65;
+  document.getElementById('thrust_coeff').value = kt.toFixed(2);
+  calculateVTPThrust();
 }
 
-function calculateHairpin() {
-  const q_kw = parseFloat(document.getElementById('heat_duty').value);
-  const flow_cfg = document.getElementById('flow_config').value;
-  const th_in = parseFloat(document.getElementById('th_in').value);
-  const th_out = parseFloat(document.getElementById('th_out').value);
-  const tc_in = parseFloat(document.getElementById('tc_in').value);
-  const tc_out = parseFloat(document.getElementById('tc_out').value);
-  const fin_type = document.getElementById('fin_type').value;
-  const n_fins = parseInt(document.getElementById('fin_count').value, 10);
-  const b_fin_mm = parseFloat(document.getElementById('fin_height').value);
-  const delta_fin_mm = parseFloat(document.getElementById('fin_thick').value);
-  const hi = parseFloat(document.getElementById('coeff_hi').value);
-  const ho = parseFloat(document.getElementById('coeff_ho').value);
-  const leg_len = parseFloat(document.getElementById('leg_length').value);
-  const rf = parseFloat(document.getElementById('fouling_res').value);
+function calculateVTPThrust() {
+  const tdh_m = parseFloat(document.getElementById('pump_head').value);
+  const q_m3h = parseFloat(document.getElementById('pump_flow').value);
+  const n_stages = parseInt(document.getElementById('num_stages').value, 10);
+  const rpm = parseFloat(document.getElementById('pump_rpm').value);
+  const d_eye_mm = parseFloat(document.getElementById('dia_eye').value);
+  const d_shaft_mm = parseFloat(document.getElementById('dia_shaft').value);
+  const d_bell_mm = parseFloat(document.getElementById('dia_bell').value);
+  const depth_m = parseFloat(document.getElementById('pump_depth').value);
+  const m_mech_kg = parseFloat(document.getElementById('mech_weight').value);
+  const kt = parseFloat(document.getElementById('thrust_coeff').value);
+  const c_dyn_kn = parseFloat(document.getElementById('bearing_cdyn').value);
+  const bearing_type = document.getElementById('bearing_type').value;
 
-  // Pipe Dimensions (1.5" Inner, 3" Outer default)
-  // Inner pipe: OD = 48.3 mm, ID = 40.9 mm
-  const d_in_od_m = 0.0483;
-  const d_in_id_m = 0.0409;
-  const k_steel = 45.0; // W/m·K
+  const g = 9.80665;
+  const rho_water = 1000; // kg/m³
+  const q_m3s = q_m3h / 3600;
 
-  // 1. LMTD Calculation
-  let dt1 = 0, dt2 = 0;
-  if (flow_cfg === 'counter') {
-    dt1 = th_in - tc_out;
-    dt2 = th_out - tc_in;
+  // Geometry in meters
+  const d_eye = d_eye_mm / 1000;
+  const d_shaft = d_shaft_mm / 1000;
+  const d_bell = d_bell_mm / 1000;
+
+  const a_eye = (Math.PI / 4) * Math.pow(d_eye, 2);
+  const a_shaft = (Math.PI / 4) * Math.pow(d_shaft, 2);
+  const a_unbalanced = Math.max(0.001, a_eye - a_shaft);
+
+  // Head per stage
+  const head_per_stage = tdh_m / n_stages;
+
+  // 1. Downward Hydraulic Thrust Force (N)
+  // F_down = Kt * rho * g * H_stage * A_unbalanced * n_stages
+  // Note: H_stage * n_stages = TDH
+  const f_down_n = kt * rho_water * g * tdh_m * a_unbalanced;
+
+  // 2. Upward Momentum Force (N)
+  const v_eye = a_eye > 0 ? (q_m3s / a_eye) : 0;
+  const f_up_n = rho_water * q_m3s * v_eye;
+
+  // 3. Mechanical Dead Weight Force (N)
+  const f_mech_n = m_mech_kg * g;
+
+  // 4. Net Operating Downthrust on Motor Bearing (N & kN)
+  const f_total_n = f_down_n - f_up_n + f_mech_n;
+  const f_total_kn = f_total_n / 1000;
+  const f_total_lbf = f_total_n * 0.224809;
+
+  // 5. Net Startup Upthrust Force (Head ~ 0, runout flow 1.4 * Q)
+  const v_eye_startup = (1.4 * q_m3s) / a_eye;
+  const f_up_startup = rho_water * (1.4 * q_m3s) * v_eye_startup;
+  const f_startup_net = f_up_startup - f_mech_n; // positive = net upward thrust!
+
+  // 6. Lineshaft Elastic Stretch (Hooke Law)
+  // Delta_L = (F_total * L) / (A_shaft * E) where E_steel = 200 GPa
+  const E_steel = 200e9; // Pa
+  const stretch_m = (f_total_n * depth_m) / (a_shaft * E_steel);
+  const stretch_mm = stretch_m * 1000;
+
+  // 7. Hydraulic Institute HI 9.8 Minimum Submergence (S in meters)
+  // S = D_bell + 0.574 * (Q_m3s / sqrt(g * D_bell^3))
+  const froude_term = q_m3s / Math.sqrt(g * Math.pow(d_bell, 3));
+  const submergence_m = d_bell + 0.574 * froude_term;
+  const submergence_in = submergence_m * 39.3701;
+
+  // 8. Bearing Fatigue L10h Life (ISO 281)
+  const p_exp = bearing_type === 'spherical_roller' ? (10 / 3) : 3.0;
+  let l10h = 0;
+  if (f_total_kn > 0) {
+    l10h = Math.pow(c_dyn_kn / f_total_kn, p_exp) * (1e6 / (60 * rpm));
   } else {
-    dt1 = th_in - tc_in;
-    dt2 = th_out - tc_out;
+    l10h = 999999;
   }
-
-  let lmtd = 0;
-  if (dt1 <= 0 || dt2 <= 0) {
-    lmtd = 1.0; // Temperature cross in co-current!
-  } else if (Math.abs(dt1 - dt2) < 0.1) {
-    lmtd = dt1;
-  } else {
-    lmtd = (dt1 - dt2) / Math.log(dt1 / dt2);
-  }
-
-  // 2. Surface Areas per meter length
-  const A_inner_bare_pm = Math.PI * d_in_id_m; // m²/m inside
-  const A_outer_bare_pm = Math.PI * d_in_od_m; // m²/m outside bare
-
-  let A_fin_pm = 0;
-  let eta_fin = 1.0;
-  let Omega = 1.0;
-
-  if (fin_type === 'finned') {
-    const b_fin_m = b_fin_mm / 1000;
-    const delta_fin_m = delta_fin_mm / 1000;
-    // Each fin has 2 sides
-    A_fin_pm = n_fins * (2 * b_fin_m);
-
-    // Fin parameter m
-    const m_param = Math.sqrt((2 * ho) / (k_steel * delta_fin_m));
-    const mb = m_param * b_fin_m;
-    eta_fin = Math.tanh(mb) / mb;
-
-    const A_total_pm = A_outer_bare_pm + A_fin_pm;
-    Omega = 1 - (A_fin_pm / A_total_pm) * (1 - eta_fin);
-  }
-
-  const A_tot_ext_pm = A_outer_bare_pm + A_fin_pm;
-
-  // 3. Overall U-value based on external total area (W/m²·K)
-  // 1/U_clean = (A_tot / (A_in * hi)) + R_wall + 1/(Omega * ho)
-  const r_tube_ratio = A_tot_ext_pm / A_inner_bare_pm;
-  const r_wall = (d_in_od_m * Math.log(d_in_od_m / d_in_id_m)) / (2 * k_steel);
-
-  const inv_U_clean = (r_tube_ratio / hi) + r_wall + (1 / (Omega * ho));
-  const U_clean = 1 / inv_U_clean;
-
-  // Design U with fouling
-  const inv_U_design = inv_U_clean + rf;
-  const U_design = 1 / inv_U_design;
-
-  // 4. Required Total External Heat Transfer Area (m²)
-  // Q = U * A * LMTD
-  const q_watts = q_kw * 1000;
-  const A_req_total = q_watts / (U_design * lmtd);
-
-  // 5. Hairpin Count
-  // Each hairpin has 2 straight legs of length leg_len
-  const A_per_hairpin = 2 * leg_len * A_tot_ext_pm;
-  const num_hairpins = Math.max(1, Math.ceil(A_req_total / A_per_hairpin));
-  const actual_area = num_hairpins * A_per_hairpin;
-  const oversurface_pct = ((actual_area - A_req_total) / A_req_total) * 100;
 
   // Update UI Metrics
-  document.getElementById('res_hairpins').innerText = num_hairpins + ' Hairpin' + (num_hairpins > 1 ? 's' : '');
-  document.getElementById('res_hp_desc').innerText = (num_hairpins * 2) + ' legs (' + (num_hairpins * 2 * leg_len).toFixed(1) + ' m total length, +' + oversurface_pct.toFixed(1) + '% oversurface).';
-  document.getElementById('res_lmtd').innerText = lmtd.toFixed(1) + ' °C';
-  document.getElementById('res_lmtd_sub').innerText = flow_cfg === 'counter' ? 'F = 1.00 (Pure Counter-Current)' : 'Co-Current Parallel Flow';
-  document.getElementById('res_udesign').innerText = Math.round(U_design) + ' W/m²·K';
-  document.getElementById('res_uclean').innerText = 'U_clean: ' + Math.round(U_clean) + ' W/m²·K | Rf: ' + rf + ' m²K/W';
-  document.getElementById('res_area').innerText = A_req_total.toFixed(1) + ' m²';
-  document.getElementById('res_area_per_hp').innerText = A_per_hairpin.toFixed(2) + ' m² external per hairpin';
-  document.getElementById('res_fineff').innerText = (eta_fin * 100).toFixed(1) + '% (Ω = ' + (Omega * 100).toFixed(1) + '%)';
-  document.getElementById('res_fin_ext').innerText = fin_type === 'finned' ? ('Area Extended: ' + (A_tot_ext_pm / A_outer_bare_pm).toFixed(1) + '× vs bare') : 'Bare Pipe';
+  document.getElementById('res_thrust_kn').innerText = f_total_kn.toFixed(1) + ' kN';
+  document.getElementById('res_thrust_lbs').innerText = Math.round(f_total_lbf).toLocaleString() + ' lbf (' + Math.round(f_total_n / g).toLocaleString() + ' kgf downward)';
 
-  const badge = document.getElementById('res_status_badge');
-  if (dt1 <= 0 || dt2 <= 0) {
-    badge.className = 'status-badge status-danger';
-    badge.innerText = 'TEMPERATURE CROSS / STALL';
-  } else if (flow_cfg === 'counter') {
-    badge.className = 'status-badge status-stable';
-    badge.innerText = 'PURE COUNTER-CURRENT';
+  document.getElementById('res_submergence').innerText = submergence_m.toFixed(2) + ' m';
+  document.getElementById('res_sub_sub').innerText = submergence_in.toFixed(1) + ' in above bellmouth lip (HI 9.8)';
+
+  document.getElementById('res_stretch').innerText = stretch_mm.toFixed(2) + ' mm';
+  document.getElementById('res_stretch_sub').innerText = 'Elastic stretch on ' + depth_m + 'm shaft (E=200 GPa)';
+
+  document.getElementById('res_l10h').innerText = l10h > 500000 ? '>500,000 hrs' : Math.round(l10h).toLocaleString() + ' hrs';
+  document.getElementById('res_l10h_sub').innerText = l10h > 87600 ? ('(' + (l10h / 8760).toFixed(1) + ' years continuous L10h life)') : 'Under 10 years life - upsize bearing!';
+
+  if (f_startup_net > 0) {
+    document.getElementById('res_upthrust_net').innerText = '+' + (f_startup_net / 1000).toFixed(1) + ' kN UP';
+    document.getElementById('res_upthrust_sub').innerText = '⚠ WARNING: Upthrust liftoff occurs during startup!';
   } else {
-    badge.className = 'status-badge status-warning';
-    badge.innerText = 'CO-CURRENT (LOWER LMTD)';
+    document.getElementById('res_upthrust_net').innerText = (f_startup_net / 1000).toFixed(1) + ' kN';
+    document.getElementById('res_upthrust_sub').innerText = '✓ Dead weight prevents momentary upthrust';
   }
 
-  lastHairpinResults = {
-    q_kw: q_kw,
-    flow_config: flow_cfg,
-    th_in: th_in,
-    th_out: th_out,
-    tc_in: tc_in,
-    tc_out: tc_out,
-    lmtd: lmtd.toFixed(1),
-    U_clean: Math.round(U_clean),
-    U_design: Math.round(U_design),
-    A_req: A_req_total.toFixed(1),
-    num_hairpins: num_hairpins,
-    leg_len: leg_len,
-    total_legs: num_hairpins * 2,
-    fin_type: fin_type,
-    eta_fin_pct: (eta_fin * 100).toFixed(1),
-    omega_pct: (Omega * 100).toFixed(1)
+  const badge = document.getElementById('res_status_badge');
+  if (f_startup_net > 0) {
+    badge.className = 'status-badge status-danger';
+    badge.innerText = 'UPTHRUST LIFTOFF HAZARD';
+  } else if (l10h < 25000) {
+    badge.className = 'status-badge status-warning';
+    badge.innerText = 'BEARING UNDERSIZED';
+  } else {
+    badge.className = 'status-badge status-stable';
+    badge.innerText = 'ANSI/HI COMPLIANT';
+  }
+
+  lastVTPResults = {
+    tdh_m: tdh_m,
+    q_m3h: q_m3h,
+    n_stages: n_stages,
+    rpm: rpm,
+    f_down_kn: (f_down_n / 1000).toFixed(1),
+    f_up_kn: (f_up_n / 1000).toFixed(1),
+    f_mech_kn: (f_mech_n / 1000).toFixed(1),
+    f_total_kn: f_total_kn.toFixed(1),
+    f_total_lbf: Math.round(f_total_lbf),
+    f_startup_upthrust_kn: (f_startup_net / 1000).toFixed(1),
+    stretch_mm: stretch_mm.toFixed(2),
+    submergence_m: submergence_m.toFixed(2),
+    submergence_in: submergence_in.toFixed(1),
+    l10h_hrs: Math.round(l10h),
+    depth_m: depth_m
   };
 
-  drawHairpinVisualizer(num_hairpins, th_in, th_out, tc_in, tc_out, fin_type);
+  drawVTPVisualizer(d_bell_mm, depth_m, submergence_m, f_total_kn, stretch_mm);
 }
 
-function drawHairpinVisualizer(num_hp, th_in, th_out, tc_in, tc_out, fin_type) {
-  const canvas = document.getElementById('hairpinCanvas');
+function drawVTPVisualizer(bell_mm, depth_m, submergence_m, thrust_kn, stretch_mm) {
+  const canvas = document.getElementById('vtpCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
@@ -1523,104 +1490,146 @@ function drawHairpinVisualizer(num_hp, th_in, th_out, tc_in, tc_out, fin_type) {
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(0, 0, w, h);
 
-  const startX = 40;
-  const startY = 55;
-  const legW = w * 0.55;
-  const legH = 26;
-  const spacing = 50;
+  const pumpX = w * 0.35;
+  const motorY = 25;
+  const motorW = 50;
+  const motorH = 45;
 
-  // Upper Leg (Shell Pipe)
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(startX, startY, legW, legH);
-  ctx.strokeStyle = '#64748b';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(startX, startY, legW, legH);
+  // Water Sump Level
+  const waterLevelY = h * 0.40;
+  const sumpBottomY = h * 0.92;
 
-  // Lower Leg (Shell Pipe)
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(startX, startY + spacing, legW, legH);
-  ctx.strokeRect(startX, startY + spacing, legW, legH);
+  // Water fill gradient
+  const waterGrad = ctx.createLinearGradient(0, waterLevelY, 0, sumpBottomY);
+  waterGrad.addColorStop(0, '#0369a1');
+  waterGrad.addColorStop(1, '#0c4a6e');
+  ctx.fillStyle = waterGrad;
+  ctx.fillRect(20, waterLevelY, w - 40, sumpBottomY - waterLevelY);
 
-  // U-Bend Return at right
-  ctx.strokeStyle = '#64748b';
+  // Water surface line
+  ctx.strokeStyle = '#38bdf8';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(startX + legW, startY + spacing / 2 + legH / 2, spacing / 2, -Math.PI / 2, Math.PI / 2);
+  ctx.moveTo(20, waterLevelY);
+  ctx.lineTo(w - 20, waterLevelY);
   ctx.stroke();
 
-  // Inner Pipe passing through upper and lower legs (Copper / Cyan)
-  ctx.fillStyle = '#0284c7';
-  ctx.fillRect(startX - 20, startY + 7, legW + 20, 12);
-  ctx.fillRect(startX - 20, startY + spacing + 7, legW + 20, 12);
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '10px monospace';
+  ctx.fillText('Water Sump Surface', 25, waterLevelY - 6);
 
-  // Inner pipe U-bend
-  ctx.strokeStyle = '#38bdf8';
+  // Sump floor
+  ctx.strokeStyle = '#78350f';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(startX + legW, startY + spacing / 2 + legH / 2, spacing / 2, -Math.PI / 2, Math.PI / 2);
+  ctx.moveTo(15, sumpBottomY);
+  ctx.lineTo(w - 15, sumpBottomY);
   ctx.stroke();
 
-  // Longitudinal Fins pattern inside shell
-  if (fin_type === 'finned') {
-    ctx.strokeStyle = '#fbbf24';
-    ctx.lineWidth = 1;
-    for (let x = startX + 10; x < startX + legW - 10; x += 16) {
-      ctx.beginPath();
-      ctx.moveTo(x, startY + 2);
-      ctx.lineTo(x, startY + 7);
-      ctx.moveTo(x, startY + 19);
-      ctx.lineTo(x, startY + 24);
-      ctx.moveTo(x, startY + spacing + 2);
-      ctx.lineTo(x, startY + spacing + 7);
-      ctx.moveTo(x, startY + spacing + 19);
-      ctx.lineTo(x, startY + spacing + 24);
-      ctx.stroke();
-    }
-  }
+  // Vertical Electric Motor (Top)
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(pumpX - motorW / 2, motorY, motorW, motorH);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(pumpX - motorW / 2, motorY, motorW, motorH);
 
-  // Fluid Stream Flow Indicators
-  // Hot Fluid (Red, Annulus In at top left, Out at bottom left)
-  ctx.fillStyle = '#ef4444';
-  ctx.font = '10px monospace';
-  ctx.fillText('Hot In: ' + th_in + '°C', startX - 25, startY - 8);
+  // Motor Thrust Bearing representation on top
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(pumpX - 16, motorY - 8, 32, 8);
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = '8px sans-serif';
+  ctx.fillText('BEARING', pumpX - 18, motorY - 11);
+
+  // Downthrust force vector arrow at top
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(pumpX + motorW / 2 + 15, motorY);
+  ctx.lineTo(pumpX + motorW / 2 + 15, motorY + 40);
+  ctx.lineTo(pumpX + motorW / 2 + 10, motorY + 32);
+  ctx.moveTo(pumpX + motorW / 2 + 15, motorY + 40);
+  ctx.lineTo(pumpX + motorW / 2 + 20, motorY + 32);
+  ctx.stroke();
+
   ctx.fillStyle = '#f87171';
-  ctx.fillText('Hot Out: ' + th_out + '°C', startX - 25, startY + spacing + legH + 16);
+  ctx.font = '10px monospace';
+  ctx.fillText('F_down: ' + thrust_kn + ' kN', pumpX + motorW / 2 + 22, motorY + 25);
 
-  // Cold Fluid (Blue, Tube In at bottom left, Out at top left)
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillText('Cold Out: ' + tc_out + '°C', startX - 35, startY + 16);
-  ctx.fillText('Cold In: ' + tc_in + '°C', startX - 35, startY + spacing + 16);
+  // Pump Column Pipe
+  const colPipeW = 16;
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(pumpX - colPipeW / 2, motorY + motorH, colPipeW, sumpBottomY - 50 - (motorY + motorH));
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(pumpX - colPipeW / 2, motorY + motorH, colPipeW, sumpBottomY - 50 - (motorY + motorH));
+
+  // Multi-Stage Bowls at bottom
+  const bowlW = 32;
+  const bowlH = 40;
+  const bowlY = sumpBottomY - 55;
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(pumpX - bowlW / 2, bowlY, bowlW, bowlH);
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(pumpX - bowlW / 2, bowlY, bowlW, bowlH);
+
+  // Suction Bellmouth flared lip
+  ctx.fillStyle = '#475569';
+  ctx.beginPath();
+  ctx.moveTo(pumpX - bowlW / 2, bowlY + bowlH);
+  ctx.lineTo(pumpX - bowlW / 2 - 8, bowlY + bowlH + 12);
+  ctx.lineTo(pumpX + bowlW / 2 + 8, bowlY + bowlH + 12);
+  ctx.lineTo(pumpX + bowlW / 2, bowlY + bowlH);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // HI 9.8 Submergence Dimension Indicator (Vertical bracket)
+  const bellLipY = bowlY + bowlH + 12;
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(pumpX - 45, waterLevelY);
+  ctx.lineTo(pumpX - 45, bellLipY);
+  ctx.moveTo(pumpX - 52, waterLevelY);
+  ctx.lineTo(pumpX - 38, waterLevelY);
+  ctx.moveTo(pumpX - 52, bellLipY);
+  ctx.lineTo(pumpX - 38, bellLipY);
+  ctx.stroke();
+
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = '10px monospace';
+  ctx.fillText('HI 9.8 Submergence S = ' + submergence_m + ' m', pumpX - 165, (waterLevelY + bellLipY) / 2);
 
   // Readouts right panel
   ctx.fillStyle = '#38bdf8';
   ctx.font = '12px monospace';
-  ctx.fillText('Hairpins: ' + num_hp + ' in series', w * 0.68, 60);
-  ctx.fillText('Pure LMTD: ' + (th_in - tc_out > 0 ? (th_in - tc_out).toFixed(0) : '--') + '°C / ' + (th_out - tc_in > 0 ? (th_out - tc_in).toFixed(0) : '--') + '°C', w * 0.68, 85);
-  ctx.fillText('Surface: ' + (fin_type === 'finned' ? 'Finned' : 'Bare'), w * 0.68, 110);
-  ctx.fillText('Counter Flow: F = 1.0', w * 0.68, 135);
+  ctx.fillText('Setting Depth: ' + depth_m + ' m', w * 0.62, 70);
+  ctx.fillText('Bell Dia D: ' + bell_mm + ' mm', w * 0.62, 95);
+  ctx.fillText('Lineshaft Stretch: ' + stretch_mm + ' mm', w * 0.62, 120);
+  ctx.fillText('Thrust: ' + thrust_kn + ' kN', w * 0.62, 145);
 }
 
 function copyDiagnosticSummary() {
-  if (!lastHairpinResults) return;
-  const res = lastHairpinResults;
+  if (!lastVTPResults) return;
+  const res = lastVTPResults;
   const lines = [
-    '=== DOUBLE-PIPE HAIRPIN HEAT EXCHANGER SIZING REPORT ===',
-    'Thermal Duty: ' + res.q_kw + ' kW | Flow Arrangement: ' + res.flow_config.toUpperCase(),
-    'Hot Stream Temperatures: ' + res.th_in + ' °C -> ' + res.th_out + ' °C',
-    'Cold Stream Temperatures: ' + res.tc_in + ' °C -> ' + res.tc_out + ' °C',
-    'Log Mean Temperature Difference (LMTD): ' + res.lmtd + ' °C (F = 1.00)',
+    '=== VERTICAL TURBINE PUMP AXIAL THRUST & SUBMERGENCE REPORT ===',
+    'Design Rating: TDH = ' + res.tdh_m + ' m, Flow = ' + res.q_m3h + ' m³/h @ ' + res.rpm + ' RPM',
+    'Stages: ' + res.n_stages + ' | Setting Depth: ' + res.depth_m + ' m',
     '------------------------------------------------------------',
-    'HEAT TRANSFER COEFFICIENTS & FIN RATINGS:',
-    '  - Clean Overall U (U_clean): ' + res.U_clean + ' W/m²·K',
-    '  - Design Overall U (U_design): ' + res.U_design + ' W/m²·K',
-    '  - Fin Surface Type: ' + res.fin_type.toUpperCase(),
-    '  - Fin Efficiency (η_fin): ' + res.eta_fin_pct + '% | Total Weighted Efficiency (Ω): ' + res.omega_pct + '%',
+    'AXIAL HYDRAULIC THRUST BREAKDOWN:',
+    '  - Downward Hydraulic Force (F_down): ' + res.f_down_kn + ' kN',
+    '  - Upward Liquid Momentum Force (F_up): ' + res.f_up_kn + ' kN',
+    '  - Rotating Mechanical Dead Weight: ' + res.f_mech_kn + ' kN',
+    '  - Total Continuous Downthrust: ' + res.f_total_kn + ' kN (' + res.f_total_lbf + ' lbf)',
+    '  - Momentary Startup Upthrust: ' + res.f_startup_upthrust_kn + ' kN (Net)',
     '------------------------------------------------------------',
-    'HAIRPIN SIZING & MODULAR COUNT:',
-    '  - Total Required Surface Area: ' + res.A_req + ' m²',
-    '  - Hairpin Modular Sections: ' + res.num_hairpins + ' Hairpin(s) in Series (' + res.total_legs + ' straight legs)',
-    '  - Straight Leg Length: ' + res.leg_len + ' meters per leg',
-    'DESIGN STANDARDS: Kern (1950) & Sieder-Tate Hairpin Formulations',
+    'MECHANICAL & HYDRAULIC CHECKS:',
+    '  - Lineshaft Elastic Elongation: ' + res.stretch_mm + ' mm',
+    '  - HI 9.8 Minimum Bellmouth Submergence: ' + res.submergence_m + ' m (' + res.submergence_in + ' in)',
+    '  - Motor Thrust Bearing L10h Life: ' + res.l10h_hrs.toLocaleString() + ' hours',
+    'COMPLIANCE STANDARD: Hydraulic Institute ANSI/HI 9.8 & HI 2.1-2.2',
     '============================================================'
   ];
 
@@ -1645,7 +1654,7 @@ function toggleFaq(el) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  calculateHairpin();
+  calculateVTPThrust();
 });
 </script>
 
@@ -1654,51 +1663,51 @@ window.addEventListener('DOMContentLoaded', () => {
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why are double-pipe hairpin heat exchangers preferred for high-pressure and temperature cross duties?</span>
+                <span style="font-size:1rem;">What causes axial hydraulic downthrust in vertical turbine pumps?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Hairpin heat exchangers excel in two distinct scenarios: 1) Severe Temperature Crosses: Because hairpins provide pure 100% counter-current flow, they achieve an LMTD correction factor of F = 1.0, enabling close temperature approaches where multi-pass shell-and-tube exchangers suffer temperature crosses and thermal stall. 2) High Pressure Extremes: Because small-diameter pipes (2" to 4" outer shell) naturally resist extreme pressures (up to 350 bar / 5,000 psi) with standard pipe wall schedules, hairpins are vastly more economical and compact than massive high-pressure shell-and-tube vessels.
+                In a vertical turbine pump, discharge pressure developed by each enclosed impeller acts upon the exterior surfaces of the upper and lower impeller shrouds. Because the lower shroud has a large suction eye opening while the upper shroud is solid (except for the shaft), a massive unbalanced pressure area exists. The resulting downward hydraulic force (F_down = K_t · ρ · g · H · (A_eye - A_shaft)) presses downward on the entire lineshaft, transferring tens of thousands of pounds of force to the motor thrust bearing.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">When should longitudinal fins be used instead of bare inner pipes?</span>
+                <span style="font-size:1rem;">What is momentary "upthrust" and why does it destroy standard electric motors?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Longitudinal fins should be specified whenever the fluid flowing in the annulus has a heat transfer coefficient (h_o) that is substantially lower (by a factor of 2 or more) than the tube-side fluid (h_i)—such as viscous heavy oils, lubricating fluids, or compressed gases flowing against condensing steam or cooling water. Longitudinal fins extend external surface area by 200% to 400% without blocking the annular flow channel, balancing thermal resistances.
+                During initial pump startup, the discharge pipe is empty and head is near zero (runout condition). Flow velocity through the impeller eye reaches maximum, generating an upward momentum force (F_up = ρ · Q · v_eye) that can exceed the dead weight of the rotating assembly. If the motor thrust bearing is only designed for unidirectional downthrust, the lineshaft lifts vertically, jamming the impellers against the top bowl casings and destroying bearings within seconds.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is Fin Efficiency (η_fin) and how does it limit fin height?</span>
+                <span style="font-size:1rem;">How does Hydraulic Institute HI 9.8 define minimum submergence (S)?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Heat must conduct through the thin metal fin from the pipe wall before it can transfer to the fluid. As fin height increases, thermal resistance along the fin creates a temperature gradient, so the fin tip operates at a lower temperature difference than the fin root. Fin efficiency is calculated via the hyperbolic tangent relation: η_fin = tanh(m · b) / (m · b), where m = √(2·h_o / (k_fin · δ)). For standard carbon steel fins in oil, efficiency remains above 85% for fin heights up to 12.7 mm (0.5 in).
+                ANSI/HI Standard 9.8 establishes the minimum liquid submergence depth above the pump intake suction bellmouth to prevent the formation of Type 3 to Type 6 air-entraining free-surface vortices. The formula is S = D + 0.574 · Q / √(g · D³), where D is the suction bell outer diameter and Q is flow rate. Insufficient submergence pulls concentrated air funnels into the first-stage impeller, inducing cavitation, severe vibration, and loss of prime.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does equivalent diameter (De) differ between heat transfer and pressure drop in finned annuli?</span>
+                <span style="font-size:1rem;">Why must lineshaft elastic elongation (shaft stretch) be calculated during commissioning?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                In a longitudinally finned annulus, two different equivalent diameters must be calculated: 1) Hydraulic Diameter for Friction (D_e = 4 · A_flow / P_wetted), where wetted perimeter includes all fin surfaces and both inner and outer pipe walls, and 2) Equivalent Diameter for Heat Transfer (D_eq = 4 · A_flow / P_heat), where only heat-exchanging surfaces are included in the perimeter. Conflating these two values leads to severe errors in Nusselt number and friction factor.
+                Deep-well and cooling tower pumps utilize lineshafts up to 100+ meters in length. Under thousands of kilograms of hydraulic tension, the steel shaft stretches elastically per Hooke law: ΔL = (F_thrust · L) / (A_shaft · E). If the impeller-to-bowl axial clearance is set to 4 mm but hydraulic stretch under full operating head is 6 mm, the impellers will grind into the bottom of the bowl diffusers, shearing keys and seizing the pump.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How are series vs. parallel hairpin banks configured to manage pressure drop?</span>
+                <span style="font-size:1rem;">How does motor thrust bearing L10h life evaluate operating reliability?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Hairpins are modular units consisting of two straight legs connected by a 180° return bend. If process fluid pressure drop exceeds the allowable limit (typically 70 kPa / 10 psi), hairpins can be split into two or more parallel banks. Parallel arrangement halves the velocity and cuts pressure drop by roughly a factor of four, though it lowers the Reynolds number and film coefficient.
+                Per ISO 281, bearing L10h rating represents the operating hours during which 90% of a population of identical bearings will survive without fatigue spalling: L10h = (C_dyn / F_total)^p · (10^6 / (60 · N)), where p = 10/3 for spherical roller bearings and p = 3 for angular contact ball bearings. Industrial specifications typically demand a minimum L10h life of 50,000 to 100,000 hours under maximum continuous downthrust.
               </div>
             </div>
           
@@ -1732,8 +1741,8 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fdouble-pipe-hairpin-heat-exchanger-sizing-calculator&text=Double-Pipe%20Hairpin%20Heat%20Exchanger%20Thermal%20%26%20Finned%20Tube%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fdouble-pipe-hairpin-heat-exchanger-sizing-calculator&title=Double-Pipe%20Hairpin%20Heat%20Exchanger%20Thermal%20%26%20Finned%20Tube%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fvertical-turbine-pump-thrust-bearing-submergence-calculator&text=Vertical%20Turbine%20Pump%20Axial%20Thrust%2C%20Submergence%20%26%20Shaft%20Stretch%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fvertical-turbine-pump-thrust-bearing-submergence-calculator&title=Vertical%20Turbine%20Pump%20Axial%20Thrust%2C%20Submergence%20%26%20Shaft%20Stretch%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1801,14 +1810,14 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/neuro/nsdr-rest-pacer" class="promo-card">
+                <a href="/mc/uuid-gen" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Minecraft & Game</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Non-Sleep Deep Rest (NSDR) & Binaural Theta Pacer</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Free client-side Non-Sleep Deep Rest (NSDR) protocol with customizable Web Audio binaural beats (theta/alpha 4Hz-7Hz), body scan pacer, and parasympathetic reset guidance.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Minecraft UUID Generator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Generate valid v4 UUID pairs for Bedrock manifest.json files.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1816,14 +1825,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 </a>
                 
               
-                <a href="/neuro/cognitive-distortion-reframer" class="promo-card">
+                <a href="/trade/concrete-curing-maturity-index" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Trade Math</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Cognitive Distortion & Catastrophizing Reframer</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Four-step Beckian Cognitive Behavioral Therapy (CBT) distortion reframing matrix to challenge cognitive traps.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Concrete Curing Maturity Index (Nurse-Saul)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Predict compressive strength gain from in-place curing temperature history.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1846,14 +1855,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
               
-                <a href="/neuro/loss-aversion-recalibrator" class="promo-card">
+                <a href="/math/scientific-notation-converter" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Loss Aversion & Expected Value Risk Recalibrator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Neutralize cognitive loss aversion bias with Daniel Kahneman & Amos Tversky’s Prospect Theory. Calculate true mathematical expected value (EV) vs subjective emotional pain using the 2.25x loss aversion multiplier.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Scientific Notation Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert between scientific notation (a × 10^b), E-notation, and standard decimals.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1861,14 +1870,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 </a>
                 
               
-                <a href="/neuro/loneliness-parasocial-auditor" class="promo-card">
+                <a href="/math/percentage-increase-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Parasocial Bonding & Screen-Mediated Loneliness Meter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Audit one-way parasocial relationships vs reciprocal peer connection using UCLA Loneliness Scale metrics.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Percentage Increase Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate percentage growth, price rises, and revenue increases between two numbers.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;

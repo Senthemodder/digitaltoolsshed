@@ -458,6 +458,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/belt-filter-press-municipal-sludge-throughput-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/belt-filter-press-sludge-dewatering-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -2067,6 +2073,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/hydrocyclone-d50-cut-size-plitt-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/hydrocyclone-d50-cut-size-plitt-equation-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -4275,6 +4287,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/venturi-scrubber-sizing-particulate-efficiency-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/vertical-turbine-pump-thrust-bearing-submergence-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
