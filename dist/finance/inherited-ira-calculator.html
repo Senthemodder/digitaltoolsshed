@@ -1363,6 +1363,55 @@
       </section>
     </div>
 
+    
+        <!-- Mathematical & IRS 10-Year Distribution Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">SECURE 2.0 10-Year Rule &amp; Actuarial Divisor Mathematics</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Inherited IRA distributions for non-eligible designated beneficiaries follow IRS Treasury Regulation &sect; 1.401(a)(9)-5:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Mandatory Annual RMD in Years 1 Through 9 (Post-RBD Death):</strong></div>
+            <div>&nbsp;&nbsp;RMD<sub>t</sub> = Balance<sub>t-1, Dec 31</sub> / (Initial Single Life Factor - (t - 1))</div>
+            <div>&nbsp;&nbsp;Applies when the original account owner passed away on or after their Required Beginning Date (RBD).</div>
+            <div><strong>2. Terminal 10-Year Balance Liquidation:</strong></div>
+            <div>&nbsp;&nbsp;Year 10 Distribution = 100% of remaining account assets by Dec 31 of Year 10.</div>
+            <div><strong>3. Inherited Roth IRA Exemption:</strong></div>
+            <div>&nbsp;&nbsp;Because Roth IRA owners are never subject to lifetime RMDs, inherited Roth accounts have zero RMDs in years 1-9, allowing 10 full years of 100% tax-free compounding before mandatory year-10 distribution.</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Inherited IRAs -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Inherited IRAs &amp; SECURE 2.0 Compliance</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Year 1-9 Mandatory Annual RMD Trap (Post-RBD Deaths)</strong>
+            Under final IRS Treasury Regulations issued in July 2024, if the original IRA owner died on or after their Required Beginning Date (age 73), non-eligible designated beneficiaries CANNOT simply wait until Year 10 to withdraw the funds. They MUST take annual RMDs in years 1 through 9 based on their single life expectancy, in addition to emptying the account by Year 10.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Tax Bracket Compression During Peak Earning Years</strong>
+            Adult children inheriting a traditional IRA in their 40s or 50s are typically in their peak salary years. Taking massive lump-sum distributions stacks ordinary income on top of existing salary, pushing income into the 32%, 35%, or 37% federal tax brackets and triggering the 3.8% Net Investment Income Tax (NIIT).
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Missing Eligible Designated Beneficiary (EDB) Stretch Status</strong>
+            Surviving spouses, disabled or chronically ill individuals, minor children of the deceased, and beneficiaries not more than 10 years younger than the deceased qualify as Eligible Designated Beneficiaries (EDBs). EDBs retain the right to stretch distributions over their entire lifetime. Incorrectly applying the 10-year rule forfeits decades of tax-sheltered growth.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Liquidating Inherited Roth IRAs Prematurely</strong>
+            While inherited Roth IRAs are subject to the 10-year rule, they NEVER require annual RMDs in years 1 through 9. Withdrawing from an inherited Roth IRA early throws away years of guaranteed tax-free compounding. The optimal mathematical strategy is to leave 100% of assets inside the Roth until the final month of the 10th year.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Failing to Take the Deceased Owner's Year-of-Death RMD</strong>
+            If the account owner died in the calendar year after reaching RMD age and had not yet taken their full RMD for that year, the beneficiary MUST take the remaining year-of-death RMD by December 31 of that same year. Failing to do so triggers the IRS 25% shortfall excise tax under IRC § 4974.
+          </div>
+        </div>
+
+
     <script>
       // IRS Table I (Single Life Expectancy - Treas. Reg. § 1.401(a)(9)-9)
       var IRS_TABLE_I = {
