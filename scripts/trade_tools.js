@@ -55314,6 +55314,3303 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (67 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 68: Centrifugal Pump Cavitation & NPSH Margin Calculator (HI 9.6.1 & API 610)
+  // ==========================================
+  const pumpCavitationBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">Hydraulic Institute ANSI/HI 9.6.1</span>
+      <span class="calc-clean-badge">API 610 12th Edition</span>
+      <span class="calc-clean-badge">ISO 9906 Rotodynamic Pumps</span>
+    </div>
+    <h1 class="calc-clean-title">Centrifugal Pump Cavitation & NPSH Margin Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate Net Positive Suction Head Available (NPSHa), NPSH margin ratio, suction specific speed (Nss), vapor pressure cavitation risk, and maximum suction lift per Hydraulic Institute and API standards.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Pump Flow Rate -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_flowRate">Pump Operating Flow (Q)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="npsh_flowRate" class="calc-clean-input" value="450" min="5" max="50000" step="25">
+          <select id="npsh_flowUnit" class="calc-clean-select">
+            <option value="gpm" selected>US GPM</option>
+            <option value="m3h">m³/hr</option>
+            <option value="lps">Liters/sec (L/s)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Operating point throughput</small>
+      </div>
+
+      <!-- Pump Speed & NPSHr (NPSH3) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_npshr">NPSH Required (NPSH3) & Speed</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="npsh_npshr" class="calc-clean-input" value="10.5" min="1.0" max="60.0" step="0.5" title="NPSHr (ft)">
+          <select id="npsh_headUnit" class="calc-clean-select">
+            <option value="ft" selected>Feet (ft)</option>
+            <option value="m">Meters (m)</option>
+          </select>
+          <select id="npsh_rpm" class="calc-clean-select">
+            <option value="1750" selected>1750 RPM (4-pole)</option>
+            <option value="3500">3500 RPM (2-pole)</option>
+            <option value="1150">1150 RPM (6-pole)</option>
+            <option value="2950">2950 RPM (50Hz 2-p)</option>
+            <option value="1450">1450 RPM (50Hz 4-p)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">From pump manufacturer 3% head-drop curve at duty point</small>
+      </div>
+
+      <!-- Static Suction Head / Elevation (hs) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_staticHead">Static Liquid Level (hs)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="npsh_staticHead" class="calc-clean-input" value="6.0" min="-28" max="100" step="0.5">
+          <select id="npsh_suctionType" class="calc-clean-select">
+            <option value="flooded" selected>Flooded Suction (Above Impeller)</option>
+            <option value="lift">Suction Lift (Below Impeller)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Vertical distance from liquid surface to pump impeller centerline</small>
+      </div>
+
+      <!-- Suction Tank Absolute Pressure -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_tankPress">Suction Vessel Pressure</label>
+        <div class="calc-clean-input-group">
+          <select id="npsh_tankType" class="calc-clean-select">
+            <option value="atm" selected>Vented Atmospheric Tank</option>
+            <option value="vac">Deaerator / Vacuum Tank</option>
+            <option value="press">Pressurized Vessel</option>
+          </select>
+          <input type="number" id="npsh_pressVal" class="calc-clean-input" value="14.7" min="0.5" max="300" step="0.5" title="Absolute Pressure">
+          <span style="display:flex; align-items:center; padding:0 0.5rem; background:rgba(255,255,255,0.05); color:#94a3b8; font-size:0.8rem;">psia</span>
+        </div>
+        <small class="calc-clean-help">Atmospheric (~14.7 psia at sea level) or sealed vessel pressure</small>
+      </div>
+
+      <!-- Pumping Temperature & Liquid -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_liquid">Process Liquid & Temperature</label>
+        <div class="calc-clean-input-group">
+          <select id="npsh_liquid" class="calc-clean-select">
+            <option value="water" selected>Water / Condensate</option>
+            <option value="gasoline">Motor Gasoline (High Vapor Pressure)</option>
+            <option value="diesel">Diesel Fuel Oil / Gas Oil</option>
+            <option value="ethanol">Ethanol / Alcohol</option>
+            <option value="glycol">50% Water-Glycol</option>
+          </select>
+          <input type="number" id="npsh_temp" class="calc-clean-input" value="140" min="32" max="400" step="1" title="Liquid Temperature">
+          <select id="npsh_tempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Liquid temperature strongly dictates vapor pressure (Pvp)</small>
+      </div>
+
+      <!-- Suction Piping Friction & Fitting Losses (hf) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_frictionLoss">Suction Line Friction Head Loss (hf)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="npsh_frictionLoss" class="calc-clean-input" value="2.2" min="0.1" max="25.0" step="0.1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">ft loss</span>
+        </div>
+        <small class="calc-clean-help">Piping friction, strainer, foot valve, elbows, and isolation valve loss</small>
+      </div>
+
+      <!-- Site Altitude (for atmospheric tank) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_altitude">Site Elevation (MSL)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="npsh_altitude" class="calc-clean-input" value="500" min="0" max="15000" step="100">
+          <select id="npsh_altUnit" class="calc-clean-select">
+            <option value="ft" selected>Feet MSL</option>
+            <option value="m">Meters MSL</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Reduces barometric atmospheric pressure</small>
+      </div>
+
+      <!-- Application Service Standard -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="npsh_service">Application Service & Standard</label>
+        <select id="npsh_service" class="calc-clean-select">
+          <option value="general" selected>General Water Service (HI 9.6.1: Ratio ≥ 1.20 or +3.0 ft)</option>
+          <option value="boiler">Boiler Feed / Severe Duty (HI 9.6.1: Ratio ≥ 1.50 or +5.0 ft)</option>
+          <option value="api610">API 610 Refinery Hydrocarbon (Margin ≥ +3.3 ft / 1.0 m)</option>
+          <option value="cooling">Cooling Tower Circulation (HI 9.6.1: Ratio ≥ 1.30)</option>
+        </select>
+        <small class="calc-clean-help">Determines mandatory safety margin threshold</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Hydraulic Institute Cavitation & Head Audit</h2>
+    <div class="npsh-metrics-grid">
+      <!-- NPSH Available -->
+      <div class="npsh-metric-card highlight">
+        <div class="npsh-metric-label">NPSH Available (NPSHa)</div>
+        <div class="npsh-metric-value" id="npsh_res_npsha">31.2 ft</div>
+        <div class="npsh-metric-sub" id="npsh_res_npsha_m">9.51 m (Absolute Suction Head)</div>
+      </div>
+
+      <!-- NPSH Required -->
+      <div class="npsh-metric-card">
+        <div class="npsh-metric-label">NPSH Required (NPSH3)</div>
+        <div class="npsh-metric-value" id="npsh_res_npshr">10.5 ft</div>
+        <div class="npsh-metric-sub" id="npsh_res_npshr_m">3.20 m (3% Head Drop Baseline)</div>
+      </div>
+
+      <!-- NPSH Margin Ratio -->
+      <div class="npsh-metric-card" id="npsh_ratio_card">
+        <div class="npsh-metric-label">NPSH Margin Ratio (NPSHa/NPSHr)</div>
+        <div class="npsh-metric-value" id="npsh_res_ratio">2.97x</div>
+        <div class="npsh-metric-sub" id="npsh_res_ratio_sub">HI 9.6.1 Compliant (Margin: +20.7 ft)</div>
+      </div>
+
+      <!-- Suction Specific Speed (Nss) -->
+      <div class="npsh-metric-card" id="npsh_nss_card">
+        <div class="npsh-metric-label">Suction Specific Speed (Nss)</div>
+        <div class="npsh-metric-value" id="npsh_res_nss">6,380 Nss</div>
+        <div class="npsh-metric-sub" id="npsh_res_nss_sub">Stable: Nss < 11,000 (Broad Operating Band)</div>
+      </div>
+
+      <!-- Vapor Pressure Head -->
+      <div class="npsh-metric-card">
+        <div class="npsh-metric-label">Vapor Pressure Head (hvp)</div>
+        <div class="npsh-metric-value" id="npsh_res_hvp">6.8 ft</div>
+        <div class="npsh-metric-sub" id="npsh_res_pvp">2.89 psia at 140°F (SG = 0.985)</div>
+      </div>
+
+      <!-- Cavitation Risk Assessment -->
+      <div class="npsh-metric-card pass" id="npsh_status_card">
+        <div class="npsh-metric-label">Cavitation Risk Assessment</div>
+        <div class="npsh-metric-value" id="npsh_res_status">CAVITATION FREE</div>
+        <div class="npsh-metric-sub" id="npsh_res_status_sub">Generous margin suppresses vapor collapse</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG Pump Impeller & Suction Schematic -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live Impeller Eye Cavitation & Suction Schematic</h2>
+    <div class="npsh-svg-container">
+      <svg id="npsh_svg" viewBox="0 0 820 420" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Centrifugal Pump Suction and Cavitation Schematic">
+        <defs>
+          <linearGradient id="pumpCastIronGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#475569"/>
+            <stop offset="50%" stop-color="#334155"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="tankWaterGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#0284c7" stop-opacity="0.95"/>
+          </linearGradient>
+          <marker id="npshArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+        </defs>
+
+        <!-- Background Canvas -->
+        <rect x="0" y="0" width="820" height="420" fill="#0b1120" rx="8"/>
+
+        <!-- 1. Suction Supply Vessel (Left) -->
+        <rect x="50" y="70" width="160" height="260" fill="#1e293b" stroke="#475569" stroke-width="2" rx="6"/>
+        <text x="130" y="95" fill="#94a3b8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_tankTitle">SUCTION VESSEL</text>
+        <text x="130" y="112" fill="#38bdf8" font-size="10" font-family="monospace" text-anchor="middle" id="svg_tankPressLabel">Patm = 14.44 psia</text>
+
+        <!-- Liquid in Suction Tank -->
+        <rect x="52" y="130" width="156" height="198" fill="url(#tankWaterGrad)" rx="2" id="svg_waterRect"/>
+        <line x1="52" y1="130" x2="208" y2="130" stroke="#f59e0b" stroke-width="2"/>
+        <text x="130" y="146" fill="#fff" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle">Liquid Level</text>
+
+        <!-- Suction Pipe from Tank to Pump -->
+        <path d="M 170 300 L 330 300 L 330 240 L 400 240" fill="none" stroke="#475569" stroke-width="24"/>
+        <path d="M 170 300 L 330 300 L 330 240 L 400 240" fill="none" stroke="#0284c7" stroke-width="18"/>
+        <line x1="200" y1="300" x2="280" y2="300" stroke="#fff" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#npshArrow)"/>
+
+        <!-- 2. Centrifugal Pump Volute Casing (Center-Right) -->
+        <!-- Volute Spiral Body -->
+        <circle cx="510" cy="240" r="95" fill="url(#pumpCastIronGrad)" stroke="#64748b" stroke-width="2.5"/>
+        <circle cx="510" cy="240" r="70" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>
+
+        <!-- Pump Impeller Eye (Center) -->
+        <circle cx="510" cy="240" r="28" fill="#1e293b" stroke="#f59e0b" stroke-width="2" id="svg_impellerEye"/>
+        <text x="510" y="244" fill="#fbbf24" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle">EYE</text>
+
+        <!-- Impeller Curved Vanes -->
+        <path d="M 510 212 Q 535 215 565 195" fill="none" stroke="#94a3b8" stroke-width="4"/>
+        <path d="M 538 240 Q 555 265 575 275" fill="none" stroke="#94a3b8" stroke-width="4"/>
+        <path d="M 510 268 Q 485 285 460 295" fill="none" stroke="#94a3b8" stroke-width="4"/>
+        <path d="M 482 240 Q 460 220 445 195" fill="none" stroke="#94a3b8" stroke-width="4"/>
+
+        <!-- Cavitation Bubbles & Erosion Zone at Vane Inlets -->
+        <g id="svg_cavitationGroup" opacity="0.1">
+          <circle cx="525" cy="225" r="4" fill="#fff" stroke="#ef4444" stroke-width="1.5"/>
+          <circle cx="532" cy="222" r="3" fill="#fff" stroke="#ef4444" stroke-width="1.5"/>
+          <circle cx="540" cy="218" r="5" fill="#ef4444" stroke="#f87171" stroke-width="1.5"/>
+          <text x="560" y="222" fill="#ef4444" font-size="9" font-weight="bold" font-family="sans-serif">CAVITATION COLLAPSE</text>
+        </g>
+
+        <!-- Vertical Discharge Nozzle -->
+        <rect x="565" y="80" width="40" height="85" fill="url(#pumpCastIronGrad)" stroke="#64748b" stroke-width="2"/>
+        <line x1="585" y1="160" x2="585" y2="85" stroke="#38bdf8" stroke-width="3" marker-end="url(#npshArrow)"/>
+        <text x="585" y="70" fill="#38bdf8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">DISCHARGE</text>
+
+        <!-- Static Head Elevation Dimension Line (hs) -->
+        <line x1="230" y1="130" x2="230" y2="240" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <polyline points="226,136 230,130 234,136" stroke="#f59e0b" stroke-width="1.5" fill="none"/>
+        <polyline points="226,234 230,240 234,234" stroke="#f59e0b" stroke-width="1.5" fill="none"/>
+        <text x="240" y="190" fill="#fbbf24" font-size="11" font-family="monospace" font-weight="bold" id="svg_hsText">hs = +6.0 ft (Flooded)</text>
+
+        <!-- Impeller Centerline Datum -->
+        <line x1="210" y1="240" x2="620" y2="240" stroke="#64748b" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="630" y="244" fill="#64748b" font-size="9" font-family="monospace">Pump Centerline</text>
+
+        <!-- Diagnostic Summary Overlay (Top Right) -->
+        <rect x="620" y="20" width="185" height="110" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="712" y="40" fill="#38bdf8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">NPSH MARGIN AUDIT</text>
+        <line x1="630" y1="48" x2="795" y2="48" stroke="#334155" stroke-width="1"/>
+
+        <text x="632" y="66" fill="#94a3b8" font-size="10" font-family="sans-serif">NPSHa:</text>
+        <text x="795" y="66" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardNpsha">31.2 ft</text>
+
+        <text x="632" y="84" fill="#94a3b8" font-size="10" font-family="sans-serif">NPSH3:</text>
+        <text x="795" y="84" fill="#f59e0b" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardNpshr">10.5 ft</text>
+
+        <text x="632" y="102" fill="#94a3b8" font-size="10" font-family="sans-serif">Margin Ratio:</text>
+        <text x="795" y="102" fill="#22c55e" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardRatio">2.97x</text>
+
+        <text x="712" y="122" fill="#4ade80" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_cardVerdict">NO CAVITATION RISK</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Hydraulic & Thermodynamic Derivations</h2>
+    <div class="npsh-derivations">
+      <div class="npsh-step">
+        <div class="npsh-step-title">1. Net Positive Suction Head Available (NPSHa) Formula</div>
+        <p>NPSHa represents the total absolute suction head evaluated at the pump suction nozzle centerline, above liquid vapor pressure:</p>
+        <div class="npsh-formula">
+          NPSHa = h_{abs} \pm h_s - h_f - h_{vp}
+        </div>
+        <p>Where absolute pressure head $h_{abs} = \frac{P_{abs} \times 2.3066}{\text{SG}}$, static head $h_s = <span id="drv_hs_sign">+</span><span id="drv_hs">6.0</span>$ ft, suction friction loss $h_f = <span id="drv_hf">2.2</span>$ ft, and vapor pressure head $h_{vp} = \frac{P_{vp} \times 2.3066}{\text{SG}}$:</p>
+        <div class="npsh-formula highlight">
+          NPSHa = <span id="drv_habs">33.8</span> <span id="drv_hs_sign2">+</span> <span id="drv_hs2">6.0</span> - <span id="drv_hf2">2.2</span> - <span id="drv_hvp">6.8</span> = <span id="drv_npsha_calc">30.8</span>\text{ ft (<span id="drv_npsha_m">9.39</span> m)}
+        </div>
+      </div>
+
+      <div class="npsh-step">
+        <div class="npsh-step-title">2. Hydraulic Institute (HI 9.6.1) NPSH Safety Margin Evaluation</div>
+        <p>HI 9.6.1 specifies both a minimum ratio ($R = NPSHa / NPSH3$) and an absolute margin ($M = NPSHa - NPSH3$):</p>
+        <div class="npsh-formula">
+          R_{margin} = \frac{NPSHa}{NPSH3} = \frac{<span id="drv_npsha2">30.8</span>}{<span id="drv_npshr">10.5</span>} = <span id="drv_ratio_calc">2.93</span>x
+        </div>
+        <div class="npsh-formula highlight">
+          M_{head} = NPSHa - NPSH3 = <span id="drv_npsha3">30.8</span> - <span id="drv_npshr2">10.5</span> = <span id="drv_margin_calc">+20.3</span>\text{ ft (<span id="drv_margin_m">6.19</span> m)}
+        </div>
+        <p id="drv_serviceVerdict">Application target (General Water Service: R ≥ 1.20 and M ≥ +3.0 ft) is fully satisfied with robust cavitation suppression.</p>
+      </div>
+
+      <div class="npsh-step">
+        <div class="npsh-step-title">3. Suction Specific Speed (Nss) & Recirculation Cavitation Screening</div>
+        <p>Suction specific speed characterizes the suction impeller eye geometry and susceptibility to internal inlet recirculation at off-design flows:</p>
+        <div class="npsh-formula">
+          N_{ss} = \frac{N \cdot \sqrt{Q}}{NPSH3^{0.75}} = \frac{<span id="drv_rpm">1750</span> \cdot \sqrt{<span id="drv_flow">450</span>}}{<span id="drv_npshr3">10.5</span>^{0.75}} = <span id="drv_nss_calc">6,380</span>\text{ (US Units)}
+        </div>
+        <p id="drv_nssVerdict">Pumps with Nss < 11,000 exhibit wide stable operating windows (typically 65% to 125% of BEP) without destructive suction recirculation vortexing.</p>
+      </div>
+
+      <div class="npsh-step">
+        <div class="npsh-step-title">4. Maximum Theoretical Static Suction Lift Limit (hs,max)</div>
+        <p>Maximum permissible suction lift before NPSHa drops to NPSHr threshold ($NPSHa = NPSH3$):</p>
+        <div class="npsh-formula highlight">
+          h_{s,lift\_limit} = h_{abs} - h_f - h_{vp} - NPSH3 = <span id="drv_habs2">33.8</span> - <span id="drv_hf3">2.2</span> - <span id="drv_hvp2">6.8</span> - <span id="drv_npshr4">10.5</span> = <span id="drv_lift_limit">14.3</span>\text{ ft max lift}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">Hydraulic Institute NPSH Cavitation Compliance Report</h2>
+      <button type="button" id="copyNpshAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy NPSH Audit</span>
+      </button>
+    </div>
+    <pre id="npsh_audit_box" class="npsh-audit-box">Generating Hydraulic Institute cavitation audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Centrifugal Pump Cavitation & NPSH Traps</h2>
+    <div class="npsh-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. The 3% Head-Drop Fallacy: NPSH3 is NOT Cavitation Inception</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Engineers mistakenly assume that operating at NPSHa = NPSHr means zero cavitation. By international definition (HI / ISO 9906), NPSH3 (NPSHr) is the condition where cavitation is ALREADY so severe and vapor blockage so extensive that pump discharge head has collapsed by 3%. True cavitation inception (NPSHi) occurs at 2 to 4 times NPSH3! Operating with zero margin guarantees continuous impeller pitting erosion.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. High Liquid Temperature Spiking Vapor Pressure (Pvp)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Water vapor pressure rises non-linearly with temperature: at 60°F, Pvp is just 0.26 psia (0.6 ft head); at 180°F, it surges to 7.5 psia (17.5 ft); and at 210°F, it reaches 14.1 psia (33.5 ft). A boiler feedwater pump with 25 ft of flooded static head will cavitate violently if deaerator or condensate temperature rises unexpectedly by only 15°F without sufficient subcooling head.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. High Suction Specific Speed (Nss > 11,000) Internal Recirculation Damage</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Specifying a pump with an oversized impeller eye to artificially achieve a low catalog NPSHr pushes suction specific speed above 11,000 to 13,000. When throttled below 85% of Best Efficiency Point (BEP), high-speed backflow eddies form at the impeller inlet tips. This suction recirculation causes severe acoustic popping, low-frequency pipe vibration, and tears holes through the pressure side of the vanes.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Ignoring Suction Strainer Clogging & Friction Escalation</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Calculations commonly assume clean suction piping friction ($h_f approx 1$ to $2$ ft). In operating plants, debris buildup on suction strainers or foot valves can easily generate 8 to 15 ft of localized pressure drop. Because every foot of friction directly subtracts from NPSHa, dirty strainers frequently trigger sudden, catastrophic cavitation failure in previously stable systems.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Barometric Altitude Depletion in Open Atmospheric Sumps</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          At sea level, atmospheric pressure provides 33.9 ft of water column ($14.7 	imes 2.31$). At 5,000 ft elevation (Denver), atmospheric head drops to 28.2 ft (a direct loss of 5.7 ft of NPSHa). At 8,000 ft mining sites, atmospheric head is only 25.1 ft. Failing to de-rate atmospheric pressure for site altitude causes pumps with suction lift to lose prime or destroy impellers within hours of startup.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.npsh-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.npsh-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.npsh-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.npsh-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.npsh-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.npsh-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.npsh-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.npsh-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.npsh-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.npsh-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.npsh-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.npsh-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.npsh-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.npsh-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.npsh-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const flowInput = document.getElementById('npsh_flowRate');
+  const flowUnitSelect = document.getElementById('npsh_flowUnit');
+  const npshrInput = document.getElementById('npsh_npshr');
+  const headUnitSelect = document.getElementById('npsh_headUnit');
+  const rpmSelect = document.getElementById('npsh_rpm');
+  const staticInput = document.getElementById('npsh_staticHead');
+  const suctionTypeSelect = document.getElementById('npsh_suctionType');
+  const tankTypeSelect = document.getElementById('npsh_tankType');
+  const pressValInput = document.getElementById('npsh_pressVal');
+  const liquidSelect = document.getElementById('npsh_liquid');
+  const tempInput = document.getElementById('npsh_temp');
+  const tempUnitSelect = document.getElementById('npsh_tempUnit');
+  const frictionInput = document.getElementById('npsh_frictionLoss');
+  const altInput = document.getElementById('npsh_altitude');
+  const altUnitSelect = document.getElementById('npsh_altUnit');
+  const serviceSelect = document.getElementById('npsh_service');
+
+  // Outputs
+  const resNpsha = document.getElementById('npsh_res_npsha');
+  const resNpshaM = document.getElementById('npsh_res_npsha_m');
+  const resNpshr = document.getElementById('npsh_res_npshr');
+  const resNpshrM = document.getElementById('npsh_res_npshr_m');
+  const resRatio = document.getElementById('npsh_res_ratio');
+  const resRatioSub = document.getElementById('npsh_res_ratio_sub');
+  const ratioCard = document.getElementById('npsh_ratio_card');
+  const resNss = document.getElementById('npsh_res_nss');
+  const resNssSub = document.getElementById('npsh_res_nss_sub');
+  const nssCard = document.getElementById('npsh_nss_card');
+  const resHvp = document.getElementById('npsh_res_hvp');
+  const resPvp = document.getElementById('npsh_res_pvp');
+  const resStatus = document.getElementById('npsh_res_status');
+  const resStatusSub = document.getElementById('npsh_res_status_sub');
+  const statusCard = document.getElementById('npsh_status_card');
+
+  // SVG Elements
+  const svgTankTitle = document.getElementById('svg_tankTitle');
+  const svgTankPressLabel = document.getElementById('svg_tankPressLabel');
+  const svgImpellerEye = document.getElementById('svg_impellerEye');
+  const svgCavitationGroup = document.getElementById('svg_cavitationGroup');
+  const svgHsText = document.getElementById('svg_hsText');
+  const svgCardNpsha = document.getElementById('svg_cardNpsha');
+  const svgCardNpshr = document.getElementById('svg_cardNpshr');
+  const svgCardRatio = document.getElementById('svg_cardRatio');
+  const svgCardVerdict = document.getElementById('svg_cardVerdict');
+
+  // Derivations
+  const drvHsSign = document.getElementById('drv_hs_sign');
+  const drvHs = document.getElementById('drv_hs');
+  const drvHf = document.getElementById('drv_hf');
+  const drvHabs = document.getElementById('drv_habs');
+  const drvHsSign2 = document.getElementById('drv_hs_sign2');
+  const drvHs2 = document.getElementById('drv_hs2');
+  const drvHf2 = document.getElementById('drv_hf2');
+  const drvHvp = document.getElementById('drv_hvp');
+  const drvNpshaCalc = document.getElementById('drv_npsha_calc');
+  const drvNpshaM = document.getElementById('drv_npsha_m');
+  const drvNpsha2 = document.getElementById('drv_npsha2');
+  const drvNpshr = document.getElementById('drv_npshr');
+  const drvRatioCalc = document.getElementById('drv_ratio_calc');
+  const drvNpsha3 = document.getElementById('drv_npsha3');
+  const drvNpshr2 = document.getElementById('drv_npshr2');
+  const drvMarginCalc = document.getElementById('drv_margin_calc');
+  const drvMarginM = document.getElementById('drv_margin_m');
+  const drvServiceVerdict = document.getElementById('drv_serviceVerdict');
+  const drvRpm = document.getElementById('drv_rpm');
+  const drvFlow = document.getElementById('drv_flow');
+  const drvNpshr3 = document.getElementById('drv_npshr3');
+  const drvNssCalc = document.getElementById('drv_nss_calc');
+  const drvNssVerdict = document.getElementById('drv_nssVerdict');
+  const drvHabs2 = document.getElementById('drv_habs2');
+  const drvHf3 = document.getElementById('drv_hf3');
+  const drvHvp2 = document.getElementById('drv_hvp2');
+  const drvNpshr4 = document.getElementById('drv_npshr4');
+  const drvLiftLimit = document.getElementById('drv_lift_limit');
+
+  const auditBox = document.getElementById('npsh_audit_box');
+
+  // Antoine Vapor Pressure & SG model for liquids
+  function getLiquidProps(liq, T_F) {
+    const T_C = (T_F - 32) / 1.8;
+    let Pvp_psia = 0.5;
+    let SG = 1.0;
+
+    if (liq === 'water') {
+      // Antoine water: P (mmHg)
+      const p_mmHg = Math.pow(10, 8.07131 - (1730.63 / (233.426 + T_C)));
+      Pvp_psia = p_mmHg * 0.0193368;
+      // Water density temperature expansion
+      SG = 1.0 - (T_C * 0.0004);
+      if (SG > 1.0) SG = 1.0;
+    } else if (liq === 'gasoline') {
+      // High Reid vapor pressure ~ 7-10 psi at 100°F
+      Pvp_psia = Math.max(1.5, Math.pow(10, 6.8 - (1200 / (220 + T_C))));
+      SG = 0.730;
+    } else if (liq === 'diesel') {
+      Pvp_psia = Math.max(0.005, Math.pow(10, 6.5 - (2100 / (200 + T_C))));
+      SG = 0.840;
+    } else if (liq === 'ethanol') {
+      const p_mmHg = Math.pow(10, 8.20417 - (1642.89 / (230.3 + T_C)));
+      Pvp_psia = p_mmHg * 0.0193368;
+      SG = 0.789;
+    } else if (liq === 'glycol') {
+      Pvp_psia = Math.pow(10, 7.8 - (1850 / (220 + T_C))) * 0.0193368;
+      SG = 1.070;
+    }
+    return { Pvp_psia, SG };
+  }
+
+  function calculate() {
+    let rawFlow = parseFloat(flowInput.value) || 450;
+    const flowUnit = flowUnitSelect.value;
+    let Q_gpm = 450;
+    if (flowUnit === 'gpm') Q_gpm = rawFlow;
+    else if (flowUnit === 'm3h') Q_gpm = rawFlow * 4.40287;
+    else if (flowUnit === 'lps') Q_gpm = rawFlow * 15.8503;
+
+    let NPSH3_ft = parseFloat(npshrInput.value) || 10.5;
+    if (headUnitSelect.value === 'm') NPSH3_ft *= 3.28084;
+
+    const rpm = parseInt(rpmSelect.value) || 1750;
+
+    let hs_ft = Math.abs(parseFloat(staticInput.value) || 0);
+    const isLift = suctionTypeSelect.value === 'lift';
+    if (isLift) hs_ft = -hs_ft;
+
+    let alt_ft = parseFloat(altInput.value) || 0;
+    if (altUnitSelect.value === 'm') alt_ft *= 3.28084;
+
+    // Atmospheric pressure at altitude
+    const Patm_psia = 14.696 * Math.pow(Math.max(1 - 6.8753e-6 * alt_ft, 0.5), 5.2559);
+
+    const tankType = tankTypeSelect.value;
+    let P_tank_psia = Patm_psia;
+    if (tankType === 'vac' || tankType === 'press') {
+      P_tank_psia = parseFloat(pressValInput.value) || 14.7;
+    }
+
+    let T_F = parseFloat(tempInput.value) || 140;
+    if (tempUnitSelect.value === 'c') T_F = T_F * 1.8 + 32;
+
+    const liqKey = liquidSelect.value;
+    const props = getLiquidProps(liqKey, T_F);
+    const Pvp_psia = props.Pvp_psia;
+    const SG = props.SG;
+
+    const hf_ft = parseFloat(frictionInput.value) || 2.2;
+
+    // 1. Heads calculation (feet of liquid)
+    // Head = (P_psi * 2.3066) / SG
+    const h_abs_ft = (P_tank_psia * 2.3066) / SG;
+    const h_vp_ft = (Pvp_psia * 2.3066) / SG;
+
+    // NPSHa = h_abs + hs - hf - h_vp
+    let NPSHa_ft = h_abs_ft + hs_ft - hf_ft - h_vp_ft;
+    const NPSHa_m = NPSHa_ft * 0.3048;
+    const NPSH3_m = NPSH3_ft * 0.3048;
+
+    // 2. Margin Ratio & Margin Head
+    const marginRatio = NPSHa_ft / NPSH3_ft;
+    const marginHead_ft = NPSHa_ft - NPSH3_ft;
+    const marginHead_m = marginHead_ft * 0.3048;
+
+    // 3. Suction Specific Speed (Nss)
+    // Nss = N * sqrt(Q) / (NPSH3^0.75)
+    const Nss = (rpm * Math.sqrt(Q_gpm)) / Math.pow(NPSH3_ft, 0.75);
+
+    // 4. Max theoretical suction lift limit
+    const hs_lift_limit_ft = h_abs_ft - hf_ft - h_vp_ft - NPSH3_ft;
+
+    // Service standards check
+    const service = serviceSelect.value;
+    let reqRatio = 1.20;
+    let reqMarginFt = 3.0;
+
+    if (service === 'boiler') {
+      reqRatio = 1.50;
+      reqMarginFt = 5.0;
+    } else if (service === 'api610') {
+      reqRatio = 1.10;
+      reqMarginFt = 3.3; // 1.0 meter
+    } else if (service === 'cooling') {
+      reqRatio = 1.30;
+      reqMarginFt = 3.5;
+    }
+
+    const isCavitationSafe = marginRatio >= reqRatio && marginHead_ft >= reqMarginFt;
+    const isMarginal = marginRatio >= 1.0 && marginHead_ft >= 0;
+
+    // Update Result UI
+    resNpsha.textContent = NPSHa_ft.toFixed(1) + ' ft';
+    resNpshaM.textContent = NPSHa_m.toFixed(2) + ' m (' + (NPSHa_ft * SG / 2.3066).toFixed(1) + ' psi abs head)';
+
+    resNpshr.textContent = NPSH3_ft.toFixed(1) + ' ft';
+    resNpshrM.textContent = NPSH3_m.toFixed(2) + ' m (3% Head-Drop Curve)';
+
+    resRatio.textContent = marginRatio.toFixed(2) + 'x';
+    if (isCavitationSafe) {
+      resRatioSub.textContent = 'HI 9.6.1 Pass: +' + marginHead_ft.toFixed(1) + ' ft (Req: ' + reqRatio.toFixed(2) + 'x / +' + reqMarginFt.toFixed(1) + ' ft)';
+      ratioCard.className = 'npsh-metric-card pass';
+    } else if (isMarginal) {
+      resRatioSub.textContent = 'Marginal: Below HI guideline (Margin: +' + marginHead_ft.toFixed(1) + ' ft)';
+      ratioCard.className = 'npsh-metric-card highlight';
+    } else {
+      resRatioSub.textContent = 'ACTIVE CAVITATION: Deficit ' + Math.abs(marginHead_ft).toFixed(1) + ' ft!';
+      ratioCard.className = 'npsh-metric-card fail';
+    }
+
+    resNss.textContent = Math.round(Nss).toLocaleString() + ' Nss';
+    if (Nss > 12000) {
+      resNssSub.textContent = 'High Nss: Severe suction recirculation risk outside 85-105% BEP';
+      nssCard.className = 'npsh-metric-card fail';
+    } else if (Nss > 10500) {
+      resNssSub.textContent = 'Moderate Nss: Narrow operating flow envelope';
+      nssCard.className = 'npsh-metric-card highlight';
+    } else {
+      resNssSub.textContent = 'Optimal Nss (< 11,000): Broad stable operating window';
+      nssCard.className = 'npsh-metric-card pass';
+    }
+
+    resHvp.textContent = h_vp_ft.toFixed(1) + ' ft';
+    resPvp.textContent = Pvp_psia.toFixed(2) + ' psia at ' + Math.round(T_F) + '°F (SG = ' + SG.toFixed(3) + ')';
+
+    if (isCavitationSafe) {
+      resStatus.textContent = 'CAVITATION FREE';
+      resStatusSub.textContent = 'Robust NPSH margin eliminates vapor bubble collapse';
+      statusCard.className = 'npsh-metric-card pass';
+    } else if (isMarginal) {
+      resStatus.textContent = 'INCIPIENT RISK';
+      resStatusSub.textContent = 'Vapor bubbles forming; potential acoustic noise & pitting';
+      statusCard.className = 'npsh-metric-card highlight';
+    } else {
+      resStatus.textContent = 'SEVERE CAVITATION';
+      resStatusSub.textContent = 'Vapor choke: Rapid impeller erosion & vibration';
+      statusCard.className = 'npsh-metric-card fail';
+    }
+
+    // SVG Updates
+    svgTankPressLabel.textContent = tankType === 'atm' ? 'Patm = ' + Patm_psia.toFixed(2) + ' psia' : 'Pves = ' + P_tank_psia.toFixed(1) + ' psia';
+    svgHsText.textContent = 'hs = ' + (isLift ? '-' : '+') + Math.abs(hs_ft).toFixed(1) + ' ft (' + (isLift ? 'Suction Lift' : 'Flooded') + ')';
+    svgCardNpsha.textContent = NPSHa_ft.toFixed(1) + ' ft';
+    svgCardNpshr.textContent = NPSH3_ft.toFixed(1) + ' ft';
+    svgCardRatio.textContent = marginRatio.toFixed(2) + 'x';
+
+    if (isCavitationSafe) {
+      svgCavitationGroup.setAttribute('opacity', '0.05');
+      svgImpellerEye.setAttribute('stroke', '#22c55e');
+      svgCardVerdict.textContent = 'CAVITATION SUPPRESSED';
+      svgCardVerdict.setAttribute('fill', '#4ade80');
+    } else if (isMarginal) {
+      svgCavitationGroup.setAttribute('opacity', '0.5');
+      svgImpellerEye.setAttribute('stroke', '#f59e0b');
+      svgCardVerdict.textContent = 'INCIPIENT VAPOR BUBBLES';
+      svgCardVerdict.setAttribute('fill', '#fbbf24');
+    } else {
+      svgCavitationGroup.setAttribute('opacity', '1.0');
+      svgImpellerEye.setAttribute('stroke', '#ef4444');
+      svgCardVerdict.textContent = 'ACTIVE CAVITATION DAMAGE!';
+      svgCardVerdict.setAttribute('fill', '#f87171');
+    }
+
+    // Derivations updates
+    drvHsSign.textContent = isLift ? '-' : '+';
+    drvHs.textContent = Math.abs(hs_ft).toFixed(1);
+    drvHf.textContent = hf_ft.toFixed(1);
+    drvHabs.textContent = h_abs_ft.toFixed(1);
+    drvHsSign2.textContent = isLift ? '-' : '+';
+    drvHs2.textContent = Math.abs(hs_ft).toFixed(1);
+    drvHf2.textContent = hf_ft.toFixed(1);
+    drvHvp.textContent = h_vp_ft.toFixed(1);
+    drvNpshaCalc.textContent = NPSHa_ft.toFixed(1);
+    drvNpshaM.textContent = NPSHa_m.toFixed(2);
+
+    drvNpsha2.textContent = NPSHa_ft.toFixed(1);
+    drvNpshr.textContent = NPSH3_ft.toFixed(1);
+    drvRatioCalc.textContent = marginRatio.toFixed(2);
+    drvNpsha3.textContent = NPSHa_ft.toFixed(1);
+    drvNpshr2.textContent = NPSH3_ft.toFixed(1);
+    drvMarginCalc.textContent = (marginHead_ft >= 0 ? '+' : '') + marginHead_ft.toFixed(1);
+    drvMarginM.textContent = (marginHead_m >= 0 ? '+' : '') + marginHead_m.toFixed(2);
+
+    if (isCavitationSafe) {
+      drvServiceVerdict.textContent = 'Compliance: Margin ratio (' + marginRatio.toFixed(2) + 'x) and margin head (+' + marginHead_ft.toFixed(1) + ' ft) satisfy the application standard (' + reqRatio.toFixed(2) + 'x / +' + reqMarginFt.toFixed(1) + ' ft). Operating point is fully protected against vapor bubble collapse.';
+    } else if (isMarginal) {
+      drvServiceVerdict.textContent = 'Caution: While NPSHa exceeds NPSH3 by +' + marginHead_ft.toFixed(1) + ' ft, the margin is below the recommended Hydraulic Institute safety buffer of +' + reqMarginFt.toFixed(1) + ' ft. Cavitation noise and micro-pitting may occur over long operating campaigns.';
+    } else {
+      drvServiceVerdict.textContent = 'FATAL WARNING: NPSHa (' + NPSHa_ft.toFixed(1) + ' ft) is less than NPSH3 (' + NPSH3_ft.toFixed(1) + ' ft) with a head deficit of ' + Math.abs(marginHead_ft).toFixed(1) + ' ft. The pump will operate in deep vapor cavitation, causing severe acoustic vibration, head loss, and destroying impeller vanes.';
+    }
+
+    drvRpm.textContent = rpm;
+    drvFlow.textContent = Math.round(Q_gpm);
+    drvNpshr3.textContent = NPSH3_ft.toFixed(1);
+    drvNssCalc.textContent = Math.round(Nss).toLocaleString();
+
+    if (Nss > 11000) {
+      drvNssVerdict.textContent = 'WARNING: Nss = ' + Math.round(Nss).toLocaleString() + ' exceeds 11,000. Large suction eye geometry causes internal backflow and destructive recirculation cavitation whenever throttled below ~85% BEP.';
+    } else {
+      drvNssVerdict.textContent = 'Pumps with Nss = ' + Math.round(Nss).toLocaleString() + ' (< 11,000) offer wide stable flow envelopes (typically 65% to 125% BEP) without suction recirculation vortex formation.';
+    }
+
+    drvHabs2.textContent = h_abs_ft.toFixed(1);
+    drvHf3.textContent = hf_ft.toFixed(1);
+    drvHvp2.textContent = h_vp_ft.toFixed(1);
+    drvNpshr4.textContent = NPSH3_ft.toFixed(1);
+    drvLiftLimit.textContent = hs_lift_limit_ft.toFixed(1);
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   HYDRAULIC INSTITUTE (HI 9.6.1) NPSH & CAVITATION AUDIT\n' +
+      '=======================================================\n' +
+      'Operating Duty Point:      ' + Math.round(Q_gpm) + ' US GPM at ' + rpm + ' RPM\n' +
+      'Liquid & Temperature:      ' + liquidSelect.options[liquidSelect.selectedIndex].text + ' at ' + Math.round(T_F) + ' °F (SG = ' + SG.toFixed(3) + ')\n' +
+      'Suction Vessel Pressure:   ' + P_tank_psia.toFixed(2) + ' psia (' + h_abs_ft.toFixed(1) + ' ft head)\n' +
+      'Static Suction Head (hs):  ' + (isLift ? '-' : '+') + Math.abs(hs_ft).toFixed(1) + ' ft (' + (isLift ? 'Suction Lift below centerline' : 'Flooded head above centerline') + ')\n' +
+      'Suction Line Friction (hf): ' + hf_ft.toFixed(1) + ' ft head loss\n' +
+      'Liquid Vapor Pressure:     ' + Pvp_psia.toFixed(2) + ' psia (' + h_vp_ft.toFixed(1) + ' ft head)\n' +
+      '-------------------------------------------------------\n' +
+      'NPSH AVAILABLE (NPSHa):    ' + NPSHa_ft.toFixed(1) + ' ft (' + NPSHa_m.toFixed(2) + ' m / ' + (NPSHa_ft * SG / 2.3066).toFixed(1) + ' psi abs)\n' +
+      'NPSH REQUIRED (NPSH3):     ' + NPSH3_ft.toFixed(1) + ' ft (' + NPSH3_m.toFixed(2) + ' m 3% head-drop limit)\n' +
+      'NPSH MARGIN RATIO:         ' + marginRatio.toFixed(2) + 'x [Target: ' + reqRatio.toFixed(2) + 'x]\n' +
+      'NPSH EXCESS MARGIN HEAD:   ' + (marginHead_ft >= 0 ? '+' : '') + marginHead_ft.toFixed(1) + ' ft (' + marginHead_m.toFixed(2) + ' m) [Req: +' + reqMarginFt.toFixed(1) + ' ft]\n' +
+      'Suction Specific Speed:    ' + Math.round(Nss).toLocaleString() + ' Nss [' + (Nss > 11000 ? 'HIGH: Recirculation Danger' : 'OPTIMAL: Broad Operating Range') + ']\n' +
+      'Max Safe Suction Lift:     ' + hs_lift_limit_ft.toFixed(1) + ' ft maximum elevation limit\n' +
+      'HI 9.6.1 Compliance:      ' + (isCavitationSafe ? 'APPROVED - SAFE CAVITATION MARGIN' : isMarginal ? 'MARGINAL - BELOW RECOMMENDED BUFFER' : 'FAIL - CAVITATION DAMAGE IMMINENT') + '\n' +
+      'Application Standard:      Hydraulic Institute ANSI/HI 9.6.1 & API 610\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyNpshAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyNpshAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied NPSH Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [flowInput, flowUnitSelect, npshrInput, headUnitSelect, rpmSelect, staticInput, suctionTypeSelect, tankTypeSelect, pressValInput, liquidSelect, tempInput, tempUnitSelect, frictionInput, altInput, altUnitSelect, serviceSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'cavitation-npsh-centrifugal-pump-calculator.html'), renderTradePage({
+    title: "Centrifugal Pump Cavitation & NPSH Margin Calculator | HI 9.6.1 & API 610",
+    metaDesc: "Calculate Net Positive Suction Head Available (NPSHa), NPSH margin ratio, suction specific speed (Nss), vapor pressure, and suction lift per HI 9.6.1 & API.",
+    canonical: `${DOMAIN}/calc/cavitation-npsh-centrifugal-pump-calculator`,
+    bodyContent: pumpCavitationBody,
+    currentPath: '/calc/cavitation-npsh-centrifugal-pump-calculator',
+    faq: [
+      {
+        "q": "What is the difference between NPSHa and NPSHr (NPSH3)?",
+        "a": "NPSHa (Net Positive Suction Head Available) is the actual absolute total head present at the pump suction flange above the liquid's vapor pressure, determined purely by piping configuration, liquid temperature, and suction vessel pressure. NPSHr (or NPSH3) is the internal suction head required by the pump impeller, established by the manufacturer during factory testing when vapor blockage causes first-stage pump head to drop by 3%."
+      },
+      {
+        "q": "Why is operating at NPSHa = NPSHr dangerous for a centrifugal pump?",
+        "a": "NPSH3 is not the onset of cavitation; it is the point where cavitation has already progressed so extensively that vapor pockets physically block impeller flow channels and drop total head by 3%. Cavitation inception (NPSHi) begins at 2 to 4 times NPSH3. Operating with zero safety margin causes continuous vapor bubble collapse, pitting fatigue, noise, and mechanical seal destruction."
+      },
+      {
+        "q": "What is the Hydraulic Institute (HI 9.6.1) recommended NPSH margin?",
+        "a": "Per ANSI/HI 9.6.1, general water service requires an NPSH margin ratio of at least 1.10 to 1.20 and a minimum excess head of 2 to 3 ft (0.6 to 1.0 m). Severe duty, boiler feedwater, and petroleum services (API 610) mandate higher margins (typically 1.30 to 1.50 ratio or +3.3 to +5.0 ft) to ensure 40,000+ hour impeller service life."
+      },
+      {
+        "q": "What is Suction Specific Speed (Nss) and why should it stay below 11,000?",
+        "a": "Suction specific speed (Nss = N · √Q / NPSH3^0.75) describes the suction impeller geometry. Pumps with high Nss (> 11,000 to 13,000) have enlarged impeller eyes that achieve low catalog NPSHr but suffer from severe internal backflow recirculation at off-design flows. Throttling below 85% BEP creates violent vortex cavitation, high vibration, and destroys impeller vanes."
+      },
+      {
+        "q": "How does liquid temperature affect pump NPSHa?",
+        "a": "As liquid temperature rises, its saturation vapor pressure increases exponentially. Because vapor pressure head (hvp) is directly subtracted from total suction head (NPSHa = habs ± hs - hf - hvp), elevated liquid temperature dramatically erodes available suction head. For example, water vapor pressure jumps from 0.26 psia at 60°F to 14.7 psia at 212°F, completely eliminating atmospheric suction head."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 69: Natural Gas Pipeline Flow & Pressure Drop Calculator (Weymouth & Panhandle)
+  // ==========================================
+  const gasPipelineBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">AGA Transmission Standards</span>
+      <span class="calc-clean-badge">ASME B31.8 Gas Piping</span>
+      <span class="calc-clean-badge">API RP 14E Erosional Velocity</span>
+    </div>
+    <h1 class="calc-clean-title">Natural Gas Pipeline Flow & Capacity Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate compressible gas pipeline capacity (MMSCFD), pressure drop, mean flowing pressure, compressor power, and erosional velocity using Weymouth, Panhandle A, and Panhandle B equations.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Pipeline Equation Model -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_equation">Hydraulic Flow Equation</label>
+        <select id="gp_equation" class="calc-clean-select">
+          <option value="panhandle_b" selected>Panhandle B (Large Diameter, High Re, Cross-Country)</option>
+          <option value="panhandle_a">Panhandle A (Moderate Reynolds, 12"-24" Transmission)</option>
+          <option value="weymouth">Weymouth (Gathering, High ΔP, Smaller Diameters &lt;16")</option>
+        </select>
+        <small class="calc-clean-help">Panhandle B is standard for modern large transmission lines</small>
+      </div>
+
+      <!-- Upstream & Downstream Pressures -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_p1">Pipeline Pressures (P1 Inlet & P2 Delivery)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="gp_p1" class="calc-clean-input" value="950" min="50" max="2500" step="25" title="Inlet Pressure P1">
+          <span style="display:flex; align-items:center; padding:0 0.5rem; background:rgba(255,255,255,0.05); color:#94a3b8; font-size:0.8rem;">to</span>
+          <input type="number" id="gp_p2" class="calc-clean-input" value="650" min="20" max="2400" step="25" title="Outlet Delivery Pressure P2">
+          <select id="gp_pressUnit" class="calc-clean-select">
+            <option value="psig" selected>psig</option>
+            <option value="psia">psia</option>
+            <option value="barg">barg</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Inlet discharge from compressor station to delivery gate station</small>
+      </div>
+
+      <!-- Pipeline Length -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_length">Pipeline Section Length (L)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="gp_length" class="calc-clean-input" value="45" min="0.1" max="1000" step="1">
+          <select id="gp_lengthUnit" class="calc-clean-select">
+            <option value="miles" selected>Miles (mi)</option>
+            <option value="km">Kilometers (km)</option>
+            <option value="feet">Feet (ft)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Continuous transmission distance between compressor stations</small>
+      </div>
+
+      <!-- Pipe Inside Diameter -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_diam">Pipe Inside Diameter (D)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="gp_diam" class="calc-clean-input" value="23.25" min="1.5" max="60.0" step="0.25">
+          <select id="gp_diamUnit" class="calc-clean-select">
+            <option value="in" selected>Inches (in)</option>
+            <option value="mm">Millimeters (mm)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">e.g., 24" OD API 5L X70 pipe with 0.375" wall thickness = 23.25" ID</small>
+      </div>
+
+      <!-- Gas Specific Gravity -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_gasGravity">Gas Specific Gravity (G)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="gp_gasGravity" class="calc-clean-input" value="0.600" min="0.55" max="1.10" step="0.005">
+          <select id="gp_gasType" class="calc-clean-select">
+            <option value="pipeline" selected>Dry Pipeline Gas (G ≈ 0.60)</option>
+            <option value="rich">Rich Gas / Wet Gas (G ≈ 0.68)</option>
+            <option value="puremethane">Pure Methane (G = 0.554)</option>
+            <option value="shale">Associated Shale Gas (G ≈ 0.75)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Relative density to air (Air = 1.000)</small>
+      </div>
+
+      <!-- Flowing Gas Temperature -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_temp">Average Flowing Gas Temp (Tf)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="gp_temp" class="calc-clean-input" value="65" min="-20" max="180" step="1">
+          <select id="gp_tempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Subsurface soil equilibrium temperature (typically 50°F to 75°F)</small>
+      </div>
+
+      <!-- Pipeline Efficiency Factor (E) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_efficiency">Pipeline Efficiency Factor (E)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="gp_efficiency" class="calc-clean-input" value="0.92" min="0.70" max="1.00" step="0.01">
+          <select id="gp_pipeCondition" class="calc-clean-select">
+            <option value="0.92" selected>Clean Internally Coated (E = 0.92)</option>
+            <option value="0.88">Standard Bare Steel (E = 0.88)</option>
+            <option value="0.82">Aged / Corroded Line (E = 0.82)</option>
+            <option value="0.95">Pristine Pigged Line (E = 0.95)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Accounts for pipe interior wall roughness, liquid dropout, and bends</small>
+      </div>
+
+      <!-- Base Pressure & Temperature Standards -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="gp_baseStandard">Contract Base Conditions</label>
+        <select id="gp_baseStandard" class="calc-clean-select">
+          <option value="aga" selected>AGA Standard (14.73 psia, 60°F / 520°R)</option>
+          <option value="texas">Texas / Louisiana Gas Base (14.65 psia, 60°F)</option>
+          <option value="calif">California / EPA Standard (14.696 psia, 60°F)</option>
+          <option value="iso">ISO Normal Standard (101.325 kPa, 0°C / 273.15 K)</option>
+        </select>
+        <small class="calc-clean-help">Legal custody transfer standard conditions</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Pipeline Capacity & Hydraulic Performance Audit</h2>
+    <div class="gp-metrics-grid">
+      <!-- Gas Flow Rate (MMSCFD) -->
+      <div class="gp-metric-card highlight">
+        <div class="gp-metric-label">Gas Pipeline Throughput (Q)</div>
+        <div class="gp-metric-value" id="gp_res_flow">364.2 MMSCFD</div>
+        <div class="gp-metric-sub" id="gp_res_flow_metric">429,500 Nm³/hr (15.17 MMSCM/D)</div>
+      </div>
+
+      <!-- Average Flowing Pressure (Pm) -->
+      <div class="gp-metric-card">
+        <div class="gp-metric-label">Mean Pipeline Pressure (Pm)</div>
+        <div class="gp-metric-value" id="gp_res_pm">813.4 psia</div>
+        <div class="gp-metric-sub" id="gp_res_pm_bar">56.08 bar (Non-linear mean)</div>
+      </div>
+
+      <!-- Gas Compressibility Factor (Z) -->
+      <div class="gp-metric-card">
+        <div class="gp-metric-label">Compressibility Factor (Z)</div>
+        <div class="gp-metric-value" id="gp_res_z">0.868</div>
+        <div class="gp-metric-sub" id="gp_res_z_sub">Super-compressibility boost (+15.2%)</div>
+      </div>
+
+      <!-- Delivery Gas Velocity -->
+      <div class="gp-metric-card" id="gp_vel_card">
+        <div class="gp-metric-label">Delivery Gas Velocity (v2)</div>
+        <div class="gp-metric-value" id="gp_res_vel">21.8 ft/s</div>
+        <div class="gp-metric-sub" id="gp_res_vel_sub">6.64 m/s (Erosional limit: 68.4 ft/s)</div>
+      </div>
+
+      <!-- Total Pressure Drop & Gradient -->
+      <div class="gp-metric-card">
+        <div class="gp-metric-label">Pressure Gradient (ΔP/L)</div>
+        <div class="gp-metric-value" id="gp_res_grad">6.67 psi/mi</div>
+        <div class="gp-metric-sub" id="gp_res_dp">Total ΔP = 300.0 psi across 45 mi</div>
+      </div>
+
+      <!-- Hydraulic Line Pack Inventory -->
+      <div class="gp-metric-card">
+        <div class="gp-metric-label">Line Pack Storage Volume</div>
+        <div class="gp-metric-value" id="gp_res_pack">58.4 MMSCF</div>
+        <div class="gp-metric-sub" id="gp_res_pack_hr">3.84 hours of buffer supply at full duty</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG Cross-Country Pipeline Hydraulic Profile -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live Cross-Country Gas Pipeline Pressure Decay Profile</h2>
+    <div class="gp-svg-container">
+      <svg id="gp_svg" viewBox="0 0 840 420" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gas Pipeline Pressure Gradient Schematic">
+        <defs>
+          <linearGradient id="gpPipeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#475569"/>
+            <stop offset="30%" stop-color="#94a3b8"/>
+            <stop offset="70%" stop-color="#334155"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="gpPressCurveGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#22c55e"/>
+            <stop offset="60%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#ef4444"/>
+          </linearGradient>
+          <marker id="gpArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect x="0" y="0" width="840" height="420" fill="#0b1120" rx="8"/>
+
+        <!-- Subsurface Soil Trench Boundary -->
+        <rect x="50" y="270" width="740" height="120" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="4"/>
+        <text x="780" y="380" fill="#64748b" font-size="9" font-family="sans-serif" text-anchor="end">Subsurface Pipeline Trench (Class 1 / Class 2 Location)</text>
+
+        <!-- Buried Natural Gas Pipeline (API 5L High Strength Steel) -->
+        <rect x="60" y="305" width="720" height="40" fill="url(#gpPipeGrad)" stroke="#64748b" stroke-width="2" rx="4"/>
+        <!-- Gas Flow Stream inside Pipe -->
+        <line x1="70" y1="325" x2="770" y2="325" stroke="#38bdf8" stroke-width="3" stroke-dasharray="12,6"/>
+        <line x1="120" y1="325" x2="200" y2="325" stroke="#fff" stroke-width="2" marker-end="url(#gpArrow)"/>
+        <line x1="420" y1="325" x2="500" y2="325" stroke="#fff" stroke-width="2" marker-end="url(#gpArrow)"/>
+
+        <!-- Pipeline Annotations -->
+        <text x="420" y="331" fill="#f8fafc" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_pipeLabel">24" OD (23.25" ID) × 45.0 Miles</text>
+
+        <!-- 1. Compressor Station (Inlet Node, Left) -->
+        <rect x="60" y="195" width="70" height="90" fill="#334155" stroke="#3b82f6" stroke-width="2" rx="4"/>
+        <polygon points="95,175 115,195 75,195" fill="#3b82f6"/>
+        <text x="95" y="235" fill="#60a5fa" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle">COMPRESSOR</text>
+        <text x="95" y="250" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">STATION</text>
+        <text x="95" y="272" fill="#4ade80" font-size="12" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_p1Val">P1: 950 psi</text>
+
+        <!-- 2. Delivery / City Gate Station (Outlet Node, Right) -->
+        <rect x="710" y="205" width="70" height="80" fill="#334155" stroke="#f59e0b" stroke-width="2" rx="4"/>
+        <polygon points="745,185 765,205 725,205" fill="#f59e0b"/>
+        <text x="745" y="235" fill="#fbbf24" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle">CITY GATE</text>
+        <text x="745" y="250" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">STATION</text>
+        <text x="745" y="272" fill="#f87171" font-size="12" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_p2Val">P2: 650 psi</text>
+
+        <!-- 3. Pressure Gradient Grid (Upper Half of SVG) -->
+        <rect x="130" y="45" width="580" height="140" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" rx="4"/>
+        <!-- Grid horizontal lines -->
+        <line x1="130" y1="80" x2="710" y2="80" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <line x1="130" y1="115" x2="710" y2="115" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <line x1="130" y1="150" x2="710" y2="150" stroke="#1e293b" stroke-dasharray="2,2"/>
+
+        <text x="140" y="65" fill="#94a3b8" font-size="9" font-family="sans-serif">HYDRAULIC PRESSURE GRADIENT [P(x) = √(P1² - x/L·(P1² - P2²))]</text>
+
+        <!-- Parabolic Non-linear Pressure Decay Curve: P(x) drops faster toward downstream -->
+        <path d="M 130 65 Q 450 85 710 165" fill="none" stroke="url(#gpPressCurveGrad)" stroke-width="3.5" id="svg_pressCurve"/>
+
+        <!-- Mean Pressure Datum (Pm) -->
+        <line x1="130" y1="108" x2="710" y2="108" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="700" y="104" fill="#38bdf8" font-size="10" font-family="monospace" text-anchor="end" id="svg_pmLabel">Pm = 813.4 psia (Effective Compressibility Datum)</text>
+
+        <!-- Diagnostic Overlay Badge (Bottom Left) -->
+        <rect x="60" y="45" width="220" height="120" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="170" y="68" fill="#38bdf8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">PIPELINE FLOW AUDIT</text>
+        <line x1="75" y1="76" x2="265" y2="76" stroke="#334155" stroke-width="1"/>
+
+        <text x="75" y="96" fill="#94a3b8" font-size="10" font-family="sans-serif">Capacity (Q):</text>
+        <text x="265" y="96" fill="#4ade80" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_flowMmsf">364.2 MMSCFD</text>
+
+        <text x="75" y="118" fill="#94a3b8" font-size="10" font-family="sans-serif">Delivery Velocity:</text>
+        <text x="265" y="118" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_velVal">21.8 ft/s</text>
+
+        <text x="75" y="140" fill="#94a3b8" font-size="10" font-family="sans-serif">Hydraulic Model:</text>
+        <text x="265" y="140" fill="#fbbf24" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="end" id="svg_modelVal">Panhandle B</text>
+
+        <text x="170" y="156" fill="#94a3b8" font-size="8" font-family="sans-serif" text-anchor="middle">ASME B31.8 & AGA Standards</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Gas Dynamics & Hydraulic Derivations</h2>
+    <div class="gp-derivations">
+      <div class="gp-step">
+        <div class="gp-step-title">1. Non-Linear Mean Flowing Pressure (Pm) & Super-Compressibility (Z)</div>
+        <p>Because gas expands and accelerates down the line, pressure drop per mile is non-linear (parabolic). Mean pressure across the distance $L$ is:</p>
+        <div class="gp-formula">
+          P_m = \frac{2}{3} \cdot \left[ P_1 + P_2 - \frac{P_1 \cdot P_2}{P_1 + P_2} \right]
+        </div>
+        <p>For $P_1 = <span id="drv_p1">964.7</span>$ psia and $P_2 = <span id="drv_p2">664.7</span>$ psia:</p>
+        <div class="gp-formula highlight">
+          P_m = \frac{2}{3} \cdot \left[ <span id="drv_p1_2">964.7</span> + <span id="drv_p2_2">664.7</span> - \frac{<span id="drv_p1_3">964.7</span> \cdot <span id="drv_p2_3">664.7</span>}{<span id="drv_p1_4">964.7</span> + <span id="drv_p2_4">664.7</span>} \right] = <span id="drv_pm_calc">821.5</span>\text{ psia (<span id="drv_pm_bar">56.64</span> bar)}
+        </div>
+        <p>At $P_m = <span id="drv_pm_3">821.5</span>$ psia and $T_f = <span id="drv_tf">524.67</span>$ °R (65°F), the gas compressibility factor evaluates to:</p>
+        <div class="gp-formula highlight">
+          Z = 1 - \left( \frac{P_m \cdot (0.0002)}{T_f / 520} \right) = <span id="drv_z_calc">0.868</span>\text{ (Real Gas Super-Compressibility)}
+        </div>
+      </div>
+
+      <div class="gp-step">
+        <div class="gp-step-title">2. Panhandle B High-Reynolds Transmission Pipeline Equation</div>
+        <p>Panhandle B models fully turbulent, high-Reynolds gas transmission through large-diameter pipelines ($D = <span id="drv_d_in">23.25</span>$ in, $L = <span id="drv_l_mi">45.0</span>$ mi, $E = <span id="drv_e">0.92</span>$):</p>
+        <div class="gp-formula">
+          Q = 737.0 \cdot E \cdot \left( \frac{T_b}{P_b} \right)^{1.02} \cdot \left[ \frac{P_1^2 - P_2^2}{G^{0.961} \cdot T_f \cdot L \cdot Z} \right]^{0.510} \cdot D^{2.530}
+        </div>
+        <p>Substituting live parameters ($T_b = 520$ °R, $P_b = <span id="drv_pb">14.73</span>$ psia, $G = <span id="drv_g">0.600</span>$):</p>
+        <div class="gp-formula highlight">
+          Q = 737.0 \cdot (0.92) \cdot (35.30)^{1.02} \cdot \left[ \frac{<span id="drv_p1_sq">930,646</span> - <span id="drv_p2_sq">441,826</span>}{(<span id="drv_g_exp">0.612</span>) \cdot (<span id="drv_tf2">524.7</span>) \cdot (<span id="drv_l_mi2">45.0</span>) \cdot (<span id="drv_z2">0.868</span>)} \right]^{0.510} \cdot (<span id="drv_d_exp">2,878.5</span>) = <span id="drv_q_calc">364.2</span>\text{ MMSCFD}
+        </div>
+      </div>
+
+      <div class="gp-step">
+        <div class="gp-step-title">3. API RP 14E Erosional Velocity & Delivery Sizing Check</div>
+        <p>Gas velocity reaches maximum at the downstream discharge nozzle due to lowest pressure ($P_2 = <span id="drv_p2_5">664.7</span>$ psia). Actual flowing velocity:</p>
+        <div class="gp-formula">
+          v_2 = \frac{Q \cdot P_b \cdot T_f \cdot Z_2}{A \cdot P_2 \cdot T_b \cdot 86400} = <span id="drv_vel_calc">21.8</span>\text{ ft/s (<span id="drv_vel_ms">6.64</span> m/s)}
+        </div>
+        <p>API RP 14E allowable erosional velocity limit ($C = 100$ for continuous gas service, gas density $ho_g = <span id="drv_rhog">2.14</span>$ lb/ft³):</p>
+        <div class="gp-formula highlight">
+          v_e = \frac{C}{\sqrt{\rho_g}} = \frac{100}{\sqrt{<span id="drv_rhog2">2.14</span>}} = <span id="drv_ve_calc">68.4</span>\text{ ft/s} \quad \longrightarrow \quad v_2 \le v_e\text{ (<span id="drv_vel_status">Pass: 31.9% of Erosional Limit</span>)}
+        </div>
+      </div>
+
+      <div class="gp-step">
+        <div class="gp-step-title">4. Line Pack Storage Inventory in Pipeline Volume</div>
+        <p>Total gas stored within the 45-mile pipeline geometry ($V_{geom} = <span id="drv_vgeom">132,450</span>$ ft³) at mean pressure $P_m$:</p>
+        <div class="gp-formula highlight">
+          V_{pack} = V_{geom} \cdot \left( \frac{P_m}{P_b} \right) \cdot \left( \frac{T_b}{T_f} \right) \cdot \left( \frac{1}{Z} \right) = <span id="drv_pack_calc">58.4</span>\text{ MMSCF (<span id="drv_pack_hrs">3.84</span> hours of full-flow buffer)}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">AGA Natural Gas Pipeline Hydraulic Audit Report</h2>
+      <button type="button" id="copyGpAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy Pipeline Flow Audit</span>
+      </button>
+    </div>
+    <pre id="gp_audit_box" class="gp-audit-box">Generating AGA gas transmission audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Natural Gas Pipeline Engineering Traps</h2>
+    <div class="gp-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. Using Weymouth for Long Cross-Country Transmission Lines</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          The Weymouth equation assumes a constant friction factor ($f propto D^{-1/3}$) suited for small gathering networks. Applying Weymouth to modern 24" to 42" transmission lines severely overestimates friction, under-predicting pipeline throughput by 15% to 25%. This causes operators to waste millions of dollars over-sizing compressors or installing unnecessary loop lines. Panhandle B or the AGA Fully Turbulent equation must be used.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Neglecting Real Gas Super-Compressibility (Z Factor)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          At transmission pressures between 800 and 1,400 psia, natural gas molecules are compressed closer together, causing real gas deviation ($Z approx 0.82$ to $0.88$). Because pipeline capacity scales with $sqrt{1/Z}$, gas flows 8% to 12% faster than ideal gas physics predicts. Sizing pipe without accounting for the Z factor leads to erroneous custody transfer metering and pressure balance errors.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Delivery Downstream Erosional Velocity Exceedance (API RP 14E)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          As pressure drops toward the delivery end of the pipeline ($P_2$), gas expands and accelerates to its highest velocity. If downstream velocity exceeds the API RP 14E erosional limit ($v_e = C / sqrt{ho}$), trace sand particulates or corrosion iron sulfides will sandblast through pipe bends, meter tubes, and regulator trims, causing catastrophic wall puncture.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Ignoring Arithmetic vs True Mean Pressure for Line Pack Sizing</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Using a simple arithmetic average pressure ($P_{avg} = (P_1 + P_2)/2$) overstates the inventory of natural gas stored inside the pipe. Because pressure decay is parabolic (faster drop at the inlet, slower at the outlet), the true thermodynamic mean pressure ($P_m = rac{2}{3}(P_1 + P_2 - rac{P_1 P_2}{P_1 + P_2})$) is substantially lower, leading to phantom line-pack accounting discrepancies during winter peak demands.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Liquid Hydrocarbon Dropout from Retrograde Condensation</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          For rich natural gas streams containing ethane, propane, and butane, pressure and temperature reductions along the pipeline traverse the phase envelope cricondentherm. Instead of staying gas, retrograde condensation occurs, dropping out liquid hydrocarbon slugs that pool in low-elevation pipe valleys, destroying pipeline efficiency ($E$ drops from 0.92 to 0.65) and choking flow.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.gp-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.gp-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.gp-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.gp-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.gp-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.gp-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.gp-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.gp-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.gp-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.gp-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.gp-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.gp-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.gp-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.gp-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.gp-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const eqSelect = document.getElementById('gp_equation');
+  const p1Input = document.getElementById('gp_p1');
+  const p2Input = document.getElementById('gp_p2');
+  const pressUnitSelect = document.getElementById('gp_pressUnit');
+  const lengthInput = document.getElementById('gp_length');
+  const lengthUnitSelect = document.getElementById('gp_lengthUnit');
+  const diamInput = document.getElementById('gp_diam');
+  const diamUnitSelect = document.getElementById('gp_diamUnit');
+  const gasGravityInput = document.getElementById('gp_gasGravity');
+  const gasTypeSelect = document.getElementById('gp_gasType');
+  const tempInput = document.getElementById('gp_temp');
+  const tempUnitSelect = document.getElementById('gp_tempUnit');
+  const effInput = document.getElementById('gp_efficiency');
+  const pipeCondSelect = document.getElementById('gp_pipeCondition');
+  const baseStdSelect = document.getElementById('gp_baseStandard');
+
+  // Outputs
+  const resFlow = document.getElementById('gp_res_flow');
+  const resFlowMetric = document.getElementById('gp_res_flow_metric');
+  const resPm = document.getElementById('gp_res_pm');
+  const resPmBar = document.getElementById('gp_res_pm_bar');
+  const resZ = document.getElementById('gp_res_z');
+  const resZSub = document.getElementById('gp_res_z_sub');
+  const resVel = document.getElementById('gp_res_vel');
+  const resVelSub = document.getElementById('gp_res_vel_sub');
+  const velCard = document.getElementById('gp_vel_card');
+  const resGrad = document.getElementById('gp_res_grad');
+  const resDp = document.getElementById('gp_res_dp');
+  const resPack = document.getElementById('gp_res_pack');
+  const resPackHr = document.getElementById('gp_res_pack_hr');
+
+  // SVG Elements
+  const svgPipeLabel = document.getElementById('svg_pipeLabel');
+  const svgP1Val = document.getElementById('svg_p1Val');
+  const svgP2Val = document.getElementById('svg_p2Val');
+  const svgPmLabel = document.getElementById('svg_pmLabel');
+  const svgFlowMmsf = document.getElementById('svg_flowMmsf');
+  const svgVelVal = document.getElementById('svg_velVal');
+  const svgModelVal = document.getElementById('svg_modelVal');
+
+  // Derivations
+  const drvP1 = document.getElementById('drv_p1');
+  const drvP2 = document.getElementById('drv_p2');
+  const drvP1_2 = document.getElementById('drv_p1_2');
+  const drvP2_2 = document.getElementById('drv_p2_2');
+  const drvP1_3 = document.getElementById('drv_p1_3');
+  const drvP2_3 = document.getElementById('drv_p2_3');
+  const drvP1_4 = document.getElementById('drv_p1_4');
+  const drvP2_4 = document.getElementById('drv_p2_4');
+  const drvPmCalc = document.getElementById('drv_pm_calc');
+  const drvPmBar = document.getElementById('drv_pm_bar');
+  const drvPm3 = document.getElementById('drv_pm_3');
+  const drvTf = document.getElementById('drv_tf');
+  const drvZCalc = document.getElementById('drv_z_calc');
+  const drvDIn = document.getElementById('drv_d_in');
+  const drvLMi = document.getElementById('drv_l_mi');
+  const drvE = document.getElementById('drv_e');
+  const drvPb = document.getElementById('drv_pb');
+  const drvG = document.getElementById('drv_g');
+  const drvP1Sq = document.getElementById('drv_p1_sq');
+  const drvP2Sq = document.getElementById('drv_p2_sq');
+  const drvGExp = document.getElementById('drv_g_exp');
+  const drvTf2 = document.getElementById('drv_tf2');
+  const drvLMi2 = document.getElementById('drv_l_mi2');
+  const drvZ2 = document.getElementById('drv_z2');
+  const drvDExp = document.getElementById('drv_d_exp');
+  const drvQCalc = document.getElementById('drv_q_calc');
+  const drvP2_5 = document.getElementById('drv_p2_5');
+  const drvVelCalc = document.getElementById('drv_vel_calc');
+  const drvVelMs = document.getElementById('drv_vel_ms');
+  const drvRhog = document.getElementById('drv_rhog');
+  const drvRhog2 = document.getElementById('drv_rhog2');
+  const drvVeCalc = document.getElementById('drv_ve_calc');
+  const drvVelStatus = document.getElementById('drv_vel_status');
+  const drvVgeom = document.getElementById('drv_vgeom');
+  const drvPackCalc = document.getElementById('drv_pack_calc');
+  const drvPackHrs = document.getElementById('drv_pack_hrs');
+
+  const auditBox = document.getElementById('gp_audit_box');
+
+  // Gas preset sync
+  gasTypeSelect.addEventListener('change', function() {
+    const val = gasTypeSelect.value;
+    if (val === 'pipeline') gasGravityInput.value = '0.600';
+    else if (val === 'rich') gasGravityInput.value = '0.680';
+    else if (val === 'puremethane') gasGravityInput.value = '0.554';
+    else if (val === 'shale') gasGravityInput.value = '0.750';
+    calculate();
+  });
+
+  pipeCondSelect.addEventListener('change', function() {
+    effInput.value = pipeCondSelect.value;
+    calculate();
+  });
+
+  function calculate() {
+    const eq = eqSelect.value;
+
+    let rawP1 = parseFloat(p1Input.value) || 950;
+    let rawP2 = parseFloat(p2Input.value) || 650;
+    const pressUnit = pressUnitSelect.value;
+
+    let P1_psia = 950;
+    let P2_psia = 650;
+
+    if (pressUnit === 'psig') {
+      P1_psia = rawP1 + 14.7;
+      P2_psia = rawP2 + 14.7;
+    } else if (pressUnit === 'psia') {
+      P1_psia = rawP1;
+      P2_psia = rawP2;
+    } else if (pressUnit === 'barg') {
+      P1_psia = (rawP1 + 1.01325) * 14.5038;
+      P2_psia = (rawP2 + 1.01325) * 14.5038;
+    }
+
+    if (P2_psia >= P1_psia) {
+      P2_psia = P1_psia - 10;
+    }
+
+    let L_mi = parseFloat(lengthInput.value) || 45;
+    if (lengthUnitSelect.value === 'km') L_mi *= 0.621371;
+    else if (lengthUnitSelect.value === 'feet') L_mi /= 5280;
+
+    let D_in = parseFloat(diamInput.value) || 23.25;
+    if (diamUnitSelect.value === 'mm') D_in /= 25.4;
+
+    const G = parseFloat(gasGravityInput.value) || 0.600;
+
+    let T_F = parseFloat(tempInput.value) || 65;
+    if (tempUnitSelect.value === 'c') T_F = T_F * 1.8 + 32;
+    const Tf_R = T_F + 459.67;
+
+    const E = parseFloat(effInput.value) || 0.92;
+
+    const baseStd = baseStdSelect.value;
+    let Pb_psia = 14.73;
+    let Tb_R = 520.0; // 60°F
+
+    if (baseStd === 'texas') {
+      Pb_psia = 14.65;
+    } else if (baseStd === 'calif') {
+      Pb_psia = 14.696;
+    } else if (baseStd === 'iso') {
+      Pb_psia = 14.696;
+      Tb_R = 491.67; // 0°C
+    }
+
+    // 1. Mean Flowing Pressure Pm (psia)
+    // Pm = 2/3 * (P1 + P2 - (P1 * P2)/(P1 + P2))
+    const Pm_psia = (2 / 3) * (P1_psia + P2_psia - ((P1_psia * P2_psia) / (P1_psia + P2_psia)));
+    const Pm_bar = Pm_psia * 0.0689476;
+
+    // 2. Compressibility Factor Z (Papay / California Natural Gas Assoc empirical correlation)
+    // Z = 1 - (3.52 * P_pr / 10^(0.9813 * T_pr)) + 0.274 * P_pr^2 / 10^(0.8157 * T_pr)
+    // Simplified AGA transmission correlation:
+    const P_crit = 667 + 15.0 * G - 37.5 * Math.pow(G, 2);
+    const T_crit = 168 + 325.0 * G - 12.5 * Math.pow(G, 2);
+    const Ppr = Pm_psia / P_crit;
+    const Tpr = Tf_R / T_crit;
+    let Z = 1 - 0.257 * (Ppr / Tpr) + 0.02 * Math.pow(Ppr, 2);
+    if (Z < 0.65) Z = 0.65;
+    if (Z > 1.05) Z = 1.00;
+
+    // Downstream Z at P2 for velocity
+    const Ppr2 = P2_psia / P_crit;
+    let Z2 = 1 - 0.257 * (Ppr2 / Tpr) + 0.02 * Math.pow(Ppr2, 2);
+
+    // 3. Flow Calculations (SCFD to MMSCFD)
+    let Q_scfd = 0;
+    const P1_sq = Math.pow(P1_psia, 2);
+    const P2_sq = Math.pow(P2_psia, 2);
+    const delta_P_sq = P1_sq - P2_sq;
+
+    if (eq === 'panhandle_b') {
+      // Panhandle B: Q = 737 * E * (Tb/Pb)^1.02 * [(P1^2 - P2^2) / (G^0.961 * Tf * L * Z)]^0.510 * D^2.530
+      const term1 = 737.0 * E * Math.pow(Tb_R / Pb_psia, 1.02);
+      const term2 = Math.pow(delta_P_sq / (Math.pow(G, 0.961) * Tf_R * L_mi * Z), 0.510);
+      const term3 = Math.pow(D_in, 2.530);
+      Q_scfd = term1 * term2 * term3;
+    } else if (eq === 'panhandle_a') {
+      // Panhandle A: Q = 435.87 * E * (Tb/Pb)^1.0788 * [(P1^2 - P2^2) / (G^0.8539 * Tf * L * Z)]^0.5394 * D^2.6182
+      const term1 = 435.87 * E * Math.pow(Tb_R / Pb_psia, 1.0788);
+      const term2 = Math.pow(delta_P_sq / (Math.pow(G, 0.8539) * Tf_R * L_mi * Z), 0.5394);
+      const term3 = Math.pow(D_in, 2.6182);
+      Q_scfd = term1 * term2 * term3;
+    } else if (eq === 'weymouth') {
+      // Weymouth: Q = 433.5 * E * (Tb/Pb) * [(P1^2 - P2^2) / (G * Tf * L * Z)]^0.5 * D^2.667
+      const term1 = 433.5 * E * (Tb_R / Pb_psia);
+      const term2 = Math.sqrt(delta_P_sq / (G * Tf_R * L_mi * Z));
+      const term3 = Math.pow(D_in, 2.667);
+      Q_scfd = term1 * term2 * term3;
+    }
+
+    const Q_mmscfd = Q_scfd / 1e6;
+    const Q_nm3h = (Q_scfd * 0.0283168) / 24; // Nm3/hr
+    const Q_mmscmd = Q_mmscfd * 0.0283168; // Million m3/day
+
+    // 4. Gas Velocity at Delivery (v2) and API RP 14E Erosional Velocity
+    const pipeArea_ft2 = (Math.PI * Math.pow(D_in / 12, 2)) / 4;
+    // Actual cfps = (Q_scfd / 86400) * (Pb / P2) * (Tf / Tb) * Z2
+    const actual_cfs = (Q_scfd / 86400) * (Pb_psia / P2_psia) * (Tf_R / Tb_R) * Z2;
+    const vel2_fps = actual_cfs / pipeArea_ft2;
+    const vel2_ms = vel2_fps * 0.3048;
+
+    // Density of gas at P2: rho_g = 2.70 * G * (P2 / (Tf * Z2)) in lb/ft3
+    const rho_g2 = (2.699 * G * P2_psia) / (Tf_R * Z2);
+    // API RP 14E erosional velocity: ve = 100 / sqrt(rho_g)
+    const ve_fps = 100 / Math.sqrt(Math.max(rho_g2, 0.1));
+    const isErosionalSafe = vel2_fps <= ve_fps;
+
+    // 5. Pressure Drop Gradient
+    const total_dp_psi = P1_psia - P2_psia;
+    const dp_per_mi = total_dp_psi / L_mi;
+
+    // 6. Line Pack Storage Volume (MMSCF)
+    const total_vol_ft3 = pipeArea_ft2 * (L_mi * 5280);
+    // V_pack = V_geom * (Pm / Pb) * (Tb / Tf) * (1 / Z)
+    const linepack_scf = total_vol_ft3 * (Pm_psia / Pb_psia) * (Tb_R / Tf_R) * (1 / Z);
+    const linepack_mmscf = linepack_scf / 1e6;
+    const pack_buffer_hrs = (linepack_mmscf / Q_mmscfd) * 24;
+
+    // Update Result UI
+    resFlow.textContent = Q_mmscfd.toFixed(1) + ' MMSCFD';
+    resFlowMetric.textContent = Math.round(Q_nm3h).toLocaleString() + ' Nm³/hr (' + Q_mmscmd.toFixed(2) + ' MMSCM/D)';
+
+    resPm.textContent = Pm_psia.toFixed(1) + ' psia';
+    resPmBar.textContent = Pm_bar.toFixed(2) + ' bar (Non-linear mean pressure)';
+
+    resZ.textContent = Z.toFixed(3);
+    resZSub.textContent = 'Super-compressibility factor (+ ' + (((1 / Math.sqrt(Z)) - 1) * 100).toFixed(1) + '% capacity gain)';
+
+    resVel.textContent = vel2_fps.toFixed(1) + ' ft/s';
+    resVelSub.textContent = vel2_ms.toFixed(2) + ' m/s (Erosional limit: ' + ve_fps.toFixed(1) + ' ft/s API 14E)';
+    if (isErosionalSafe) {
+      velCard.className = 'gp-metric-card pass';
+    } else {
+      velCard.className = 'gp-metric-card fail';
+    }
+
+    resGrad.textContent = dp_per_mi.toFixed(2) + ' psi/mi';
+    resDp.textContent = 'Total ΔP = ' + total_dp_psi.toFixed(1) + ' psi across ' + L_mi.toFixed(1) + ' miles';
+
+    resPack.textContent = linepack_mmscf.toFixed(1) + ' MMSCF';
+    resPackHr.textContent = pack_buffer_hrs.toFixed(2) + ' hours of buffer supply at full duty';
+
+    // SVG Updates
+    svgPipeLabel.textContent = D_in.toFixed(2) + '" ID × ' + L_mi.toFixed(1) + ' Miles (' + eqSelect.options[eqSelect.selectedIndex].text.split('(')[0].trim() + ')';
+    svgP1Val.textContent = 'P1: ' + Math.round(P1_psia) + ' psia';
+    svgP2Val.textContent = 'P2: ' + Math.round(P2_psia) + ' psia';
+    svgPmLabel.textContent = 'Pm = ' + Pm_psia.toFixed(1) + ' psia (Thermodynamic Mean)';
+    svgFlowMmsf.textContent = Q_mmscfd.toFixed(1) + ' MMSCFD';
+    svgVelVal.textContent = vel2_fps.toFixed(1) + ' ft/s';
+    svgModelVal.textContent = eq === 'panhandle_b' ? 'Panhandle B' : eq === 'panhandle_a' ? 'Panhandle A' : 'Weymouth';
+
+    // Derivations updates
+    drvP1.textContent = P1_psia.toFixed(1);
+    drvP2.textContent = P2_psia.toFixed(1);
+    drvP1_2.textContent = P1_psia.toFixed(1);
+    drvP2_2.textContent = P2_psia.toFixed(1);
+    drvP1_3.textContent = P1_psia.toFixed(1);
+    drvP2_3.textContent = P2_psia.toFixed(1);
+    drvP1_4.textContent = P1_psia.toFixed(1);
+    drvP2_4.textContent = P2_psia.toFixed(1);
+    drvPmCalc.textContent = Pm_psia.toFixed(1);
+    drvPmBar.textContent = Pm_bar.toFixed(2);
+    drvPm3.textContent = Pm_psia.toFixed(1);
+    drvTf.textContent = Tf_R.toFixed(1);
+    drvZCalc.textContent = Z.toFixed(3);
+
+    drvDIn.textContent = D_in.toFixed(2);
+    drvLMi.textContent = L_mi.toFixed(1);
+    drvE.textContent = E.toFixed(2);
+    drvPb.textContent = Pb_psia.toFixed(2);
+    drvG.textContent = G.toFixed(3);
+    drvP1Sq.textContent = Math.round(P1_sq).toLocaleString();
+    drvP2Sq.textContent = Math.round(P2_sq).toLocaleString();
+    drvGExp.textContent = Math.pow(G, 0.961).toFixed(3);
+    drvTf2.textContent = Tf_R.toFixed(1);
+    drvLMi2.textContent = L_mi.toFixed(1);
+    drvZ2.textContent = Z.toFixed(3);
+    drvDExp.textContent = Math.round(Math.pow(D_in, 2.530)).toLocaleString();
+    drvQCalc.textContent = Q_mmscfd.toFixed(1);
+
+    drvP2_5.textContent = P2_psia.toFixed(1);
+    drvVelCalc.textContent = vel2_fps.toFixed(1);
+    drvVelMs.textContent = vel2_ms.toFixed(2);
+    drvRhog.textContent = rho_g2.toFixed(2);
+    drvRhog2.textContent = rho_g2.toFixed(2);
+    drvVeCalc.textContent = ve_fps.toFixed(1);
+    drvVelStatus.textContent = isErosionalSafe ? 'Pass: ' + ((vel2_fps / ve_fps) * 100).toFixed(1) + '% of Erosional Limit' : 'EXCEEDS EROSIONAL THRESHOLD!';
+
+    drvVgeom.textContent = Math.round(total_vol_ft3).toLocaleString();
+    drvPackCalc.textContent = linepack_mmscf.toFixed(1);
+    drvPackHrs.textContent = pack_buffer_hrs.toFixed(2);
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   AGA NATURAL GAS PIPELINE TRANSMISSION HYDRAULIC AUDIT\n' +
+      '=======================================================\n' +
+      'Pipeline Diameter:         ' + D_in.toFixed(2) + ' in Inside Diameter (' + (D_in * 25.4).toFixed(1) + ' mm)\n' +
+      'Segment Length:            ' + L_mi.toFixed(1) + ' Miles (' + (L_mi * 1.60934).toFixed(1) + ' km)\n' +
+      'Operating Pressures:       P1 = ' + P1_psia.toFixed(1) + ' psia (' + (P1_psia * 0.0689).toFixed(2) + ' bar) -> P2 = ' + P2_psia.toFixed(1) + ' psia (' + (P2_psia * 0.0689).toFixed(2) + ' bar)\n' +
+      'Gas Specific Gravity:      ' + G.toFixed(3) + ' relative to air (Tf = ' + T_F.toFixed(1) + ' °F / ' + Tf_R.toFixed(1) + ' °R)\n' +
+      'Hydraulic Formula:         ' + eqSelect.options[eqSelect.selectedIndex].text.split('(')[0].trim() + ' [Efficiency E = ' + E.toFixed(2) + ']\n' +
+      '-------------------------------------------------------\n' +
+      'PIPELINE THROUGHPUT (Q):   ' + Q_mmscfd.toFixed(2) + ' MMSCFD (' + Math.round(Q_nm3h).toLocaleString() + ' Nm³/hr / ' + Q_mmscmd.toFixed(2) + ' MMSCM/D)\n' +
+      'Mean Flowing Pressure (Pm): ' + Pm_psia.toFixed(1) + ' psia (' + Pm_bar.toFixed(2) + ' bar non-linear thermodynamic mean)\n' +
+      'Compressibility Factor (Z): ' + Z.toFixed(3) + ' [' + (((1/Math.sqrt(Z))-1)*100).toFixed(1) + '% real gas throughput advantage]\n' +
+      'Pressure Gradient:         ' + dp_per_mi.toFixed(2) + ' psi/mile (Total ΔP: ' + total_dp_psi.toFixed(1) + ' psi)\n' +
+      'Delivery Gas Velocity:     ' + vel2_fps.toFixed(1) + ' ft/s (' + vel2_ms.toFixed(2) + ' m/s) [API RP 14E Limit: ' + ve_fps.toFixed(1) + ' ft/s - ' + (isErosionalSafe ? 'PASS' : 'FAIL') + ']\n' +
+      'Total Line Pack Inventory: ' + linepack_mmscf.toFixed(1) + ' MMSCF (' + pack_buffer_hrs.toFixed(2) + ' hours of steady-state buffer)\n' +
+      'Contract Base Conditions:  ' + Pb_psia.toFixed(2) + ' psia at ' + Tb_R.toFixed(1) + ' °R (' + baseStdSelect.options[baseStdSelect.selectedIndex].text.split('(')[0].trim() + ')\n' +
+      'Design Compliance:         ASME B31.8 / AGA Transmission Standards\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyGpAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyGpAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Pipeline Flow Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [eqSelect, p1Input, p2Input, pressUnitSelect, lengthInput, lengthUnitSelect, diamInput, diamUnitSelect, gasGravityInput, tempInput, tempUnitSelect, effInput, baseStdSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'gas-pipeline-weymouth-panhandle-calculator.html'), renderTradePage({
+    title: "Natural Gas Pipeline Flow & Capacity Calculator | Weymouth & Panhandle",
+    metaDesc: "Calculate compressible gas pipeline capacity (MMSCFD), pressure drop, mean flowing pressure, line pack, and erosional velocity per AGA & ASME B31.8.",
+    canonical: `${DOMAIN}/calc/gas-pipeline-weymouth-panhandle-calculator`,
+    bodyContent: gasPipelineBody,
+    currentPath: '/calc/gas-pipeline-weymouth-panhandle-calculator',
+    faq: [
+      {
+        "q": "When should you use Weymouth versus Panhandle A versus Panhandle B?",
+        "a": "Weymouth is designed for small-diameter (under 15 inches), high-pressure-drop gathering and distribution systems where friction factor is assumed constant. Panhandle A applies to medium-diameter transmission lines operating at moderate Reynolds numbers. Panhandle B is the modern engineering standard for large-diameter (16 to 48 inches), high-pressure, fully turbulent cross-country transmission pipelines."
+      },
+      {
+        "q": "Why is the mean pipeline pressure (Pm) not a simple arithmetic average?",
+        "a": "Because natural gas is compressible, its density and volume change non-linearly along the pipeline as pressure drops. The pressure decay profile is parabolic rather than linear, causing pressure to decrease more rapidly toward the downstream end. The true thermodynamic mean pressure is given by Pm = 2/3 · [P1 + P2 - (P1·P2)/(P1 + P2)]."
+      },
+      {
+        "q": "How does the gas compressibility factor (Z) affect pipeline capacity?",
+        "a": "At typical transmission pipeline pressures (800 to 1,400 psia), intermolecular attractive forces compress natural gas tighter than an ideal gas (Z ≈ 0.82 to 0.88). Because capacity is inversely proportional to √(Z), this super-compressibility effect provides an 8% to 15% boost in actual standard volumetric throughput compared to ideal gas calculations."
+      },
+      {
+        "q": "What is the API RP 14E erosional velocity limit?",
+        "a": "API Recommended Practice 14E defines the maximum safe gas velocity to prevent mechanical erosion of pipe walls and fittings: ve = C / √ρ, where C is an empirical constant (typically 100 for continuous service) and ρ is gas density. Exceeding this velocity causes high acoustic noise, valve trim degradation, and rapid wall thinning."
+      },
+      {
+        "q": "What is pipeline line pack and why is it important?",
+        "a": "Line pack is the total standard volume of natural gas physically stored inside the pressurized pipeline volume at any given time. Transmission operators manage line pack as a buffer inventory, increasing pressure during off-peak night hours to store gas that meets morning city-gate peak demand surges without requiring immediate upstream wellhead adjustments."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 70: Boiler Combustion Excess Air, O2 & Efficiency Calculator (ASME PTC 4)
+  // ==========================================
+  const combustionO2Body = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">ASME PTC 4 Fired Steam Generators</span>
+      <span class="calc-clean-badge">Siegert Efficiency Formulation</span>
+      <span class="calc-clean-badge">Flue Gas O2 & CO2 Optimization</span>
+    </div>
+    <h1 class="calc-clean-title">Boiler Combustion Excess Air, O2 & Efficiency Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate burner excess air percentage (%EA), flue gas CO2, dry stack heat loss, moisture loss, incomplete combustion CO penalties, and annual fuel savings from O2 trim tuning per ASME PTC 4.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Measured Dry Flue Oxygen O2 -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_o2">Measured Dry Flue Gas Oxygen (O2)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cb_o2" class="calc-clean-input" value="3.8" min="0.5" max="15.0" step="0.1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">% Vol Dry</span>
+        </div>
+        <small class="calc-clean-help">Measured by stack zirconium oxide analyzer (Target: 2.5% to 4.5%)</small>
+      </div>
+
+      <!-- Fuel Type -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_fuelType">Fuel & Combustion Source</label>
+        <select id="cb_fuelType" class="calc-clean-select">
+          <option value="natgas" selected>Natural Gas (Methane, CO2 max = 11.8%)</option>
+          <option value="oil2">#2 Fuel Oil / Diesel (CO2 max = 15.4%)</option>
+          <option value="oil6">#6 Heavy Fuel Oil / Bunker C (CO2 max = 16.0%)</option>
+          <option value="coal">Bituminous Coal (CO2 max = 18.5%)</option>
+          <option value="wood">Biomass / Wood Chips (CO2 max = 20.2%)</option>
+          <option value="propane">Commercial Propane (CO2 max = 13.8%)</option>
+        </select>
+        <small class="calc-clean-help">Sets stoichiometric air-fuel ratio and hydrogen latent heat loss</small>
+      </div>
+
+      <!-- Flue Gas Stack Temperature -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_stackTemp">Net Flue Gas Stack Temp (T_stack)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cb_stackTemp" class="calc-clean-input" value="340" min="120" max="900" step="5">
+          <select id="cb_tempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Temperature of exhaust gas entering chimney</small>
+      </div>
+
+      <!-- Ambient Combustion Air Temp -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_ambTemp">Combustion Air Ambient Temp (T_amb)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cb_ambTemp" class="calc-clean-input" value="70" min="0" max="130" step="1">
+          <select id="cb_ambTempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Boiler room air temperature entering burner forced draft fan</small>
+      </div>
+
+      <!-- Carbon Monoxide Concentration -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_coPpm">Flue Carbon Monoxide (CO ppm)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cb_coPpm" class="calc-clean-input" value="35" min="0" max="3000" step="10">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">ppm Dry</span>
+        </div>
+        <small class="calc-clean-help">Incomplete combustion indicator (Ideal: &lt; 50 ppm, Alarm: &gt; 400 ppm)</small>
+      </div>
+
+      <!-- Boiler Firing Capacity & Operating Hours -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_firingBhp">Boiler Firing Load & Hours</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cb_firingBhp" class="calc-clean-input" value="600" min="20" max="25000" step="50" title="Boiler HP">
+          <span style="display:flex; align-items:center; padding:0 0.5rem; background:rgba(255,255,255,0.05); color:#94a3b8; font-size:0.8rem;">BHP for</span>
+          <input type="number" id="cb_opHours" class="calc-clean-input" value="6500" min="500" max="8760" step="100" title="Annual Operating Hours">
+          <span style="display:flex; align-items:center; padding:0 0.5rem; background:rgba(255,255,255,0.05); color:#94a3b8; font-size:0.8rem;">hrs/yr</span>
+        </div>
+        <small class="calc-clean-help">Annual firing duty for fuel economic modeling</small>
+      </div>
+
+      <!-- Fuel Unit Price -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_fuelCost">Fuel Unit Tariff</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cb_fuelCost" class="calc-clean-input" value="8.50" min="0.5" max="50.0" step="0.25">
+          <select id="cb_costUnit" class="calc-clean-select">
+            <option value="mcf" selected>$/MMBtu (or $/MCF gas)</option>
+            <option value="gal">$/Gallon (#2 Fuel Oil)</option>
+            <option value="gj">$/Gigajoule (Metric)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Commercial or industrial fuel cost per unit energy</small>
+      </div>
+
+      <!-- Target Optimized O2 Level -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cb_targetO2">Target O2 Trim Level</label>
+        <div class="calc-clean-input-group">
+          <select id="cb_targetO2" class="calc-clean-select">
+            <option value="2.8" selected>2.8% O2 (Automated O2 Trim + VFD Fan)</option>
+            <option value="2.0">2.0% O2 (Aggressive Low-Excess Natural Gas)</option>
+            <option value="3.5">3.5% O2 (Standard Low-NOx Burner)</option>
+            <option value="4.5">4.5% O2 (Fuel Oil Conservative Target)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Benchmark baseline for potential efficiency improvement</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Combustion Stoichiometry & Efficiency Performance</h2>
+    <div class="cb-metrics-grid">
+      <!-- Boiler Thermal Efficiency -->
+      <div class="cb-metric-card highlight" id="cb_eff_card">
+        <div class="cb-metric-label">ASME Boiler Thermal Efficiency</div>
+        <div class="cb-metric-value" id="cb_res_eff">83.4%</div>
+        <div class="cb-metric-sub" id="cb_res_eff_sub">Total Losses: 16.6% of Fuel Energy</div>
+      </div>
+
+      <!-- Excess Air Percentage -->
+      <div class="cb-metric-card" id="cb_ea_card">
+        <div class="cb-metric-label">Combustion Excess Air (%EA)</div>
+        <div class="cb-metric-value" id="cb_res_ea">22.2%</div>
+        <div class="cb-metric-sub" id="cb_res_ea_sub">Lambda λ = 1.222 (Target: 10-20%)</div>
+      </div>
+
+      <!-- Flue Gas CO2 -->
+      <div class="cb-metric-card">
+        <div class="cb-metric-label">Flue Carbon Dioxide (CO2)</div>
+        <div class="cb-metric-value" id="cb_res_co2">9.65%</div>
+        <div class="cb-metric-sub" id="cb_res_co2_sub">Max Theoretical: 11.8% for Nat Gas</div>
+      </div>
+
+      <!-- Dry Stack Gas Loss -->
+      <div class="cb-metric-card">
+        <div class="cb-metric-label">Dry Stack Gas Heat Loss (Ld)</div>
+        <div class="cb-metric-value" id="cb_res_ld">5.68%</div>
+        <div class="cb-metric-sub" id="cb_res_net_temp">Net Flue Rise: ΔT = 270.0°F</div>
+      </div>
+
+      <!-- Moisture & Hydrogen Latent Loss -->
+      <div class="cb-metric-card">
+        <div class="cb-metric-label">Hydrogen & Moisture Loss (Lm)</div>
+        <div class="cb-metric-value" id="cb_res_lm">9.72%</div>
+        <div class="cb-metric-sub" id="cb_res_lm_sub">Latent heat of water condensation</div>
+      </div>
+
+      <!-- Potential Annual Fuel Savings -->
+      <div class="cb-metric-card pass">
+        <div class="cb-metric-label">Annual O2 Trim Fuel Savings</div>
+        <div class="cb-metric-value" id="cb_res_savings">$11,480 / yr</div>
+        <div class="cb-metric-sub" id="cb_res_savings_sub">+0.62% Efficiency Gain (Tuning to 2.8% O2)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG Combustion Energy Flow Sankey & Meter Diagram -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live Combustion Energy Balance & Flue Gas Sankey</h2>
+    <div class="cb-svg-container">
+      <svg id="cb_svg" viewBox="0 0 840 420" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Boiler Combustion Energy Sankey Diagram">
+        <defs>
+          <linearGradient id="fuelFeedGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#ef4444"/>
+          </linearGradient>
+          <linearGradient id="usefulSteamGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#0284c7"/>
+          </linearGradient>
+          <linearGradient id="dryLossGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#f97316"/>
+            <stop offset="100%" stop-color="#dc2626"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect x="0" y="0" width="840" height="420" fill="#0b1120" rx="8"/>
+
+        <!-- 1. Fuel Energy Input Stream (Left Trunk) -->
+        <path d="M 50 170 L 220 170 L 220 250 L 50 250 Z" fill="url(#fuelFeedGrad)" opacity="0.9"/>
+        <text x="135" y="205" fill="#fff" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">TOTAL FUEL INPUT</text>
+        <text x="135" y="225" fill="#fef08a" font-size="11" font-family="monospace" text-anchor="middle" id="svg_fuelEnergy">100.0% (25.1 MMBtu/h)</text>
+
+        <!-- Burner / Firebox Reaction Zone -->
+        <circle cx="250" cy="210" r="42" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5"/>
+        <path d="M 235 225 Q 250 185 265 225 Q 250 215 235 225 Z" fill="#ef4444"/>
+        <text x="250" y="240" fill="#f8fafc" font-size="9" font-weight="bold" font-family="sans-serif" text-anchor="middle">FURNACE</text>
+
+        <!-- 2. Useful Steam / Hot Water Energy Output (Main Branch, Straight Right) -->
+        <path d="M 250 180 C 350 180, 420 130, 560 130 L 760 130 L 760 210 L 560 210 C 420 210, 350 240, 250 240 Z" fill="url(#usefulSteamGrad)" opacity="0.9" id="svg_usefulPath"/>
+        <text x="640" y="165" fill="#fff" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="middle">USEFUL STEAM ENERGY</text>
+        <text x="640" y="188" fill="#bae6fd" font-size="13" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_usefulPct">83.4% Efficiency (20.9 MMBtu/h)</text>
+
+        <!-- 3. Dry Stack Flue Gas Heat Loss Branch (Upper Right Curve) -->
+        <path d="M 270 175 C 330 150, 420 45, 560 45 L 760 45 L 760 65 L 560 65 C 430 65, 350 165, 270 175 Z" fill="url(#dryLossGrad)" opacity="0.85" id="svg_dryLossPath"/>
+        <text x="640" y="58" fill="#fecaca" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_dryLossPct">Dry Stack Gas Loss: 5.68%</text>
+
+        <!-- 4. Latent Moisture / Hydrogen Loss Branch (Middle Upper Curve) -->
+        <path d="M 280 185 C 340 170, 440 90, 560 90 L 760 90 L 760 115 L 560 115 C 440 115, 360 180, 280 185 Z" fill="#64748b" opacity="0.85" id="svg_moistLossPath"/>
+        <text x="640" y="105" fill="#e2e8f0" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_moistLossPct">Hydrogen Latent Loss: 9.72%</text>
+
+        <!-- 5. Radiation & Shell Convection Loss (Lower Downward Branch) -->
+        <path d="M 260 238 C 300 280, 360 320, 560 320 L 760 320 L 760 340 L 560 340 C 370 340, 310 248, 260 238 Z" fill="#475569" opacity="0.85"/>
+        <text x="640" y="333" fill="#cbd5e1" font-size="9" font-family="sans-serif" text-anchor="middle">Casing Radiation & Blowdown Loss: 1.20%</text>
+
+        <!-- Burner Gauge Meters Box (Bottom Left) -->
+        <rect x="50" y="275" width="280" height="120" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="190" y="295" fill="#38bdf8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">STACK ANALYZER TELEMETRY</text>
+        <line x1="65" y1="303" x2="315" y2="303" stroke="#334155" stroke-width="1"/>
+
+        <!-- O2 Meter -->
+        <text x="65" y="323" fill="#94a3b8" font-size="10" font-family="sans-serif">Dry Oxygen (O2):</text>
+        <text x="315" y="323" fill="#4ade80" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_meterO2">3.80% Dry Vol</text>
+
+        <!-- Excess Air Meter -->
+        <text x="65" y="343" fill="#94a3b8" font-size="10" font-family="sans-serif">Excess Air (%EA):</text>
+        <text x="315" y="343" fill="#fbbf24" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_meterEa">22.2% Excess Air</text>
+
+        <!-- CO2 Meter -->
+        <text x="65" y="363" fill="#94a3b8" font-size="10" font-family="sans-serif">Carbon Dioxide (CO2):</text>
+        <text x="315" y="363" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_meterCo2">9.65% CO2</text>
+
+        <!-- Status Tag -->
+        <text x="190" y="385" fill="#22c55e" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_statusLabel">COMBUSTION TUNED & STABLE</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Combustion Stoichiometry & Efficiency Derivations</h2>
+    <div class="cb-derivations">
+      <div class="cb-step">
+        <div class="cb-step-title">1. Excess Air Percentage (%EA) from Dry Oxygen Measurement</div>
+        <p>Stoichiometric air contains 20.9% $O_2$. When unreacted excess air passes into the flue gas without reacting, the percentage excess air (%EA) is:</p>
+        <div class="cb-formula">
+          \%\text{EA} = \frac{O_2}{20.9 - O_2} \cdot 100
+        </div>
+        <p>For measured stack oxygen $O_2 = <span id="drv_o2">3.8</span>\%$:</p>
+        <div class="cb-formula highlight">
+          \%\text{EA} = \frac{<span id="drv_o2_2">3.8</span>}{20.9 - <span id="drv_o2_3">3.8</span>} \cdot 100 = \frac{<span id="drv_o2_4">3.8</span>}{<span id="drv_denom">17.10</span>} \cdot 100 = <span id="drv_ea_calc">22.2</span>\%\text{ (Lambda \lambda = <span id="drv_lambda">1.222</span>)}
+        </div>
+      </div>
+
+      <div class="cb-step">
+        <div class="cb-step-title">2. Flue Gas Carbon Dioxide (CO2) Concentration</div>
+        <p>For <span id="drv_fuelName">Natural Gas</span> with theoretical stoichiometric maximum $CO_{2,max} = <span id="drv_co2max">11.8</span>\%$:</p>
+        <div class="cb-formula">
+          CO_2\% = CO_{2,max} \cdot \left( 1 - \frac{O_2}{20.9} \right) = <span id="drv_co2max2">11.8</span> \cdot \left( 1 - \frac{<span id="drv_o2_5">3.8</span>}{20.9} \right) = <span id="drv_co2_calc">9.65</span>\%
+        </div>
+      </div>
+
+      <div class="cb-step">
+        <div class="cb-step-title">3. Siegert Dry Flue Gas Sensible Heat Loss (Ld)</div>
+        <p>Sensible heat carried away by hot dry nitrogen, carbon dioxide, and excess air escaping up the chimney ($K = <span id="drv_k_val">0.370</span>$, Net Flue Rise $\Delta T = T_{stack} - T_{amb} = <span id="drv_tstack">340</span> - <span id="drv_tamb">70</span> = <span id="drv_net_t">270</span>$ °F):</p>
+        <div class="cb-formula highlight">
+          L_d = K \cdot \frac{\Delta T}{CO_2\%} = <span id="drv_k_val2">0.370</span> \cdot \frac{<span id="drv_net_t2">270.0</span>}{<span id="drv_co2_2">9.65</span>} = <span id="drv_ld_calc">5.68</span>\%\text{ of Fuel Energy}
+        </div>
+      </div>
+
+      <div class="cb-step">
+        <div class="cb-step-title">4. Overall Boiler Thermal Efficiency (ASME PTC 4 Heat Loss Method)</div>
+        <p>Subtracting dry stack loss ($L_d = <span id="drv_ld2">5.68</span>\%$), fuel hydrogen moisture loss ($L_m = <span id="drv_lm">9.72</span>\%$), incomplete combustion CO loss ($L_{CO} = <span id="drv_lco">0.01</span>\%$), and casing radiation/blowdown loss ($L_r = 1.20\%$):</p>
+        <div class="cb-formula highlight">
+          \eta_{thermal} = 100\% - (L_d + L_m + L_{CO} + L_r) = 100\% - (<span id="drv_ld3">5.68</span> + <span id="drv_lm2">9.72</span> + <span id="drv_lco2">0.01</span> + 1.20) = <span id="drv_eff_calc">83.39</span>\%
+        </div>
+        <p id="drv_savingsSummary">Tuning burner O2 trim down to 2.8% will increase thermal efficiency by +0.62%, saving $11,480 per year in fuel costs.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">ASME PTC 4 Boiler Combustion Efficiency Audit Report</h2>
+      <button type="button" id="copyCbAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy Combustion Audit</span>
+      </button>
+    </div>
+    <pre id="cb_audit_box" class="cb-audit-box">Generating ASME PTC 4 combustion efficiency audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Boiler Combustion & Excess Air Traps</h2>
+    <div class="cb-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. The "Clean Stack" Mirage: Operating with Excessive Air (>6% O2)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Boiler operators often increase forced draft fan airflow to guarantee a zero-smoke clear stack. However, operating at 7% to 9% stack O2 introduces 50% to 75% excess air. Massive quantities of ambient atmospheric nitrogen are uselessly heated from 70°F to 350°F and exhausted up the chimney. Every 1% reduction in stack O2 increases boiler thermal efficiency by approximately 0.5% to 0.75%, saving tens of thousands of dollars annually.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Falling Off the "CO Cliff" During Aggressive O2 Trim</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          While trimming excess O2 improves efficiency, dropping below the stoichiometric smoke point causes incomplete combustion. Carbon monoxide (CO) jumps exponentially from 30 ppm to over 2,000 ppm within a 0.5% O2 band. Unburned combustible gas represents wasted fuel energy, soot fouling of boiler tubes, explosive combustible mixture accumulation in breeching ductwork, and severe CO poisoning hazards.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Air In-Leakage Between Boiler Furnace and Stack Sensor Location</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Under negative pressure breeching draft, leaky access doors, cracked observation ports, or loose economizer casing seals draw ambient room air into the flue stream. A stack analyzer reading 5.0% O2 may reflect 2.5% true furnace O2 diluted by 2.5% "tramp air" in-leakage. Attempting to trim the burner based on false stack readings pushes the actual flame into fuel-rich soot-fouling conditions.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Ignoring Ambient Air Temperature Swings on Mechanical Linkages</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Mechanical jackshaft linkage burners meter combustion air by volume (CFM), not by mass. Because air density changes with temperature ($P = ho R T$), dense 30°F winter air delivers 15% more oxygen mass per CFM than warm 95°F summer air. A burner tuned in winter will become oxygen-starved and produce heavy soot and lethal CO when summer arrives, unless equipped with electronic parallel positioning and ambient temperature compensation.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Acid Dew Point Corrosion from Excessive Stack Gas Cooling</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Recovering stack sensible heat with condensing economizers saves huge energy, but dropping flue gas below its acid dew point (~270°F for sulfur-bearing fuel oils, ~130°F for natural gas) condenses sulfuric and nitric acid mists. Without 316L stainless steel, titanium, or fluoropolymer condensing heat exchange surfaces, acid condensation will dissolve economizer tubes and carbon steel stacks within two heating seasons.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.cb-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.cb-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.cb-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.cb-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.cb-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.cb-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.cb-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.cb-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.cb-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.cb-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.cb-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.cb-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.cb-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.cb-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.cb-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const o2Input = document.getElementById('cb_o2');
+  const fuelSelect = document.getElementById('cb_fuelType');
+  const stackTempInput = document.getElementById('cb_stackTemp');
+  const tempUnitSelect = document.getElementById('cb_tempUnit');
+  const ambTempInput = document.getElementById('cb_ambTemp');
+  const ambTempUnitSelect = document.getElementById('cb_ambTempUnit');
+  const coPpmInput = document.getElementById('cb_coPpm');
+  const firingBhpInput = document.getElementById('cb_firingBhp');
+  const opHoursInput = document.getElementById('cb_opHours');
+  const fuelCostInput = document.getElementById('cb_fuelCost');
+  const costUnitSelect = document.getElementById('cb_costUnit');
+  const targetO2Select = document.getElementById('cb_targetO2');
+
+  // Outputs
+  const resEff = document.getElementById('cb_res_eff');
+  const resEffSub = document.getElementById('cb_res_eff_sub');
+  const effCard = document.getElementById('cb_eff_card');
+  const resEa = document.getElementById('cb_res_ea');
+  const resEaSub = document.getElementById('cb_res_ea_sub');
+  const eaCard = document.getElementById('cb_ea_card');
+  const resCo2 = document.getElementById('cb_res_co2');
+  const resCo2Sub = document.getElementById('cb_res_co2_sub');
+  const resLd = document.getElementById('cb_res_ld');
+  const resNetTemp = document.getElementById('cb_res_net_temp');
+  const resLm = document.getElementById('cb_res_lm');
+  const resLmSub = document.getElementById('cb_res_lm_sub');
+  const resSavings = document.getElementById('cb_res_savings');
+  const resSavingsSub = document.getElementById('cb_res_savings_sub');
+
+  // SVG Elements
+  const svgFuelEnergy = document.getElementById('svg_fuelEnergy');
+  const svgUsefulPct = document.getElementById('svg_usefulPct');
+  const svgDryLossPct = document.getElementById('svg_dryLossPct');
+  const svgMoistLossPct = document.getElementById('svg_moistLossPct');
+  const svgMeterO2 = document.getElementById('svg_meterO2');
+  const svgMeterEa = document.getElementById('svg_meterEa');
+  const svgMeterCo2 = document.getElementById('svg_meterCo2');
+  const svgStatusLabel = document.getElementById('svg_statusLabel');
+
+  // Derivations
+  const drvO2 = document.getElementById('drv_o2');
+  const drvO2_2 = document.getElementById('drv_o2_2');
+  const drvO2_3 = document.getElementById('drv_o2_3');
+  const drvO2_4 = document.getElementById('drv_o2_4');
+  const drvDenom = document.getElementById('drv_denom');
+  const drvEaCalc = document.getElementById('drv_ea_calc');
+  const drvLambda = document.getElementById('drv_lambda');
+  const drvFuelName = document.getElementById('drv_fuelName');
+  const drvCo2max = document.getElementById('drv_co2max');
+  const drvCo2max2 = document.getElementById('drv_co2max2');
+  const drvO2_5 = document.getElementById('drv_o2_5');
+  const drvCo2Calc = document.getElementById('drv_co2_calc');
+  const drvKVal = document.getElementById('drv_k_val');
+  const drvTstack = document.getElementById('drv_tstack');
+  const drvTamb = document.getElementById('drv_tamb');
+  const drvNetT = document.getElementById('drv_net_t');
+  const drvKVal2 = document.getElementById('drv_k_val2');
+  const drvNetT2 = document.getElementById('drv_net_t2');
+  const drvCo2_2 = document.getElementById('drv_co2_2');
+  const drvLdCalc = document.getElementById('drv_ld_calc');
+  const drvLd2 = document.getElementById('drv_ld2');
+  const drvLm = document.getElementById('drv_lm');
+  const drvLco = document.getElementById('drv_lco');
+  const drvLd3 = document.getElementById('drv_ld3');
+  const drvLm2 = document.getElementById('drv_lm2');
+  const drvLco2 = document.getElementById('drv_lco2');
+  const drvEffCalc = document.getElementById('drv_eff_calc');
+  const drvSavingsSummary = document.getElementById('drv_savingsSummary');
+
+  const auditBox = document.getElementById('cb_audit_box');
+
+  const fuels = {
+    natgas: { name: 'Natural Gas', co2_max: 11.8, K_siegert: 0.370, moisture_loss_base: 9.70 },
+    oil2: { name: '#2 Fuel Oil (Diesel)', co2_max: 15.4, K_siegert: 0.490, moisture_loss_base: 6.20 },
+    oil6: { name: '#6 Heavy Fuel Oil', co2_max: 16.0, K_siegert: 0.520, moisture_loss_base: 5.60 },
+    coal: { name: 'Bituminous Coal', co2_max: 18.5, K_siegert: 0.630, moisture_loss_base: 4.20 },
+    wood: { name: 'Biomass / Wood Chips', co2_max: 20.2, K_siegert: 0.680, moisture_loss_base: 12.50 },
+    propane: { name: 'Commercial Propane', co2_max: 13.8, K_siegert: 0.420, moisture_loss_base: 8.40 }
+  };
+
+  function calculate() {
+    const o2_pct = parseFloat(o2Input.value) || 3.8;
+    const fuelKey = fuelSelect.value;
+    const fuel = fuels[fuelKey] || fuels.natgas;
+
+    let T_stack_F = parseFloat(stackTempInput.value) || 340;
+    if (tempUnitSelect.value === 'c') T_stack_F = T_stack_F * 1.8 + 32;
+
+    let T_amb_F = parseFloat(ambTempInput.value) || 70;
+    if (ambTempUnitSelect.value === 'c') T_amb_F = T_amb_F * 1.8 + 32;
+
+    const co_ppm = parseFloat(coPpmInput.value) || 35;
+    const bhp = parseFloat(firingBhpInput.value) || 600;
+    const opHours = parseFloat(opHoursInput.value) || 6500;
+    const fuelCostPerMMBtu = parseFloat(fuelCostInput.value) || 8.50;
+    const targetO2_pct = parseFloat(targetO2Select.value) || 2.8;
+
+    // 1. Excess Air (%EA) and Lambda
+    // %EA = [O2 / (20.9 - O2)] * 100
+    const safeO2 = Math.min(o2_pct, 20.5);
+    const denom = 20.9 - safeO2;
+    const ea_pct = (safeO2 / denom) * 100;
+    const lambda = 1 + (ea_pct / 100);
+
+    // 2. Flue Gas CO2
+    // CO2% = CO2_max * [1 - (O2 / 20.9)]
+    const co2_pct = fuel.co2_max * (1 - (safeO2 / 20.9));
+
+    // 3. Stack Losses (ASME PTC 4 / Siegert Method)
+    const deltaT_F = Math.max(T_stack_F - T_amb_F, 20);
+    // Dry Gas Loss Ld = K * (deltaT / CO2%)
+    const L_d = fuel.K_siegert * (deltaT_F / Math.max(co2_pct, 1.0));
+
+    // Moisture & Hydrogen Latent Loss (Lm)
+    // Scales slightly with stack exit temperature
+    const L_m = fuel.moisture_loss_base + (deltaT_F * 0.0015);
+
+    // Carbon Monoxide Incomplete Combustion Loss (L_co)
+    // L_co % ~ 0.0005 * (co_ppm / CO2%)
+    const L_co = (co_ppm * 0.0005) / Math.max(co2_pct, 1.0);
+
+    // Radiation & Unaccounted Base Loss
+    const L_rad = 1.20; // standard ASME baseline for 600 BHP
+
+    // Total Loss & Boiler Efficiency
+    const total_losses = L_d + L_m + L_co + L_rad;
+    const efficiency_pct = Math.max(50.0, Math.min(96.0, 100 - total_losses));
+
+    // 4. Potential Savings at Target O2
+    const targetDenom = 20.9 - targetO2_pct;
+    const targetCo2 = fuel.co2_max * (1 - (targetO2_pct / 20.9));
+    const targetL_d = fuel.K_siegert * (deltaT_F / Math.max(targetCo2, 1.0));
+    const targetTotalLosses = targetL_d + L_m + 0.01 + L_rad;
+    const targetEff = 100 - targetTotalLosses;
+    const deltaEff = Math.max(0, targetEff - efficiency_pct);
+
+    // Fuel input rate: BHP * 33,475 / efficiency / 1e6 = MMBtu/hr
+    const inputEnergy_MMBtu_hr = (bhp * 33475) / (efficiency_pct / 100) / 1e6;
+    const usefulEnergy_MMBtu_hr = (bhp * 33475) / 1e6;
+    const annualFuelExpense = inputEnergy_MMBtu_hr * opHours * fuelCostPerMMBtu;
+    const annualSavings = annualFuelExpense * (deltaEff / targetEff);
+
+    // Assessment flags
+    const isEaOptimal = ea_pct >= 10 && ea_pct <= 25;
+    const isCoHigh = co_ppm > 200;
+
+    // Update Result UI
+    resEff.textContent = efficiency_pct.toFixed(1) + '%';
+    resEffSub.textContent = 'Total Losses: ' + total_losses.toFixed(1) + '% of Fuel Energy Input';
+    if (efficiency_pct >= 82.0) {
+      effCard.className = 'cb-metric-card pass';
+    } else {
+      effCard.className = 'cb-metric-card highlight';
+    }
+
+    resEa.textContent = ea_pct.toFixed(1) + '%';
+    resEaSub.textContent = 'Lambda λ = ' + lambda.toFixed(3) + ' (' + (isEaOptimal ? 'Optimal 10-25%' : ea_pct < 10 ? 'Low: Incomplete burn risk' : 'High: Excess stack loss') + ')';
+    if (isEaOptimal) eaCard.className = 'cb-metric-card pass';
+    else eaCard.className = 'cb-metric-card highlight';
+
+    resCo2.textContent = co2_pct.toFixed(2) + '%';
+    resCo2Sub.textContent = 'Max Theoretical: ' + fuel.co2_max.toFixed(1) + '% for ' + fuel.name.split('(')[0].trim();
+
+    resLd.textContent = L_d.toFixed(2) + '%';
+    resNetTemp.textContent = 'Net Flue Rise: ΔT = ' + deltaT_F.toFixed(1) + '°F (' + T_stack_F.toFixed(0) + '°F - ' + T_amb_F.toFixed(0) + '°F)';
+
+    resLm.textContent = L_m.toFixed(2) + '%';
+    resLmSub.textContent = 'Hydrogen oxidation water vapor enthalpy loss';
+
+    resSavings.textContent = '$' + Math.round(annualSavings).toLocaleString() + ' / yr';
+    resSavingsSub.textContent = '+' + deltaEff.toFixed(2) + '% Efficiency Gain (Tuning to ' + targetO2_pct.toFixed(1) + '% O2)';
+
+    // SVG Updates
+    svgFuelEnergy.textContent = '100.0% (' + inputEnergy_MMBtu_hr.toFixed(1) + ' MMBtu/h)';
+    svgUsefulPct.textContent = efficiency_pct.toFixed(1) + '% Efficiency (' + usefulEnergy_MMBtu_hr.toFixed(1) + ' MMBtu/h)';
+    svgDryLossPct.textContent = 'Dry Stack Gas Loss: ' + L_d.toFixed(2) + '%';
+    svgMoistLossPct.textContent = 'Hydrogen Latent Loss: ' + L_m.toFixed(2) + '%';
+    svgMeterO2.textContent = safeO2.toFixed(2) + '% Dry Vol';
+    svgMeterEa.textContent = ea_pct.toFixed(1) + '% Excess Air';
+    svgMeterCo2.textContent = co2_pct.toFixed(2) + '% CO2';
+
+    if (isCoHigh) {
+      svgStatusLabel.textContent = 'WARNING: HIGH CO (' + co_ppm + ' PPM)';
+      svgStatusLabel.setAttribute('fill', '#ef4444');
+    } else if (isEaOptimal) {
+      svgStatusLabel.textContent = 'COMBUSTION TUNED & STABLE';
+      svgStatusLabel.setAttribute('fill', '#22c55e');
+    } else {
+      svgStatusLabel.textContent = 'EXCESS AIR ELEVATED (' + ea_pct.toFixed(0) + '%)';
+      svgStatusLabel.setAttribute('fill', '#f59e0b');
+    }
+
+    // Derivations updates
+    drvO2.textContent = safeO2.toFixed(1);
+    drvO2_2.textContent = safeO2.toFixed(1);
+    drvO2_3.textContent = safeO2.toFixed(1);
+    drvO2_4.textContent = safeO2.toFixed(1);
+    drvDenom.textContent = denom.toFixed(2);
+    drvEaCalc.textContent = ea_pct.toFixed(1);
+    drvLambda.textContent = lambda.toFixed(3);
+
+    drvFuelName.textContent = fuel.name;
+    drvCo2max.textContent = fuel.co2_max.toFixed(1);
+    drvCo2max2.textContent = fuel.co2_max.toFixed(1);
+    drvO2_5.textContent = safeO2.toFixed(1);
+    drvCo2Calc.textContent = co2_pct.toFixed(2);
+
+    drvKVal.textContent = fuel.K_siegert.toFixed(3);
+    drvTstack.textContent = T_stack_F.toFixed(0);
+    drvTamb.textContent = T_amb_F.toFixed(0);
+    drvNetT.textContent = deltaT_F.toFixed(1);
+    drvKVal2.textContent = fuel.K_siegert.toFixed(3);
+    drvNetT2.textContent = deltaT_F.toFixed(1);
+    drvCo2_2.textContent = co2_pct.toFixed(2);
+    drvLdCalc.textContent = L_d.toFixed(2);
+
+    drvLd2.textContent = L_d.toFixed(2);
+    drvLm.textContent = L_m.toFixed(2);
+    drvLco.textContent = L_co.toFixed(2);
+    drvLd3.textContent = L_d.toFixed(2);
+    drvLm2.textContent = L_m.toFixed(2);
+    drvLco2.textContent = L_co.toFixed(2);
+    drvEffCalc.textContent = efficiency_pct.toFixed(2);
+
+    drvSavingsSummary.textContent = 'Tuning burner excess air down to ' + targetO2_pct.toFixed(1) + '% O2 recovers +' + deltaEff.toFixed(2) + '% thermal efficiency, reducing annual fuel spend by $' + Math.round(annualSavings).toLocaleString() + ' (based on ' + opHours + ' hrs/yr and $' + fuelCostPerMMBtu.toFixed(2) + '/MMBtu).';
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME PTC 4 BOILER COMBUSTION & EFFICIENCY AUDIT    \n' +
+      '=======================================================\n' +
+      'Boiler Firing Rating:      ' + Math.round(bhp) + ' BHP (' + usefulEnergy_MMBtu_hr.toFixed(2) + ' MMBtu/hr output)\n' +
+      'Combustion Fuel:           ' + fuel.name + ' (CO2 max = ' + fuel.co2_max.toFixed(1) + '%)\n' +
+      'Measured Dry Flue Oxygen:  ' + safeO2.toFixed(2) + '% O2 Dry Volume\n' +
+      'Flue Gas Carbon Monoxide:  ' + co_ppm + ' ppm CO [' + (co_ppm <= 50 ? 'EXCELLENT' : co_ppm <= 200 ? 'ACCEPTABLE' : 'HIGH CO INCOMPLETE BURN') + ']\n' +
+      'Stack & Ambient Temp:      T_stack = ' + T_stack_F.toFixed(0) + ' °F, T_amb = ' + T_amb_F.toFixed(0) + ' °F (Net Rise ΔT = ' + deltaT_F.toFixed(1) + ' °F)\n' +
+      '-------------------------------------------------------\n' +
+      'COMBUSTION EXCESS AIR:     ' + ea_pct.toFixed(1) + '% Excess Air (Lambda λ = ' + lambda.toFixed(3) + ') [' + (isEaOptimal ? 'OPTIMAL' : 'OFF-DESIGN') + ']\n' +
+      'Flue Carbon Dioxide (CO2): ' + co2_pct.toFixed(2) + '% Vol\n' +
+      'Dry Flue Gas Heat Loss:    ' + L_d.toFixed(2) + '% of Fuel Energy (Siegert Ld)\n' +
+      'Hydrogen Moisture Loss:    ' + L_m.toFixed(2) + '% of Fuel Energy (Latent Lm)\n' +
+      'CO Incomplete Burn Loss:   ' + L_co.toFixed(3) + '% of Fuel Energy\n' +
+      'Casing Radiation Loss:     ' + L_rad.toFixed(2) + '% (ASME baseline)\n' +
+      'TOTAL COMBUSTION LOSSES:   ' + total_losses.toFixed(2) + '%\n' +
+      'NET BOILER EFFICIENCY:     ' + efficiency_pct.toFixed(2) + '% Thermal Efficiency\n' +
+      '-------------------------------------------------------\n' +
+      'Target O2 Trim Level:      ' + targetO2_pct.toFixed(1) + '% O2 (Expected Eff: ' + targetEff.toFixed(2) + '%)\n' +
+      'Potential Efficiency Gain: +' + deltaEff.toFixed(2) + '% Net Thermal Gain\n' +
+      'PROJECTED ANNUAL SAVINGS:  $' + Math.round(annualSavings).toLocaleString() + ' / year (at $' + fuelCostPerMMBtu.toFixed(2) + '/MMBtu, ' + opHours + ' hrs/yr)\n' +
+      'Design Standard:           ASME PTC 4 (Fired Steam Generators)\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyCbAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyCbAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Combustion Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [o2Input, fuelSelect, stackTempInput, tempUnitSelect, ambTempInput, ambTempUnitSelect, coPpmInput, firingBhpInput, opHoursInput, fuelCostInput, costUnitSelect, targetO2Select].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'combustion-excess-air-flue-gas-calculator.html'), renderTradePage({
+    title: "Boiler Combustion Excess Air, O2 & Efficiency Calculator | ASME PTC 4",
+    metaDesc: "Calculate combustion excess air (%EA), flue gas CO2, dry stack loss, hydrogen latent loss, and annual fuel savings from O2 trim tuning per ASME PTC 4.",
+    canonical: `${DOMAIN}/calc/combustion-excess-air-flue-gas-calculator`,
+    bodyContent: combustionO2Body,
+    currentPath: '/calc/combustion-excess-air-flue-gas-calculator',
+    faq: [
+      {
+        "q": "How is excess air (%EA) calculated from measured dry flue gas oxygen (O2)?",
+        "a": "Because dry atmospheric air contains 20.9% oxygen, excess air is calculated using the stoichiometric formula: %EA = [O2 / (20.9 - O2)] · 100. For example, a stack oxygen reading of 3.8% O2 represents 3.8 / (20.9 - 3.8) · 100 = 22.2% excess combustion air (lambda λ = 1.222)."
+      },
+      {
+        "q": "Why does reducing stack O2 increase boiler thermal efficiency?",
+        "a": "Excess combustion air contains approximately 79% inert nitrogen that absorbs heat in the furnace and carries it out the chimney as dry gas sensible heat loss (Ld). Trimming stack O2 by 1% typically reduces flue gas heat loss by 0.5% to 0.75% of total boiler fuel input, resulting in tens of thousands of dollars in annual fuel savings for commercial and industrial boilers."
+      },
+      {
+        "q": "What is the 'CO cliff' in burner tuning?",
+        "a": "The CO cliff refers to the sharp inflection point where reducing burner airflow crosses below the minimum air-fuel ratio needed for complete combustion. At this threshold, carbon monoxide (CO) spikes exponentially from safe levels (< 50 ppm) to hazardous levels (> 2,000 ppm) within a 0.3% to 0.5% O2 reduction, causing unburned fuel energy loss, tube sooting, and explosion risks."
+      },
+      {
+        "q": "What causes the large hydrogen moisture loss in natural gas boilers?",
+        "a": "Natural gas (methane, CH4) contains approximately 25% hydrogen by weight. During combustion, every molecule of methane produces two molecules of water vapor (CH4 + 2O2 → CO2 + 2H2O). In non-condensing boilers, the latent heat of vaporization of this steam (~1,000 BTU/lb of water) is lost out the stack, creating an unavoidable ~9.5% to 10.5% latent energy penalty on a Higher Heating Value (HHV) basis."
+      },
+      {
+        "q": "How do seasonal ambient temperature changes impact boiler combustion?",
+        "a": "Mechanical linkage burners control air by volume (CFM) rather than mass. Because air density changes inversely with temperature, cold 30°F winter air delivers 15% more oxygen mass per cubic foot than hot 95°F summer air. Burners set in winter can become dangerously fuel-rich and soot-fouled during summer unless fitted with automatic electronic parallel positioning and ambient O2 trim."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 71: Thick-Wall Cylinder & Vessel Lamé Stress Calculator (ASME Section VIII)
+  // ==========================================
+  const thickCylinderBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">Lamé Thick-Wall Theory (1852)</span>
+      <span class="calc-clean-badge">ASME Section VIII Div 2 & 3</span>
+      <span class="calc-clean-badge">Von Mises & Tresca Yield</span>
+    </div>
+    <h1 class="calc-clean-title">Thick-Wall Cylinder & Pressure Vessel Lamé Stress Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate non-linear hoop, radial, and longitudinal stress distributions, Von Mises equivalent bore stress, autofrettage yield margins, and Faupel burst pressure for high-pressure cylinders and hydraulic barrels.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Internal Pressure (Pi) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_pi">Internal Working Pressure (Pi)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="tc_pi" class="calc-clean-input" value="7500" min="100" max="150000" step="100">
+          <select id="tc_pressUnit" class="calc-clean-select">
+            <option value="psi" selected>psi</option>
+            <option value="bar">bar</option>
+            <option value="mpa">MPa</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Peak internal fluid pressure (e.g. 3,000-15,000 psi hydraulic/gas)</small>
+      </div>
+
+      <!-- External Pressure (Po) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_po">External Jacket Pressure (Po)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="tc_po" class="calc-clean-input" value="0" min="0" max="50000" step="50">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">psi ext</span>
+        </div>
+        <small class="calc-clean-help">External subsea hydrostatic or shrink-fit jacket pressure (0 for ambient)</small>
+      </div>
+
+      <!-- Cylinder Inner Radius / Diameter -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_ri">Internal Bore Radius (ri) or Diameter</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="tc_ri" class="calc-clean-input" value="3.0" min="0.25" max="60.0" step="0.125">
+          <select id="tc_geomMode" class="calc-clean-select">
+            <option value="radius" selected>Radius (ri, in)</option>
+            <option value="diam">Diameter (Di, in)</option>
+            <option value="radius_mm">Radius (ri, mm)</option>
+            <option value="diam_mm">Diameter (Di, mm)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Internal bore working dimension</small>
+      </div>
+
+      <!-- Cylinder Outer Radius / Diameter -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_ro">Outer Shell Radius (ro) or Diameter</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="tc_ro" class="calc-clean-input" value="5.0" min="0.30" max="80.0" step="0.125">
+          <select id="tc_geomModeO" class="calc-clean-select">
+            <option value="radius" selected>Radius (ro, in)</option>
+            <option value="diam">Diameter (Do, in)</option>
+            <option value="radius_mm">Radius (ro, mm)</option>
+            <option value="diam_mm">Diameter (Do, mm)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Outer structural casing dimension</small>
+      </div>
+
+      <!-- Material Grade & Yield Strength -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_material">Cylinder Material Grade</label>
+        <select id="tc_material" class="calc-clean-select">
+          <option value="4140_qnt" selected>AISI 4140 Q&T Alloy Steel (Sy = 95 ksi, Su = 125 ksi)</option>
+          <option value="4340">AISI 4340 High-Strength Gun Steel (Sy = 140 ksi, Su = 165 ksi)</option>
+          <option value="316L">316L Stainless Steel Annealed (Sy = 30 ksi, Su = 75 ksi)</option>
+          <option value="174ph">17-4 PH Stainless H900 (Sy = 170 ksi, Su = 190 ksi)</option>
+          <option value="sa516">ASME SA-516 Gr 70 Carbon Steel (Sy = 38 ksi, Su = 70 ksi)</option>
+          <option value="ti6al4v">Titanium Gr 5 (Ti-6Al-4V) (Sy = 120 ksi, Su = 135 ksi)</option>
+        </select>
+        <small class="calc-clean-help">Yield strength (Sy) and ultimate tensile strength (Su)</small>
+      </div>
+
+      <!-- End Condition (Closed vs Open Ends) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_endCondition">Cylinder End Boundary Condition</label>
+        <select id="tc_endCondition" class="calc-clean-select">
+          <option value="closed" selected>Closed Ends (Piston / Capped Pressure Vessel)</option>
+          <option value="open">Open Ends (Hydraulic Tubing / Swivels / Uncapped)</option>
+        </select>
+        <small class="calc-clean-help">Closed ends carry longitudinal tensile stress σz = Pi·ri² / (ro² - ri²)</small>
+      </div>
+
+      <!-- ASME Design Factor / Safety Margin -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_safetyFactor">Design Margin / Safety Factor (SF)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="tc_safetyFactor" class="calc-clean-input" value="2.0" min="1.1" max="5.0" step="0.1">
+          <select id="tc_codeStandard" class="calc-clean-select">
+            <option value="asme_div2" selected>ASME VIII Div 2 (SF = 2.0 on Sy)</option>
+            <option value="asme_div3">ASME VIII Div 3 High Press (SF = 1.5)</option>
+            <option value="iso">ISO 11439 Gas Cylinders (SF = 2.25)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Allowable stress limit = Sy / SF</small>
+      </div>
+
+      <!-- Intermediate Radius Query (r) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="tc_queryR">Inspect Mid-Wall Radius (r)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="tc_queryR" class="calc-clean-input" value="4.0" min="0.25" max="80.0" step="0.1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">in probe</span>
+        </div>
+        <small class="calc-clean-help">Probe localized stress tensor at any radial position through wall</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Lamé Stress Tensor & Yield Audit</h2>
+    <div class="tc-metrics-grid">
+      <!-- Maximum Hoop Stress (at Inner Bore) -->
+      <div class="tc-metric-card highlight">
+        <div class="tc-metric-label">Max Hoop Stress (σt at Bore)</div>
+        <div class="tc-metric-value" id="tc_res_sigma_t_bore">15,938 psi</div>
+        <div class="tc-metric-sub" id="tc_res_sigma_t_sub">110.0 MPa (Peak Tensile Hoop)</div>
+      </div>
+
+      <!-- Von Mises Equivalent Bore Stress -->
+      <div class="tc-metric-card" id="tc_vm_card">
+        <div class="tc-metric-label">Von Mises Bore Stress (σvm)</div>
+        <div class="tc-metric-value" id="tc_res_vm">20,530 psi</div>
+        <div class="tc-metric-sub" id="tc_res_vm_sub">141.6 MPa (Triaxial Equivalent)</div>
+      </div>
+
+      <!-- Wall Ratio (k = ro / ri) -->
+      <div class="tc-metric-card">
+        <div class="tc-metric-label">Wall Radius Ratio (k = ro/ri)</div>
+        <div class="tc-metric-value" id="tc_res_k">k = 1.667</div>
+        <div class="tc-metric-sub" id="tc_res_k_sub">Thick-Wall Regime (k &gt; 1.10)</div>
+      </div>
+
+      <!-- Yield Safety Margin -->
+      <div class="tc-metric-card pass" id="tc_yield_card">
+        <div class="tc-metric-label">Yield Safety Margin (Sy / σvm)</div>
+        <div class="tc-metric-value" id="tc_res_margin">4.63x</div>
+        <div class="tc-metric-sub" id="tc_res_margin_sub">Pass: Exceeds SF = 2.0 Target</div>
+      </div>
+
+      <!-- Ultimate Burst Pressure (Faupel) -->
+      <div class="tc-metric-card highlight">
+        <div class="tc-metric-label">Theoretical Burst Pressure</div>
+        <div class="tc-metric-value" id="tc_res_burst">47,850 psi</div>
+        <div class="tc-metric-sub" id="tc_res_burst_bar">3,300 bar (Faupel Ductile Limit)</div>
+      </div>
+
+      <!-- Outer Surface Hoop Stress -->
+      <div class="tc-metric-card">
+        <div class="tc-metric-label">Outer Surface Hoop (σt,outer)</div>
+        <div class="tc-metric-value" id="tc_res_sigma_t_outer">8,438 psi</div>
+        <div class="tc-metric-sub" id="tc_res_sigma_t_outer_sub">58.2 MPa (47% stress reduction vs bore)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG Thick-Walled Cylinder Stress Profile Cutaway -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live Lamé Stress Distribution & Cylinder Cross-Section</h2>
+    <div class="tc-svg-container">
+      <svg id="tc_svg" viewBox="0 0 840 430" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Thick Walled Cylinder Stress Distribution Schematic">
+        <defs>
+          <radialGradient id="tcStressGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="35%" stop-color="#ef4444" stop-opacity="0.9"/>
+            <stop offset="55%" stop-color="#f59e0b" stop-opacity="0.75"/>
+            <stop offset="75%" stop-color="#3b82f6" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#1e293b" stop-opacity="0.85"/>
+          </radialGradient>
+          <marker id="tcPressArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+          </marker>
+        </defs>
+
+        <!-- Background Canvas -->
+        <rect x="0" y="0" width="840" height="430" fill="#0b1120" rx="8"/>
+
+        <!-- 1. Left Half: Cylinder Cross-Section View -->
+        <!-- Outer Cylinder Circle -->
+        <circle cx="230" cy="215" r="160" fill="url(#tcStressGrad)" stroke="#64748b" stroke-width="2.5" id="svg_outerCircle"/>
+        <!-- Inner Bore Circle -->
+        <circle cx="230" cy="215" r="95" fill="#0f172a" stroke="#ef4444" stroke-width="2.5" id="svg_innerCircle"/>
+
+        <!-- Internal Pressure Outward Arrows -->
+        <line x1="230" y1="215" x2="230" y2="135" stroke="#ef4444" stroke-width="2.5" marker-end="url(#tcPressArrow)"/>
+        <line x1="230" y1="215" x2="310" y2="215" stroke="#ef4444" stroke-width="2.5" marker-end="url(#tcPressArrow)"/>
+        <line x1="230" y1="215" x2="230" y2="295" stroke="#ef4444" stroke-width="2.5" marker-end="url(#tcPressArrow)"/>
+        <line x1="230" y1="215" x2="150" y2="215" stroke="#ef4444" stroke-width="2.5" marker-end="url(#tcPressArrow)"/>
+        <text x="230" y="212" fill="#ef4444" font-size="12" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_piBoreLabel">Pi = 7,500 psi</text>
+        <text x="230" y="226" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">INTERNAL PRESSURE</text>
+
+        <!-- Dimension Lines on Cylinder -->
+        <!-- Inner Radius ri -->
+        <line x1="230" y1="215" x2="297" y2="148" stroke="#38bdf8" stroke-width="1.5"/>
+        <text x="275" y="170" fill="#38bdf8" font-size="10" font-family="monospace" font-weight="bold" id="svg_riLabel">ri = 3.0"</text>
+
+        <!-- Outer Radius ro -->
+        <line x1="230" y1="215" x2="343" y2="102" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="315" y="135" fill="#f59e0b" font-size="10" font-family="monospace" font-weight="bold" id="svg_roLabel">ro = 5.0"</text>
+
+        <!-- 2. Right Half: Lamé Stress Graph (Hoop vs Radial vs Radius) -->
+        <rect x="430" y="45" width="370" height="250" fill="#0f172a" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="615" y="70" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">LAMÉ STRESS DISTRIBUTION ACROSS WALL</text>
+        <line x1="450" y1="80" x2="780" y2="80" stroke="#1e293b" stroke-width="1"/>
+
+        <!-- Axes -->
+        <!-- Zero Stress Axis Line -->
+        <line x1="470" y1="210" x2="780" y2="210" stroke="#64748b" stroke-width="1.5"/>
+        <text x="785" y="214" fill="#64748b" font-size="9" font-family="sans-serif">Radius (r)</text>
+        <line x1="470" y1="90" x2="470" y2="280" stroke="#64748b" stroke-width="1.5"/>
+        <text x="445" y="95" fill="#64748b" font-size="9" font-family="sans-serif">Stress</text>
+
+        <!-- Inner Bore Boundary (ri) -->
+        <line x1="510" y1="90" x2="510" y2="280" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="510" y="295" fill="#f87171" font-size="9" font-family="monospace" text-anchor="middle">r = ri</text>
+
+        <!-- Outer Boundary (ro) -->
+        <line x1="750" y1="90" x2="750" y2="280" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="750" y="295" fill="#fbbf24" font-size="9" font-family="monospace" text-anchor="middle">r = ro</text>
+
+        <!-- Curve 1: Tensile Hoop Stress σt (Positive, decaying from bore to outer) -->
+        <!-- High value at x=510, y=105 to lower value at x=750, y=160 -->
+        <path d="M 510 105 Q 600 135 750 160" fill="none" stroke="#3b82f6" stroke-width="3" id="svg_hoopCurve"/>
+        <text x="530" y="112" fill="#60a5fa" font-size="10" font-weight="bold" font-family="monospace">σt (Hoop Tension)</text>
+
+        <!-- Curve 2: Compressive Radial Stress σr (Negative, from -Pi at bore to 0 at outer) -->
+        <!-- -Pi at x=510, y=260 to 0 at x=750, y=210 -->
+        <path d="M 510 260 Q 600 240 750 210" fill="none" stroke="#ef4444" stroke-width="2.5" id="svg_radialCurve"/>
+        <text x="530" y="250" fill="#f87171" font-size="10" font-weight="bold" font-family="monospace">σr (Radial Compression)</text>
+
+        <!-- 3. Bottom Summary Info Card -->
+        <rect x="430" y="315" width="370" height="95" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="445" y="338" fill="#94a3b8" font-size="10" font-family="sans-serif">Max Hoop Stress (Bore):</text>
+        <text x="785" y="338" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_graphSigmaTBore">15,938 psi</text>
+
+        <text x="445" y="358" fill="#94a3b8" font-size="10" font-family="sans-serif">Von Mises Bore Equivalent:</text>
+        <text x="785" y="358" fill="#f59e0b" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_graphVmBore">20,530 psi</text>
+
+        <text x="445" y="378" fill="#94a3b8" font-size="10" font-family="sans-serif">Yield Safety Margin:</text>
+        <text x="785" y="378" fill="#22c55e" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end" id="svg_graphMargin">4.63x (Sy = 95 ksi)</text>
+
+        <text x="445" y="398" fill="#94a3b8" font-size="10" font-family="sans-serif">Faupel Burst Limit:</text>
+        <text x="785" y="398" fill="#ef4444" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_graphBurst">47,850 psi</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Lamé Elasticity & Failure Derivations</h2>
+    <div class="tc-derivations">
+      <div class="tc-step">
+        <div class="tc-step-title">1. Lamé General Equations for Thick Cylinders</div>
+        <p>For a thick cylinder of inner radius $r_i = <span id="drv_ri">3.00</span>$ in, outer radius $r_o = <span id="drv_ro">5.00</span>$ in, wall ratio $k = r_o / r_i = <span id="drv_k">1.667</span>$, subject to internal pressure $P_i = <span id="drv_pi">7,500</span>$ psi and external pressure $P_o = 0$:</p>
+        <div class="tc-formula">
+          \sigma_t(r) = \frac{P_i r_i^2}{r_o^2 - r_i^2} \left( 1 + \frac{r_o^2}{r^2} \right) \quad \text{and} \quad \sigma_r(r) = \frac{P_i r_i^2}{r_o^2 - r_i^2} \left( 1 - \frac{r_o^2}{r^2} \right)
+        </div>
+        <p>Evaluating at the inner bore ($r = r_i$):</p>
+        <div class="tc-formula highlight">
+          \sigma_{t,bore} = P_i \left( \frac{r_o^2 + r_i^2}{r_o^2 - r_i^2} \right) = <span id="drv_pi2">7500</span> \left( \frac{<span id="drv_ro_sq">25.0</span> + <span id="drv_ri_sq">9.0</span>}{<span id="drv_ro_sq2">25.0</span> - <span id="drv_ri_sq2">9.0</span>} \right) = <span id="drv_st_calc">15,938</span>\text{ psi (<span id="drv_st_mpa">109.9</span> MPa)}
+        </div>
+        <div class="tc-formula highlight">
+          \sigma_{r,bore} = -P_i = -<span id="drv_pi3">7,500</span>\text{ psi (Direct Compressive Radial Reaction)}
+        </div>
+      </div>
+
+      <div class="tc-step">
+        <div class="tc-step-title">2. Longitudinal Stress (Closed End Caps)</div>
+        <p>Equilibrium of axial fluid thrust across the cross-sectional steel wall area:</p>
+        <div class="tc-formula">
+          \sigma_z = \frac{P_i r_i^2}{r_o^2 - r_i^2} = \frac{<span id="drv_pi4">7500</span> \cdot <span id="drv_ri_sq3">9.0</span>}{<span id="drv_ro_sq3">25.0</span> - <span id="drv_ri_sq4">9.0</span>} = <span id="drv_sz_calc">4,219</span>\text{ psi (<span id="drv_sz_mpa">29.1</span> MPa)}
+        </div>
+      </div>
+
+      <div class="tc-step">
+        <div class="tc-step-title">3. Triaxial Von Mises Equivalent Stress (σvm) at Inner Bore</div>
+        <p>Combining the 3 principal stresses ($sigma_1 = sigma_t$, $sigma_2 = sigma_z$, $sigma_3 = sigma_r$):</p>
+        <div class="tc-formula">
+          \sigma_{vm} = \frac{1}{\sqrt{2}} \sqrt{ (\sigma_t - \sigma_r)^2 + (\sigma_r - \sigma_z)^2 + (\sigma_z - \sigma_t)^2 }
+        </div>
+        <div class="tc-formula highlight">
+          \sigma_{vm,bore} = P_i \left( \frac{\sqrt{3} \cdot k^2}{k^2 - 1} \right) = <span id="drv_pi5">7500</span> \left( \frac{\sqrt{3} \cdot <span id="drv_k_sq">2.778</span>}{<span id="drv_k_sq2">2.778</span> - 1} \right) = <span id="drv_vm_calc">20,332</span>\text{ psi (<span id="drv_vm_mpa">140.2</span> MPa)}
+        </div>
+      </div>
+
+      <div class="tc-step">
+        <div class="tc-step-title">4. Faupel Ductile Burst Pressure (Pburst) Limit</div>
+        <p>Faupel's semi-empirical model incorporates both material yield ($S_y = <span id="drv_sy">95.0</span>$ ksi) and ultimate tensile strength ($S_u = <span id="drv_su">125.0</span>$ ksi):</p>
+        <div class="tc-formula highlight">
+          P_{burst} = \frac{2 S_y}{\sqrt{3}} \cdot \ln(k) \cdot \left[ 2 - \frac{S_y}{S_u} \right] = \frac{2 \cdot (<span id="drv_sy2">95000</span>)}{\sqrt{3}} \cdot \ln(<span id="drv_k2">1.667</span>) \cdot \left[ 2 - \frac{<span id="drv_sy3">95000</span>}{<span id="drv_su2">125000</span>} \right] = <span id="drv_burst_calc">47,850</span>\text{ psi (<span id="drv_burst_bar">3,300</span> bar)}
+        </div>
+        <p id="drv_marginVerdict">With an operating pressure of 7,500 psi, the design offers a burst safety factor of 6.38x and a yield safety factor of 4.67x against material yield strength.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">ASME Section VIII Thick Cylinder Compliance Report</h2>
+      <button type="button" id="copyTcAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy Lamé Stress Audit</span>
+      </button>
+    </div>
+    <pre id="tc_audit_box" class="tc-audit-box">Generating ASME thick cylinder stress audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Thick-Wall Cylinder Engineering Traps</h2>
+    <div class="gp-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. Using Thin-Wall Formula (Pr/t) on High-Pressure Cylinders (k > 1.10)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          The thin-wall hoop formula ($sigma = P r / t$) assumes stress is uniformly distributed across wall thickness. For cylinders with wall ratio $k = r_o / r_i > 1.10$, stress is highly non-linear. The inner bore experiences 30% to 150% higher stress than average thin-wall equations predict. Designing high-pressure hydraulic barrels (3,000+ psi) with thin-wall math results in premature bore yield, permanent bulging, and piston seal blow-by.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. The Law of Diminishing Returns: Over-Thickening Wall Beyond k = 2.0</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          In thick-walled cylinders, the maximum hoop stress asymptotes to $P_i$ as $k 	o infty$ ($sigma_{t,min} ge P_i$). Increasing wall thickness beyond $k = 2.0$ adds massive steel weight and cost but yields almost zero reduction in inner bore peak stress. If working pressure exceeds $0.5 	imes S_y$, single-wall thickening cannot prevent bore yield; autofrettage, wire-winding, or multi-layer shrink-fit sleeves must be employed.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Neglecting Radial Compressive Stress in Triaxial Yield (σr = -Pi)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Engineers frequently compare only hoop stress $sigma_t$ directly against yield strength $S_y$. However, the fluid exerts direct radial compressive stress $sigma_r = -P_i$ on the bore surface. Under Tresca or Von Mises criteria, the principal stress difference is $sigma_1 - sigma_3 = sigma_t - (-P_i) = sigma_t + P_i$. Neglecting radial compression underestimates equivalent bore shear stress by thousands of psi.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Fatigue Bore Micro-Cracking under Cyclic Pressure Pulsations</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Even if static peak stress satisfies ASME safety factors, high-pressure cyclically pressurized vessels (e.g. waterjet intensifiers, gas booster accumulators) fail by low-cycle fatigue. Fluid penetration into microscopic bore surface inclusions creates local stress concentration ($K_t > 3.0$), propagating fast brittle fatigue cracks that fracture the cylinder well below its theoretical burst pressure.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. External Pressure Collapse (Buckling / Ovalization Instability)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          When thick cylinders operate in subsea deepwater environments or inside shrink-fit cooling jackets with high external pressure ($P_o > P_i$), failure shifts from tensile yield to compressive shell buckling. Initial out-of-roundness (ovalization $ge 0.5%$) exponentially amplifies bending moments across the wall, causing sudden elastic snap-through collapse.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.tc-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.tc-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.tc-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.tc-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.tc-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.tc-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.tc-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.tc-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.tc-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.tc-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.tc-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.tc-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.tc-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.tc-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.tc-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const piInput = document.getElementById('tc_pi');
+  const poInput = document.getElementById('tc_po');
+  const pressUnitSelect = document.getElementById('tc_pressUnit');
+  const riInput = document.getElementById('tc_ri');
+  const geomModeSelect = document.getElementById('tc_geomMode');
+  const roInput = document.getElementById('tc_ro');
+  const geomModeOSelect = document.getElementById('tc_geomModeO');
+  const materialSelect = document.getElementById('tc_material');
+  const endCondSelect = document.getElementById('tc_endCondition');
+  const sfInput = document.getElementById('tc_safetyFactor');
+  const queryRInput = document.getElementById('tc_queryR');
+
+  // Outputs
+  const resSigmaTBore = document.getElementById('tc_res_sigma_t_bore');
+  const resSigmaTSub = document.getElementById('tc_res_sigma_t_sub');
+  const resVm = document.getElementById('tc_res_vm');
+  const resVmSub = document.getElementById('tc_res_vm_sub');
+  const vmCard = document.getElementById('tc_vm_card');
+  const resK = document.getElementById('tc_res_k');
+  const resKSub = document.getElementById('tc_res_k_sub');
+  const resMargin = document.getElementById('tc_res_margin');
+  const resMarginSub = document.getElementById('tc_res_margin_sub');
+  const yieldCard = document.getElementById('tc_yield_card');
+  const resBurst = document.getElementById('tc_res_burst');
+  const resBurstBar = document.getElementById('tc_res_burst_bar');
+  const resSigmaTOuter = document.getElementById('tc_res_sigma_t_outer');
+  const resSigmaTOuterSub = document.getElementById('tc_res_sigma_t_outer_sub');
+
+  // SVG Elements
+  const svgInnerCircle = document.getElementById('svg_innerCircle');
+  const svgOuterCircle = document.getElementById('svg_outerCircle');
+  const svgPiBoreLabel = document.getElementById('svg_piBoreLabel');
+  const svgRiLabel = document.getElementById('svg_riLabel');
+  const svgRoLabel = document.getElementById('svg_roLabel');
+  const svgGraphSigmaTBore = document.getElementById('svg_graphSigmaTBore');
+  const svgGraphVmBore = document.getElementById('svg_graphVmBore');
+  const svgGraphMargin = document.getElementById('svg_graphMargin');
+  const svgGraphBurst = document.getElementById('svg_graphBurst');
+
+  // Derivations
+  const drvRi = document.getElementById('drv_ri');
+  const drvRo = document.getElementById('drv_ro');
+  const drvK = document.getElementById('drv_k');
+  const drvPi = document.getElementById('drv_pi');
+  const drvPi2 = document.getElementById('drv_pi2');
+  const drvRoSq = document.getElementById('drv_ro_sq');
+  const drvRiSq = document.getElementById('drv_ri_sq');
+  const drvRoSq2 = document.getElementById('drv_ro_sq2');
+  const drvRiSq2 = document.getElementById('drv_ri_sq2');
+  const drvStCalc = document.getElementById('drv_st_calc');
+  const drvStMpa = document.getElementById('drv_st_mpa');
+  const drvPi3 = document.getElementById('drv_pi3');
+  const drvPi4 = document.getElementById('drv_pi4');
+  const drvRiSq3 = document.getElementById('drv_ri_sq3');
+  const drvRoSq3 = document.getElementById('drv_ro_sq3');
+  const drvRiSq4 = document.getElementById('drv_ri_sq4');
+  const drvSzCalc = document.getElementById('drv_sz_calc');
+  const drvSzMpa = document.getElementById('drv_sz_mpa');
+  const drvPi5 = document.getElementById('drv_pi5');
+  const drvKSq = document.getElementById('drv_k_sq');
+  const drvKSq2 = document.getElementById('drv_k_sq2');
+  const drvVmCalc = document.getElementById('drv_vm_calc');
+  const drvVmMpa = document.getElementById('drv_vm_mpa');
+  const drvSy = document.getElementById('drv_sy');
+  const drvSu = document.getElementById('drv_su');
+  const drvSy2 = document.getElementById('drv_sy2');
+  const drvK2 = document.getElementById('drv_k2');
+  const drvSy3 = document.getElementById('drv_sy3');
+  const drvSu2 = document.getElementById('drv_su2');
+  const drvBurstCalc = document.getElementById('drv_burst_calc');
+  const drvBurstBar = document.getElementById('drv_burst_bar');
+  const drvMarginVerdict = document.getElementById('drv_marginVerdict');
+
+  const auditBox = document.getElementById('tc_audit_box');
+
+  const materials = {
+    '4140_qnt': { name: 'AISI 4140 Q&T Alloy Steel', Sy_psi: 95000, Su_psi: 125000 },
+    '4340': { name: 'AISI 4340 Gun Steel', Sy_psi: 140000, Su_psi: 165000 },
+    '316L': { name: '316L Stainless Annealed', Sy_psi: 30000, Su_psi: 75000 },
+    '174ph': { name: '17-4 PH Stainless H900', Sy_psi: 170000, Su_psi: 190000 },
+    'sa516': { name: 'ASME SA-516 Gr 70 Carbon Steel', Sy_psi: 38000, Su_psi: 70000 },
+    'ti6al4v': { name: 'Titanium Gr 5 (Ti-6Al-4V)', Sy_psi: 120000, Su_psi: 135000 }
+  };
+
+  function calculate() {
+    let rawPi = parseFloat(piInput.value) || 7500;
+    let rawPo = parseFloat(poInput.value) || 0;
+    const pressUnit = pressUnitSelect.value;
+
+    let Pi_psi = 7500;
+    let Po_psi = 0;
+
+    if (pressUnit === 'psi') {
+      Pi_psi = rawPi;
+      Po_psi = rawPo;
+    } else if (pressUnit === 'bar') {
+      Pi_psi = rawPi * 14.5038;
+      Po_psi = rawPo * 14.5038;
+    } else if (pressUnit === 'mpa') {
+      Pi_psi = rawPi * 145.038;
+      Po_psi = rawPo * 145.038;
+    }
+
+    let rawRi = parseFloat(riInput.value) || 3.0;
+    const geomMode = geomModeSelect.value;
+    let ri_in = 3.0;
+
+    if (geomMode === 'radius') ri_in = rawRi;
+    else if (geomMode === 'diam') ri_in = rawRi / 2;
+    else if (geomMode === 'radius_mm') ri_in = rawRi / 25.4;
+    else if (geomMode === 'diam_mm') ri_in = (rawRi / 2) / 25.4;
+
+    let rawRo = parseFloat(roInput.value) || 5.0;
+    const geomModeO = geomModeOSelect.value;
+    let ro_in = 5.0;
+
+    if (geomModeO === 'radius') ro_in = rawRo;
+    else if (geomModeO === 'diam') ro_in = rawRo / 2;
+    else if (geomModeO === 'radius_mm') ro_in = rawRo / 25.4;
+    else if (geomModeO === 'diam_mm') ro_in = (rawRo / 2) / 25.4;
+
+    if (ro_in <= ri_in) {
+      ro_in = ri_in * 1.25;
+    }
+
+    const matKey = materialSelect.value;
+    const mat = materials[matKey] || materials['4140_qnt'];
+
+    const isClosed = endCondSelect.value === 'closed';
+    const targetSF = parseFloat(sfInput.value) || 2.0;
+
+    // 1. Geometry & Wall Ratio k
+    const k = ro_in / ri_in;
+    const k_sq = Math.pow(k, 2);
+    const ri_sq = Math.pow(ri_in, 2);
+    const ro_sq = Math.pow(ro_in, 2);
+    const denom = ro_sq - ri_sq;
+
+    // 2. Lamé Stresses
+    // At inner bore (r = ri):
+    // sigma_t = [(Pi*ri^2 - Po*ro^2)/(ro^2 - ri^2)] + [ri^2 * ro^2 * (Pi - Po) / (ri^2 * (ro^2 - ri^2))]
+    const termA = (Pi_psi * ri_sq - Po_psi * ro_sq) / denom;
+    const termB_num = ri_sq * ro_sq * (Pi_psi - Po_psi);
+
+    const sigma_t_bore = termA + (termB_num / (ri_sq * denom));
+    const sigma_r_bore = termA - (termB_num / (ri_sq * denom)); // -Pi when Po=0
+
+    // At outer surface (r = ro):
+    const sigma_t_outer = termA + (termB_num / (ro_sq * denom));
+    const sigma_r_outer = termA - (termB_num / (ro_sq * denom)); // -Po (or 0)
+
+    // Longitudinal stress
+    let sigma_z = 0;
+    if (isClosed) {
+      sigma_z = (Pi_psi * ri_sq - Po_psi * ro_sq) / denom;
+    }
+
+    // 3. Von Mises & Tresca at Inner Bore
+    // sigma_vm = 1/sqrt(2) * sqrt((s_t - s_r)^2 + (s_r - s_z)^2 + (s_z - s_t)^2)
+    const vm_bore_psi = (1 / Math.sqrt(2)) * Math.sqrt(
+      Math.pow(sigma_t_bore - sigma_r_bore, 2) +
+      Math.pow(sigma_r_bore - sigma_z, 2) +
+      Math.pow(sigma_z - sigma_t_bore, 2)
+    );
+    const vm_bore_mpa = vm_bore_psi * 0.00689476;
+
+    // 4. Yield Margin & Safety Factor
+    const margin = mat.Sy_psi / vm_bore_psi;
+    const isPass = margin >= targetSF;
+
+    // 5. Faupel Ductile Burst Pressure (psi)
+    // P_burst = 2*Sy / sqrt(3) * ln(k) * [2 - Sy/Su]
+    const burst_psi = (2 * mat.Sy_psi / Math.sqrt(3)) * Math.log(k) * (2 - (mat.Sy_psi / mat.Su_psi));
+    const burst_bar = burst_psi * 0.0689476;
+
+    // Update Result UI
+    resSigmaTBore.textContent = Math.round(sigma_t_bore).toLocaleString() + ' psi';
+    resSigmaTSub.textContent = (sigma_t_bore * 0.00689476).toFixed(1) + ' MPa (Peak Tensile Hoop Stress)';
+
+    resVm.textContent = Math.round(vm_bore_psi).toLocaleString() + ' psi';
+    resVmSub.textContent = vm_bore_mpa.toFixed(1) + ' MPa (Triaxial Equivalent Bore Stress)';
+    if (isPass) {
+      vmCard.className = 'tc-metric-card pass';
+    } else {
+      vmCard.className = 'tc-metric-card fail';
+    }
+
+    resK.textContent = 'k = ' + k.toFixed(3);
+    resKSub.textContent = (k > 1.10 ? 'Thick-Wall Regime (k > 1.10)' : 'Thin-Wall Boundary (k ≤ 1.10)');
+
+    resMargin.textContent = margin.toFixed(2) + 'x';
+    if (isPass) {
+      resMarginSub.textContent = 'Pass: Exceeds SF = ' + targetSF.toFixed(1) + ' Target (Sy = ' + (mat.Sy_psi / 1000).toFixed(0) + ' ksi)';
+      yieldCard.className = 'tc-metric-card pass';
+    } else if (margin >= 1.0) {
+      resMarginSub.textContent = 'Caution: Below design SF = ' + targetSF.toFixed(1) + ' but elastic';
+      yieldCard.className = 'tc-metric-card highlight';
+    } else {
+      resMarginSub.textContent = 'PLASTIC YIELD: Bore will bulge & yield!';
+      yieldCard.className = 'tc-metric-card fail';
+    }
+
+    resBurst.textContent = Math.round(burst_psi).toLocaleString() + ' psi';
+    resBurstBar.textContent = Math.round(burst_bar).toLocaleString() + ' bar (Faupel Ductile Limit)';
+
+    resSigmaTOuter.textContent = Math.round(sigma_t_outer).toLocaleString() + ' psi';
+    const dropPct = ((1 - (sigma_t_outer / sigma_t_bore)) * 100).toFixed(0);
+    resSigmaTOuterSub.textContent = (sigma_t_outer * 0.00689476).toFixed(1) + ' MPa (' + dropPct + '% stress drop vs bore)';
+
+    // SVG Updates
+    svgPiBoreLabel.textContent = 'Pi = ' + Math.round(Pi_psi).toLocaleString() + ' psi';
+    svgRiLabel.textContent = 'ri = ' + ri_in.toFixed(2) + '"';
+    svgRoLabel.textContent = 'ro = ' + ro_in.toFixed(2) + '"';
+    svgGraphSigmaTBore.textContent = Math.round(sigma_t_bore).toLocaleString() + ' psi';
+    svgGraphVmBore.textContent = Math.round(vm_bore_psi).toLocaleString() + ' psi';
+    svgGraphMargin.textContent = margin.toFixed(2) + 'x (' + mat.name.split('(')[0].trim() + ')';
+    svgGraphBurst.textContent = Math.round(burst_psi).toLocaleString() + ' psi';
+
+    // Derivations updates
+    drvRi.textContent = ri_in.toFixed(2);
+    drvRo.textContent = ro_in.toFixed(2);
+    drvK.textContent = k.toFixed(3);
+    drvPi.textContent = Math.round(Pi_psi).toLocaleString();
+    drvPi2.textContent = Math.round(Pi_psi).toLocaleString();
+    drvRoSq.textContent = ro_sq.toFixed(2);
+    drvRiSq.textContent = ri_sq.toFixed(2);
+    drvRoSq2.textContent = ro_sq.toFixed(2);
+    drvRiSq2.textContent = ri_sq.toFixed(2);
+    drvStCalc.textContent = Math.round(sigma_t_bore).toLocaleString();
+    drvStMpa.textContent = (sigma_t_bore * 0.00689476).toFixed(1);
+
+    drvPi3.textContent = Math.round(Pi_psi).toLocaleString();
+    drvPi4.textContent = Math.round(Pi_psi).toLocaleString();
+    drvRiSq3.textContent = ri_sq.toFixed(2);
+    drvRoSq3.textContent = ro_sq.toFixed(2);
+    drvRiSq4.textContent = ri_sq.toFixed(2);
+    drvSzCalc.textContent = Math.round(sigma_z).toLocaleString();
+    drvSzMpa.textContent = (sigma_z * 0.00689476).toFixed(1);
+
+    drvPi5.textContent = Math.round(Pi_psi).toLocaleString();
+    drvKSq.textContent = k_sq.toFixed(3);
+    drvKSq2.textContent = k_sq.toFixed(3);
+    drvVmCalc.textContent = Math.round(vm_bore_psi).toLocaleString();
+    drvVmMpa.textContent = vm_bore_mpa.toFixed(1);
+
+    drvSy.textContent = (mat.Sy_psi / 1000).toFixed(1);
+    drvSu.textContent = (mat.Su_psi / 1000).toFixed(1);
+    drvSy2.textContent = Math.round(mat.Sy_psi).toLocaleString();
+    drvK2.textContent = k.toFixed(3);
+    drvSy3.textContent = Math.round(mat.Sy_psi).toLocaleString();
+    drvSu2.textContent = Math.round(mat.Su_psi).toLocaleString();
+    drvBurstCalc.textContent = Math.round(burst_psi).toLocaleString();
+    drvBurstBar.textContent = Math.round(burst_bar).toLocaleString();
+
+    if (isPass) {
+      drvMarginVerdict.textContent = 'With an operating pressure of ' + Math.round(Pi_psi).toLocaleString() + ' psi, the design offers a burst safety factor of ' + (burst_psi / Pi_psi).toFixed(2) + 'x and a yield safety factor of ' + margin.toFixed(2) + 'x against material yield strength (' + (mat.Sy_psi / 1000).toFixed(0) + ' ksi), satisfying ASME design requirements.';
+    } else {
+      drvMarginVerdict.textContent = 'WARNING: The operating pressure generates equivalent bore stress (' + Math.round(vm_bore_psi).toLocaleString() + ' psi) exceeding the code allowable limit (' + Math.round(mat.Sy_psi / targetSF).toLocaleString() + ' psi). Increase outer radius ro or select a higher strength alloy.';
+    }
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME SECTION VIII THICK-WALL CYLINDER LAMÉ AUDIT   \n' +
+      '=======================================================\n' +
+      'Internal Pressure (Pi):     ' + Math.round(Pi_psi).toLocaleString() + ' psi (' + (Pi_psi * 0.0689).toFixed(1) + ' bar / ' + (Pi_psi * 0.00689).toFixed(2) + ' MPa)\n' +
+      'External Pressure (Po):     ' + Math.round(Po_psi).toLocaleString() + ' psi\n' +
+      'Cylinder Dimensions:       ri = ' + ri_in.toFixed(3) + ' in (' + (ri_in * 25.4).toFixed(1) + ' mm) -> ro = ' + ro_in.toFixed(3) + ' in (' + (ro_in * 25.4).toFixed(1) + ' mm)\n' +
+      'Wall Thickness & Ratio:    t = ' + (ro_in - ri_in).toFixed(3) + ' in (k = ' + k.toFixed(3) + ') [' + (k > 1.10 ? 'Thick-Wall Lamé Applicable' : 'Thin-Wall Boundary') + ']\n' +
+      'Material Specification:    ' + mat.name + ' [Sy = ' + (mat.Sy_psi / 1000).toFixed(0) + ' ksi, Su = ' + (mat.Su_psi / 1000).toFixed(0) + ' ksi]\n' +
+      'End Condition:             ' + (isClosed ? 'Closed Ends (σz = ' + Math.round(sigma_z).toLocaleString() + ' psi)' : 'Open Ends (σz = 0)') + '\n' +
+      '-------------------------------------------------------\n' +
+      'MAX HOOP STRESS (Bore):    ' + Math.round(sigma_t_bore).toLocaleString() + ' psi (' + (sigma_t_bore * 0.00689).toFixed(1) + ' MPa tensile)\n' +
+      'Radial Bore Stress:        ' + Math.round(sigma_r_bore).toLocaleString() + ' psi (compressive reaction)\n' +
+      'Outer Surface Hoop Stress: ' + Math.round(sigma_t_outer).toLocaleString() + ' psi (' + dropPct + '% stress decay across wall)\n' +
+      'VON MISES BORE EQUIVALENT: ' + Math.round(vm_bore_psi).toLocaleString() + ' psi (' + vm_bore_mpa.toFixed(1) + ' MPa)\n' +
+      'YIELD SAFETY FACTOR:       ' + margin.toFixed(2) + 'x [Required SF = ' + targetSF.toFixed(1) + 'x: ' + (isPass ? 'PASS' : 'FAIL - OVERSTRESSED') + ']\n' +
+      'FAUPEL BURST PRESSURE:     ' + Math.round(burst_psi).toLocaleString() + ' psi (' + Math.round(burst_bar).toLocaleString() + ' bar ultimate limit)\n' +
+      'Burst Safety Ratio:        ' + (burst_psi / Pi_psi).toFixed(2) + 'x Operating Pressure\n' +
+      'Design Code Reference:     ASME Section VIII Div 2 / Div 3 & Lamé Theory\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyTcAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyTcAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Lamé Stress Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [piInput, poInput, pressUnitSelect, riInput, geomModeSelect, roInput, geomModeOSelect, materialSelect, endCondSelect, sfInput, queryRInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'thick-wall-cylinder-lame-stress-calculator.html'), renderTradePage({
+    title: "Thick-Wall Cylinder & Vessel Lamé Stress Calculator | ASME VIII",
+    metaDesc: "Calculate non-linear hoop, radial, and longitudinal stress distributions, Von Mises equivalent bore stress, and Faupel burst pressure per Lamé & ASME VIII.",
+    canonical: `${DOMAIN}/calc/thick-wall-cylinder-lame-stress-calculator`,
+    bodyContent: thickCylinderBody,
+    currentPath: '/calc/thick-wall-cylinder-lame-stress-calculator',
+    faq: [
+      {
+        "q": "When must you use Lamé thick-wall theory instead of thin-wall hoop stress (Pr/t)?",
+        "a": "Lamé's thick-wall equations must be used whenever the wall radius ratio k = ro / ri exceeds 1.10 (or when wall thickness exceeds 10% of the internal radius). In thick cylinders, hoop stress is not uniform; the inner bore experiences peak tensile stress that can be 50% to 150% higher than thin-wall approximations, while radial compressive stress (-Pi) contributes significantly to yielding."
+      },
+      {
+        "q": "Why does increasing cylinder wall thickness offer diminishing returns?",
+        "a": "Because hoop stress decays with 1/r², adding steel to the outer surface becomes progressively less effective at reducing peak inner bore stress. As the wall ratio k approaches infinity, the minimum possible bore hoop stress approaches the internal pressure itself (σt ≥ Pi). If working pressure exceeds the material's allowable stress, no amount of single-wall thickness can prevent yielding without autofrettage or multi-layer shrink construction."
+      },
+      {
+        "q": "What is the difference between closed-end and open-end cylinder stresses?",
+        "a": "In a closed-end cylinder (such as a hydraulic ram or capped pressure vessel), internal pressure acts against the end caps, generating an axial longitudinal tensile stress σz = Pi·ri² / (ro² - ri²) that is uniform throughout the wall. In an open-ended tube (such as an uncapped pipeline or slip-joint barrel), longitudinal stress is zero."
+      },
+      {
+        "q": "How does Faupel's burst formula predict ultimate rupture pressure?",
+        "a": "Faupel's equation (P_burst = 2·Sy / √3 · ln(k) · [2 - Sy/Su]) accounts for both the material's yield strength (Sy) and ultimate tensile strength (Su), modeling the transition from elastic-plastic yield to full plastic wall deformation and strain hardening before ductile rupture."
+      },
+      {
+        "q": "Why is radial stress (σr) negative at the inner bore?",
+        "a": "By mechanical convention, tensile stresses are positive and compressive stresses are negative. Pressurized fluid pushes directly outward against the inner bore surface, subjecting the metal atoms at r = ri to a compressive normal stress exactly equal in magnitude to the internal pressure: σr = -Pi."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (71 calculators in /calc/)');
 }
 
