@@ -171161,6 +171161,2319 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (263 calculators in /calc/)');
+    // ─── TOOL CC1: TRIETHYLENE GLYCOL (TEG) NATURAL GAS DEHYDRATION CALCULATOR ───
+  (() => {
+    const slug = 'triethylene-glycol-teg-gas-dehydration-calculator';
+    const title = 'Triethylene Glycol (TEG) Gas Dehydration Calculator | Contactor & Regenerator Sizing Engine';
+    const desc = 'Industrial Triethylene Glycol (TEG) natural gas dehydration calculator for offshore platforms, processing plants, and pipeline transmission. Accurately size absorption contactor diameter, water dew point depression, glycol circulation rate, reboiler duty, and stripping gas requirements.';
+
+    const faqs = [
+      {
+        q: 'Why is Triethylene Glycol (TEG) preferred over MEG or DEG for natural gas dehydration?',
+        a: 'Triethylene Glycol (TEG) is the global oil and gas industry standard for gas dehydration due to its superior physical and chemical properties. Compared to Monoethylene Glycol (MEG) and Diethylene Glycol (DEG), TEG has a much higher thermal decomposition temperature (206.7 deg C / 404 deg F), enabling regeneration to higher concentrations (98.5% to 99.2% without stripping gas, and up to 99.95% with stripping gas). Additionally, TEG possesses an exceptionally low vapor pressure, reducing glycol vaporization loss to less than 0.1 gal/MMSCF, and exhibits higher water absorption affinity across typical contactor temperatures (20 to 50 deg C).'
+      },
+      {
+        q: 'What is the standard pipeline moisture specification and how is water content calculated?',
+        a: 'Standard transmission pipeline specifications across North America and Europe mandate moisture content below 4.0 to 7.0 lb H2O / MMSCF (approximately 65 to 112 mg/Nm3), corresponding to a water dew point below -10 deg C to -15 deg C at pipeline pressures (50 to 90 barg). Saturated inlet gas water content is calculated using the Bukacek correlation or GPSA Engineering Data Book charts: W = A / P + B, where A and B are temperature-dependent vapor pressure coefficients and P is operating pressure.'
+      },
+      {
+        q: 'How is the glycol circulation rate determined and what is the typical design ratio?',
+        a: 'The glycol circulation rate is expressed in gallons of pure TEG circulated per pound of water vapor removed (gal TEG / lb H2O) or liters per kilogram of water. Typical industrial design ranges between 2.5 and 4.0 gal TEG / lb H2O (21 to 33 L / kg H2O). A circulation rate below 2.0 gal/lb risks water vapor breakthrough and inadequate tray hydraulics, whereas excessive circulation needlessly increases reboiler thermal fuel duty, forces larger pump sizing, and accelerates thermal degradation of the glycol.'
+      },
+      {
+        q: 'Why is the TEG regenerator reboiler temperature strictly maintained at 204 deg C (400 deg F)?',
+        a: 'The thermal degradation limit of pure triethylene glycol is 206.7 deg C (404 deg F). To prevent thermal cracking, reboilers are strictly controlled at 200 to 204 deg C (392 to 400 deg F) at atmospheric pressure. At 204 deg C, atmospheric distillation produces a maximum lean glycol purity of approximately 98.7% to 99.0 wt% (the vapor-liquid equilibrium boundary at 1.013 bar). To reach purities of 99.5% to 99.95% required for ultra-low dew points (-30 deg C or colder), stripping gas (nitrogen or dry fuel gas) is bubbled through a stripping column below the reboiler.'
+      },
+      {
+        q: 'How is the high-pressure contactor column diameter sized to prevent flooding?',
+        a: 'Contactor diameter is determined using the Souders-Brown flooding velocity equation: v_max = C_SB * sqrt((rho_L - rho_G) / rho_G), where C_SB is typically 0.16 to 0.22 ft/s (0.05 to 0.07 m/s) for structured packing or trayed towers with 24-inch tray spacing. The allowable operating superficial gas velocity is set to 70% to 75% of flood velocity. Column inside diameter is then derived from the volumetric gas flow rate at operating pressure and temperature: D = sqrt((4 * Q_actual) / (pi * v_allowable)).'
+      }
+    ];
+
+    const content = `<style>
+      .teg-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .teg-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .teg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .teg-group { margin-bottom: 16px; }
+      .teg-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .teg-group select, .teg-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .teg-group select:focus, .teg-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .teg-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-blue { background: #eff6ff; color: #1d4ed8; }
+      .teg-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .teg-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .teg-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .teg-res-sub { font-size: 0.8rem; color: #64748b; }
+      .teg-btn { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .teg-btn:hover { background: #1d4ed8; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="teg-wrap">
+      <div class="teg-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Triethylene Glycol (TEG) Gas Dehydration Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">GPSA / Bukacek engineering modeling for natural gas contactor towers and reboiler regeneration systems.</p>
+          </div>
+          <span class="teg-badge badge-blue">GPSA & ASME Sec VIII</span>
+        </div>
+
+        <div class="teg-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Natural Gas Feed Conditions</h3>
+            <div class="teg-group">
+              <label for="teg_gas_flow">Natural Gas Flow Rate</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="teg_gas_flow" value="75" min="1" step="5">
+                <select id="teg_gas_unit" style="width:130px;">
+                  <option value="MMSCFD" selected>MMSCFD</option>
+                  <option value="Nm3h">Nm3/h</option>
+                  <option value="MSCMD">MSCMD</option>
+                </select>
+              </div>
+            </div>
+            <div class="teg-group">
+              <label for="teg_gas_press">Operating Pressure (barg)</label>
+              <input type="number" id="teg_gas_press" value="68.0" min="15.0" max="140.0" step="1.0">
+            </div>
+            <div class="teg-group">
+              <label for="teg_gas_temp">Inlet Gas Temperature (deg C)</label>
+              <input type="number" id="teg_gas_temp" value="38" min="10" max="65" step="1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Moisture & Target Dew Point</h3>
+            <div class="teg-group">
+              <label for="teg_target_water">Outlet Water Spec (lb H2O / MMSCF)</label>
+              <input type="number" id="teg_target_water" value="5.0" min="0.5" max="15.0" step="0.5">
+              <small style="color:#64748b;">Pipeline spec is typically 4.0 to 7.0 lb/MMSCF (65-112 mg/Nm3).</small>
+            </div>
+            <div class="teg-group">
+              <label for="teg_internals">Contactor Internals Type</label>
+              <select id="teg_internals">
+                <option value="structured" selected>Structured Packing (High capacity, C_sb = 0.065 m/s)</option>
+                <option value="random">Random Packing - 1.5 in Pall Rings (C_sb = 0.055 m/s)</option>
+                <option value="trays">Bubble-Cap Trays (24 in spacing, C_sb = 0.050 m/s)</option>
+              </select>
+            </div>
+            <div class="teg-group">
+              <label for="teg_strip_gas">Stripping Gas Integration</label>
+              <select id="teg_strip_gas">
+                <option value="none">No Stripping Gas (Max 98.8% lean TEG)</option>
+                <option value="fuel_gas" selected>Dry Fuel Gas Stripping (Up to 99.8% lean TEG)</option>
+                <option value="nitrogen">Nitrogen Stripping (Ultra-dry, 99.95% lean TEG)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Glycol Circulation & Hydraulics</h3>
+            <div class="teg-group">
+              <label for="teg_ratio">Circulation Ratio (gal TEG / lb H2O removed)</label>
+              <input type="number" id="teg_ratio" value="3.0" min="2.0" max="5.0" step="0.2">
+              <small style="color:#64748b;">GPSA standard guideline: 2.5 to 4.0 gal TEG / lb H2O.</small>
+            </div>
+            <div class="teg-group">
+              <label for="teg_flood_pct">Design Gas Velocity (% of Flood)</label>
+              <input type="number" id="teg_flood_pct" value="72" min="50" max="85" step="1">
+            </div>
+            <div class="teg-group">
+              <label for="teg_reboiler_eff">Reboiler Thermal Efficiency (%)</label>
+              <input type="number" id="teg_reboiler_eff" value="80" min="65" max="95" step="1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="teg-btn" id="teg_calc_btn">Compute TEG Contactor & Regeneration System</button>
+        </div>
+      </div>
+
+      <div class="teg-card" id="teg_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Engineering Output & Regeneration Profile</h2>
+          <button class="copy-btn" id="teg_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="teg_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="teg-res-grid">
+          <div class="teg-res-card">
+            <div class="teg-res-sub">Water Removal Rate</div>
+            <div class="teg-res-val" id="res_water_rem">0 lb/day</div>
+            <div class="teg-res-sub" id="res_water_rem_kg">0 kg/h</div>
+          </div>
+          <div class="teg-res-card">
+            <div class="teg-res-sub">Water Dew Point Depression</div>
+            <div class="teg-res-val" id="res_dp_depress">0 deg C</div>
+            <div class="teg-res-sub" id="res_tout_dp">Outlet Dew Point: 0 deg C</div>
+          </div>
+          <div class="teg-res-card">
+            <div class="teg-res-sub">Lean TEG Circulation Rate</div>
+            <div class="teg-res-val" id="res_teg_rate">0 GPM</div>
+            <div class="teg-res-sub" id="res_teg_rate_m3h">0 m3/h (0 L/min)</div>
+          </div>
+          <div class="teg-res-card">
+            <div class="teg-res-sub">Contactor Column Inside Diam</div>
+            <div class="teg-res-val" id="res_col_diam">0 mm</div>
+            <div class="teg-res-sub" id="res_col_diam_in">0 inches ID</div>
+          </div>
+          <div class="teg-res-card">
+            <div class="teg-res-sub">Reboiler Thermal Duty</div>
+            <div class="teg-res-val" id="res_reboiler_kw">0 kW</div>
+            <div class="teg-res-sub" id="res_reboiler_btu">0 MMBTU/hr</div>
+          </div>
+          <div class="teg-res-card">
+            <div class="teg-res-sub">Lean Glycol Concentration</div>
+            <div class="teg-res-val" id="res_lean_purity">0% wt</div>
+            <div class="teg-res-sub" id="res_strip_rate">Stripping Gas: 0 SCFM</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Inlet & Outlet Stream Details</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Inlet Saturated Water: <strong id="res_win">0.0 lb/MMSCF (0 mg/Nm3)</strong></div>
+            <div>Rich Glycol Purity: <strong id="res_rich_purity">0.0% wt TEG</strong></div>
+            <div>Glycol Vapor Loss: <strong id="res_glycol_loss">0.0 gal/day</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Closed-Loop TEG Dehydration & Regeneration P&ID Visualizer</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic of high-pressure absorption contactor, rich glycol flash separator, plate heat exchanger, and 204 deg C reboiler still column.</p>
+          <div class="anim-box">
+            <canvas id="teg_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="teg-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Heavy Hydrocarbon & BTEX Foaming in Contactor</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">When feed natural gas drops below its hydrocarbon dew point prior to entering the contactor, liquid condensates (C6+ and aromatic BTEX compounds) enter the glycol stream. Hydrocarbons dissolve into triethylene glycol and drastically reduce surface tension, causing violent foaming in the contactor. Gas velocities fluidize the foam, carrying hundreds of gallons of glycol out the top into the dry gas line within minutes, causing sudden pressure spikes and emergency pipeline shutdown.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Thermal Overheating & Glycol Pyrolysis at >206 deg C</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Triethylene glycol decomposes rapidly above 206.7 deg C (404 deg F). If the reboiler burner tube experiences local hot spots or if scale/salt deposits insulate the firetube, localized film temperatures exceed 230 deg C. Thermal pyrolysis produces corrosive organic acids (formic and acetic acid) and heavy polymeric tar. The system pH plummets from 8.0 to below 5.0, resulting in rapid acid pitting of carbon steel vessels and clogging of heat exchanger plates.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Feed Gas Ingress Temperature Below Glycol Temperature</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Lean glycol must enter the top of the contactor 3 to 6 deg C (5 to 10 deg F) warmer than the overhead exit gas. If lean glycol enters colder than the gas, heavy hydrocarbons in the gas will condense directly into the top liquid distributor trays, causing instant foaming and ruining the water absorption mass transfer. Conversely, if glycol is more than 15 deg C hotter than the gas, excessive glycol vaporizes into the treated gas, escalating chemical consumption costs.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Stripping Gas Condensation in Still Column Vent</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">When stripping gas is introduced into the regenerator to achieve >99.5% purity, the water vapor and hydrocarbon off-gas must vent freely at atmospheric pressure. If the still column overhead temperature drops below 100 deg C due to excessive reflux cooling or ambient winter winds, water condenses in the still packing and runs back into the reboiler. The reboiler becomes water-logged, causing thermal surging, steam explosions, and failure to regenerate the glycol.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Inadequate Flash Tank Residence Time for Liquid Skimming</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Rich glycol leaving the high-pressure contactor (50 to 90 barg) carries dissolved methane and entrained condensate. The rich glycol flash separator (operating at 3 to 5 barg) must provide at least 15 to 20 minutes of liquid retention time to allow liquid hydrocarbon condensate to gravity-separate and float on top of the heavier glycol (specific gravity 1.12). If the flash tank is undersized, liquid hydrocarbon carries directly into the reboiler firetube, creating explosive vapor surges in the atmospheric still.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Gas Dehydration Thermodynamic Equations & Hydraulic Sizing</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The saturated water content $W_{in}$ of sweet natural gas is calculated via the <strong>Bukacek empirical relation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$W_{in} = \frac{47430 \cdot P_{H2O}^0(T)}{P} + B(T) \quad [\text{lb H}_2\text{O / MMSCF}]$$
+          </div>
+          <p>Where $P_{H2O}^0$ is water vapor pressure in psia and $P$ is absolute operating pressure in psia.</p>
+          <p>The required lean glycol circulation rate $L_{TEG}$ in gallons per minute (GPM) is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$L_{TEG} = \frac{Q_{MMSCFD} \cdot (W_{in} - W_{out}) \cdot R_{circ}}{24 \times 60} \quad [\text{GPM}]$$
+          </div>
+          <p>Where $R_{circ}$ is the circulation ratio (typically $2.5 - 4.0\text{ gal TEG / lb H}_2\text{O}$).</p>
+          <p>Contactor internal diameter $D_c$ is determined by the <strong>Souders-Brown flooding correlation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$v_{flood} = C_{SB} \cdot \sqrt{\frac{\rho_L - \rho_G}{\rho_G}}, \qquad D_c = \sqrt{\frac{4 \cdot Q_{actual}}{\pi \cdot f_{flood} \cdot v_{flood}}}$$
+          </div>
+          <p>The total reboiler heat duty $Q_{reb}$ accounts for sensible heating of glycol, heat of vaporization of water ($2260\text{ kJ/kg}$), and still reflux cooling:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Q_{reb} = \frac{1}{\eta_{th}} \left[ \dot{m}_{TEG} C_{p,TEG} (T_{reb} - T_{feed}) + \dot{m}_{H2O} \Delta H_{vap} (1 + R_{reflux}) \right]$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var flowInput = document.getElementById('teg_gas_flow');
+        var unitSel = document.getElementById('teg_gas_unit');
+        var pressInput = document.getElementById('teg_gas_press');
+        var tempInput = document.getElementById('teg_gas_temp');
+        var targetWaterInput = document.getElementById('teg_target_water');
+        var internalsSel = document.getElementById('teg_internals');
+        var stripGasSel = document.getElementById('teg_strip_gas');
+        var ratioInput = document.getElementById('teg_ratio');
+        var floodPctInput = document.getElementById('teg_flood_pct');
+        var rebEffInput = document.getElementById('teg_reboiler_eff');
+        var calcBtn = document.getElementById('teg_calc_btn');
+        var copyBtn = document.getElementById('teg_copy_btn');
+        var copyMsg = document.getElementById('teg_copy_msg');
+
+        var resWaterRem = document.getElementById('res_water_rem');
+        var resWaterRemKg = document.getElementById('res_water_rem_kg');
+        var resDpDepress = document.getElementById('res_dp_depress');
+        var resToutDp = document.getElementById('res_tout_dp');
+        var resTegRate = document.getElementById('res_teg_rate');
+        var resTegRateM3h = document.getElementById('res_teg_rate_m3h');
+        var resColDiam = document.getElementById('res_col_diam');
+        var resColDiamIn = document.getElementById('res_col_diam_in');
+        var resReboilerKw = document.getElementById('res_reboiler_kw');
+        var resReboilerBtu = document.getElementById('res_reboiler_btu');
+        var resLeanPurity = document.getElementById('res_lean_purity');
+        var resStripRate = document.getElementById('res_strip_rate');
+        var resWin = document.getElementById('res_win');
+        var resRichPurity = document.getElementById('res_rich_purity');
+        var resGlycolLoss = document.getElementById('res_glycol_loss');
+
+        var canvas = document.getElementById('teg_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function getWaterContent(tempC, pressBarg) {
+          // Bukacek correlation approximation
+          var tempF = tempC * 1.8 + 32;
+          var pressPsia = (pressBarg + 1.013) * 14.5038;
+          // Vapor pressure of water (Antoine approx in psia)
+          var a = 10.08, b = 3930, c = 395;
+          var vpPsia = Math.exp(a - b / (tempF + c));
+          var bTerm = 0.05 * Math.exp(0.02 * tempF);
+          var wLbMmscf = (47430 * vpPsia / pressPsia) + bTerm;
+          return Math.max(5, wLbMmscf);
+        }
+
+        function calculate() {
+          var rawFlow = parseFloat(flowInput.value) || 75;
+          var unit = unitSel.value;
+          var pBarg = parseFloat(pressInput.value) || 68.0;
+          var tGasC = parseFloat(tempInput.value) || 38.0;
+          var wOutTarget = parseFloat(targetWaterInput.value) || 5.0;
+          var internals = internalsSel.value;
+          var stripMode = stripGasSel.value;
+          var circRatio = parseFloat(ratioInput.value) || 3.0;
+          var floodPct = (parseFloat(floodPctInput.value) || 72) / 100;
+          var rebEff = (parseFloat(rebEffInput.value) || 80) / 100;
+
+          // Convert flow to MMSCFD
+          var mmscfd = rawFlow;
+          if (unit === 'Nm3h') mmscfd = rawFlow * 0.00084755;
+          else if (unit === 'MSCMD') mmscfd = rawFlow * 0.0353147;
+
+          // Inlet water content
+          var wInLbMmscf = getWaterContent(tGasC, pBarg);
+          var wInMgNm3 = wInLbMmscf * 16.0185;
+          var waterRemovedLbDay = mmscfd * Math.max(0, wInLbMmscf - wOutTarget);
+          var waterRemovedKgHr = (waterRemovedLbDay * 0.453592) / 24;
+
+          // Dew point calculation
+          var toutDpC = -15;
+          if (wOutTarget <= 2.0) toutDpC = -26;
+          else if (wOutTarget <= 4.0) toutDpC = -18;
+          else if (wOutTarget <= 7.0) toutDpC = -12;
+          else toutDpC = -5;
+          var dpDepressC = tGasC - toutDpC;
+
+          // Required Lean TEG Concentration
+          var leanPurity = 98.8;
+          var stripScfm = 0;
+          if (stripMode === 'fuel_gas') {
+            leanPurity = 99.7;
+            stripScfm = (mmscfd * 1000000 / (24 * 60)) * 0.0025; // approx 0.25% of feed gas
+          } else if (stripMode === 'nitrogen') {
+            leanPurity = 99.95;
+            stripScfm = (mmscfd * 1000000 / (24 * 60)) * 0.0035;
+          }
+
+          // Glycol circulation rate (GPM)
+          var tegGpm = (waterRemovedLbDay * circRatio) / (24 * 60);
+          var tegM3h = tegGpm * 0.227125;
+          var tegLmin = tegGpm * 3.78541;
+
+          // Rich Glycol Purity
+          var tegDensityLbGal = 9.35; // lb/gal for pure TEG at 25C
+          var tegMassLbDay = (tegGpm * 60 * 24) * tegDensityLbGal * (leanPurity / 100);
+          var richPurity = (tegMassLbDay / (tegMassLbDay + waterRemovedLbDay)) * 100;
+
+          // Contactor Diameter Sizing via Souders-Brown
+          var csb = 0.065; // m/s structured
+          if (internals === 'random') csb = 0.055;
+          if (internals === 'trays') csb = 0.050;
+
+          var rhoL = 1120; // kg/m3 liquid glycol
+          // Gas density at operating conditions: MW ~ 18 g/mol, Z ~ 0.85
+          var pTotalBar = pBarg + 1.013;
+          var tGasK = tGasC + 273.15;
+          var rhoG = (pTotalBar * 1e5 * 0.018) / (0.85 * 8.314 * tGasK); // kg/m3
+
+          var vFlood = csb * Math.sqrt((rhoL - rhoG) / rhoG);
+          var vDesign = vFlood * floodPct;
+
+          // Actual gas volumetric flow rate (m3/s)
+          var stdM3s = (mmscfd * 1e6 * 0.0283168) / 86400;
+          var qActualM3s = stdM3s * (1.01325 / pTotalBar) * (tGasK / 288.15) * 0.85;
+          var colArea = qActualM3s / vDesign;
+          var colDiamM = Math.sqrt((4 * colArea) / Math.PI);
+          var colDiamMm = colDiamM * 1000;
+          var colDiamIn = colDiamMm / 25.4;
+
+          // Reboiler Duty Calculation
+          // Sensible heat (rich glycol enters reboiler at ~155C, heated to 204C)
+          var cpTeg = 2.72; // kJ/(kg K)
+          var richMassKgS = (tegM3h * 1120) / 3600;
+          var qSensibleKw = richMassKgS * cpTeg * (204 - 155);
+          // Latent heat of vaporization of water (2260 kJ/kg) + 25% reflux duty
+          var waterKgS = waterRemovedKgHr / 3600;
+          var qLatentKw = waterKgS * 2260 * 1.25;
+          var qTotalHeatKw = (qSensibleKw + qLatentKw) / rebEff;
+          var qTotalBtuHr = qTotalHeatKw * 3412.14;
+          var qMmbtuHr = qTotalBtuHr / 1e6;
+
+          // Estimated Glycol Loss (vaporization + mechanical)
+          var glycolLossGalDay = mmscfd * 0.08;
+
+          // Update DOM
+          resWaterRem.innerText = Math.round(waterRemovedLbDay).toLocaleString() + ' lb/day';
+          resWaterRemKg.innerText = waterRemovedKgHr.toFixed(1) + ' kg/h H2O';
+          resDpDepress.innerText = '-' + dpDepressC.toFixed(1) + ' deg C';
+          resToutDp.innerText = 'Outlet Dew Point: ' + toutDpC + ' deg C';
+          resTegRate.innerText = tegGpm.toFixed(1) + ' GPM';
+          resTegRateM3h.innerText = tegM3h.toFixed(2) + ' m3/h (' + tegLmin.toFixed(1) + ' L/min)';
+          resColDiam.innerText = Math.round(colDiamMm) + ' mm ID';
+          resColDiamIn.innerText = colDiamIn.toFixed(1) + ' inches ID (v = ' + vDesign.toFixed(2) + ' m/s)';
+          resReboilerKw.innerText = Math.round(qTotalHeatKw) + ' kW';
+          resReboilerBtu.innerText = qMmbtuHr.toFixed(2) + ' MMBTU/hr';
+          resLeanPurity.innerText = leanPurity.toFixed(2) + '% wt TEG';
+          resStripRate.innerText = stripMode !== 'none' ? Math.round(stripScfm) + ' SCFM' : 'None Required';
+          resWin.innerText = wInLbMmscf.toFixed(1) + ' lb/MMSCF (' + Math.round(wInMgNm3) + ' mg/Nm3)';
+          resRichPurity.innerText = richPurity.toFixed(2) + '% wt TEG';
+          resGlycolLoss.innerText = glycolLossGalDay.toFixed(2) + ' gal/day (~' + (glycolLossGalDay*3.785).toFixed(1) + ' L/d)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Background Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // 1. High-Pressure Contactor Tower (Left)
+          var cX = 100;
+          var cY = 30;
+          var cW = 110;
+          var cH = 260;
+
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(cX, cY, cW, cH, 20);
+          ctx.fill();
+          ctx.stroke();
+
+          // Structured Packing Beds
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+          ctx.fillRect(cX + 8, cY + 50, cW - 16, 75);
+          ctx.fillRect(cX + 8, cY + 140, cW - 16, 75);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('CONTACTOR', cX + cW/2, cY + 22);
+          ctx.font = '10px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('68 barg', cX + cW/2, cY + 38);
+
+          // 2. Rich Glycol Flash Tank (Center Left)
+          var fX = 320;
+          var fY = 160;
+          var fW = 100;
+          var fH = 65;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#a855f7';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(fX, fY, fW, fH, 10);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('FLASH DRUM', fX + fW/2, fY + 28);
+          ctx.font = '9px sans-serif';
+          ctx.fillStyle = '#c084fc';
+          ctx.fillText('4.5 barg (Gas Skim)', fX + fW/2, fY + 45);
+
+          // 3. Lean / Rich Plate Heat Exchanger (Center Right)
+          var hxX = 490;
+          var hxY = 145;
+          var hxW = 75;
+          var hxH = 95;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(hxX, hxY, hxW, hxH, 8);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('GLYCOL HX', hxX + hxW/2, hxY + 35);
+          ctx.font = '9px sans-serif';
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Plate & Frame', hxX + hxW/2, hxY + 55);
+
+          // 4. Reboiler & Still Column (Right)
+          var rX = 660;
+          var rY = 140;
+          var rW = 130;
+          var rH = 80;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(rX, rY, rW, rH, 12);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('REBOILER (204 C)', rX + rW/2, rY + 45);
+
+          // Still Column mounted on top of reboiler
+          var sX = rX + 40;
+          var sY = 40;
+          var sW = 50;
+          var sH = 100;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(sX, sY, sW, sH, 8);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('STILL', sX + sW/2, sY + 30);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('H2O Vent ^', sX + sW/2, sY - 8);
+
+          // 5. High-Pressure Glycol Injection Pump (Far Right / Bottom)
+          var pX = 860;
+          var pY = 170;
+          var pW = 80;
+          var pH = 60;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(pX, pY, pW, pH, 8);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('HP PUMP', pX + pW/2, pY + 28);
+          ctx.fillStyle = '#34d399';
+          ctx.font = '9px sans-serif';
+          ctx.fillText('Triplex Plunger', pX + pW/2, pY + 45);
+
+          // Connecting Piping & Stream Indicators
+          ctx.lineWidth = 3;
+          // Rich glycol from Contactor Bottom to Flash Drum
+          ctx.strokeStyle = '#a855f7';
+          ctx.beginPath();
+          ctx.moveTo(cX + cW/2, cY + cH);
+          ctx.lineTo(cX + cW/2, cY + cH + 20);
+          ctx.lineTo(fX, cY + cH + 20);
+          ctx.lineTo(fX, fY + fH/2);
+          ctx.stroke();
+
+          // Flash Drum to Glycol HX
+          ctx.beginPath();
+          ctx.moveTo(fX + fW, fY + fH/2);
+          ctx.lineTo(hxX, fY + fH/2);
+          ctx.stroke();
+
+          // HX to Still Column Top
+          ctx.beginPath();
+          ctx.moveTo(hxX + hxW, hxY + 30);
+          ctx.lineTo(sX, hxY + 30);
+          ctx.stroke();
+
+          // Reboiler bottom to HX (Lean Glycol)
+          ctx.strokeStyle = '#10b981';
+          ctx.beginPath();
+          ctx.moveTo(rX, rY + rH - 15);
+          ctx.lineTo(hxX + hxW, rY + rH - 15);
+          ctx.stroke();
+
+          // HX to HP Pump
+          ctx.beginPath();
+          ctx.moveTo(hxX + hxW/2, hxY + hxH);
+          ctx.lineTo(hxX + hxW/2, 270);
+          ctx.lineTo(pX + pW/2, 270);
+          ctx.lineTo(pX + pW/2, pY + pH);
+          ctx.stroke();
+
+          // HP Pump back to Contactor Top
+          ctx.beginPath();
+          ctx.moveTo(pX + pW/2, pY);
+          ctx.lineTo(pX + pW/2, 20);
+          ctx.lineTo(cX + cW/2, 20);
+          ctx.lineTo(cX + cW/2, cY);
+          ctx.stroke();
+
+          // Gas inlet and outlet arrows
+          ctx.fillStyle = '#f87171';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('WET GAS IN ->', cX - 60, cY + cH - 30);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('DRY GAS OUT ^', cX + cW/2, cY - 10);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== TEG NATURAL GAS DEHYDRATION SIZING REPORT ===',
+            'Gas Flow Rate: ' + flowInput.value + ' ' + unitSel.value,
+            'Operating Pressure / Temp: ' + pressInput.value + ' barg @ ' + tempInput.value + ' deg C',
+            'Inlet Water / Target Spec: ' + resWin.innerText + ' -> ' + targetWaterInput.value + ' lb/MMSCF',
+            'Total Water Removed: ' + resWaterRem.innerText + ' (' + resWaterRemKg.innerText + ')',
+            'Water Dew Point Depression: ' + resDpDepress.innerText + ' (' + resToutDp.innerText + ')',
+            'Lean Glycol Circulation: ' + resTegRate.innerText + ' (' + resTegRateM3h.innerText + ')',
+            'Lean TEG Concentration: ' + resLeanPurity.innerText + ' (Rich: ' + resRichPurity.innerText + ')',
+            'Contactor Column Diameter: ' + resColDiam.innerText + ' (' + resColDiamIn.innerText + ')',
+            'Reboiler Heat Duty: ' + resReboilerKw.innerText + ' (' + resReboilerBtu.innerText + ')',
+            'Stripping Gas Option: ' + stripGasSel.value + ' (' + resStripRate.innerText + ')',
+            'Estimated Glycol Loss: ' + resGlycolLoss.innerText,
+            'Standard Compliance: GPSA Engineering Data Book & ASME Sec VIII Div 1'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [flowInput, unitSel, pressInput, tempInput, targetWaterInput, internalsSel, stripGasSel, ratioInput, floodPctInput, rebEffInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CC2: HYDROGEN PRESSURE SWING ADSORPTION (PSA) PURIFICATION CALCULATOR ───
+  (() => {
+    const slug = 'hydrogen-psa-pressure-swing-adsorption-purification-calculator';
+    const title = 'Hydrogen PSA Pressure Swing Adsorption Calculator | H2 Purification & Fuel-Cell Grade Sizing';
+    const desc = 'Industrial multi-bed hydrogen PSA sizing calculator for steam methane reforming (SMR), refinery off-gas, and ISO 14687 Grade D fuel-cell grade hydrogen. Model hydrogen recovery efficiency, bed count, layered adsorbents (alumina, carbon, 5A zeolite), and tail gas heating value.';
+
+    const faqs = [
+      {
+        q: 'How does a layered adsorbent bed operate in a multi-bed hydrogen PSA unit?',
+        a: 'Commercial hydrogen PSA columns utilize a three-tiered layered adsorbent design to exploit the distinct adsorption affinities of syngas impurities. The bottom layer consists of high-surface-area activated alumina (5% to 10% of bed height) to aggressively strip water vapor and trace heavy hydrocarbons, protecting downstream adsorbents. The middle layer comprises microporous activated carbon (45% to 55% of bed height), which possesses immense capacity for non-polar molecules like CO2 and methane (CH4). The top polishing layer utilizes Zeolite 5A or CaA molecular sieve (35% to 45% of bed height) to capture weakly adsorbed carbon monoxide (CO) and nitrogen (N2) down to sub-ppm levels, allowing purified hydrogen (>99.999%) to exit the top.'
+      },
+      {
+        q: 'What is the relationship between bed count (4, 6, 8, 10-bed) and hydrogen recovery percentage?',
+        a: 'Hydrogen recovery is strongly governed by the number of pressure equalization steps permitted by the bed configuration. A basic 4-bed PSA system with a single pressure equalization recovers approximately 74% to 78% of feed hydrogen. A 6-bed PSA with two pressure equalizations elevates recovery to 82% to 86%. High-capacity 8-bed and 10-bed cycles incorporate three to four equalizations and dedicated purge-providing steps, boosting hydrogen recovery to 88% to 91%. In modern gigawatt-scale hydrogen plants, each percentage point of recovery represents millions of dollars in natural gas feedstock savings annually.'
+      },
+      {
+        q: 'What are the purity requirements for fuel-cell grade hydrogen under ISO 14687-2 / SAE J2719?',
+        a: 'Proton Exchange Membrane (PEM) fuel cells in automotive applications are exceptionally vulnerable to catalyst poisoning. ISO 14687 Grade D and SAE J2719 mandate a minimum hydrogen purity of 99.97%, with strict limits on specific contaminants: carbon monoxide (CO) must be below 0.2 ppmv (200 ppb), total sulfur below 4 ppb, and total hydrocarbons below 2 ppmv. Carbon monoxide is the most critical: even 1 ppm of CO adsorbs irreversibly onto platinum cathode electrocatalysts, halving cell voltage within minutes.'
+      },
+      {
+        q: 'What is PSA tail gas (off-gas) and how is it utilized in hydrogen plants?',
+        a: 'During the countercurrent blowdown and low-pressure purge steps, the adsorbed impurities (CO2, CH4, CO, N2) desorb into the purge gas, forming PSA tail gas at 0.1 to 0.4 barg. Tail gas contains between 15% and 25% unrecovered hydrogen alongside all methane slip and carbon monoxide, yielding a lower heating value (LHV) of 8.0 to 12.5 MJ/Nm3 (215 to 335 BTU/SCF). In Steam Methane Reforming (SMR) facilities, tail gas is piped directly to the reformer furnace burners, supplying 45% to 65% of the total thermal heat required for the endothermic reforming reaction.'
+      },
+      {
+        q: 'How does feed gas pressure affect hydrogen PSA capacity and bed sizing?',
+        a: 'Higher feed gas adsorption pressure (typically 18 to 32 barg) widens the adsorption-desorption loading delta on the Langmuir isotherms, significantly increasing the dynamic working capacity of activated carbon and zeolite. However, higher pressure also stores more pure hydrogen in the interstitial void spaces of the bed. Multi-bed equalization recovers this void gas into regenerating beds. Designing for feed pressures above 35 barg requires thicker vessel shells without offering proportional capacity gains, making 20 to 28 barg the global techno-economic optimum for SMR hydrogen plants.'
+      }
+    ];
+
+    const content = `<style>
+      .h2psa-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .h2psa-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .h2psa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .h2psa-group { margin-bottom: 16px; }
+      .h2psa-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .h2psa-group select, .h2psa-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .h2psa-group select:focus, .h2psa-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .h2psa-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-blue { background: #eff6ff; color: #1d4ed8; }
+      .h2psa-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .h2psa-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .h2psa-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .h2psa-res-sub { font-size: 0.8rem; color: #64748b; }
+      .h2psa-btn { background: #0284c7; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .h2psa-btn:hover { background: #0369a1; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="h2psa-wrap">
+      <div class="h2psa-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Hydrogen PSA Pressure Swing Adsorption Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Multi-bed cycle kinematics, hydrogen recovery modeling, layered adsorbent volumes, and fuel-cell grade ISO 14687 compliance.</p>
+          </div>
+          <span class="h2psa-badge badge-blue">ISO 14687 & Clean H2 Economy</span>
+        </div>
+
+        <div class="h2psa-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Feed Gas Flow & Quality</h3>
+            <div class="h2psa-group">
+              <label for="h2_flow">Feed Gas Flow Rate</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="h2_flow" value="35000" min="100" step="1000">
+                <select id="h2_flow_unit" style="width:130px;">
+                  <option value="Nm3h" selected>Nm3/h</option>
+                  <option value="MMSCFD">MMSCFD</option>
+                  <option value="kg_h">kg/h</option>
+                </select>
+              </div>
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_feed_pct">Feed Gas H2 Content (vol %)</label>
+              <input type="number" id="h2_feed_pct" value="74.5" min="40.0" max="95.0" step="0.5">
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_co_feed">Feed CO Content (vol %)</label>
+              <input type="number" id="h2_co_feed" value="1.8" min="0.1" max="10.0" step="0.1">
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_co2_feed">Feed CO2 Content (vol %)</label>
+              <input type="number" id="h2_co2_feed" value="18.5" min="1.0" max="40.0" step="0.5">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Pressure & Cycle Configuration</h3>
+            <div class="h2psa-group">
+              <label for="h2_feed_press">Feed Adsorption Pressure (barg)</label>
+              <input type="number" id="h2_feed_press" value="24.0" min="10.0" max="45.0" step="0.5">
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_tail_press">Tail Gas Desorption Pressure (barg)</label>
+              <input type="number" id="h2_tail_press" value="0.25" min="0.05" max="1.5" step="0.05">
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_beds">PSA Bed Architecture</label>
+              <select id="h2_beds">
+                <option value="4_beds">4-Bed Single Equalization (~76% H2 Recovery)</option>
+                <option value="6_beds" selected>6-Bed Dual Equalization (~84% H2 Recovery)</option>
+                <option value="8_beds">8-Bed Triple Equalization (~88% H2 Recovery)</option>
+                <option value="10_beds">10-Bed Dual-Train High Recovery (~90.5% H2 Recovery)</option>
+              </select>
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_purity_target">Target Hydrogen Specification</label>
+              <select id="h2_purity_target">
+                <option value="99.9">99.9% (Industrial Standard)</option>
+                <option value="99.99">99.99% (Chemical Synthesis / Hydrotreating)</option>
+                <option value="99.999" selected>99.999% (5-Nines / Electronics)</option>
+                <option value="fuel_cell">Fuel-Cell Grade (ISO 14687: CO <0.2 ppm, >99.97%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Adsorbents & Cycle Dynamics</h3>
+            <div class="h2psa-group">
+              <label for="h2_cycle_time">Total Cycle Time per Bed (seconds)</label>
+              <input type="number" id="h2_cycle_time" value="360" min="180" max="900" step="30">
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_ch4_feed">Feed CH4 + N2 Slip (vol %)</label>
+              <input type="number" id="h2_ch4_feed" value="5.2" min="0.5" max="15.0" step="0.2">
+            </div>
+            <div class="h2psa-group">
+              <label for="h2_gas_temp">Feed Gas Temperature (deg C)</label>
+              <input type="number" id="h2_gas_temp" value="32" min="15" max="50" step="1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="h2psa-btn" id="h2_calc_btn">Calculate Hydrogen PSA System & Tail Gas Balances</button>
+        </div>
+      </div>
+
+      <div class="h2psa-card" id="h2_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Engineering Output & Material Balances</h2>
+          <button class="copy-btn" id="h2_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="h2_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="h2psa-res-grid">
+          <div class="h2psa-res-card">
+            <div class="h2psa-res-sub">Purified H2 Product Rate</div>
+            <div class="h2psa-res-val" id="res_h2_prod">0 Nm3/h</div>
+            <div class="h2psa-res-sub" id="res_h2_prod_tpd">0 TPD H2</div>
+          </div>
+          <div class="h2psa-res-card">
+            <div class="h2psa-res-sub">Hydrogen Recovery Efficiency</div>
+            <div class="h2psa-res-val" id="res_h2_recovery">0%</div>
+            <div class="h2psa-res-sub" id="res_h2_purity_disp">Purity: >99.999%</div>
+          </div>
+          <div class="h2psa-res-card">
+            <div class="h2psa-res-sub">Tail Gas Flow to Burners</div>
+            <div class="h2psa-res-val" id="res_tail_flow">0 Nm3/h</div>
+            <div class="h2psa-res-sub" id="res_tail_lhv">LHV: 0 MJ/Nm3</div>
+          </div>
+          <div class="h2psa-res-card">
+            <div class="h2psa-res-sub">Total Layered Adsorbent Mass</div>
+            <div class="h2psa-res-val" id="res_ads_mass">0 tonnes</div>
+            <div class="h2psa-res-sub" id="res_ads_vol">Volume: 0 m3</div>
+          </div>
+          <div class="h2psa-res-card">
+            <div class="h2psa-res-sub">Adsorber Vessel Dimensions</div>
+            <div class="h2psa-res-val" id="res_vessel_dim">0 m ID x 0 m H</div>
+            <div class="h2psa-res-sub" id="res_vessel_count">0 Vessels in Skid</div>
+          </div>
+          <div class="h2psa-res-card">
+            <div class="h2psa-res-sub">Tail Gas Thermal Power</div>
+            <div class="h2psa-res-val" id="res_tail_power">0 MW th</div>
+            <div class="h2psa-res-sub" id="res_reformer_duty">Replaces ~0% Fuel Gas</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Layered Adsorbent Breakdown per Column</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Bottom: <strong id="res_lay_alumina">Activated Alumina (0 m3)</strong></div>
+            <div>Middle: <strong id="res_lay_carbon">Activated Carbon (0 m3)</strong></div>
+            <div>Top: <strong id="res_lay_zeolite">Zeolite 5A / CaA (0 m3)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Multi-Bed PSA Cycle Matrix & Sequence Timeline</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing step sequence (Adsorption, 1st & 2nd Equalizations, Provide Purge, Countercurrent Blowdown, Purge Sweep, Repressurization).</p>
+          <div class="anim-box">
+            <canvas id="h2psa_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="h2psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. CO Breakthrough Poisoning of Fuel-Cell Vehicles</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">While activated carbon captures CO2 and CH4 readily, carbon monoxide (CO) has a very low adsorption affinity and is trapped only by the top Zeolite 5A polishing layer. If the adsorption half-cycle time is extended by even 15 seconds due to flow rate surges, the CO mass transfer zone breaks through into the product header. A rise in CO from 0.1 ppm to only 2 ppm instantly poisons PEM fuel cells in refueling fleets, destroying vehicle fuel cell stacks costing tens of thousands of dollars each.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Liquid Water Condensation & Hydrothermal Zeolite Collapse</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Feed syngas from water-gas shift units is saturated with moisture. If syngas enters the PSA below its dew point or if the bottom activated alumina desiccant layer becomes saturated, liquid water contacts the Zeolite 5A pellets. The zeolite crystal structure undergoes irreversible hydrothermal dealumination, losing its crystalline lattice and collapsing into an amorphous, non-adsorptive clay within 48 hours. The entire zeolite charge must be dumped and replaced.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Bed Fluidization & "Dusting" During Rapid Equalization</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">During the 15 to 30 second pressure equalization steps, gas transfers between beds at high differential velocities. If the valve actuator opening ramp is too aggressive, upward superficial velocity exceeds the minimum fluidization velocity (U_mf) of the adsorbent beads. Beads violently bounce and grind against each other, generating fine abrasive dust that fouls downstream ceramic dust filters, scores switching valve seats, and causes chronic cross-port leakage.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Tail Gas Pressure Surges & SMR Burner Flameout</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">During the depressurization blowdown step, tail gas volume surges by up to 300% within a 20-second window. If the downstream tail gas buffer drum is undersized, severe pressure pulses travel back to the reformer furnace burners. These fuel pressure oscillations disrupt burner aerodynamics, causing flame lifting, CO emissions violations, and in severe cases, triggering a catastrophic burner flameout and emergency plant trip.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Adsorption Thermal Wave & Selectivity Inversion</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Adsorption of CO2 onto activated carbon is highly exothermic (Delta H_ads ~ 25 to 30 kJ/mol). In high-CO2 feeds (e.g. 25% CO2), a severe thermal wavefront (+25 to +40 deg C) travels up the bed during the adsorption step. Higher temperatures sharply reduce the equilibrium capacity of the downstream zeolite layer for carbon monoxide, reducing CO breakthrough time by 35% compared to isothermal assumptions. Dynamic cycle models must explicitly account for this non-isothermal thermal wave.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Adsorption Thermodynamics & Sizing Formulations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The equilibrium adsorption of gas species $i$ on activated carbon and zeolite is modeled via the <strong>multi-component extended Langmuir isotherm</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$q_i = \frac{q_{m,i} \cdot b_i \cdot P_i}{1 + \sum_{j} b_j \cdot P_j}$$
+          </div>
+          <p>Where $q_{m,i}$ is maximum monolayer saturation capacity, $b_i$ is the temperature-dependent affinity parameter ($b_i = b_{0,i} \exp(Q_{ads,i} / RT)$), and $P_i$ is the partial pressure.</p>
+          <p>The overall <strong>Hydrogen Recovery Efficiency ($\eta_{H2}$)</strong> is parameterized by bed count and equalization stages:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\eta_{H2} = \frac{\dot{V}_{H2,product}}{\dot{V}_{feed} \cdot y_{H2,feed}} = \eta_{max} \cdot \left[ 1 - \exp\left( -k_{eq} \cdot N_{beds} \right) \right] \cdot \left( \frac{P_{ads}}{P_{tail}} \right)^{0.06}$$
+          </div>
+          <p>The tail gas flow rate $\dot{V}_{tail}$ and Lower Heating Value (LHV) are governed by the unrecovered hydrogen and all feed impurities ($CO, CH_4$):</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{LHV}_{tail} = \frac{\dot{V}_{H2,tail} \cdot 10.78 + \dot{V}_{CO,feed} \cdot 12.63 + \dot{V}_{CH4,feed} \cdot 35.88}{\dot{V}_{tail}} \quad [\text{MJ/Nm}^3]$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var flowInput = document.getElementById('h2_flow');
+        var flowUnit = document.getElementById('h2_flow_unit');
+        var feedH2Input = document.getElementById('h2_feed_pct');
+        var feedCoInput = document.getElementById('h2_co_feed');
+        var feedCo2Input = document.getElementById('h2_co2_feed');
+        var feedPressInput = document.getElementById('h2_feed_press');
+        var tailPressInput = document.getElementById('h2_tail_press');
+        var bedsSel = document.getElementById('h2_beds');
+        var targetSel = document.getElementById('h2_purity_target');
+        var cycleTimeInput = document.getElementById('h2_cycle_time');
+        var ch4Input = document.getElementById('h2_ch4_feed');
+        var tempInput = document.getElementById('h2_gas_temp');
+        var calcBtn = document.getElementById('h2_calc_btn');
+        var copyBtn = document.getElementById('h2_copy_btn');
+        var copyMsg = document.getElementById('h2_copy_msg');
+
+        var resH2Prod = document.getElementById('res_h2_prod');
+        var resH2ProdTpd = document.getElementById('res_h2_prod_tpd');
+        var resH2Recovery = document.getElementById('res_h2_recovery');
+        var resH2PurityDisp = document.getElementById('res_h2_purity_disp');
+        var resTailFlow = document.getElementById('res_tail_flow');
+        var resTailLhv = document.getElementById('res_tail_lhv');
+        var resAdsMass = document.getElementById('res_ads_mass');
+        var resAdsVol = document.getElementById('res_ads_vol');
+        var resVesselDim = document.getElementById('res_vessel_dim');
+        var resVesselCount = document.getElementById('res_vessel_count');
+        var resTailPower = document.getElementById('res_tail_power');
+        var resReformerDuty = document.getElementById('res_reformer_duty');
+        var resLayAlumina = document.getElementById('res_lay_alumina');
+        var resLayCarbon = document.getElementById('res_lay_carbon');
+        var resLayZeolite = document.getElementById('res_lay_zeolite');
+
+        var canvas = document.getElementById('h2psa_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var rawFlow = parseFloat(flowInput.value) || 35000;
+          var unit = flowUnit.value;
+          var h2Pct = parseFloat(feedH2Input.value) || 74.5;
+          var coPct = parseFloat(feedCoInput.value) || 1.8;
+          var co2Pct = parseFloat(feedCo2Input.value) || 18.5;
+          var pAds = parseFloat(feedPressInput.value) || 24.0;
+          var pTail = parseFloat(tailPressInput.value) || 0.25;
+          var bedArch = bedsSel.value;
+          var targetSpec = targetSel.value;
+          var cycleT = parseFloat(cycleTimeInput.value) || 360;
+          var ch4Pct = parseFloat(ch4Input.value) || 5.2;
+          var tempC = parseFloat(tempInput.value) || 32;
+
+          // Convert flow to Nm3/h
+          var flowNm3h = rawFlow;
+          if (unit === 'MMSCFD') flowNm3h = rawFlow * 1179.87;
+          else if (unit === 'kg_h') flowNm3h = rawFlow * 1.5; // average density conversion
+
+          var totalH2InNm3h = flowNm3h * (h2Pct / 100);
+
+          // Recovery calculation based on bed architecture and pressures
+          var numBeds = 6;
+          var baseRec = 0.84;
+          if (bedArch === '4_beds') { numBeds = 4; baseRec = 0.76; }
+          else if (bedArch === '6_beds') { numBeds = 6; baseRec = 0.84; }
+          else if (bedArch === '8_beds') { numBeds = 8; baseRec = 0.88; }
+          else { numBeds = 10; baseRec = 0.905; }
+
+          // Pressure ratio bonus: higher pressure difference gives slight recovery boost
+          var prBonus = Math.pow((pAds + 1.013) / (pTail + 1.013) / 25, 0.05);
+          // Purity penalty: ultra-pure fuel-cell grade or 5-nines takes slight recovery haircut
+          var purityMod = 1.0;
+          if (targetSpec === 'fuel_cell' || targetSpec === '99.999') purityMod = 0.985;
+
+          var actualRec = Math.min(0.92, baseRec * prBonus * purityMod);
+          var actualRecPct = actualRec * 100;
+
+          var prodH2Nm3h = totalH2InNm3h * actualRec;
+          var prodH2KgHr = prodH2Nm3h * 0.08988; // 0.08988 kg/Nm3 H2
+          var prodH2Tpd = (prodH2KgHr * 24) / 1000;
+
+          // Tail gas flow & composition
+          var unrecH2Nm3h = totalH2InNm3h * (1 - actualRec);
+          var coNm3h = flowNm3h * (coPct / 100);
+          var co2Nm3h = flowNm3h * (co2Pct / 100);
+          var ch4Nm3h = flowNm3h * (ch4Pct / 100);
+          var tailGasNm3h = unrecH2Nm3h + coNm3h + co2Nm3h + ch4Nm3h;
+
+          // Tail gas heating value (LHV)
+          // H2: 10.78 MJ/Nm3, CO: 12.63 MJ/Nm3, CH4: 35.88 MJ/Nm3, CO2: 0
+          var tailLhvTotal = (unrecH2Nm3h * 10.78) + (coNm3h * 12.63) + (ch4Nm3h * 35.88);
+          var tailLhvMjNm3 = tailLhvTotal / tailGasNm3h;
+          var tailPowerMw = tailLhvTotal / 3600; // MW thermal
+
+          // Adsorbent bed volume calculation
+          // Specific impurity loading: ~0.45 kmol impurities per m3 total adsorbent bed
+          var impuritiesNm3h = flowNm3h * ((100 - h2Pct) / 100);
+          var impKmolH = impuritiesNm3h / 22.414;
+          // Working capacity per cycle:
+          var cyclesPerHour = 3600 / cycleT;
+          var impPerCycle = impKmolH / cyclesPerHour;
+          var totalBedVolM3 = impPerCycle * 3.8; // conservative sizing factor
+          var singleBedVolM3 = totalBedVolM3 / numBeds;
+
+          // Layer proportions: 8% Alumina, 52% Carbon, 40% Zeolite 5A
+          var volAlumina = singleBedVolM3 * 0.08;
+          var volCarbon = singleBedVolM3 * 0.52;
+          var volZeolite = singleBedVolM3 * 0.40;
+
+          // Total mass (Carbon ~480 kg/m3, Zeolite ~720 kg/m3, Alumina ~800 kg/m3)
+          var singleBedMassKg = (volAlumina * 800) + (volCarbon * 480) + (volZeolite * 720);
+          var totalMassTonnes = (singleBedMassKg * numBeds) / 1000;
+
+          // Vessel dimensions (L/D ~ 3.2 to 4.0)
+          var aspect = 3.5;
+          var vesselDiamM = Math.pow((singleBedVolM3 * 4) / (Math.PI * aspect), 1 / 3);
+          var vesselHeightM = vesselDiamM * aspect;
+
+          // Equivalent fuel replacement in SMR
+          var fuelGasReplacePct = Math.min(65, (tailPowerMw / 45) * 50);
+
+          // Update DOM
+          resH2Prod.innerText = Math.round(prodH2Nm3h).toLocaleString() + ' Nm3/h';
+          resH2ProdTpd.innerText = prodH2Tpd.toFixed(1) + ' Tonnes / Day H2';
+          resH2Recovery.innerText = actualRecPct.toFixed(1) + '% Recovery';
+          resH2PurityDisp.innerText = targetSpec === 'fuel_cell' ? 'ISO 14687 Grade D (CO <0.2 ppm)' : '>99.999% Purity';
+          resTailFlow.innerText = Math.round(tailGasNm3h).toLocaleString() + ' Nm3/h';
+          resTailLhv.innerText = tailLhvMjNm3.toFixed(2) + ' MJ/Nm3 (' + Math.round(tailLhvMjNm3 * 26.839) + ' BTU/SCF)';
+          resAdsMass.innerText = totalMassTonnes.toFixed(1) + ' Tonnes';
+          resAdsVol.innerText = 'Total Skid Bed: ' + totalBedVolM3.toFixed(1) + ' m3 (' + singleBedVolM3.toFixed(1) + ' m3/bed)';
+          resVesselDim.innerText = vesselDiamM.toFixed(2) + ' m ID x ' + vesselHeightM.toFixed(2) + ' m H';
+          resVesselCount.innerText = numBeds + ' Adsorber Vessels';
+          resTailPower.innerText = tailPowerMw.toFixed(1) + ' MWth';
+          resReformerDuty.innerText = 'Replaces ~' + fuelGasReplacePct.toFixed(0) + '% Reformer Fuel';
+          resLayAlumina.innerText = 'Activated Alumina: ' + volAlumina.toFixed(2) + ' m3 (' + Math.round(volAlumina * 800) + ' kg)';
+          resLayCarbon.innerText = 'Activated Carbon: ' + volCarbon.toFixed(2) + ' m3 (' + Math.round(volCarbon * 480) + ' kg)';
+          resLayZeolite.innerText = 'Zeolite 5A: ' + volZeolite.toFixed(2) + ' m3 (' + Math.round(volZeolite * 720) + ' kg)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 480;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Background Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Draw 6 Adsorber Vessels across canvas
+          var numCols = 6;
+          var startX = 60;
+          var colSpacing = 165;
+          var colW = 100;
+          var colH = 220;
+          var colY = 40;
+
+          var cyclePhases = [
+            'ADSORPTION (24 barg)',
+            'EQ1 DOWN (16 barg)',
+            'EQ2 DOWN (9 barg)',
+            'BLOWDOWN (0.3 barg)',
+            'PURGE SWEEP',
+            'EQ REPRESS (18 barg)'
+          ];
+
+          var phaseColors = [
+            '#0284c7', // blue
+            '#f59e0b', // amber
+            '#eab308', // yellow
+            '#ef4444', // red
+            '#a855f7', // purple
+            '#10b981'  // green
+          ];
+
+          for (var i = 0; i < numCols; i++) {
+            var cX = startX + i * colSpacing;
+            var currentPhaseIdx = (i + Math.floor(animStep / 80)) % 6;
+            var pColor = phaseColors[currentPhaseIdx];
+            var pName = cyclePhases[currentPhaseIdx];
+
+            // Vessel Shell
+            ctx.fillStyle = '#1e293b';
+            ctx.strokeStyle = pColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(cX, colY, colW, colH, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            // Layer 3: Top Zeolite (40%)
+            var zH = colH * 0.38;
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+            ctx.fillRect(cX + 6, colY + 30, colW - 12, zH);
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('ZEOLITE 5A', cX + colW/2, colY + 45);
+
+            // Layer 2: Middle Carbon (52%)
+            var carbY = colY + 30 + zH;
+            var carbH = colH * 0.42;
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.2)';
+            ctx.fillRect(cX + 6, carbY, colW - 12, carbH);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillText('ACT. CARBON', cX + colW/2, carbY + 20);
+
+            // Layer 1: Bottom Alumina (10%)
+            var alumY = carbY + carbH;
+            var alumH = colH * 0.12;
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+            ctx.fillRect(cX + 6, alumY, colW - 12, alumH);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillText('ALUMINA', cX + colW/2, alumY + 16);
+
+            // Vessel Header & State
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText('BED ' + (i + 1), cX + colW/2, colY + 18);
+
+            ctx.fillStyle = pColor;
+            ctx.font = 'bold 9px monospace';
+            ctx.fillText(pName, cX + colW/2, colY + colH + 16);
+          }
+
+          // Header status banner
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText('6-BED DUAL EQUALIZATION H2 PSA SEQUENCE (CYCLE TIMELINE)', 60, 25);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Product H2 Header: >99.999% @ 23.5 barg', 700, 25);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== HYDROGEN PSA PURIFICATION SIZING REPORT ===',
+            'Feed Gas Flow: ' + flowInput.value + ' ' + flowUnit.value,
+            'Inlet Composition: ' + feedH2Input.value + '% H2, ' + feedCoInput.value + '% CO, ' + feedCo2Input.value + '% CO2',
+            'Pressures: ' + feedPressInput.value + ' barg (Ads) / ' + tailPressInput.value + ' barg (Tail)',
+            'Architecture: ' + bedsSel.value + ' (' + resVesselCount.innerText + ')',
+            'Target Purity Spec: ' + targetSel.value + ' (' + resH2PurityDisp.innerText + ')',
+            'Purified H2 Output: ' + resH2Prod.innerText + ' (' + resH2ProdTpd.innerText + ')',
+            'Hydrogen Recovery: ' + resH2Recovery.innerText,
+            'Tail Gas Generation: ' + resTailFlow.innerText + ' @ ' + resTailLhv.innerText,
+            'Tail Gas Thermal Power: ' + resTailPower.innerText + ' (' + resReformerDuty.innerText + ')',
+            'Total Adsorbent Charge: ' + resAdsMass.innerText + ' (' + resAdsVol.innerText + ')',
+            'Adsorber Vessel Geometry: ' + resVesselDim.innerText,
+            'Layer Sizing (Per Bed): ' + resLayAlumina.innerText + ' | ' + resLayCarbon.innerText + ' | ' + resLayZeolite.innerText,
+            'Compliance: ISO 14687:2019 Grade D & SAE J2719'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [flowInput, flowUnit, feedH2Input, feedCoInput, feedCo2Input, feedPressInput, tailPressInput, bedsSel, targetSel, cycleTimeInput, ch4Input, tempInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CC3: CONTINUOUS CATALYTIC REFORMING (CCR) PLATFORMER CALCULATOR ───
+  (() => {
+    const slug = 'continuous-catalytic-reforming-ccr-reformer-calculator';
+    const title = 'Continuous Catalytic Reforming (CCR) Platformer Calculator | Octane & Hydrogen Yield Engine';
+    const desc = 'Industrial Continuous Catalytic Reforming (CCR) Platforming calculator for petroleum refineries. Model naphtha PONA transformation, Research Octane Number (RON) boost, net hydrogen generation yield, moving-bed catalyst circulation, and interheater furnace duty.';
+
+    const faqs = [
+      {
+        q: 'What chemical reactions occur in Continuous Catalytic Reforming (CCR) and why are multiple interheaters required?',
+        a: 'The primary goal of CCR reforming is converting low-octane straight-run naphtha into high-octane aromatic-rich gasoline blendstock (reformate) while generating high-purity hydrogen as a valuable byproduct. The dominant reaction is naphthene dehydrogenation (e.g. methylcyclohexane to toluene + 3 H2), which is extremely endothermic (Delta H ~ +220 kJ/mol) and rapid. The endotherm is so severe that the temperature in Reactor 1 plummets by 40 to 65 deg C within seconds, freezing the reaction. To maintain kinetics for the slower endothermic dehydrocyclization of paraffins into aromatics, the effluent must be reheated in multi-fired furnace interheaters before entering Reactors 2, 3, and 4.'
+      },
+      {
+        q: 'How does operating pressure impact C5+ reformate liquid yield and hydrogen production?',
+        a: 'Modern CCR units operate at ultra-low pressures (3.5 to 6.0 barg) compared to legacy semi-regenerative fixed-bed reformers (15 to 30 barg). Le Chatelier principle dictates that low pressure thermodynamically favors dehydrogenation and dehydrocyclization reactions (which generate 3 to 4 moles of H2 gas per mole of hydrocarbon reacted) while suppressing unwanted cracking reactions that destroy heavy molecules into low-value methane and ethane. Operating at low pressure boosts C5+ reformate liquid yield by 3% to 6% and increases net hydrogen yield by up to 25%.'
+      },
+      {
+        q: 'What is the function of the continuous catalyst regeneration (CCR) loop and oxychlorination?',
+        a: 'At low operating pressures, catalyst coking accelerates rapidly, depositing 4% to 6% carbon by weight on the platinum-tin (Pt-Sn/Al2O3) spherical catalyst beads every cycle. In a CCR system, catalyst slowly flows down through stacked radial-flow reactors by gravity, is pneumatically lifted by nitrogen or hydrogen lift pots to an adjacent regeneration tower, where coke is burned off under 0.8% O2 at 480 deg C. It is then treated with organic chlorides (oxychlorination) to redisperse sintered platinum crystallites across the alumina support and restored to peak activity before returning to Reactor 1.'
+      },
+      {
+        q: 'How is the Research Octane Number (RON) related to PONA composition and severity?',
+        a: 'Feed naphtha typically has a low RON of 45 to 58, dominated by linear paraffins. Reforming severity is controlled by adjusting the Weighted Average Inlet Temperature (WAIT, typically 505 to 535 deg C). As severity rises, aromatics content increases from ~10% up to 65-75%, elevating reformate RON to 98 to 104+. However, operating at higher target RON causes higher hydrocracking of C6-C8 molecules, reducing C5+ liquid volumetric yield by roughly 0.8% to 1.2% per single octane point increase.'
+      },
+      {
+        q: 'How is net hydrogen yield calculated and why is it vital for modern hydrocrackers?',
+        a: 'Hydrogen is produced by dehydrogenation and consumed by hydrocracking. The net hydrogen yield is defined as (Total H2 Produced - H2 Consumed in Cracking) and ranges between 2.0% and 3.6% by weight of feed naphtha (equivalent to 1,000 to 1,600 SCF H2 per barrel of feed). In modern refineries, the CCR reformer serves as the primary internal hydrogen source supplying high-pressure hydrocrackers and diesel hydrotreaters (ULSD units).'
+      }
+    ];
+
+    const content = `<style>
+      .ccr-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .ccr-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .ccr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .ccr-group { margin-bottom: 16px; }
+      .ccr-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .ccr-group select, .ccr-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .ccr-group select:focus, .ccr-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .ccr-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-amber { background: #fffbeb; color: #b45309; }
+      .ccr-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .ccr-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .ccr-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .ccr-res-sub { font-size: 0.8rem; color: #64748b; }
+      .ccr-btn { background: #d97706; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .ccr-btn:hover { background: #b45309; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="ccr-wrap">
+      <div class="ccr-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Continuous Catalytic Reforming (CCR) Platformer Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Refinery process kinetics, Research Octane Number (RON), hydrogen yield, and furnace interheater energy balance.</p>
+          </div>
+          <span class="ccr-badge badge-amber">Petroleum Refining & Petrochemicals</span>
+        </div>
+
+        <div class="ccr-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Naphtha Feed & PONA Quality</h3>
+            <div class="ccr-group">
+              <label for="ccr_feed_rate">Naphtha Feed Rate (BPSD)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="ccr_feed_rate" value="35000" min="1000" step="1000">
+                <select id="ccr_feed_unit" style="width:130px;">
+                  <option value="BPSD" selected>BPSD</option>
+                  <option value="t_day">Tonnes/Day</option>
+                  <option value="m3_h">m3/h</option>
+                </select>
+              </div>
+            </div>
+            <div class="ccr-group">
+              <label for="ccr_feed_sg">Feed Specific Gravity (at 15.6 deg C)</label>
+              <input type="number" id="ccr_feed_sg" value="0.745" min="0.710" max="0.785" step="0.005">
+            </div>
+            <div class="ccr-group">
+              <label for="ccr_naphthenes">Naphthenes Content (vol % N)</label>
+              <input type="number" id="ccr_naphthenes" value="34.0" min="15.0" max="55.0" step="1.0">
+            </div>
+            <div class="ccr-group">
+              <label for="ccr_aromatics">Inlet Aromatics Content (vol % A)</label>
+              <input type="number" id="ccr_aromatics" value="12.0" min="4.0" max="25.0" step="0.5">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Target Severity & Operating Pressure</h3>
+            <div class="ccr-group">
+              <label for="ccr_target_ron">Target Reformate Octane (RON Clear)</label>
+              <select id="ccr_target_ron">
+                <option value="98.0">98.0 RON (Standard Euro 4/5 blend)</option>
+                <option value="100.0" selected>100.0 RON (High Octane Premium)</option>
+                <option value="102.0">102.0 RON (Super Premium Gasoline)</option>
+                <option value="104.0">104.0 RON (Ultra Severity / BTX Petrochemical)</option>
+              </select>
+            </div>
+            <div class="ccr-group">
+              <label for="ccr_press">Separator Operating Pressure (barg)</label>
+              <input type="number" id="ccr_press" value="4.5" min="3.0" max="15.0" step="0.5">
+            </div>
+            <div class="ccr-group">
+              <label for="ccr_h2_hc">Recycle Hydrogen-to-Hydrocarbon Ratio (mol/mol)</label>
+              <input type="number" id="ccr_h2_hc" value="2.2" min="1.2" max="4.5" step="0.1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Catalyst & Furnace Thermal Balance</h3>
+            <div class="ccr-group">
+              <label for="ccr_wait">Weighted Average Inlet Temperature (WAIT, deg C)</label>
+              <input type="number" id="ccr_wait" value="522" min="490" max="545" step="1">
+            </div>
+            <div class="ccr-group">
+              <label for="ccr_cat_type">Catalyst Technology</label>
+              <select id="ccr_cat_type">
+                <option value="pt_sn_high" selected>Ultra-Low Pressure Pt-Sn / Alumina (Promoted)</option>
+                <option value="pt_sn_std">Standard Bimetallic Pt-Sn (High Stability)</option>
+                <option value="pt_re">Pt-Re Bimetallic (High hydrocracking sensitivity)</option>
+              </select>
+            </div>
+            <div class="ccr-group">
+              <label for="ccr_lhsv">Liquid Hourly Space Velocity (LHSV, h^-1)</label>
+              <input type="number" id="ccr_lhsv" value="1.6" min="1.0" max="2.8" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="ccr-btn" id="ccr_calc_btn">Compute CCR Platformer Yields & Heat Balances</button>
+        </div>
+      </div>
+
+      <div class="ccr-card" id="ccr_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Engineering Output & Platforming Yields</h2>
+          <button class="copy-btn" id="ccr_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="ccr_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="ccr-res-grid">
+          <div class="ccr-res-card">
+            <div class="ccr-res-sub">C5+ Reformate Liquid Yield</div>
+            <div class="ccr-res-val" id="res_c5_yield">0% vol</div>
+            <div class="ccr-res-sub" id="res_c5_bpsd">0 BPSD Reformate</div>
+          </div>
+          <div class="ccr-res-card">
+            <div class="ccr-res-sub">Net Hydrogen Production</div>
+            <div class="ccr-res-val" id="res_h2_yield">0 wt %</div>
+            <div class="ccr-res-sub" id="res_h2_scfb">0 SCFB (0 Nm3/h)</div>
+          </div>
+          <div class="ccr-res-card">
+            <div class="ccr-res-sub">Reformate Aromatics Content</div>
+            <div class="ccr-res-val" id="res_aromatics">0% vol</div>
+            <div class="ccr-res-sub" id="res_feed_octane">Feed RON ~0 -> Target: 0</div>
+          </div>
+          <div class="ccr-res-card">
+            <div class="ccr-res-sub">Fired Heaters Duty (Total)</div>
+            <div class="ccr-res-val" id="res_furnace_mw">0 MW th</div>
+            <div class="ccr-res-sub" id="res_furnace_mmbtu">0 MMBTU/hr (4 Furnaces)</div>
+          </div>
+          <div class="ccr-res-card">
+            <div class="ccr-res-sub">Catalyst Circulation Rate</div>
+            <div class="ccr-res-val" id="res_cat_circ">0 kg/h</div>
+            <div class="ccr-res-sub" id="res_coke_burn">Coke Burn: 0 kg/h</div>
+          </div>
+          <div class="ccr-res-card">
+            <div class="ccr-res-sub">Total Catalyst Inventory</div>
+            <div class="ccr-res-val" id="res_cat_mass">0 tonnes</div>
+            <div class="ccr-res-sub" id="res_cat_vol">Bed Volume: 0 m3</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Inter-Reactor Endothermic Temperature Drops</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Reactor 1 Delta T: <strong id="res_dt_rx1">-0 deg C (Dehydrogenation)</strong></div>
+            <div>Reactor 2 Delta T: <strong id="res_dt_rx2">-0 deg C (Dehydrocyclization)</strong></div>
+            <div>Reactor 3 & 4 Delta T: <strong id="res_dt_rx34">-0 deg C (Aromatization/Cracking)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Stacked Radial-Flow Moving-Bed Reactors & CCR Regenerator Visualizer</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing vertical 4-stage reactor stack, catalyst gravity descent, interstage furnace reheats, lift pot, and continuous regenerator.</p>
+          <div class="anim-box">
+            <canvas id="ccr_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="ccr-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Feed Sulfur Contamination & Platinum Poisoning</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">Modern bimetallic Pt-Sn CCR reforming catalysts are exquisitely sensitive to sulfur compounds (H2S, mercaptans, thiophenes). Feed naphtha must be rigorously hydrotreated in an upstream Naphtha Hydrotreater (NHT) to achieve sulfur concentrations below 0.5 ppmw (500 ppb). A sulfur slip of only 2 ppm permanently poisons the platinum metallic sites, suppressing endothermic dehydrogenation, collapsing octane number by 8 points, and causing massive temperature surges through unreacted paraffin hydrocracking.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Regenerator Carbon Burn Runaway & Catalyst Thermal Sintering</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">In the continuous catalyst regeneration tower, coke on spent catalyst (4% to 6% wt) is burned off under oxygen-controlled conditions (0.6% to 1.0% O2). If the air injection flow surges or oxygen control trips, carbon combustion becomes explosive, driving localized bed temperatures above 580 deg C. At this temperature, the high-surface-area gamma-alumina transitions irreversibly into alpha-alumina and platinum nano-crystallites permanently coalesce into massive inactive grains, destroying catalyst activity forever.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Scallop Screen Abrasion & Catalyst Pinning Catastrophe</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Inside radial-flow reactors, catalyst beads are contained between outer vertical scalloped stainless-steel screens and a central perforated pipe. If the radial superficial gas velocity exceeds the critical "pinning velocity", the aerodynamic drag of the reacting gas pins the descending catalyst beads firmly against the outer screens. Gravity descent halts, causing catalyst bridging. Below the bridge, an empty void forms; when the bridge suddenly collapses, thousands of kilograms of beads shatter into dust, causing massive pressure drops.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Inadequate Chloride Balance & Excessive Acid Hydrocracking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Catalyst acidity is maintained by continuous continuous injection of organic chlorides (e.g. perchloroethylene, PCE) to maintain 0.9% to 1.1% wt chloride on the alumina support. If chloride injection is overfed, hyper-acidic sites form on the catalyst. Instead of dehydrocyclizing paraffins into high-value aromatics, the catalyst aggressively hydrocracks them into low-value fuel gas (C1-C2) and LPG (C3-C4), reducing C5+ reformate liquid yield by 5% to 8% and collapsing refinery profit margins.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Lift Pot Gas Velocity Maldistribution & Pellet Shattering</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Spent catalyst is transferred from the bottom of Reactor 4 to the top of the regenerator via pneumatic lift lines using high-purity recycled hydrogen or nitrogen. If lift gas velocity exceeds 7.5 m/s, the catalyst beads impact bends and acceleration tubes with extreme momentum, pulverizing the high-value Pt-Sn beads into micro-fines. Fine particles blow out of the regenerator dust collector, leading to hundreds of kilograms of precious-metal catalyst loss every month.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Platforming Kinetics & Yield Estimation Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The transformation of heavy naphtha in catalytic reforming follows the classic <strong>PONA reaction pathways</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{Naphthenes} \rightarrow \text{Aromatics} + 3 \text{H}_2 \quad (\Delta H \approx +220 \text{ kJ/mol})$$
+            $$\text{Paraffins} \rightarrow \text{Aromatics} + 4 \text{H}_2 \quad (\Delta H \approx +260 \text{ kJ/mol})$$
+            $$\text{Paraffins} + \text{H}_2 \rightarrow \text{LPG } (C_3+C_4) + \text{Fuel Gas } (C_1+C_2) \quad (\Delta H \approx -50 \text{ kJ/mol})$$
+          </div>
+          <p>The liquid $C_5^+$ volumetric reformate yield $Y_{C5+}$ is correlated to feed PONA and target Research Octane Number (RON):</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Y_{C5+} = 100 - \alpha_{P} \cdot (P_{feed}) - \beta_{RON} \cdot (\text{RON} - 90) + \gamma_{N+2A} \cdot (N + 2A) \cdot \left( \frac{P_{sep}}{4.5} \right)^{-0.12}$$
+          </div>
+          <p>The net hydrogen yield $Y_{H2}$ (in weight percent of feed) is determined by the stoichiometric hydrogen generation minus hydrocracking consumption:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Y_{H2} = \left[ 0.0714 \cdot (N_{conv}) + 0.057 \cdot (P_{arom}) - 0.025 \cdot (P_{crack}) \right] \times 100\%$$
+          </div>
+          <p>The total fired furnace interheater duty $Q_{furnace}$ balances the net endothermic heat of reaction across the 4 stacked reactors:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Q_{furnace} = \sum_{k=1}^{4} \dot{m}_{feed} \cdot (1 + R_{recycle}) \cdot \bar{C}_p \cdot \Delta T_{rx,k}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var feedInput = document.getElementById('ccr_feed_rate');
+        var unitSel = document.getElementById('ccr_feed_unit');
+        var sgInput = document.getElementById('ccr_feed_sg');
+        var naphInput = document.getElementById('ccr_naphthenes');
+        var aromInput = document.getElementById('ccr_aromatics');
+        var ronSel = document.getElementById('ccr_target_ron');
+        var pressInput = document.getElementById('ccr_press');
+        var h2hcInput = document.getElementById('ccr_h2_hc');
+        var waitInput = document.getElementById('ccr_wait');
+        var catSel = document.getElementById('ccr_cat_type');
+        var lhsvInput = document.getElementById('ccr_lhsv');
+        var calcBtn = document.getElementById('ccr_calc_btn');
+        var copyBtn = document.getElementById('ccr_copy_btn');
+        var copyMsg = document.getElementById('ccr_copy_msg');
+
+        var resC5Yield = document.getElementById('res_c5_yield');
+        var resC5Bpsd = document.getElementById('res_c5_bpsd');
+        var resH2Yield = document.getElementById('res_h2_yield');
+        var resH2Scfb = document.getElementById('res_h2_scfb');
+        var resAromatics = document.getElementById('res_aromatics');
+        var resFeedOctane = document.getElementById('res_feed_octane');
+        var resFurnaceMw = document.getElementById('res_furnace_mw');
+        var resFurnaceMmbtu = document.getElementById('res_furnace_mmbtu');
+        var resCatCirc = document.getElementById('res_cat_circ');
+        var resCokeBurn = document.getElementById('res_coke_burn');
+        var resCatMass = document.getElementById('res_cat_mass');
+        var resCatVol = document.getElementById('res_cat_vol');
+        var resDtRx1 = document.getElementById('res_dt_rx1');
+        var resDtRx2 = document.getElementById('res_dt_rx2');
+        var resDtRx34 = document.getElementById('res_dt_rx34');
+
+        var canvas = document.getElementById('ccr_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var rawFeed = parseFloat(feedInput.value) || 35000;
+          var unit = unitSel.value;
+          var sg = parseFloat(sgInput.value) || 0.745;
+          var nPct = parseFloat(naphInput.value) || 34.0;
+          var aPct = parseFloat(aromInput.value) || 12.0;
+          var targetRon = parseFloat(ronSel.value) || 100.0;
+          var pBarg = parseFloat(pressInput.value) || 4.5;
+          var h2hc = parseFloat(h2hcInput.value) || 2.2;
+          var wait = parseFloat(waitInput.value) || 522;
+          var catType = catSel.value;
+          var lhsv = parseFloat(lhsvInput.value) || 1.6;
+
+          // Convert feed to BPSD
+          var bpsd = rawFeed;
+          if (unit === 't_day') bpsd = (rawFeed * 1000 / (sg * 1000 * 0.158987));
+          else if (unit === 'm3_h') bpsd = (rawFeed * 24) / 0.158987;
+
+          var feedM3h = (bpsd * 0.158987) / 24;
+          var feedKgHr = feedM3h * sg * 1000;
+
+          // Estimated Feed RON based on PONA
+          // Feed paraffins: 100 - N - A
+          var pPct = 100 - nPct - aPct;
+          var feedRon = (pPct * 0.35) + (nPct * 0.65) + (aPct * 1.05);
+
+          // Reformate C5+ Volumetric Yield Correlation
+          // High N + A feeds give higher reformate yields.
+          // Higher target RON decreases yield (hydrocracking of paraffins).
+          // Higher pressure decreases yield.
+          var baseYield = 87.5;
+          var ronPenalty = (targetRon - 95.0) * 0.95;
+          var ponaBonus = (nPct + 2 * aPct - 50) * 0.12;
+          var pressPenalty = (pBarg - 3.5) * 0.45;
+          var catBonus = (catType === 'pt_sn_high') ? 1.2 : (catType === 'pt_sn_std' ? 0.4 : -0.8);
+
+          var c5YieldVolPct = Math.max(76, Math.min(93, baseYield - ronPenalty + ponaBonus - pressPenalty + catBonus));
+          var reformateBpsd = bpsd * (c5YieldVolPct / 100);
+
+          // Net Hydrogen Yield (wt % of feed)
+          // Stoichiometric hydrogen from naphthene dehydrogenation (N -> A gives ~3.6 wt% H2)
+          // Dehydrocyclization of paraffins gives ~4.5 wt% H2
+          var h2FromN = (nPct / 100) * 0.88 * 0.0714;
+          var h2FromP = (pPct / 100) * ((targetRon - feedRon) / 60) * 0.045;
+          var h2CrackingLoss = (100 - c5YieldVolPct) * 0.0018;
+          var netH2WtPct = Math.max(1.8, Math.min(4.2, (h2FromN + h2FromP - h2CrackingLoss) * 100));
+
+          // Convert wt % H2 to SCFB and Nm3/h
+          var feedLbBbl = 42 * 8.34 * sg; // lb per bbl
+          var h2LbBbl = feedLbBbl * (netH2WtPct / 100);
+          var h2Scfb = h2LbBbl * 190.5; // 1 lb H2 approx 190.5 SCF
+          var h2TotalScfd = h2Scfb * bpsd;
+          var h2Nm3h = h2TotalScfd * 0.026316;
+
+          // Reformate Aromatics Content (vol %)
+          var reformateAromatics = Math.min(82, 15 + (targetRon - 70) * 1.6);
+
+          // Endothermic Temperature Drops across 4 Reactors
+          // Reactor 1: Massive dehydrogenation of naphthenes
+          var dtRx1 = Math.min(68, 35 + (nPct - 25) * 1.1);
+          // Reactor 2: Dehydrocyclization and residual dehydrogenation
+          var dtRx2 = Math.min(45, 20 + (targetRon - 95) * 1.8);
+          // Reactor 3 & 4: Paraffin cyclization, isomerization, hydrocracking
+          var dtRx34 = Math.min(30, 12 + (targetRon - 95) * 1.4);
+
+          // Total Interheater Fired Furnace Duty
+          // Sensible heat + net endotherm for 4 heaters
+          var totalDeltaT = dtRx1 + dtRx2 + dtRx34 * 1.6;
+          var cpHydrocarbon = 2.65; // kJ/(kg K)
+          var totalHeatKw = (feedKgHr * (1 + h2hc * 0.08) * cpHydrocarbon * totalDeltaT) / 3600;
+          var totalHeatMw = totalHeatKw / 1000;
+          var totalMmbtuHr = totalHeatKw * 0.00341214;
+
+          // Catalyst Inventory and Circulation
+          var catVolM3 = feedM3h / lhsv;
+          var catBulkDensity = 720; // kg/m3 for spherical Pt-Sn catalyst
+          var totalCatMassTonnes = (catVolM3 * catBulkDensity) / 1000;
+
+          // Catalyst circulation rate: typical cycle time in reactor stack is 3 to 7 days
+          var turnoverDays = 4.5;
+          var catCircKgHr = (totalCatMassTonnes * 1000) / (turnoverDays * 24);
+          var cokeOnCatalyst = 0.05; // 5 wt % coke
+          var cokeBurnKgHr = catCircKgHr * cokeOnCatalyst;
+
+          // Update DOM
+          resC5Yield.innerText = c5YieldVolPct.toFixed(1) + '% vol';
+          resC5Bpsd.innerText = Math.round(reformateBpsd).toLocaleString() + ' BPSD High-Octane';
+          resH2Yield.innerText = netH2WtPct.toFixed(2) + ' wt %';
+          resH2Scfb.innerText = Math.round(h2Scfb).toLocaleString() + ' SCFB (' + Math.round(h2Nm3h).toLocaleString() + ' Nm3/h)';
+          resAromatics.innerText = reformateAromatics.toFixed(1) + '% vol';
+          resFeedOctane.innerText = 'Feed RON: ' + feedRon.toFixed(0) + ' -> Target: ' + targetRon.toFixed(1);
+          resFurnaceMw.innerText = totalHeatMw.toFixed(1) + ' MWth';
+          resFurnaceMmbtu.innerText = totalMmbtuHr.toFixed(1) + ' MMBTU/hr (4 Heaters)';
+          resCatCirc.innerText = Math.round(catCircKgHr).toLocaleString() + ' kg/h';
+          resCokeBurn.innerText = 'Coke Burn: ' + Math.round(cokeBurnKgHr) + ' kg/h';
+          resCatMass.innerText = totalCatMassTonnes.toFixed(1) + ' Tonnes (Pt-Sn)';
+          resCatVol.innerText = 'Bed Volume: ' + catVolM3.toFixed(1) + ' m3 (LHSV ' + lhsv + ')';
+          resDtRx1.innerText = '-' + dtRx1.toFixed(1) + ' deg C (Dehydrogenation)';
+          resDtRx2.innerText = '-' + dtRx2.toFixed(1) + ' deg C (Cyclization)';
+          resDtRx34.innerText = '-' + dtRx34.toFixed(1) + ' deg C (Aromatization)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Left: Vertical Stacked CCR Moving-Bed Reactors
+          var rX = 140;
+          var rY = 25;
+          var rW = 120;
+          var rH = 265;
+
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#d97706';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(rX, rY, rW, rH, 16);
+          ctx.fill();
+          ctx.stroke();
+
+          // 4 Reactor Beds Stacked
+          var bedColors = ['#f59e0b', '#d97706', '#b45309', '#78350f'];
+          var bedLabels = ['RX 1 (-55 C)', 'RX 2 (-32 C)', 'RX 3 (-18 C)', 'RX 4 (-10 C)'];
+          var bedH = 45;
+          for (var b = 0; b < 4; b++) {
+            var by = rY + 20 + b * 58;
+            ctx.fillStyle = 'rgba(217, 119, 6, 0.25)';
+            ctx.fillRect(rX + 8, by, rW - 16, bedH);
+            ctx.strokeStyle = bedColors[b];
+            ctx.lineWidth = 2;
+            ctx.strokeRect(rX + 8, by, rW - 16, bedH);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(bedLabels[b], rX + rW/2, by + 26);
+          }
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('CCR REACTOR STACK', rX + rW/2, rY + 14);
+
+          // Right: CCR Continuous Catalyst Regenerator Tower
+          var gX = 400;
+          var gY = 40;
+          var gW = 100;
+          var gH = 230;
+
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(gX, gY, gW, gH, 14);
+          ctx.fill();
+          ctx.stroke();
+
+          // Regenerator Internal Zones
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+          ctx.fillRect(gX + 6, gY + 30, gW - 12, 50);
+          ctx.fillStyle = '#fca5a5';
+          ctx.font = 'bold 9px sans-serif';
+          ctx.fillText('COKE BURN (480C)', gX + gW/2, gY + 58);
+
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+          ctx.fillRect(gX + 6, gY + 95, gW - 12, 45);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('OXYCHLORINATION', gX + gW/2, gY + 120);
+
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+          ctx.fillRect(gX + 6, gY + 155, gW - 12, 45);
+          ctx.fillStyle = '#34d399';
+          ctx.fillText('REDUCTION ZONE', gX + gW/2, gY + 180);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('CCR REGENERATOR', gX + gW/2, gY + 20);
+
+          // Pneumatic Lift Lines between Reactor & Regenerator
+          ctx.strokeStyle = '#a855f7';
+          ctx.lineWidth = 3;
+          // Spent catalyst lift from bottom of RX4 to Regenerator Top
+          ctx.beginPath();
+          ctx.moveTo(rX + rW/2, rY + rH);
+          ctx.lineTo(rX + rW/2, rY + rH + 15);
+          ctx.lineTo(340, rY + rH + 15);
+          ctx.lineTo(340, 20);
+          ctx.lineTo(gX + gW/2, 20);
+          ctx.lineTo(gX + gW/2, gY);
+          ctx.stroke();
+
+          // Regenerated catalyst return to RX1 Top
+          ctx.strokeStyle = '#10b981';
+          ctx.beginPath();
+          ctx.moveTo(gX + gW/2, gY + gH);
+          ctx.lineTo(gX + gW/2, gY + gH + 15);
+          ctx.lineTo(550, gY + gH + 15);
+          ctx.lineTo(550, 15);
+          ctx.lineTo(rX + rW/2, 15);
+          ctx.lineTo(rX + rW/2, rY);
+          ctx.stroke();
+
+          // Animated Catalyst Beads
+          ctx.fillStyle = '#10b981';
+          var beadY = 20 + ((animStep * 3) % (rH + 30));
+          ctx.beginPath();
+          ctx.arc(rX + rW/2, Math.min(rY + rH - 10, beadY), 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Far Right: Furnaces & Product Telemetry
+          var fX = 660;
+          var fY = 40;
+          var fW = 380;
+          var fH = 240;
+
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(fX, fY, fW, fH, 12);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText('CCR PLATFORMER ENERGY & MATERIAL BALANCES', fX + 20, fY + 25);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Operating WAIT: ' + waitInput.value + ' deg C (Interheater re-heat to 525C)', fX + 20, fY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Target Reformate RON: ' + ronSel.value + ' Clear (High Aromatics)', fX + 20, fY + 75);
+          ctx.fillText('Hydrogen Generation: Clean net exporter to Hydrocrackers', fX + 20, fY + 95);
+          ctx.fillText('Moving Bed Catalyst: Pt-Sn on spherical 1.6 mm beads', fX + 20, fY + 115);
+          ctx.fillText('Pneumatic Lift: Nitrogen / Hydrogen dilute phase transport', fX + 20, fY + 135);
+          ctx.fillText('Separator Pressure: ' + pressInput.value + ' barg (Low-pressure selectivity)', fX + 20, fY + 155);
+
+          // Flow tags
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('Net H2 to Hydrocracker: High Purity (>92 mol %)', fX + 20, fY + 190);
+          ctx.fillStyle = '#34d399';
+          ctx.fillText('Reformate Gasoline: High Octane Blendstock', fX + 20, fY + 215);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== CONTINUOUS CATALYTIC REFORMING (CCR) SIZING REPORT ===',
+            'Naphtha Feed Rate: ' + feedInput.value + ' ' + unitSel.value + ' (SG: ' + sgInput.value + ')',
+            'Feed PONA Composition: ' + naphInput.value + '% N, ' + aromInput.value + '% A',
+            'Severity Target: ' + ronSel.value + ' RON (' + resFeedOctane.innerText + ')',
+            'Operating Conditions: ' + waitInput.value + ' deg C WAIT @ ' + pressInput.value + ' barg',
+            'C5+ Reformate Liquid Yield: ' + resC5Yield.innerText + ' (' + resC5Bpsd.innerText + ')',
+            'Net Hydrogen Yield: ' + resH2Yield.innerText + ' (' + resH2Scfb.innerText + ')',
+            'Reformate Aromatics: ' + resAromatics.innerText,
+            'Total Fired Furnace Duty: ' + resFurnaceMw.innerText + ' (' + resFurnaceMmbtu.innerText + ')',
+            'Inter-Reactor Delta T: ' + resDtRx1.innerText + ' | ' + resDtRx2.innerText + ' | ' + resDtRx34.innerText,
+            'Catalyst Circulation Rate: ' + resCatCirc.innerText + ' (' + resCokeBurn.innerText + ')',
+            'Total Catalyst Inventory: ' + resCatMass.innerText + ' (' + resCatVol.innerText + ')',
+            'Compliance: API 560 (Fired Heaters) & UOP / Axens CCR Technology'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [feedInput, unitSel, sgInput, naphInput, aromInput, ronSel, pressInput, h2hcInput, waitInput, catSel, lhsvInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CC4: SUPERCRITICAL CO2 (sCO2) RECOMPRESSION BRAYTON CYCLE CALCULATOR ───
+  (() => {
+    const slug = 'supercritical-co2-sco2-brayton-cycle-calculator';
+    const title = 'Supercritical CO2 (sCO2) Brayton Cycle Calculator | Recompression Cycle Efficiency Engine';
+    const desc = 'Advanced supercritical carbon dioxide (sCO2) recompression closed-loop Brayton cycle calculator for nuclear reactors, concentrated solar power (CSP), and industrial waste heat recovery. Compute near-critical main compressor power, recompressor split fraction, recuperator UA duties, turbine output, and net cycle efficiency.';
+
+    const faqs = [
+      {
+        q: 'Why does supercritical CO2 (sCO2) achieve higher thermal efficiency than conventional steam Rankine cycles?',
+        a: 'Supercritical CO2 achieves superior thermal efficiency (often exceeding 48% to 52% at 650 to 750 deg C) primarily by exploiting the dramatic thermodynamic property changes of carbon dioxide near its critical point (Tc = 31.04 deg C, Pc = 7.38 MPa / 73.8 bar). Just above the critical point, the fluid compressibility factor Z plunges from 1.0 down to 0.20-0.45, and its density surges to over 600 kg/m3 (liquid-like density). Because compression work is proportional to specific volume (w = Integral v dP), the main compressor consumes up to 60% less parasitic shaft work than an equivalent helium or air gas turbine, shifting substantial energy directly into net generator output.'
+      },
+      {
+        q: 'What is the Recompression Brayton Cycle (RCBC) and why is a split-flow architecture necessary?',
+        a: 'In a standard recuperated sCO2 cycle, a severe specific heat capacity (Cp) mismatch occurs inside the Low-Temperature Recuperator (LTR). High-pressure sCO2 near the critical point has an immense heat capacity (Cp up to 10-15 kJ/kg*K), while the low-pressure returning stream has a much lower Cp (~1.2 kJ/kg*K). This creates a thermodynamic pinch-point, preventing effective heat recovery. The Recompression Brayton Cycle solves this by splitting the low-pressure stream before the precooler: a fraction (typically 30% to 40%) bypasses the cooler and is compressed directly by a dedicated Recompressor, perfectly balancing the heat capacity rates and boosting cycle efficiency by 3 to 5 percentage points.'
+      },
+      {
+        q: 'How does turbomachinery physical size compare between sCO2 and conventional steam turbines?',
+        a: 'Due to the exceptionally high fluid density of sCO2 throughout the closed loop (even at turbine exit, pressure remains at 7.5 to 8.5 MPa with density around 80 to 120 kg/m3), volumetric flow rates are orders of magnitude lower than condensing steam at 0.05 bar (where steam specific volume is ~25 m3/kg). Consequently, an sCO2 turbine and compressor are roughly 1/10th the physical volume and weight of a steam turbine of identical electrical megawatt capacity, slashing civil footprint and capital costs.'
+      },
+      {
+        q: 'What is a Printed Circuit Heat Exchanger (PCHE) and why is it essential for sCO2 recuperators?',
+        a: 'Because sCO2 recompression cycles transfer tremendous thermal heat internally between recuperated streams (the total recuperator heat duty is often 2 to 3 times greater than the reactor thermal input), recuperators require massive heat transfer surface areas under extreme pressures (250 barg) and temperatures (650 deg C). Printed Circuit Heat Exchangers (PCHEs) use photochemical chemical etching to create micro-channels (1 to 2 mm diameter) in diffusion-bonded alloy sheets (typically Inconel 617 or SS316L), offering heat transfer densities up to 2,500 m2/m3 that withstand high differential pressures.'
+      },
+      {
+        q: 'What happens if compressor inlet conditions drift below the critical temperature (31.04 deg C)?',
+        a: 'If cooling water or ambient temperature drops and causes the main compressor inlet temperature to fall below 31.04 deg C at pressures below 7.38 MPa, two-phase vapor-liquid condensation occurs. Centrifugal or axial compressor impellers designed for single-phase supercritical fluid suffer severe cavitation, droplet erosion, hydraulic instability, and surging. Sophisticated anti-surge controls and active compressor inlet preheaters or bypass throttles are mandatory to maintain inlet conditions strictly in the dense supercritical gas regime (typically 32.0 to 33.5 deg C).'
+      }
+    ];
+
+    const content = `<style>
+      .sco2-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .sco2-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .sco2-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .sco2-group { margin-bottom: 16px; }
+      .sco2-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .sco2-group select, .sco2-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .sco2-group select:focus, .sco2-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .sco2-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-teal { background: #f0fdfa; color: #0d9488; }
+      .sco2-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .sco2-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .sco2-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .sco2-res-sub { font-size: 0.8rem; color: #64748b; }
+      .sco2-btn { background: #0d9488; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .sco2-btn:hover { background: #0f766e; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="sco2-wrap">
+      <div class="sco2-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Supercritical CO2 (sCO2) Brayton Cycle Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Thermodynamic modeling for recompression closed-loop sCO2 power cycles, turbomachinery sizing, and thermal efficiency.</p>
+          </div>
+          <span class="sco2-badge badge-teal">Gen IV Nuclear & CSP Energy</span>
+        </div>
+
+        <div class="sco2-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Thermal Heat Input & Turbine Spec</h3>
+            <div class="sco2-group">
+              <label for="sco2_thermal_input">Thermal Heat Input (MW th)</label>
+              <input type="number" id="sco2_thermal_input" value="250" min="1" step="10">
+              <small style="color:#64748b;">Primary heat source (Reactor core, CSP, Waste heat).</small>
+            </div>
+            <div class="sco2-group">
+              <label for="sco2_tit">Turbine Inlet Temperature (TIT, deg C)</label>
+              <input type="number" id="sco2_tit" value="650" min="450" max="850" step="10">
+            </div>
+            <div class="sco2-group">
+              <label for="sco2_p_high">High Cycle Pressure (MPa)</label>
+              <input type="number" id="sco2_p_high" value="25.0" min="15.0" max="35.0" step="0.5">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Low Pressure & Main Compressor</h3>
+            <div class="sco2-group">
+              <label for="sco2_p_low">Low Cycle Pressure (MPa)</label>
+              <input type="number" id="sco2_p_low" value="7.8" min="7.4" max="10.0" step="0.1">
+              <small style="color:#64748b;">Must remain above critical pressure (7.38 MPa).</small>
+            </div>
+            <div class="sco2-group">
+              <label for="sco2_cit">Main Compressor Inlet Temp (CIT, deg C)</label>
+              <input type="number" id="sco2_cit" value="32.5" min="31.2" max="45.0" step="0.5">
+              <small style="color:#64748b;">Critical temp is 31.04 deg C (keep dense fluid).</small>
+            </div>
+            <div class="sco2-group">
+              <label for="sco2_split">Recompressor Flow Split Fraction (1 - gamma)</label>
+              <input type="number" id="sco2_split" value="0.32" min="0.15" max="0.50" step="0.01">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Turbomachinery Efficiencies</h3>
+            <div class="sco2-group">
+              <label for="sco2_turb_eff">Turbine Isentropic Efficiency (%)</label>
+              <input type="number" id="sco2_turb_eff" value="92" min="80" max="96" step="1">
+            </div>
+            <div class="sco2-group">
+              <label for="sco2_mc_eff">Main Compressor Isentropic Eff (%)</label>
+              <input type="number" id="sco2_mc_eff" value="88" min="75" max="94" step="1">
+            </div>
+            <div class="sco2-group">
+              <label for="sco2_gen_eff">Generator & Mechanical Eff (%)</label>
+              <input type="number" id="sco2_gen_eff" value="97" min="90" max="99" step="1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="sco2-btn" id="sco2_calc_btn">Compute sCO2 Recompression Brayton Cycle</button>
+        </div>
+      </div>
+
+      <div class="sco2-card" id="sco2_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Cycle Performance & Megawatt Outputs</h2>
+          <button class="copy-btn" id="sco2_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="sco2_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="sco2-res-grid">
+          <div class="sco2-res-card">
+            <div class="sco2-res-sub">Net Thermal Efficiency (eta_th)</div>
+            <div class="sco2-res-val" id="res_net_eff">0%</div>
+            <div class="sco2-res-sub" id="res_eff_comp">vs Steam Rankine: +4.5%</div>
+          </div>
+          <div class="sco2-res-card">
+            <div class="sco2-res-sub">Net Electrical Power Output</div>
+            <div class="sco2-res-val" id="res_net_mw">0 MWe</div>
+            <div class="sco2-res-sub" id="res_gross_mw">Turbine Gross: 0 MWe</div>
+          </div>
+          <div class="sco2-res-card">
+            <div class="sco2-res-sub">Compressor Parasitic Power</div>
+            <div class="sco2-res-val" id="res_comp_total_mw">0 MWe</div>
+            <div class="sco2-res-sub" id="res_comp_split_disp">MC: 0 MWe | RC: 0 MWe</div>
+          </div>
+          <div class="sco2-res-card">
+            <div class="sco2-res-sub">sCO2 Working Fluid Flow</div>
+            <div class="sco2-res-val" id="res_mass_flow">0 kg/s</div>
+            <div class="sco2-res-sub" id="res_mass_flow_th">0 Tonnes / Hour</div>
+          </div>
+          <div class="sco2-res-card">
+            <div class="sco2-res-sub">Recuperator Total Duty (PCHE)</div>
+            <div class="sco2-res-val" id="res_recup_duty">0 MW th</div>
+            <div class="sco2-res-sub" id="res_recup_ua">Combined UA: 0 MW/K</div>
+          </div>
+          <div class="sco2-res-card">
+            <div class="sco2-res-sub">Precooler Heat Rejection</div>
+            <div class="sco2-res-val" id="res_cooler_duty">0 MW th</div>
+            <div class="sco2-res-sub" id="res_carnot_disp">Carnot Limit: 0%</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Near-Critical Thermophysical Properties</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Compressor Inlet Density: <strong id="res_rho_in">0 kg/m3 (Dense Supercritical)</strong></div>
+            <div>Fluid Compressibility (Z): <strong id="res_z_comp">0.00 (70% Work Reduction)</strong></div>
+            <div>Turbine Expansion Ratio: <strong id="res_pr">0.00 : 1 (25 MPa -> 7.8 MPa)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">sCO2 Recompression Cycle Architecture & Thermodynamic State Flow</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic of High-Temperature Recuperator (HTR), Low-Temperature Recuperator (LTR), Main Compressor, Recompressor, and Turbine.</p>
+          <div class="anim-box">
+            <canvas id="sco2_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="sco2-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Compressor Choke & Two-Phase Liquid Ingress</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">The main compressor operates deliberately close to the critical point (31.04 deg C, 7.38 MPa) to exploit high fluid density. If ambient cooling overshoots and inlet temperature drops below 31.04 deg C while pressure dips below 7.38 MPa, the fluid enters the subcritical two-phase liquid-vapor envelope. High-velocity liquid droplets impact the centrifugal compressor impeller at 250 m/s, causing instantaneous blade cavitation, catastrophic pitting erosion, and devastating balance-piston axial thrust surges.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Low-Temperature Recuperator (LTR) Pinch-Point Freezing</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">In sCO2 recuperators, fluid heat capacity (Cp) varies wildly with temperature, peaking dramatically near the pseudo-critical line (Cp spikes to >12 kJ/kg*K). In simple Brayton cycles without a recompressor, the high-pressure stream absorbs heat faster than the low-pressure stream can release it, causing an internal temperature cross or pinch-point limitation inside the heat exchanger. The cycle loses up to 5% thermal efficiency and risks thermal stress warping across the micro-channel diffusion bonds.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Dry Gas Seal (DGS) Decompression Explosive Blistering</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">sCO2 turbomachinery operates at immense pressures (20 to 30 MPa) with high rotational speeds (20,000 to 45,000 RPM). Supercritical CO2 readily dissolves into elastomer O-rings and secondary sealing elements. During plant trips or rapid depressurization, dissolved sCO2 rapidly expands within the polymer matrix faster than it can diffuse out, causing violent explosive decompression (AED) blistering and shredding the seals, resulting in hazardous high-pressure carbon dioxide blowouts.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. PCHE Micro-Channel Particulate Plugging</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Printed Circuit Heat Exchangers (PCHEs) utilize chemically etched semi-circular channels with hydraulic diameters between 1.0 and 1.8 mm. During commissioning or high-temperature operation (650 deg C), scale flakes, corrosion products, or pipe debris circulate in the closed loop. Particles lodge inside the microscopic channels, permanently plugging flow paths. Unlike conventional shell-and-tube exchangers, diffusion-bonded PCHE cores cannot be mechanically rodded or chemically backflushed, requiring full core replacement.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Recompressor Surge During Inventory Load Transitions</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Power modulation in sCO2 cycles is executed via inventory control (pumping sCO2 into or out of high-pressure storage tanks to adjust mass flow while maintaining constant cycle temperatures). If inventory is removed too rapidly during grid load drops, the pressure ratio shifts faster than the split-flow control valve can rebalance. The recompressor experiences sudden aerodynamic choke or severe rotating stall surge, triggering emergency trip shutdowns.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Thermodynamic Equations & Recompression Architecture</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The net thermal efficiency of the <strong>sCO2 Recompression Brayton Cycle</strong> is given by:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\eta_{th} = \frac{\dot{W}_{net}}{\dot{Q}_{in}} = \frac{\dot{W}_{turb} - (\dot{W}_{MC} + \dot{W}_{RC})}{\dot{Q}_{in}} \cdot \eta_{gen}$$
+          </div>
+          <p>Where the turbine power output $\dot{W}_{turb}$ and compressor powers are:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\dot{W}_{turb} = \dot{m}_{total} \cdot (h_{TIT} - h_{turb,out}) \cdot \eta_{t,is}$$
+            $$\dot{W}_{MC} = (1 - x_{split}) \cdot \dot{m}_{total} \cdot \frac{h_{MC,out,s} - h_{MC,in}}{\eta_{MC,is}}$$
+            $$\dot{W}_{RC} = x_{split} \cdot \dot{m}_{total} \cdot \frac{h_{RC,out,s} - h_{RC,in}}{\eta_{RC,is}}$$
+          </div>
+          <p>Where $x_{split} = 1 - \gamma$ is the recompression split fraction ($0.25 - 0.40$). The Carnot thermodynamic upper limit is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\eta_{Carnot} = 1 - \frac{T_{CIT} + 273.15}{T_{TIT} + 273.15}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var thermalInput = document.getElementById('sco2_thermal_input');
+        var titInput = document.getElementById('sco2_tit');
+        var pHighInput = document.getElementById('sco2_p_high');
+        var pLowInput = document.getElementById('sco2_p_low');
+        var citInput = document.getElementById('sco2_cit');
+        var splitInput = document.getElementById('sco2_split');
+        var turbEffInput = document.getElementById('sco2_turb_eff');
+        var mcEffInput = document.getElementById('sco2_mc_eff');
+        var genEffInput = document.getElementById('sco2_gen_eff');
+        var calcBtn = document.getElementById('sco2_calc_btn');
+        var copyBtn = document.getElementById('sco2_copy_btn');
+        var copyMsg = document.getElementById('sco2_copy_msg');
+
+        var resNetEff = document.getElementById('res_net_eff');
+        var resEffComp = document.getElementById('res_eff_comp');
+        var resNetMw = document.getElementById('res_net_mw');
+        var resGrossMw = document.getElementById('res_gross_mw');
+        var resCompTotalMw = document.getElementById('res_comp_total_mw');
+        var resCompSplitDisp = document.getElementById('res_comp_split_disp');
+        var resMassFlow = document.getElementById('res_mass_flow');
+        var resMassFlowTh = document.getElementById('res_mass_flow_th');
+        var resRecupDuty = document.getElementById('res_recup_duty');
+        var resRecupUa = document.getElementById('res_recup_ua');
+        var resCoolerDuty = document.getElementById('res_cooler_duty');
+        var resCarnotDisp = document.getElementById('res_carnot_disp');
+        var resRhoIn = document.getElementById('res_rho_in');
+        var resZComp = document.getElementById('res_z_comp');
+        var resPr = document.getElementById('res_pr');
+
+        var canvas = document.getElementById('sco2_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var qInMw = parseFloat(thermalInput.value) || 250;
+          var titC = parseFloat(titInput.value) || 650;
+          var pHighMpa = parseFloat(pHighInput.value) || 25.0;
+          var pLowMpa = parseFloat(pLowInput.value) || 7.8;
+          var citC = parseFloat(citInput.value) || 32.5;
+          var split = parseFloat(splitInput.value) || 0.32;
+          var etaTurb = (parseFloat(turbEffInput.value) || 92) / 100;
+          var etaMc = (parseFloat(mcEffInput.value) || 88) / 100;
+          var etaGen = (parseFloat(genEffInput.value) || 97) / 100;
+
+          var pr = pHighMpa / pLowMpa;
+
+          // Thermophysical properties of sCO2 near critical point (Tc = 31.04 C, Pc = 7.38 MPa)
+          // At CIT = 32.5 C, P = 7.8 MPa: density ~ 620 kg/m3, Z ~ 0.32
+          var rhoIn = 620 - (citC - 32.0) * 18 + (pLowMpa - 7.5) * 45;
+          rhoIn = Math.max(350, Math.min(750, rhoIn));
+          var zVal = 0.28 + (citC - 31.5) * 0.025;
+          zVal = Math.max(0.20, Math.min(0.55, zVal));
+
+          // Carnot efficiency limit
+          var tHotK = titC + 273.15;
+          var tColdK = citC + 273.15;
+          var carnotEff = (1 - tColdK / tHotK) * 100;
+
+          // Specific enthalpy changes (kJ/kg):
+          // Turbine expansion: deltaH_turb_ideal ~ Cp_avg * (TIT - T_exit_ideal)
+          // For sCO2 between 25 MPa and 7.8 MPa: specific turbine work is ~ 135 kJ/kg
+          var wTurbSpecific = 142 * (tHotK / 923.15) * Math.pow(pr / 3.2, 0.22) * etaTurb;
+
+          // Main compressor specific work: w = v_avg * deltaP / eta
+          // With Z ~ 0.32, compressor work is drastically reduced to ~ 38 kJ/kg
+          var wMcSpecific = ((pHighMpa - pLowMpa) * 1e3 / (rhoIn * 0.88)) / etaMc;
+
+          // Recompressor inlet is warmer (~70-90 C), density lower (~160 kg/m3) -> higher work ~ 58 kJ/kg
+          var wRcSpecific = ((pHighMpa - pLowMpa) * 1e3 / (180 * 0.90)) / (etaMc * 0.96);
+
+          // Total compression work per kg of total fluid:
+          // MC fraction = (1 - split), RC fraction = split
+          var wCompAvg = (1 - split) * wMcSpecific + split * wRcSpecific;
+
+          // Specific heat added in reactor: q_in_spec ~ w_turb_spec / thermal_fraction
+          var qInSpecific = 245 * (tHotK / 923.15); // kJ/kg
+          var massFlowKgS = (qInMw * 1e3) / qInSpecific; // kg/s
+          var massFlowTh = (massFlowKgS * 3600) / 1000;
+
+          // Powers
+          var pTurbGrossMw = (massFlowKgS * wTurbSpecific) / 1000;
+          var pMcMw = ((1 - split) * massFlowKgS * wMcSpecific) / 1000;
+          var pRcMw = (split * massFlowKgS * wRcSpecific) / 1000;
+          var pCompTotalMw = pMcMw + pRcMw;
+
+          var pNetMechanicalMw = pTurbGrossMw - pCompTotalMw;
+          var pNetElectricalMw = pNetMechanicalMw * etaGen;
+          var netEffPct = (pNetElectricalMw / qInMw) * 100;
+
+          // Recuperator duties (HTR + LTR)
+          // In recompression cycles, recuperator duty is typically 2.2x to 2.8x reactor heat input
+          var recupTotalMw = qInMw * 2.35;
+          // Log mean temperature difference ~ 12 to 18 K in microchannel PCHE
+          var lmtd = 14.5;
+          var recupUaMwK = recupTotalMw / lmtd;
+
+          // Precooler Heat Rejection
+          var coolerHeatMw = qInMw - pNetMechanicalMw;
+
+          // Update DOM
+          resNetEff.innerText = netEffPct.toFixed(1) + '% Net Eff';
+          resEffComp.innerText = 'vs Steam Rankine: +' + (netEffPct - 42.5).toFixed(1) + '%';
+          resNetMw.innerText = pNetElectricalMw.toFixed(1) + ' MWe';
+          resGrossMw.innerText = 'Turbine Gross: ' + pTurbGrossMw.toFixed(1) + ' MWe';
+          resCompTotalMw.innerText = pCompTotalMw.toFixed(1) + ' MWe';
+          resCompSplitDisp.innerText = 'MC: ' + pMcMw.toFixed(1) + ' MW | RC: ' + pRcMw.toFixed(1) + ' MW';
+          resMassFlow.innerText = Math.round(massFlowKgS).toLocaleString() + ' kg/s';
+          resMassFlowTh.innerText = Math.round(massFlowTh).toLocaleString() + ' Tonnes / Hour';
+          resRecupDuty.innerText = Math.round(recupTotalMw).toLocaleString() + ' MW th';
+          resRecupUa.innerText = 'Combined UA: ' + recupUaMwK.toFixed(1) + ' MW/K (PCHE)';
+          resCoolerDuty.innerText = Math.round(coolerHeatMw).toLocaleString() + ' MW th Heat Rejection';
+          resCarnotDisp.innerText = 'Carnot Limit: ' + carnotEff.toFixed(1) + '%';
+          resRhoIn.innerText = Math.round(rhoIn) + ' kg/m3 (Dense Supercritical)';
+          resZComp.innerText = zVal.toFixed(2) + ' (Near-Critical Advantage)';
+          resPr.innerText = pr.toFixed(2) + ' : 1 (' + pHighMpa.toFixed(1) + ' -> ' + pLowMpa.toFixed(1) + ' MPa)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Cycle Flowsheet Components:
+          // 1. Primary Heater (Top Center-Right)
+          var hX = 540, hY = 25, hW = 120, hH = 65;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(hX, hY, hW, hH, 10); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('HEAT SOURCE', hX + hW/2, hY + 28);
+          ctx.fillStyle = '#f87171'; ctx.font = '10px sans-serif';
+          ctx.fillText('Reactor / CSP (' + titInput.value + 'C)', hX + hW/2, hY + 48);
+
+          // 2. Turbine (Top Right)
+          var tX = 740, tY = 20, tW = 90, tH = 80;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          // Trapezoid for turbine expander
+          ctx.moveTo(tX, tY + 15);
+          ctx.lineTo(tX + tW, tY);
+          ctx.lineTo(tX + tW, tY + tH);
+          ctx.lineTo(tX, tY + tH - 15);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('TURBINE', tX + tW/2, tY + 45);
+
+          // 3. High-Temperature Recuperator (HTR)
+          var htrX = 400, htrY = 120, htrW = 100, htrH = 75;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(htrX, htrY, htrW, htrH, 8); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('HTR (PCHE)', htrX + htrW/2, htrY + 35);
+          ctx.fillStyle = '#fbbf24'; ctx.font = '9px sans-serif';
+          ctx.fillText('High-Temp Recup', htrX + htrW/2, htrY + 55);
+
+          // 4. Low-Temperature Recuperator (LTR)
+          var ltrX = 240, ltrY = 120, ltrW = 100, ltrH = 75;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#eab308';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(ltrX, ltrY, ltrW, ltrH, 8); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('LTR (PCHE)', ltrX + ltrW/2, ltrY + 35);
+          ctx.fillStyle = '#fef08a'; ctx.font = '9px sans-serif';
+          ctx.fillText('Low-Temp Recup', ltrX + ltrW/2, ltrY + 55);
+
+          // 5. Precooler (Bottom Left)
+          var clrX = 80, clrY = 220, clrW = 90, clrH = 60;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#06b6d4';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(clrX, clrY, clrW, clrH, 8); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('PRECOOLER', clrX + clrW/2, clrY + 26);
+          ctx.fillStyle = '#67e8f9'; ctx.font = '9px sans-serif';
+          ctx.fillText('To 32.5 C Dense', clrX + clrW/2, clrY + 45);
+
+          // 6. Main Compressor (MC, Bottom Center-Left)
+          var mcX = 240, mcY = 220, mcW = 80, mcH = 65;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          // Trapezoid for compressor
+          ctx.moveTo(mcX, mcY);
+          ctx.lineTo(mcX + mcW, mcY + 15);
+          ctx.lineTo(mcX + mcW, mcY + mcH - 15);
+          ctx.lineTo(mcX, mcY + mcH);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('MAIN COMP', mcX + mcW/2, mcY + 38);
+
+          // 7. Recompressor (RC, Bottom Center-Right)
+          var rcX = 420, rcY = 220, rcW = 80, rcH = 65;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#a855f7';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(rcX, rcY);
+          ctx.lineTo(rcX + rcW, rcY + 15);
+          ctx.lineTo(rcX + rcW, rcY + rcH - 15);
+          ctx.lineTo(rcX, rcY + rcH);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('RECOMP (RC)', rcX + rcW/2, rcY + 38);
+
+          // Generator on Turbine Shaft
+          var gX = 870, gY = 35, gW = 70, gH = 50;
+          ctx.fillStyle = '#334155'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(gX, gY, gW, gH, 6); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('GENERATOR', gX + gW/2, gY + 30);
+
+          // Connecting Pipes & High / Low Pressure Streams
+          ctx.lineWidth = 3;
+          // Hot High-Pressure Stream (Red)
+          ctx.strokeStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.moveTo(hX + hW, hY + hH/2);
+          ctx.lineTo(tX, tY + tH/2);
+          ctx.stroke();
+
+          // Low-Pressure Hot Stream to HTR (Orange)
+          ctx.strokeStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.moveTo(tX + tW/2, tY + tH);
+          ctx.lineTo(tX + tW/2, 160);
+          ctx.lineTo(htrX + htrW, 160);
+          ctx.stroke();
+
+          // HTR to LTR
+          ctx.beginPath();
+          ctx.moveTo(htrX, 160);
+          ctx.lineTo(ltrX + ltrW, 160);
+          ctx.stroke();
+
+          // Split Flow from LTR: Part to Precooler, Part to Recompressor
+          ctx.strokeStyle = '#06b6d4';
+          ctx.beginPath();
+          ctx.moveTo(ltrX, 160);
+          ctx.lineTo(125, 160);
+          ctx.lineTo(125, clrY);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#a855f7';
+          ctx.beginPath();
+          ctx.moveTo(200, 160);
+          ctx.lineTo(200, 200);
+          ctx.lineTo(rcX, 200);
+          ctx.lineTo(rcX, rcY + rcH/2);
+          ctx.stroke();
+
+          // Telemetry banner
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 13px monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText('sCO2 RECOMPRESSION BRAYTON CYCLE | HIGH: ' + pHighInput.value + ' MPa | LOW: ' + pLowInput.value + ' MPa', 80, 305);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== SUPERCRITICAL CO2 (sCO2) BRAYTON CYCLE SIZING REPORT ===',
+            'Thermal Heat Input: ' + thermalInput.value + ' MWth',
+            'Turbine Inlet Conditions: ' + titInput.value + ' deg C @ ' + pHighInput.value + ' MPa',
+            'Main Compressor Inlet: ' + citInput.value + ' deg C @ ' + pLowInput.value + ' MPa',
+            'Cycle Pressure Ratio: ' + resPr.innerText,
+            'Net Electrical Output: ' + resNetMw.innerText + ' (' + resGrossMw.innerText + ')',
+            'Net Thermal Efficiency: ' + resNetEff.innerText + ' (' + resEffComp.innerText + ')',
+            'Compressor Consumption: ' + resCompTotalMw.innerText + ' (' + resCompSplitDisp.innerText + ')',
+            'Working Fluid Mass Flow: ' + resMassFlow.innerText + ' (' + resMassFlowTh.innerText + ')',
+            'Recuperator Total Duty: ' + resRecupDuty.innerText + ' (' + resRecupUa.innerText + ')',
+            'Precooler Heat Rejection: ' + resCoolerDuty.innerText + ' (' + resCarnotDisp.innerText + ')',
+            'Fluid Ingress Density / Z: ' + resRhoIn.innerText + ' / ' + resZComp.innerText,
+            'Standard: ASME PTC 53 / Gen IV International Forum (GIF) sCO2 Benchmark'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [thermalInput, titInput, pHighInput, pLowInput, citInput, splitInput, turbEffInput, mcEffInput, genEffInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (267 calculators in /calc/)');
 }
 
