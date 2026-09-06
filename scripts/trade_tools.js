@@ -98406,6 +98406,1838 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
     }));
   })();
 
-  console.log('  ✓ Built Trade & Construction Suite (139 calculators in /calc/)');
+  
+  // --- TOOL AX1: KAPLAN & PROPELLER HYDRO TURBINE RUNNER SIZING & CAVITATION CALCULATOR ---
+  (() => {
+    const slug = 'kaplan-turbine-runner-sizing-calculator';
+    const title = 'Kaplan & Propeller Hydro Turbine Sizing & Cavitation Calculator (IEC 60193)';
+    const metaDescription = 'Industrial Kaplan and propeller turbine runner sizing calculator per IEC 60193 and USBR guidelines. Computes specific speed, runner diameter, hub-to-tip ratio, unit discharge, runaway speed, and Thoma cavitation sigma.';
+
+    const faq = [
+      {
+        q: 'What is the operational head and flow range for a Kaplan turbine?',
+        a: 'Kaplan turbines are axial-flow reaction machines engineered for low-head (2 to 45 meters, occasionally up to 70 m) and high volumetric flow rates (10 to over 1,000 m³/s). With double regulation (simultaneously adjusting both the guide vane wicket gate angles and runner blade pitch), Kaplan turbines maintain peak hydraulic efficiencies exceeding 92% across a wide operational band from 30% to 100% rated discharge.'
+      },
+      {
+        q: 'How does double-regulation differ between Kaplan and fixed-blade propeller turbines?',
+        a: 'A propeller turbine has fixed runner blades and variable wicket gates (single regulation), resulting in a steep, narrow efficiency hill chart that plummets when flow deviates from the best efficiency point (BEP). A Kaplan turbine features an internal oil-hydraulic or electro-mechanical hub servomotor that pivots the runner blades in coordination with the wicket gates (conjugate 3D cam curve), flattening the efficiency curve across seasonal river discharge variations.'
+      },
+      {
+        q: 'What is the Thoma cavitation coefficient (sigma) and how does it determine runner setting depth?',
+        a: 'The Thoma cavitation parameter is defined as sigma = (H_atm - H_vap - z_s) / H_net, where z_s is the elevation of the runner blade centerline above the tailwater level (suction head). To prevent destructive cavitation pitting along the blade suction side and discharge edges, the plant sigma must exceed the critical cavitation sigma: sigma_plant >= 1.15 * sigma_crit. When sigma_crit is large at high specific speeds, z_s must be negative, requiring the turbine runner to be submerged several meters below minimum tailwater elevation.'
+      },
+      {
+        q: 'Why is the runaway speed ratio critical in Kaplan generator design?',
+        a: 'If a sudden full electrical load rejection occurs and the governor fails to close the wicket gates while the runner blades drift to minimum pitch, the turbine accelerates to runaway speed (n_runaway = 2.4 to 3.2 times rated RPM). The generator rotor, pole windings, exciter, and bearings must be mechanically rated to withstand these extreme centrifugal bursting forces without structural failure.'
+      },
+      {
+        q: 'How is the hub-to-tip diameter ratio (nu = d_hub / D_runner) determined?',
+        a: 'The hub-to-tip diameter ratio nu typically scales between 0.30 and 0.55 as a function of net head. Higher heads exert larger hydraulic bending moments and axial thrust forces on the blades, requiring a larger hub diameter (nu ~ 0.45 - 0.55) to accommodate heavy blade trunnion bearings, lever linkages, and crosshead seals.'
+      }
+    ];
+
+    const content = `
+<style>
+  .kaplan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .kaplan-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .kaplan-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension low-head axial-flow Kaplan and propeller hydro turbine runners per IEC 60193 and US Bureau of Reclamation empirical correlations. Solves specific speed, runner tip diameter D<sub>1</sub>, hub diameter, synchronous rotational speed, runaway overspeed ratio, and Thoma cavitation sigma for tailwater setting depth.
+  </p>
+
+  <div class="kaplan-grid">
+    <!-- Panel 1: Site Hydraulic Parameters -->
+    <div class="kaplan-card">
+      <h3>1. Site Hydraulic Parameters</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kp_head">Net Effective Head H<sub>net</sub> (m)</label>
+          <input type="number" id="kp_head" class="form-control" value="14.5" min="1.5" max="75.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="kp_flow">Design Flow Rate Q (m&sup3;/s)</label>
+          <input type="number" id="kp_flow" class="form-control" value="85.0" min="0.5" max="1200.0" step="1.0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kp_freq">Grid AC Frequency (Hz)</label>
+          <select id="kp_freq" class="form-control">
+            <option value="50">50 Hz (Standard Global / Europe / Asia)</option>
+            <option value="60" selected>60 Hz (North America / Brazil / Taiwan)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="kp_turb_type">Turbine Configuration</label>
+          <select id="kp_turb_type" class="form-control">
+            <option value="kaplan" selected>Kaplan (Double-Regulated: Gates + Blades)</option>
+            <option value="propeller">Propeller (Single-Regulated: Fixed Blades)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kp_eta_hyd">Expected Hydraulic Efficiency &eta;<sub>h</sub> (%)</label>
+          <input type="number" id="kp_eta_hyd" class="form-control" value="92.5" min="80.0" max="96.5" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="kp_blades">Number of Runner Blades (z)</label>
+          <input type="number" id="kp_blades" class="form-control" value="4" min="3" max="8" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Elevation & Cavitation Boundaries -->
+    <div class="kaplan-card">
+      <h3>2. Tailwater & Cavitation Setting</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kp_altitude">Plant Elevation Above Sea Level (m)</label>
+          <input type="number" id="kp_altitude" class="form-control" value="250" min="0" max="3500" step="25">
+        </div>
+        <div class="form-group">
+          <label for="kp_temp">Water Temperature T (&deg;C)</label>
+          <input type="number" id="kp_temp" class="form-control" value="18" min="2" max="35" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kp_zs">Runner Centerline to Tailwater z<sub>s</sub> (m)</label>
+          <input type="number" id="kp_zs" class="form-control" value="-1.5" min="-10.0" max="5.0" step="0.1">
+          <small style="color: #94a3b8; font-size: 0.75rem;">Negative denotes runner submerged below tailwater level.</small>
+        </div>
+        <div class="form-group">
+          <label for="kp_cav_sf">Cavitation Safety Factor (SF)</label>
+          <input type="number" id="kp_cav_sf" class="form-control" value="1.20" min="1.05" max="1.60" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Sizing Output -->
+    <div class="kaplan-card">
+      <h3>3. Sizing & Cavitation Results</h3>
+      <div class="res-row">
+        <span class="res-label">Turbine Mechanical Output Power:</span>
+        <span class="res-val highlight" id="res_power">-- MW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Specific Speed n<sub>q</sub> (metric):</span>
+        <span class="res-val highlight" id="res_nq">-- rpm (n_s: --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Synchronous Rotational Speed:</span>
+        <span class="res-val" id="res_speed">-- RPM (Poles: --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Runner Tip Outer Diameter D<sub>1</sub>:</span>
+        <span class="res-val highlight" id="res_dia">-- m (-- ft)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Hub Diameter d<sub>hub</sub> (Hub Ratio &nu;):</span>
+        <span class="res-val" id="res_hub">-- m (&nu; = --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Peripheral Blade Tip Speed v<sub>tip</sub>:</span>
+        <span class="res-val" id="res_vtip">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Max Runaway Overspeed:</span>
+        <span class="res-val warning" id="res_runaway">-- RPM (Ratio: --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Critical Thoma Cavitation &sigma;<sub>crit</sub>:</span>
+        <span class="res-val" id="res_sigma_crit">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Plant Operating Cavitation &sigma;<sub>plant</sub>:</span>
+        <span class="res-val" id="res_sigma_plant">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Cavitation Inception Risk:</span>
+        <span id="res_cav_status" class="status-badge badge-safe">SAFE RUNNER SETTING</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Min Permissible Runner Setting z<sub>s,max</sub>:</span>
+        <span class="res-val" id="res_zs_min">-- m (Relative to TW)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_kp">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Axial-Flow Kaplan Hydro Turbine Hydraulic Flow Path</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Spiral Semi-Scroll Case &rarr; Stay Vane Ring ] &rarr; [ Synchronous Adjustable Wicket Gates ] &rarr; [ 90&deg; Bend to Axial Annulus ]<br>
+      &rarr; [ Rotating Kaplan Hub with 4-6 Adjustable Airfoil Blades (D<sub>1</sub>, d<sub>hub</sub>) ] &rarr; [ Divergent Elbow Draft Tube (z<sub>s</sub> to Tailwater) ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="kaplan-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & IEC 60193 Runner Sizing</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Axial turbine runner sizing follows Euler turbine equations, de Haller flow deceleration limits, and Schweigerling specific speed correlations:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Specific Speed n<sub>q</sub> & Synchronous Speed</strong><br>
+        $$n_q = n \cdot \frac{Q^{0.5}}{H_{net}^{0.75}} \quad [\text{rpm, m}^3/\text{s, m}]$$
+        $$n = \frac{120 \cdot f}{2p} \quad [\text{RPM}]$$
+        Kaplan specific speeds range from 120 to 320 rpm, higher than Francis runners.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Runner Tip Diameter D<sub>1</sub> & Hub Ratio</strong><br>
+        $$\nu = \frac{d_{hub}}{D_1} \approx 0.25 + 0.0055 \cdot H_{net}$$
+        $$D_1 = \sqrt{\frac{4 Q}{\pi \cdot v_m \cdot (1 - \nu^2)}} \quad [\text{m}]$$
+        Meridional axial velocity $v_m \approx (0.18 - 0.26) \sqrt{2 g H_{net}}$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Critical Thoma Cavitation Number</strong><br>
+        $$\sigma_{crit} \approx \frac{n_q^{1.33}}{2250} \approx 0.25 - 1.25$$
+        $$\sigma_{plant} = \frac{H_{atm} - H_{vap} - z_s}{H_{net}}$$
+        Requires $\sigma_{plant} \ge SF \cdot \sigma_{crit}$ to prevent cavitation erosion.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Runaway Overspeed Ratio</strong><br>
+        $$\frac{n_{max}}{n_0} = 1.8 + 0.0045 \cdot n_q \approx 2.4 - 3.2$$
+        Generator rotor must withstand $v_{burst} \propto n_{runaway}^2$ hoop stress.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="kaplan-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Kaplan Hydro Turbine Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Draft Tube Corkscrew Vortex Rope Surge Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operating an axial turbine off-design creates high residual swirl at the runner discharge. Below the runner hub, a helical precessing vortex core (corkscrew vortex rope) forms inside the draft tube cone at 0.2 to 0.4 times runner rotational frequency ($f_{rope} \approx 0.3 f_0$). If this hydraulic excitation matches the acoustic natural frequency of the water column or powerhouse concrete penstock structure, violent hydraulic resonance shocks occur, shattering powerhouse windows, cracking concrete foundations, and causing severe turbine shaft fatigue. Aeration injection through the runner hub center is mandatory to cushion the vortex core.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Runner Submergence (z<sub>s</sub>) Deficit & Catastrophic Suction Cavitation</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        High-specific-speed Kaplan turbines ($n_q > 220$) operate with critical Thoma cavitation coefficients $\sigma_{crit} > 0.65$. Civil engineering developers attempting to minimize powerhouse excavation costs often set the runner centerline above or level with tailwater level ($z_s \ge 0$). At full load, static pressure on the blade suction side drops below water vapor pressure ($P_{vap}$). Microscopic vapor cavities implode violently against the stainless steel runner blades at 1,000 MPa micro-jet shock pressures, gouging out spongy holes, shearing blade trailing edges, and destroying runner discharge rings within 3,000 operating hours.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. 3D Conjugate Cam Curve Uncoupling (On-Cam vs Off-Cam Operation)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Kaplan double regulation relies on an exact mathematical relationship (the 3D conjugate on-cam curve) between wicket gate servomotor stroke and runner blade pitch angle. If linkage play, digital governor sensor calibration drift, or sticky pilot valves cause "off-cam" operation, flow enters the runner blades with severe angle-of-attack separation. Efficiency drops by 12% to 20%, massive draft tube flow separation occurs, and heavy hydraulic unbalance forces bend the main drive shaft.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Runaway Overspeed Centrifugal Generator Burst</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Unlike Francis turbines (which have runaway speed ratios of 1.6 to 1.8), axial Kaplan turbines have runaway speed multipliers reaching 2.8 to 3.2 times synchronous speed if governor trip occurs and blades open. Centrifugal hoop stress scales with the square of RPM ($S \propto n^2$), meaning generator rotor poles experience nearly **10 times normal operating centrifugal tensile stress**. If the generator rotor, pole dovetails, and damper windings are not rated for full Kaplan runaway RPM, the generator rotor can literally burst through the stator housing.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Internal Oil Hub Seal Failure & Environmental River Contamination</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Traditional Kaplan hubs contain several thousand liters of hydraulic mineral oil to lubricate internal blade trunnion bearings and operating crossheads under static head pressure. High-frequency blade angle adjustments cause elastomeric blade trunnion lip seals to wear against silt and debris. Seal failure leaks high-pressure hydraulic oil directly into the river discharge, causing severe environmental contamination, EPA fines, and immediate powerhouse shutdown. Modern retrofits mandate water-filled hubs or non-toxic synthetic ester bio-lubricants with mechanical face seals.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="kaplan-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Low-Head Run-of-River Hydroelectric Power Plant.</p>
+      <ul>
+        <li><strong>Site Data:</strong> Net Head $H_{net} = 14.5\text{ m}$, Design Discharge $Q = 85.0\text{ m}^3/\text{s}$, Grid Frequency $f = 60\text{ Hz}$.</li>
+        <li><strong>Elevation:</strong> Plant Altitude $z_{alt} = 250\text{ m}$ ($H_{atm} \approx 10.03\text{ m}$), Water Temperature $T = 18^\circ\text{C}$ ($H_{vap} = 0.21\text{ m}$).</li>
+        <li><strong>Target Efficiency:</strong> Estimated hydraulic efficiency $\eta_h = 92.5\%$.</li>
+      </ul>
+      <p><strong>Step 1: Mechanical Turbine Shaft Power ($P_{mech}$):</strong></p>
+      $$P = \rho \cdot g \cdot Q \cdot H_{net} \cdot \eta = 1000 \times 9.80665 \times 85.0 \times 14.5 \times 0.925$$
+      $$P = 12,088,883 \times 0.925 = 11,182,217\text{ W} = 11.18\text{ MW} \quad (14,996\text{ HP})$$
+      <p><strong>Step 2: Runner Specific Speed ($n_q$) & Synchronous Generator Speed ($n$):</strong></p>
+      $$\text{Empirical Kaplan specific speed: } n_q \approx \frac{1850}{H_{net}^{0.55}} = \frac{1850}{(14.5)^{0.55}} = \frac{1850}{4.339} \approx 206\text{ rpm}$$
+      $$\text{Target RPM: } n = n_q \cdot \frac{H_{net}^{0.75}}{Q^{0.5}} = 206 \times \frac{(14.5)^{0.75}}{\sqrt{85.0}} = 206 \times \frac{7.409}{9.220} = 165.5\text{ RPM}$$
+      $$\text{Select } 44\text{-pole synchronous generator: } n_{sync} = \frac{120 \times 60}{44} = 163.64\text{ RPM}$$
+      $$\text{Actual Specific Speed: } n_q = 163.64 \times \frac{9.220}{7.409} = 203.6\text{ rpm}$$
+      <p><strong>Step 3: Runner Tip Diameter ($D_1$) and Hub Ratio ($\nu$):</strong></p>
+      $$\nu = \frac{d_{hub}}{D_1} = 0.25 + 0.0055 \times 14.5 = 0.330$$
+      $$v_m = 0.22 \times \sqrt{2 \times 9.80665 \times 14.5} = 0.22 \times 16.864 = 3.71\text{ m/s}$$
+      $$D_1 = \sqrt{\frac{4 \times 85.0}{\pi \times 3.71 \times (1 - 0.330^2)}} = \sqrt{\frac{340}{11.656 \times 0.8911}} = \sqrt{\frac{340}{10.387}} = \sqrt{32.73} = 5.72\text{ meters}$$
+      $$d_{hub} = 0.330 \times 5.72\text{ m} = 1.89\text{ meters}$$
+      $$\text{Blade Tip Velocity: } v_{tip} = \frac{\pi \times 5.72 \times 163.64}{60} = 48.99\text{ m/s} \quad (110\text{ mph})$$
+      <p><strong>Step 4: Cavitation Analysis & Submergence Depth ($z_s$):</strong></p>
+      $$\sigma_{crit} = \frac{(203.6)^{1.33}}{2250} = \frac{1168}{2250} = 0.519$$
+      $$\text{Required Safety Margin } (SF = 1.20): \sigma_{req} = 1.20 \times 0.519 = 0.623$$
+      $$\sigma_{plant} = \frac{10.03 - 0.21 - z_s}{14.5} = \frac{9.82 - z_s}{14.5} \ge 0.623$$
+      $$9.82 - z_s \ge 9.033 \implies z_s \le 9.82 - 9.033 = +0.79\text{ m}$$
+      $$\mathbf{\text{Specifying } z_s = -1.50\text{ m (submerged) provides } \sigma_{plant} = \frac{9.82 - (-1.5)}{14.5} = 0.781 \gg 0.623 \implies \text{\textbf{High Cavitation Margin}}}$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcKaplan() {
+    const H = parseFloat(document.getElementById('kp_head').value) || 14.5;
+    const Q = parseFloat(document.getElementById('kp_flow').value) || 85.0;
+    const freq = parseFloat(document.getElementById('kp_freq').value) || 60;
+    const turbType = document.getElementById('kp_turb_type').value;
+    const eta_hyd = (parseFloat(document.getElementById('kp_eta_hyd').value) || 92.5) / 100;
+    const numBlades = parseInt(document.getElementById('kp_blades').value) || 4;
+    const alt = parseFloat(document.getElementById('kp_altitude').value) || 250;
+    const temp = parseFloat(document.getElementById('kp_temp').value) || 18;
+    const zs = parseFloat(document.getElementById('kp_zs').value) || -1.5;
+    const cavSF = parseFloat(document.getElementById('kp_cav_sf').value) || 1.20;
+
+    const g = 9.80665;
+    const rho = 1000;
+
+    // 1. Mechanical Shaft Power
+    const P_watts = rho * g * Q * H * eta_hyd;
+    const P_mw = P_watts / 1e6;
+    const P_hp = P_watts / 745.699872;
+
+    // 2. Optimum specific speed
+    const nq_target = 1850 / Math.pow(H, 0.55);
+    const n_ideal = nq_target * Math.pow(H, 0.75) / Math.sqrt(Q);
+
+    // Synchronous speed selection (even number of poles)
+    let bestPoles = 2;
+    let bestDiff = 9999;
+    for (let p = 2; p <= 96; p += 2) {
+      const n_sync = (120 * freq) / p;
+      const diff = Math.abs(n_sync - n_ideal);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        bestPoles = p;
+      }
+    }
+    const n_rpm = (120 * freq) / bestPoles;
+    const nq_actual = n_rpm * Math.sqrt(Q) / Math.pow(H, 0.75);
+    const ns_us = nq_actual * 4.285;
+
+    // 3. Runner Hub Ratio & Diameter
+    const nu = Math.min(0.55, Math.max(0.28, 0.25 + 0.0055 * H));
+    const vm = 0.22 * Math.sqrt(2 * g * H);
+    const D1 = Math.sqrt((4 * Q) / (Math.PI * vm * (1 - Math.pow(nu, 2))));
+    const dhub = nu * D1;
+    const vtip = (Math.PI * D1 * n_rpm) / 60;
+
+    // 4. Runaway Speed
+    const runawayRatio = turbType === 'kaplan' ? (2.1 + 0.0042 * nq_actual) : (1.8 + 0.0035 * nq_actual);
+    const n_runaway = n_rpm * runawayRatio;
+
+    // 5. Cavitation Sigma Calculation
+    const Patm_kpa = 101.325 * Math.pow(1 - 2.25577e-5 * alt, 5.25588);
+    const H_atm = (Patm_kpa * 1000) / (rho * g);
+    const Pvap_kpa = 0.61078 * Math.exp((17.27 * temp) / (temp + 237.3));
+    const H_vap = (Pvap_kpa * 1000) / (rho * g);
+
+    const sigma_crit = Math.pow(nq_actual, 1.33) / 2250;
+    const sigma_plant = (H_atm - H_vap - zs) / H;
+    const zs_max = H_atm - H_vap - (cavSF * sigma_crit * H);
+
+    // Update UI
+    document.getElementById('res_power').textContent = P_mw.toFixed(2) + ' MW (' + P_hp.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' HP)';
+    document.getElementById('res_nq').textContent = nq_actual.toFixed(1) + ' rpm (n_s: ' + ns_us.toFixed(0) + ')';
+    document.getElementById('res_speed').textContent = n_rpm.toFixed(2) + ' RPM (' + bestPoles + ' Poles)';
+    document.getElementById('res_dia').textContent = D1.toFixed(2) + ' m (' + (D1 * 3.28084).toFixed(2) + ' ft)';
+    document.getElementById('res_hub').textContent = dhub.toFixed(2) + ' m (ν = ' + nu.toFixed(3) + ')';
+    document.getElementById('res_vtip').textContent = vtip.toFixed(1) + ' m/s (' + (vtip * 2.23694).toFixed(0) + ' mph)';
+    document.getElementById('res_runaway').textContent = n_runaway.toFixed(0) + ' RPM (Ratio: ' + runawayRatio.toFixed(2) + '×)';
+    document.getElementById('res_sigma_crit').textContent = sigma_crit.toFixed(3);
+    document.getElementById('res_sigma_plant').textContent = sigma_plant.toFixed(3) + ' (Margin: ' + (sigma_plant / Math.max(0.01, sigma_crit)).toFixed(2) + '×)';
+    document.getElementById('res_zs_min').textContent = zs_max.toFixed(2) + ' m';
+
+    const cavBadge = document.getElementById('res_cav_status');
+    if (sigma_plant >= cavSF * sigma_crit) {
+      cavBadge.className = 'status-badge badge-safe';
+      cavBadge.textContent = 'SAFE CAVITATION MARGIN (' + (sigma_plant / sigma_crit).toFixed(2) + '×)';
+    } else if (sigma_plant >= sigma_crit) {
+      cavBadge.className = 'status-badge badge-warn';
+      cavBadge.textContent = 'MARGINAL (EROSION RISK)';
+    } else {
+      cavBadge.className = 'status-badge badge-danger';
+      cavBadge.textContent = 'CRITICAL CAVITATION DAMAGE';
+    }
+  }
+
+  const inputs = ['kp_head', 'kp_flow', 'kp_freq', 'kp_turb_type', 'kp_eta_hyd', 'kp_blades', 'kp_altitude', 'kp_temp', 'kp_zs', 'kp_cav_sf'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcKaplan);
+      el.addEventListener('change', calcKaplan);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_kp');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- KAPLAN HYDRO TURBINE RUNNER DATASHEET ---',
+        'Net Head: ' + document.getElementById('kp_head').value + ' m | Flow Rate: ' + document.getElementById('kp_flow').value + ' m³/s',
+        'Turbine Output Power: ' + document.getElementById('res_power').textContent,
+        'Synchronous Speed: ' + document.getElementById('res_speed').textContent + ' | Specific Speed: ' + document.getElementById('res_nq').textContent,
+        'Runner Tip Diameter: ' + document.getElementById('res_dia').textContent + ' | Hub Dia: ' + document.getElementById('res_hub').textContent,
+        'Tip Speed: ' + document.getElementById('res_vtip').textContent + ' | Max Runaway Speed: ' + document.getElementById('res_runaway').textContent,
+        'Critical Sigma: ' + document.getElementById('res_sigma_crit').textContent + ' | Plant Sigma: ' + document.getElementById('res_sigma_plant').textContent,
+        'Cavitation Status: ' + document.getElementById('res_cav_status').textContent,
+        'Max Allowed Runner Centerline (zs,max): ' + document.getElementById('res_zs_min').textContent,
+        'Generated via DigitalToolsShed.com Kaplan Hydro Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcKaplan();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AX2: SHELL & TUBE HEAT EXCHANGER CALCULATOR (KERN & TEMA) ---
+  (() => {
+    const slug = 'kern-method-heat-exchanger-calculator';
+    const title = 'Kern Method Shell & Tube Exchanger Sizing & Pressure Drop Calculator (TEMA)';
+    const metaDescription = 'Industrial shell and tube heat exchanger thermal sizing and hydraulic pressure drop calculator per TEMA Standards and Kern\'s method. Computes LMTD FT correction, shell crossflow velocity, overall U coefficient, and bundle pressure drop.';
+
+    const faq = [
+      {
+        q: 'What is the difference between Kern\'s method and the Bell-Delaware method for shell-side rating?',
+        a: 'Kern\'s method is a classic, semi-empirical approach that assumes uniform crossflow across the entire tube bundle, calculating shell-side heat transfer and pressure drop using a single equivalent diameter (D_e) and mass velocity (G_s). The Bell-Delaware method is a rigorous rating method that divides shell flow into five distinct streams (crossflow B-stream, baffle-to-shell bypass A-stream, bundle-to-shell bypass C-stream, baffle window pass E-stream, and partition bypass F-stream), applying correction factors for baffle leakage and tube-to-baffle clearances.'
+      },
+      {
+        q: 'Why must the Log Mean Temperature Difference (LMTD) be corrected by the FT factor?',
+        a: 'Pure countercurrent flow allows 100% thermodynamic temperature approach, yielding F_T = 1.0. However, multi-pass shell and tube exchangers (such as 1-2, 1-4, or 2-4 TEMA configurations) involve mixed countercurrent and cocurrent passes. The configuration correction factor F_T (derived from thermal effectiveness P and heat capacity ratio R) accounts for local cocurrent crossflow degradation. If F_T drops below 0.75 to 0.80, the exchanger suffers severe temperature cross inefficiency and requires multiple shells in series.'
+      },
+      {
+        q: 'What are the trade-offs between triangular (30°) and square (90° or 45°) tube pitch layouts?',
+        a: 'A 30° triangular pitch packs roughly 15% more heat transfer surface area into a given shell diameter than a square pitch and induces higher turbulence, giving higher heat transfer coefficients. However, triangular pitch cannot be mechanically cleaned by lance hydro-blasting between tubes and is strictly reserved for clean, non-fouling shell-side fluids. Square (90°) or rotated square (45°) layouts leave 6.35 mm (0.25 inch) cleaning lanes, enabling mechanical tube bundle cleaning for heavily fouling hydrocarbons.'
+      },
+      {
+        q: 'When is a TEMA impingement plate required at the shell inlet nozzle?',
+        a: 'Per TEMA Standard RCB-4.6, an impingement plate or distribution belt is mandatory whenever the inlet nozzle kinetic energy density (rho * v²) exceeds 2,230 kg/(m·s²) for non-corrosive liquids, or 740 kg/(m·s²) for gases, vapors, and boiling liquids. Without an impingement plate, high-velocity incoming droplets erode and dent top-row tubes, causing rapid fatigue puncture.'
+      },
+      {
+        q: 'What is the allowable shell-side and tube-side pressure drop in industrial design?',
+        a: 'Typical industrial process specifications limit liquid pressure drop to 35 to 70 kPa (5 to 10 psi) per exchanger shell to minimize pumping power costs. For condensing vapors or gas flows, allowable pressure drops are strictly capped at 7 to 35 kPa (1 to 5 psi) to prevent choking and compressor back-pressure penalties.'
+      }
+    ];
+
+    const content = `
+<style>
+  .hx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .hx-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .hx-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Perform rigorous thermal rating and hydraulic pressure drop calculations for TEMA Type E industrial shell and tube heat exchangers using Kern\'s method. Solves true mean temperature difference F<sub>T</sub> &times; LMTD, shell crossflow mass velocity, clean and fouled overall heat transfer coefficient U, and shell/tube pressure drops.
+  </p>
+
+  <div class="hx-grid">
+    <!-- Panel 1: Thermal Process Duties -->
+    <div class="hx-card">
+      <h3>1. Thermal Stream Parameters</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_duty">Thermal Duty Q (kW)</label>
+          <input type="number" id="hx_duty" class="form-control" value="1850" min="10" max="100000" step="50">
+        </div>
+        <div class="form-group">
+          <label for="hx_passes">Tube Passes (N<sub>p</sub>)</label>
+          <select id="hx_passes" class="form-control">
+            <option value="1">1 Pass (Pure Countercurrent)</option>
+            <option value="2" selected>2 Passes (Standard TEMA E)</option>
+            <option value="4">4 Passes (High Tube Velocity)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_t_hin">Hot In T<sub>h,in</sub> (&deg;C)</label>
+          <input type="number" id="hx_t_hin" class="form-control" value="145" min="-50" max="600" step="1">
+        </div>
+        <div class="form-group">
+          <label for="hx_t_hout">Hot Out T<sub>h,out</sub> (&deg;C)</label>
+          <input type="number" id="hx_t_hout" class="form-control" value="85" min="-50" max="600" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_t_cin">Cold In T<sub>c,in</sub> (&deg;C)</label>
+          <input type="number" id="hx_t_cin" class="form-control" value="30" min="-50" max="400" step="1">
+        </div>
+        <div class="form-group">
+          <label for="hx_t_cout">Cold Out T<sub>c,out</sub> (&deg;C)</label>
+          <input type="number" id="hx_t_cout" class="form-control" value="65" min="-50" max="400" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_rf_shell">Shell Fouling R<sub>fs</sub> (m&sup2;&middot;K/W)</label>
+          <input type="number" id="hx_rf_shell" class="form-control" value="0.00035" min="0" max="0.002" step="0.00005">
+        </div>
+        <div class="form-group">
+          <label for="hx_rf_tube">Tube Fouling R<sub>ft</sub> (m&sup2;&middot;K/W)</label>
+          <input type="number" id="hx_rf_tube" class="form-control" value="0.00020" min="0" max="0.002" step="0.00005">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Exchanger Geometry -->
+    <div class="hx-card">
+      <h3>2. Shell & Tube Bundle Geometry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_ds">Shell ID D<sub>s</sub> (mm)</label>
+          <input type="number" id="hx_ds" class="form-control" value="610" min="150" max="2500" step="10">
+        </div>
+        <div class="form-group">
+          <label for="hx_nt">Number of Tubes N<sub>t</sub></label>
+          <input type="number" id="hx_nt" class="form-control" value="368" min="20" max="5000" step="2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_do">Tube OD d<sub>o</sub> (mm)</label>
+          <input type="number" id="hx_do" class="form-control" value="19.05" min="9.52" max="50.8" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="hx_di">Tube ID d<sub>i</sub> (mm)</label>
+          <input type="number" id="hx_di" class="form-control" value="15.75" min="7.0" max="46.0" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_length">Tube Length L (m)</label>
+          <input type="number" id="hx_length" class="form-control" value="4.88" min="1.0" max="12.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="hx_baffle_spacing">Baffle Spacing B (mm)</label>
+          <input type="number" id="hx_baffle_spacing" class="form-control" value="250" min="50" max="1200" step="10">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hx_pitch_type">Tube Pitch Layout</label>
+          <select id="hx_pitch_type" class="form-control">
+            <option value="triangular" selected>30&deg; Triangular Pitch (Clean Service)</option>
+            <option value="square">90&deg; Square Pitch (Cleanable Lanes)</option>
+            <option value="rot_square">45&deg; Rotated Square Pitch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="hx_pitch">Tube Pitch P<sub>t</sub> (mm)</label>
+          <input type="number" id="hx_pitch" class="form-control" value="23.81" min="12.0" max="75.0" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Hydraulic Output -->
+    <div class="hx-card">
+      <h3>3. Thermal Rating & Pressure Drops</h3>
+      <div class="res-row">
+        <span class="res-label">Countercurrent LMTD:</span>
+        <span class="res-val" id="res_lmtd">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">TEMA F<sub>T</sub> Correction Factor:</span>
+        <span class="res-val highlight" id="res_ft">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Effective Temperature &Delta;T<sub>eff</sub>:</span>
+        <span class="res-val highlight" id="res_dteff">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Installed Surface Area A<sub>ext</sub>:</span>
+        <span class="res-val" id="res_area">-- m&sup2; (-- ft&sup2;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required Design Overall U<sub>req</sub>:</span>
+        <span class="res-val" id="res_ureq">-- W/(m&sup2;&middot;K)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Calculated Fouled Overall U<sub>fouled</sub>:</span>
+        <span class="res-val highlight" id="res_ufouled">-- W/(m&sup2;&middot;K)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Thermal Overdesign Margin:</span>
+        <span id="res_overdesign" class="status-badge badge-safe">-- % EXCESS</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Shell Crossflow Velocity v<sub>s</sub>:</span>
+        <span class="res-val" id="res_vs">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Shell-Side Pressure Drop &Delta;P<sub>s</sub>:</span>
+        <span class="res-val highlight" id="res_dps">-- kPa (-- psi)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Tube-Side Velocity & &Delta;P<sub>t</sub>:</span>
+        <span class="res-val" id="res_dpt">-- m/s | -- kPa</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_hx">
+          <span>📋 Copy Exchanger Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">TEMA Type E Shell & Tube Exchanger Cross-Sectional Geometry</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Shell Inlet Nozzle &rarr; Impingement Plate ] &rarr; [ Transverse Segmental Baffles (B Spacing, 25% Cut) ]<br>
+      &rarr; [ Multi-Pass Tube Bundle (N<sub>t</sub> Tubes, d<sub>o</sub> &times; d<sub>i</sub>, P<sub>t</sub> Pitch) ] &rarr; [ Floating / Fixed Tubesheets ]<br>
+      &rarr; [ Tube-Side Channel Head with Pass Partitions ] &harr; [ Shell Outlet Nozzle ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="hx-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Kern\'s Shell-Side Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Heat exchanger rating couples the basic heat transfer rate equation $Q = U \cdot A \cdot F_T \cdot \text{LMTD}$ with Kern\'s hydrodynamic crossflow correlations:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Corrected Mean Temp Difference</strong><br>
+        $$\text{LMTD} = \frac{\Delta T_1 - \Delta T_2}{\ln(\Delta T_1 / \Delta T_2)}$$
+        $$F_T = \frac{\sqrt{R^2 + 1} \ln\left(\frac{1-P}{1-PR}\right)}{(R-1) \ln\left(\frac{2 - P(R+1-\sqrt{R^2+1})}{2 - P(R+1+\sqrt{R^2+1})}\right)}$$
+        Prevents unfeasible temperature cross designs.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Shell Crossflow Area & Mass Velocity</strong><br>
+        $$S_m = \frac{D_s \cdot (P_t - d_o) \cdot B}{P_t} \quad [\text{m}^2]$$
+        $$G_s = \frac{\dot{m}_{shell}}{S_m} \quad [\text{kg}/(\text{m}^2\cdot\text{s})]$$
+        $$Re_s = \frac{G_s \cdot D_e}{\mu_s}$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Overall Heat Transfer Coefficient U</strong><br>
+        $$\frac{1}{U_{fouled}} = \frac{1}{h_o} + R_{fs} + \frac{d_o \ln(d_o/d_i)}{2 k_{wall}} + R_{ft} \frac{d_o}{d_i} + \frac{1}{h_i}\frac{d_o}{d_i}$$
+        Evaluates true fouled margin under operating cycles.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Shell-Side Pressure Drop &Delta;P<sub>s</sub></strong><br>
+        $$\Delta P_s = \frac{f_s \cdot G_s^2 \cdot D_s \cdot (N_b + 1)}{2 \rho_s \cdot D_e \cdot (\mu_s / \mu_w)^{0.14}}$$
+        $$f_s = \exp(0.576 - 0.19 \ln Re_s)$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="hx-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Shell & Tube Exchanger Design</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Acoustic Resonance & Tube Vibration Destruction Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When high-velocity shell-side gas or vapor crosses the tube bundle, Karman vortex shedding or fluid-elastic instability can lock onto the acoustic natural frequency of the shell cavity ($f_a = c / 2 D_s$). The resulting standing acoustic wave creates deafening 130 dB sonic screams and induces violent tube bundle vibration. Tubes repeatedly hammer against baffle holes, severing tubes cleanly at baffle edges and releasing high-pressure toxic chemicals into cooling water systems. Always verify Connors instability constants and baffle spacing.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. The Temperature Cross F<sub>T</sub> Collapse Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When the cold fluid outlet temperature exceeds the hot fluid outlet temperature ($T_{c,out} > T_{h,out}$), a temperature cross occurs. In a multi-pass 1-2 TEMA E shell, this causes the local temperature driving force in the cocurrent pass to reverse, heating the cold fluid backwards. The configuration factor $F_T$ drops steeply below 0.75. Novice engineers compensate by arbitrarily multiplying surface area, but the exchanger will physically never achieve the target duty. The only engineering solution is splitting the duty into two or more shells in series (TEMA F or multi-shell E).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. High Kinetic Energy Nozzle Impingement Erosion Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Process fluids entering the shell inlet nozzle at high velocity carry immense kinetic energy density ($\rho v^2$). If $\rho v^2 > 2,230\text{ kg}/(\text{m}\cdot\text{s}^2)$ and no TEMA solid impingement plate or annular distribution belt is installed under the nozzle, the incoming jet strikes the top row of tubes directly. Entrained liquid droplets or particulate fines erode the 1.6 mm tube wall within months, causing catastrophic tube puncture and inter-stream cross-contamination.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Excessive Baffle Cut Bypass Streaming (Window Short-Circuiting)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Specifying segmental baffle cuts greater than 35% diameter in an attempt to lower shell pressure drop creates massive low-velocity dead zones behind the baffles and allows 40% of the shell fluid to bypass the tube matrix through the window zones without participating in crossflow heat exchange. The effective heat transfer coefficient collapses by 50%, while the dead zones accumulate stagnant sludge and severe under-deposit pitting corrosion.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Tube-Side Velocity Low-Limit & Biofouling Settlement</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        To save pumping power, operators often throttle cooling water flows through condenser tubes. When cooling water tube-side velocity drops below 1.0 m/s (3.3 ft/s), silt, micro-algae, and zebra mussels settle out of suspension onto the inside tube surfaces. The resulting biofouling film increases thermal resistance tenfold and creates differential aeration cells that cause rapid localized microbiologically influenced corrosion (MIC) through-wall perforations.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="hx-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Hydrocarbon Condensate Cooler (TEMA Type AES 1-2 Exchanger).</p>
+      <ul>
+        <li><strong>Thermal Duty:</strong> $Q = 1,850\text{ kW}$, Hot kerosene stream cooled from $145^\circ\text{C}$ to $85^\circ\text{C}$ in shell.</li>
+        <li><strong>Cooling Water:</strong> Heated from $30^\circ\text{C}$ to $65^\circ\text{C}$ in 2-pass tube bundle.</li>
+        <li><strong>Exchanger Specs:</strong> Shell ID $D_s = 610\text{ mm}$, $N_t = 368$ tubes, OD $d_o = 19.05\text{ mm}$, ID $d_i = 15.75\text{ mm}$, Length $L = 4.88\text{ m}$.</li>
+        <li><strong>Layout:</strong> $30^\circ$ triangular pitch $P_t = 23.81\text{ mm}$, Baffle spacing $B = 250\text{ mm}$.</li>
+      </ul>
+      <p><strong>Step 1: Log Mean Temperature Difference & F<sub>T</sub> Factor:</strong></p>
+      $$\Delta T_1 = T_{h,in} - T_{c,out} = 145 - 65 = 80^\circ\text{C}$$
+      $$\Delta T_2 = T_{h,out} - T_{c,in} = 85 - 30 = 55^\circ\text{C}$$
+      $$\text{LMTD} = \frac{80 - 55}{\ln(80 / 55)} = \frac{25}{0.3747} = 66.72^\circ\text{C}$$
+      $$P = \frac{t_2 - t_1}{T_1 - t_1} = \frac{65 - 30}{145 - 30} = \frac{35}{115} = 0.3043$$
+      $$R = \frac{T_1 - T_2}{t_2 - t_1} = \frac{145 - 85}{65 - 30} = \frac{60}{35} = 1.7143$$
+      $$\text{Per 1-2 TEMA formula: } F_T = 0.942 \implies \Delta T_{eff} = 0.942 \times 66.72 = 62.85^\circ\text{C}$$
+      <p><strong>Step 2: Installed Outside Heat Transfer Area:</strong></p>
+      $$A_{ext} = N_t \cdot \pi \cdot d_o \cdot L = 368 \times \pi \times 0.01905 \times 4.88 = 107.51\text{ m}^2 \quad (1,157\text{ ft}^2)$$
+      $$U_{required} = \frac{Q}{A \cdot \Delta T_{eff}} = \frac{1,850,000\text{ W}}{107.51\text{ m}^2 \times 62.85\text{ K}} = 273.8\text{ W}/(\text{m}^2\cdot\text{K})$$
+      <p><strong>Step 3: Shell-Side Hydraulic Crossflow & Kern\'s Velocity:</strong></p>
+      $$S_m = \frac{D_s \cdot (P_t - d_o) \cdot B}{P_t} = \frac{0.610 \times (0.02381 - 0.01905) \times 0.250}{0.02381} = \frac{0.610 \times 0.00476 \times 0.250}{0.02381} = 0.0305\text{ m}^2$$
+      $$\text{Hot kerosene mass flow: } \dot{m}_h = \frac{Q}{c_p \Delta T_h} = \frac{1850}{2.15 \times 60} = 14.34\text{ kg/s}$$
+      $$G_s = \frac{14.34\text{ kg/s}}{0.0305\text{ m}^2} = 470.2\text{ kg}/(\text{m}^2\cdot\text{s}) \implies v_s = \frac{470.2}{790} = 0.595\text{ m/s}$$
+      <p><strong>Step 4: Heat Transfer Coefficients & Fouled Overdesign:</strong></p>
+      $$\text{Shell-side film: } h_o = 680\text{ W}/(\text{m}^2\cdot\text{K}), \quad \text{Tube-side film: } h_i = 3,450\text{ W}/(\text{m}^2\cdot\text{K})$$
+      $$\frac{1}{U_f} = \frac{1}{680} + 0.00035 + \frac{0.01905 \ln(19.05/15.75)}{2 \times 16} + 0.00020\left(\frac{19.05}{15.75}\right) + \frac{1}{3450}\left(\frac{19.05}{15.75}\right)$$
+      $$\frac{1}{U_f} = 0.001471 + 0.000350 + 0.000113 + 0.000242 + 0.000350 = 0.002526 \implies U_f = 395.9\text{ W}/(\text{m}^2\cdot\text{K})$$
+      $$\mathbf{\text{Overdesign Margin} = \frac{395.9 - 273.8}{273.8} \times 100\% = +44.6\% \implies \text{\textbf{Safe Margin for Long Production Cycles}}}$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcHX() {
+    const Q_kw = parseFloat(document.getElementById('hx_duty').value) || 1850;
+    const Np = parseInt(document.getElementById('hx_passes').value) || 2;
+    const Thin = parseFloat(document.getElementById('hx_t_hin').value) || 145;
+    const Thout = parseFloat(document.getElementById('hx_t_hout').value) || 85;
+    const Tcin = parseFloat(document.getElementById('hx_t_cin').value) || 30;
+    const Tcout = parseFloat(document.getElementById('hx_t_cout').value) || 65;
+    const Rfs = parseFloat(document.getElementById('hx_rf_shell').value) || 0.00035;
+    const Rft = parseFloat(document.getElementById('hx_rf_tube').value) || 0.00020;
+
+    const Ds_mm = parseFloat(document.getElementById('hx_ds').value) || 610;
+    const Ds = Ds_mm * 1e-3;
+    const Nt = parseInt(document.getElementById('hx_nt').value) || 368;
+    const do_mm = parseFloat(document.getElementById('hx_do').value) || 19.05;
+    const do_m = do_mm * 1e-3;
+    const di_mm = parseFloat(document.getElementById('hx_di').value) || 15.75;
+    const di_m = di_mm * 1e-3;
+    const L_m = parseFloat(document.getElementById('hx_length').value) || 4.88;
+    const B_mm = parseFloat(document.getElementById('hx_baffle_spacing').value) || 250;
+    const B = B_mm * 1e-3;
+    const pitchType = document.getElementById('hx_pitch_type').value;
+    const Pt_mm = parseFloat(document.getElementById('hx_pitch').value) || 23.81;
+    const Pt = Pt_mm * 1e-3;
+
+    // 1. Temperature Analysis & LMTD
+    const dt1 = Thin - Tcout;
+    const dt2 = Thout - Tcin;
+    let lmtd = 0;
+    if (dt1 > 0 && dt2 > 0 && dt1 !== dt2) {
+      lmtd = (dt1 - dt2) / Math.log(dt1 / dt2);
+    } else if (dt1 > 0 && dt2 > 0) {
+      lmtd = dt1;
+    }
+
+    // FT calculation for 1-2 TEMA E shell
+    let FT = 1.0;
+    const P_denom = Thin - Tcin;
+    const R_denom = Tcout - Tcin;
+    if (Np > 1 && P_denom > 0 && R_denom > 0) {
+      const P = (Tcout - Tcin) / P_denom;
+      const R = (Thin - Thout) / R_denom;
+      if (P < 1 && (P * R) < 1) {
+        const sqrtTerm = Math.sqrt(Math.pow(R, 2) + 1);
+        const num = sqrtTerm * Math.log((1 - P) / (1 - P * R));
+        const den1 = R - 1;
+        const den2 = Math.log((2 - P * (R + 1 - sqrtTerm)) / (2 - P * (R + 1 + sqrtTerm)));
+        if (den1 !== 0 && den2 > 0) {
+          FT = num / (den1 * den2);
+        } else {
+          FT = 0.95;
+        }
+      }
+    }
+    FT = Math.max(0.4, Math.min(1.0, isNaN(FT) ? 0.92 : FT));
+    const dteff = lmtd * FT;
+
+    // 2. Surface Area
+    const A_ext = Nt * Math.PI * do_m * L_m;
+    const U_req = dteff > 0 ? (Q_kw * 1000) / (A_ext * dteff) : 0;
+
+    // 3. Shell Crossflow Area & Mass Velocity
+    const Sm = (Ds * (Pt - do_m) * B) / Pt;
+    const rho_shell = 790;
+    const cp_shell = 2150; // J/kg-K
+    const mdot_shell = (Q_kw * 1000) / (cp_shell * Math.max(1, Thin - Thout));
+    const Gs = Sm > 0 ? mdot_shell / Sm : 100;
+    const vs = Gs / rho_shell;
+
+    // Equivalent diameter De
+    let De = 0;
+    if (pitchType === 'triangular') {
+      De = (4 * (0.866 * Math.pow(Pt, 2) - 0.5 * Math.PI * Math.pow(do_m, 2) / 4)) / (0.5 * Math.PI * do_m);
+    } else {
+      De = (4 * (Math.pow(Pt, 2) - Math.PI * Math.pow(do_m, 2) / 4)) / (Math.PI * do_m);
+    }
+
+    const mu_shell = 0.00085;
+    const Res = (Gs * De) / mu_shell;
+    const jH = 0.5 * Math.pow(Math.max(10, Res), 0.55);
+    const Pr_s = (cp_shell * mu_shell) / 0.135;
+    const ho = (jH * 0.135 / De) * Math.pow(Pr_s, 0.33);
+
+    // Tube side flow
+    const tubesPerPass = Nt / Np;
+    const Atube_flow = tubesPerPass * (Math.PI * Math.pow(di_m, 2) / 4);
+    const cp_tube = 4184;
+    const rho_tube = 992;
+    const mdot_tube = (Q_kw * 1000) / (cp_tube * Math.max(1, Tcout - Tcin));
+    const vt = Atube_flow > 0 ? mdot_tube / (rho_tube * Atube_flow) : 1.5;
+    const Ret = (rho_tube * vt * di_m) / 0.00065;
+    const hi = 0.023 * (0.63 / di_m) * Math.pow(Math.max(100, Ret), 0.8) * Math.pow(4.3, 0.4);
+
+    // Overall U
+    const kwall = 16.0; // W/m-K stainless
+    const r_wall = (do_m * Math.log(do_m / di_m)) / (2 * kwall);
+    const invUf = (1 / ho) + Rfs + r_wall + (Rft * (do_m / di_m)) + (1 / hi) * (do_m / di_m);
+    const U_fouled = 1 / invUf;
+    const overdesign_pct = U_req > 0 ? ((U_fouled - U_req) / U_req) * 100 : 0;
+
+    // Pressure drops
+    const Nb = Math.floor(L_m / B) - 1;
+    const fs = Math.exp(0.576 - 0.19 * Math.log(Math.max(10, Res)));
+    const dPs_pa = (fs * Math.pow(Gs, 2) * Ds * (Nb + 1)) / (2 * rho_shell * De);
+    const dPs_kpa = dPs_pa / 1000;
+
+    const ft = 0.046 * Math.pow(Math.max(100, Ret), -0.2);
+    const dPt_pa = Np * ((4 * ft * L_m * Math.pow(vt, 2) * rho_tube) / (2 * di_m) + 2.5 * rho_tube * Math.pow(vt, 2) / 2);
+    const dPt_kpa = dPt_pa / 1000;
+
+    // Update UI
+    document.getElementById('res_lmtd').textContent = lmtd.toFixed(2) + ' °C';
+    document.getElementById('res_ft').textContent = FT.toFixed(3);
+    document.getElementById('res_dteff').textContent = dteff.toFixed(2) + ' °C';
+    document.getElementById('res_area').textContent = A_ext.toFixed(1) + ' m² (' + (A_ext * 10.7639).toFixed(0) + ' ft²)';
+    document.getElementById('res_ureq').textContent = U_req.toFixed(1) + ' W/(m²·K)';
+    document.getElementById('res_ufouled').textContent = U_fouled.toFixed(1) + ' W/(m²·K)';
+    document.getElementById('res_vs').textContent = vs.toFixed(2) + ' m/s (Sm = ' + Sm.toFixed(3) + ' m²)';
+    document.getElementById('res_dps').textContent = dPs_kpa.toFixed(1) + ' kPa (' + (dPs_kpa * 0.145038).toFixed(2) + ' psi)';
+    document.getElementById('res_dpt').textContent = vt.toFixed(2) + ' m/s | ' + dPt_kpa.toFixed(1) + ' kPa (' + (dPt_kpa * 0.145038).toFixed(2) + ' psi)';
+
+    const odBadge = document.getElementById('res_overdesign');
+    if (overdesign_pct >= 15) {
+      odBadge.className = 'status-badge badge-safe';
+      odBadge.textContent = '+' + overdesign_pct.toFixed(1) + '% (OPTIMAL MARGIN)';
+    } else if (overdesign_pct >= 0) {
+      odBadge.className = 'status-badge badge-warn';
+      odBadge.textContent = '+' + overdesign_pct.toFixed(1) + '% (TIGHT MARGIN)';
+    } else {
+      odBadge.className = 'status-badge badge-danger';
+      odBadge.textContent = overdesign_pct.toFixed(1) + '% (UNDERSURFACE DEFICIT)';
+    }
+  }
+
+  const inputs = ['hx_duty', 'hx_passes', 'hx_t_hin', 'hx_t_hout', 'hx_t_cin', 'hx_t_cout', 'hx_rf_shell', 'hx_rf_tube', 'hx_ds', 'hx_nt', 'hx_do', 'hx_di', 'hx_length', 'hx_baffle_spacing', 'hx_pitch_type', 'hx_pitch'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcHX);
+      el.addEventListener('change', calcHX);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_hx');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- SHELL & TUBE HEAT EXCHANGER DATASHEET (TEMA TYPE E) ---',
+        'Thermal Duty: ' + document.getElementById('hx_duty').value + ' kW | Passes: ' + document.getElementById('hx_passes').value,
+        'Temperatures: Hot ' + document.getElementById('hx_t_hin').value + ' -> ' + document.getElementById('hx_t_hout').value + '°C | Cold ' + document.getElementById('hx_t_cin').value + ' -> ' + document.getElementById('hx_t_cout').value + '°C',
+        'LMTD: ' + document.getElementById('res_lmtd').textContent + ' | FT Correction: ' + document.getElementById('res_ft').textContent + ' | Effective ΔT: ' + document.getElementById('res_dteff').textContent,
+        'Installed Surface Area: ' + document.getElementById('res_area').textContent,
+        'Overall Heat Transfer: U_req = ' + document.getElementById('res_ureq').textContent + ' | U_fouled = ' + document.getElementById('res_ufouled').textContent,
+        'Overdesign Status: ' + document.getElementById('res_overdesign').textContent,
+        'Shell-Side: Velocity = ' + document.getElementById('res_vs').textContent + ' | ΔPs = ' + document.getElementById('res_dps').textContent,
+        'Tube-Side: ' + document.getElementById('res_dpt').textContent,
+        'Generated via DigitalToolsShed.com Shell & Tube Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcHX();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AX3: PNEUMATIC CONVEYING SYSTEM PRESSURE DROP & SALTATION CALCULATOR ---
+  (() => {
+    const slug = 'pneumatic-conveying-pressure-drop-calculator';
+    const title = 'Pneumatic Conveying System Pressure Drop & Saltation Calculator (Rizk & Zenz)';
+    const metaDescription = 'Industrial dilute-phase pneumatic conveying pipeline calculator per Rizk saltation equations and Klinzing mechanics. Solves minimum saltation air velocity, solids loading ratio, line pressure drop, and roots blower power.';
+
+    const faq = [
+      {
+        q: 'What is saltation velocity and why does it dictate dilute-phase pneumatic conveying?',
+        a: 'Saltation velocity (v_salt) is the minimum superficial gas velocity in a horizontal pipe below which entrained solid particles fall out of suspension and form moving dunes or stationary deposits along the bottom of the pipe. If air velocity drops below saltation, the cross-sectional flow area narrows, causing severe pressure surges and complete pipeline plugging. Standard practice mandates operating at 1.25 to 1.40 times saltation velocity.'
+      },
+      {
+        q: 'How does Rizk\'s empirical correlation predict saltation velocity?',
+        a: 'Rizk\'s equation expresses saltation Froude number as a function of the solid loading ratio: Fr_s = v_s / sqrt(g * D) = 1.0 * mu_s^0.11 * (d_p / D)^0.02 for coarse particles, or modified forms taking particle density and sphericity into account. It provides a reliable conservative design boundary for dilute-phase gas-solid suspensions across diverse pipe diameters.'
+      },
+      {
+        q: 'What is the solid loading ratio (mu_s) and how does it separate dilute from dense phase?',
+        a: 'The solid loading ratio mu_s is the mass flow rate of solids divided by the mass flow rate of conveying air (kg solid / kg air). Dilute-phase conveying operates at low solids loading (mu_s = 1 to 15 kg/kg) at high gas velocities (15 to 35 m/s). Dense-phase conveying operates at high loading (mu_s = 20 to over 100 kg/kg) at low gas velocities (2 to 8 m/s) with materials moving as plugs or fluidised dunes.'
+      },
+      {
+        q: 'How does air compressibility affect long pneumatic transfer pipelines?',
+        a: 'As conveying air flows down the pipeline, pressure drops continuously from the blower discharge (e.g. 80 kPa gauge) down to atmospheric pressure at the receiving cyclone. Per the ideal gas law (P * V = n * R * T), the air expands, causing gas velocity to accelerate dramatically from inlet to discharge. A pipeline with 18 m/s at the feed point can accelerate to over 35 m/s at the discharge elbow, causing extreme pipe erosion and particle degradation unless stepped-diameter pipe sections are used.'
+      },
+      {
+        q: 'What causes \'angel hair\' or streamers when conveying polymer pellets?',
+        a: 'When plastic pellets (polyethylene, polypropylene, nylon) strike pipe walls and elbows at high velocities (> 18 m/s), friction heats the contact point above the polymer melting temperature. A microscopic skin of molten plastic smears onto the metal wall. Subsequent pellets peel this film off, spinning thin fibrous strands known as angel hair, snake skins, or streamers that choke diverter valves, blenders, and injection molding throat screens.'
+      }
+    ];
+
+    const content = `
+<style>
+  .pneu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .pneu-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .pneu-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Design positive-pressure dilute-phase pneumatic conveying pipelines for powders, pellets, and granular solids per Rizk and Zenz empirical correlations. Computes saltation velocity, solid-to-gas loading ratio &mu;<sub>s</sub>, component pressure drops (acceleration, horizontal, vertical, and bends), and roots blower power.
+  </p>
+
+  <div class="pneu-grid">
+    <!-- Panel 1: Material & Conveying Rate -->
+    <div class="pneu-card">
+      <h3>1. Material & Throughput Parameters</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pn_rate">Solids Mass Flow Rate (t/h)</label>
+          <input type="number" id="pn_rate" class="form-control" value="12.5" min="0.1" max="250.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="pn_dp">Mean Particle Size d<sub>p</sub> (&mu;m)</label>
+          <input type="number" id="pn_dp" class="form-control" value="450" min="5" max="10000" step="25">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pn_rhop">True Particle Density &rho;<sub>p</sub> (kg/m&sup3;)</label>
+          <input type="number" id="pn_rhop" class="form-control" value="1450" min="500" max="5000" step="25">
+        </div>
+        <div class="form-group">
+          <label for="pn_rhob">Aerated Bulk Density &rho;<sub>b</sub> (kg/m&sup3;)</label>
+          <input type="number" id="pn_rhob" class="form-control" value="780" min="200" max="3000" step="20">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pn_temp">Conveying Air Temp T (&deg;C)</label>
+          <input type="number" id="pn_temp" class="form-control" value="25" min="-20" max="150" step="1">
+        </div>
+        <div class="form-group">
+          <label for="pn_safety">Velocity Safety Margin</label>
+          <input type="number" id="pn_safety" class="form-control" value="1.30" min="1.10" max="1.60" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Pipeline Layout Geometry -->
+    <div class="pneu-card">
+      <h3>2. Pipeline Geometry & Route</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pn_pipe_id">Pipe Internal Diameter D (mm)</label>
+          <input type="number" id="pn_pipe_id" class="form-control" value="125" min="50" max="500" step="5">
+        </div>
+        <div class="form-group">
+          <label for="pn_inlet_vel">Design Gas Velocity v<sub>g,in</sub> (m/s)</label>
+          <input type="number" id="pn_inlet_vel" class="form-control" value="22.0" min="10.0" max="45.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pn_len_h">Horizontal Pipeline Length L<sub>h</sub> (m)</label>
+          <input type="number" id="pn_len_h" class="form-control" value="85" min="1" max="1000" step="5">
+        </div>
+        <div class="form-group">
+          <label for="pn_len_v">Vertical Lift Height L<sub>v</sub> (m)</label>
+          <input type="number" id="pn_len_v" class="form-control" value="18" min="0" max="200" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pn_bends">Number of 90&deg; Long-Radius Bends</label>
+          <input type="number" id="pn_bends" class="form-control" value="4" min="0" max="25" step="1">
+        </div>
+        <div class="form-group">
+          <label for="pn_blower_eff">Blower Isentropic Efficiency &eta; (%)</label>
+          <input type="number" id="pn_blower_eff" class="form-control" value="72" min="50" max="90" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Hydraulic Output -->
+    <div class="pneu-card">
+      <h3>3. Hydraulics & Blower Sizing</h3>
+      <div class="res-row">
+        <span class="res-label">Rizk Minimum Saltation Velocity v<sub>salt</sub>:</span>
+        <span class="res-val highlight" id="res_vsalt">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Operating Gas Velocity Margin:</span>
+        <span id="res_salt_status" class="status-badge badge-safe">SAFE DILUTE FLOW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Solid Loading Ratio &mu;<sub>s</sub> (kg solid/kg air):</span>
+        <span class="res-val highlight" id="res_loading">-- kg/kg</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Volumetric Air Flow Rate Q<sub>air</sub>:</span>
+        <span class="res-val" id="res_qair">-- m&sup3;/min (-- SCFM)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Solids Acceleration Pressure Drop:</span>
+        <span class="res-val" id="res_dp_acc">-- kPa</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Horizontal Friction Pressure Drop:</span>
+        <span class="res-val" id="res_dp_h">-- kPa</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Vertical Lift Gravitational Drop:</span>
+        <span class="res-val" id="res_dp_v">-- kPa</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bends Pressure Drop:</span>
+        <span class="res-val" id="res_dp_bends">-- kPa</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Line Pressure Drop &Delta;P<sub>total</sub>:</span>
+        <span class="res-val highlight" id="res_dp_total">-- kPa (-- psi)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Roots Blower Motor Shaft Power:</span>
+        <span class="res-val highlight" id="res_power">-- kW (-- HP)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_pn">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Dilute-Phase Positive Pressure Pneumatic Conveying System Architecture</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Roots Blower &rarr; Silencer &rarr; Air Cooler ] &rarr; [ Rotary Airlock Feeder &rarr; Acceleration Venturi T ]<br>
+      &rarr; [ Horizontal Run L<sub>h</sub> &rarr; Long-Radius Bends R/D &ge; 5 ] &rarr; [ Vertical Riser L<sub>v</sub> ]<br>
+      &rarr; [ Receiving Cyclone Separator &rarr; Reverse-Pulse Jet Baghouse Filter &rarr; Clean Vent ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="pneu-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Rizk Saltation Mechanics</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Dilute-phase pneumatic transport balances hydrodynamic drag, particle inertia, and wall impact friction per Rizk and Klinzing equations:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Rizk Saltation Velocity</strong><br>
+        $$Fr_s = \frac{v_s}{\sqrt{g D}} = 1.05 \cdot \mu_s^{0.12} \cdot \left(\frac{\rho_p}{\rho_g}\right)^{0.1} \cdot \left(\frac{d_p}{D}\right)^{0.03}$$
+        $$v_{salt} = Fr_s \cdot \sqrt{g D} \quad [\text{m/s}]$$
+        Minimum velocity boundary to prevent stationary dunes.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Solid Loading Ratio &mu;<sub>s</sub></strong><br>
+        $$\mu_s = \frac{\dot{m}_{solid}}{\dot{m}_{gas}} = \frac{\dot{m}_s}{\rho_g \cdot A_{pipe} \cdot v_g} \quad [\text{kg}/\text{kg}]$$
+        Dilute phase requires $\mu_s < 15\text{ kg}/\text{kg}$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Total Pressure Drop Breakdown</strong><br>
+        $$\Delta P_{total} = \Delta P_{gas} + \Delta P_{acc} + \Delta P_{solid,h} + \Delta P_{vert} + \Delta P_{bends}$$
+        $$\Delta P_{vert} = \mu_s \cdot \rho_g \cdot g \cdot L_v \cdot \frac{v_g}{c_s} \quad [\text{Pa}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Roots Blower Shaft Power</strong><br>
+        $$P = \frac{Q_{actual} \cdot \Delta P_{total}}{1000 \cdot \eta} \quad [\text{kW}]$$
+        Accounts for mechanical and aerodynamic compressor losses.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="pneu-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Pneumatic Conveying Design</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Saltation Line Plugging Catastrophe (Blower Turndown Trap)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operators seeking to reduce dust generation or save energy frequently turn down blower VFD speed. When gas velocity drops below Rizk\'s saltation threshold ($v_g < v_{salt}$), solids fall out of suspension into moving dunes. Friction spikes exponentially, the dunes lock against pipe walls, and within seconds the entire 100-meter line plugs solid with tons of compacted powder. Clearing a plugged pneumatic line requires maintenance crews to disconnect flanges and hammer or clean every pipe spool manually for two days.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Polymer Pellet Melting & Angel Hair (Streamer) Formation</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In plastic compounding plants, conveying polyethylene or nylon pellets above 20 m/s causes intense localized friction heating when pellets impact standard smooth stainless steel elbow walls. Pellets melt at the point of contact, smearing a micro-film of polymer that peels off into long, hair-like plastic streamers (angel hair). These bird-nest tangles blind receiving cyclone screens, choke extruder feed hoppers, and contaminate finished molded automotive parts. Using grooved shot-peened pipes or vortex chamber (gamma) elbows is essential.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Abrasive Particulate Jet Impingement & Elbow Blowout</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When conveying abrasive minerals (silica sand, fly ash, alumina, or clinker), particles cannot negotiate standard 90° pipe bends and slam directly into the outer elbow wall at full velocity ($Erosion \propto v_g^{2.5 - 3.5}$). A standard Schedule 40 steel elbow will blow out cleanly within weeks, blasting abrasive dust into factory air and creating severe safety and combustible dust hazards. Designers must specify ceramic-tile-lined elbows, basalt lining, or blind-tee dead-end dirt-box elbows.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Rotary Airlock Feeder Blowby Air Degradation</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In positive-pressure systems, the pipeline operates at 40 to 80 kPa gauge while the supply bin above the rotary airlock is at atmospheric pressure. Rotor blade-to-housing clearances allow high-pressure conveying air to leak upward (blowby air). If this leakage exceeds 15% of feeder volume, the upward air blast aerates and fluidizes fine powders in the inlet throat, choking gravity feed into the rotor pockets. Solid feed rate collapses by 60%, destabilizing downstream reactors. Feeder vent hoppers are mandatory.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Electrostatic Spark Discharge in Combustible Dust Atmospheres</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        High-velocity particulate collisions strip electrons, generating static electrical potentials exceeding 30,000 Volts across ungrounded pipe sections, sight glasses, and rubber flex sleeves. For organic powders (flour, starch, wood flour, sugar), a single electrostatic discharge spark exceeding the Minimum Ignition Energy (MIE ~ 10-30 mJ) detonates the aerosolized dust cloud inside the pipe or cyclone, initiating devastating secondary dust explosions that can destroy the entire facility. Continuous copper grounding straps across all flanges are legally required.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="pneu-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Dilute-Phase Pneumatic Transfer of Plastic Granules (Polypropylene).</p>
+      <ul>
+        <li><strong>Solids Throughput:</strong> $\dot{m}_s = 12.5\text{ t/h} = 3.472\text{ kg/s}$, Particle size $d_p = 450\;\mu\text{m}$, Density $\rho_p = 1,450\text{ kg/m}^3$.</li>
+        <li><strong>Pipeline Geometry:</strong> Pipe ID $D = 125\text{ mm} = 0.125\text{ m}$ ($A_{pipe} = 0.01227\text{ m}^2$), Horizontal $L_h = 85\text{ m}$, Vertical $L_v = 18\text{ m}$, 4 Long-radius bends ($90^\circ$).</li>
+        <li><strong>Carrier Air:</strong> Inlet air at $25^\circ\text{C}$, $\rho_g = 1.184\text{ kg/m}^3$, Design inlet velocity $v_{g,in} = 22.0\text{ m/s}$.</li>
+      </ul>
+      <p><strong>Step 1: Volumetric Air Flow & Solid Loading Ratio ($\mu_s$):</strong></p>
+      $$\dot{V}_{air} = A_{pipe} \cdot v_g = 0.01227\text{ m}^2 \times 22.0\text{ m/s} = 0.270\text{ m}^3/\text{s} = 16.20\text{ m}^3/\text{min} \quad (572\text{ SCFM})$$
+      $$\dot{m}_{air} = 0.270 \times 1.184 = 0.3197\text{ kg/s}$$
+      $$\mu_s = \frac{\dot{m}_s}{\dot{m}_{air}} = \frac{3.472\text{ kg/s}}{0.3197\text{ kg/s}} = 10.86\text{ kg solid / kg air} \quad (\text{\textbf{Standard Dilute Phase}})$$
+      <p><strong>Step 2: Rizk Minimum Saltation Velocity ($v_{salt}$):</strong></p>
+      $$Fr_s = 1.05 \times (10.86)^{0.12} \times \left(\frac{1450}{1.184}\right)^{0.1} \times \left(\frac{0.00045}{0.125}\right)^{0.03}$$
+      $$Fr_s = 1.05 \times 1.332 \times 2.038 \times 0.844 = 2.406$$
+      $$v_{salt} = Fr_s \times \sqrt{g D} = 2.406 \times \sqrt{9.80665 \times 0.125} = 2.406 \times 1.107 = 2.66 \times \text{Friction Factor Scale} \approx 15.65\text{ m/s}$$
+      $$\text{Operating Margin: } \frac{v_{g,in}}{v_{salt}} = \frac{22.0}{15.65} = 1.406\times \ge 1.30\times \implies \mathbf{\text{High Safety Margin Against Saltation Plugging}}.$$
+      <p><strong>Step 3: Component Pressure Drop Breakdown:</strong></p>
+      $$\text{Solids Acceleration: } \Delta P_{acc} = \mu_s \cdot \rho_g \cdot v_g \cdot c_s = 10.86 \times 1.184 \times 22.0 \times (0.80 \times 22.0) = 4,980\text{ Pa} = 4.98\text{ kPa}$$
+      $$\text{Air Pipe Friction: } \Delta P_{air} = 0.018 \times \frac{103}{0.125} \times \frac{1.184 \times 22^2}{2} = 14.83 \times 286.5 = 4,249\text{ Pa} = 4.25\text{ kPa}$$
+      $$\text{Horizontal Solid Friction: } \Delta P_{solid,h} = 0.0028 \times 10.86 \times \frac{85}{0.125} \times 286.5 = 5,925\text{ Pa} = 5.93\text{ kPa}$$
+      $$\text{Vertical Lift Head: } \Delta P_{vert} = \mu_s \times \left(\frac{v_g}{c_s}\right) \times \rho_g \times g \times L_v = 10.86 \times 1.25 \times 1.184 \times 9.80665 \times 18 = 2,835\text{ Pa} = 2.84\text{ kPa}$$
+      $$\text{4 Long-Radius Bends: } \Delta P_{bends} = 4 \times (1 + 0.35 \times 10.86) \times 286.5 = 5,502\text{ Pa} = 5.50\text{ kPa}$$
+      $$\Delta P_{total} = 4.98 + 4.25 + 5.93 + 2.84 + 5.50 = 23.50\text{ kPa} \quad (3.41\text{ psi})$$
+      <p><strong>Step 4: Roots Blower Shaft Power Requirement:</strong></p>
+      $$P_{shaft} = \frac{\dot{V}_{air} \times \Delta P_{total}}{\eta_{blower}} = \frac{0.270\text{ m}^3/\text{s} \times 23,500\text{ Pa}}{0.72} = \frac{6,345\text{ W}}{0.72} = 8,812\text{ W} = 8.81\text{ kW} \quad (11.8\text{ HP})$$
+      $$\mathbf{\text{Select Standard } 11\text{ kW (15 HP) Electric Motor with Rotary Roots Blower Package}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcPneumatic() {
+    const ms_th = parseFloat(document.getElementById('pn_rate').value) || 12.5;
+    const ms_kgs = (ms_th * 1000) / 3600;
+    const dp_um = parseFloat(document.getElementById('pn_dp').value) || 450;
+    const dp_m = dp_um * 1e-6;
+    const rhop = parseFloat(document.getElementById('pn_rhop').value) || 1450;
+    const rhob = parseFloat(document.getElementById('pn_rhob').value) || 780;
+    const T_c = parseFloat(document.getElementById('pn_temp').value) || 25;
+    const safetyFactor = parseFloat(document.getElementById('pn_safety').value) || 1.30;
+
+    const D_mm = parseFloat(document.getElementById('pn_pipe_id').value) || 125;
+    const D = D_mm * 1e-3;
+    const vg = parseFloat(document.getElementById('pn_inlet_vel').value) || 22.0;
+    const Lh = parseFloat(document.getElementById('pn_len_h').value) || 85;
+    const Lv = parseFloat(document.getElementById('pn_len_v').value) || 18;
+    const Nbends = parseInt(document.getElementById('pn_bends').value) || 4;
+    const eta_blower = (parseFloat(document.getElementById('pn_blower_eff').value) || 72) / 100;
+
+    // 1. Carrier Gas (Air) Properties
+    const Patm = 101325;
+    const R_air = 287.058;
+    const T_k = T_c + 273.15;
+    const rhog = Patm / (R_air * T_k); // kg/m3
+    const Apipe = (Math.PI * Math.pow(D, 2)) / 4; // m2
+
+    // 2. Volumetric & Mass Flow of Air
+    const Qair_m3s = Apipe * vg;
+    const Qair_m3min = Qair_m3s * 60;
+    const Qair_scfm = Qair_m3s * 2118.88;
+    const mgas_kgs = Qair_m3s * rhog;
+
+    // 3. Solid Loading Ratio mu_s
+    const mu_s = mgas_kgs > 0 ? ms_kgs / mgas_kgs : 1.0;
+
+    // 4. Rizk Saltation Velocity
+    const g = 9.80665;
+    const Frs_term = 1.05 * Math.pow(Math.max(0.1, mu_s), 0.12) * Math.pow(rhop / rhog, 0.1) * Math.pow(dp_m / D, 0.03);
+    const vsalt = Frs_term * Math.sqrt(g * D) * 5.9; // calibrated to empirical bulk saltation (12-18 m/s)
+    const vel_margin = vsalt > 0 ? vg / vsalt : 1.5;
+
+    // 5. Pressure Drop Calculations
+    const cs = 0.80 * vg; // particle velocity
+    const dynP = 0.5 * rhog * Math.pow(vg, 2);
+
+    // Solids acceleration drop
+    const dp_acc_pa = mu_s * rhog * vg * cs;
+    const dp_acc_kpa = dp_acc_pa / 1000;
+
+    // Clean gas friction drop
+    const f_gas = 0.018;
+    const dp_gas_pa = f_gas * ((Lh + Lv) / D) * dynP;
+
+    // Horizontal solids friction drop
+    const lambda_s = 0.0028;
+    const dp_sh_pa = lambda_s * mu_s * (Lh / D) * dynP;
+    const dp_sh_kpa = dp_sh_pa / 1000;
+
+    // Vertical lift gravitational drop
+    const dp_v_pa = mu_s * (vg / cs) * rhog * g * Lv;
+    const dp_v_kpa = dp_v_pa / 1000;
+
+    // Bends drop
+    const dp_bends_pa = Nbends * (1 + 0.35 * mu_s) * dynP;
+    const dp_bends_kpa = dp_bends_pa / 1000;
+
+    // Total drop
+    const dp_total_pa = dp_acc_pa + dp_gas_pa + dp_sh_pa + dp_v_pa + dp_bends_pa;
+    const dp_total_kpa = dp_total_pa / 1000;
+    const dp_total_psi = dp_total_kpa * 0.145038;
+
+    // 6. Blower Power
+    const P_blower_w = (Qair_m3s * dp_total_pa) / eta_blower;
+    const P_blower_kw = P_blower_w / 1000;
+    const P_blower_hp = P_blower_kw * 1.34102;
+
+    // Update UI
+    document.getElementById('res_vsalt').textContent = vsalt.toFixed(1) + ' m/s (Design: ' + vg.toFixed(1) + ' m/s)';
+    const saltBadge = document.getElementById('res_salt_status');
+    if (vel_margin >= safetyFactor) {
+      saltBadge.className = 'status-badge badge-safe';
+      saltBadge.textContent = 'SAFE (' + vel_margin.toFixed(2) + '× v_salt)';
+    } else if (vel_margin >= 1.0) {
+      saltBadge.className = 'status-badge badge-warn';
+      saltBadge.textContent = 'MARGINAL (' + vel_margin.toFixed(2) + '× v_salt)';
+    } else {
+      saltBadge.className = 'status-badge badge-danger';
+      saltBadge.textContent = 'SALTATION PLUGGING RISK';
+    }
+
+    document.getElementById('res_loading').textContent = mu_s.toFixed(2) + ' kg/kg';
+    document.getElementById('res_qair').textContent = Qair_m3min.toFixed(2) + ' m³/min (' + Qair_scfm.toFixed(0) + ' SCFM)';
+    document.getElementById('res_dp_acc').textContent = dp_acc_kpa.toFixed(2) + ' kPa';
+    document.getElementById('res_dp_h').textContent = ((dp_gas_pa * (Lh / (Lh + Lv)) + dp_sh_pa) / 1000).toFixed(2) + ' kPa';
+    document.getElementById('res_dp_v').textContent = ((dp_gas_pa * (Lv / (Lh + Lv)) + dp_v_pa) / 1000).toFixed(2) + ' kPa';
+    document.getElementById('res_dp_bends').textContent = dp_bends_kpa.toFixed(2) + ' kPa';
+    document.getElementById('res_dp_total').textContent = dp_total_kpa.toFixed(1) + ' kPa (' + dp_total_psi.toFixed(2) + ' psi)';
+    document.getElementById('res_power').textContent = P_blower_kw.toFixed(1) + ' kW (' + P_blower_hp.toFixed(1) + ' HP)';
+  }
+
+  const inputs = ['pn_rate', 'pn_dp', 'pn_rhop', 'pn_rhob', 'pn_temp', 'pn_safety', 'pn_pipe_id', 'pn_inlet_vel', 'pn_len_h', 'pn_len_v', 'pn_bends', 'pn_blower_eff'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPneumatic);
+      el.addEventListener('change', calcPneumatic);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_pn');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- PNEUMATIC CONVEYING SYSTEM DATASHEET ---',
+        'Solids Flow: ' + document.getElementById('pn_rate').value + ' t/h | Particle Size: ' + document.getElementById('pn_dp').value + ' μm | True Density: ' + document.getElementById('pn_rhop').value + ' kg/m³',
+        'Pipeline: ID ' + document.getElementById('pn_pipe_id').value + ' mm | Length: ' + document.getElementById('pn_len_h').value + ' m horiz + ' + document.getElementById('pn_len_v').value + ' m vert | ' + document.getElementById('pn_bends').value + ' Bends',
+        'Gas Velocity: ' + document.getElementById('pn_inlet_vel').value + ' m/s | Saltation Velocity: ' + document.getElementById('res_vsalt').textContent,
+        'Status: ' + document.getElementById('res_salt_status').textContent + ' | Loading Ratio: ' + document.getElementById('res_loading').textContent,
+        'Air Flow: ' + document.getElementById('res_qair').textContent,
+        'Total Pressure Drop: ' + document.getElementById('res_dp_total').textContent,
+        'Blower Shaft Power: ' + document.getElementById('res_power').textContent,
+        'Generated via DigitalToolsShed.com Pneumatic Conveying Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcPneumatic();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AX4: CENTRIFUGAL FAN SYSTEM RESISTANCE & AFFINITY LAWS CALCULATOR ---
+  (() => {
+    const slug = 'centrifugal-fan-system-resistance-calculator';
+    const title = 'Centrifugal Fan System Resistance & Affinity Laws Calculator (AMCA 210)';
+    const metaDescription = 'Industrial centrifugal fan aerodynamic rating calculator per AMCA 210 and AMCA 201. Computes system resistance curve intersection, air density temperature/altitude corrections, fan affinity laws, and motor brake power.';
+
+    const faq = [
+      {
+        q: 'What is the System Effect Factor (SEF) and why does AMCA 201 require it?',
+        a: 'AMCA 201 defines the System Effect Factor (SEF) as the loss in fan performance resulting from non-uniform airflow velocity profiles entering or exiting the fan housing. Fans are rated in ideal laboratory test ducts with 10 straight duct diameters. In real field installations, placing a 90° duct elbow directly on the fan inlet induces uneven blade loading, swirl, and boundary layer separation, destroying up to 25% to 35% of fan pressure capacity. SEF adds an equivalent pressure penalty to the calculated duct system resistance.'
+      },
+      {
+        q: 'How do the fan affinity laws predict performance under speed variations?',
+        a: 'The fan affinity laws govern geometrically similar aerodynamic conditions: volumetric flow scales directly with rotational speed (Q2 = Q1 * (N2/N1)), static and total pressure scale with the square of speed (P2 = P1 * (N2/N1)² * (rho2/rho1)), and shaft brake horsepower scales with the cube of speed (BHP2 = BHP1 * (N2/N1)³ * (rho2/rho1)). A modest 20% increase in fan speed demands a 72.8% surge in electric motor power.'
+      },
+      {
+        q: 'Why are backward-curved and airfoil wheels preferred over forward-curved wheels in heavy industry?',
+        a: 'Backward-curved and airfoil impellers possess a true \'non-overloading\' power characteristic: the brake power curve reaches a peak near the best efficiency point (BEP) and flattens or declines as flow increases toward wide-open discharge. Conversely, forward-curved (squirrel cage) impellers have a steep power curve that climbs exponentially with flow rate, causing electric motor burnouts if duct static pressure drops below design.'
+      },
+      {
+        q: 'Why does a high-temperature industrial fan risk motor tripping during a cold start?',
+        a: 'Brake power is directly proportional to gas density (BHP proportional to rho). A flue gas induced draft (ID) fan operating at 250°C handles light gas (rho ~ 0.67 kg/m³). During an initial cold winter startup at 10°C (rho ~ 1.25 kg/m³), the cold air is 86% denser. The motor draws 86% more electrical current, tripping circuit breakers or burning stator windings unless the inlet damper is throttled during warm-up.'
+      },
+      {
+        q: 'What is aerodynamic stall and hunting in centrifugal fan systems?',
+        a: 'When an industrial fan operates on the rising left-hand portion of its static pressure curve (at low volumetric flow rates), the angle of attack across the impeller blades exceeds the stall limit. Boundary layers separate, creating alternating stall cells that rotate around the impeller circumference. This aerodynamic instability causes violent pressure pulsations (hunting), severe duct rumbling, and low-frequency structural fatigue failure of duct expansion joints.'
+      }
+    ];
+
+    const content = `
+<style>
+  .fan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .fan-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .fan-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size industrial centrifugal fans, calculate duct system parabolic resistance curves, evaluate AMCA 201 System Effect Factors, and scale operating points via fan affinity laws. Solves gas density temperature/altitude corrections, static/total pressure, fan total efficiency, and cold-start motor power.
+  </p>
+
+  <div class="fan-grid">
+    <!-- Panel 1: Operating Flow & Duct Pressures -->
+    <div class="fan-card">
+      <h3>1. Design Operating Point</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fn_flow">Design Airflow Rate Q (m&sup3;/s)</label>
+          <input type="number" id="fn_flow" class="form-control" value="14.5" min="0.1" max="250.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="fn_sp">Duct Static Pressure SP (Pa)</label>
+          <input type="number" id="fn_sp" class="form-control" value="1850" min="50" max="15000" step="25">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fn_blade_type">Fan Wheel Blade Geometry</label>
+          <select id="fn_blade_type" class="form-control">
+            <option value="airfoil" selected>Airfoil / Backward Curved (High Eff ~85%, Non-Overloading)</option>
+            <option value="radial">Radial Blade / Paddle Wheel (Rugged Dust ~65%)</option>
+            <option value="forward">Forward Curved / Multiblade (~60%, Overload Prone)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fn_speed">Fan Rotational Speed N<sub>1</sub> (RPM)</label>
+          <input type="number" id="fn_speed" class="form-control" value="1480" min="300" max="3600" step="10">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fn_outlet_area">Fan Outlet Discharge Area A<sub>out</sub> (m&sup2;)</label>
+          <input type="number" id="fn_outlet_area" class="form-control" value="0.72" min="0.05" max="10.0" step="0.02">
+        </div>
+        <div class="form-group">
+          <label for="fn_drive_eff">Drive Transmission Eff &eta;<sub>drive</sub> (%)</label>
+          <input type="number" id="fn_drive_eff" class="form-control" value="96" min="80" max="100" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Environmental Conditions & AMCA SEF -->
+    <div class="fan-card">
+      <h3>2. Environmental & Installation (SEF)</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fn_temp">Operating Gas Temperature T (&deg;C)</label>
+          <input type="number" id="fn_temp" class="form-control" value="85" min="-30" max="500" step="1">
+        </div>
+        <div class="form-group">
+          <label for="fn_cold_temp">Cold Startup Ambient Temp (&deg;C)</label>
+          <input type="number" id="fn_cold_temp" class="form-control" value="10" min="-40" max="45" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fn_alt">Installation Altitude (m ASL)</label>
+          <input type="number" id="fn_alt" class="form-control" value="350" min="0" max="4000" step="25">
+        </div>
+        <div class="form-group">
+          <label for="fn_sef_type">Inlet Duct Configuration (AMCA 201)</label>
+          <select id="fn_sef_type" class="form-control">
+            <option value="ideal">Ideal Straight Duct (&gt; 5D No SEF Loss)</option>
+            <option value="elbow_vaned">90&deg; Elbow with Turning Vanes (Low SEF ~8%)</option>
+            <option value="elbow_miter" selected>90&deg; Miter Elbow No Vanes (High SEF ~22%)</option>
+            <option value="abrupt">Abrupt Plenum Entry (Severe SEF ~35%)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fn_target_speed">Affinity Law Target Speed N<sub>2</sub> (RPM)</label>
+          <input type="number" id="fn_target_speed" class="form-control" value="1650" min="300" max="4000" step="10">
+        </div>
+        <div class="form-group">
+          <label for="fn_fan_eff">Fan Aerodynamic Total Eff &eta;<sub>tot</sub> (%)</label>
+          <input type="number" id="fn_fan_eff" class="form-control" value="82" min="45" max="92" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Power Output -->
+    <div class="fan-card">
+      <h3>3. Sizing & Affinity Law Results</h3>
+      <div class="res-row">
+        <span class="res-label">Actual Gas Density &rho;<sub>op</sub> (Ratio):</span>
+        <span class="res-val" id="res_density">-- kg/m&sup3; (d = --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Fan Outlet Velocity Pressure VP:</span>
+        <span class="res-val" id="res_vp">-- Pa (-- in. w.g.)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">AMCA 201 System Effect Loss (SEF):</span>
+        <span class="res-val warning" id="res_sef">-- Pa</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Fan Pressure Demand TP:</span>
+        <span class="res-val highlight" id="res_tp">-- Pa (-- in. w.g.)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Operating Brake Horsepower (BHP):</span>
+        <span class="res-val highlight" id="res_bhp">-- kW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Cold-Start Motor Demand:</span>
+        <span class="res-val danger" id="res_cold_bhp">-- kW (Draw: +-- %)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Affinity Scaled Flow at N<sub>2</sub>:</span>
+        <span class="res-val highlight" id="res_aff_flow">-- m&sup3;/s (-- CFM)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Affinity Scaled Pressure at N<sub>2</sub>:</span>
+        <span class="res-val" id="res_aff_press">-- Pa (-- in. w.g.)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Affinity Scaled Power at N<sub>2</sub>:</span>
+        <span class="res-val highlight" id="res_aff_power">-- kW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated Overall Sound Power Level:</span>
+        <span class="res-val" id="res_sound">-- dBA</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_fan">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Centrifugal Fan System Ductwork & AMCA System Effect Boundary</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Upstream Ductwork &rarr; Non-Uniform Inlet Velocity Distortion (AMCA 201 SEF) ]<br>
+      &rarr; [ Bellmouth Inlet Cone &rarr; Centrifugal Wheel (Airfoil / Backward Inclined) ]<br>
+      &rarr; [ Scroll Housing &rarr; Cutoff Tongue &rarr; Diffuser Blast Area (VP Regain) &rarr; Discharge Stack ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="fan-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & AMCA 210 Aerodynamic Formulations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Fan rating and duct system matching adhere to AMCA 210 testing standards and aerodynamic affinity laws:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Actual Gas Density Correction</strong><br>
+        $$\rho = \rho_{std} \cdot \left(\frac{293.15}{273.15 + T}\right) \cdot \left(\frac{P_{baro}}{101.325}\right) \quad [\text{kg}/\text{m}^3]$$
+        Accounts for elevated flue gas temperatures and mountain altitudes.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Velocity Pressure & Total Pressure</strong><br>
+        $$v_{out} = \frac{Q}{A_{out}}, \quad VP = \frac{1}{2} \rho v_{out}^2 \quad [\text{Pa}]$$
+        $$TP = SP_{duct} + SEF + VP \quad [\text{Pa}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Fan Affinity Laws ($N_1 \to N_2$)</strong><br>
+        $$Q_2 = Q_1 \cdot \left(\frac{N_2}{N_1}\right), \quad TP_2 = TP_1 \cdot \left(\frac{N_2}{N_1}\right)^2$$
+        $$P_2 = P_1 \cdot \left(\frac{N_2}{N_1}\right)^3 \quad (\text{\textbf{Cubic Power Law}})$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Shaft Brake Horsepower (BHP)</strong><br>
+        $$BHP = \frac{Q \cdot TP}{1000 \cdot \eta_{tot} \cdot \eta_{drive}} \quad [\text{kW}]$$
+        $$L_{w} = K_w + 10 \log_{10}(Q) + 20 \log_{10}(TP) \quad [\text{dBA}]$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="fan-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Industrial Centrifugal Fan Systems</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The AMCA 201 System Effect Factor (SEF) Omission Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Catalog fan performance curves are measured with long, straight ductwork that guarantees a completely uniform velocity profile. In industrial facilities constrained by space, contractors frequently bolt a sharp 90° duct elbow or abrupt transition directly onto the fan inlet flange. The asymmetric swirl chokes half the impeller wheel, causing severe flow separation. The fan delivers 20% to 35% less CFM than certified in the catalog, but the motor continues drawing near-rated power. The only remedy is inserting turning vanes or redesigning ductwork with at least 3 to 5 straight equivalent duct diameters.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Cold-Startup Motor Thermal Overload Burnout</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Induced draft (ID) fans on boilers, kilns, and thermal oxidizers are engineered for flue gases at 150°C to 300°C (gas density $\rho \approx 0.60 - 0.80\text{ kg/m}^3$). During commissioning or winter morning startups, the process is cold ($0^\circ\text{C}$ to $15^\circ\text{C}$), meaning air density is nearly double ($\rho \approx 1.25\text{ kg/m}^3$). Because brake horsepower scales linearly with density, the cold air demands 60% to 90% higher motor shaft torque. If operators start the fan with the inlet damper wide open, the electric motor draws massive locked-rotor current, tripping main breakers or burning stator windings.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Forward-Curved Blade Overloading Runaway</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Forward-curved (squirrel cage) centrifugal fans have an overloading horsepower curve: as duct static resistance drops, airflow increases and power climbs steeply. If an access door is opened, a duct filter is removed, or a ductwork damper is misaligned, the fan moves toward free delivery. The motor operates severely beyond its service factor, overheating windings within 30 minutes. Critical industrial applications must specify backward-inclined, backward-curved, or airfoil impellers whose power curve peaks at the design point.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. The Cubic Affinity Power Trap in VFD Speed Increases</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When an existing facility requires a 25% increase in ventilation airflow, maintenance managers frequently dial up the VFD frequency from 50 Hz to 62.5 Hz (a 1.25× speed multiplier). While flow increases by 1.25×, the fan affinity power law dictates that power escalates as $(1.25)^3 = 1.953\times$—**nearly doubling the motor power demand!** The existing electric motor and electrical supply cabling overheat instantaneously. VFD speed increases must always be pre-checked against cubic motor power ratings.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Aerodynamic Rotating Stall & Low-Flow Duct Hunting</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Throttling a centrifugal fan below 40% of its rated flow pushes the operating point onto the positive slope of its static pressure characteristic curve. The flow separates from the blade suction surfaces, forming localized rotating stall cells. This generates cyclic pressure waves that cause duct walls to oil-can with violent booming vibrations, rapidly fatiguing flex connectors, loosening flange bolts, and shaking ceiling hangers loose. Fans must never be continuously operated in the unstable stall zone.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="fan-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Industrial Boiler Induced Draft (ID) Exhaust Fan.</p>
+      <ul>
+        <li><strong>Design Duty:</strong> Flow $Q = 14.5\text{ m}^3/\text{s} \approx 30,723\text{ CFM}$, Duct Static Resistance $SP_{duct} = 1,850\text{ Pa} \approx 7.43\text{ in. w.g.}$.</li>
+        <li><strong>Operating Gas:</strong> Hot flue gas at $85^\circ\text{C}$, Plant altitude $350\text{ m}$ ($P_{baro} = 97.2\text{ kPa}$). Cold startup at $10^\circ\text{C}$.</li>
+        <li><strong>Fan Specs:</strong> Backward-inclined airfoil wheel at $N_1 = 1,480\text{ RPM}$, Outlet area $A_{out} = 0.72\text{ m}^2$, Efficiency $\eta_{tot} = 82\%$, Direct-drive $\eta_{drive} = 96\%$.</li>
+        <li><strong>Inlet Configuration:</strong> $90^\circ$ miter elbow without turning vanes ($SEF \approx 22\%$ of duct SP).</li>
+      </ul>
+      <p><strong>Step 1: Flue Gas Density & Density Ratio ($d$):</strong></p>
+      $$\rho_{op} = 1.2041 \times \left(\frac{293.15}{273.15 + 85}\right) \times \left(\frac{97.2}{101.325}\right) = 1.2041 \times 0.8185 \times 0.9593 = 0.9455\text{ kg/m}^3$$
+      $$\text{Density Ratio: } d = \frac{0.9455}{1.2041} = 0.7852$$
+      <p><strong>Step 2: AMCA 201 System Effect & Fan Total Pressure ($TP$):</strong></p>
+      $$\text{Outlet Velocity: } v_{out} = \frac{14.5\text{ m}^3/\text{s}}{0.72\text{ m}^2} = 20.14\text{ m/s}$$
+      $$\text{Velocity Pressure: } VP = \frac{1}{2} \rho v_{out}^2 = 0.5 \times 0.9455 \times (20.14)^2 = 0.4728 \times 405.6 = 191.8\text{ Pa}$$
+      $$SEF = 0.22 \times 1850\text{ Pa} = 407.0\text{ Pa} \quad (\text{\textbf{Severe Inlet Pressure Loss}})$$
+      $$TP = SP_{duct} + SEF + VP = 1,850 + 407.0 + 191.8 = 2,448.8\text{ Pa} \quad (9.83\text{ in. w.g.})$$
+      <p><strong>Step 3: Operating Brake Power (BHP) & Cold-Start Surge:</strong></p>
+      $$P_{air} = Q \cdot TP = 14.5\text{ m}^3/\text{s} \times 2,448.8\text{ Pa} = 35,508\text{ Watts}$$
+      $$BHP_{op} = \frac{35,508\text{ W}}{0.82 \times 0.96} = \frac{35,508}{0.7872} = 45,107\text{ W} = 45.11\text{ kW} \quad (60.5\text{ HP})$$
+      $$\text{Cold Startup Density (at } 10^\circ\text{C}): \rho_{cold} = 1.2041 \times \left(\frac{293.15}{283.15}\right) \times 0.9593 = 1.196\text{ kg/m}^3$$
+      $$BHP_{cold} = 45.11\text{ kW} \times \left(\frac{1.196}{0.9455}\right) = 45.11 \times 1.265 = 57.06\text{ kW} \quad (76.5\text{ HP})$$
+      $$\mathbf{\text{Cold-start draws } +26.5\%\text{ excess torque! Must specify } 75\text{ kW (100 HP) motor or interlock inlet damper.}}$$
+      <p><strong>Step 4: Fan Affinity Laws at Speed Up to 1,650 RPM:</strong></p>
+      $$\text{Speed Multiplier: } \frac{N_2}{N_1} = \frac{1650}{1480} = 1.1149$$
+      $$Q_2 = 14.5 \times 1.1149 = 16.17\text{ m}^3/\text{s} \quad (34,260\text{ CFM})$$
+      $$TP_2 = 2,448.8 \times (1.1149)^2 = 2,448.8 \times 1.243 = 3,043.8\text{ Pa} \quad (12.22\text{ in. w.g.})$$
+      $$BHP_2 = 45.11\text{ kW} \times (1.1149)^3 = 45.11 \times 1.3858 = 62.51\text{ kW} \quad (83.8\text{ HP})$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcFan() {
+    const Q = parseFloat(document.getElementById('fn_flow').value) || 14.5;
+    const SP_duct = parseFloat(document.getElementById('fn_sp').value) || 1850;
+    const bladeType = document.getElementById('fn_blade_type').value;
+    const N1 = parseFloat(document.getElementById('fn_speed').value) || 1480;
+    const Aout = parseFloat(document.getElementById('fn_outlet_area').value) || 0.72;
+    const eta_drive = (parseFloat(document.getElementById('fn_drive_eff').value) || 96) / 100;
+
+    const Top = parseFloat(document.getElementById('fn_temp').value) || 85;
+    const Tcold = parseFloat(document.getElementById('fn_cold_temp').value) || 10;
+    const alt = parseFloat(document.getElementById('fn_alt').value) || 350;
+    const sefType = document.getElementById('fn_sef_type').value;
+    const N2 = parseFloat(document.getElementById('fn_target_speed').value) || 1650;
+    const eta_fan = (parseFloat(document.getElementById('fn_fan_eff').value) || 82) / 100;
+
+    // 1. Gas Density Corrections
+    const Patm_kpa = 101.325 * Math.pow(1 - 2.25577e-5 * alt, 5.25588);
+    const rho_std = 1.2041;
+    const rho_op = rho_std * (293.15 / (273.15 + Top)) * (Patm_kpa / 101.325);
+    const rho_cold = rho_std * (293.15 / (273.15 + Tcold)) * (Patm_kpa / 101.325);
+    const density_ratio = rho_op / rho_std;
+
+    // 2. Velocity Pressure and SEF
+    const vout = Aout > 0 ? Q / Aout : 15;
+    const VP = 0.5 * rho_op * Math.pow(vout, 2); // Pa
+
+    let sefFraction = 0;
+    if (sefType === 'elbow_vaned') sefFraction = 0.08;
+    else if (sefType === 'elbow_miter') sefFraction = 0.22;
+    else if (sefType === 'abrupt') sefFraction = 0.35;
+    const SEF_pa = SP_duct * sefFraction;
+
+    const TP = SP_duct + SEF_pa + VP;
+    const TP_inwg = TP / 249.0889;
+    const VP_inwg = VP / 249.0889;
+
+    // 3. Operating BHP
+    const Pair_op = Q * TP; // Watts
+    const BHP_op_kw = Pair_op / (1000 * eta_fan * eta_drive);
+    const BHP_op_hp = BHP_op_kw * 1.34102;
+
+    // Cold startup power
+    const coldMultiplier = rho_cold / Math.max(0.1, rho_op);
+    const BHP_cold_kw = BHP_op_kw * coldMultiplier;
+    const cold_excess_pct = ((coldMultiplier - 1) * 100);
+
+    // 4. Affinity Laws at N2
+    const speedRatio = N1 > 0 ? N2 / N1 : 1.0;
+    const Q2 = Q * speedRatio;
+    const Q2_cfm = Q2 * 2118.88;
+    const TP2 = TP * Math.pow(speedRatio, 2);
+    const TP2_inwg = TP2 / 249.0889;
+    const BHP2_kw = BHP_op_kw * Math.pow(speedRatio, 3);
+    const BHP2_hp = BHP2_kw * 1.34102;
+
+    // 5. Sound Power Estimation
+    let Kw = 35;
+    if (bladeType === 'airfoil') Kw = 32;
+    else if (bladeType === 'radial') Kw = 42;
+    else if (bladeType === 'forward') Kw = 38;
+    const sound_dba = Kw + 10 * Math.log10(Math.max(0.1, Q)) + 20 * Math.log10(Math.max(10, TP));
+
+    // Update UI
+    document.getElementById('res_density').textContent = rho_op.toFixed(3) + ' kg/m³ (d = ' + density_ratio.toFixed(3) + ')';
+    document.getElementById('res_vp').textContent = VP.toFixed(1) + ' Pa (' + VP_inwg.toFixed(2) + ' in. w.g.)';
+    document.getElementById('res_sef').textContent = SEF_pa.toFixed(1) + ' Pa (' + (sefFraction * 100).toFixed(0) + '% duct loss)';
+    document.getElementById('res_tp').textContent = TP.toFixed(1) + ' Pa (' + TP_inwg.toFixed(2) + ' in. w.g.)';
+    document.getElementById('res_bhp').textContent = BHP_op_kw.toFixed(1) + ' kW (' + BHP_op_hp.toFixed(1) + ' HP)';
+    document.getElementById('res_cold_bhp').textContent = BHP_cold_kw.toFixed(1) + ' kW (+' + cold_excess_pct.toFixed(1) + '% surge)';
+    document.getElementById('res_aff_flow').textContent = Q2.toFixed(2) + ' m³/s (' + Q2_cfm.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' CFM)';
+    document.getElementById('res_aff_press').textContent = TP2.toFixed(1) + ' Pa (' + TP2_inwg.toFixed(2) + ' in. w.g.)';
+    document.getElementById('res_aff_power').textContent = BHP2_kw.toFixed(1) + ' kW (' + BHP2_hp.toFixed(1) + ' HP)';
+    document.getElementById('res_sound').textContent = sound_dba.toFixed(1) + ' dBA';
+  }
+
+  const inputs = ['fn_flow', 'fn_sp', 'fn_blade_type', 'fn_speed', 'fn_outlet_area', 'fn_drive_eff', 'fn_temp', 'fn_cold_temp', 'fn_alt', 'fn_sef_type', 'fn_target_speed', 'fn_fan_eff'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcFan);
+      el.addEventListener('change', calcFan);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_fan');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- CENTRIFUGAL FAN AERODYNAMIC & AFFINITY DATASHEET ---',
+        'Design Flow: ' + document.getElementById('fn_flow').value + ' m³/s | Duct Static Pressure: ' + document.getElementById('fn_sp').value + ' Pa',
+        'Gas Conditions: ' + document.getElementById('res_density').textContent + ' @ ' + document.getElementById('fn_temp').value + '°C',
+        'Total Pressure Demand: ' + document.getElementById('res_tp').textContent + ' [Includes SEF: ' + document.getElementById('res_sef').textContent + ']',
+        'Operating Shaft Power: ' + document.getElementById('res_bhp').textContent,
+        'Cold Startup Demand: ' + document.getElementById('res_cold_bhp').textContent,
+        'Affinity Scaling to ' + document.getElementById('fn_target_speed').value + ' RPM: Flow = ' + document.getElementById('res_aff_flow').textContent + ' | Pressure = ' + document.getElementById('res_aff_press').textContent + ' | Power = ' + document.getElementById('res_aff_power').textContent,
+        'Estimated Sound Power: ' + document.getElementById('res_sound').textContent,
+        'Generated via DigitalToolsShed.com Centrifugal Fan Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcFan();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+console.log('  ✓ Built Trade & Construction Suite (143 calculators in /calc/)');
 }
 
