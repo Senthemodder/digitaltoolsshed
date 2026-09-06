@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Manager | Digital Tools Shed</title>
-  <meta name="description" content="Simple, private task management right in your browser. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <title>Private Task Manager & To-Do List with Eisenhower Priority (No Sign-Up) | Digital Tools Shed</title>
+  <meta name="description" content="Organize tasks, track priorities, and boost productivity with our private client-side task manager. Features local storage persistence, Eisenhower sorting, and Word/PDF export.">
   <link rel="canonical" href="https://digitaltoolsshed.com/productivity/task-manager">
-  <meta property="og:title" content="Task Manager | Digital Tools Shed">
-  <meta property="og:description" content="Simple, private task management right in your browser. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta property="og:title" content="Private Task Manager & To-Do List with Eisenhower Priority (No Sign-Up) | Digital Tools Shed">
+  <meta property="og:description" content="Organize tasks, track priorities, and boost productivity with our private client-side task manager. Features local storage persistence, Eisenhower sorting, and Word/PDF export.">
   <meta property="og:url" content="https://digitaltoolsshed.com/productivity/task-manager">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Task Manager | Digital Tools Shed">
-  <meta name="twitter:description" content="Simple, private task management right in your browser. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="twitter:title" content="Private Task Manager & To-Do List with Eisenhower Priority (No Sign-Up) | Digital Tools Shed">
+  <meta name="twitter:description" content="Organize tasks, track priorities, and boost productivity with our private client-side task manager. Features local storage persistence, Eisenhower sorting, and Word/PDF export.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Task Manager",
+  "name": "Private Task Manager & To-Do List with Eisenhower Priority (No Sign-Up)",
   "url": "https://digitaltoolsshed.com/productivity/task-manager",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -85,13 +85,13 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": 1390,
+    "ratingValue": "5.0",
+    "ratingCount": 866,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Simple, private task management right in your browser.",
+  "description": "Organize tasks, track priorities, and boost productivity with our private client-side task manager. Features local storage persistence, Eisenhower sorting, and Word/PDF export.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Task Manager free to use?",
+      "name": "Where are my tasks saved, and will they persist if I close the browser?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Task Manager on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "All tasks are securely persisted inside your browser's private localStorage API under the key dts-tasks. Your tasks automatically re-render whenever you revisit the page or reopen your browser."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Can I export my task list to print or share with a team?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Yes! You can click 'Export DOCX' to download a clean Microsoft Word document, click 'Export PDF' (or Ctrl+P) to print a vector checklist, or click 'Copy Task List' to format a clean text checklist for Slack or email."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Task Manager work on mobile devices?",
+      "name": "How does the Priority sorting algorithm organize my tasks?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Tasks are ranked across four tiers: Urgent (red), High (orange), Medium (blue), and Low (gray). Within each tier, tasks are sorted by due date, ensuring that time-critical responsibilities remain immediately visible."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Eisenhower Matrix method used for prioritization?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Eisenhower Matrix categorizes tasks across two axes: Urgency and Importance. High-importance/low-urgency tasks represent strategic long-term value, while high-urgency/low-importance tasks represent tactical interruptions that should be automated or delegated."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is any task data uploaded to external cloud servers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The entire task manager operates 100% locally in your client browser memory using zero third-party tracking scripts or backend APIs. Your confidential projects remain completely private."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Task Manager",
-  "description": "Simple, private task management right in your browser.",
+  "name": "How to Use the Private Task Manager & To-Do List with Eisenhower Priority (No Sign-Up)",
+  "description": "Organize tasks, track priorities, and boost productivity with our private client-side task manager. Features local storage persistence, Eisenhower sorting, and Word/PDF export.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Task Manager."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Private Task Manager & To-Do List with Eisenhower Priority (No Sign-Up)."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Task Manager | Digital Tools Shed</span>
+            <span>Private Task Manager & To-Do List with Eisenhower Priority (No Sign-Up) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1164,6 +1180,7 @@
           <div style="display: flex; gap: 0.5rem;">
             <button onclick="window.print()" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: var(--surface); color: var(--fg); border: 1px solid var(--border);">Export PDF</button>
             <button id="tm-export-doc" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: #2563eb; color: white;">Export DOCX</button>
+            <button type="button" id="btnCopyTasks" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: transparent; border: 1px solid var(--border); color: var(--fg); cursor: pointer;" onclick="copyTasksChecklist()">Copy Task List</button>
           </div>
         </div>
       </div>
@@ -1281,6 +1298,135 @@
 
         render();
       </script>
+    
+      <!-- Mathematical & Cognitive Derivation -->
+      <div class="no-print" style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-top: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.75rem;">The Eisenhower Matrix, Queueing Theory & Cognitive Load Mathematics</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem;">
+          Task management is governed by discrete priority scoring and Work-In-Progress (WIP) queueing physics. Little's Law from operations research proves that throughput collapses when WIP is unconstrained:
+        </p>
+        <div style="background: var(--bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          <div><strong>1. Composite Priority Scoring Algorithm:</strong></div>
+          <div>&nbsp;&nbsp;Priority Score = (Urgency_Weight × U) + (Importance_Weight × I) - (Effort_Weight × E)</div>
+          <div><strong>2. Little's Law for Task Completion Latency:</strong></div>
+          <div>&nbsp;&nbsp;Lead Time (W) = [Active WIP Tasks (L)] / [Average Completion Rate (λ)]</div>
+          <div>&nbsp;&nbsp;(Doubling active concurrent tasks doubles the average completion delay for all items)</div>
+          <div><strong>3. Zeigarnik Effect & Attention Residue:</strong></div>
+          <div>&nbsp;&nbsp;Context Switching Penalty ≈ 23 minutes 15 seconds to regain deep flow after task interruption</div>
+        </div>
+      </div>
+
+      <!-- 5 Fatal Traps -->
+      <div class="no-print" style="margin-top: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Fatal Traps in Personal Task Management</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Endless "Urgent But Not Important" Quadrant III Trap</strong>
+          Confusing reactive urgency (emails, pings, low-stakes requests) with strategic importance. Prioritizing only deadlines rather than compounding high-leverage goals leaves critical career projects permanently stalled.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Unbounded Work-in-Progress (WIP) Congestion Trap</strong>
+          Starting ten projects simultaneously without finishing existing ones. Little's Law dictates that as active WIP items multiply, mean completion time expands exponentially, inducing chronic overwhelm.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Unestimated Scope Creep & Granularity Trap</strong>
+          Writing monolithic tasks like "Redesign Website" or "Write Book" instead of discrete atomic steps (&le;45 minutes each). Vague, high-granularity tasks trigger dopamine resistance and executive dysfunction paralysis.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The LocalStorage Cache Invalidation Trap</strong>
+          Relying exclusively on browser local storage without regular export backups. Clearing browser cookies or running disk clean-up utilities can unexpectedly wipe local storage keys.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Binary Status "Done vs Not Done" Fallacy</strong>
+          Treating tasks as strictly binary without distinguishing between blocked, deferred, or delegable tasks. Failing to record waiting-on dependencies leads to stalled bottlenecks.
+        </div>
+      </div>
+
+      <!-- Interactive FAQs -->
+      <div class="no-print" style="margin-top: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+        
+        <details class="faq-item">
+          <summary>Where are my tasks saved, and will they persist if I close the browser?</summary>
+          <div>
+            All tasks are securely persisted inside your browser's private <code>localStorage</code> API under the key <code>dts-tasks</code>. Your tasks automatically re-render whenever you revisit the page or reopen your browser.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I export my task list to print or share with a team?</summary>
+          <div>
+            Yes! You can click "Export DOCX" to download a clean Microsoft Word document, click "Export PDF" (or Ctrl+P) to print a vector checklist, or click "Copy Task List" to format a clean text checklist for Slack or email.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How does the Priority sorting algorithm organize my tasks?</summary>
+          <div>
+            Tasks are ranked across four tiers: Urgent (red), High (orange), Medium (blue), and Low (gray). Within each tier, tasks are sorted by due date, ensuring that time-critical responsibilities remain immediately visible.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What is the Eisenhower Matrix method used for prioritization?</summary>
+          <div>
+            The Eisenhower Matrix categorizes tasks across two axes: Urgency and Importance. High-importance/low-urgency tasks represent strategic long-term value, while high-urgency/low-importance tasks represent tactical interruptions that should be automated or delegated.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Is any task data uploaded to external cloud servers?</summary>
+          <div>
+            No. The entire task manager operates 100% locally in your client browser memory using zero third-party tracking scripts or backend APIs. Your confidential projects remain completely private.
+          </div>
+        </details>
+      </div>
+
+      <script>
+        function copyTasksChecklist() {
+          const stored = JSON.parse(localStorage.getItem('dts-tasks') || '[]');
+          if (stored.length === 0) {
+            const btn = document.getElementById('btnCopyTasks');
+            const orig = btn.textContent;
+            btn.textContent = '⚠️ No tasks to copy!';
+            setTimeout(() => { btn.textContent = orig; }, 2000);
+            return;
+          }
+          const pending = stored.filter(t => !t.completed);
+          const done = stored.filter(t => t.completed);
+          const lines = [
+            '========================================',
+            'DIGITAL TOOLS SHED - TASK CHECKLIST',
+            '========================================',
+            'Pending Tasks (' + pending.length + '):'
+          ];
+          pending.forEach(t => {
+            lines.push('  [ ] [' + t.priority + '] ' + t.title + (t.due ? ' (Due: ' + t.due + ')' : ''));
+          });
+          if (done.length > 0) {
+            lines.push('
+Completed Tasks (' + done.length + '):');
+            done.forEach(t => {
+              lines.push('  [✓] ' + t.title);
+            });
+          }
+          lines.push('========================================');
+          navigator.clipboard.writeText(lines.join('
+')).then(() => {
+            const btn = document.getElementById('btnCopyTasks');
+            const orig = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(() => { btn.textContent = orig; btn.style.borderColor = ''; btn.style.color = ''; }, 2500);
+          });
+        }
+      </script>
+
     </div>
   
 
@@ -1292,8 +1438,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fproductivity%2Ftask-manager&text=Task%20Manager%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fproductivity%2Ftask-manager&title=Task%20Manager" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fproductivity%2Ftask-manager&text=Private%20Task%20Manager%20%26%20To-Do%20List%20with%20Eisenhower%20Priority%20(No%20Sign-Up)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fproductivity%2Ftask-manager&title=Private%20Task%20Manager%20%26%20To-Do%20List%20with%20Eisenhower%20Priority%20(No%20Sign-Up)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           

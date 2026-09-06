@@ -1444,7 +1444,7 @@
       function copySettlement() {
         var cards = document.querySelectorAll('.settlement-action-card');
         if (cards.length === 0) {
-          alert('No debts to settle!');
+          var btn = document.getElementById('copySettlementBtn'); var orig = btn.innerHTML; btn.innerHTML = '<span>⚠️ No debts to settle!</span>'; setTimeout(function() { btn.innerHTML = orig; }, 2000);
           return;
         }
 
@@ -1492,11 +1492,11 @@
         });
 
         if (amt <= 0) {
-          alert('Please enter a valid expense amount greater than $0.');
+          var inp = document.getElementById('expAmount'); inp.style.borderColor = '#ef4444'; inp.placeholder = 'Enter amount > $0'; setTimeout(function() { inp.style.borderColor = ''; inp.placeholder = '0.00'; }, 2500);
           return;
         }
         if (splitWith.length === 0) {
-          alert('Please select at least one person to split this expense with.');
+          var btn = document.getElementById('addExpenseBtn'); var orig = btn.textContent; btn.textContent = '⚠️ Select at least 1 person!'; btn.style.background = '#ef4444'; setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2500);
           return;
         }
 
@@ -1515,6 +1515,62 @@
       solveSettlement();
     })();
   </script>
+  <!-- MATHEMATICAL DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:0.75rem;font-family:var(--serif);">Graph Theory, Conservation of Flow & Min-Cash-Flow Optimization Mathematics</h2>
+    <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">
+      Naive debt settlement across N participants requires up to N(N-1)/2 individual transactions. Our settlement engine applies a greedy minimum cash flow reduction on directed debt graphs to cap settlement transfers at at most N - 1:
+    </p>
+    <div style="background:var(--bg);border:1px solid var(--border);padding:1.25rem;border-radius:6px;font-family:var(--mono);font-size:0.85rem;line-height:1.7;">
+      <div><strong>1. Participant Net Balance Equation:</strong></div>
+      <div>&nbsp;&nbsp;Net_i = TotalPaid_i - ShareOfExpenses_i</div>
+      <div><strong>2. Conservation of Debt Value:</strong></div>
+      <div>&nbsp;&nbsp;∑_{i=1}^{N} Net_i ≡ 0 &nbsp;&nbsp;(The sum of all net balances across the group is strictly zero)</div>
+      <div><strong>3. Greedy Max-Debtor to Max-Creditor Pairing:</strong></div>
+      <div>&nbsp;&nbsp;TransferAmount = min( |MaxDebtorNet|, |MaxCreditorNet| )</div>
+      <div>&nbsp;&nbsp;Max Transactions ≤ N - 1 &nbsp;&nbsp;(Proven upper bound for connected bipartite settlement graphs)</div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Frequently Asked Questions</h2>
+    
+    <details class="faq-item">
+      <summary>How does the debt simplification algorithm minimize transactions?</summary>
+      <div>
+        Without optimization, if 4 roommates owe small debts to each other, they might need up to 6 different money transfers. Our tool uses a greedy min-cash-flow algorithm: it aggregates everyone’s net balance (total money paid minus fair share of expenses) and pairs the largest debtor with the largest creditor. This mathematically guarantees settling all debts across N members in at most N-1 simple transactions.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Is my financial and trip data private, and do I need to create an account?</summary>
+      <div>
+        No account, password, or login is required. The entire expense ledger and settlement algorithm runs 100% locally inside your browser using client-side JavaScript. No expense amounts, participant names, or transaction details are ever transmitted to or stored on a database.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Can I split an expense unequally or only among certain people?</summary>
+      <div>
+        Yes. When logging any expense, you can select which specific group members participated using the "Split Among Who?" checkboxes. For example, if only three people attended a concert or dinner, you can uncheck the remaining members, and the cost will be divided exclusively among the attendees.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>How do I share the final settlement plan with my group?</summary>
+      <div>
+        Click the "Copy Plan" button. This formats the complete settlement plan—listing exactly who owes whom and the total dollar amount—into clean bullet points that you can instantly paste into WhatsApp, iMessage, GroupMe, or Slack.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Why is this better than traditional apps like Splitwise?</summary>
+      <div>
+        Traditional apps have introduced paywalls, artificial 10-second wait delays, and limits on how many expenses free users can add per day. Digital Tools Shed provides an unrestricted, ad-light, instant calculator with zero friction, zero signups, and immediate graph-minimized settlement.
+      </div>
+    </details>
+  </div>
 </div>
 
 

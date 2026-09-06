@@ -1279,7 +1279,7 @@
         var jobRaw = document.getElementById('jobInput').value.trim();
 
         if (!resumeRaw || !jobRaw) {
-          alert('Please paste both your resume text and target job description to run the scan.');
+          var btn = document.getElementById('runAtsScanBtn'); var orig = btn.innerHTML; btn.innerHTML = '<span>⚠️ Paste resume & job description!</span>'; btn.style.background = '#ef4444'; setTimeout(function() { btn.innerHTML = orig; btn.style.background = ''; }, 2500);
           return;
         }
 
@@ -1513,6 +1513,103 @@
       updateCounts();
     })();
   </script>
+  <!-- MATHEMATICAL DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:0.75rem;font-family:var(--serif);">Information Retrieval, TF-IDF & Semantic Vector Salience Mathematics</h2>
+    <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">
+      Modern Applicant Tracking Systems (ATS) score candidates using vector space models and tokenized n-gram intersection matrices rather than naive exact-string searching:
+    </p>
+    <div style="background:var(--bg);border:1px solid var(--border);padding:1.25rem;border-radius:6px;font-family:var(--mono);font-size:0.85rem;line-height:1.7;">
+      <div><strong>1. Jaccard Keyword Similarity Index:</strong></div>
+      <div>&nbsp;&nbsp;J(R, J) = |R ∩ J| / |R ∪ J| &nbsp;&nbsp;(Ratio of shared distinct competencies to total vocabulary)</div>
+      <div><strong>2. Term Frequency - Inverse Document Frequency (TF-IDF):</strong></div>
+      <div>&nbsp;&nbsp;TF-IDF(t, d) = TF(t, d) × log( N / DF(t) ) &nbsp;&nbsp;(Suppresses generic filler words while amplifying niche technologies)</div>
+      <div><strong>3. Cosine Vector Similarity:</strong></div>
+      <div>&nbsp;&nbsp;Cosine Score = (v_R · v_J) / ( ||v_R|| × ||v_J|| )</div>
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL ATS TRAPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical ATS Resume Formatting & Screening Pitfalls</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;border-left:4px solid #ef4444;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. Two-Column Table Scrambler Trap</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Designing creative multi-column resumes. Legacy enterprise parsers (such as older Taleo and Workday modules) read text strictly left-to-right across the entire page, fusing column 1 text with column 2 text into gibberish sentences that fail keyword matching.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;border-left:4px solid #f59e0b;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;">2. Invisible White-Text Keyword Stuffing</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Pasting target keywords in 1pt white font in the document footer. Modern ATS engines strip all font color attributes before parsing, exposing the stuffed text directly in the recruiter's plain-text view and triggering immediate automatic disqualification.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;border-left:4px solid #10b981;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;">3. Graphical Header & Contact Info Disconnect</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Placing your email, telephone, LinkedIn URL, or home location inside Microsoft Word's header section or inside graphical image banners. Many parsers bypass headers and footers entirely, resulting in "Candidate Unreachable" errors.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;border-left:4px solid #3b82f6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;">4. The Unexpanded Acronym Mismatch</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Writing only "AWS" or only "Amazon Web Services". Recruiter boolean queries vary between exact abbreviations and full terms. Always include both: e.g. "Amazon Web Services (AWS)" or "Search Engine Optimization (SEO)" to guarantee 100% keyword match parity.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;border-left:4px solid #8b5cf6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;">5. Non-Standard Creative Section Headers</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Labeling work experience as "My Professional Journey" or education as "Knowledge Foundation". ATS algorithms look for standardized semantic anchors: "Work Experience", "Employment History", "Education", and "Skills". Unconventional headers result in bypassed sections.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Frequently Asked Questions</h2>
+    
+    <details class="faq-item">
+      <summary>How does this free ATS scanner compare to paid tools like Jobscan?</summary>
+      <div>
+        Paid platforms like Jobscan and Resume Worded charge up to $50/month and restrict free users to 2 scans. Digital Tools Shed provides an unrestricted, 100% free scanner that runs entirely inside your browser with zero limits, zero accounts, and immediate semantic tokenization, n-gram extraction, and formatting audits.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Is my resume data kept private and secure?</summary>
+      <div>
+        Yes, 100% private. Unlike cloud scanners that upload your sensitive personal details (contact info, address, employment history) to third-party databases, our scanner runs purely on client-side JavaScript in your browser. No resume text or job descriptions are ever sent to our servers.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>What ATS match score should I aim for before submitting my resume?</summary>
+      <div>
+        Aim for a match score of 75% to 85%. While reaching 100% is neither realistic nor necessary (and can look like robotic keyword stuffing), scoring above 75% reliably places your application into the top tier of candidates that automated ATS filters pass directly to human recruiters.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Why should I avoid two-column resume templates for ATS applications?</summary>
+      <div>
+        Many popular ATS parsers (especially legacy Workday and Taleo configurations) read text horizontally across the entire page rather than column by column. A two-column layout scrambles your bullet points and dates across columns, resulting in parsing errors and lower match rankings.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>How do applicant tracking systems handle acronyms like AWS or SEO?</summary>
+      <div>
+        Some ATS query algorithms look exclusively for the full spelled-out phrase, while others look only for the abbreviation. To guarantee you receive credit regardless of which term the recruiter searches, always spell out the term and include the acronym in parentheses: e.g., "Search Engine Optimization (SEO)" or "Amazon Web Services (AWS)".
+      </div>
+    </details>
+  </div>
 </div>
 
 
