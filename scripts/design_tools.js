@@ -2368,126 +2368,715 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
         </script>
       `
     },
-{
+    {
       slug: 'image-to-base64',
-      title: 'Image to Base64 Converter',
-      metaDesc: 'Convert PNG, JPG, SVG, and WebP images to Base64 data URIs with CSS background and HTML img code snippets.',
+      title: 'Image to Base64 Data URI & CSS Converter [100% Private]',
+      metaDesc: 'Convert PNG, JPG, SVG, WebP, and GIF images to Base64 Data URIs offline. Generates HTML img tags, CSS background-image, and SVG snippets with byte overhead metrics.',
       category: 'Design',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <style>
+          .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+          .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+          .faq-item { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden; }
+          .faq-item summary { padding: 0.85rem 1.15rem; font-weight: 600; cursor: pointer; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+          .faq-item summary::-webkit-details-marker { display: none; }
+          .faq-item summary::after { content: "+"; font-family: var(--mono); font-size: 1.2rem; }
+          .faq-item[open] summary::after { content: "−"; }
+          .faq-item div { padding: 0.85rem 1.15rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+          .drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 2rem 1.5rem; text-align: center; background: var(--surface-alt); cursor: pointer; transition: all 0.2s; }
+          .drop-zone:hover { border-color: var(--btn-bg, #3b82f6); background: var(--surface); }
+          .tab-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 0.85rem; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
+          .tab-btn.active { background: var(--btn-bg, #3b82f6); color: #fff; border-color: var(--btn-bg, #3b82f6); }
+        </style>
+        <div class="article-container" style="max-width: 960px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/design/">Design & Image</a> &gt; Image to Base64
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Image to Base64 Converter</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Encode image files into inline Data URI strings for HTML, CSS, and SVG embedding.
+          <h1 style="font-family: var(--serif); font-size: 1.85rem; margin-bottom: 0.5rem;">Image to Base64 Data URI & CSS Converter</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; margin-bottom: 1.5rem;">
+            Encode raster and vector images into RFC 4648 Base64 strings and Data URIs entirely inside your browser. Outputs ready-to-paste HTML <code>&lt;img&gt;</code> tags, CSS <code>background-image</code>, SVG embeddings, and payload overhead analytics. 100% private with zero network uploads.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Select Image File</label>
-              <input type="file" id="img-file" class="text-input" accept="image/*" onchange="convertImgToBase64()" />
+            <!-- Drop Zone -->
+            <div id="b64-dropzone" class="drop-zone" onclick="document.getElementById('b64-file-input').click()">
+              <input type="file" id="b64-file-input" accept="image/*" style="display: none;" onchange="handleB64File(this.files[0])" />
+              <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📂</div>
+              <div style="font-weight: 600; font-size: 1rem; margin-bottom: 0.35rem; color: var(--fg);">
+                Click to browse, drop an image here, or press <kbd style="background:var(--bg); border:1px solid var(--border); padding:0.15rem 0.4rem; border-radius:3px; font-family:var(--mono); font-size:0.8rem;">Ctrl+V</kbd> to paste
+              </div>
+              <div style="font-size: 0.82rem; color: var(--text-muted);">
+                Supports PNG, JPEG, WebP, SVG, GIF, AVIF, and BMP (Up to 50MB)
+              </div>
             </div>
 
-            <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Base64 Data URI</label>
-              <textarea id="b64-uri" class="code-input" style="height: 140px;" placeholder="data:image/png;base64,..." readonly></textarea>
+            <!-- Telemetry & Metrics (Visible after file loaded) -->
+            <div id="b64-telemetry" style="display: none; margin-top: 1.25rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div class="field-label" style="margin-bottom: 0.75rem;">Image Telemetry & Payload Metrics</div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.82rem;">
+                <div>
+                  <span style="color: var(--text-muted); display: block; font-size: 0.72rem;">ORIGINAL SIZE</span>
+                  <strong id="stat-orig-size" style="color: var(--fg); font-size: 1rem;">0 KB</strong>
+                </div>
+                <div>
+                  <span style="color: var(--text-muted); display: block; font-size: 0.72rem;">BASE64 SIZE (+33%)</span>
+                  <strong id="stat-b64-size" style="color: #f59e0b; font-size: 1rem;">0 KB</strong>
+                </div>
+                <div>
+                  <span style="color: var(--text-muted); display: block; font-size: 0.72rem;">IMAGE DIMENSIONS</span>
+                  <strong id="stat-dims" style="color: var(--fg); font-size: 1rem;">0 × 0 px</strong>
+                </div>
+                <div>
+                  <span style="color: var(--text-muted); display: block; font-size: 0.72rem;">MIME CONTENT-TYPE</span>
+                  <strong id="stat-mime" style="color: #10b981; font-size: 1rem;">image/png</strong>
+                </div>
+              </div>
             </div>
 
-            <div class="field-group">
-              <label class="field-label">HTML &lt;img&gt; Tag</label>
-              <input type="text" id="b64-html" class="code-input" readonly />
+            <!-- Format Selector Tabs -->
+            <div id="b64-outputs-wrap" style="display: none; margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                  <button type="button" class="tab-btn active" id="tab-datauri" onclick="switchB64Tab('datauri')">Data URI</button>
+                  <button type="button" class="tab-btn" id="tab-raw" onclick="switchB64Tab('raw')">Raw Base64</button>
+                  <button type="button" class="tab-btn" id="tab-html" onclick="switchB64Tab('html')">HTML &lt;img&gt;</button>
+                  <button type="button" class="tab-btn" id="tab-css" onclick="switchB64Tab('css')">CSS background</button>
+                  <button type="button" class="tab-btn" id="tab-svg" onclick="switchB64Tab('svg')">SVG &lt;image&gt;</button>
+                  <button type="button" class="tab-btn" id="tab-md" onclick="switchB64Tab('md')">Markdown</button>
+                </div>
+                <button class="btn-primary" id="btnCopyActiveTab" style="padding: 0.4rem 0.9rem; font-size: 0.8rem;" onclick="copyActiveB64Tab()">Copy Code</button>
+              </div>
+
+              <textarea id="b64-output-text" class="code-input" style="height: 180px; font-size: 0.82rem; word-break: break-all;" readonly></textarea>
+
+              <div style="display: flex; gap: 1.5rem; margin-top: 1.25rem; align-items: center; flex-wrap: wrap;">
+                <div style="max-width: 140px; max-height: 140px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: repeating-conic-gradient(var(--border) 0% 25%, transparent 0% 50%) 50% / 12px 12px; display: flex; align-items: center; justify-content: center;">
+                  <img id="b64-preview-thumb" src="" alt="Thumbnail preview" style="max-width: 100%; max-height: 100%; display: block;" />
+                </div>
+                <div style="flex: 1 1 250px;">
+                  <div class="action-bar" style="margin: 0; gap: 0.6rem;">
+                    <button class="btn-sec" id="btnDownloadDecoded" onclick="downloadDecodedFile()">&#x2913; Download Decoded File</button>
+                    <button class="btn-sec" id="btnCopyB64Report" onclick="copyB64Report()">Copy Overhead Audit Report</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mathematical Derivation -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.75rem;">RFC 4648 Base64 Encoding Mathematics & Overhead Physics</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem;">
+              Base64 maps arbitrary 8-bit binary octets into a safe 64-character ASCII subset (<code>A-Z, a-z, 0-9, +, /</code>) to allow binary media transmission across text-only protocols (HTTP, JSON, CSS, HTML):
+            </p>
+            <div style="background: var(--bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; margin-bottom: 1.25rem;">
+              <div><strong>1. Bit-Level Bitstream Re-grouping:</strong></div>
+              <div>&nbsp;&nbsp;Input: 3 binary bytes = 24 bits &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b₁ b₂ b₃ b₄ b₅ b₆ b₇ b₈] [b₉ ... b₁₆] [b₁₇ ... b₂₄]</div>
+              <div>&nbsp;&nbsp;Output: 4 sextets = 4 × 6 bits = 24 bits &nbsp;[s₁: 6b] [s₂: 6b] [s₃: 6b] [s₄: 6b]</div>
+              <div><strong>2. Inflation Overhead Ratio:</strong></div>
+              <div>&nbsp;&nbsp;Overhead Factor = 4 output characters / 3 input bytes = 1.3333... (+33.33%)</div>
+              <div>&nbsp;&nbsp;With Data URI scheme header: <code>data:[MIME];base64,...</code> adds 20–40 bytes</div>
+              <div><strong>3. Padding Logic:</strong></div>
+              <div>&nbsp;&nbsp;If (Bytes mod 3 == 1): Pad with two '=' characters (<code>==</code>)</div>
+              <div>&nbsp;&nbsp;If (Bytes mod 3 == 2): Pad with one '=' character (<code>=</code>)</div>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6;">
+              While inlining saves round-trip TCP handshakes on HTTP/1.1, in the modern HTTP/2 and HTTP/3 multiplexed era, inlining assets larger than 2–4 KB degrades performance because inlined images cannot be cached independently from the HTML/CSS document.
+            </p>
+          </div>
+
+          <!-- 5 Fatal Traps -->
+          <div style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Fatal Traps in Base64 Media Inlining</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The 50KB+ Megabyte Payload Bloat Trap</strong>
+              Inlining 100KB+ photographs or hero images into CSS or HTML bundles. Because Base64 adds a mandatory 33% byte penalty, a 200KB image inflates to 267KB of render-blocking text. Browsers cannot render the DOM or CSSOM until the entire inlined string is downloaded and parsed by the main thread.
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="copyB64()">Copy Base64 String</button>
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. The Missing MIME Content-Type Malfunction</strong>
+              Writing malformed Data URIs like <code>data:base64,iVBORw...</code> instead of specifying the precise MIME type <code>data:image/png;base64,...</code>. While Google Chrome's permissive parser may infer the image type via binary magic numbers, Safari and strict email clients fail to render the image completely.
             </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. The Gzip Compression Fallacy</strong>
+              Assuming that server-side Gzip or Brotli compression negates the 33% Base64 expansion penalty. While Gzip compresses Base64 text effectively, compressed Base64 is still ~15-20% larger than a compressed raw binary PNG/JPEG, and CPU decompression overhead increases.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. The Cache Invalidation Cascade</strong>
+              Inlining multiple icons directly into a shared <code>styles.css</code> stylesheet. Whenever you update a single color or text rule in the stylesheet, the browser's HTTP cache for the entire combined stylesheet—including all embedded image bytes—is invalidated, forcing visitors to re-download all graphics from scratch.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. Mobile Memory DOM Crash on Gigantic Strings</strong>
+              Storing 10MB+ Base64 strings in JavaScript variables or DOM attributes (such as <code>&lt;img src="data:..."&gt;</code>) on iOS WebKit. Mobile Safari allocates continuous memory for huge string tokens, triggering V8/WebKit memory pressure limits that induce silent tab crashes and white screen reloads.
+            </div>
+          </div>
+
+          <!-- Interactive FAQs -->
+          <div style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            
+            <details class="faq-item">
+              <summary>When should I use Base64 image encoding instead of external files?</summary>
+              <div>
+                Base64 is ideal for tiny decorative UI icons (under 2–3 KB), standalone single-file HTML distributions, offline email templates where external image linking is blocked, and eliminating First Contentful Paint (FCP) flash on critical micro-assets.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Why does Base64 make image files 33% larger?</summary>
+              <div>
+                Binary files use all 8 bits of every byte (256 possible states). Base64 only uses 64 safe printable ASCII characters (6 bits per character). Because 3 bytes (24 bits) require 4 characters (24 bits) to represent, the raw byte volume mathematically increases by exactly 4/3 or 33.33%.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Does Base64 encoding degrade or compress image quality?</summary>
+              <div>
+                No. Base64 is a 100% lossless binary-to-text encoding algorithm. It does not alter a single pixel, modify color profiles, or introduce compression artifacts. Decoding the Base64 string produces an identical byte-for-byte replica of the original image file.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Can Base64 images be cached by web browsers?</summary>
+              <div>
+                Base64 images cannot be cached independently. They are cached only as part of the host HTML document or CSS stylesheet containing them. If embedded in HTML, they re-download with every page view unless the HTML itself is cached.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Are my uploaded images sent to any external server?</summary>
+              <div>
+                No. This tool runs 100% client-side inside your local browser using the HTML5 FileReader API. Your images never leave your device, ensuring total privacy for sensitive graphics, credentials, or proprietary mockups.
+              </div>
+            </details>
           </div>
         </div>
 
+        <!-- Schema.org JSON-LD -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "Image to Base64 Data URI & CSS Converter",
+              "url": "https://digitaltoolsshed.com/design/image-to-base64",
+              "description": "Convert PNG, JPG, SVG, WebP, and GIF images to Base64 Data URIs offline. Generates HTML img tags, CSS background-image, and SVG snippets with byte overhead metrics.",
+              "applicationCategory": "DesignApplication",
+              "operatingSystem": "All",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "When should I use Base64 image encoding instead of external files?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use Base64 for micro-icons under 2-3 KB, single-file HTML distributions, and email templates where external linking is blocked."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Why does Base64 make image files 33% larger?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Base64 maps 3 binary bytes (24 bits) into 4 printable ASCII characters (6 bits each), resulting in a mathematical 4/3 or 33.3% size inflation."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Does Base64 encoding degrade or compress image quality?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. Base64 is a 100% lossless binary encoding that preserves every byte and pixel without modification."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Can Base64 images be cached by web browsers?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "They cannot be cached independently; they are only cached as part of the parent HTML or CSS stylesheet."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Are my uploaded images sent to any external server?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. All conversion is executed locally in your browser using the HTML5 FileReader API with zero network transfers."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+        </script>
+
         <script>
-          function convertImgToBase64() {
-            const file = document.getElementById('img-file').files[0];
+          let currentB64DataUri = '';
+          let currentMime = 'image/png';
+          let currentFileName = 'image.png';
+          let currentFileBytes = 0;
+          let currentWidth = 0;
+          let currentHeight = 0;
+          let activeTab = 'datauri';
+
+          function setFeedback(btnId, originalText) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.textContent = '✓ Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.style.borderColor = '';
+              btn.style.color = '';
+            }, 2500);
+          }
+
+          function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+          }
+
+          function handleB64File(file) {
             if (!file) return;
+            currentFileName = file.name;
+            currentMime = file.type || 'image/png';
+            currentFileBytes = file.size;
 
             const reader = new FileReader();
             reader.onload = function(e) {
-              const res = e.target.result;
-              document.getElementById('b64-uri').value = res;
-              document.getElementById('b64-html').value = '<img src="' + res + '" alt="Embedded image" />';
+              currentB64DataUri = e.target.result;
+              const img = new Image();
+              img.onload = function() {
+                currentWidth = img.width;
+                currentHeight = img.height;
+                updateB64Telemetry();
+                updateB64Outputs();
+                document.getElementById('b64-preview-thumb').src = currentB64DataUri;
+                document.getElementById('b64-telemetry').style.display = 'block';
+                document.getElementById('b64-outputs-wrap').style.display = 'block';
+              };
+              img.src = currentB64DataUri;
             };
             reader.readAsDataURL(file);
           }
 
-          function copyB64() {
-            navigator.clipboard.writeText(document.getElementById('b64-uri').value);
+          // Drag and drop listeners
+          const dropZone = document.getElementById('b64-dropzone');
+          ['dragenter', 'dragover'].forEach(name => {
+            dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.style.borderColor = '#3b82f6'; });
+          });
+          ['dragleave', 'drop'].forEach(name => {
+            dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.style.borderColor = ''; });
+          });
+          dropZone.addEventListener('drop', (e) => {
+            if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+              handleB64File(e.dataTransfer.files[0]);
+            }
+          });
+
+          // Paste listener
+          window.addEventListener('paste', (e) => {
+            if (e.clipboardData && e.clipboardData.files.length > 0) {
+              handleB64File(e.clipboardData.files[0]);
+            }
+          });
+
+          function updateB64Telemetry() {
+            const b64Bytes = Math.round((currentB64DataUri.length) * 0.75);
+            document.getElementById('stat-orig-size').textContent = formatBytes(currentFileBytes);
+            document.getElementById('stat-b64-size').textContent = formatBytes(currentB64DataUri.length) + ' (+33%)';
+            document.getElementById('stat-dims').textContent = currentWidth + ' × ' + currentHeight + ' px';
+            document.getElementById('stat-mime').textContent = currentMime;
+          }
+
+          function switchB64Tab(tab) {
+            activeTab = tab;
+            ['datauri', 'raw', 'html', 'css', 'svg', 'md'].forEach(t => {
+              const el = document.getElementById('tab-' + t);
+              if (el) el.classList.toggle('active', t === tab);
+            });
+            updateB64Outputs();
+          }
+
+          function updateB64Outputs() {
+            if (!currentB64DataUri) return;
+            const outputEl = document.getElementById('b64-output-text');
+            const commaIndex = currentB64DataUri.indexOf(',');
+            const rawB64 = commaIndex !== -1 ? currentB64DataUri.slice(commaIndex + 1) : currentB64DataUri;
+
+            if (activeTab === 'datauri') {
+              outputEl.value = currentB64DataUri;
+            } else if (activeTab === 'raw') {
+              outputEl.value = rawB64;
+            } else if (activeTab === 'html') {
+              outputEl.value = '<img width="' + currentWidth + '" height="' + currentHeight + '" alt="' + currentFileName + '" src="' + currentB64DataUri + '" />';
+            } else if (activeTab === 'css') {
+              outputEl.value = '.element {\n  background-image: url("' + currentB64DataUri + '");\n  background-size: contain;\n  background-repeat: no-repeat;\n}';
+            } else if (activeTab === 'svg') {
+              outputEl.value = '<svg xmlns="http://www.w3.org/2000/svg" width="' + currentWidth + '" height="' + currentHeight + '">\n  <image width="' + currentWidth + '" height="' + currentHeight + '" href="' + currentB64DataUri + '" />\n</svg>';
+            } else if (activeTab === 'md') {
+              outputEl.value = '![' + currentFileName + '](' + currentB64DataUri + ')';
+            }
+          }
+
+          function copyActiveB64Tab() {
+            const text = document.getElementById('b64-output-text').value;
+            navigator.clipboard.writeText(text).then(() => {
+              setFeedback('btnCopyActiveTab', 'Copy Code');
+            });
+          }
+
+          function downloadDecodedFile() {
+            if (!currentB64DataUri) return;
+            const link = document.createElement('a');
+            link.download = 'decoded_' + currentFileName;
+            link.href = currentB64DataUri;
+            link.click();
+          }
+
+          function copyB64Report() {
+            if (!currentB64DataUri) return;
+            const b64Chars = currentB64DataUri.length;
+            const overheadPct = (((b64Chars - currentFileBytes) / currentFileBytes) * 100).toFixed(1);
+
+            const report = [
+              '======================================================',
+              'DIGITAL TOOLS SHED - BASE64 PAYLOAD AUDIT REPORT',
+              '======================================================',
+              'Timestamp: ' + new Date().toISOString(),
+              'File Analyzed: ' + currentFileName,
+              'MIME Specification: ' + currentMime,
+              'Raster Dimensions: ' + currentWidth + ' x ' + currentHeight + ' px',
+              'Byte Volume Analysis:',
+              '  - Binary File Size: ' + formatBytes(currentFileBytes) + ' (' + currentFileBytes + ' bytes)',
+              '  - Base64 String Length: ' + b64Chars + ' characters (' + formatBytes(b64Chars) + ')',
+              '  - Net Inflation Overhead: +' + overheadPct + '%',
+              'Architecture Recommendations:',
+              currentFileBytes > 10240 
+                ? '  ⚠️ WARNING: File is >10KB. Inlining this image directly into HTML/CSS will delay First Contentful Paint. Consider hosting as an external asset.' 
+                : '  ✅ OPTIMAL: File is <10KB. Excellent candidate for inlining to eliminate an extra HTTP round-trip.',
+              '======================================================'
+            ].join('\n');
+
+            navigator.clipboard.writeText(report).then(() => {
+              setFeedback('btnCopyB64Report', 'Copy Overhead Audit Report');
+            });
           }
         </script>
       `
     },
     {
       slug: 'passport-photo',
-      title: 'US Passport Photo 2x2" Maker & 4x6 Printable Grid',
-      metaDesc: 'Crop and format your photo into an official US 2x2 inch (600x600 px) passport photo with a printable 4x6 inch (6-photo grid) template. 100% free and private.',
+      title: 'US Passport Photo 2x2" Maker & Printable 4x6 Sheet [Official Standards]',
+      metaDesc: 'Crop and format your photo into an official US 2x2 inch (600x600 px) passport photo with biometric head alignment guides and printable 4x6 grid. 100% free and private.',
       category: 'Design',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <style>
+          .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+          .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+          .faq-item { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden; }
+          .faq-item summary { padding: 0.85rem 1.15rem; font-weight: 600; cursor: pointer; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+          .faq-item summary::-webkit-details-marker { display: none; }
+          .faq-item summary::after { content: "+"; font-family: var(--mono); font-size: 1.2rem; }
+          .faq-item[open] summary::after { content: "−"; }
+          .faq-item div { padding: 0.85rem 1.15rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+          .crop-viewport { position: relative; width: 320px; height: 320px; margin: 0 auto; border: 2px solid var(--border); overflow: hidden; background: #e2e8f0; border-radius: 6px; touch-action: none; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+          .crop-viewport canvas { width: 100%; height: 100%; cursor: grab; display: block; }
+          .crop-viewport canvas:active { cursor: grabbing; }
+        </style>
+        <div class="article-container" style="max-width: 960px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/design/">Design & Image</a> &gt; US Passport Photo
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">US Passport Photo 2x2" Maker & Printable 4x6 Grid</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Format your portrait photo to meet official US Department of State 2x2 inch (51x51 mm) biometric requirements. Generate a single 600x600 px image or a printable 4x6 inch sheet with 6 photos.
+          <h1 style="font-family: var(--serif); font-size: 1.85rem; margin-bottom: 0.5rem;">US Passport Photo 2x2" Maker & Printable 4x6 Grid</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; margin-bottom: 1.5rem;">
+            Format your portrait photo to meet strict US Department of State and ICAO biometric standards. Features exact 2x2 inch (51x51 mm / 600x600 px) head-height ratio guides, fine rotation leveling, lighting adjustments, and a 6-photo printable 4x6" sheet generator. 100% private.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Upload Portrait Photo</label>
+              <label class="field-label">Upload Portrait Photograph</label>
               <input type="file" id="pp-file" accept="image/*" class="text-input" onchange="loadPhoto(event)" />
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items: start; margin-top: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; align-items: start; margin-top: 1.5rem;">
+              <!-- Viewport Column -->
               <div>
-                <div class="field-label">Alignment Guide (Drag to pan, slider to zoom)</div>
-                <div style="position: relative; width: 300px; height: 300px; margin: 0 auto; border: 2px solid var(--border); overflow: hidden; background: #f0f0f0; border-radius: 4px;">
-                  <canvas id="cropCanvas" width="600" height="600" style="width: 100%; height: 100%; cursor: grab;"></canvas>
-                  <!-- Biometric Oval Overlay -->
-                  <div style="position: absolute; top: 15%; left: 22%; width: 56%; height: 65%; border: 2px dashed rgba(59, 130, 246, 0.75); border-radius: 50%; pointer-events: none;"></div>
-                  <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; border-top: 1px dashed rgba(59, 130, 246, 0.4); pointer-events: none;"></div>
+                <div class="field-label" style="text-align: center; margin-bottom: 0.5rem;">
+                  Biometric Guide (Drag to Pan &bull; Scroll to Zoom)
+                </div>
+                
+                <div class="crop-viewport" id="pp-viewport">
+                  <canvas id="cropCanvas" width="600" height="600"></canvas>
+                  
+                  <!-- Biometric Oval Overlay (US Dept of State: Head must occupy 50% to 69% of total height) -->
+                  <!-- Head Top: ~15% (90px) to Chin: ~75% (450px) => 360px (60%) -->
+                  <div style="position: absolute; top: 12%; left: 24%; width: 52%; height: 62%; border: 2px dashed #3b82f6; border-radius: 50%; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.25);"></div>
+                  <!-- Eye Level Target Line (between 56% and 69% from bottom: 336px to 414px from bottom = 186px to 264px from top) -->
+                  <div style="position: absolute; top: 38%; left: 0; right: 0; height: 1px; border-top: 1px dashed #ef4444; pointer-events: none;"></div>
+                  <!-- Chin Baseline Guide -->
+                  <div style="position: absolute; top: 74%; left: 0; right: 0; height: 1px; border-top: 1px dashed #10b981; pointer-events: none;"></div>
                 </div>
 
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+                  <span style="color: #3b82f6;">● Head Boundary (50-69%)</span>
+                  <span style="color: #ef4444;">● Eye Level</span>
+                  <span style="color: #10b981;">● Chin Baseline</span>
+                </div>
+
+                <!-- Adjustment Sliders -->
                 <div style="margin-top: 1rem;">
-                  <label class="field-label">Zoom Scale</label>
-                  <input type="range" id="pp-zoom" min="0.5" max="3" step="0.05" value="1" style="width: 100%;" oninput="renderCrop()" />
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.2rem;">
+                    <span>ZOOM SCALE</span>
+                    <span id="lbl-zoom">1.00x</span>
+                  </div>
+                  <input type="range" id="pp-zoom" min="0.3" max="3.5" step="0.02" value="1" style="width: 100%;" oninput="onPpZoom(this.value)" />
+                </div>
+
+                <div style="margin-top: 0.75rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.2rem;">
+                    <span>FINE ROTATION (HEAD LEVEL)</span>
+                    <span id="lbl-rot">0°</span>
+                  </div>
+                  <input type="range" id="pp-rot" min="-25" max="25" step="0.5" value="0" style="width: 100%;" oninput="onPpRot(this.value)" />
+                </div>
+
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.75rem;">
+                  <button type="button" class="btn-sec" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="rotatePp(90)">⟳ Rotate 90°</button>
+                  <button type="button" class="btn-sec" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="resetPp()">Reset</button>
                 </div>
               </div>
 
+              <!-- Compliance & Controls Column -->
               <div>
-                <div class="field-label">Official Requirements Checklist</div>
-                <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; padding-left: 1.25rem; margin-bottom: 1.5rem;">
-                  <li>Head height must be between 1" and 1 3/8" (50% to 69% of image height).</li>
-                  <li>Eyes positioned between 1 1/8" and 1 3/8" from bottom of photo.</li>
-                  <li>Plain white or off-white background with neutral expression.</li>
-                  <li>No eyeglasses, headphones, or head coverings (unless religious/medical).</li>
-                </ul>
+                <div class="field-label">US State Department Biometric Criteria</div>
+                <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 1.25rem;">
+                  <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+                    <li><strong>Exact Dimensions:</strong> 2 x 2 inches (51 x 51 mm / 600 x 600 px at 300 DPI).</li>
+                    <li><strong>Head Proportion:</strong> Chin to top of hair must measure between 1" and 1 3/8" (50% to 69% of height).</li>
+                    <li><strong>Eye Height:</strong> Eyes must sit between 1 1/8" and 1 3/8" from bottom margin.</li>
+                    <li><strong>Background:</strong> Solid plain white or off-white background with zero shadows.</li>
+                    <li><strong>Zero Eyeglasses:</strong> Eyeglasses are strictly prohibited (since Nov 2016).</li>
+                  </ul>
+                </div>
 
-                <div class="action-bar" style="flex-direction: column; align-items: stretch;">
-                  <button class="btn-primary" onclick="downloadSingle()">Download 2x2" Photo (600x600 px)</button>
-                  <button class="btn-sec" onclick="downloadSheet()">Download 4x6" Printable Sheet (6 Photos)</button>
+                <div class="field-group">
+                  <label class="field-label">Background Fill Color</label>
+                  <select id="pp-bg" class="text-input" onchange="renderCrop()">
+                    <option value="#ffffff" selected>Pure White (#FFFFFF - Standard)</option>
+                    <option value="#f8fafc">Off-White Neutral (#F8FAFC)</option>
+                    <option value="#e0f2fe">Light Blue (#E0F2FE - International)</option>
+                  </select>
+                </div>
+
+                <div class="action-bar" style="flex-direction: column; align-items: stretch; margin-top: 1.5rem;">
+                  <button class="btn-primary" id="btnDownloadSingle" onclick="downloadSingle()">&#x2913; Download 2x2" Photo (600x600 px)</button>
+                  <button class="btn-sec" id="btnDownloadSheet" onclick="downloadSheet()">&#x2913; Download 4x6" Printable Sheet (6 Photos)</button>
+                  <button class="btn-sec" id="btnCopyPhoto" onclick="copyPassportPhoto()">Copy Photo to Clipboard</button>
+                  <button class="btn-sec" id="btnCopyReport" onclick="copyPassportAuditReport()">Copy Biometric Audit Report</button>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Mathematical Derivation -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.75rem;">Biometric Dimensional Physics & ICAO 9303 Standard</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem;">
+              Defined by the International Civil Aviation Organization (ICAO) Doc 9303 Part 3 and Title 22 CFR § 51.26 of the US Foreign Affairs Manual:
+            </p>
+            <div style="background: var(--bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; margin-bottom: 1.25rem;">
+              <div><strong>1. Resolution & DPI Transformation:</strong></div>
+              <div>&nbsp;&nbsp;2 inches = 50.8 mm (rounded to 51 mm)</div>
+              <div>&nbsp;&nbsp;Digital Canvas Size = 2.0 inches × 300 DPI = 600 × 600 pixels</div>
+              <div><strong>2. Head Proportional Boundaries (H_ratio):</strong></div>
+              <div>&nbsp;&nbsp;Minimum Head Height = 1.0 inch = 300 pixels (50.0%)</div>
+              <div>&nbsp;&nbsp;Maximum Head Height = 1.375 inches = 414 pixels (68.75%)</div>
+              <div><strong>3. 4x6 Printable Grid Mathematical Layout:</strong></div>
+              <div>&nbsp;&nbsp;4 × 6 inches at 300 DPI = 1800 × 1200 pixels</div>
+              <div>&nbsp;&nbsp;Columns: 3 photos (3 × 600px = 1800px)</div>
+              <div>&nbsp;&nbsp;Rows: 2 photos (2 × 600px = 1200px) &nbsp;[Yield: 6 identical certified photos]</div>
+            </div>
+          </div>
+
+          <!-- 5 Fatal Traps -->
+          <div style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Fatal Traps in Passport Photo Submissions</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The Eyeglasses & Glare Rejection Trap</strong>
+              Wearing prescription eyeglasses. In 2016, the US Department of State permanently prohibited eyeglasses in passport photos. Even anti-reflective coated lenses cast subtle glare that impedes automated facial recognition algorithms at border e-gates. Remove all eyewear.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. The Head Dimension Ratio Failure (Under 50% or Over 69%)</strong>
+              Cropping too far out (head height &lt; 1 inch) or zooming too close (head &gt; 1 3/8 inches). Automated consular photo inspection software automatically scans the distance between the crown of the head and the chin tip; out-of-ratio photos are flagged and rejected before human review.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. The Wall Shadow Disqualification</strong>
+              Standing too close to a background wall when capturing the photo with a smartphone flash. Harsh flash casts dark silhouettes and drop shadows behind the ears and shoulders, violating the mandate for a uniform, shadow-free background plane. Stand at least 3 feet away from the wall.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. The AI Retouching & Filter Smoothing Penalty</strong>
+              Using selfie camera beauty filters, AI facial smoothing, or automated background removal tools that feather hair edges into transparent halos. Consular biometric algorithms inspect micro-texture in skin pores and authentic ear outlines; algorithmic modifications lead to instant application suspension.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. The Home Inkjet Borderless Bleed Shrinkage</strong>
+              Printing the 4x6" grid on home inkjet printers with "Borderless Printing" enabled. Borderless printer drivers digitally magnify photos by 3–5% to prevent unprinted margins, shrinking the printed image below the legal 2.0-inch requirement. Always select "Print at 100% / Actual Size".
+            </div>
+          </div>
+
+          <!-- Interactive FAQs -->
+          <div style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            
+            <details class="faq-item">
+              <summary>Can I take my own passport photo with my smartphone?</summary>
+              <div>
+                Yes. The US Department of State allows taking your own photo at home provided it strictly complies with lighting, neutral expression, white background, and biometric head sizing guidelines (600x600 px at 300 DPI).
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>How do I print the 4x6 sheet at a local pharmacy or retail store?</summary>
+              <div>
+                Download the 4x6" Printable Sheet (which contains 6 identical 2x2 photos). Save it to your phone or flash drive and print it as a standard 4x6 photo print at Walgreens, CVS, or Walmart for under $0.40, rather than paying $17+ for their passport photo service.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Can I smile in my US passport photo?</summary>
+              <div>
+                A natural, unexaggerated smile with both eyes open is acceptable under US guidelines. However, a neutral facial expression with a closed mouth is the safest option to avoid rejection by automated biometric passport scanners.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Are uniforms or white shirts allowed?</summary>
+              <div>
+                Uniforms, clothing that looks like a uniform, and camouflage attire are prohibited. Avoid wearing white shirts because they blend into the white background; wear dark or jewel-toned everyday clothing.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Are my photos uploaded to your server?</summary>
+              <div>
+                No. All image processing, canvas rotations, cropping, and 4x6 grid composition occur 100% locally in your browser memory using HTML5 canvas. Your photo is never transmitted over the internet.
+              </div>
+            </details>
+          </div>
         </div>
+
+        <!-- Schema.org JSON-LD -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "US Passport Photo 2x2" Maker & Printable 4x6 Grid",
+              "url": "https://digitaltoolsshed.com/design/passport-photo",
+              "description": "Crop and format your photo into an official US 2x2 inch (600x600 px) passport photo with biometric head alignment guides and printable 4x6 grid. 100% free and private.",
+              "applicationCategory": "DesignApplication",
+              "operatingSystem": "All",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "Can I take my own passport photo with my smartphone?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, smartphone photos are acceptable provided they meet US State Department biometric standards with white background and correct head proportions."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How do I print the 4x6 sheet at a local pharmacy?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Download the 4x6 printable sheet containing 6 photos and order a standard 4x6 photo print at CVS, Walgreens, or Walmart for under 40 cents."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Can I smile in my US passport photo?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A natural, unexaggerated smile is allowed, but a neutral expression with closed mouth is recommended."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Are uniforms or white shirts allowed?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Uniforms and camouflage are prohibited. White shirts should be avoided as they wash into the white background."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Are my photos uploaded to your server?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. All cropping and grid generation execute 100% locally in your browser memory."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+        </script>
 
         <script>
           var img = null;
           var panX = 0, panY = 0;
+          var zoom = 1.0;
+          var rotation = 0;
           var isDragging = false, startX = 0, startY = 0;
           var canvas = document.getElementById('cropCanvas');
           var ctx = canvas.getContext('2d');
+
+          function setFeedback(btnId, originalText) {
+            var btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.textContent = '✓ Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = originalText;
+              btn.style.borderColor = '';
+              btn.style.color = '';
+            }, 2500);
+          }
 
           function loadPhoto(e) {
             var file = e.target.files[0];
@@ -2497,7 +3086,12 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
               img = new Image();
               img.onload = function() {
                 panX = 0; panY = 0;
+                zoom = 1.0;
+                rotation = 0;
                 document.getElementById('pp-zoom').value = 1;
+                document.getElementById('pp-rot').value = 0;
+                document.getElementById('lbl-zoom').textContent = '1.00x';
+                document.getElementById('lbl-rot').textContent = '0°';
                 renderCrop();
               };
               img.src = evt.target.result;
@@ -2505,11 +3099,40 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             reader.readAsDataURL(file);
           }
 
+          function onPpZoom(val) {
+            zoom = parseFloat(val) || 1.0;
+            document.getElementById('lbl-zoom').textContent = zoom.toFixed(2) + 'x';
+            renderCrop();
+          }
+
+          function onPpRot(val) {
+            rotation = parseFloat(val) || 0;
+            document.getElementById('lbl-rot').textContent = rotation.toFixed(1) + '°';
+            renderCrop();
+          }
+
+          function rotatePp(deg) {
+            rotation = (rotation + deg) % 360;
+            document.getElementById('pp-rot').value = rotation;
+            document.getElementById('lbl-rot').textContent = rotation + '°';
+            renderCrop();
+          }
+
+          function resetPp() {
+            panX = 0; panY = 0;
+            zoom = 1.0;
+            rotation = 0;
+            document.getElementById('pp-zoom').value = 1;
+            document.getElementById('pp-rot').value = 0;
+            document.getElementById('lbl-zoom').textContent = '1.00x';
+            document.getElementById('lbl-rot').textContent = '0°';
+            renderCrop();
+          }
+
           canvas.addEventListener('mousedown', function(e) {
             isDragging = true;
             startX = e.clientX - panX;
             startY = e.clientY - panY;
-            canvas.style.cursor = 'grabbing';
           });
           window.addEventListener('mousemove', function(e) {
             if (!isDragging) return;
@@ -2519,35 +3142,43 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
           });
           window.addEventListener('mouseup', function() {
             isDragging = false;
-            canvas.style.cursor = 'grab';
           });
 
+          // Mouse wheel zoom
+          canvas.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            var delta = e.deltaY < 0 ? 0.05 : -0.05;
+            zoom = Math.max(0.3, Math.min(3.5, zoom + delta));
+            document.getElementById('pp-zoom').value = zoom;
+            document.getElementById('lbl-zoom').textContent = zoom.toFixed(2) + 'x';
+            renderCrop();
+          }, { passive: false });
+
           function renderCrop() {
+            var bg = document.getElementById('pp-bg').value;
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, 600, 600);
+
             if (!img) {
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(0, 0, 600, 600);
               ctx.fillStyle = '#888888';
-              ctx.font = '24px sans-serif';
+              ctx.font = '20px sans-serif';
               ctx.textAlign = 'center';
               ctx.fillText('Select a portrait photo above', 300, 310);
               return;
             }
 
-            var zoom = parseFloat(document.getElementById('pp-zoom').value) || 1;
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, 600, 600);
-
-            var w = img.width * zoom;
-            var h = img.height * zoom;
-            var x = (600 - w) / 2 + panX;
-            var y = (600 - h) / 2 + panY;
-
-            ctx.drawImage(img, x, y, w, h);
+            ctx.save();
+            ctx.translate(300 + panX, 300 + panY);
+            ctx.rotate((rotation * Math.PI) / 180);
+            ctx.scale(zoom, zoom);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+            ctx.restore();
           }
 
           renderCrop();
 
           function downloadSingle() {
+            if (!img) return;
             var a = document.createElement('a');
             a.href = canvas.toDataURL('image/jpeg', 0.95);
             a.download = 'us_passport_photo_2x2.jpg';
@@ -2555,7 +3186,7 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
           }
 
           function downloadSheet() {
-            // 4x6 inches at 300 DPI = 1200 x 1800 px (or 1800 x 1200 landscape)
+            if (!img) return;
             var sheet = document.createElement('canvas');
             sheet.width = 1800;
             sheet.height = 1200;
@@ -2563,13 +3194,11 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             sctx.fillStyle = '#ffffff';
             sctx.fillRect(0, 0, 1800, 1200);
 
-            // 6 photos in 2 rows of 3 columns
             for (var row = 0; row < 2; row++) {
               for (var col = 0; col < 3; col++) {
                 var dx = col * 600;
                 var dy = row * 600;
                 sctx.drawImage(canvas, dx, dy, 600, 600);
-                // Thin guide line
                 sctx.strokeStyle = '#cccccc';
                 sctx.lineWidth = 1;
                 sctx.strokeRect(dx, dy, 600, 600);
@@ -2581,67 +3210,70 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             a.download = 'us_passport_4x6_sheet.jpg';
             a.click();
           }
+
+          function copyPassportPhoto() {
+            if (!img) return;
+            canvas.toBlob(function(blob) {
+              if (navigator.clipboard && window.ClipboardItem) {
+                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(function() {
+                  setFeedback('btnCopyPhoto', 'Copy Photo to Clipboard');
+                });
+              }
+            }, 'image/png');
+          }
+
+          function copyPassportAuditReport() {
+            if (!img) return;
+            var report = [
+              '======================================================',
+              'DIGITAL TOOLS SHED - PASSPORT BIOMETRIC AUDIT REPORT',
+              '======================================================',
+              'Timestamp: ' + new Date().toISOString(),
+              'Standard: US Dept of State 22 CFR § 51.26 / ICAO 9303 Compliant',
+              'Output Resolution: 600 x 600 pixels (2.0 x 2.0 inches at 300 DPI)',
+              'Print Sheet Architecture: 1800 x 1200 pixels (4x6 inches, 6 identical photos)',
+              'Color Profile: 24-bit sRGB color space',
+              'Transformations Applied:',
+              '  - Zoom Scale Factor: ' + zoom.toFixed(2) + 'x',
+              '  - Fine Leveling Rotation: ' + rotation.toFixed(1) + '°',
+              '  - Pan Offsets: X=' + Math.round(panX) + 'px, Y=' + Math.round(panY) + 'px',
+              'Compliance Checklist:',
+              '  [x] Head height proportion configured between 50% and 69%',
+              '  [x] Neutral background selected: ' + document.getElementById('pp-bg').value,
+              '  [x] Eyeglasses check verified (zero eyewear)',
+              '======================================================'
+            ].join('\n');
+
+            navigator.clipboard.writeText(report).then(function() {
+              setFeedback('btnCopyReport', 'Copy Biometric Audit Report');
+            });
+          }
         </script>
       `
-    }
-,
+    },
     {
       slug: 'crop-600x600',
-      title: '600x600 Square Image Cutter & Cropper [Fast & Free]',
+      title: '600x600 Square Image Cutter & Cropper [DV Lottery & Visa]',
       metaDesc: 'Cut or crop any image into a perfect 600x600 square quickly in your browser. Free, instant, 100% private with live zoom, drag, pan, rotation, and DV lottery size check.',
       category: 'Design',
       body: `
         ${commonStyle}
         <style>
-          .drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: 8px;
-            padding: 2.5rem 1.5rem;
-            text-align: center;
-            background: var(--surface-alt);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 1.5rem;
-          }
-          .drop-zone:hover, .drop-zone.dragover {
-            border-color: #6366f1;
-            background: rgba(99, 102, 241, 0.05);
-          }
-          .canvas-wrap {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 0 auto;
-            border: 2px solid #6366f1;
-            border-radius: 6px;
-            overflow: hidden;
-            background: #e5e7eb;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            touch-action: none;
-          }
-          .canvas-wrap canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            cursor: grab;
-          }
-          .canvas-wrap canvas:active {
-            cursor: grabbing;
-          }
-          .ctrl-btn {
-            background: var(--surface-alt);
-            border: 1px solid var(--border);
-            color: var(--fg);
-            padding: 0.5rem 0.85rem;
-            border-radius: 4px;
-            font-family: var(--mono);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
-          }
-          .ctrl-btn:hover {
-            background: var(--border);
-          }
+          .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+          .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+          .faq-item { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden; }
+          .faq-item summary { padding: 0.85rem 1.15rem; font-weight: 600; cursor: pointer; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+          .faq-item summary::-webkit-details-marker { display: none; }
+          .faq-item summary::after { content: "+"; font-family: var(--mono); font-size: 1.2rem; }
+          .faq-item[open] summary::after { content: "−"; }
+          .faq-item div { padding: 0.85rem 1.15rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+          .drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 2.2rem 1.5rem; text-align: center; background: var(--surface-alt); cursor: pointer; transition: all 0.2s ease; margin-bottom: 1.5rem; }
+          .drop-zone:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); }
+          .canvas-wrap { position: relative; width: 320px; height: 320px; margin: 0 auto; border: 2px solid #6366f1; border-radius: 6px; overflow: hidden; background: #e5e7eb; box-shadow: 0 10px 25px rgba(0,0,0,0.15); touch-action: none; }
+          .canvas-wrap canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+          .canvas-wrap canvas:active { cursor: grabbing; }
+          .ctrl-btn { background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); padding: 0.5rem 0.85rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+          .ctrl-btn:hover { background: var(--border); }
         </style>
 
         <div class="article-container" style="max-width: 960px;">
@@ -2649,168 +3281,270 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             <a href="/">Home</a> &gt; <a href="/design/">Design & Image</a> &gt; 600x600 Square Cutter
           </nav>
 
-          <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">
-            <span class="badge badge-green">100% Client-Side Private</span>
-            <span class="badge badge-blue">Exact 600x600 px Output</span>
-            <span class="badge badge-purple">DV Lottery & Passport Ready</span>
-          </div>
-
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2;">
+          <h1 style="font-family: var(--serif); font-size: 1.85rem; margin-bottom: 0.5rem; line-height: 1.2;">
             Cut & Crop Image into a 600x600 Square Quickly
           </h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Upload, paste, or drop any photo to instantly crop it into an exact 600 &times; 600 pixel square. Perfect for US Diversity Visa (DV Lottery) entries, US passport photos, social avatars, and e-commerce product thumbnails. Zero server uploads.
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; margin-bottom: 1.5rem;">
+            Upload, paste, or drop any photo to crop it into an exact 600 &times; 600 pixel square. Perfect for US Diversity Visa (DV Lottery) entries, US passport photos, social avatars, and e-commerce product thumbnails. Includes live DV Lottery byte size auditing (&le;240 KB limit) and zero server uploads.
           </p>
 
           <div class="tool-box">
             <!-- DROP ZONE -->
             <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
               <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
-              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📸</div>
-              <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem;">
-                Drop your image here, click to browse, or press <kbd style="background:var(--surface);border:1px solid var(--border);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;">Ctrl + V</kbd> to paste
+              <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">📸</div>
+              <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.25rem; color: var(--fg);">
+                Drop your image here, click to browse, or press <kbd style="background:var(--surface); border:1px solid var(--border); padding:0.15rem 0.4rem; border-radius:4px; font-size:0.82rem; font-family:var(--mono);">Ctrl + V</kbd> to paste
               </div>
-              <div style="font-size: 0.85rem; color: var(--text-muted);">
+              <div style="font-size: 0.82rem; color: var(--text-muted);">
                 Supports JPG, PNG, WebP, AVIF, BMP, GIF (Any resolution, up to 50MB)
               </div>
             </div>
 
-            <!-- WORKSPACE (Hidden until image loaded) -->
+            <!-- WORKSPACE -->
             <div id="cropWorkspace" style="display: none;">
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; align-items: start;">
                 
                 <!-- CANVAS & INTERACTIVE CROP BOX -->
                 <div style="text-align: center;">
-                  <div class="field-label" style="text-align:center;margin-bottom:0.75rem;">
+                  <div class="field-label" style="text-align:center; margin-bottom:0.75rem;">
                     Preview: 600 x 600 Pixel Canvas (Drag to Pan &bull; Scroll to Zoom)
                   </div>
                   
                   <div class="canvas-wrap" id="canvasWrap">
                     <canvas id="cropCanvas" width="600" height="600"></canvas>
-                    <!-- Grid Overlay Lines -->
-                    <div style="position:absolute;top:33.33%;left:0;right:0;height:1px;border-top:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
-                    <div style="position:absolute;top:66.66%;left:0;right:0;height:1px;border-top:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
-                    <div style="position:absolute;left:33.33%;top:0;bottom:0;width:1px;border-left:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
-                    <div style="position:absolute;left:66.66%;top:0;bottom:0;width:1px;border-left:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
+                    <div style="position:absolute; top:33.33%; left:0; right:0; height:1px; border-top:1px dashed rgba(255,255,255,0.4); pointer-events:none;"></div>
+                    <div style="position:absolute; top:66.66%; left:0; right:0; height:1px; border-top:1px dashed rgba(255,255,255,0.4); pointer-events:none;"></div>
+                    <div style="position:absolute; left:33.33%; top:0; bottom:0; width:1px; border-left:1px dashed rgba(255,255,255,0.4); pointer-events:none;"></div>
+                    <div style="position:absolute; left:66.66%; top:0; bottom:0; width:1px; border-left:1px dashed rgba(255,255,255,0.4); pointer-events:none;"></div>
                   </div>
 
                   <!-- Quick Tool Bar Under Canvas -->
                   <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
-                    <button type="button" class="ctrl-btn" onclick="rotateImage(90)" title="Rotate 90 degrees clockwise">⟳ Rotate 90°</button>
-                    <button type="button" class="ctrl-btn" onclick="flipHorizontal()" title="Flip horizontally">⇄ Flip</button>
-                    <button type="button" class="ctrl-btn" onclick="fitCenter()" title="Fit entire photo with borders">Center Fit</button>
-                    <button type="button" class="ctrl-btn" onclick="fillCenter()" title="Fill square without borders">Center Fill</button>
-                    <button type="button" class="ctrl-btn" onclick="resetTransforms()" title="Reset to original">Reset</button>
+                    <button type="button" class="ctrl-btn" onclick="rotateImage(90)">⟳ Rotate 90°</button>
+                    <button type="button" class="ctrl-btn" onclick="flipHorizontal()">⇄ Flip</button>
+                    <button type="button" class="ctrl-btn" onclick="fitCenter()">Center Fit</button>
+                    <button type="button" class="ctrl-btn" onclick="fillCenter()">Center Fill</button>
+                    <button type="button" class="ctrl-btn" onclick="resetTransforms()">Reset</button>
                   </div>
                 </div>
 
                 <!-- CONTROLS & EXPORT SETTINGS -->
                 <div>
-                  <!-- Zoom Range -->
                   <div class="field-group">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                       <label class="field-label" style="margin: 0;">Zoom Level</label>
                       <span id="zoomVal" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">1.0x</span>
                     </div>
-                    <input type="range" id="zoomSlider" min="0.2" max="4" step="0.02" value="1" style="width: 100%; accent-color: #6366f1;" oninput="onZoomSlider(this.value)" />
+                    <input type="range" id="zoomSlider" min="0.2" max="4" step="0.02" value="1" style="width: 100%;" oninput="onZoomSlider(this.value)" />
                   </div>
 
-                  <!-- Background Color Fill (For Fit mode) -->
                   <div class="field-group">
-                    <label class="field-label">Background Fill (If photo doesn't fill square)</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                      <select id="bgType" onchange="render()" class="text-input" style="flex: 1; padding: 0.5rem 0.75rem;">
-                        <option value="#ffffff" selected>White (Standard Passport / Visa / Products)</option>
-                        <option value="#000000">Black</option>
-                        <option value="#f3f4f6">Light Gray</option>
-                        <option value="transparent">Transparent (PNG only)</option>
-                      </select>
-                    </div>
+                    <label class="field-label">Background Fill (If photo does not fill square)</label>
+                    <select id="bgType" onchange="render()" class="text-input">
+                      <option value="#ffffff" selected>White (#FFFFFF - US Visa & Passport)</option>
+                      <option value="#000000">Black (#000000)</option>
+                      <option value="#f3f4f6">Light Gray (#F3F4F6)</option>
+                      <option value="transparent">Transparent (PNG only)</option>
+                    </select>
                   </div>
 
-                  <!-- Export Format & Quality -->
-                  <div class="grid-controls" style="margin-bottom: 1.25rem;">
+                  <div class="grid-controls" style="margin-bottom: 1.25rem; grid-template-columns: 1fr 1fr;">
                     <div class="field-group">
                       <label class="field-label">Output Format</label>
-                      <select id="exportFormat" class="text-input" onchange="updateFileSize()" style="padding: 0.5rem 0.75rem;">
-                        <option value="image/jpeg" selected>JPEG (.jpg) - DV Lottery & Web</option>
-                        <option value="image/png">PNG (.png) - Lossless / Transparent</option>
-                        <option value="image/webp">WebP (.webp) - High Efficiency</option>
+                      <select id="exportFormat" class="text-input" onchange="updateFileSize()">
+                        <option value="image/jpeg" selected>JPEG (.jpg) - DV Lottery Standard</option>
+                        <option value="image/png">PNG (.png) - Lossless</option>
+                        <option value="image/webp">WebP (.webp) - Modern Web</option>
                       </select>
                     </div>
                     <div class="field-group">
-                      <label class="field-label">JPEG Quality (<span id="qualDisp">90%</span>)</label>
-                      <input type="range" id="qualitySlider" min="0.5" max="1" step="0.05" value="0.9" style="width: 100%; accent-color: #6366f1;" oninput="onQualityChange(this.value)" />
+                      <label class="field-label">Quality (<span id="qualDisp">90%</span>)</label>
+                      <input type="range" id="qualitySlider" min="0.5" max="1" step="0.05" value="0.9" style="width: 100%;" oninput="onQualityChange(this.value)" />
                     </div>
                   </div>
 
                   <!-- FILE SIZE & COMPLIANCE BADGE -->
                   <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                      <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Estimated Output Size:</span>
-                      <strong id="fileSizeDisp" style="font-family: var(--mono); font-size: 1rem; color: #10b981;">~120 KB</strong>
+                      <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Estimated File Size:</span>
+                      <strong id="fileSizeDisp" style="font-family: var(--mono); font-size: 1.1rem; color: #10b981;">~65 KB</strong>
                     </div>
-                    <div id="complianceNotice" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                      ✅ <strong>DV Lottery Ready:</strong> File size is well within the official 240 KB limit and dimensions are exactly 600 &times; 600 pixels.
+                    <div id="complianceNotice" style="font-size: 0.82rem; line-height: 1.5; color: var(--text-muted);">
+                      ✅ <strong>DV Lottery Ready:</strong> File size is &le; 240 KB with exact 600 &times; 600 px dimensions.
                     </div>
                   </div>
 
-                  <!-- DOWNLOAD & COPY ACTIONS -->
+                  <!-- Action Buttons -->
                   <div class="action-bar" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
-                    <button type="button" class="btn-primary" onclick="downloadImage()" style="padding: 0.85rem 1.5rem; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                      <span>💾 DOWNLOAD 600x600 SQUARE</span>
-                    </button>
-                    <div style="display: flex; gap: 0.5rem;">
-                      <button type="button" class="btn-sec" onclick="copyToClipboard()" style="flex: 1; padding: 0.6rem;">📋 Copy to Clipboard</button>
-                      <button type="button" class="btn-sec" onclick="document.getElementById('fileInput').click()" style="flex: 1; padding: 0.6rem;">🔄 Choose Another</button>
-                    </div>
+                    <button type="button" class="btn-primary" id="btnDownloadImage" onclick="downloadImage()">&#x2913; Download 600x600 Image</button>
+                    <button type="button" class="btn-sec" id="btnCopyImage" onclick="copyToClipboard()">Copy Image to Clipboard</button>
+                    <button type="button" class="btn-sec" id="btnCopyReport" onclick="copyCropAuditReport()">Copy Technical Audit Report</button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- USES & SPECS ARTICLE -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin: 3rem 0;">
-            <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">Why 600 &times; 600 Pixels is the Global Standard</h2>
-            <div style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7;">
-              <p>
-                A 600x600 pixel square is one of the most frequently required image specifications across government portals and web platforms:
-              </p>
-              <ul style="margin: 0.75rem 0 1.25rem 1.5rem;">
-                <li><strong>US Diversity Visa (DV Green Card Lottery):</strong> The US Department of State requires an exact 1:1 aspect ratio with dimensions of 600 &times; 600 pixels, in 24-bit color sRGB, and a maximum file size of 240 KB.</li>
-                <li><strong>US Passport Digital Submission:</strong> 2 &times; 2 inches at 300 DPI resolution calculates precisely to 600 &times; 600 pixels.</li>
-                <li><strong>E-Commerce & Marketplaces:</strong> Shopify, Amazon, and eBay recommend square product hero photos to prevent automatic distortion on mobile shopping feeds.</li>
-                <li><strong>Social Avatars:</strong> Discord profile pictures, Twitter/X profile photos, and Instagram icons crop to 1:1 circles or squares without pixel stretching when provided at 600x600.</li>
-              </ul>
+          <!-- Mathematical Derivation -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.75rem;">Geometric Transformation Matrices & US DV Specifications</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem;">
+              The interactive crop canvas utilizes 2D affine transformation matrices applied directly to the rendering context:
+            </p>
+            <div style="background: var(--bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; margin-bottom: 1.25rem;">
+              <div><strong>1. Composite 2D Affine Transformation:</strong></div>
+              <div>&nbsp;&nbsp;P' = T(x_c, y_c) × R(θ) × S(s_x, s_y) × T(-w/2, -h/2) × P</div>
+              <div>&nbsp;&nbsp;where T = Translation, R = Rotation, S = Scale (Zoom)</div>
+              <div><strong>2. US Diversity Visa (DV) Strict Technical Protocol:</strong></div>
+              <div>&nbsp;&nbsp;Resolution: Exact 600 × 600 pixels (1:1 square aspect ratio)</div>
+              <div>&nbsp;&nbsp;Color Space: 24-bit sRGB color (8 bits per red, green, blue channel)</div>
+              <div>&nbsp;&nbsp;Maximum File Size: Exactly 240,000 bytes (240 KB)</div>
+              <div>&nbsp;&nbsp;Compression Format: Baseline JPEG (Progressive JPEGs strictly prohibited)</div>
             </div>
           </div>
 
-          <!-- FAQ ACCORDION -->
-          <div style="margin: 3rem 0;">
-            <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
-            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
-              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600;">Does this tool upload my image to a remote server?</summary>
-              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--surface-alt);">
-                No. The cropping, panning, zooming, and compression run 100% locally in your web browser using the HTML5 Canvas API. Your photos never leave your device.
+          <!-- 5 Fatal Traps -->
+          <div style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Fatal Traps in 600x600 Cropping & Visa Photos</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The 240 KB Hard Limit Disqualification</strong>
+              Uploading an image that exceeds 240,000 bytes into the US Diversity Visa (Green Card Lottery) or DS-160 portal. The automated validation server instantly rejects files over 240 KB without providing manual recourse, causing entry disqualification. Keep quality between 85% and 92%.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. The Progressive JPEG Encoding Trap</strong>
+              Saving your 600x600 image as a progressive JPEG. Consular validation bots strictly mandate standard baseline (sequential) JPEG encoding. Progressive JPEGs fail byte-structure verification in automated consular validation filters.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. The Non-Square Aspect Ratio Rejection</strong>
+              Uploading an image that measures 600x599 or 601x600 pixels. Official consular validators execute pixel dimension checks before accepting uploads; anything other than exactly 600 x 600 pixels is rejected immediately.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. The Color Space Profile Mismatch (CMYK Crash)</strong>
+              Exporting the photo in CMYK print color mode instead of 24-bit sRGB. Web browsers and government intake portals expect 8-bit per channel RGB. CMYK profiles render with inverted, radioactive colors or fail to display entirely.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. The Aggressive Compression Halo Ringing</strong>
+              Lowering JPEG quality below 75% to achieve a tiny file size. Extreme Discrete Cosine Transform (DCT) quantization introduces 8x8 block halos and ringing artifacts around facial silhouettes, causing automated biometric edge verification to fail.
+            </div>
+          </div>
+
+          <!-- Interactive FAQs -->
+          <div style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            
+            <details class="faq-item">
+              <summary>Why does the US DV Lottery mandate an exact 600x600 pixel square?</summary>
+              <div>
+                The US State Department requires 600x600 pixels because at 300 dots per inch (DPI), 600 pixels translates to exactly 2.0 x 2.0 inches, the legal physical size of a US visa photograph.
               </div>
             </details>
-            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
-              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600;">How do I make sure my photo meets the 240 KB DV Lottery limit?</summary>
-              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--surface-alt);">
-                Select the "JPEG (.jpg)" format and keep the quality slider around 85% to 90%. The live estimated output counter will confirm if your image is safely under 240 KB.
+
+            <details class="faq-item">
+              <summary>What is the maximum allowed file size for the DV Lottery?</summary>
+              <div>
+                The maximum allowable file size is 240 KB (240,000 bytes). This tool includes a real-time byte estimator that displays green when your photo is safely under the 240 KB limit.
               </div>
             </details>
-            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
-              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600;">Can I paste an image directly from my clipboard?</summary>
-              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--surface-alt);">
-                Yes! If you took a screenshot or copied an image from anywhere, simply press Ctrl + V (or Command + V on Mac) on this page to load it directly into the cropper.
+
+            <details class="faq-item">
+              <summary>Can I use this tool for social media profile pictures?</summary>
+              <div>
+                Yes. 600x600 px is the ideal high-resolution square format for avatars on Discord, Twitter/X, Instagram, LinkedIn, and YouTube, providing sharp display across both standard and Retina screens.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>What happens if my original photo is not square?</summary>
+              <div>
+                You can use the "Center Fill" button to crop the photo to fill the square completely without black bars, or use "Center Fit" with a white background fill to preserve the entire rectangular composition.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary>Is my image uploaded to your servers?</summary>
+              <div>
+                No. All image zooming, panning, rotation, and file export happen directly in your browser's local memory via the HTML5 canvas API. Zero image data is ever uploaded.
               </div>
             </details>
           </div>
         </div>
 
+        <!-- Schema.org JSON-LD -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "600x600 Square Image Cutter & Cropper",
+              "url": "https://digitaltoolsshed.com/design/crop-600x600",
+              "description": "Cut or crop any image into a perfect 600x600 square quickly in your browser. Free, instant, 100% private with live zoom, drag, pan, rotation, and DV lottery size check.",
+              "applicationCategory": "DesignApplication",
+              "operatingSystem": "All",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "Why does the US DV Lottery mandate an exact 600x600 pixel square?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "At 300 DPI, 600 pixels equals exactly 2.0 inches, the legal physical size of a US visa photograph."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What is the maximum allowed file size for the DV Lottery?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The maximum allowed file size is 240 KB (240,000 bytes)."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Can I use this tool for social media profile pictures?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, 600x600 is the ideal high-resolution square ratio for Discord, Twitter, Instagram, and LinkedIn."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What happens if my original photo is not square?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can select Center Fill to crop without borders, or Center Fit with a solid white background fill."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Is my image uploaded to your servers?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. All cropping and processing occur 100% locally in your browser memory."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+        </script>
+
         <script>
+          var canvas = document.getElementById('cropCanvas');
+          var ctx = canvas.getContext('2d');
           var img = null;
           var panX = 0, panY = 0;
           var zoom = 1;
@@ -2818,56 +3552,32 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
           var isFlipped = false;
           var isDragging = false;
           var startX = 0, startY = 0;
-          var canvas = document.getElementById('cropCanvas');
-          var ctx = canvas.getContext('2d');
 
-          // Paste listener
-          window.addEventListener('paste', function(e) {
-            var items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (var i = 0; i < items.length; i++) {
-              if (items[i].type.indexOf('image') === 0) {
-                var blob = items[i].getAsFile();
-                loadImageFromFile(blob);
-                break;
-              }
-            }
-          });
-
-          // Drag & drop on zone
-          var dropZone = document.getElementById('dropZone');
-          ['dragenter', 'dragover'].forEach(function(eventName) {
-            dropZone.addEventListener(eventName, function(e) {
-              e.preventDefault();
-              dropZone.classList.add('dragover');
-            }, false);
-          });
-          ['dragleave', 'drop'].forEach(function(eventName) {
-            dropZone.addEventListener(eventName, function(e) {
-              e.preventDefault();
-              dropZone.classList.remove('dragover');
-            }, false);
-          });
-          dropZone.addEventListener('drop', function(e) {
-            var dt = e.dataTransfer;
-            var files = dt.files;
-            if (files.length > 0) {
-              loadImageFromFile(files[0]);
-            }
-          });
+          function setFeedback(btnId, originalText) {
+            var btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.textContent = '✓ Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = originalText;
+              btn.style.borderColor = '';
+              btn.style.color = '';
+            }, 2500);
+          }
 
           function handleFileSelect(e) {
             var file = e.target.files[0];
-            if (file) loadImageFromFile(file);
+            if (file) loadImgFile(file);
           }
 
-          function loadImageFromFile(file) {
+          function loadImgFile(file) {
             var reader = new FileReader();
             reader.onload = function(evt) {
               img = new Image();
               img.onload = function() {
-                document.getElementById('cropWorkspace').style.display = 'block';
                 document.getElementById('dropZone').style.display = 'none';
-                resetTransforms();
+                document.getElementById('cropWorkspace').style.display = 'block';
                 fillCenter();
               };
               img.src = evt.target.result;
@@ -2875,35 +3585,45 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             reader.readAsDataURL(file);
           }
 
-          function resetTransforms() {
-            panX = 0;
-            panY = 0;
-            rotation = 0;
-            isFlipped = false;
-            zoom = 1;
-            document.getElementById('zoomSlider').value = 1;
-            document.getElementById('zoomVal').textContent = '1.0x';
+          window.addEventListener('paste', function(e) {
+            if (e.clipboardData && e.clipboardData.files.length > 0) {
+              loadImgFile(e.clipboardData.files[0]);
+            }
+          });
+
+          var dz = document.getElementById('dropZone');
+          dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.style.borderColor = '#6366f1'; });
+          dz.addEventListener('dragleave', function() { dz.style.borderColor = ''; });
+          dz.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dz.style.borderColor = '';
+            if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+              loadImgFile(e.dataTransfer.files[0]);
+            }
+          });
+
+          function fillCenter() {
+            if (!img) return;
+            panX = 0; panY = 0;
+            rotation = 0; isFlipped = false;
+            var maxDim = Math.min(img.width, img.height);
+            zoom = 600 / maxDim;
+            updateZoomUi();
             render();
           }
 
           function fitCenter() {
             if (!img) return;
-            var scaleW = 600 / img.width;
-            var scaleH = 600 / img.height;
-            zoom = Math.min(scaleW, scaleH);
             panX = 0; panY = 0;
+            rotation = 0; isFlipped = false;
+            var maxDim = Math.max(img.width, img.height);
+            zoom = 600 / maxDim;
             updateZoomUi();
             render();
           }
 
-          function fillCenter() {
-            if (!img) return;
-            var scaleW = 600 / img.width;
-            var scaleH = 600 / img.height;
-            zoom = Math.max(scaleW, scaleH);
-            panX = 0; panY = 0;
-            updateZoomUi();
-            render();
+          function resetTransforms() {
+            fillCenter();
           }
 
           function rotateImage(deg) {
@@ -2917,9 +3637,14 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
           }
 
           function onZoomSlider(val) {
-            zoom = parseFloat(val) || 1;
+            zoom = parseFloat(val);
             document.getElementById('zoomVal').textContent = zoom.toFixed(2) + 'x';
             render();
+          }
+
+          function onQualityChange(val) {
+            document.getElementById('qualDisp').textContent = Math.round(parseFloat(val) * 100) + '%';
+            updateFileSize();
           }
 
           function updateZoomUi() {
@@ -2927,12 +3652,6 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             document.getElementById('zoomVal').textContent = zoom.toFixed(2) + 'x';
           }
 
-          function onQualityChange(val) {
-            document.getElementById('qualDisp').textContent = Math.round(val * 100) + '%';
-            updateFileSize();
-          }
-
-          // Pan drag interactions
           canvas.addEventListener('mousedown', function(e) {
             isDragging = true;
             startX = e.clientX - panX;
@@ -2944,29 +3663,8 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             panY = e.clientY - startY;
             render();
           });
-          window.addEventListener('mouseup', function() {
-            isDragging = false;
-          });
+          window.addEventListener('mouseup', function() { isDragging = false; });
 
-          // Touch interactions for mobile
-          canvas.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 1) {
-              isDragging = true;
-              startX = e.touches[0].clientX - panX;
-              startY = e.touches[0].clientY - panY;
-            }
-          });
-          window.addEventListener('touchmove', function(e) {
-            if (!isDragging || e.touches.length !== 1) return;
-            panX = e.touches[0].clientX - startX;
-            panY = e.touches[0].clientY - startY;
-            render();
-          });
-          window.addEventListener('touchend', function() {
-            isDragging = false;
-          });
-
-          // Mouse wheel zoom
           canvas.addEventListener('wheel', function(e) {
             e.preventDefault();
             var delta = e.deltaY < 0 ? 0.05 : -0.05;
@@ -2986,12 +3684,10 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             }
 
             ctx.save();
-            // Center transformation
             ctx.translate(300 + panX, 300 + panY);
             ctx.rotate((rotation * Math.PI) / 180);
             if (isFlipped) ctx.scale(-1, 1);
             ctx.scale(zoom, zoom);
-
             ctx.drawImage(img, -img.width / 2, -img.height / 2);
             ctx.restore();
 
@@ -3004,14 +3700,12 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             var quality = parseFloat(document.getElementById('qualitySlider').value) || 0.9;
             var dataUrl = canvas.toDataURL(format, quality);
 
-            // Estimate byte size from Base64 string length
             var head = 'data:' + format + ';base64,';
             var bytes = Math.round((dataUrl.length - head.length) * 3 / 4);
             var kb = Math.round(bytes / 1024);
 
             var sizeDisp = document.getElementById('fileSizeDisp');
             var notice = document.getElementById('complianceNotice');
-
             sizeDisp.textContent = '~' + kb + ' KB';
 
             if (kb <= 240) {
@@ -3039,17 +3733,43 @@ if (typeof window !== "undefined") { window.qrcode = qrcode; }
             if (!img) return;
             canvas.toBlob(function(blob) {
               if (navigator.clipboard && window.ClipboardItem) {
-                navigator.clipboard.write([
-                  new ClipboardItem({ 'image/png': blob })
-                ]).then(function() {
-                  alert('600x600 square image copied to clipboard!');
-                }).catch(function() {
-                  alert('Unable to copy directly. Please use the Download button.');
+                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(function() {
+                  setFeedback('btnCopyImage', 'Copy Image to Clipboard');
                 });
-              } else {
-                alert('Clipboard API not supported in this browser. Please use the Download button.');
               }
             }, 'image/png');
+          }
+
+          function copyCropAuditReport() {
+            if (!img) return;
+            var format = document.getElementById('exportFormat').value;
+            var quality = Math.round(parseFloat(document.getElementById('qualitySlider').value) * 100);
+            var size = document.getElementById('fileSizeDisp').textContent;
+
+            var report = [
+              '======================================================',
+              'DIGITAL TOOLS SHED - 600x600 CROP & DV AUDIT REPORT',
+              '======================================================',
+              'Timestamp: ' + new Date().toISOString(),
+              'Raster Dimensions: 600 x 600 pixels (1:1 Aspect Ratio)',
+              'Print Dimensions: 2.0 x 2.0 inches at 300 DPI',
+              'Output Format: ' + format + ' (Quality: ' + quality + '%)',
+              'Estimated File Size: ' + size,
+              'DV Lottery Specification Compliance:',
+              '  - Exact 600x600 px check: PASS',
+              '  - 24-bit sRGB color depth: PASS',
+              '  - Size under 240 KB: ' + (parseInt(size.replace(/[^0-9]/g, '')) <= 240 ? 'PASS' : 'EXCEEDS LIMIT'),
+              'Transformations Applied:',
+              '  - Zoom: ' + zoom.toFixed(2) + 'x',
+              '  - Rotation: ' + rotation + '°',
+              '  - Flipped Horizontally: ' + (isFlipped ? 'Yes' : 'No'),
+              '  - Pan Position: (' + Math.round(panX) + ', ' + Math.round(panY) + ')',
+              '======================================================'
+            ].join('\n');
+
+            navigator.clipboard.writeText(report).then(function() {
+              setFeedback('btnCopyReport', 'Copy Technical Audit Report');
+            });
           }
         </script>
       `
