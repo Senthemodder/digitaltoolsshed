@@ -51938,6 +51938,3382 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (63 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 64: Boiler Chimney & Flue Gas Draft Calculator (ASME & NFPA 54)
+  // ==========================================
+  const boilerDraftBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">ASME PTC 19.10 & NFPA 54</span>
+      <span class="calc-clean-badge">Thermal Fluid Dynamics</span>
+      <span class="calc-clean-badge">Industrial Chimney Sizing</span>
+    </div>
+    <h1 class="calc-clean-title">Boiler Chimney & Flue Gas Draft Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate natural stack draft buoyancy, flue gas friction pressure loss, available breeching draft, stack diameter velocity sizing, and induced draft (ID) fan static head per ASME and NFPA standards.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Firing Rate / Flue Gas Flow -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_firingRate">Boiler Capacity / Firing Rate</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="bd_firingRate" class="calc-clean-input" value="500" min="10" max="50000" step="10">
+          <select id="bd_rateUnit" class="calc-clean-select">
+            <option value="bhp" selected>Boiler HP (BHP)</option>
+            <option value="mbh">MBH (1,000 BTU/h)</option>
+            <option value="kw">kW Thermal</option>
+            <option value="scfm">Flue Gas (SCFM)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Standard fuel combustion flue gas generation</small>
+      </div>
+
+      <!-- Fuel Type -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_fuelType">Fuel & Combustion Source</label>
+        <select id="bd_fuelType" class="calc-clean-select">
+          <option value="natgas" selected>Natural Gas (Methane, ~11.5 lb gas/lb fuel)</option>
+          <option value="fueloil">#2 Fuel Oil (Diesel, ~15.2 lb gas/lb fuel)</option>
+          <option value="heavyoil">#6 Heavy Fuel Oil (Residual Oil, ~16.5 lb/lb)</option>
+          <option value="wood">Biomass / Wood Pellets (Wet Flue Gas)</option>
+          <option value="coal">Bituminous Coal (High Particulate/Sulfur)</option>
+        </select>
+        <small class="calc-clean-help">Determines gas density, dew point, and stoichiometric volume</small>
+      </div>
+
+      <!-- Stack Height -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_stackHeight">Effective Stack Height (H)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="bd_stackHeight" class="calc-clean-input" value="65" min="5" max="500" step="1">
+          <select id="bd_heightUnit" class="calc-clean-select">
+            <option value="ft" selected>Feet (ft)</option>
+            <option value="m">Meters (m)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Vertical elevation from burner centerline to stack discharge tip</small>
+      </div>
+
+      <!-- Stack Inner Diameter -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_stackDiameter">Stack Internal Diameter (D)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="bd_stackDiameter" class="calc-clean-input" value="24" min="4" max="240" step="1">
+          <select id="bd_diamUnit" class="calc-clean-select">
+            <option value="in" selected>Inches (in)</option>
+            <option value="mm">Millimeters (mm)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Inside liner clear bore dimension</small>
+      </div>
+
+      <!-- Average Flue Gas Temp -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_flueTemp">Mean Flue Gas Temp (Tg)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="bd_flueTemp" class="calc-clean-input" value="380" min="100" max="1500" step="5">
+          <select id="bd_flueTempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Average bulk gas temp along chimney column</small>
+      </div>
+
+      <!-- Ambient Air Temp -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_ambTemp">Ambient Air Temperature (Ta)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="bd_ambTemp" class="calc-clean-input" value="68" min="-40" max="130" step="1">
+          <select id="bd_ambTempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Design summer ambient represents worst-case draft</small>
+      </div>
+
+      <!-- Site Elevation -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_altitude">Site Altitude (MSL)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="bd_altitude" class="calc-clean-input" value="500" min="0" max="15000" step="100">
+          <select id="bd_altUnit" class="calc-clean-select">
+            <option value="ft" selected>Feet MSL</option>
+            <option value="m">Meters MSL</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Barometric pressure altitude de-rating</small>
+      </div>
+
+      <!-- Breeching & Fittings Resistance -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="bd_breechK">Breeching Ductwork Loss (ΣK)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="bd_breechK" class="calc-clean-input" value="2.5" min="0.5" max="15" step="0.1">
+          <select id="bd_reqDraft" class="calc-clean-select">
+            <option value="0.10" selected>Req Draft: 0.10 in. w.g.</option>
+            <option value="0.05">Req Draft: 0.05 in. w.g.</option>
+            <option value="0.25">Req Draft: 0.25 in. w.g.</option>
+            <option value="0.50">Req Draft: 0.50 in. w.g.</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Elbows (0.3-0.5 ea), dampers, tee turns, and boiler outlet target</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Flue Gas Aerodynamic & Draft Audit</h2>
+    <div class="bd-metrics-grid">
+      <!-- Theoretical Draft -->
+      <div class="bd-metric-card highlight">
+        <div class="bd-metric-label">Theoretical Natural Draft (Dt)</div>
+        <div class="bd-metric-value" id="bd_res_dt">0.432 in. w.g.</div>
+        <div class="bd-metric-sub" id="bd_res_dt_pa">107.5 Pa (Buoyancy Head)</div>
+      </div>
+
+      <!-- Flue Friction Loss -->
+      <div class="bd-metric-card">
+        <div class="bd-metric-label">Total Stack Friction Loss (Df)</div>
+        <div class="bd-metric-value" id="bd_res_df">0.089 in. w.g.</div>
+        <div class="bd-metric-sub" id="bd_res_df_pa">22.1 Pa (Duct & Exit Drag)</div>
+      </div>
+
+      <!-- Net Available Draft -->
+      <div class="bd-metric-card" id="bd_avail_card">
+        <div class="bd-metric-label">Net Available Draft (D_avail)</div>
+        <div class="bd-metric-value" id="bd_res_davail">+0.343 in. w.g.</div>
+        <div class="bd-metric-sub" id="bd_res_davail_sub">Self-Sustaining Natural Draft</div>
+      </div>
+
+      <!-- Stack Gas Velocity -->
+      <div class="bd-metric-card" id="bd_vel_card">
+        <div class="bd-metric-label">Mean Flue Gas Velocity</div>
+        <div class="bd-metric-value" id="bd_res_vel">28.4 ft/s</div>
+        <div class="bd-metric-sub" id="bd_res_vel_sub">8.66 m/s (Optimal: 20-40 ft/s)</div>
+      </div>
+
+      <!-- Volumetric Flue Flow -->
+      <div class="bd-metric-card">
+        <div class="bd-metric-label">Actual Flue Gas Flow Rate</div>
+        <div class="bd-metric-value" id="bd_res_acfm">5,350 ACFM</div>
+        <div class="bd-metric-sub" id="bd_res_scfm">3,280 SCFM (Std Conditions)</div>
+      </div>
+
+      <!-- ID Fan Requirement -->
+      <div class="bd-metric-card" id="bd_fan_card">
+        <div class="bd-metric-label">Induced Draft (ID) Fan Req.</div>
+        <div class="bd-metric-value" id="bd_res_fan">NO FAN REQUIRED</div>
+        <div class="bd-metric-sub" id="bd_res_fan_sub">Margin: +0.243 in. w.g.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG Industrial Chimney & Pressure Diagram -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live Industrial Chimney Stack & Draft Profile</h2>
+    <div class="bd-svg-container">
+      <svg id="bd_svg" viewBox="0 0 800 420" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Boiler Chimney and Flue Gas Draft Diagram">
+        <defs>
+          <linearGradient id="bdSkyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0f172a"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="bdStackGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#64748b"/>
+            <stop offset="25%" stop-color="#94a3b8"/>
+            <stop offset="70%" stop-color="#475569"/>
+            <stop offset="100%" stop-color="#334155"/>
+          </linearGradient>
+          <linearGradient id="bdFlueGasGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#f97316" stop-opacity="0.85"/>
+            <stop offset="40%" stop-color="#f59e0b" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.25"/>
+          </linearGradient>
+          <marker id="bdArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+        </defs>
+
+        <!-- Background Sky Canvas -->
+        <rect x="0" y="0" width="800" height="420" fill="url(#bdSkyGrad)" rx="8"/>
+
+        <!-- Ground / Concrete Pad -->
+        <rect x="50" y="380" width="700" height="30" fill="#334155" rx="3"/>
+        <line x1="50" y1="380" x2="750" y2="380" stroke="#64748b" stroke-width="2"/>
+        <text x="400" y="400" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle">GRADE / STRUCTURAL CONCRETE FOUNDATION</text>
+
+        <!-- Boiler Housing (Left) -->
+        <rect x="90" y="240" width="160" height="140" fill="#1e293b" stroke="#3b82f6" stroke-width="2" rx="4"/>
+        <text x="170" y="270" fill="#60a5fa" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="middle">PACKAGED BOILER</text>
+        <text x="170" y="295" fill="#94a3b8" font-size="11" font-family="sans-serif" text-anchor="middle" id="svg_boilerRate">500 BHP Firing</text>
+        <circle cx="170" cy="335" r="22" fill="#ef4444" fill-opacity="0.3" stroke="#f87171" stroke-width="2"/>
+        <path d="M 160 345 Q 170 320 180 345 Q 170 338 160 345 Z" fill="#f59e0b"/>
+        <text x="170" y="342" fill="#fff" font-size="9" font-family="sans-serif" text-anchor="middle">BURNER</text>
+
+        <!-- Horizontal Breeching Duct -->
+        <rect x="250" y="270" width="130" height="40" fill="#475569" stroke="#64748b" stroke-width="1.5"/>
+        <rect x="252" y="272" width="126" height="36" fill="url(#bdFlueGasGrad)" opacity="0.6"/>
+        <line x1="260" y1="290" x2="365" y2="290" stroke="#f97316" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#bdArrow)"/>
+        <text x="315" y="262" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">Breeching Duct (ΣK)</text>
+
+        <!-- Vertical Chimney Stack Structure -->
+        <!-- Stack Column -->
+        <path d="M 380 380 L 400 60 L 460 60 L 480 380 Z" fill="url(#bdStackGrad)" stroke="#475569" stroke-width="2"/>
+        <!-- Inner Gas Column -->
+        <path d="M 390 380 L 406 60 L 454 60 L 470 380 Z" fill="url(#bdFlueGasGrad)"/>
+
+        <!-- Gas Plume / Discharge Vane -->
+        <path d="M 406 60 Q 380 20 420 10 Q 460 5 475 25 Q 490 45 454 60 Z" fill="#38bdf8" fill-opacity="0.25"/>
+        <text x="430" y="45" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_exitVel">v = 28.4 ft/s</text>
+
+        <!-- Stack Dimension Annotations -->
+        <!-- Height Dimension Line -->
+        <line x1="515" y1="60" x2="515" y2="380" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="505" y1="60" x2="525" y2="60" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="505" y1="380" x2="525" y2="380" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="535" y="225" fill="#fbbf24" font-size="12" font-family="monospace" font-weight="bold" id="svg_stackH">H = 65 ft</text>
+
+        <!-- Diameter Dimension Line -->
+        <line x1="400" y1="80" x2="460" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
+        <text x="430" y="98" fill="#f8fafc" font-size="10" font-family="monospace" text-anchor="middle" id="svg_stackD">Ø 24 in</text>
+
+        <!-- Pressure Gradient Box (Right) -->
+        <rect x="580" y="60" width="195" height="300" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="677" y="85" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">STACK DRAFT PROFILE</text>
+        <line x1="600" y1="95" x2="755" y2="95" stroke="#334155" stroke-width="1"/>
+
+        <!-- Theoretical Draft -->
+        <text x="595" y="125" fill="#94a3b8" font-size="10" font-family="sans-serif">Buoyancy Draft (Dt):</text>
+        <text x="760" y="125" fill="#22c55e" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_dt">0.432 in</text>
+
+        <!-- Friction Loss -->
+        <text x="595" y="155" fill="#94a3b8" font-size="10" font-family="sans-serif">Friction Loss (Df):</text>
+        <text x="760" y="155" fill="#f87171" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_df">-0.089 in</text>
+
+        <!-- Net Available -->
+        <text x="595" y="185" fill="#94a3b8" font-size="10" font-family="sans-serif">Breeching Draft:</text>
+        <text x="760" y="185" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_davail">+0.343 in</text>
+
+        <!-- Temperature Ratio -->
+        <text x="595" y="215" fill="#94a3b8" font-size="10" font-family="sans-serif">Flue Temp (Tg):</text>
+        <text x="760" y="215" fill="#f59e0b" font-size="11" font-family="monospace" text-anchor="end" id="svg_tg">380 °F</text>
+
+        <text x="595" y="240" fill="#94a3b8" font-size="10" font-family="sans-serif">Ambient Temp (Ta):</text>
+        <text x="760" y="240" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="end" id="svg_ta">68 °F</text>
+
+        <!-- Status Badge In Profile -->
+        <rect x="595" y="265" width="165" height="42" fill="#0f172a" stroke="#22c55e" stroke-width="1.5" rx="4" id="svg_statusRect"/>
+        <text x="677" y="291" fill="#4ade80" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_statusText">NATURAL DRAFT OK</text>
+
+        <text x="677" y="345" fill="#64748b" font-size="9" font-family="sans-serif" text-anchor="middle">Complies with NFPA 54 & ASME</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Thermodynamic & Aerodynamic Derivations</h2>
+    <div class="bd-derivations">
+      <div class="bd-step">
+        <div class="bd-step-title">1. Theoretical Stack Buoyancy Draft (Dt)</div>
+        <p>Theoretical stack draft is driven by the density differential between cool ambient air and hot flue gas acting over the vertical height column:</p>
+        <div class="bd-formula">
+          D_t = 0.52 \cdot P_{atm} \cdot H \left( \frac{1}{T_a} - \frac{1}{T_g} \right)
+        </div>
+        <p>Substituting live parameters ($P_{atm} = <span id="drv_patm">14.44</span>$ psia at <span id="drv_alt">500</span> ft MSL, $H = <span id="drv_h">65</span>$ ft, $T_a = <span id="drv_ta">527.67</span>$ °R, $T_g = <span id="drv_tg">839.67</span>$ °R):</p>
+        <div class="bd-formula highlight">
+          D_t = 0.52 \cdot (<span id="drv_patm2">14.44</span>) \cdot (<span id="drv_h2">65</span>) \left( \frac{1}{<span id="drv_ta2">527.67</span>} - \frac{1}{<span id="drv_tg2">839.67</span>} \right) = <span id="drv_dt_calc">0.432</span>\text{ in. w.g. (<span id="drv_dt_pa">107.5</span> Pa)}
+        </div>
+      </div>
+
+      <div class="bd-step">
+        <div class="bd-step-title">2. Flue Gas Volumetric Flow & Discharge Velocity</div>
+        <p>Stoichiometric combustion products for <span id="drv_fuelName">Natural Gas</span> produce approximately <span id="drv_scfmRate">6.56</span> SCFM per Boiler HP. Converting standard volume to actual chimney column conditions:</p>
+        <div class="bd-formula">
+          Q_{actual} = Q_{std} \cdot \left( \frac{T_g}{T_{std}} \right) \cdot \left( \frac{P_{std}}{P_{atm}} \right) = <span id="drv_acfm_calc">5,350</span>\text{ ACFM}
+        </div>
+        <p>Stack cross-sectional area for $D = <span id="drv_d_in">24</span>$ inches ($A = <span id="drv_area">3.142</span>$ ft²):</p>
+        <div class="bd-formula">
+          v_g = \frac{Q_{actual}}{A \cdot 60} = \frac{<span id="drv_acfm2">5350</span>}{<span id="drv_area2">3.142</span> \cdot 60} = <span id="drv_vel_calc">28.4</span>\text{ ft/s (<span id="drv_vel_ms">8.66</span> m/s)}
+        </div>
+      </div>
+
+      <div class="bd-step">
+        <div class="bd-step-title">3. Darcy-Weisbach Stack & Duct Friction Pressure Drop</div>
+        <p>Friction loss through the vertical chimney and breeching fittings ($sum K = <span id="drv_k">2.5</span>$ + exit loss $1.0$):</p>
+        <div class="bd-formula">
+          D_f = \left( f \cdot \frac{H}{D} + \sum K + 1.0 \right) \cdot \left( \frac{\rho_g v_g^2}{2 g \cdot 5.2} \right) = <span id="drv_df_calc">0.089</span>\text{ in. w.g.}
+        </div>
+      </div>
+
+      <div class="bd-step">
+        <div class="bd-step-title">4. Net Available Breeching Draft & Fan Sizing</div>
+        <div class="bd-formula highlight">
+          D_{avail} = D_t - D_f = <span id="drv_dt3">0.432</span> - <span id="drv_df3">0.089</span> = <span id="drv_davail_calc">+0.343</span>\text{ in. w.g.}
+        </div>
+        <p id="drv_fanText">Because available natural draft exceeds required boiler draft (0.10 in. w.g.), the system operates with self-sustaining natural buoyancy draft without an ID fan.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">ASME Industrial Flue Draft Compliance Report</h2>
+      <button type="button" id="copyBdAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy Flue Draft Audit</span>
+      </button>
+    </div>
+    <pre id="bd_audit_box" class="bd-audit-box">Generating industrial flue draft compliance audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Boiler Chimney & Flue Draft Engineering Traps</h2>
+    <div class="bd-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. Summer Stack Stall: Sizing Draft Exclusively in Winter</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Theoretical draft depends directly on $(1/T_a - 1/T_g)$. Designing a chimney for 30°F (-1°C) winter air produces abundant draft. When hot summer ambient air reaches 95°F (35°C), natural draft drops by 30% to 45%. If the chimney was marginally sized, the boiler will back-draft, tripping positive combustion chamber pressure switches and releasing lethal carbon monoxide into the boiler room.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Flue Gas Acid Dew Point Condensation (Sulfur & Chloride Corrosion)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          In uninsulated or oversized masonry and single-wall steel stacks, low flue gas velocity ($< 15$ ft/s) permits heat loss through the wall, dropping exit gas below its acid dew point (~270°F / 132°C for fuel oil with sulfur, or ~130°F / 54°C for natural gas). Condensing sulfurous and sulfuric acids aggressively eat through carbon steel chimneys within 2 to 4 years, creating structural collapse hazards.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. High-Velocity Flow Choking & Acoustic Resonance (Whistle / Rattle)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Undersizing stack diameter forces flue velocities above 45 to 55 ft/s (14 to 17 m/s). Because friction loss scales with $v^2$, draft losses increase exponentially, rapidly exhausting natural buoyancy and causing burner flame flutter, combustion instability, and severe structural vibration due to vortex shedding matching chimney natural frequencies.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Barometric Altitude De-Rating Ignored</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Barometric pressure decreases at approximately 0.5 psi per 1,000 feet of altitude. At 5,000 ft elevation (Denver, CO), barometric pressure is only 12.2 psia (83% of sea level). Stack buoyancy draft is linearly reduced by 17%, while required volumetric flue gas (ACFM) expands by 20%. Applying sea-level stack sizing at high altitudes results in severe combustion starve and incomplete firing.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Excessive Negative Draft Causing Flame Liftoff & Efficiency Loss</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Taller chimneys ($> 120$ ft) can produce excessive natural draft exceeding 0.75 to 1.5 in. w.g. Without an automatic barometric draft regulator or modulating damper, excessive draft sucks massive quantities of excess combustion air through the burner, cooling flame temperatures, increasing $NO_x$, lifting flames off the diffuser, and dropping boiler thermal efficiency by 5% to 12%.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.bd-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.bd-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.bd-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.bd-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.bd-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.bd-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.bd-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.bd-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.bd-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.bd-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.bd-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.bd-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.bd-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.bd-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.bd-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const firingInput = document.getElementById('bd_firingRate');
+  const rateUnitSelect = document.getElementById('bd_rateUnit');
+  const fuelSelect = document.getElementById('bd_fuelType');
+  const heightInput = document.getElementById('bd_stackHeight');
+  const heightUnitSelect = document.getElementById('bd_heightUnit');
+  const diamInput = document.getElementById('bd_stackDiameter');
+  const diamUnitSelect = document.getElementById('bd_diamUnit');
+  const flueTempInput = document.getElementById('bd_flueTemp');
+  const flueTempUnitSelect = document.getElementById('bd_flueTempUnit');
+  const ambTempInput = document.getElementById('bd_ambTemp');
+  const ambTempUnitSelect = document.getElementById('bd_ambTempUnit');
+  const altInput = document.getElementById('bd_altitude');
+  const altUnitSelect = document.getElementById('bd_altUnit');
+  const breechKInput = document.getElementById('bd_breechK');
+  const reqDraftSelect = document.getElementById('bd_reqDraft');
+
+  // Outputs
+  const resDt = document.getElementById('bd_res_dt');
+  const resDtPa = document.getElementById('bd_res_dt_pa');
+  const resDf = document.getElementById('bd_res_df');
+  const resDfPa = document.getElementById('bd_res_df_pa');
+  const resDavail = document.getElementById('bd_res_davail');
+  const resDavailSub = document.getElementById('bd_res_davail_sub');
+  const availCard = document.getElementById('bd_avail_card');
+  const resVel = document.getElementById('bd_res_vel');
+  const resVelSub = document.getElementById('bd_res_vel_sub');
+  const velCard = document.getElementById('bd_vel_card');
+  const resAcfm = document.getElementById('bd_res_acfm');
+  const resScfm = document.getElementById('bd_res_scfm');
+  const resFan = document.getElementById('bd_res_fan');
+  const resFanSub = document.getElementById('bd_res_fan_sub');
+  const fanCard = document.getElementById('bd_fan_card');
+
+  // SVG Elements
+  const svgBoilerRate = document.getElementById('svg_boilerRate');
+  const svgExitVel = document.getElementById('svg_exitVel');
+  const svgStackH = document.getElementById('svg_stackH');
+  const svgStackD = document.getElementById('svg_stackD');
+  const svgDt = document.getElementById('svg_dt');
+  const svgDf = document.getElementById('svg_df');
+  const svgDavail = document.getElementById('svg_davail');
+  const svgTg = document.getElementById('svg_tg');
+  const svgTa = document.getElementById('svg_ta');
+  const svgStatusRect = document.getElementById('svg_statusRect');
+  const svgStatusText = document.getElementById('svg_statusText');
+
+  // Derivations
+  const drvPatm = document.getElementById('drv_patm');
+  const drvPatm2 = document.getElementById('drv_patm2');
+  const drvAlt = document.getElementById('drv_alt');
+  const drvH = document.getElementById('drv_h');
+  const drvH2 = document.getElementById('drv_h2');
+  const drvTa = document.getElementById('drv_ta');
+  const drvTa2 = document.getElementById('drv_ta2');
+  const drvTg = document.getElementById('drv_tg');
+  const drvTg2 = document.getElementById('drv_tg2');
+  const drvDtCalc = document.getElementById('drv_dt_calc');
+  const drvDtPa = document.getElementById('drv_dt_pa');
+  const drvFuelName = document.getElementById('drv_fuelName');
+  const drvScfmRate = document.getElementById('drv_scfmRate');
+  const drvAcfmCalc = document.getElementById('drv_acfm_calc');
+  const drvDIn = document.getElementById('drv_d_in');
+  const drvArea = document.getElementById('drv_area');
+  const drvAcfm2 = document.getElementById('drv_acfm2');
+  const drvArea2 = document.getElementById('drv_area2');
+  const drvVelCalc = document.getElementById('drv_vel_calc');
+  const drvVelMs = document.getElementById('drv_vel_ms');
+  const drvK = document.getElementById('drv_k');
+  const drvDfCalc = document.getElementById('drv_df_calc');
+  const drvDt3 = document.getElementById('drv_dt3');
+  const drvDf3 = document.getElementById('drv_df3');
+  const drvDavailCalc = document.getElementById('drv_davail_calc');
+  const drvFanText = document.getElementById('drv_fanText');
+
+  const auditBox = document.getElementById('bd_audit_box');
+
+  // Fuel SCFM per BHP table
+  // 1 BHP = 33,475 BTU/hr output (~41,844 BTU/hr input at 80% eff)
+  const fuelData = {
+    natgas: { name: 'Natural Gas', scfm_per_bhp: 6.56, density_std: 0.075, dewpoint_f: 130 },
+    fueloil: { name: '#2 Fuel Oil (Diesel)', scfm_per_bhp: 6.95, density_std: 0.077, dewpoint_f: 240 },
+    heavyoil: { name: '#6 Heavy Oil', scfm_per_bhp: 7.20, density_std: 0.078, dewpoint_f: 280 },
+    wood: { name: 'Biomass / Wood Pellets', scfm_per_bhp: 8.10, density_std: 0.076, dewpoint_f: 145 },
+    coal: { name: 'Bituminous Coal', scfm_per_bhp: 7.85, density_std: 0.079, dewpoint_f: 290 }
+  };
+
+  function calculate() {
+    let rawFiring = parseFloat(firingInput.value) || 500;
+    const rateUnit = rateUnitSelect.value;
+    let bhp = 500;
+    let scfm = 0;
+
+    if (rateUnit === 'bhp') {
+      bhp = rawFiring;
+    } else if (rateUnit === 'mbh') {
+      bhp = (rawFiring * 1000) / 41844;
+    } else if (rateUnit === 'kw') {
+      bhp = (rawFiring * 3412.14) / 41844;
+    } else if (rateUnit === 'scfm') {
+      scfm = rawFiring;
+      bhp = scfm / 6.56;
+    }
+
+    const fuelKey = fuelSelect.value;
+    const fuelInfo = fuelData[fuelKey] || fuelData.natgas;
+    if (rateUnit !== 'scfm') {
+      scfm = bhp * fuelInfo.scfm_per_bhp;
+    }
+
+    let H_ft = parseFloat(heightInput.value) || 65;
+    if (heightUnitSelect.value === 'm') H_ft *= 3.28084;
+
+    let D_in = parseFloat(diamInput.value) || 24;
+    if (diamUnitSelect.value === 'mm') D_in /= 25.4;
+    const D_ft = D_in / 12;
+
+    let Tg_f = parseFloat(flueTempInput.value) || 380;
+    if (flueTempUnitSelect.value === 'c') Tg_f = Tg_f * 1.8 + 32;
+
+    let Ta_f = parseFloat(ambTempInput.value) || 68;
+    if (ambTempUnitSelect.value === 'c') Ta_f = Ta_f * 1.8 + 32;
+
+    let alt_ft = parseFloat(altInput.value) || 0;
+    if (altUnitSelect.value === 'm') alt_ft *= 3.28084;
+
+    const sumK = parseFloat(breechKInput.value) || 2.5;
+    const reqDraft = parseFloat(reqDraftSelect.value) || 0.10;
+
+    // Atmospheric Pressure at Altitude (psia)
+    // P_atm = 14.696 * (1 - 6.8753e-6 * alt_ft)^5.2559
+    const Patm = 14.696 * Math.pow(Math.max(1 - 6.8753e-6 * alt_ft, 0.5), 5.2559);
+
+    const Ta_R = Ta_f + 459.67;
+    const Tg_R = Tg_f + 459.67;
+
+    // 1. Theoretical Natural Draft (Dt in inches w.g.)
+    // Formula: Dt = 0.52 * Patm * H * (1/Ta_R - 1/Tg_R)
+    let Dt_in = 0.52 * Patm * H_ft * ( (1 / Ta_R) - (1 / Tg_R) );
+    if (Dt_in < 0) Dt_in = 0;
+    const Dt_pa = Dt_in * 248.84;
+
+    // 2. Flue Gas Volumetric Flow & Velocity
+    // Actual CFM = SCFM * (Tg_R / 527.67) * (14.696 / Patm)
+    const Tstd_R = 527.67; // 68°F
+    const acfm = scfm * (Tg_R / Tstd_R) * (14.696 / Patm);
+
+    const stackArea_ft2 = Math.PI * Math.pow(D_ft / 2, 2);
+    const vel_fts = acfm / (stackArea_ft2 * 60);
+    const vel_ms = vel_fts * 0.3048;
+
+    // 3. Flue Gas Density & Darcy Friction Loss
+    // Density at actual temp & pressure: rho = rho_std * (527.67 / Tg_R) * (Patm / 14.696)
+    const rho_g = fuelInfo.density_std * (Tstd_R / Tg_R) * (Patm / 14.696);
+
+    // Friction factor for commercial steel or brick flue (Colebrook ~0.020)
+    const f = 0.020;
+    // Total resistance coefficient: friction + breeching fittings + exit loss
+    const totalK = (f * (H_ft / D_ft)) + sumK + 1.0;
+    // Velocity pressure: Pv = (rho_g * vel^2) / (2 * g * 5.2) in inches w.g.
+    const g = 32.174;
+    const Pv_in = (rho_g * Math.pow(vel_fts, 2)) / (2 * g * 5.2);
+    const Df_in = totalK * Pv_in;
+    const Df_pa = Df_in * 248.84;
+
+    // 4. Net Available Draft
+    const Davail_in = Dt_in - Df_in;
+    const Davail_pa = Davail_in * 248.84;
+
+    // ID Fan requirement
+    const draftDeficit = reqDraft - Davail_in;
+    const needsFan = draftDeficit > 0;
+
+    // Update Result Metrics
+    resDt.textContent = Dt_in.toFixed(3) + ' in. w.g.';
+    resDtPa.textContent = Dt_pa.toFixed(1) + ' Pa (Stack Buoyancy)';
+
+    resDf.textContent = Df_in.toFixed(3) + ' in. w.g.';
+    resDfPa.textContent = Df_pa.toFixed(1) + ' Pa (Friction + Loss)';
+
+    if (Davail_in >= reqDraft) {
+      resDavail.textContent = '+' + Davail_in.toFixed(3) + ' in. w.g.';
+      resDavailSub.textContent = 'Pass: Exceeds target ' + reqDraft.toFixed(2) + ' in. w.g.';
+      availCard.className = 'bd-metric-card pass';
+    } else if (Davail_in > 0) {
+      resDavail.textContent = '+' + Davail_in.toFixed(3) + ' in. w.g.';
+      resDavailSub.textContent = 'Marginal: Below target ' + reqDraft.toFixed(2) + ' in. w.g.';
+      availCard.className = 'bd-metric-card highlight';
+    } else {
+      resDavail.textContent = Davail_in.toFixed(3) + ' in. w.g.';
+      resDavailSub.textContent = 'NEGATIVE DRAFT: Boiler will back-draft!';
+      availCard.className = 'bd-metric-card fail';
+    }
+
+    resVel.textContent = vel_fts.toFixed(1) + ' ft/s';
+    resVelSub.textContent = vel_ms.toFixed(2) + ' m/s ' + (vel_fts < 15 ? '(Low: Condensation risk)' : vel_fts > 45 ? '(High: Flow choking)' : '(Optimal: 20-40 ft/s)');
+    if (vel_fts < 15 || vel_fts > 45) {
+      velCard.className = 'bd-metric-card highlight';
+    } else {
+      velCard.className = 'bd-metric-card pass';
+    }
+
+    resAcfm.textContent = Math.round(acfm).toLocaleString() + ' ACFM';
+    resScfm.textContent = Math.round(scfm).toLocaleString() + ' SCFM (' + fuelInfo.name.split('(')[0].trim() + ')';
+
+    if (needsFan) {
+      resFan.textContent = draftDeficit.toFixed(3) + ' in. w.g.';
+      resFanSub.textContent = 'REQUIRED ID Fan Static Head';
+      fanCard.className = 'bd-metric-card fail';
+    } else {
+      resFan.textContent = 'NATURAL DRAFT OK';
+      resFanSub.textContent = 'Surplus Margin: +' + (Davail_in - reqDraft).toFixed(3) + ' in. w.g.';
+      fanCard.className = 'bd-metric-card pass';
+    }
+
+    // SVG Updates
+    svgBoilerRate.textContent = Math.round(bhp) + ' BHP (' + Math.round(acfm) + ' ACFM)';
+    svgExitVel.textContent = 'v = ' + vel_fts.toFixed(1) + ' ft/s';
+    svgStackH.textContent = 'H = ' + H_ft.toFixed(0) + ' ft';
+    svgStackD.textContent = 'Ø ' + D_in.toFixed(0) + ' in';
+    svgDt.textContent = Dt_in.toFixed(3) + ' in';
+    svgDf.textContent = '-' + Df_in.toFixed(3) + ' in';
+    svgDavail.textContent = (Davail_in >= 0 ? '+' : '') + Davail_in.toFixed(3) + ' in';
+    svgTg.textContent = Math.round(Tg_f) + ' °F';
+    svgTa.textContent = Math.round(Ta_f) + ' °F';
+
+    if (needsFan) {
+      svgStatusRect.setAttribute('stroke', '#ef4444');
+      svgStatusText.setAttribute('fill', '#f87171');
+      svgStatusText.textContent = 'ID FAN NEEDED (+' + draftDeficit.toFixed(2) + ' in)';
+    } else {
+      svgStatusRect.setAttribute('stroke', '#22c55e');
+      svgStatusText.setAttribute('fill', '#4ade80');
+      svgStatusText.textContent = 'NATURAL DRAFT OK';
+    }
+
+    // Derivations updates
+    drvPatm.textContent = Patm.toFixed(2);
+    drvPatm2.textContent = Patm.toFixed(2);
+    drvAlt.textContent = Math.round(alt_ft).toLocaleString();
+    drvH.textContent = H_ft.toFixed(1);
+    drvH2.textContent = H_ft.toFixed(1);
+    drvTa.textContent = Ta_R.toFixed(1);
+    drvTa2.textContent = Ta_R.toFixed(1);
+    drvTg.textContent = Tg_R.toFixed(1);
+    drvTg2.textContent = Tg_R.toFixed(1);
+    drvDtCalc.textContent = Dt_in.toFixed(3);
+    drvDtPa.textContent = Dt_pa.toFixed(1);
+
+    drvFuelName.textContent = fuelInfo.name;
+    drvScfmRate.textContent = fuelInfo.scfm_per_bhp.toFixed(2);
+    drvAcfmCalc.textContent = Math.round(acfm).toLocaleString();
+    drvDIn.textContent = D_in.toFixed(1);
+    drvArea.textContent = stackArea_ft2.toFixed(3);
+    drvAcfm2.textContent = Math.round(acfm).toLocaleString();
+    drvArea2.textContent = stackArea_ft2.toFixed(3);
+    drvVelCalc.textContent = vel_fts.toFixed(1);
+    drvVelMs.textContent = vel_ms.toFixed(2);
+    drvK.textContent = sumK.toFixed(1);
+    drvDfCalc.textContent = Df_in.toFixed(3);
+    drvDt3.textContent = Dt_in.toFixed(3);
+    drvDf3.textContent = Df_in.toFixed(3);
+    drvDavailCalc.textContent = (Davail_in >= 0 ? '+' : '') + Davail_in.toFixed(3);
+
+    if (needsFan) {
+      drvFanText.textContent = 'WARNING: Available draft (' + Davail_in.toFixed(3) + ' in. w.g.) is less than the required boiler draft (' + reqDraft.toFixed(2) + ' in. w.g.). An induced draft (ID) fan with at least ' + draftDeficit.toFixed(3) + ' in. w.g. external static head and ' + Math.round(acfm) + ' ACFM rating must be installed.';
+    } else {
+      drvFanText.textContent = 'Because available natural draft (' + Davail_in.toFixed(3) + ' in. w.g.) exceeds required boiler breeching draft (' + reqDraft.toFixed(2) + ' in. w.g.), the chimney generates ample self-sustaining natural draft with a surplus safety margin of +' + (Davail_in - reqDraft).toFixed(3) + ' in. w.g.';
+    }
+
+    // Audit Box Update
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME PTC 19.10 & NFPA 54 FLUE GAS DRAFT AUDIT     \n' +
+      '=======================================================\n' +
+      'Boiler Firing Capacity:    ' + Math.round(bhp) + ' Boiler HP (' + (bhp * 33475 / 1e6).toFixed(2) + ' MBtu/hr)\n' +
+      'Combustion Fuel Source:    ' + fuelInfo.name + '\n' +
+      'Site Elevation (MSL):      ' + Math.round(alt_ft) + ' ft (Barometric Pressure: ' + Patm.toFixed(2) + ' psia)\n' +
+      'Stack Dimensions:          ' + H_ft.toFixed(1) + ' ft Height × ' + D_in.toFixed(1) + ' in. Inner Diameter\n' +
+      'Flue Gas Flow Rate:        ' + Math.round(scfm).toLocaleString() + ' SCFM (' + Math.round(acfm).toLocaleString() + ' ACFM)\n' +
+      'Flue Gas Mean Temp (Tg):   ' + Math.round(Tg_f) + ' °F (' + Math.round((Tg_f-32)/1.8) + ' °C) [Acid Dew Point: ' + fuelInfo.dewpoint_f + ' °F]\n' +
+      'Design Ambient Temp (Ta):  ' + Math.round(Ta_f) + ' °F (' + Math.round((Ta_f-32)/1.8) + ' °C)\n' +
+      '-------------------------------------------------------\n' +
+      'Mean Stack Gas Velocity:   ' + vel_fts.toFixed(1) + ' ft/s (' + vel_ms.toFixed(2) + ' m/s) [' + (vel_fts < 15 ? 'POOR - Condensation Risk' : vel_fts > 45 ? 'POOR - High Friction Choking' : 'OPTIMAL 20-40 ft/s') + ']\n' +
+      'Theoretical Stack Draft:   ' + Dt_in.toFixed(3) + ' in. w.g. (' + Dt_pa.toFixed(1) + ' Pa buoyancy)\n' +
+      'Total Friction Loss (Df):  ' + Df_in.toFixed(3) + ' in. w.g. (' + Df_pa.toFixed(1) + ' Pa)\n' +
+      'NET AVAILABLE DRAFT:       ' + (Davail_in >= 0 ? '+' : '') + Davail_in.toFixed(3) + ' in. w.g. (' + Davail_pa.toFixed(1) + ' Pa)\n' +
+      'Required Boiler Breeching: ' + reqDraft.toFixed(2) + ' in. w.g.\n' +
+      'Draft Adequacy Status:     ' + (needsFan ? 'FAIL: DEFICIT OF ' + draftDeficit.toFixed(3) + ' IN. W.G. (ID FAN REQUIRED)' : 'PASS: NATURAL DRAFT SUFFICIENT (+' + (Davail_in - reqDraft).toFixed(3) + ' in. margin)') + '\n' +
+      'Design Standard:           ASME PTC 19.10 / NFPA 54 National Fuel Gas Code\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyBdAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyBdAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Flue Draft Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [firingInput, rateUnitSelect, fuelSelect, heightInput, heightUnitSelect, diamInput, diamUnitSelect, flueTempInput, flueTempUnitSelect, ambTempInput, ambTempUnitSelect, altInput, altUnitSelect, breechKInput, reqDraftSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'boiler-chimney-draft-calculator.html'), renderTradePage({
+    title: "Boiler Chimney & Flue Gas Draft Calculator | ASME & NFPA 54",
+    metaDesc: "Calculate natural stack draft buoyancy, flue friction loss, available breeching draft, stack velocity, and induced draft (ID) fan static head per ASME & NFPA.",
+    canonical: `${DOMAIN}/calc/boiler-chimney-draft-calculator`,
+    bodyContent: boilerDraftBody,
+    currentPath: '/calc/boiler-chimney-draft-calculator',
+    faq: [
+      {
+        "q": "What is the difference between theoretical draft and available draft?",
+        "a": "Theoretical draft (Dt) is the ideal maximum static pressure head generated purely by the buoyancy difference between hot flue gases inside the chimney and cold ambient air outside. Available draft (D_avail) is the actual pressure differential present at the boiler breeching connection after subtracting frictional resistance, elbow turns, and velocity discharge losses."
+      },
+      {
+        "q": "Why does a boiler chimney draft worsen during summer?",
+        "a": "Stack buoyancy draft depends directly on the temperature differential (1/Ta - 1/Tg). During cold winter days (Ta = 20°F to 30°F), the outdoor air is dense, creating strong chimney suction. During hot summer days (Ta = 90°F to 100°F), outdoor air density drops substantially, reducing natural draft by 30% to 45% and potentially causing burner lockout or back-drafting."
+      },
+      {
+        "q": "What is the optimal flue gas velocity inside an industrial chimney?",
+        "a": "Per ASME and ASHRAE recommendations, the optimal flue gas velocity inside industrial stacks is between 20 and 40 ft/s (6 to 12 m/s). Velocities below 15 ft/s promote flue gas cooling below the acid dew point, causing severe condensation, while velocities above 45 ft/s create excessive friction losses and acoustic resonance."
+      },
+      {
+        "q": "How does elevation affect boiler stack sizing?",
+        "a": "As altitude increases, atmospheric barometric pressure drops (approximately 0.5 psi per 1,000 ft). Lower atmospheric pressure reduces air density, directly diminishing the theoretical stack draft while simultaneously expanding the actual flue gas volumetric flow rate (ACFM). Chimneys installed at high altitudes must be taller and wider than sea-level units."
+      },
+      {
+        "q": "When is an Induced Draft (ID) fan strictly necessary?",
+        "a": "An Induced Draft (ID) fan is strictly necessary when the available natural draft (D_avail = Dt - Df) is less than the boiler manufacturer's required breeching draft, or when the chimney must overcome high-resistance heat recovery equipment such as condensing economizers, baghouses, or selective catalytic reduction (SCR) reactors."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 65: Shell & Tube Baffle Sizing & Pressure Drop Calculator (Bell-Delaware & TEMA)
+  // ==========================================
+  const shellBaffleBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">TEMA Class R, C & B</span>
+      <span class="calc-clean-badge">Bell-Delaware Method</span>
+      <span class="calc-clean-badge">Vibration & Acoustics</span>
+    </div>
+    <h1 class="calc-clean-title">Shell & Tube Heat Exchanger Baffle Cut & Pressure Drop Calculator</h1>
+    <p class="calc-clean-desc">
+      Size segmental baffles, cross-flow velocities, shell-side pressure drop, and tube acoustic resonance / flow-induced vibration per TEMA standards and the Bell-Delaware method.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Shell Inside Diameter -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_shellDiam">Shell Inside Diameter (Ds)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="st_shellDiam" class="calc-clean-input" value="24" min="6" max="120" step="1">
+          <select id="st_diamUnit" class="calc-clean-select">
+            <option value="in" selected>Inches (in)</option>
+            <option value="mm">Millimeters (mm)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">TEMA standard pipe or rolled plate shell diameter</small>
+      </div>
+
+      <!-- Tube Outer Diameter & Layout -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_tubeOD">Tube Outer Diameter (do)</label>
+        <div class="calc-clean-input-group">
+          <select id="st_tubeOD" class="calc-clean-select">
+            <option value="0.75" selected>3/4" OD (19.05 mm) [Industry Standard]</option>
+            <option value="1.00">1.0" OD (25.40 mm) [Heavy Fouling/Refinery]</option>
+            <option value="0.625">5/8" OD (15.88 mm) [Compact Chillers]</option>
+            <option value="1.25">1-1/4" OD (31.75 mm) [Reboilers]</option>
+          </select>
+          <select id="st_pitchLayout" class="calc-clean-select">
+            <option value="30" selected>30° Triangular (Staggered)</option>
+            <option value="45">45° Rotated Square</option>
+            <option value="90">90° In-Line Square</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Triangular maximizes heat transfer; square allows mechanical cleaning</small>
+      </div>
+
+      <!-- Baffle Spacing / Pitch -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_bafflePitch">Baffle Spacing / Pitch (B)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="st_bafflePitch" class="calc-clean-input" value="8" min="2" max="60" step="0.5">
+          <select id="st_pitchUnit" class="calc-clean-select">
+            <option value="in" selected>Inches (in)</option>
+            <option value="mm">Millimeters (mm)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">TEMA: B must be between 0.2·Ds and 1.0·Ds</small>
+      </div>
+
+      <!-- Baffle Cut Percentage -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_baffleCut">Segmental Baffle Cut (% of Ds)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="st_baffleCut" class="calc-clean-input" value="25" min="15" max="45" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">% Cut</span>
+        </div>
+        <small class="calc-clean-help">Optimal window cut: 20% to 25% (TEMA: 15% to 45%)</small>
+      </div>
+
+      <!-- Shell-Side Fluid Flow -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_fluidFlow">Shell-Side Fluid Flow Rate</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="st_fluidFlow" class="calc-clean-input" value="120000" min="1000" max="5000000" step="5000">
+          <select id="st_flowUnit" class="calc-clean-select">
+            <option value="lbh" selected>lb/hr (Mass)</option>
+            <option value="gpm">US GPM (Liquid)</option>
+            <option value="kgh">kg/hr (Metric)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Mass or volumetric rate entering shell nozzle</small>
+      </div>
+
+      <!-- Shell Fluid Density & Viscosity -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_fluidType">Shell Fluid Properties</label>
+        <select id="st_fluidType" class="calc-clean-select">
+          <option value="water" selected>Water / Condensate (62.4 lb/ft³, 0.8 cP)</option>
+          <option value="crude">Light Hydrocarbon / Crude (48.0 lb/ft³, 2.5 cP)</option>
+          <option value="glycol">50% Water-Ethylene Glycol (66.5 lb/ft³, 3.2 cP)</option>
+          <option value="lubeoil">Lube / Hydraulic Oil ISO 46 (54.5 lb/ft³, 35.0 cP)</option>
+          <option value="gas">Hydrocarbon Gas / Steam (1.8 lb/ft³, 0.015 cP)</option>
+        </select>
+        <small class="calc-clean-help">Determines Reynolds number, friction factor, and pressure loss</small>
+      </div>
+
+      <!-- Exchanger Tube Length -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_tubeLength">Exchanger Tube Length (L)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="st_tubeLength" class="calc-clean-input" value="16" min="4" max="40" step="1">
+          <select id="st_lengthUnit" class="calc-clean-select">
+            <option value="ft" selected>Feet (ft)</option>
+            <option value="m">Meters (m)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Nominal straight tube length between tubesheets</small>
+      </div>
+
+      <!-- TEMA Class & Max Allowed Delta P -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="st_temaClass">TEMA Service Standard & Limit</label>
+        <div class="calc-clean-input-group">
+          <select id="st_temaClass" class="calc-clean-select">
+            <option value="R" selected>TEMA Class R (Petroleum/Refinery)</option>
+            <option value="C">TEMA Class C (General Commercial)</option>
+            <option value="B">TEMA Class B (Chemical Process)</option>
+          </select>
+          <select id="st_maxDeltaP" class="calc-clean-select">
+            <option value="10" selected>Max ΔP: 10 psi (0.69 bar)</option>
+            <option value="5">Max ΔP: 5 psi (0.35 bar)</option>
+            <option value="15">Max ΔP: 15 psi (1.03 bar)</option>
+            <option value="25">Max ΔP: 25 psi (1.72 bar)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Client allowable pressure drop budget</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Bell-Delaware Hydrodynamic & Acoustic Audit</h2>
+    <div class="st-metrics-grid">
+      <!-- Total Shell Pressure Drop -->
+      <div class="st-metric-card" id="st_dp_card">
+        <div class="st-metric-label">Total Shell Pressure Drop (ΔPs)</div>
+        <div class="st-metric-value" id="st_res_dp">6.82 psi</div>
+        <div class="st-metric-sub" id="st_res_dp_bar">0.470 bar (47.0 kPa)</div>
+      </div>
+
+      <!-- Crossflow Velocity -->
+      <div class="st-metric-card" id="st_vel_card">
+        <div class="st-metric-label">Crossflow Mass Velocity (Gs)</div>
+        <div class="st-metric-value" id="st_res_gs">4.12 ft/s</div>
+        <div class="st-metric-sub" id="st_res_gs_sub">257,000 lb/hr·ft² (1.26 m/s)</div>
+      </div>
+
+      <!-- Baffle Count -->
+      <div class="st-metric-card highlight">
+        <div class="st-metric-label">Baffle Quantity (Nb)</div>
+        <div class="st-metric-value" id="st_res_nb">23 Baffles</div>
+        <div class="st-metric-sub" id="st_res_nb_sub">Spacing B = 8.0 in (33% Ds)</div>
+      </div>
+
+      <!-- Reynolds Number & Regime -->
+      <div class="st-metric-card">
+        <div class="st-metric-label">Shell-Side Reynolds Number</div>
+        <div class="st-metric-value" id="st_res_re">12,450 Re</div>
+        <div class="st-metric-sub" id="st_res_regime">Turbulent Cross-Flow Regime</div>
+      </div>
+
+      <!-- Tube Vibration Strouhal Frequency -->
+      <div class="st-metric-card" id="st_vib_card">
+        <div class="st-metric-label">Vortex Shedding Frequency (fv)</div>
+        <div class="st-metric-value" id="st_res_fv">13.2 Hz</div>
+        <div class="st-metric-sub" id="st_res_fv_sub">Acoustic Ratio: Safe (< 0.8 fn)</div>
+      </div>
+
+      <!-- TEMA Geometry Status -->
+      <div class="st-metric-card" id="st_status_card">
+        <div class="st-metric-label">TEMA Geometry Compliance</div>
+        <div class="st-metric-value" id="st_res_status">TEMA COMPLIANT</div>
+        <div class="st-metric-sub" id="st_res_status_sub">All pitch, cut & span criteria met</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG Shell & Tube Exchanger Cross-Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live Shell-Side Flow Path & Baffle Geometry Cutaway</h2>
+    <div class="st-svg-container">
+      <svg id="st_svg" viewBox="0 0 820 420" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Shell and Tube Heat Exchanger Baffle Cutaway">
+        <defs>
+          <linearGradient id="stShellGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#334155"/>
+            <stop offset="50%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+          </linearGradient>
+          <linearGradient id="stFluidGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ef4444"/>
+            <stop offset="50%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#3b82f6"/>
+          </linearGradient>
+          <marker id="stFlowArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+        </defs>
+
+        <!-- Background -->
+        <rect x="0" y="0" width="820" height="420" fill="#0b1120" rx="8"/>
+
+        <!-- Outer Shell Wall -->
+        <rect x="70" y="70" width="680" height="260" fill="url(#stShellGrad)" stroke="#475569" stroke-width="3" rx="12"/>
+
+        <!-- Tubesheet Plates (Left and Right) -->
+        <rect x="85" y="65" width="22" height="270" fill="#64748b" stroke="#94a3b8" stroke-width="1.5" rx="3"/>
+        <rect x="713" y="65" width="22" height="270" fill="#64748b" stroke="#94a3b8" stroke-width="1.5" rx="3"/>
+        <text x="96" y="55" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="middle">TS-IN</text>
+        <text x="724" y="55" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="middle">TS-OUT</text>
+
+        <!-- Shell In/Out Nozzles -->
+        <!-- Inlet Nozzle (Top Left) -->
+        <rect x="135" y="30" width="50" height="42" fill="#334155" stroke="#64748b" stroke-width="2"/>
+        <polygon points="125,30 195,30 190,40 130,40" fill="#475569"/>
+        <line x1="160" y1="15" x2="160" y2="60" stroke="#ef4444" stroke-width="2.5" marker-end="url(#stFlowArrow)"/>
+        <text x="160" y="22" fill="#f87171" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">SHELL INLET</text>
+
+        <!-- Outlet Nozzle (Bottom Right) -->
+        <rect x="635" y="328" width="50" height="42" fill="#334155" stroke="#64748b" stroke-width="2"/>
+        <polygon points="125,30 195,30 190,40 130,40" transform="translate(500,340)" fill="#475569"/>
+        <line x1="660" y1="335" x2="660" y2="385" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#stFlowArrow)"/>
+        <text x="660" y="402" fill="#60a5fa" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">SHELL OUTLET</text>
+
+        <!-- Longitudinal Heat Exchanger Tubes (Passing Through Bundle) -->
+        <!-- 7 representative tube passes -->
+        <line x1="107" y1="110" x2="713" y2="110" stroke="#94a3b8" stroke-width="5" stroke-dasharray="8,2" opacity="0.6"/>
+        <line x1="107" y1="140" x2="713" y2="140" stroke="#94a3b8" stroke-width="5" stroke-dasharray="8,2" opacity="0.6"/>
+        <line x1="107" y1="170" x2="713" y2="170" stroke="#94a3b8" stroke-width="5" stroke-dasharray="8,2" opacity="0.6"/>
+        <line x1="107" y1="200" x2="713" y2="200" stroke="#94a3b8" stroke-width="5" stroke-dasharray="8,2" opacity="0.6"/>
+        <line x1="107" y1="230" x2="713" y2="230" stroke="#94a3b8" stroke-width="5" stroke-dasharray="8,2" opacity="0.6"/>
+        <line x1="107" y1="260" x2="713" y2="260" stroke="#94a3b8" stroke-width="5" stroke-dasharray="8,2" opacity="0.6"/>
+        <line x1="107" y1="290" x2="713" y2="290" stroke="#94a3b8" stroke-width="5" stroke-dasharray="8,2" opacity="0.6"/>
+
+        <!-- Alternating Segmental Baffles -->
+        <!-- Baffle 1 (Top Cut: solid from bottom y=328 up to y=135, open top window) -->
+        <rect x="220" y="135" width="12" height="193" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1.5" rx="2" id="svg_baffle1"/>
+        <!-- Baffle 2 (Bottom Cut: solid from top y=72 down to y=265, open bottom window) -->
+        <rect x="310" y="72" width="12" height="193" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1.5" rx="2" id="svg_baffle2"/>
+        <!-- Baffle 3 (Top Cut) -->
+        <rect x="400" y="135" width="12" height="193" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1.5" rx="2" id="svg_baffle3"/>
+        <!-- Baffle 4 (Bottom Cut) -->
+        <rect x="490" y="72" width="12" height="193" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1.5" rx="2" id="svg_baffle4"/>
+        <!-- Baffle 5 (Top Cut) -->
+        <rect x="580" y="135" width="12" height="193" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1.5" rx="2" id="svg_baffle5"/>
+
+        <!-- Zig-Zag Crossflow Streamline -->
+        <path d="M 160 70 C 160 180, 200 280, 250 280 C 270 280, 270 100, 340 100 C 370 100, 360 280, 430 280 C 460 280, 450 100, 520 100 C 550 100, 550 280, 620 280 C 640 280, 660 300, 660 330" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="6,4" opacity="0.85"/>
+
+        <!-- Baffle Pitch Dimension Line (B) -->
+        <line x1="226" y1="345" x2="316" y2="345" stroke="#f59e0b" stroke-width="2"/>
+        <polyline points="231,341 226,345 231,349" stroke="#f59e0b" stroke-width="2" fill="none"/>
+        <polyline points="311,341 316,345 311,349" stroke="#f59e0b" stroke-width="2" fill="none"/>
+        <text x="271" y="362" fill="#fbbf24" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle" id="svg_pitchB">B = 8.0 in</text>
+
+        <!-- Baffle Cut Dimension Line (Bc) -->
+        <line x1="205" y1="72" x2="205" y2="135" stroke="#ec4899" stroke-width="2"/>
+        <polyline points="201,77 205,72 209,77" stroke="#ec4899" stroke-width="2" fill="none"/>
+        <polyline points="201,130 205,135 209,130" stroke="#ec4899" stroke-width="2" fill="none"/>
+        <text x="180" y="108" fill="#f472b6" font-size="10" font-family="monospace" font-weight="bold" text-anchor="end" id="svg_cutBc">25% Cut</text>
+
+        <!-- Shell Diameter Dimension Line (Ds) -->
+        <line x1="45" y1="72" x2="45" y2="328" stroke="#38bdf8" stroke-width="2"/>
+        <polyline points="41,77 45,72 49,77" stroke="#38bdf8" stroke-width="2" fill="none"/>
+        <polyline points="41,323 45,328 49,323" stroke="#38bdf8" stroke-width="2" fill="none"/>
+        <text x="35" y="205" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="bold" text-anchor="end" id="svg_shellDs">Ds = 24"</text>
+
+        <!-- Diagnostic Overlay Badge (Top Right) -->
+        <rect x="495" y="18" width="255" height="42" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="5"/>
+        <text x="505" y="36" fill="#94a3b8" font-size="10" font-family="sans-serif">ΔPs Shell Loss:</text>
+        <text x="620" y="36" fill="#f87171" font-size="12" font-weight="bold" font-family="monospace" id="svg_dpVal">6.82 psi</text>
+        <text x="505" y="52" fill="#94a3b8" font-size="10" font-family="sans-serif">Crossflow Vel:</text>
+        <text x="620" y="52" fill="#4ade80" font-size="11" font-weight="bold" font-family="monospace" id="svg_velVal">4.12 ft/s</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Bell-Delaware & TEMA Calculations</h2>
+    <div class="st-derivations">
+      <div class="st-step">
+        <div class="st-step-title">1. Shell Cross-Flow Area at Centerline (Sm)</div>
+        <p>Cross-flow area represents the minimum flow window between adjacent tubes at the shell diameter centerline:</p>
+        <div class="st-formula">
+          S_m = B \cdot \left[ \frac{D_s (P_t - d_o)}{P_t} \right]
+        </div>
+        <p>For $D_s = <span id="drv_ds">24.0</span>$ in, Baffle Pitch $B = <span id="drv_b">8.0</span>$ in, Tube OD $d_o = <span id="drv_do">0.75</span>$ in, and Tube Pitch $P_t = <span id="drv_pt">0.938</span>$ in ($1.25 \times d_o$):</p>
+        <div class="st-formula highlight">
+          S_m = (<span id="drv_b2">8.0</span>) \cdot \left[ \frac{(<span id="drv_ds2">24.0</span>) \cdot (<span id="drv_pt2">0.938</span> - <span id="drv_do2">0.75</span>)}{<span id="drv_pt3">0.938</span>} \right] = <span id="drv_sm_in2">38.4</span>\text{ in² (<span id="drv_sm_ft2">0.267</span> ft²)}
+        </div>
+      </div>
+
+      <div class="st-step">
+        <div class="st-step-title">2. Shell-Side Cross-Flow Mass Velocity & Reynolds Number</div>
+        <p>Mass velocity $G_s$ and linear crossflow velocity $v_s$ through the tube bundle:</p>
+        <div class="st-formula">
+          G_s = \frac{\dot{m}_s}{S_m} = \frac{<span id="drv_m">120,000</span>\text{ lb/hr}}{<span id="drv_sm_ft3">0.267</span>\text{ ft²}} = <span id="drv_gs_calc">449,438</span>\text{ lb/hr·ft²}
+        </div>
+        <div class="st-formula">
+          v_s = \frac{G_s}{\rho_s \cdot 3600} = \frac{<span id="drv_gs2">449438</span>}{(<span id="drv_rho">62.4</span>) \cdot 3600} = <span id="drv_vs_calc">2.00</span>\text{ ft/s (<span id="drv_vs_ms">0.61</span> m/s)}
+        </div>
+        <p>Shell-side Reynolds number based on tube outer diameter:</p>
+        <div class="st-formula highlight">
+          Re_s = \frac{d_o \cdot G_s}{\mu_s} = \frac{(<span id="drv_do_ft">0.0625</span>) \cdot (<span id="drv_gs3">449438</span>)}{<span id="drv_mu">0.000538</span>} = <span id="drv_re_calc">12,450</span>\text{ (<span id="drv_re_regime">Turbulent Flow</span>)}
+        </div>
+      </div>
+
+      <div class="st-step">
+        <div class="st-step-title">3. Bell-Delaware Shell-Side Total Pressure Drop (ΔPs)</div>
+        <p>Total pressure drop comprises pure cross-flow passes, window turn passes, and nozzle inlet/outlet expansion losses, modulated by leakage correction factors ($J_l = 0.72$ for tube/baffle and baffle/shell clearances):</p>
+        <div class="st-formula highlight">
+          \Delta P_s = \left[ (N_b - 1) \cdot \Delta P_{bi} \cdot J_b + N_b \cdot \Delta P_{wi} \right] \cdot J_l + 2 \cdot \Delta P_{nozzle} = <span id="drv_dp_calc">6.82</span>\text{ psi (<span id="drv_dp_bar">0.470</span> bar)}
+        </div>
+      </div>
+
+      <div class="st-step">
+        <div class="st-step-title">4. Vortex Shedding (VIV) & Acoustic Vibration Screening</div>
+        <p>Strouhal vortex shedding frequency from tube wake instability ($St = 0.21$):</p>
+        <div class="st-formula">
+          f_v = \frac{St \cdot v_s}{d_o} = \frac{0.21 \cdot <span id="drv_vs_fps">2.00</span>}{<span id="drv_do_ft2">0.0625</span>} = <span id="drv_fv_calc">6.72</span>\text{ Hz}
+        </div>
+        <p id="drv_vibSummary">Screening shows acoustic frequency ratio is safely separated from tube natural fundamental frequency (fn ≈ 28.5 Hz). No acoustic baffling or de-resonating plates required.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">TEMA Shell & Tube Hydrodynamic Audit Report</h2>
+      <button type="button" id="copyStAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy TEMA Baffle Audit</span>
+      </button>
+    </div>
+    <pre id="st_audit_box" class="st-audit-box">Generating TEMA baffle and pressure drop compliance audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Shell & Tube Baffle Engineering Traps</h2>
+    <div class="st-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. Flow-Induced Tube Vibration & Mid-Span Fatigue Clashing</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Increasing baffle spacing ($B > D_s$) to artificially reduce pressure drop creates excessive unsupported tube spans ($L_{span} > 52$ in). When shell-side crossflow velocity approaches the critical velocity, fluid-elastic instability causes adjacent tubes to clash violently at mid-span, wearing through tube walls and causing catastrophic cross-contamination within weeks.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Excessive Baffle Cut (>35%) Causing Stagnant Dead Zones & Severe Fouling</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Specifying a large baffle cut ($> 35%$ to $45%$) allows fluid to short-circuit directly through the windows without sweeping the tube bundle. In the "shadow" of each baffle, shell-side flow stagnates to nearly zero velocity, dropping particulate out of suspension, accelerating biological fouling, and reducing heat transfer coefficient by up to 40%.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Overly Tight Baffle Spacing (<0.2 Ds) Violating TEMA Pressure Drop Limits</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Because shell pressure drop scales with the number of baffles ($N_b approx L/B$) and inversely with $B^2$ or $B^3$, reducing baffle pitch below TEMA's minimum guideline ($0.2 D_s$) causes pressure drop to skyrocket by 400% to 800%, deadheading plant circulation pumps while providing diminishing heat transfer returns.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Ignoring Shell-to-Baffle Clearance Bypass (Stream E Leakage)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          TEMA standards require mechanical diametral clearances between the baffle outer diameter and shell inner diameter ($1/8$ to $3/16$ inch). In uncorroded exchangers, up to 15% to 25% of shell flow bypasses the bundle entirely through this annular gap (Stream E). Neglecting Bell-Delaware leakage corrections leads to massive under-prediction of required heat transfer surface area.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Horizontal Baffle Cuts in Condensing or Vaporizing Service</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Using horizontal segmental baffle cuts (up/down flow) on condensing steam or boiling refrigerants creates liquid condensate pooling behind bottom baffles, choking vapor flow and causing liquid slugging water hammer. Two-phase services must utilize vertical baffle cuts (side-to-side flow) with drain notches at the bottom of every baffle plate.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.st-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.st-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.st-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.st-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.st-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.st-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.st-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.st-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.st-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.st-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.st-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.st-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.st-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.st-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.st-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const shellDiamInput = document.getElementById('st_shellDiam');
+  const diamUnitSelect = document.getElementById('st_diamUnit');
+  const tubeODSelect = document.getElementById('st_tubeOD');
+  const pitchLayoutSelect = document.getElementById('st_pitchLayout');
+  const bafflePitchInput = document.getElementById('st_bafflePitch');
+  const pitchUnitSelect = document.getElementById('st_pitchUnit');
+  const baffleCutInput = document.getElementById('st_baffleCut');
+  const fluidFlowInput = document.getElementById('st_fluidFlow');
+  const flowUnitSelect = document.getElementById('st_flowUnit');
+  const fluidTypeSelect = document.getElementById('st_fluidType');
+  const tubeLengthInput = document.getElementById('st_tubeLength');
+  const lengthUnitSelect = document.getElementById('st_lengthUnit');
+  const temaClassSelect = document.getElementById('st_temaClass');
+  const maxDeltaPSelect = document.getElementById('st_maxDeltaP');
+
+  // Result Metrics
+  const resDp = document.getElementById('st_res_dp');
+  const resDpBar = document.getElementById('st_res_dp_bar');
+  const dpCard = document.getElementById('st_dp_card');
+  const resGs = document.getElementById('st_res_gs');
+  const resGsSub = document.getElementById('st_res_gs_sub');
+  const velCard = document.getElementById('st_vel_card');
+  const resNb = document.getElementById('st_res_nb');
+  const resNbSub = document.getElementById('st_res_nb_sub');
+  const resRe = document.getElementById('st_res_re');
+  const resRegime = document.getElementById('st_res_regime');
+  const resFv = document.getElementById('st_res_fv');
+  const resFvSub = document.getElementById('st_res_fv_sub');
+  const vibCard = document.getElementById('st_vib_card');
+  const resStatus = document.getElementById('st_res_status');
+  const resStatusSub = document.getElementById('st_res_status_sub');
+  const statusCard = document.getElementById('st_status_card');
+
+  // SVG Elements
+  const svgPitchB = document.getElementById('svg_pitchB');
+  const svgCutBc = document.getElementById('svg_cutBc');
+  const svgShellDs = document.getElementById('svg_shellDs');
+  const svgDpVal = document.getElementById('svg_dpVal');
+  const svgVelVal = document.getElementById('svg_velVal');
+
+  // Derivations Elements
+  const drvDs = document.getElementById('drv_ds');
+  const drvB = document.getElementById('drv_b');
+  const drvDo = document.getElementById('drv_do');
+  const drvPt = document.getElementById('drv_pt');
+  const drvB2 = document.getElementById('drv_b2');
+  const drvDs2 = document.getElementById('drv_ds2');
+  const drvPt2 = document.getElementById('drv_pt2');
+  const drvDo2 = document.getElementById('drv_do2');
+  const drvPt3 = document.getElementById('drv_pt3');
+  const drvSmIn2 = document.getElementById('drv_sm_in2');
+  const drvSmFt2 = document.getElementById('drv_sm_ft2');
+  const drvM = document.getElementById('drv_m');
+  const drvSmFt3 = document.getElementById('drv_sm_ft3');
+  const drvGsCalc = document.getElementById('drv_gs_calc');
+  const drvGs2 = document.getElementById('drv_gs2');
+  const drvRho = document.getElementById('drv_rho');
+  const drvVsCalc = document.getElementById('drv_vs_calc');
+  const drvVsMs = document.getElementById('drv_vs_ms');
+  const drvDoFt = document.getElementById('drv_do_ft');
+  const drvGs3 = document.getElementById('drv_gs3');
+  const drvMu = document.getElementById('drv_mu');
+  const drvReCalc = document.getElementById('drv_re_calc');
+  const drvReRegime = document.getElementById('drv_re_regime');
+  const drvDpCalc = document.getElementById('drv_dp_calc');
+  const drvDpBar = document.getElementById('drv_dp_bar');
+  const drvVsFps = document.getElementById('drv_vs_fps');
+  const drvDoFt2 = document.getElementById('drv_do_ft2');
+  const drvFvCalc = document.getElementById('drv_fv_calc');
+  const drvVibSummary = document.getElementById('drv_vibSummary');
+
+  const auditBox = document.getElementById('st_audit_box');
+
+  const fluids = {
+    water: { name: 'Water / Condensate', rho: 62.4, mu_cp: 0.80 },
+    crude: { name: 'Light Hydrocarbon', rho: 48.0, mu_cp: 2.50 },
+    glycol: { name: '50% Water-Glycol', rho: 66.5, mu_cp: 3.20 },
+    lubeoil: { name: 'Lube Oil ISO 46', rho: 54.5, mu_cp: 35.0 },
+    gas: { name: 'Vapor / Steam', rho: 1.80, mu_cp: 0.015 }
+  };
+
+  function calculate() {
+    let Ds_in = parseFloat(shellDiamInput.value) || 24;
+    if (diamUnitSelect.value === 'mm') Ds_in /= 25.4;
+
+    const do_in = parseFloat(tubeODSelect.value) || 0.75;
+    const layoutAngle = parseInt(pitchLayoutSelect.value) || 30;
+
+    // Standard pitch ratio is 1.25 * do
+    const Pt_in = 1.25 * do_in;
+
+    let B_in = parseFloat(bafflePitchInput.value) || 8.0;
+    if (pitchUnitSelect.value === 'mm') B_in /= 25.4;
+
+    const Bc_pct = parseFloat(baffleCutInput.value) || 25;
+
+    let rawFlow = parseFloat(fluidFlowInput.value) || 120000;
+    const flowUnit = flowUnitSelect.value;
+    const fluidKey = fluidTypeSelect.value;
+    const fluid = fluids[fluidKey] || fluids.water;
+
+    let m_lbh = 120000;
+    if (flowUnit === 'lbh') {
+      m_lbh = rawFlow;
+    } else if (flowUnit === 'gpm') {
+      // GPM to lb/hr: GPM * 8.34 * SG * 60
+      const sg = fluid.rho / 62.4;
+      m_lbh = rawFlow * 8.3454 * sg * 60;
+    } else if (flowUnit === 'kgh') {
+      m_lbh = rawFlow * 2.20462;
+    }
+
+    let L_ft = parseFloat(tubeLengthInput.value) || 16;
+    if (lengthUnitSelect.value === 'm') L_ft *= 3.28084;
+    const L_in = L_ft * 12;
+
+    const temaClass = temaClassSelect.value;
+    const maxDeltaP = parseFloat(maxDeltaPSelect.value) || 10.0;
+
+    // TEMA Guidelines Checks
+    const minB_in = Math.max(0.2 * Ds_in, 2.0);
+    const maxB_in = Ds_in;
+    const isBaffleSpacingValid = B_in >= minB_in && B_in <= maxB_in;
+    const isBaffleCutValid = Bc_pct >= 15 && Bc_pct <= 45;
+
+    // Number of Baffles
+    const Nb = Math.max(1, Math.round(L_in / B_in) - 1);
+
+    // 1. Cross-flow area at centerline (Sm in ft2)
+    // Sm = B * [Ds * (Pt - do) / Pt]
+    const Sm_in2 = B_in * (Ds_in * (Pt_in - do_in) / Pt_in);
+    const Sm_ft2 = Sm_in2 / 144;
+
+    // 2. Shell-side mass velocity & linear velocity
+    const Gs_lbh_ft2 = m_lbh / Sm_ft2;
+    const vs_fps = Gs_lbh_ft2 / (fluid.rho * 3600);
+    const vs_ms = vs_fps * 0.3048;
+
+    // Viscosity in lb/(ft-hr): 1 cP = 2.41909 lb/(ft-hr)
+    const mu_lb_fthr = fluid.mu_cp * 2.41909;
+    const do_ft = do_in / 12;
+
+    // 3. Reynolds number
+    const Re = (do_ft * Gs_lbh_ft2) / mu_lb_fthr;
+    let regime = 'Turbulent Crossflow';
+    if (Re < 200) regime = 'Laminar Regime (High Drag)';
+    else if (Re < 2000) regime = 'Transitional Flow';
+
+    // 4. Ideal Crossflow Pressure Drop per Baffle Pass (Bell-Delaware)
+    // Friction factor correlation (turbulent): f = 0.35 * Re^-0.15 for 30 deg staggered
+    let f_s = 0.35 * Math.pow(Math.max(Re, 10), -0.15);
+    if (layoutAngle === 90) f_s *= 0.85; // In-line square has lower friction
+    else if (layoutAngle === 45) f_s *= 1.10;
+
+    // Number of tube rows crossed per baffle window
+    const Ntc = Math.round((Ds_in * (1 - 2 * (Bc_pct / 100))) / Pt_in);
+
+    // Ideal cross-flow pressure drop per compartment:
+    // dP_bi (psi) = 2 * f * Ntc * (Gs / 3600)^2 / (2 * g * rho) / 144
+    const g = 32.174;
+    const Gs_sec = Gs_lbh_ft2 / 3600;
+    const dP_bi_psi = (2 * f_s * Math.max(Ntc, 2) * Math.pow(Gs_sec, 2)) / (2 * g * fluid.rho * 144);
+
+    // Window turn pressure drop dP_wi (psi)
+    const Gw_lbh_ft2 = Gs_lbh_ft2 * 1.15; // slightly higher window velocity
+    const dP_wi_psi = (Math.pow(Gw_lbh_ft2 / 3600, 2) / (2 * g * fluid.rho * 144)) * (2 + 0.6 * Ntc);
+
+    // Bell-Delaware Leakage & Bypass Correction Factors:
+    // J_l (tube-to-baffle and baffle-to-shell leakage) ~ 0.70 - 0.80
+    // J_b (bundle bypass stream C) ~ 0.85 - 0.90
+    // J_c (baffle cut window flow correction) ~ 0.65 - 1.05
+    const J_l = 0.74;
+    const J_b = 0.88;
+    const J_c = 0.55 + 0.015 * Bc_pct;
+
+    // Total shell-side pressure drop:
+    // dP_total = [(Nb - 1) * dP_bi * J_b + Nb * dP_wi] * J_l + 2 * dP_nozzle
+    const dP_nozzle_psi = 0.35; // typical nozzle loss
+    let total_dP_psi = ((Nb - 1) * dP_bi_psi * J_b * J_c + Nb * dP_wi_psi) * J_l + 2 * dP_nozzle_psi;
+    if (total_dP_psi < 0.2) total_dP_psi = 0.2;
+    const total_dP_bar = total_dP_psi * 0.0689476;
+
+    // 5. Vortex Shedding (Flow-Induced Vibration)
+    // Strouhal number St ~ 0.21
+    const St = 0.21;
+    const fv_hz = (St * vs_fps) / do_ft;
+
+    // Tube fundamental natural frequency (approximate carbon steel tube clamped between baffles):
+    // fn = (C / B_ft^2) * sqrt(E * I / me) ~ typically 25 to 50 Hz for standard spans
+    const B_ft = B_in / 12;
+    const fn_hz = Math.max(12, 18.5 / Math.pow(B_ft, 1.5));
+    const vibRatio = fv_hz / fn_hz;
+
+    // Status evaluation
+    const isDpOk = total_dP_psi <= maxDeltaP;
+    const isVibOk = vibRatio < 0.80 || vibRatio > 1.20;
+
+    // Update Result UI
+    resDp.textContent = total_dP_psi.toFixed(2) + ' psi';
+    resDpBar.textContent = total_dP_bar.toFixed(3) + ' bar (' + (total_dP_bar * 100).toFixed(1) + ' kPa)';
+    if (isDpOk) {
+      dpCard.className = 'st-metric-card pass';
+    } else {
+      dpCard.className = 'st-metric-card fail';
+    }
+
+    resGs.textContent = vs_fps.toFixed(2) + ' ft/s';
+    resGsSub.textContent = Math.round(Gs_lbh_ft2).toLocaleString() + ' lb/hr·ft² (' + vs_ms.toFixed(2) + ' m/s)';
+    if (vs_fps < 1.0 || vs_fps > 8.0) {
+      velCard.className = 'st-metric-card highlight';
+    } else {
+      velCard.className = 'st-metric-card pass';
+    }
+
+    resNb.textContent = Nb + ' Baffles';
+    resNbSub.textContent = 'Spacing B = ' + B_in.toFixed(1) + ' in (' + ((B_in / Ds_in) * 100).toFixed(0) + '% Ds)';
+
+    resRe.textContent = Math.round(Re).toLocaleString() + ' Re';
+    resRegime.textContent = regime;
+
+    resFv.textContent = fv_hz.toFixed(1) + ' Hz';
+    if (!isVibOk) {
+      resFvSub.textContent = 'DANGER: Resonance (fv/fn = ' + vibRatio.toFixed(2) + ')';
+      vibCard.className = 'st-metric-card fail';
+    } else {
+      resFvSub.textContent = 'Safe separation (fv/fn = ' + vibRatio.toFixed(2) + ', fn ≈ ' + fn_hz.toFixed(0) + ' Hz)';
+      vibCard.className = 'st-metric-card pass';
+    }
+
+    if (isBaffleSpacingValid && isBaffleCutValid && isDpOk && isVibOk) {
+      resStatus.textContent = 'TEMA COMPLIANT';
+      resStatusSub.textContent = 'Meets Class ' + temaClass + ' spacing, drop & acoustic limits';
+      statusCard.className = 'st-metric-card pass';
+    } else {
+      resStatus.textContent = 'NON-COMPLIANT';
+      let reason = [];
+      if (!isBaffleSpacingValid) reason.push('Spacing Out of TEMA Bounds');
+      if (!isBaffleCutValid) reason.push('Baffle Cut Beyond 15-45%');
+      if (!isDpOk) reason.push('Exceeds Max ΔP Budget');
+      if (!isVibOk) reason.push('Acoustic Resonance Danger');
+      resStatusSub.textContent = reason.join(', ');
+      statusCard.className = 'st-metric-card fail';
+    }
+
+    // SVG Updates
+    svgPitchB.textContent = 'B = ' + B_in.toFixed(1) + ' in';
+    svgCutBc.textContent = Bc_pct + '% Cut';
+    svgShellDs.textContent = 'Ds = ' + Ds_in.toFixed(0) + ' in';
+    svgDpVal.textContent = total_dP_psi.toFixed(2) + ' psi';
+    svgVelVal.textContent = vs_fps.toFixed(2) + ' ft/s';
+
+    // Derivations updates
+    drvDs.textContent = Ds_in.toFixed(1);
+    drvB.textContent = B_in.toFixed(1);
+    drvDo.textContent = do_in.toFixed(3);
+    drvPt.textContent = Pt_in.toFixed(3);
+    drvB2.textContent = B_in.toFixed(1);
+    drvDs2.textContent = Ds_in.toFixed(1);
+    drvPt2.textContent = Pt_in.toFixed(3);
+    drvDo2.textContent = do_in.toFixed(3);
+    drvPt3.textContent = Pt_in.toFixed(3);
+    drvSmIn2.textContent = Sm_in2.toFixed(1);
+    drvSmFt2.textContent = Sm_ft2.toFixed(3);
+
+    drvM.textContent = Math.round(m_lbh).toLocaleString();
+    drvSmFt3.textContent = Sm_ft2.toFixed(3);
+    drvGsCalc.textContent = Math.round(Gs_lbh_ft2).toLocaleString();
+    drvGs2.textContent = Math.round(Gs_lbh_ft2).toLocaleString();
+    drvRho.textContent = fluid.rho.toFixed(1);
+    drvVsCalc.textContent = vs_fps.toFixed(2);
+    drvVsMs.textContent = vs_ms.toFixed(2);
+
+    drvDoFt.textContent = do_ft.toFixed(4);
+    drvGs3.textContent = Math.round(Gs_lbh_ft2).toLocaleString();
+    drvMu.textContent = (mu_lb_fthr / 3600).toFixed(6);
+    drvReCalc.textContent = Math.round(Re).toLocaleString();
+    drvReRegime.textContent = regime;
+
+    drvDpCalc.textContent = total_dP_psi.toFixed(2);
+    drvDpBar.textContent = total_dP_bar.toFixed(3);
+
+    drvVsFps.textContent = vs_fps.toFixed(2);
+    drvDoFt2.textContent = do_ft.toFixed(4);
+    drvFvCalc.textContent = fv_hz.toFixed(2);
+
+    if (!isVibOk) {
+      drvVibSummary.textContent = 'DANGER: Vortex shedding frequency (' + fv_hz.toFixed(1) + ' Hz) is within ±20% of the tube fundamental natural frequency (fn ≈ ' + fn_hz.toFixed(1) + ' Hz). Severe flow-induced acoustic vibration and mid-span clashing fatigue will occur. Adjust baffle pitch B or install de-resonating acoustic baffles.';
+    } else {
+      drvVibSummary.textContent = 'Screening confirms vortex shedding frequency (' + fv_hz.toFixed(1) + ' Hz) is well separated from tube natural fundamental frequency (fn ≈ ' + fn_hz.toFixed(1) + ' Hz, ratio: ' + vibRatio.toFixed(2) + '). Tube bundle is aerodynamically and acoustically stable.';
+    }
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   TEMA STANDARDS & BELL-DELAWARE BAFFLE AUDIT        \n' +
+      '=======================================================\n' +
+      'Shell Inside Diameter (Ds): ' + Ds_in.toFixed(1) + ' in (' + (Ds_in * 25.4).toFixed(0) + ' mm)\n' +
+      'Tube Outer Diameter (do):   ' + do_in.toFixed(3) + ' in (' + (do_in * 25.4).toFixed(2) + ' mm) on ' + Pt_in.toFixed(3) + ' in ' + layoutAngle + '° Pitch\n' +
+      'Segmental Baffle Pitch (B): ' + B_in.toFixed(1) + ' in (' + ((B_in / Ds_in) * 100).toFixed(0) + '% Ds) [' + (isBaffleSpacingValid ? 'TEMA Pass' : 'TEMA Fail: Must be 0.2-1.0 Ds') + ']\n' +
+      'Segmental Baffle Cut (Bc):  ' + Bc_pct.toFixed(0) + '% of Ds [' + (isBaffleCutValid ? 'Optimal Window Pass' : 'Outside 15-45% Bounds') + ']\n' +
+      'Total Baffles Installed:    ' + Nb + ' Baffles across ' + L_ft.toFixed(1) + ' ft Tube Bundle\n' +
+      'Shell Fluid Throughput:     ' + Math.round(m_lbh).toLocaleString() + ' lb/hr (' + fluid.name + ')\n' +
+      '-------------------------------------------------------\n' +
+      'Centerline Cross-Flow Area: ' + Sm_in2.toFixed(1) + ' in² (' + Sm_ft2.toFixed(3) + ' ft²)\n' +
+      'Crossflow Mass Velocity:    ' + Math.round(Gs_lbh_ft2).toLocaleString() + ' lb/hr·ft² (Linear: ' + vs_fps.toFixed(2) + ' ft/s / ' + vs_ms.toFixed(2) + ' m/s)\n' +
+      'Shell-Side Reynolds Number: ' + Math.round(Re).toLocaleString() + ' [' + regime + ']\n' +
+      'TOTAL SHELL PRESSURE DROP:  ' + total_dP_psi.toFixed(2) + ' psi (' + total_dP_bar.toFixed(3) + ' bar / ' + (total_dP_bar * 100).toFixed(1) + ' kPa)\n' +
+      'Client ΔP Budget:           ' + maxDeltaP.toFixed(1) + ' psi [' + (isDpOk ? 'PASS: Within Budget' : 'FAIL: OVERPRESSURE') + ']\n' +
+      'Vortex Shedding Frequency:  ' + fv_hz.toFixed(1) + ' Hz (Tube fn ≈ ' + fn_hz.toFixed(1) + ' Hz, Ratio: ' + vibRatio.toFixed(2) + ') [' + (isVibOk ? 'ACOUSTICALLY SAFE' : 'RESONANCE HAZARD') + ']\n' +
+      'TEMA Compliance Status:     ' + (isBaffleSpacingValid && isBaffleCutValid && isDpOk && isVibOk ? 'APPROVED - TEMA CLASS ' + temaClass : 'NON-CONFORMING') + '\n' +
+      'Engineering Standard:       TEMA 10th Edition / Bell-Delaware Method\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyStAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyStAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied TEMA Baffle Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [shellDiamInput, diamUnitSelect, tubeODSelect, pitchLayoutSelect, bafflePitchInput, pitchUnitSelect, baffleCutInput, fluidFlowInput, flowUnitSelect, fluidTypeSelect, tubeLengthInput, lengthUnitSelect, temaClassSelect, maxDeltaPSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'shell-and-tube-baffle-sizing-calculator.html'), renderTradePage({
+    title: "Shell & Tube Baffle Sizing & Pressure Drop Calculator | Bell-Delaware & TEMA",
+    metaDesc: "Calculate shell and tube heat exchanger segmental baffle cut, baffle pitch, cross-flow mass velocity, shell-side pressure drop, and tube acoustic resonance per TEMA.",
+    canonical: `${DOMAIN}/calc/shell-and-tube-baffle-sizing-calculator`,
+    bodyContent: shellBaffleBody,
+    currentPath: '/calc/shell-and-tube-baffle-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the recommended segmental baffle cut percentage in a shell and tube heat exchanger?",
+        "a": "Per TEMA standards and the Bell-Delaware method, the standard segmental baffle cut ranges from 15% to 45% of the shell inside diameter, with 20% to 25% considered optimal for most single-phase liquid applications. Baffle cuts below 15% cause excessive window pressure drop, while cuts above 35% create stagnant dead zones in the baffle shadows."
+      },
+      {
+        "q": "What is the TEMA rule for minimum and maximum baffle spacing?",
+        "a": "TEMA mandates that the minimum baffle spacing (B) must not be less than one-fifth of the shell inside diameter (0.2·Ds) or 2.0 inches (50 mm), whichever is greater. The maximum baffle spacing must not exceed the shell inside diameter (1.0·Ds) to prevent flow stratification and unsupported tube span sagging."
+      },
+      {
+        "q": "How does the Bell-Delaware method account for baffle leakage streams?",
+        "a": "Unlike simple bulk velocity equations, the Bell-Delaware method calculates an ideal crossflow pressure drop and multiplies it by five empirical correction factors: J_c for baffle cut geometry, J_l for tube-to-baffle and baffle-to-shell clearance leakage (Stream A and E), J_b for bundle bypass (Stream C), J_s for unequal baffle spacing at nozzles, and J_r for laminar temperature gradients."
+      },
+      {
+        "q": "What causes flow-induced tube vibration (FIV) in shell and tube heat exchangers?",
+        "a": "Flow-induced vibration occurs when high-velocity cross-flow sheds alternating vortices behind tubes at a frequency (fv = St · vs / do) that matches the tube's natural mechanical fundamental frequency (fn). When the frequency ratio fv/fn falls between 0.8 and 1.2, fluid-elastic instability causes violent mid-span tube clashing and fatigue failure."
+      },
+      {
+        "q": "Why are horizontal baffle cuts forbidden in condensing or boiling services?",
+        "a": "In condensing steam or boiling refrigerant service, horizontal baffle cuts (top and bottom openings) trap liquid condensate in pools behind the lower baffles, submerging active tube surface area and causing severe hydraulic slugging. Two-phase services must utilize vertical baffle cuts (side-to-side flow) with bottom drain notches."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 66: Mechanical Vapor Recompression (MVR) Evaporator Calculator
+  // ==========================================
+  const mvrEvaporatorBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">Industrial Wastewater & ZLD</span>
+      <span class="calc-clean-badge">Thermodynamic Vapor Compression</span>
+      <span class="calc-clean-badge">Food & Chemical Processing</span>
+    </div>
+    <h1 class="calc-clean-title">Mechanical Vapor Recompression (MVR) Evaporator Calculator</h1>
+    <p class="calc-clean-desc">
+      Size industrial falling film MVR evaporators, compressor enthalpy lift, electric power consumption, specific energy consumption (kWh/ton), heat transfer surface area, and equivalent thermal COP.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Feed Slurry / Liquid Rate -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_feedRate">Raw Feed Flow Rate</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="mvr_feedRate" class="calc-clean-input" value="25000" min="500" max="500000" step="500">
+          <select id="mvr_feedUnit" class="calc-clean-select">
+            <option value="lbh" selected>lb/hr</option>
+            <option value="gpm">US GPM</option>
+            <option value="kgh">kg/hr</option>
+            <option value="tph">Metric Tons/hr</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Total liquor entering evaporator preheaters</small>
+      </div>
+
+      <!-- Feed & Discharge Solids Concentration -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_feedSolids">Feed Solids (TS) & Target Conc.</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="mvr_feedSolids" class="calc-clean-input" value="6.0" min="0.5" max="40" step="0.5" title="Feed Total Solids %">
+          <span style="display:flex; align-items:center; padding:0 0.5rem; background:rgba(255,255,255,0.05); color:#94a3b8; font-size:0.8rem;">to</span>
+          <input type="number" id="mvr_concSolids" class="calc-clean-input" value="48.0" min="10" max="80" step="1" title="Product Total Solids %">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">% TS</span>
+        </div>
+        <small class="calc-clean-help">Inlet wt% solids concentrated to discharge liquor wt%</small>
+      </div>
+
+      <!-- Evaporator Operating Temp / Pressure -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_evapTemp">Evaporation Temperature (T1)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="mvr_evapTemp" class="calc-clean-input" value="185" min="110" max="230" step="1">
+          <select id="mvr_tempUnit" class="calc-clean-select">
+            <option value="f" selected>°F (Vacuum 8.4 psia)</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">150-195°F preserves heat-sensitive dairy, proteins and polymers</small>
+      </div>
+
+      <!-- Boiling Point Elevation (BPE) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_bpe">Boiling Point Elevation (BPE)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="mvr_bpe" class="calc-clean-input" value="5.5" min="0" max="40" step="0.5">
+          <select id="mvr_bpeUnit" class="calc-clean-select">
+            <option value="f" selected>°F Delta</option>
+            <option value="c">°C Delta</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Solute salt concentration elevation above pure water boiling point</small>
+      </div>
+
+      <!-- Net Driving Temp Difference (Delta T driving) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_drivingDT">Calandria Driving ΔT</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="mvr_drivingDT" class="calc-clean-input" value="11.0" min="4" max="30" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F LMTD</span>
+        </div>
+        <small class="calc-clean-help">Effective temperature difference across heating tube walls (8-16°F typ.)</small>
+      </div>
+
+      <!-- Compressor Type & Isentropic Efficiency -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_compType">Vapor Compressor Technology</label>
+        <select id="mvr_compType" class="calc-clean-select">
+          <option value="single_centrif" selected>High-Speed Single-Stage Turbocompressor (η = 78%)</option>
+          <option value="multistage_fan">Multi-Stage Centrifugal Heavy Fan (η = 74%)</option>
+          <option value="roots_blower">Positive Displacement Roots Blower (η = 70%)</option>
+          <option value="dual_centrif">Two-Stage Turbocompressor with Interstage (η = 81%)</option>
+        </select>
+        <small class="calc-clean-help">Determines compression pressure ratio capability and shaft efficiency</small>
+      </div>
+
+      <!-- Heat Transfer Coefficient (U) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_uVal">Overall Heat Transfer Coeff (U)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="mvr_uVal" class="calc-clean-input" value="420" min="100" max="1000" step="10">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">BTU/hr·ft²·°F</span>
+        </div>
+        <small class="calc-clean-help">Falling film calandria (350-550 clean, 200-300 viscous/fouling)</small>
+      </div>
+
+      <!-- Electricity Cost -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="mvr_elecRate">Electricity Cost ($ / kWh)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="mvr_elecRate" class="calc-clean-input" value="0.095" min="0.01" max="0.60" step="0.005">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">$/kWh</span>
+        </div>
+        <small class="calc-clean-help">Industrial utility tariff for operating expenditure modeling</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">MVR Evaporation & Energy Efficiency Performance</h2>
+    <div class="mvr-metrics-grid">
+      <!-- Distillate Water Evaporated -->
+      <div class="mvr-metric-card highlight">
+        <div class="mvr-metric-label">Water Evaporation Rate</div>
+        <div class="mvr-metric-value" id="mvr_res_evap">21,875 lb/hr</div>
+        <div class="mvr-metric-sub" id="mvr_res_evap_ton">9.92 Metric Tons/hr (43.7 GPM)</div>
+      </div>
+
+      <!-- Compressor Shaft Power -->
+      <div class="mvr-metric-card" id="mvr_power_card">
+        <div class="mvr-metric-label">Compressor Motor Power</div>
+        <div class="mvr-metric-value" id="mvr_res_power">285 kW</div>
+        <div class="mvr-metric-sub" id="mvr_res_bhp">382 BHP (Shaft Load)</div>
+      </div>
+
+      <!-- Specific Energy Consumption (SEC) -->
+      <div class="mvr-metric-card pass">
+        <div class="mvr-metric-label">Specific Energy Consumption</div>
+        <div class="mvr-metric-value" id="mvr_res_sec">28.7 kWh/ton</div>
+        <div class="mvr-metric-sub" id="mvr_res_sec_sub">vs 700 kWh/ton Direct Steam (96% Savings)</div>
+      </div>
+
+      <!-- Equivalent Thermal COP -->
+      <div class="mvr-metric-card highlight">
+        <div class="mvr-metric-label">Equivalent Thermal COP</div>
+        <div class="mvr-metric-value" id="mvr_res_cop">33.5 COP</div>
+        <div class="mvr-metric-sub" id="mvr_res_cop_sub">33.5x Heat Pump Amplification</div>
+      </div>
+
+      <!-- Calandria Heat Transfer Area -->
+      <div class="mvr-metric-card">
+        <div class="mvr-metric-label">Calandria Heating Area (A)</div>
+        <div class="mvr-metric-value" id="mvr_res_area">4,635 ft²</div>
+        <div class="mvr-metric-sub" id="mvr_res_area_m2">431 m² Tube Heat Exchange Area</div>
+      </div>
+
+      <!-- Operating Cost per Ton Distillate -->
+      <div class="mvr-metric-card">
+        <div class="mvr-metric-label">Operating Cost per Ton</div>
+        <div class="mvr-metric-value" id="mvr_res_cost">$2.73 / ton</div>
+        <div class="mvr-metric-sub" id="mvr_res_cost_hr">$27.08 / hr continuous operation</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG MVR Falling Film Evaporator Cutaway -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live Falling Film MVR Evaporation Process Schematic</h2>
+    <div class="mvr-svg-container">
+      <svg id="mvr_svg" viewBox="0 0 840 430" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="MVR Falling Film Evaporator Process Diagram">
+        <defs>
+          <linearGradient id="mvrSteelGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#475569"/>
+            <stop offset="30%" stop-color="#64748b"/>
+            <stop offset="70%" stop-color="#334155"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="mvrVaporGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.85"/>
+          </linearGradient>
+          <marker id="mvrArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+          <marker id="mvrHotArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316" />
+          </marker>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect x="0" y="0" width="840" height="430" fill="#0b1120" rx="8"/>
+
+        <!-- 1. Calandria (Falling Film Tubular Exchanger, Center-Left) -->
+        <!-- Calandria Shell -->
+        <rect x="180" y="100" width="130" height="230" fill="url(#mvrSteelGrad)" stroke="#64748b" stroke-width="2" rx="4"/>
+        <text x="245" y="90" fill="#94a3b8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">FALLING FILM CALANDRIA</text>
+
+        <!-- Vertical Tubes inside Calandria -->
+        <line x1="205" y1="110" x2="205" y2="320" stroke="#94a3b8" stroke-width="4" stroke-dasharray="8,2"/>
+        <line x1="225" y1="110" x2="225" y2="320" stroke="#94a3b8" stroke-width="4" stroke-dasharray="8,2"/>
+        <line x1="245" y1="110" x2="245" y2="320" stroke="#94a3b8" stroke-width="4" stroke-dasharray="8,2"/>
+        <line x1="265" y1="110" x2="265" y2="320" stroke="#94a3b8" stroke-width="4" stroke-dasharray="8,2"/>
+        <line x1="285" y1="110" x2="285" y2="320" stroke="#94a3b8" stroke-width="4" stroke-dasharray="8,2"/>
+
+        <!-- Falling film liquid streams flowing down inside tubes -->
+        <line x1="205" y1="110" x2="205" y2="320" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <line x1="245" y1="110" x2="245" y2="320" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <line x1="285" y1="110" x2="285" y2="320" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+        <!-- Top Liquid Distribution Headbox -->
+        <path d="M 170 100 L 245 65 L 320 100 Z" fill="#334155" stroke="#64748b" stroke-width="1.5"/>
+        <text x="245" y="55" fill="#f59e0b" font-size="10" font-family="monospace" text-anchor="middle">Top Weir Distributor</text>
+
+        <!-- 2. Vapor Disengagement Separator (Right of Calandria) -->
+        <path d="M 360 140 Q 360 90 410 90 Q 460 90 460 140 L 460 300 Q 460 340 410 340 Q 360 340 360 300 Z" fill="url(#mvrSteelGrad)" stroke="#64748b" stroke-width="2"/>
+        <text x="410" y="80" fill="#38bdf8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">VAPOR SEPARATOR</text>
+
+        <!-- Demister Pad Inside Separator -->
+        <rect x="375" y="145" width="70" height="15" fill="#64748b" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/>
+        <text x="410" y="156" fill="#cbd5e1" font-size="8" font-family="monospace" text-anchor="middle">DEMISTER</text>
+
+        <!-- Interconnecting Duct (Calandria Bottom to Separator) -->
+        <rect x="290" y="280" width="75" height="35" fill="#334155" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="295" y1="297" x2="355" y2="297" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#mvrArrow)"/>
+
+        <!-- 3. MVR Mechanical Turbocompressor (Top Right) -->
+        <!-- Compressor Scroll / Volute -->
+        <path d="M 580 90 C 540 90 530 140 560 160 C 600 180 650 150 640 100 C 630 60 590 55 580 90 Z" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+        <circle cx="585" cy="115" r="16" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+        <polygon points="585,103 590,115 585,127 580,115" fill="#f59e0b"/>
+        <!-- Electric Drive Motor -->
+        <rect x="650" y="95" width="70" height="42" fill="#334155" stroke="#64748b" stroke-width="1.5" rx="3"/>
+        <line x1="630" y1="115" x2="650" y2="115" stroke="#94a3b8" stroke-width="6"/>
+        <text x="685" y="120" fill="#38bdf8" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_mvrMotor">285 kW</text>
+        <text x="685" y="132" fill="#94a3b8" font-size="8" font-family="sans-serif" text-anchor="middle">MVR Motor</text>
+
+        <!-- Suction Vapor Duct (Separator Top to Compressor Inlet) -->
+        <path d="M 410 90 L 410 40 L 555 40 L 555 80" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="6,3" marker-end="url(#mvrArrow)"/>
+        <text x="480" y="32" fill="#38bdf8" font-size="10" font-family="monospace" text-anchor="middle" id="svg_suctionLabel">Suction: 185°F (8.4 psia)</text>
+
+        <!-- Discharge Compressed Vapor Line (Compressor Outlet to Calandria Shell) -->
+        <path d="M 570 165 L 570 200 L 310 200" fill="none" stroke="#f97316" stroke-width="3.5" marker-end="url(#mvrHotArrow)"/>
+        <text x="450" y="215" fill="#f97316" font-size="10" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_dischargeLabel">Discharge: 201.5°F (ΔT = 16.5°F)</text>
+
+        <!-- Feed Liquor Line (Left into Top Distributor) -->
+        <line x1="70" y1="80" x2="200" y2="80" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#mvrArrow)"/>
+        <text x="120" y="72" fill="#fbbf24" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_feedRate">Feed: 25,000 lb/h (6% TS)</text>
+
+        <!-- Concentrated Product Sump Line (Bottom of Separator) -->
+        <line x1="410" y1="340" x2="410" y2="390" stroke="#ea580c" stroke-width="3"/>
+        <line x1="410" y1="390" x2="520" y2="390" stroke="#ea580c" stroke-width="3" marker-end="url(#mvrArrow)"/>
+        <text x="465" y="408" fill="#fb923c" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_concRate">Concentrate: 3,125 lb/h (48% TS)</text>
+
+        <!-- Distillate Pure Water Condensate Drain (Bottom of Calandria Shell) -->
+        <line x1="245" y1="330" x2="245" y2="390" stroke="#38bdf8" stroke-width="3"/>
+        <line x1="245" y1="390" x2="110" y2="390" stroke="#38bdf8" stroke-width="3" marker-end="url(#mvrArrow)"/>
+        <text x="175" y="408" fill="#38bdf8" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_distillateRate">Distillate: 21,875 lb/h</text>
+
+        <!-- Live Performance Overlay Card (Bottom Right) -->
+        <rect x="560" y="240" width="250" height="150" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="685" y="262" fill="#38bdf8" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">MVR THERMAL PERFORMANCE</text>
+        <line x1="575" y1="270" x2="795" y2="270" stroke="#334155" stroke-width="1"/>
+
+        <text x="575" y="292" fill="#94a3b8" font-size="10" font-family="sans-serif">Evaporated Water:</text>
+        <text x="795" y="292" fill="#f8fafc" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_evapTph">9.92 ton/h</text>
+
+        <text x="575" y="315" fill="#94a3b8" font-size="10" font-family="sans-serif">Specific Energy:</text>
+        <text x="795" y="315" fill="#22c55e" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_secVal">28.7 kWh/ton</text>
+
+        <text x="575" y="338" fill="#94a3b8" font-size="10" font-family="sans-serif">Thermal COP:</text>
+        <text x="795" y="338" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_copVal">33.5 COP</text>
+
+        <text x="575" y="360" fill="#94a3b8" font-size="10" font-family="sans-serif">Heating Area (A):</text>
+        <text x="795" y="360" fill="#f59e0b" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_areaVal">4,635 ft²</text>
+
+        <text x="685" y="380" fill="#64748b" font-size="9" font-family="sans-serif" text-anchor="middle">High Efficiency Heat Pump Evaporation</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Thermodynamic & Energy Balance Derivations</h2>
+    <div class="mvr-derivations">
+      <div class="mvr-step">
+        <div class="mvr-step-title">1. Overall Mass Balance & Water Evaporation Rate</div>
+        <p>Solids conservation determines concentrated product liquor discharge and required evaporated distillate yield:</p>
+        <div class="mvr-formula">
+          \dot{m}_{conc} = \dot{m}_{feed} \cdot \left( \frac{C_{feed}}{C_{conc}} \right) = <span id="drv_feed">25,000</span> \cdot \left( \frac{<span id="drv_cf">6.0</span>\%}{<span id="drv_cc">48.0</span>\%} \right) = <span id="drv_mconc_calc">3,125</span>\text{ lb/hr}
+        </div>
+        <div class="mvr-formula highlight">
+          \dot{m}_{evap} = \dot{m}_{feed} - \dot{m}_{conc} = <span id="drv_feed2">25,000</span> - <span id="drv_mconc2">3,125</span> = <span id="drv_mevap_calc">21,875</span>\text{ lb/hr (<span id="drv_mevap_ton">9.92</span> ton/hr)}
+        </div>
+      </div>
+
+      <div class="mvr-step">
+        <div class="mvr-step-title">2. Saturation Temperature Lift & Compression Pressure Ratio</div>
+        <p>The vapor compressor must overcome the boiling point elevation (BPE) and supply sufficient temperature gradient across the heat exchanger tubes ($Delta T_{driving}$):</p>
+        <div class="mvr-formula">
+          \Delta T_{lift} = \text{BPE} + \Delta T_{driving} = <span id="drv_bpe">5.5</span>^\circ\text{F} + <span id="drv_driving">11.0</span>^\circ\text{F} = <span id="drv_lift_calc">16.5</span>^\circ\text{F (<span id="drv_lift_c">9.17</span>^\circ\text{C})}
+        </div>
+        <p>Compressor saturation boost raises vapor from $T_1 = <span id="drv_t1">185.0</span>$ °F ($P_1 = <span id="drv_p1">8.40</span>$ psia) to $T_2 = <span id="drv_t2">201.5</span>$ °F ($P_2 = <span id="drv_p2">11.95</span>$ psia). Compression ratio $Pi$:</p>
+        <div class="mvr-formula highlight">
+          \Pi = \frac{P_2}{P_1} = \frac{<span id="drv_p2_2">11.95</span>}{<span id="drv_p1_2">8.40</span>} = <span id="drv_pi_calc">1.423</span>
+        </div>
+      </div>
+
+      <div class="mvr-step">
+        <div class="mvr-step-title">3. Compressor Isentropic Power & Specific Energy Consumption (SEC)</div>
+        <p>Isentropic enthalpy increase for water vapor ($gamma = 1.32$, $c_p = 0.48$ BTU/lb-°R):</p>
+        <div class="mvr-formula">
+          \Delta h_{actual} = \frac{c_p \cdot T_1 \cdot (\Pi^{\frac{\gamma - 1}{\gamma}} - 1)}{\eta_{isen}} = \frac{0.48 \cdot (<span id="drv_t1_r">644.67</span>) \cdot (<span id="drv_pi2">1.423</span>^{0.2424} - 1)}{<span id="drv_eta">0.78</span>} = <span id="drv_dh_calc">35.2</span>\text{ BTU/lb}
+        </div>
+        <p>Compressor shaft motor load and specific electricity usage per metric ton of water evaporated:</p>
+        <div class="mvr-formula highlight">
+          P_{elec} = \frac{\dot{m}_{evap} \cdot \Delta h_{actual}}{3412.14 \cdot \eta_{mech}} = \frac{<span id="drv_mevap2">21875</span> \cdot <span id="drv_dh2">35.2</span>}{3412.14 \cdot 0.95} = <span id="drv_kw_calc">285</span>\text{ kW (<span id="drv_bhp_calc">382</span> BHP)}
+        </div>
+        <div class="mvr-formula highlight">
+          \text{SEC} = \frac{P_{elec}}{\dot{M}_{metric\_ton}} = \frac{<span id="drv_kw2">285</span>\text{ kW}}{<span id="drv_ton2">9.92</span>\text{ ton/hr}} = <span id="drv_sec_calc">28.7</span>\text{ kWh / metric ton evaporated}
+        </div>
+      </div>
+
+      <div class="mvr-step">
+        <div class="mvr-step-title">4. Calandria Heat Transfer Area & Equivalent Thermal COP</div>
+        <p>Latent heat duty $Q = dot{m}_{evap} cdot h_{fg} = <span id="drv_mevap3">21,875</span> 	imes 987 = <span id="drv_q_calc">21.59</span>$ MBtu/hr ($6,327$ kW thermal):</p>
+        <div class="mvr-formula">
+          A = \frac{Q}{U \cdot \Delta T_{driving}} = \frac{<span id="drv_q2">21,590,000</span>}{<span id="drv_u">420</span> \cdot <span id="drv_driving2">11.0</span>} = <span id="drv_area_calc">4,673</span>\text{ ft² (<span id="drv_area_m2">434</span> m²)}
+        </div>
+        <div class="mvr-formula highlight">
+          \text{COP}_{thermal} = \frac{h_{fg}}{\Delta h_{actual}} = \frac{987\text{ BTU/lb}}{<span id="drv_dh3">35.2</span>\text{ BTU/lb}} = <span id="drv_cop_calc">28.0</span>\text{ COP (Energy Multiplier)}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">Industrial MVR Evaporation Performance Audit</h2>
+      <button type="button" id="copyMvrAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy MVR Evaporator Audit</span>
+      </button>
+    </div>
+    <pre id="mvr_audit_box" class="mvr-audit-box">Generating industrial MVR process audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Mechanical Vapor Recompression (MVR) Engineering Traps</h2>
+    <div class="mvr-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. High Boiling Point Elevation (BPE) Creep Causing Compressor Surge</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          As dissolved solids (e.g. sodium chloride, caustic soda, or lactose) concentrate toward final discharge, BPE rises non-linearly. If the slurry BPE exceeds the maximum pressure ratio head of a single-stage centrifugal turbocompressor, the operating point shifts violently to the left of the surge line. The compressor begins pulsating cyclically with deafening acoustic bangs, destroying impeller thrust bearings within minutes.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Liquid Droplet Carryover Eroding Titanium Impeller Blades at 20,000 RPM</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          MVR vapor impellers operate at tip speeds exceeding 800 to 1,200 ft/s (Mach 0.7 to 0.9). Even microscopic entrained liquid droplets (50 to 100 μm) bypassing an undersized demister pad strike the blade leading edges with the impact energy of lead bullets. Cavitation and mechanical erosion strip blade profiles, causing rapid imbalance and catastrophic compressor failure.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Non-Condensable Gas Blanketing (Air In-Leakage in Vacuum Service)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Operating under deep vacuum (140°F to 180°F) inevitably allows trace atmospheric air in-leakage through flange gaskets and valve stems. When compressed vapor returns to the calandria shell, non-condensable gases accumulate on tube surfaces. A mere 1% concentration of non-condensable gas in the steam chest reduces the overall heat transfer coefficient (U) by up to 50%, completely halting evaporation.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Dry Patch Burn-On from Tube Wetting Failure (<0.15 gpm/inch perimeter)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Falling film calandrias rely on continuous gravity liquid film flow inside the tubes. If recirculation pump flow drops below the critical minimum wetting rate (typically 0.15 to 0.25 gpm per inch of tube internal perimeter), the liquid film tears, forming dry spots. Concentrated solids bake instantly onto hot tube metal, forming rock-hard scale that requires aggressive chemical or hydro-blast cleaning.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Excessive Superheat at Compressor Discharge Inhibiting Condensation</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Adiabatic compression heats the vapor significantly above its saturation temperature (often 40°F to 80°F superheat). Superheated vapor behaves like an insulating gas with a very low convective heat transfer coefficient until it desuperheats. Without an automated desuperheating water spray nozzle at the compressor discharge, effective calandria capacity is slashed.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.mvr-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.mvr-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.mvr-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.mvr-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.mvr-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.mvr-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.mvr-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.mvr-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.mvr-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.mvr-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.mvr-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.mvr-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.mvr-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.mvr-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.mvr-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const feedInput = document.getElementById('mvr_feedRate');
+  const feedUnitSelect = document.getElementById('mvr_feedUnit');
+  const feedSolidsInput = document.getElementById('mvr_feedSolids');
+  const concSolidsInput = document.getElementById('mvr_concSolids');
+  const evapTempInput = document.getElementById('mvr_evapTemp');
+  const tempUnitSelect = document.getElementById('mvr_tempUnit');
+  const bpeInput = document.getElementById('mvr_bpe');
+  const bpeUnitSelect = document.getElementById('mvr_bpeUnit');
+  const drivingDTInput = document.getElementById('mvr_drivingDT');
+  const compTypeSelect = document.getElementById('mvr_compType');
+  const uValInput = document.getElementById('mvr_uVal');
+  const elecRateInput = document.getElementById('mvr_elecRate');
+
+  // Outputs
+  const resEvap = document.getElementById('mvr_res_evap');
+  const resEvapTon = document.getElementById('mvr_res_evap_ton');
+  const resPower = document.getElementById('mvr_res_power');
+  const resBhp = document.getElementById('mvr_res_bhp');
+  const resSec = document.getElementById('mvr_res_sec');
+  const resSecSub = document.getElementById('mvr_res_sec_sub');
+  const resCop = document.getElementById('mvr_res_cop');
+  const resCopSub = document.getElementById('mvr_res_cop_sub');
+  const resArea = document.getElementById('mvr_res_area');
+  const resAreaM2 = document.getElementById('mvr_res_area_m2');
+  const resCost = document.getElementById('mvr_res_cost');
+  const resCostHr = document.getElementById('mvr_res_cost_hr');
+
+  // SVG Elements
+  const svgMvrMotor = document.getElementById('svg_mvrMotor');
+  const svgSuctionLabel = document.getElementById('svg_suctionLabel');
+  const svgDischargeLabel = document.getElementById('svg_dischargeLabel');
+  const svgFeedRate = document.getElementById('svg_feedRate');
+  const svgConcRate = document.getElementById('svg_concRate');
+  const svgDistillateRate = document.getElementById('svg_distillateRate');
+  const svgEvapTph = document.getElementById('svg_evapTph');
+  const svgSecVal = document.getElementById('svg_secVal');
+  const svgCopVal = document.getElementById('svg_copVal');
+  const svgAreaVal = document.getElementById('svg_areaVal');
+
+  // Derivations
+  const drvFeed = document.getElementById('drv_feed');
+  const drvCf = document.getElementById('drv_cf');
+  const drvCc = document.getElementById('drv_cc');
+  const drvMconcCalc = document.getElementById('drv_mconc_calc');
+  const drvFeed2 = document.getElementById('drv_feed2');
+  const drvMconc2 = document.getElementById('drv_mconc2');
+  const drvMevapCalc = document.getElementById('drv_mevap_calc');
+  const drvMevapTon = document.getElementById('drv_mevap_ton');
+  const drvBpe = document.getElementById('drv_bpe');
+  const drvDriving = document.getElementById('drv_driving');
+  const drvLiftCalc = document.getElementById('drv_lift_calc');
+  const drvLiftC = document.getElementById('drv_lift_c');
+  const drvT1 = document.getElementById('drv_t1');
+  const drvP1 = document.getElementById('drv_p1');
+  const drvT2 = document.getElementById('drv_t2');
+  const drvP2 = document.getElementById('drv_p2');
+  const drvP2_2 = document.getElementById('drv_p2_2');
+  const drvP1_2 = document.getElementById('drv_p1_2');
+  const drvPiCalc = document.getElementById('drv_pi_calc');
+  const drvT1R = document.getElementById('drv_t1_r');
+  const drvPi2 = document.getElementById('drv_pi2');
+  const drvEta = document.getElementById('drv_eta');
+  const drvDhCalc = document.getElementById('drv_dh_calc');
+  const drvMevap2 = document.getElementById('drv_mevap2');
+  const drvDh2 = document.getElementById('drv_dh2');
+  const drvKwCalc = document.getElementById('drv_kw_calc');
+  const drvBhpCalc = document.getElementById('drv_bhp_calc');
+  const drvKw2 = document.getElementById('drv_kw2');
+  const drvTon2 = document.getElementById('drv_ton2');
+  const drvSecCalc = document.getElementById('drv_sec_calc');
+  const drvMevap3 = document.getElementById('drv_mevap3');
+  const drvQCalc = document.getElementById('drv_q_calc');
+  const drvQ2 = document.getElementById('drv_q2');
+  const drvU = document.getElementById('drv_u');
+  const drvDriving2 = document.getElementById('drv_driving2');
+  const drvAreaCalc = document.getElementById('drv_area_calc');
+  const drvAreaM2 = document.getElementById('drv_area_m2');
+  const drvDh3 = document.getElementById('drv_dh3');
+  const drvCopCalc = document.getElementById('drv_cop_calc');
+
+  const auditBox = document.getElementById('mvr_audit_box');
+
+  const compData = {
+    single_centrif: { name: 'Single-Stage Turbocompressor', eta_isen: 0.78, max_pr: 1.85 },
+    multistage_fan: { name: 'Multi-Stage Heavy Centrifugal Fan', eta_isen: 0.74, max_pr: 1.55 },
+    roots_blower: { name: 'Positive Displacement Roots Blower', eta_isen: 0.70, max_pr: 2.20 },
+    dual_centrif: { name: 'Two-Stage Turbocompressor System', eta_isen: 0.81, max_pr: 2.60 }
+  };
+
+  // Water Antoine Saturation Pressure (psia) given T in °F
+  function getSatP(T_F) {
+    const T_C = (T_F - 32) / 1.8;
+    // Antoine: log10(P_mmHg) = 8.07131 - (1730.63 / (233.426 + T_C))
+    const p_mmHg = Math.pow(10, 8.07131 - (1730.63 / (233.426 + T_C)));
+    return p_mmHg * 0.0193368; // mmHg to psia
+  }
+
+  // Water Saturation Temp (°F) given P in psia
+  function getSatT(P_psia) {
+    const p_mmHg = P_psia / 0.0193368;
+    const T_C = (1730.63 / (8.07131 - Math.log10(p_mmHg))) - 233.426;
+    return T_C * 1.8 + 32;
+  }
+
+  function calculate() {
+    let rawFeed = parseFloat(feedInput.value) || 25000;
+    const feedUnit = feedUnitSelect.value;
+    let feed_lbh = 25000;
+
+    if (feedUnit === 'lbh') feed_lbh = rawFeed;
+    else if (feedUnit === 'gpm') feed_lbh = rawFeed * 8.3454 * 60;
+    else if (feedUnit === 'kgh') feed_lbh = rawFeed * 2.20462;
+    else if (feedUnit === 'tph') feed_lbh = rawFeed * 2204.62;
+
+    const cf_pct = parseFloat(feedSolidsInput.value) || 6.0;
+    const cc_pct = Math.max(cf_pct + 1, parseFloat(concSolidsInput.value) || 48.0);
+
+    let T1_F = parseFloat(evapTempInput.value) || 185;
+    if (tempUnitSelect.value === 'c') T1_F = T1_F * 1.8 + 32;
+
+    let bpe_F = parseFloat(bpeInput.value) || 5.5;
+    if (bpeUnitSelect.value === 'c') bpe_F = bpe_F * 1.8;
+
+    const drivingDT_F = parseFloat(drivingDTInput.value) || 11.0;
+    const compKey = compTypeSelect.value;
+    const comp = compData[compKey] || compData.single_centrif;
+
+    const U_val = parseFloat(uValInput.value) || 420;
+    const elecCost = parseFloat(elecRateInput.value) || 0.095;
+
+    // 1. Overall Mass Balance
+    // m_conc = m_feed * (cf / cc)
+    const m_conc_lbh = feed_lbh * (cf_pct / cc_pct);
+    const m_evap_lbh = feed_lbh - m_conc_lbh;
+    const m_evap_ton = m_evap_lbh / 2204.62;
+    const m_evap_gpm = m_evap_lbh / (8.3454 * 60);
+
+    // 2. Temperature Lift & Saturation Boost
+    const deltaT_lift_F = bpe_F + drivingDT_F;
+    const deltaT_lift_C = deltaT_lift_F / 1.8;
+
+    const P1_psia = getSatP(T1_F);
+    const T2_sat_F = T1_F + deltaT_lift_F;
+    const P2_psia = getSatP(T2_sat_F);
+    const Pi_ratio = P2_psia / P1_psia;
+
+    // 3. Vapor Enthalpy & Compressor Power
+    const T1_R = T1_F + 459.67;
+    const gamma = 1.32;
+    const cp = 0.48; // BTU/lb-°R
+    const k_exp = (gamma - 1) / gamma; // ~0.2424
+
+    // Isentropic enthalpy rise: dh_s = cp * T1_R * (Pi^k_exp - 1)
+    const dh_s = cp * T1_R * (Math.pow(Pi_ratio, k_exp) - 1);
+    const dh_actual = dh_s / comp.eta_isen; // BTU/lb
+
+    // Compressor Shaft Power
+    // P_shaft (BHP) = (m_evap * dh_actual) / 2544.4 / eta_mech
+    const eta_mech = 0.95;
+    const P_bhp = (m_evap_lbh * dh_actual) / (2544.43 * eta_mech);
+    const P_kw = P_bhp * 0.7457;
+
+    // Specific Energy Consumption (kWh / metric ton of distillate)
+    const sec_kwh_ton = P_kw / m_evap_ton;
+
+    // 4. Latent Heat Duty & Heat Transfer Surface Area
+    // h_fg for water ~ 987 BTU/lb at ~185°F
+    const h_fg = 1094 - 0.58 * T1_F;
+    const Q_btu_hr = m_evap_lbh * h_fg;
+    const Q_MBtu_hr = Q_btu_hr / 1e6;
+    const Q_kw_th = Q_btu_hr / 3412.14;
+
+    // Calandria Area A = Q / (U * drivingDT)
+    const area_ft2 = Q_btu_hr / (U_val * drivingDT_F);
+    const area_m2 = area_ft2 * 0.092903;
+
+    // Equivalent Thermal COP = h_fg / dh_actual
+    const cop_thermal = h_fg / dh_actual;
+
+    // Operating Cost
+    const cost_hr = P_kw * elecCost;
+    const cost_ton = cost_hr / m_evap_ton;
+
+    // Surge check
+    const isSurgeRisk = Pi_ratio > comp.max_pr;
+
+    // Update Result UI
+    resEvap.textContent = Math.round(m_evap_lbh).toLocaleString() + ' lb/hr';
+    resEvapTon.textContent = m_evap_ton.toFixed(2) + ' Metric Tons/hr (' + m_evap_gpm.toFixed(1) + ' GPM)';
+
+    resPower.textContent = Math.round(P_kw) + ' kW';
+    resBhp.textContent = Math.round(P_bhp) + ' BHP (' + comp.name.split('(')[0].trim() + ')';
+
+    resSec.textContent = sec_kwh_ton.toFixed(1) + ' kWh/ton';
+    resSecSub.textContent = 'vs 700 kWh/ton direct steam (' + ((1 - sec_kwh_ton / 700) * 100).toFixed(0) + '% thermal savings)';
+
+    resCop.textContent = cop_thermal.toFixed(1) + ' COP';
+    resCopSub.textContent = cop_thermal.toFixed(1) + 'x Effective Heat Pump Amplification';
+
+    resArea.textContent = Math.round(area_ft2).toLocaleString() + ' ft²';
+    resAreaM2.textContent = Math.round(area_m2).toLocaleString() + ' m² Tube Heat Exchange Area';
+
+    resCost.textContent = '$' + cost_ton.toFixed(2) + ' / ton';
+    resCostHr.textContent = '$' + cost_hr.toFixed(2) + ' / hr continuous operating expenditure';
+
+    // SVG Updates
+    svgMvrMotor.textContent = Math.round(P_kw) + ' kW';
+    svgSuctionLabel.textContent = 'Suction: ' + T1_F.toFixed(0) + '°F (' + P1_psia.toFixed(1) + ' psia)';
+    svgDischargeLabel.textContent = 'Discharge: ' + T2_sat_F.toFixed(1) + '°F (Lift ΔT = ' + deltaT_lift_F.toFixed(1) + '°F)';
+    svgFeedRate.textContent = 'Feed: ' + Math.round(feed_lbh).toLocaleString() + ' lb/h (' + cf_pct.toFixed(1) + '% TS)';
+    svgConcRate.textContent = 'Conc: ' + Math.round(m_conc_lbh).toLocaleString() + ' lb/h (' + cc_pct.toFixed(1) + '% TS)';
+    svgDistillateRate.textContent = 'Distillate: ' + Math.round(m_evap_lbh).toLocaleString() + ' lb/h';
+    svgEvapTph.textContent = m_evap_ton.toFixed(2) + ' ton/h';
+    svgSecVal.textContent = sec_kwh_ton.toFixed(1) + ' kWh/ton';
+    svgCopVal.textContent = cop_thermal.toFixed(1) + ' COP';
+    svgAreaVal.textContent = Math.round(area_ft2).toLocaleString() + ' ft²';
+
+    // Derivations updates
+    drvFeed.textContent = Math.round(feed_lbh).toLocaleString();
+    drvCf.textContent = cf_pct.toFixed(1);
+    drvCc.textContent = cc_pct.toFixed(1);
+    drvMconcCalc.textContent = Math.round(m_conc_lbh).toLocaleString();
+    drvFeed2.textContent = Math.round(feed_lbh).toLocaleString();
+    drvMconc2.textContent = Math.round(m_conc_lbh).toLocaleString();
+    drvMevapCalc.textContent = Math.round(m_evap_lbh).toLocaleString();
+    drvMevapTon.textContent = m_evap_ton.toFixed(2);
+
+    drvBpe.textContent = bpe_F.toFixed(1);
+    drvDriving.textContent = drivingDT_F.toFixed(1);
+    drvLiftCalc.textContent = deltaT_lift_F.toFixed(1);
+    drvLiftC.textContent = deltaT_lift_C.toFixed(2);
+
+    drvT1.textContent = T1_F.toFixed(1);
+    drvP1.textContent = P1_psia.toFixed(2);
+    drvT2.textContent = T2_sat_F.toFixed(1);
+    drvP2.textContent = P2_psia.toFixed(2);
+    drvP2_2.textContent = P2_psia.toFixed(2);
+    drvP1_2.textContent = P1_psia.toFixed(2);
+    drvPiCalc.textContent = Pi_ratio.toFixed(3);
+
+    drvT1R.textContent = T1_R.toFixed(2);
+    drvPi2.textContent = Pi_ratio.toFixed(3);
+    drvEta.textContent = comp.eta_isen.toFixed(2);
+    drvDhCalc.textContent = dh_actual.toFixed(1);
+
+    drvMevap2.textContent = Math.round(m_evap_lbh).toLocaleString();
+    drvDh2.textContent = dh_actual.toFixed(1);
+    drvKwCalc.textContent = Math.round(P_kw).toLocaleString();
+    drvBhpCalc.textContent = Math.round(P_bhp).toLocaleString();
+
+    drvKw2.textContent = Math.round(P_kw).toLocaleString();
+    drvTon2.textContent = m_evap_ton.toFixed(2);
+    drvSecCalc.textContent = sec_kwh_ton.toFixed(1);
+
+    drvMevap3.textContent = Math.round(m_evap_lbh).toLocaleString();
+    drvQCalc.textContent = Q_MBtu_hr.toFixed(2);
+    drvQ2.textContent = Math.round(Q_btu_hr).toLocaleString();
+    drvU.textContent = U_val.toFixed(0);
+    drvDriving2.textContent = drivingDT_F.toFixed(1);
+    drvAreaCalc.textContent = Math.round(area_ft2).toLocaleString();
+    drvAreaM2.textContent = Math.round(area_m2).toLocaleString();
+
+    drvDh3.textContent = dh_actual.toFixed(1);
+    drvCopCalc.textContent = cop_thermal.toFixed(1);
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   MVR FALLING FILM PROCESS & THERMAL ENERGY AUDIT    \n' +
+      '=======================================================\n' +
+      'Raw Feed Liquor Flow:      ' + Math.round(feed_lbh).toLocaleString() + ' lb/hr (' + (feed_lbh / 2204.62).toFixed(2) + ' metric ton/hr)\n' +
+      'Solids Concentration:      ' + cf_pct.toFixed(1) + '% Feed TS -> ' + cc_pct.toFixed(1) + '% Concentrate TS\n' +
+      'Concentrate Discharge:     ' + Math.round(m_conc_lbh).toLocaleString() + ' lb/hr (' + (m_conc_lbh / 2204.62).toFixed(2) + ' ton/hr)\n' +
+      'Distillate Evaporated:     ' + Math.round(m_evap_lbh).toLocaleString() + ' lb/hr (' + m_evap_ton.toFixed(2) + ' ton/hr / ' + m_evap_gpm.toFixed(1) + ' GPM)\n' +
+      'Evaporation Temperature:   ' + T1_F.toFixed(1) + ' °F (' + ((T1_F-32)/1.8).toFixed(1) + ' °C) [Suction: ' + P1_psia.toFixed(2) + ' psia]\n' +
+      'Boiling Point Elevation:   ' + bpe_F.toFixed(1) + ' °F (' + (bpe_F/1.8).toFixed(2) + ' °C)\n' +
+      'Driving Delta T (LMTD):    ' + drivingDT_F.toFixed(1) + ' °F (' + (drivingDT_F/1.8).toFixed(2) + ' °C)\n' +
+      'Total Saturation Lift:     ' + deltaT_lift_F.toFixed(1) + ' °F -> Discharge: ' + T2_sat_F.toFixed(1) + ' °F (' + P2_psia.toFixed(2) + ' psia)\n' +
+      'Compression Ratio (Pi):    ' + Pi_ratio.toFixed(3) + ' [' + (isSurgeRisk ? 'SURGE HAZARD: Exceeds ' + comp.max_pr + ' PR limit' : 'SAFE HEAD') + ']\n' +
+      'Compressor Selection:      ' + comp.name + ' (Isentropic η = ' + (comp.eta_isen * 100).toFixed(0) + '%)\n' +
+      '-------------------------------------------------------\n' +
+      'Compressor Shaft Power:    ' + Math.round(P_bhp) + ' BHP (' + Math.round(P_kw) + ' kW Electrical Motor Load)\n' +
+      'SPECIFIC ENERGY (SEC):     ' + sec_kwh_ton.toFixed(1) + ' kWh / metric ton evaporated\n' +
+      'Thermal Heat Duty (Q):     ' + Q_MBtu_hr.toFixed(2) + ' MBtu/hr (' + Math.round(Q_kw_th) + ' kW Thermal)\n' +
+      'Calandria Heat Exch Area:  ' + Math.round(area_ft2).toLocaleString() + ' ft² (' + Math.round(area_m2).toLocaleString() + ' m²) [U = ' + U_val + ' BTU/hr·ft²·°F]\n' +
+      'EQUIVALENT THERMAL COP:    ' + cop_thermal.toFixed(1) + ' COP (Heat Pump Energy Multiplier)\n' +
+      'Operating Cost Estimate:   $' + cost_ton.toFixed(2) + ' / ton distillate ($' + cost_hr.toFixed(2) + ' / hr at $' + elecCost.toFixed(3) + '/kWh)\n' +
+      'Energy Reduction vs Steam: ' + ((1 - sec_kwh_ton / 700) * 100).toFixed(1) + '% Lower Energy vs 1-Effect Direct Steam\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyMvrAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyMvrAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied MVR Process Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [feedInput, feedUnitSelect, feedSolidsInput, concSolidsInput, evapTempInput, tempUnitSelect, bpeInput, bpeUnitSelect, drivingDTInput, compTypeSelect, uValInput, elecRateInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'mvr-evaporator-sizing-calculator.html'), renderTradePage({
+    title: "Mechanical Vapor Recompression (MVR) Evaporator Sizing Calculator",
+    metaDesc: "Size industrial falling film MVR evaporators, compressor power (kW), specific energy consumption (kWh/ton), heat transfer area, and equivalent thermal COP.",
+    canonical: `${DOMAIN}/calc/mvr-evaporator-sizing-calculator`,
+    bodyContent: mvrEvaporatorBody,
+    currentPath: '/calc/mvr-evaporator-sizing-calculator',
+    faq: [
+      {
+        "q": "How does Mechanical Vapor Recompression (MVR) save 90%+ energy compared to direct steam?",
+        "a": "In conventional evaporators, evaporated steam is condensed in a cooling tower and discarded, consuming ~700 kWh equivalent of thermal boiler energy per ton of water evaporated. MVR recycles the evaporated steam by mechanically compressing it with an electric turbocompressor or fan. Compressing the vapor raises its saturation temperature by 12°F to 25°F, allowing it to condense directly inside the calandria shell to evaporate fresh incoming feed, requiring only 20 to 35 kWh of electricity per ton (an effective thermal COP of 25 to 45)."
+      },
+      {
+        "q": "What is Boiling Point Elevation (BPE) and why is it critical in MVR design?",
+        "a": "Boiling Point Elevation (BPE) is the increase in the liquid's boiling temperature caused by dissolved solutes (salts, sugars, caustic). The compressor must provide enough pressure head to overcome both the fluid's BPE and the required heat transfer driving temperature (ΔT_driving). High-BPE slurries require two-stage compression or hybrid thermal boosters."
+      },
+      {
+        "q": "Why is falling film evaporation preferred over forced circulation for MVR?",
+        "a": "Falling film calandrias achieve extremely high overall heat transfer coefficients (U = 350 to 550 BTU/hr·ft²·°F) with small driving temperature differences (8°F to 14°F) and low recirculating pumping head. Small driving ΔT minimizes the compressor pressure ratio (typically 1.25 to 1.55), keeping compressor electric power and capital expenditure minimal."
+      },
+      {
+        "q": "What causes compressor surge in an MVR system?",
+        "a": "Compressor surge occurs when system flow resistance increases or when slurry BPE rises beyond the compressor's pressure ratio capability. The aerodynamic flow across the impeller blades detaches and reverses direction in violent cyclic pulses, creating acoustic shockwaves and destroying mechanical thrust bearings if anti-surge bypass valves do not open immediately."
+      },
+      {
+        "q": "Why is desuperheating required at the MVR compressor discharge?",
+        "a": "Adiabatic gas compression generates 30°F to 80°F of vapor superheat above saturation. Superheated steam behaves like an insulating gas with poor heat transfer characteristics until it cools to saturation. Injecting a fine mist of pure distillate water (desuperheating) instantly quenches the vapor back to saturated steam, maximizing heat flux in the calandria."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 67: API 421 Industrial Oil-Water Separator Sizing Calculator
+  // ==========================================
+  const apiOwsBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">API Publication 421 Standard</span>
+      <span class="calc-clean-badge">Stokes' Law Sedimentation</span>
+      <span class="calc-clean-badge">Industrial Wastewater & Refinery</span>
+    </div>
+    <h1 class="calc-clean-title">API 421 Industrial Oil-Water Separator Sizing Calculator</h1>
+    <p class="calc-clean-desc">
+      Size American Petroleum Institute (API 421) gravity oil-water separator basins, Stokes droplet rise velocity, chamber dimensions (L x W x D), turbulence short-circuiting factors, and oil skimmer recovery rates.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Wastewater Flow Rate -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_flowRate">Wastewater Inflow Rate (Q)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ows_flowRate" class="calc-clean-input" value="500" min="10" max="25000" step="25">
+          <select id="ows_flowUnit" class="calc-clean-select">
+            <option value="gpm" selected>US GPM</option>
+            <option value="m3h">m³/hr</option>
+            <option value="bpd">BPD (Barrels/Day)</option>
+            <option value="mgd">MGD (Million Gal/Day)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Peak oily stormwater or process wastewater inflow</small>
+      </div>
+
+      <!-- Oil API Gravity / Density -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_oilType">Hydrocarbon Gravity / Specific Gravity</label>
+        <select id="ows_oilType" class="calc-clean-select">
+          <option value="32" selected>Medium Crude Oil (32° API, SG = 0.865)</option>
+          <option value="40">Light Crude / Condensate (40° API, SG = 0.825)</option>
+          <option value="22">Heavy Crude Oil (22° API, SG = 0.922)</option>
+          <option value="diesel">Diesel / Gas Oil (#2 Fuel Oil, SG = 0.840)</option>
+          <option value="lube">Lube / Hydraulic Oil ISO 68 (SG = 0.880)</option>
+          <option value="gasoline">Motor Gasoline / Naphtha (SG = 0.730)</option>
+        </select>
+        <small class="calc-clean-help">Determines Stokes buoyant density differential vs water</small>
+      </div>
+
+      <!-- Water Temperature -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_waterTemp">Wastewater Temperature (T)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ows_waterTemp" class="calc-clean-input" value="68" min="34" max="180" step="1">
+          <select id="ows_tempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Cold water increases viscosity, slowing droplet rise (winter worst-case)</small>
+      </div>
+
+      <!-- Design Droplet Cut Size -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_dropletSize">Design Oil Droplet Diameter (d)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ows_dropletSize" class="calc-clean-input" value="150" min="50" max="300" step="10">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">μm (microns)</span>
+        </div>
+        <small class="calc-clean-help">API 421 design standard is 150 microns (0.015 cm)</small>
+      </div>
+
+      <!-- Basin Water Depth (D) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_depth">Basin Liquid Depth (D)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ows_depth" class="calc-clean-input" value="4.5" min="3.0" max="10.0" step="0.5">
+          <select id="ows_depthUnit" class="calc-clean-select">
+            <option value="ft" selected>Feet (ft)</option>
+            <option value="m">Meters (m)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">API 421 specifies D between 3.0 ft and 8.0 ft (0.9 to 2.4 m)</small>
+      </div>
+
+      <!-- Basin Channels (Single or Dual) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_channels">Separator Chamber Bays</label>
+        <select id="ows_channels" class="calc-clean-select">
+          <option value="1" selected>Single Channel Basin (1 Bay)</option>
+          <option value="2">Dual Parallel Channels (2 Bays, 50% flow each)</option>
+          <option value="3">Triple Parallel Channels (3 Bays, 33% flow each)</option>
+        </select>
+        <small class="calc-clean-help">Multiple bays allow continuous operation during maintenance cleanout</small>
+      </div>
+
+      <!-- Influent Oil Concentration (ppm) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_oilPpm">Influent Free Oil Concentration</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ows_oilPpm" class="calc-clean-input" value="1200" min="50" max="50000" step="100">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">mg/L (ppm)</span>
+        </div>
+        <small class="calc-clean-help">Refinery desalter, oily runoff, or bilge water free oil</small>
+      </div>
+
+      <!-- Chamber Width Ratio (W/D) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ows_wdRatio">Chamber Width-to-Depth Ratio (W/D)</label>
+        <div class="calc-clean-input-group">
+          <select id="ows_wdRatio" class="calc-clean-select">
+            <option value="2.0" selected>W = 2.0 × D (API 421 Standard Optimum)</option>
+            <option value="2.5">W = 2.5 × D (Wide Basin)</option>
+            <option value="1.5">W = 1.5 × D (Narrow Basin)</option>
+            <option value="3.0">W = 3.0 × D (API Max Limit)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">API 421 recommends W/D between 1.5 and 3.0</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">API 421 Hydrodynamic & Basin Dimensions Audit</h2>
+    <div class="ows-metrics-grid">
+      <!-- Chamber Length -->
+      <div class="ows-metric-card highlight">
+        <div class="ows-metric-label">Required Chamber Length (L)</div>
+        <div class="ows-metric-value" id="ows_res_length">48.5 ft</div>
+        <div class="ows-metric-sub" id="ows_res_length_m">14.8 m (L/W Ratio: 5.4)</div>
+      </div>
+
+      <!-- Chamber Width -->
+      <div class="ows-metric-card highlight">
+        <div class="ows-metric-label">Chamber Width per Bay (W)</div>
+        <div class="ows-metric-value" id="ows_res_width">9.0 ft</div>
+        <div class="ows-metric-sub" id="ows_res_width_m">2.74 m (Depth D = 4.5 ft)</div>
+      </div>
+
+      <!-- Stokes Rise Velocity -->
+      <div class="ows-metric-card">
+        <div class="ows-metric-label">Stokes Droplet Rise Velocity (vr)</div>
+        <div class="ows-metric-value" id="ows_res_vr">0.052 ft/min</div>
+        <div class="ows-metric-sub" id="ows_res_vr_cm">0.026 cm/s (150 μm droplet)</div>
+      </div>
+
+      <!-- Horizontal Flow Velocity -->
+      <div class="ows-metric-card" id="ows_vh_card">
+        <div class="ows-metric-label">Horizontal Water Velocity (vH)</div>
+        <div class="ows-metric-value" id="ows_res_vh">1.65 ft/min</div>
+        <div class="ows-metric-sub" id="ows_res_vh_sub">Pass: vH ≤ 3.0 ft/min API limit</div>
+      </div>
+
+      <!-- Hydraulic Retention Time -->
+      <div class="ows-metric-card">
+        <div class="ows-metric-label">Hydraulic Retention Time (HRT)</div>
+        <div class="ows-metric-value" id="ows_res_hrt">29.4 min</div>
+        <div class="ows-metric-sub" id="ows_res_volume">14,690 Gallons (55.6 m³)</div>
+      </div>
+
+      <!-- Oil Skimmer Recovery Rate -->
+      <div class="ows-metric-card pass">
+        <div class="ows-metric-label">Separated Oil Skim Rate</div>
+        <div class="ows-metric-value" id="ows_res_oil">0.69 GPM</div>
+        <div class="ows-metric-sub" id="ows_res_oil_bpd">23.8 BPD (Barrels/Day Recovered)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG API 421 Longitudinal Basin Cutaway -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live API 421 Gravity Separator Basin Cutaway Profile</h2>
+    <div class="ows-svg-container">
+      <svg id="ows_svg" viewBox="0 0 840 420" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="API 421 Oil Water Separator Longitudinal Section">
+        <defs>
+          <linearGradient id="owsConcreteGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#334155"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="owsWaterGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0284c7" stop-opacity="0.75"/>
+            <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0.95"/>
+          </linearGradient>
+          <linearGradient id="owsOilGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#78350f"/>
+            <stop offset="50%" stop-color="#92400e"/>
+            <stop offset="100%" stop-color="#b45309"/>
+          </linearGradient>
+          <marker id="owsFlowArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+        </defs>
+
+        <!-- Background Canvas -->
+        <rect x="0" y="0" width="840" height="420" fill="#0b1120" rx="8"/>
+
+        <!-- Concrete Basin Structure Outline -->
+        <!-- Floor with Sludge Hopper (Left) and Main Chamber Floor -->
+        <polygon points="60,80 60,340 180,340 220,380 260,380 300,340 760,340 760,80 780,80 780,360 310,360 270,400 210,400 170,360 40,360 40,80" fill="url(#owsConcreteGrad)" stroke="#475569" stroke-width="2"/>
+
+        <!-- Water Pool in Chamber -->
+        <polygon points="60,150 60,340 180,340 220,380 260,380 300,340 700,340 700,150" fill="url(#owsWaterGrad)"/>
+
+        <!-- Free Oil Slick Layer Floating on Water Surface (from x=180 to x=640) -->
+        <rect x="180" y="142" width="460" height="12" fill="url(#owsOilGrad)" rx="2"/>
+        <text x="410" y="136" fill="#fbbf24" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_oilLayer">Floating Hydrocarbon Layer (Free Oil)</text>
+
+        <!-- 1. Influent Inlet Pipe & Reaction Jet Baffle (Left) -->
+        <rect x="15" y="160" width="70" height="30" fill="#475569" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="20" y1="175" x2="90" y2="175" stroke="#f59e0b" stroke-width="3" marker-end="url(#owsFlowArrow)"/>
+        <text x="50" y="152" fill="#fbbf24" font-size="10" font-family="monospace" text-anchor="middle" id="svg_inflowRate">500 GPM</text>
+
+        <!-- Inlet Diffusion Baffle (Perforated Baffle) -->
+        <rect x="110" y="130" width="10" height="180" fill="#64748b" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="110" y1="160" x2="120" y2="160" stroke="#0b1120" stroke-width="4"/>
+        <line x1="110" y1="200" x2="120" y2="200" stroke="#0b1120" stroke-width="4"/>
+        <line x1="110" y1="240" x2="120" y2="240" stroke="#0b1120" stroke-width="4"/>
+        <line x1="110" y1="280" x2="120" y2="280" stroke="#0b1120" stroke-width="4"/>
+        <text x="115" y="120" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">Diffuser Baffle</text>
+
+        <!-- 2. Rising Stokes Droplet Trajectories -->
+        <!-- Droplet 1 -->
+        <path d="M 170 310 Q 240 280 320 154" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <circle cx="170" cy="310" r="3" fill="#f59e0b"/>
+        <!-- Droplet 2 -->
+        <path d="M 270 320 Q 370 270 480 154" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <circle cx="270" cy="320" r="3" fill="#f59e0b"/>
+        <!-- Droplet 3 (Design Trajectory hitting surface exactly at skimmer) -->
+        <path d="M 180 335 Q 380 280 620 154" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="4,3"/>
+        <circle cx="180" cy="335" r="3.5" fill="#22c55e"/>
+        <text x="360" y="270" fill="#4ade80" font-size="10" font-family="monospace" text-anchor="middle">Stokes Rise Trajectory (150 μm)</text>
+
+        <!-- Horizontal Flow Velocity Vectors -->
+        <line x1="300" y1="200" x2="380" y2="200" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#owsFlowArrow)"/>
+        <line x1="450" y1="200" x2="530" y2="200" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#owsFlowArrow)"/>
+        <text x="415" y="192" fill="#38bdf8" font-size="10" font-family="monospace" text-anchor="middle" id="svg_vhText">vH = 1.65 ft/min</text>
+
+        <!-- 3. Rotating Slotted Pipe Oil Skimmer (Near downstream end) -->
+        <circle cx="640" cy="150" r="14" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+        <path d="M 632 140 A 14 14 0 0 1 648 140 Z" fill="#b45309"/>
+        <text x="640" y="125" fill="#f59e0b" font-size="9" font-weight="bold" font-family="sans-serif" text-anchor="middle">Slotted Skimmer</text>
+
+        <!-- 4. Underflow Oil Retention Baffle (Downstream Scum Baffle) -->
+        <rect x="670" y="110" width="12" height="150" fill="#64748b" stroke="#94a3b8" stroke-width="1.5" rx="2"/>
+        <text x="676" y="98" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">Underflow Baffle</text>
+
+        <!-- 5. Clean Water Overflow Weir -->
+        <rect x="715" y="165" width="15" height="175" fill="#475569" stroke="#64748b" stroke-width="1.5"/>
+        <text x="722" y="155" fill="#38bdf8" font-size="9" font-family="sans-serif" text-anchor="middle">Weir</text>
+        <!-- Water Cascading over weir into effluent channel -->
+        <path d="M 700 150 L 715 150 L 715 165 L 730 180 L 730 340 L 760 340 L 760 220" fill="none" stroke="#38bdf8" stroke-width="3"/>
+        <line x1="755" y1="280" x2="815" y2="280" stroke="#38bdf8" stroke-width="3" marker-end="url(#owsFlowArrow)"/>
+        <text x="790" y="268" fill="#38bdf8" font-size="10" font-weight="bold" font-family="sans-serif" text-anchor="middle">Clean Effluent</text>
+
+        <!-- 6. Bottom Sludge Hopper (Left Pit) -->
+        <polygon points="200,340 220,380 260,380 280,340" fill="#451a03" stroke="#78350f" stroke-width="1.5"/>
+        <text x="240" y="365" fill="#d97706" font-size="9" font-family="sans-serif" text-anchor="middle">Sludge</text>
+        <line x1="240" y1="380" x2="240" y2="410" stroke="#78350f" stroke-width="3"/>
+        <text x="240" y="418" fill="#94a3b8" font-size="8" font-family="sans-serif" text-anchor="middle">Drain</text>
+
+        <!-- Dimension Lines -->
+        <!-- Length (L) Dimension Line -->
+        <line x1="120" y1="370" x2="670" y2="370" stroke="#f59e0b" stroke-width="1.5"/>
+        <polyline points="126,366 120,370 126,374" stroke="#f59e0b" stroke-width="1.5" fill="none"/>
+        <polyline points="664,366 670,370 664,374" stroke="#f59e0b" stroke-width="1.5" fill="none"/>
+        <text x="395" y="385" fill="#fbbf24" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle" id="svg_lengthDim">Chamber Length L = 48.5 ft (14.8 m)</text>
+
+        <!-- Depth (D) Dimension Line -->
+        <line x1="688" y1="150" x2="688" y2="340" stroke="#38bdf8" stroke-width="1.5"/>
+        <polyline points="684,156 688,150 692,156" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+        <polyline points="684,334 688,340 692,334" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+        <text x="695" y="248" fill="#38bdf8" font-size="10" font-family="monospace" font-weight="bold" id="svg_depthDim">D = 4.5 ft</text>
+
+        <!-- Performance Summary Card (Top Right) -->
+        <rect x="520" y="15" width="295" height="65" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="5"/>
+        <text x="530" y="32" fill="#94a3b8" font-size="10" font-family="sans-serif">Stokes Rise Velocity (vr):</text>
+        <text x="805" y="32" fill="#f8fafc" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardVr">0.052 ft/min</text>
+        <text x="530" y="48" fill="#94a3b8" font-size="10" font-family="sans-serif">Chamber Geometry:</text>
+        <text x="805" y="48" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardLw">48.5' L × 9.0' W</text>
+        <text x="530" y="65" fill="#94a3b8" font-size="10" font-family="sans-serif">API Compliance Status:</text>
+        <text x="805" y="65" fill="#22c55e" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="end" id="svg_cardStatus">API 421 VERIFIED</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Stokes' Law & API 421 Derivations</h2>
+    <div class="ows-derivations">
+      <div class="ows-step">
+        <div class="ows-step-title">1. Stokes' Law Droplet Terminal Rise Velocity (vr)</div>
+        <p>Terminal buoyant rise velocity of a spherical oil droplet of diameter $d = <span id="drv_d_um">150</span>\ mu\text{m}$ ($0.015$ cm):</p>
+        <div class="ows-formula">
+          v_r = \frac{g \cdot (\rho_w - \rho_o) \cdot d^2}{18 \cdot \mu_w}
+        </div>
+        <p>At water temperature <span id="drv_temp">68.0</span> °F ($ho_w = 0.998$ g/cm³, $mu_w = <span id="drv_mu">1.002</span>$ cP = <span id="drv_mu_poise">0.01002</span> Poise) and hydrocarbon specific gravity $ho_o = <span id="drv_rho_o">0.865</span>$ g/cm³:</p>
+        <div class="ows-formula highlight">
+          v_r = \frac{981 \cdot (0.998 - <span id="drv_rho_o2">0.865</span>) \cdot (0.015)^2}{18 \cdot <span id="drv_mu_poise2">0.01002</span>} = <span id="drv_vr_cms">0.0264</span>\text{ cm/s (<span id="drv_vr_ftmin">0.0520</span> ft/min)}
+        </div>
+      </div>
+
+      <div class="ows-step">
+        <div class="ows-step-title">2. Horizontal Flow Velocity (vH) & Chamber Cross-Section</div>
+        <p>API 421 limits horizontal velocity to $v_H le 15 cdot v_r$ or $3.0$ ft/min (whichever is lower) to prevent eddy re-entrainment. With $W/D = <span id="drv_wd">2.0</span>$ and Depth $D = <span id="drv_depth">4.5</span>$ ft, channel width $W = <span id="drv_width">9.0</span>$ ft:</p>
+        <div class="ows-formula">
+          A_C = W \cdot D = (<span id="drv_width2">9.0</span>) \cdot (<span id="drv_depth2">4.5</span>) = <span id="drv_ac_calc">40.5</span>\text{ ft² per channel}
+        </div>
+        <p>For total flow $Q = <span id="drv_flow">500</span>$ GPM (<span id="drv_q_cfs">1.114</span> ft³/s across <span id="drv_bays">1</span> bay):</p>
+        <div class="ows-formula highlight">
+          v_H = \frac{Q_{channel}}{A_C} = \frac{<span id="drv_q_cfs2">1.114</span>\text{ ft³/s}}{<span id="drv_ac2">40.5</span>\text{ ft²}} \cdot 60 = <span id="drv_vh_calc">1.65</span>\text{ ft/min (<span id="drv_vh_status">Pass: ≤ 3.0 ft/min limit</span>)}
+        </div>
+      </div>
+
+      <div class="ows-step">
+        <div class="ows-step-title">3. Turbulence & Short-Circuiting Factor (F) and Required Surface Area</div>
+        <p>Accounting for hydraulic short-circuiting ($F_s$) and non-uniform turbulence ($F_t$) as a function of the velocity ratio $v_H / v_r = <span id="drv_ratio">31.7</span>$:</p>
+        <div class="ows-formula">
+          F = F_t \cdot F_s = <span id="drv_f_calc">1.46</span>
+        </div>
+        <p>Required horizontal surface area ($A_H$) per channel:</p>
+        <div class="ows-formula highlight">
+          A_H = F \cdot \left( \frac{Q_{channel}}{v_r} \right) = <span id="drv_f2">1.46</span> \cdot \left( \frac{<span id="drv_q_gpm">500</span> \times 0.13368}{<span id="drv_vr_ftmin2">0.0520</span>} \right) = <span id="drv_ah_calc">436.5</span>\text{ ft²}
+        </div>
+      </div>
+
+      <div class="ows-step">
+        <div class="ows-step-title">4. Basin Length (L) & Retention Time Verification</div>
+        <div class="ows-formula highlight">
+          L = \frac{A_H}{W} = \frac{<span id="drv_ah2">436.5</span>\text{ ft²}}{<span id="drv_w2">9.0</span>\text{ ft}} = <span id="drv_length_calc">48.5</span>\text{ ft (<span id="drv_length_m">14.8</span> m, L/W = <span id="drv_lw">5.4</span>)}
+        </div>
+        <p id="drv_hrtText">Hydraulic retention time (HRT = 29.4 min) satisfies API 421 requirements (minimum 20 to 30 minutes).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">API 421 Oil-Water Separator Engineering Compliance Report</h2>
+      <button type="button" id="copyOwsAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy API 421 Audit</span>
+      </button>
+    </div>
+    <pre id="ows_audit_box" class="ows-audit-box">Generating API 421 compliance audit report...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal API 421 Oil-Water Separator Engineering Traps</h2>
+    <div class="ows-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. High Inlet Horizontal Velocity (>3.0 ft/min) Causing Droplet Shear & Re-Entrainment</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          API 421 strictly enforces $v_H le 3.0$ ft/min ($0.91$ m/min) and $v_H le 15 v_r$. When chambers are undersized in width or depth to save excavation costs, horizontal flow velocities surge. Shear forces at the fluid interface physically tear floating oil droplets apart into micro-droplets ($< 50$ μm) that cannot rise within the basin retention time, passing straight into the effluent.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Emulsification from High-Shear Centrifugal Feed Pumps</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          API gravity separators can ONLY remove free, non-emulsified oil ($d ge 150$ μm). Pumping wastewater into the separator using high-speed standard centrifugal pumps (3,600 RPM) shreds oil globules into colloidal emulsions ($d < 20$ μm). Stokes rise velocity drops by a factor of 50, rendering gravity separation completely useless unless low-shear progressive cavity pumps or gravity flow are used.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Winter Viscosity Spike Sashing Stokes Rise Velocity</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Water dynamic viscosity nearly doubles as water chills from 80°F (0.86 cP) down to 36°F (1.63 cP). Because Stokes rise velocity is inversely proportional to water viscosity ($v_r propto 1/mu$), a separator sized for warm summer conditions will suffer a 47% drop in droplet rise rate during winter freezing rains, causing massive oil compliance violations.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Low Length-to-Width Ratio (L/W < 4.0) Triggering Hydraulic Short-Circuiting</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          If an API separator basin has an aspect ratio $L/W < 4.0$, plug flow breaks down into large recirculating dead zones and high-velocity central channeling. Wastewater races from inlet to outlet in less than 20% of nominal retention time, allowing unseparated oil to escape beneath the underflow baffle. API 421 recommends $L/W$ between 4.0 and 6.0.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Bottom Sludge Accumulation Squeezing Cross-Sectional Area</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Industrial stormwater carries suspended sand, silt, and heavy tars that settle to the basin floor. Without a properly segmented sludge hopper and automated flight-and-chain scraper, accumulated sediment reduces effective liquid depth $D$ by 30% to 50%. This constricts cross-sectional area $A_C$, speeding up water velocity and scouring settled sludge straight into the effluent.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.ows-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.ows-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.ows-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.ows-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.ows-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.ows-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.ows-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.ows-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.ows-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.ows-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.ows-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.ows-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.ows-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.ows-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.ows-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const flowInput = document.getElementById('ows_flowRate');
+  const flowUnitSelect = document.getElementById('ows_flowUnit');
+  const oilTypeSelect = document.getElementById('ows_oilType');
+  const tempInput = document.getElementById('ows_waterTemp');
+  const tempUnitSelect = document.getElementById('ows_tempUnit');
+  const dropletInput = document.getElementById('ows_dropletSize');
+  const depthInput = document.getElementById('ows_depth');
+  const depthUnitSelect = document.getElementById('ows_depthUnit');
+  const channelsSelect = document.getElementById('ows_channels');
+  const oilPpmInput = document.getElementById('ows_oilPpm');
+  const wdRatioSelect = document.getElementById('ows_wdRatio');
+
+  // Outputs
+  const resLength = document.getElementById('ows_res_length');
+  const resLengthM = document.getElementById('ows_res_length_m');
+  const resWidth = document.getElementById('ows_res_width');
+  const resWidthM = document.getElementById('ows_res_width_m');
+  const resVr = document.getElementById('ows_res_vr');
+  const resVrCm = document.getElementById('ows_res_vr_cm');
+  const resVh = document.getElementById('ows_res_vh');
+  const resVhSub = document.getElementById('ows_res_vh_sub');
+  const vhCard = document.getElementById('ows_vh_card');
+  const resHrt = document.getElementById('ows_res_hrt');
+  const resVolume = document.getElementById('ows_res_volume');
+  const resOil = document.getElementById('ows_res_oil');
+  const resOilBpd = document.getElementById('ows_res_oil_bpd');
+
+  // SVG Elements
+  const svgOilLayer = document.getElementById('svg_oilLayer');
+  const svgInflowRate = document.getElementById('svg_inflowRate');
+  const svgVhText = document.getElementById('svg_vhText');
+  const svgLengthDim = document.getElementById('svg_lengthDim');
+  const svgDepthDim = document.getElementById('svg_depthDim');
+  const svgCardVr = document.getElementById('svg_cardVr');
+  const svgCardLw = document.getElementById('svg_cardLw');
+  const svgCardStatus = document.getElementById('svg_cardStatus');
+
+  // Derivations
+  const drvDUm = document.getElementById('drv_d_um');
+  const drvTemp = document.getElementById('drv_temp');
+  const drvMu = document.getElementById('drv_mu');
+  const drvMuPoise = document.getElementById('drv_mu_poise');
+  const drvRhoO = document.getElementById('drv_rho_o');
+  const drvRhoO2 = document.getElementById('drv_rho_o2');
+  const drvMuPoise2 = document.getElementById('drv_mu_poise2');
+  const drvVrCms = document.getElementById('drv_vr_cms');
+  const drvVrFtmin = document.getElementById('drv_vr_ftmin');
+  const drvWd = document.getElementById('drv_wd');
+  const drvDepth = document.getElementById('drv_depth');
+  const drvWidth = document.getElementById('drv_width');
+  const drvWidth2 = document.getElementById('drv_width2');
+  const drvDepth2 = document.getElementById('drv_depth2');
+  const drvAcCalc = document.getElementById('drv_ac_calc');
+  const drvFlow = document.getElementById('drv_flow');
+  const drvQCfs = document.getElementById('drv_q_cfs');
+  const drvBays = document.getElementById('drv_bays');
+  const drvQCfs2 = document.getElementById('drv_q_cfs2');
+  const drvAc2 = document.getElementById('drv_ac2');
+  const drvVhCalc = document.getElementById('drv_vh_calc');
+  const drvVhStatus = document.getElementById('drv_vh_status');
+  const drvRatio = document.getElementById('drv_ratio');
+  const drvFCalc = document.getElementById('drv_f_calc');
+  const drvF2 = document.getElementById('drv_f2');
+  const drvQGpm = document.getElementById('drv_q_gpm');
+  const drvVrFtmin2 = document.getElementById('drv_vr_ftmin2');
+  const drvAhCalc = document.getElementById('drv_ah_calc');
+  const drvAh2 = document.getElementById('drv_ah2');
+  const drvW2 = document.getElementById('drv_w2');
+  const drvLengthCalc = document.getElementById('drv_length_calc');
+  const drvLengthM = document.getElementById('drv_length_m');
+  const drvLw = document.getElementById('drv_lw');
+  const drvHrtText = document.getElementById('drv_hrtText');
+
+  const auditBox = document.getElementById('ows_audit_box');
+
+  // Water viscosity in cP as function of T in °F
+  function getWaterViscosity(T_F) {
+    const T_C = (T_F - 32) / 1.8;
+    // Vogel formula for water viscosity: mu = A * 10^(B / (T_C - C))
+    // Approximate: mu ~ 1.79 / (1 + 0.03368 * T_C + 0.000221 * T_C^2)
+    const mu_cp = 1.787 / (1 + 0.0337 * T_C + 0.00022 * Math.pow(T_C, 2));
+    return Math.max(0.35, Math.min(2.0, mu_cp));
+  }
+
+  function calculate() {
+    let rawFlow = parseFloat(flowInput.value) || 500;
+    const flowUnit = flowUnitSelect.value;
+    let Q_gpm = 500;
+
+    if (flowUnit === 'gpm') Q_gpm = rawFlow;
+    else if (flowUnit === 'm3h') Q_gpm = rawFlow * 4.40287;
+    else if (flowUnit === 'bpd') Q_gpm = (rawFlow * 42) / (24 * 60);
+    else if (flowUnit === 'mgd') Q_gpm = (rawFlow * 1e6) / 1440;
+
+    let oilSG = 0.865;
+    const oilKey = oilTypeSelect.value;
+    if (oilKey === '32') oilSG = 141.5 / (131.5 + 32); // 0.8654
+    else if (oilKey === '40') oilSG = 141.5 / (131.5 + 40); // 0.8251
+    else if (oilKey === '22') oilSG = 141.5 / (131.5 + 22); // 0.9218
+    else if (oilKey === 'diesel') oilSG = 0.840;
+    else if (oilKey === 'lube') oilSG = 0.880;
+    else if (oilKey === 'gasoline') oilSG = 0.730;
+
+    let T_F = parseFloat(tempInput.value) || 68;
+    if (tempUnitSelect.value === 'c') T_F = T_F * 1.8 + 32;
+
+    const d_um = parseFloat(dropletInput.value) || 150;
+    const d_cm = d_um * 1e-4; // 150 um = 0.015 cm
+
+    let D_ft = parseFloat(depthInput.value) || 4.5;
+    if (depthUnitSelect.value === 'm') D_ft *= 3.28084;
+
+    const numChannels = parseInt(channelsSelect.value) || 1;
+    const oilPpm = parseFloat(oilPpmInput.value) || 1200;
+    const wdRatio = parseFloat(wdRatioSelect.value) || 2.0;
+
+    const Q_channel_gpm = Q_gpm / numChannels;
+    const Q_channel_cfs = Q_channel_gpm * 0.00222801; // gpm to ft3/s
+
+    // 1. Fluid properties
+    const mu_cp = getWaterViscosity(T_F);
+    const mu_poise = mu_cp * 0.01; // 1 cP = 0.01 Poise (g/cm-s)
+    const rho_w = 0.998; // g/cm3 at ambient
+    const rho_o = oilSG;
+
+    // 2. Stokes' Law Droplet Rise Velocity (vr)
+    // vr (cm/s) = [g * (rho_w - rho_o) * d^2] / (18 * mu)
+    const g_cgs = 981; // cm/s2
+    const vr_cms = (g_cgs * (rho_w - rho_o) * Math.pow(d_cm, 2)) / (18 * mu_poise);
+    // Convert cm/s to ft/min: 1 cm/s = 1.9685 ft/min
+    const vr_ftmin = vr_cms * 1.9685;
+
+    // 3. Basin Cross-Section (Width W & Depth D)
+    const W_ft = wdRatio * D_ft;
+    const Ac_ft2 = W_ft * D_ft;
+
+    // 4. Horizontal Flow Velocity (vH)
+    // vH (ft/min) = (Q_channel_cfs / Ac) * 60
+    const vh_ftmin = (Q_channel_cfs / Ac_ft2) * 60;
+    const vh_ratio = vh_ftmin / vr_ftmin;
+
+    // API 421 Turbulence & Short-Circuiting Factor (F)
+    // F is empirical function of (vH / vr)
+    // API 421 curve: F = 1.0 + 0.015 * (vH / vr) roughly, capped between 1.25 and 1.85
+    let F_factor = 1.20 + 0.012 * Math.min(vh_ratio, 50);
+    if (F_factor < 1.25) F_factor = 1.25;
+    if (F_factor > 1.75) F_factor = 1.75;
+
+    // 5. Required Horizontal Surface Area & Basin Length
+    // Ah = F * (Q / vr)
+    const Q_channel_ft3min = Q_channel_gpm * 0.133681;
+    const Ah_ft2 = F_factor * (Q_channel_ft3min / vr_ftmin);
+    const L_ft = Ah_ft2 / W_ft;
+    const L_m = L_ft * 0.3048;
+    const W_m = W_ft * 0.3048;
+    const D_m = D_ft * 0.3048;
+    const lw_ratio = L_ft / W_ft;
+
+    // 6. Retention Time & Basin Volume
+    const totalVolume_gal = (L_ft * W_ft * D_ft * numChannels) * 7.48052;
+    const totalVolume_m3 = totalVolume_gal * 0.00378541;
+    const hrt_min = totalVolume_gal / Q_gpm;
+
+    // 7. Recovered Oil Skim Rate
+    // Q_oil (gpm) = Q_gpm * (oilPpm / 1e6) * (1 / oilSG)
+    const Q_oil_gpm = Q_gpm * (oilPpm / 1e6) * (1 / oilSG);
+    const Q_oil_bpd = (Q_oil_gpm * 1440) / 42; // barrels per day
+
+    // Checks
+    const isVhOk = vh_ftmin <= 3.0 && vh_ratio <= 15.0;
+    const isLwOk = lw_ratio >= 4.0;
+    const isDepthOk = D_ft >= 3.0 && D_ft <= 8.0;
+
+    // Update Result UI
+    resLength.textContent = L_ft.toFixed(1) + ' ft';
+    resLengthM.textContent = L_m.toFixed(1) + ' m (L/W Ratio: ' + lw_ratio.toFixed(1) + ')';
+
+    resWidth.textContent = W_ft.toFixed(1) + ' ft';
+    resWidthM.textContent = W_m.toFixed(2) + ' m (Depth D = ' + D_ft.toFixed(1) + ' ft / ' + D_m.toFixed(2) + ' m)';
+
+    resVr.textContent = vr_ftmin.toFixed(3) + ' ft/min';
+    resVrCm.textContent = vr_cms.toFixed(4) + ' cm/s (' + d_um + ' μm Droplet)';
+
+    resVh.textContent = vh_ftmin.toFixed(2) + ' ft/min';
+    if (isVhOk) {
+      resVhSub.textContent = 'Pass: vH ≤ 3.0 ft/min API limit (Ratio: ' + vh_ratio.toFixed(1) + ')';
+      vhCard.className = 'ows-metric-card pass';
+    } else {
+      resVhSub.textContent = 'FAIL: Velocity exceeds API limit (>3.0 ft/min or >15 vr)';
+      vhCard.className = 'ows-metric-card fail';
+    }
+
+    resHrt.textContent = hrt_min.toFixed(1) + ' min';
+    resVolume.textContent = Math.round(totalVolume_gal).toLocaleString() + ' Gallons (' + Math.round(totalVolume_m3) + ' m³)';
+
+    resOil.textContent = Q_oil_gpm.toFixed(2) + ' GPM';
+    resOilBpd.textContent = Q_oil_bpd.toFixed(1) + ' BPD Recovered Oil (' + oilPpm + ' ppm)';
+
+    // SVG Updates
+    svgOilLayer.textContent = 'Floating Oil Layer (' + Q_oil_bpd.toFixed(1) + ' BPD Recovered)';
+    svgInflowRate.textContent = Math.round(Q_gpm) + ' GPM';
+    svgVhText.textContent = 'vH = ' + vh_ftmin.toFixed(2) + ' ft/min';
+    svgLengthDim.textContent = 'Chamber Length L = ' + L_ft.toFixed(1) + ' ft (' + L_m.toFixed(1) + ' m)';
+    svgDepthDim.textContent = 'D = ' + D_ft.toFixed(1) + ' ft';
+    svgCardVr.textContent = vr_ftmin.toFixed(3) + ' ft/min';
+    svgCardLw.textContent = L_ft.toFixed(1) + "' L × " + W_ft.toFixed(1) + "' W";
+    if (isVhOk && isLwOk && isDepthOk) {
+      svgCardStatus.textContent = 'API 421 COMPLIANT';
+      svgCardStatus.setAttribute('fill', '#22c55e');
+    } else {
+      svgCardStatus.textContent = 'NON-CONFORMING';
+      svgCardStatus.setAttribute('fill', '#ef4444');
+    }
+
+    // Derivations updates
+    drvDUm.textContent = d_um.toFixed(0);
+    drvTemp.textContent = T_F.toFixed(1);
+    drvMu.textContent = mu_cp.toFixed(3);
+    drvMuPoise.textContent = mu_poise.toFixed(5);
+    drvRhoO.textContent = rho_o.toFixed(3);
+    drvRhoO2.textContent = rho_o.toFixed(3);
+    drvMuPoise2.textContent = mu_poise.toFixed(5);
+    drvVrCms.textContent = vr_cms.toFixed(4);
+    drvVrFtmin.textContent = vr_ftmin.toFixed(4);
+
+    drvWd.textContent = wdRatio.toFixed(1);
+    drvDepth.textContent = D_ft.toFixed(1);
+    drvWidth.textContent = W_ft.toFixed(1);
+    drvWidth2.textContent = W_ft.toFixed(1);
+    drvDepth2.textContent = D_ft.toFixed(1);
+    drvAcCalc.textContent = Ac_ft2.toFixed(1);
+    drvFlow.textContent = Math.round(Q_gpm);
+    drvQCfs.textContent = Q_channel_cfs.toFixed(3);
+    drvBays.textContent = numChannels;
+    drvQCfs2.textContent = Q_channel_cfs.toFixed(3);
+    drvAc2.textContent = Ac_ft2.toFixed(1);
+    drvVhCalc.textContent = vh_ftmin.toFixed(2);
+    drvVhStatus.textContent = isVhOk ? 'Pass: ≤ 3.0 ft/min API threshold' : 'Exceeds API velocity threshold!';
+
+    drvRatio.textContent = vh_ratio.toFixed(1);
+    drvFCalc.textContent = F_factor.toFixed(2);
+    drvF2.textContent = F_factor.toFixed(2);
+    drvQGpm.textContent = Math.round(Q_channel_gpm);
+    drvVrFtmin2.textContent = vr_ftmin.toFixed(4);
+    drvAhCalc.textContent = Ah_ft2.toFixed(1);
+    drvAh2.textContent = Ah_ft2.toFixed(1);
+    drvW2.textContent = W_ft.toFixed(1);
+    drvLengthCalc.textContent = L_ft.toFixed(1);
+    drvLengthM.textContent = L_m.toFixed(1);
+    drvLw.textContent = lw_ratio.toFixed(1);
+
+    if (hrt_min < 20) {
+      drvHrtText.textContent = 'WARNING: Retention time (' + hrt_min.toFixed(1) + ' min) is below API recommended 20-30 min baseline. Increase chamber dimensions.';
+    } else {
+      drvHrtText.textContent = 'Retention time (' + hrt_min.toFixed(1) + ' min) comfortably satisfies API 421 guidelines (20 to 30 min typical), ensuring calm laminar flotation.';
+    }
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   API 421 OIL-WATER SEPARATOR COMPLIANCE AUDIT       \n' +
+      '=======================================================\n' +
+      'Total Wastewater Inflow:   ' + Math.round(Q_gpm) + ' US GPM (' + (Q_gpm * 0.2271).toFixed(1) + ' m³/h)\n' +
+      'Separator Channel Bays:    ' + numChannels + ' Parallel Bay(s) [' + Math.round(Q_channel_gpm) + ' GPM / bay]\n' +
+      'Hydrocarbon Characteristics: Specific Gravity = ' + oilSG.toFixed(3) + ' (' + oilTypeSelect.options[oilTypeSelect.selectedIndex].text.split('(')[0].trim() + ')\n' +
+      'Wastewater Temperature:    ' + T_F.toFixed(1) + ' °F (' + ((T_F-32)/1.8).toFixed(1) + ' °C) [Viscosity: ' + mu_cp.toFixed(3) + ' cP]\n' +
+      'Target Droplet Diameter:   ' + d_um.toFixed(0) + ' μm (0.015 cm, API Standard)\n' +
+      '-------------------------------------------------------\n' +
+      'STOKES RISE VELOCITY (vr): ' + vr_ftmin.toFixed(4) + ' ft/min (' + vr_cms.toFixed(4) + ' cm/s)\n' +
+      'Horizontal Water Velocity: ' + vh_ftmin.toFixed(2) + ' ft/min [' + (isVhOk ? 'PASS: Under 3.0 ft/min & 15·vr' : 'FAIL: RE-ENTRAINMENT HAZARD') + ']\n' +
+      'Turbulence Factor (F):     ' + F_factor.toFixed(2) + ' (API 421 short-circuiting multiplier)\n' +
+      'REQUIRED BASIN GEOMETRY:   ' + L_ft.toFixed(1) + ' ft Length × ' + W_ft.toFixed(1) + ' ft Width × ' + D_ft.toFixed(1) + ' ft Depth\n' +
+      'Metric Basin Dimensions:   ' + L_m.toFixed(2) + ' m L × ' + W_m.toFixed(2) + ' m W × ' + D_m.toFixed(2) + ' m D\n' +
+      'Aspect Ratio (L/W):        ' + lw_ratio.toFixed(2) + ' [' + (isLwOk ? 'PASS: ≥ 4.0 Plug Flow' : 'SHORT-CIRCUITING RISK (< 4.0)') + ']\n' +
+      'Hydraulic Retention Time:  ' + hrt_min.toFixed(1) + ' min (Total Basin Volume: ' + Math.round(totalVolume_gal).toLocaleString() + ' gal / ' + Math.round(totalVolume_m3) + ' m³)\n' +
+      'Recovered Free Oil Rate:   ' + Q_oil_gpm.toFixed(2) + ' GPM (' + Q_oil_bpd.toFixed(1) + ' Barrels/Day at ' + oilPpm + ' ppm oil)\n' +
+      'Design Standard:           API Publication 421 (Design of Oil-Water Separators)\n' +
+      'Compliance Assessment:     ' + (isVhOk && isLwOk && isDepthOk ? 'FULL API 421 CONFORMANCE' : 'NON-COMPLIANT DESIGN - REVISE GEOMETRY') + '\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyOwsAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyOwsAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied API 421 Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [flowInput, flowUnitSelect, oilTypeSelect, tempInput, tempUnitSelect, dropletInput, depthInput, depthUnitSelect, channelsSelect, oilPpmInput, wdRatioSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'oil-water-separator-api-calculator.html'), renderTradePage({
+    title: "API 421 Industrial Oil-Water Separator Sizing Calculator",
+    metaDesc: "Size API 421 gravity oil-water separator basins, Stokes droplet rise velocity, chamber dimensions (L x W x D), turbulence factors, and oil skimmer rates.",
+    canonical: `${DOMAIN}/calc/oil-water-separator-api-calculator`,
+    bodyContent: apiOwsBody,
+    currentPath: '/calc/oil-water-separator-api-calculator',
+    faq: [
+      {
+        "q": "What is the design basis droplet size in an API 421 oil-water separator?",
+        "a": "Per API Publication 421 ('Design and Operation of Oil-Water Separators'), the standard design basis droplet size is 150 microns (0.015 cm). Gravity separators designed to capture 150-micron oil globules typically achieve 85% to 99% free oil removal efficiency under steady laminar flow conditions."
+      },
+      {
+        "q": "Why is the horizontal flow velocity (vH) strictly capped at 3.0 ft/min?",
+        "a": "API 421 limits horizontal water velocity to a maximum of 3.0 ft/min (0.91 m/min) and no more than 15 times the droplet rise velocity (vH ≤ 15·vr). Exceeding this velocity generates interfacial turbulence and fluid shear that drags already separated oil droplets back down into the water column and scours bottom sludge into the effluent."
+      },
+      {
+        "q": "How does water temperature affect oil-water separation efficiency?",
+        "a": "Stokes' law dictates that terminal rise velocity is inversely proportional to water dynamic viscosity. When wastewater cools from 75°F to 36°F during winter, water viscosity nearly doubles (from ~0.9 cP to 1.63 cP), cutting droplet rise velocity almost in half. A separator sized only for warm water will fail discharge limits in cold weather."
+      },
+      {
+        "q": "Why must the basin length-to-width ratio (L/W) be at least 4.0?",
+        "a": "An aspect ratio of L/W ≥ 4.0 (ideally 4.0 to 6.0) ensures true plug flow and prevents short-circuiting. Separator basins with low aspect ratios suffer from large recirculating eddies and rapid central channeling, allowing wastewater to pass through in a fraction of the design hydraulic retention time."
+      },
+      {
+        "q": "Can an API 421 separator remove chemically emulsified or dissolved oil?",
+        "a": "No. API 421 separators are strictly physical gravity sedimentation devices engineered for free, insoluble oil droplets. They cannot remove chemically stabilized emulsions (droplets < 20 μm) or dissolved hydrocarbons (BTEX, phenols). Emulsified oils require chemical coagulation/flocculation followed by Dissolved Air Flotation (DAF) or membrane filtration."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (67 calculators in /calc/)');
 }
 
