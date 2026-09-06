@@ -72365,6 +72365,2312 @@ writeFileSync(join(calcDir, 'vessel-nozzle-local-stress-wrc-107-537-calculator.h
 }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (91 calculators in /calc/)');
+  // --- BATCH AL TOOLS ---
+
+
+// ==========================================
+// TOOL AL1: Coriolis Mass Flow Meter Sizing & Pressure Drop Calculator (ISO 10790 & ASME MFC-11M)
+// ==========================================
+const toolAL1Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">ISO 10790 &bull; ASME MFC-11M &bull; API MPMS Chapter 5.6 &bull; OIML R 117</div>
+    <h1>Coriolis Mass Flow Meter Sizing & Pressure Drop Calculator</h1>
+    <p class="text-muted">Size industrial Coriolis mass flow meters per ISO 10790 and ASME MFC-11M. Calculate sensor tube velocity, Reynolds number, liquid/slurry pressure drop, zero stability uncertainty at low turndown, and verify acoustic resonance cavitation margins.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Process Fluid & Operating Conditions</h3>
+
+      <div class="input-group">
+        <label for="al1_fluid_preset">Fluid Preset Selection</label>
+        <select id="al1_fluid_preset">
+          <option value="water" selected>Water (1000 kg/m³, 1.0 cP)</option>
+          <option value="crude_light">Light Crude Oil (830 kg/m³, 5.0 cP)</option>
+          <option value="crude_heavy">Heavy Fuel Oil / Crude (950 kg/m³, 85.0 cP)</option>
+          <option value="diesel">Diesel / Gasoil (840 kg/m³, 3.2 cP)</option>
+          <option value="ethanol">Ethanol / Solvent (789 kg/m³, 1.2 cP)</option>
+          <option value="slurry">Mineral Slurry (1350 kg/m³, 18.0 cP)</option>
+          <option value="custom">Custom Fluid Properties</option>
+        </select>
+        <small class="text-muted">Preloads standard industrial fluid physical properties</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_flow_rate">Design Mass Flow Rate ($\dot{m}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al1_flow_rate" value="25000" min="10" max="2000000" step="500">
+          <span class="unit-badge">kg/h</span>
+        </div>
+        <small class="text-muted">e.g. 25,000 kg/h (~55,115 lb/h)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_density">Fluid Operating Density ($\rho$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al1_density" value="1000" min="400" max="2500" step="1">
+          <span class="unit-badge">kg/m³</span>
+        </div>
+        <small class="text-muted">At flowing temperature and pressure</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_viscosity">Dynamic Viscosity ($\mu$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al1_viscosity" value="1.0" min="0.01" max="10000" step="0.1">
+          <span class="unit-badge">cP (mPa·s)</span>
+        </div>
+        <small class="text-muted">Flowing dynamic viscosity</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_oper_press">Inlet Operating Pressure ($P_{in}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al1_oper_press" value="150" min="5" max="3000" step="5">
+          <span class="unit-badge">psig</span>
+        </div>
+        <small class="text-muted">Static line pressure at meter inlet</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Coriolis Meter Model & Geometry</h3>
+
+      <div class="input-group">
+        <label for="al1_meter_size">Nominal Meter Size / Tube ID</label>
+        <select id="al1_meter_size">
+          <option value="15">DN15 (1/2") - Sensor Bore: 9.5 mm (Max: ~4,000 kg/h)</option>
+          <option value="25">DN25 (1") - Sensor Bore: 16.0 mm (Max: ~18,000 kg/h)</option>
+          <option value="50" selected>DN50 (2") - Sensor Bore: 32.0 mm (Max: ~70,000 kg/h)</option>
+          <option value="80">DN80 (3") - Sensor Bore: 51.0 mm (Max: ~180,000 kg/h)</option>
+          <option value="100">DN100 (4") - Sensor Bore: 65.0 mm (Max: ~320,000 kg/h)</option>
+          <option value="150">DN150 (6") - Sensor Bore: 98.0 mm (Max: ~750,000 kg/h)</option>
+          <option value="200">DN200 (8") - Sensor Bore: 130.0 mm (Max: ~1,500,000 kg/h)</option>
+        </select>
+        <small class="text-muted">Standard industrial dual-tube Coriolis sensor body size</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_tube_geom">Sensor Tube Geometry</label>
+        <select id="al1_tube_geom">
+          <option value="dual_curved" selected>Dual Curved U-Tube / Loop (Standard High Accuracy, Low ZS)</option>
+          <option value="dual_straight">Dual Straight Tube (Self-Draining, Compact, Higher ΔP)</option>
+          <option value="single_straight">Single Straight Tube (Sanitary / Low Shear, Higher ZS)</option>
+        </select>
+        <small class="text-muted">Geometry governs flow splitting, pressure drop, and zero stability</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_base_acc">Base Flow Calibration Accuracy</label>
+        <div class="input-with-unit">
+          <input type="number" id="al1_base_acc" value="0.10" min="0.05" max="0.50" step="0.01">
+          <span class="unit-badge">%</span>
+        </div>
+        <small class="text-muted">e.g. ±0.10% for liquids (API custody transfer grade)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_zero_stab">Meter Zero Stability ($ZS$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al1_zero_stab" value="1.5" min="0.05" max="100" step="0.1">
+          <span class="unit-badge">kg/h</span>
+        </div>
+        <small class="text-muted">Zero offset error rating from manufacturer calibration</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al1_max_dp_allow">Max Permissible Pressure Drop ($\Delta P_{max}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al1_max_dp_allow" value="15.0" min="1" max="100" step="0.5">
+          <span class="unit-badge">psi</span>
+        </div>
+        <small class="text-muted">Target maximum allowable hydraulic head loss</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">Hydraulic Sizing, Velocity & Measurement Accuracy</h3>
+      <div id="al1_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Total Pressure Drop ($\Delta P$)</div>
+        <div id="al1_out_dp_psi" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- psi</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al1_out_dp_bar">-- bar (Head: -- m)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Sensor Tube Velocity ($v$)</div>
+        <div id="al1_out_velocity" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">-- m/s</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al1_out_vel_fps">-- ft/s (Re: --)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="al1_acc_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Total Measurement Uncertainty</div>
+        <div id="al1_out_uncertainty" style="font-size:22px; font-weight:800; color:#10b981; margin:4px 0;">&plusmn;-- %</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al1_out_turndown">Turndown: -- : 1</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Volumetric Flow & Flow Regime</div>
+        <div id="al1_out_vol_flow" style="font-size:16px; font-weight:700; color:var(--text-primary); margin:4px 0;">-- m³/h | -- GPM</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al1_out_regime">Regime: Fully Turbulent</div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Details Breakdown -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; font-size:12.5px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div>
+        <span style="color:var(--text-muted);">Sensor Tube Split Bore:</span>
+        <strong id="al1_diag_bore" style="float:right; color:var(--text-primary);">2 x 32.0 mm</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Zero Stability Error Portion:</span>
+        <strong id="al1_diag_zs_pct" style="float:right; color:var(--text-primary);">0.006 %</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Friction Loss vs Splitter Loss:</span>
+        <strong id="al1_diag_split_loss" style="float:right; color:var(--text-primary);">78% Fric / 22% Split</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Acoustic Cavitation Margin:</span>
+        <strong id="al1_diag_cavit" style="float:right; color:#10b981;">SAFE (>50 psi reserve)</strong>
+      </div>
+    </div>
+
+    <!-- Live SVG Coriolis Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Dual U-Tube Harmonic Oscillation & Phase Shift Diagram</span>
+        <span style="font-size:11px; color:var(--text-muted);">Coriolis force $F_C = 2 \cdot m \cdot (\vec{\omega} \times \vec{v})$</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="al1_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="al1_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy Coriolis Sizing Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & ISO 10790 Physics Principles</h2>
+    <p>A Coriolis flow meter measures mass flow directly by vibrating one or two measurement tubes at their natural resonant frequency (typically $100 - 800\text{ Hz}$) and detecting the tiny phase shift ($\\Delta t$) between upstream and downstream electromagnetic pick-off coils caused by the Coriolis acceleration.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Direct Coriolis Mass Flow Relation:</strong><br>
+      As fluid of mass velocity $\\vec{v}$ flows through a tube vibrating at angular frequency $\\vec{\\omega}$, it experiences a Coriolis acceleration $\\vec{a}_C = 2 (\\vec{\\omega} \\times \\vec{v})$. The resulting force twists the tube:<br>
+      $$\\dot{m} = K_s \cdot \\Delta t$$<br>
+      where $K_s$ is the structural angular stiffness of the sensor tubes and $\\Delta t$ is the phase delay in microseconds ($0.1$ to $50\ \mu\text{s}$) measured between the optical/magnetic sensor pairs.<br><br>
+
+      <strong>2. Hydraulic Tube Sizing & Velocity:</strong><br>
+      For dual-tube designs, the total mass flow splits equally ($50\%$ per tube). The flow area per tube is $A_{tube} = \\frac{\\pi d_{tube}^2}{4}$. Flow velocity:<br>
+      $$v = \frac{\\dot{m}}{2 \cdot \rho \cdot A_{tube}}$$
+      Recommended operating velocity range: $1.5\ \text{m/s} \le v \le 7.0\ \text{m/s}$ ($5$ to $23\ \text{ft/s}$). Velocities below $1.0\ \text{m/s}$ increase zero-stability error, while velocities above $8.0\ \text{m/s}$ cause excessive pressure drop and abrasive tube erosion.<br><br>
+
+      <strong>3. Pressure Drop Model per ISO 10790 & Darby 3-K Method:</strong><br>
+      Total sensor pressure drop consists of flow splitter manifold losses, tube entrance/exit losses, and frictional head loss through the curved tubes:<br>
+      $$\\Delta P_{total} = \Delta P_{friction} + \Delta P_{fittings} = f \cdot \frac{L_{tube}}{d_{tube}} \cdot \frac{\\rho v^2}{2} + \sum K \cdot \frac{\\rho v^2}{2}$$<br>
+      where $f$ is Darcy friction factor determined from tube Reynolds number $Re = \\frac{\\rho v d_{tube}}{\\mu}$ via Churchill equation for smooth titanium/Hastelloy/316L tubes.<br><br>
+
+      <strong>4. Total Measurement Uncertainty & Zero Stability Turndown:</strong><br>
+      Per ISO 10790 clause 7.2, total uncertainty is the root-sum-square of base calibration accuracy and zero stability offset:<br>
+      $$\\text{Uncertainty (}\%\text{)} = \pm \left[ \text{Base Acc (}\%\text{)} + \left(\frac{ZS}{\\dot{m}}\right) \times 100 \right]$$
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in Coriolis Meter Application</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. Line-Size Matching (The Low Turndown Zero Stability Trap)</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Selecting a Coriolis meter matching the nominal piping diameter (e.g. 4" meter on a 4" line) is the most common specification mistake. At typical pipe velocities ($1 - 1.5\text{ m/s}$), a line-sized meter operates at less than $15\%$ of its rated capacity. At this low flow, the manufacturer zero stability ($ZS$) error dominates the reading, exploding a nominal $\pm 0.1\%$ meter into an unacceptable $\pm 1.5\%$ to $\pm 3.0\%$ error. Coriolis meters should almost always be sized 1 to 2 sizes smaller than the line.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Entrained Gas Void Fraction (The Bubble Damping Failure)</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Even $1\%$ entrained gas bubbles in liquid causes severe acoustic damping of the vibrating tube, requiring the transmitter drive gain to saturate at $100\%$. The differential movement between liquid and compressible gas voids (decoupling effect) introduces massive negative density and mass flow measurement errors. For upward orientation or degas separators are required for liquids with dissolved gas.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Piping Stress Cross-Talk & Mechanical Clamping Distortions</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Coriolis meters measure nanometer-scale tube phase deflections. When external piping loads (thermal expansion, poorly supported pipe weight, or misaligned flange faces) exert bending moments onto the sensor body, they distort the structural stiffness matrix ($K_s$), shifting the meter zero point permanently. Rigid pipe anchors must be installed within 2 to 5 pipe diameters on both sides of the sensor.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Cavitation Flashing Across the Sensor Splitter</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Due to the flow split into two narrow tubes and the $180^\circ$ bends, peak pressure drop inside a Coriolis sensor can exceed $15 - 25\text{ psi}$. If the process fluid is operating close to its bubble point (e.g. LPG, liquid propane, condensate), the localized static pressure drop inside the tube drops below vapor pressure, causing sudden cavitation flashing that erodes the thin titanium/alloy tube wall and triggers drive stall errors.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Slurry Erosion in High-Velocity Curved U-Tubes</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          In mining slurries, catalyst slurries, or abrasive drilling fluids, particulate impact on curved tube bends accelerates wall thinning exponentially when velocity exceeds $3.0\text{ m/s}$ ($10\text{ ft/s}$). Sensor rupture in high-pressure toxic or flammable service is catastrophic. Dual straight-tube or single straight-tube geometries with ceramic or heavy-wall titanium linings must be chosen for slurry applications.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var presets = {
+    water: { rho: 1000, mu: 1.0 },
+    crude_light: { rho: 830, mu: 5.0 },
+    crude_heavy: { rho: 950, mu: 85.0 },
+    diesel: { rho: 840, mu: 3.2 },
+    ethanol: { rho: 789, mu: 1.2 },
+    slurry: { rho: 1350, mu: 18.0 }
+  };
+
+  var meterData = {
+    15: { bore: 9.5, maxFlow: 4000, len: 0.55, zs: 0.2 },
+    25: { bore: 16.0, maxFlow: 18000, len: 0.75, zs: 0.8 },
+    50: { bore: 32.0, maxFlow: 70000, len: 1.10, zs: 2.5 },
+    80: { bore: 51.0, maxFlow: 180000, len: 1.45, zs: 7.0 },
+    100: { bore: 65.0, maxFlow: 320000, len: 1.70, zs: 15.0 },
+    150: { bore: 98.0, maxFlow: 750000, len: 2.20, zs: 45.0 },
+    200: { bore: 130.0, maxFlow: 1500000, len: 2.80, zs: 110.0 }
+  };
+
+  function onPresetChange() {
+    var sel = document.getElementById('al1_fluid_preset').value;
+    if (presets[sel]) {
+      document.getElementById('al1_density').value = presets[sel].rho;
+      document.getElementById('al1_viscosity').value = presets[sel].mu;
+    }
+    calcAL1();
+  }
+
+  function onMeterChange() {
+    var size = document.getElementById('al1_meter_size').value;
+    if (meterData[size]) {
+      document.getElementById('al1_zero_stab').value = meterData[size].zs;
+    }
+    calcAL1();
+  }
+
+  function calcAL1() {
+    var m_dot = parseFloat(document.getElementById('al1_flow_rate').value) || 25000; // kg/h
+    var rho = parseFloat(document.getElementById('al1_density').value) || 1000;      // kg/m3
+    var mu = parseFloat(document.getElementById('al1_viscosity').value) || 1.0;      // cP
+    var Pin = parseFloat(document.getElementById('al1_oper_press').value) || 150;    // psig
+    var sizeKey = document.getElementById('al1_meter_size').value || '50';
+    var geom = document.getElementById('al1_tube_geom').value;
+    var baseAcc = parseFloat(document.getElementById('al1_base_acc').value) || 0.10;
+    var zs = parseFloat(document.getElementById('al1_zero_stab').value) || 2.5;
+    var maxDpAllow = parseFloat(document.getElementById('al1_max_dp_allow').value) || 15.0;
+
+    var mInfo = meterData[sizeKey] || meterData[50];
+    var d_tube_mm = mInfo.bore;
+    var d_tube_m = d_tube_mm / 1000;
+    var L_tube_m = mInfo.len;
+    var maxNomFlow = mInfo.maxFlow;
+
+    var numTubes = (geom === 'single_straight') ? 1 : 2;
+    var flowPerTube = (m_dot / 3600) / numTubes; // kg/s per tube
+    var volFlowTotal_m3h = m_dot / rho;
+    var volFlowTotal_gpm = volFlowTotal_m3h * 4.40287;
+
+    // Tube Area & Velocity
+    var Atube = Math.PI * Math.pow(d_tube_m / 2, 2);
+    var velocity = (flowPerTube / rho) / Atube; // m/s
+    var vel_fps = velocity * 3.28084;
+
+    // Reynolds Number
+    var mu_si = mu * 0.001; // Pa.s
+    var Re = (rho * velocity * d_tube_m) / mu_si;
+
+    // Friction factor (Churchill equation)
+    var e_D = 0.0000015 / d_tube_m; // 1.5 micron smooth drawn tube
+    var f = 0.02;
+    if (Re < 2100) {
+      f = 64 / Math.max(1, Re);
+    } else {
+      var A = Math.pow(-2.457 * Math.log(Math.pow(7 / Re, 0.9) + 0.27 * e_D), 16);
+      var B = Math.pow(37530 / Re, 16);
+      f = 8 * Math.pow(Math.pow(8 / Re, 12) + 1 / Math.pow(A + B, 1.5), 1 / 12);
+    }
+
+    // Fitting Loss Factors
+    var K_split = (numTubes === 2) ? 1.4 : 0.4;
+    var K_bends = (geom === 'dual_curved') ? 2.5 : 0.8;
+    var K_total = K_split + K_bends;
+
+    var dp_fric_pa = f * (L_tube_m / d_tube_m) * (0.5 * rho * velocity * velocity);
+    var dp_fit_pa = K_total * (0.5 * rho * velocity * velocity);
+    var dp_total_pa = dp_fric_pa + dp_fit_pa;
+
+    var dp_psi = dp_total_pa / 6894.76;
+    var dp_bar = dp_total_pa / 100000;
+    var head_loss_m = dp_total_pa / (rho * 9.80665);
+
+    // Measurement Uncertainty
+    var zs_error_pct = (zs / m_dot) * 100;
+    var total_uncertainty = baseAcc + zs_error_pct;
+    var turndown = maxNomFlow / m_dot;
+
+    // Hero Outputs
+    document.getElementById('al1_out_dp_psi').textContent = dp_psi.toFixed(2) + ' psi';
+    document.getElementById('al1_out_dp_bar').textContent = dp_bar.toFixed(3) + ' bar (Head: ' + head_loss_m.toFixed(1) + ' m)';
+    
+    document.getElementById('al1_out_velocity').textContent = velocity.toFixed(2) + ' m/s';
+    document.getElementById('al1_out_vel_fps').textContent = vel_fps.toFixed(1) + ' ft/s (Re: ' + Math.round(Re).toLocaleString() + ')';
+
+    document.getElementById('al1_out_uncertainty').textContent = '±' + total_uncertainty.toFixed(3) + ' %';
+    document.getElementById('al1_out_turndown').textContent = 'Turndown: ' + turndown.toFixed(1) + ' : 1 (of max ' + maxNomFlow.toLocaleString() + ' kg/h)';
+
+    document.getElementById('al1_out_vol_flow').textContent = volFlowTotal_m3h.toFixed(1) + ' m³/h | ' + Math.round(volFlowTotal_gpm).toLocaleString() + ' GPM';
+    var regStr = Re < 2100 ? 'Laminar (Re < 2100)' : (Re < 4000 ? 'Transitional (2100-4000)' : 'Fully Turbulent (Re > 4000)');
+    document.getElementById('al1_out_regime').textContent = 'Regime: ' + regStr;
+
+    // Diagnostics
+    document.getElementById('al1_diag_bore').textContent = numTubes + ' x ' + d_tube_mm.toFixed(1) + ' mm';
+    document.getElementById('al1_diag_zs_pct').textContent = zs_error_pct.toFixed(4) + ' %';
+    var fricPct = (dp_fric_pa / dp_total_pa) * 100;
+    document.getElementById('al1_diag_split_loss').textContent = Math.round(fricPct) + '% Fric / ' + Math.round(100 - fricPct) + '% Splitter';
+
+    var cavMargin = Pin - dp_psi;
+    var cavElem = document.getElementById('al1_diag_cavit');
+    if (cavMargin > 30) {
+      cavElem.textContent = 'SAFE (' + cavMargin.toFixed(0) + ' psi reserve)';
+      cavElem.style.color = '#10b981';
+    } else if (cavMargin > 10) {
+      cavElem.textContent = 'LOW MARGIN (' + cavMargin.toFixed(0) + ' psi reserve)';
+      cavElem.style.color = '#f59e0b';
+    } else {
+      cavElem.textContent = 'CAVITATION RISK (Flashing likely)';
+      cavElem.style.color = '#ef4444';
+    }
+
+    // Badge Evaluation
+    var badge = document.getElementById('al1_status_badge');
+    var isVelOk = velocity >= 1.0 && velocity <= 8.0;
+    var isDpOk = dp_psi <= maxDpAllow;
+    var isAccOk = total_uncertainty <= 0.25;
+
+    if (isVelOk && isDpOk && isAccOk) {
+      badge.textContent = 'OPTIMALLY SIZED';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    } else if (!isDpOk) {
+      badge.textContent = 'HIGH PRESSURE DROP (OVERSIZED FLOW)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (velocity < 1.0) {
+      badge.textContent = 'UNDERSIZED FLOW (LOW TURNDOWN)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else {
+      badge.textContent = 'ACCEPTABLE WITH MARGIN';
+      badge.style.background = 'rgba(59, 130, 246, 0.15)';
+      badge.style.color = '#3b82f6';
+      badge.style.border = '1px solid #3b82f6';
+    }
+
+    renderSvgAL1(velocity, dp_psi, maxDpAllow, geom, total_uncertainty);
+  }
+
+  function renderSvgAL1(velocity, dp_psi, maxDpAllow, geom, uncertainty) {
+    var svg = document.getElementById('al1_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Flow sensor body outline
+    s += '<rect x="30" y="50" width="540" height="140" rx="14" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="2"/>';
+
+    // Flange Inlets
+    s += '<rect x="15" y="90" width="20" height="60" rx="3" fill="#64748b"/>';
+    s += '<text x="10" y="80" font-size="11" fill="var(--text-muted)" font-weight="600">Inlet Flange</text>';
+    s += '<rect x="565" y="90" width="20" height="60" rx="3" fill="#64748b"/>';
+    s += '<text x="545" y="80" font-size="11" fill="var(--text-muted)" font-weight="600">Outlet Flange</text>';
+
+    // Center Manifold Splitter
+    s += '<path d="M 35 120 L 100 120 L 130 85 L 470 85 L 500 120 L 565 120" fill="none" stroke="#3b82f6" stroke-width="4"/>';
+    s += '<path d="M 35 120 L 100 120 L 130 155 L 470 155 L 500 120 L 565 120" fill="none" stroke="#8b5cf6" stroke-width="4"/>';
+
+    if (geom === 'dual_curved') {
+      // U-Tube Loop representation
+      s += '<path d="M 130 85 C 200 20, 400 20, 470 85" fill="none" stroke="#3b82f6" stroke-width="5" stroke-dasharray="6,3"/>';
+      s += '<path d="M 130 155 C 200 220, 400 220, 470 155" fill="none" stroke="#8b5cf6" stroke-width="5" stroke-dasharray="6,3"/>';
+      s += '<text x="300" y="45" font-size="11" font-weight="700" fill="#3b82f6" text-anchor="middle">Upper Resonant Loop (ω)</text>';
+      s += '<text x="300" y="205" font-size="11" font-weight="700" fill="#8b5cf6" text-anchor="middle">Lower Resonant Loop (-ω)</text>';
+    } else {
+      s += '<text x="300" y="75" font-size="11" font-weight="700" fill="#3b82f6" text-anchor="middle">Straight Tube A</text>';
+      s += '<text x="300" y="175" font-size="11" font-weight="700" fill="#8b5cf6" text-anchor="middle">Straight Tube B</text>';
+    }
+
+    // Driver Coil in center
+    s += '<circle cx="300" cy="120" r="14" fill="#f59e0b" opacity="0.2"/>';
+    s += '<circle cx="300" cy="120" r="8" fill="#f59e0b"/>';
+    s += '<text x="300" y="102" font-size="10" font-weight="700" fill="#f59e0b" text-anchor="middle">Drive Coil</text>';
+
+    // Upstream & Downstream Pickoff Coils
+    s += '<rect x="190" y="110" width="12" height="20" rx="3" fill="#10b981"/>';
+    s += '<text x="196" y="145" font-size="9" font-weight="600" fill="#10b981" text-anchor="middle">Pickoff 1</text>';
+
+    s += '<rect x="398" y="110" width="12" height="20" rx="3" fill="#10b981"/>';
+    s += '<text x="404" y="145" font-size="9" font-weight="600" fill="#10b981" text-anchor="middle">Pickoff 2</text>';
+
+    // Phase Shift Annotation
+    s += '<text x="300" y="138" font-size="10" font-weight="700" fill="var(--text-primary)" text-anchor="middle">Δt Phase Shift</text>';
+
+    // Flow Velocity Gauge / DP Status bar
+    var dpColor = dp_psi > maxDpAllow ? '#ef4444' : (velocity < 1.0 ? '#f59e0b' : '#10b981');
+    s += '<text x="45" y="225" font-size="11" fill="var(--text-muted)" font-weight="600">Pressure Drop Headroom:</text>';
+    s += '<rect x="180" y="215" width="250" height="10" rx="5" fill="var(--bg-secondary)"/>';
+    var dpWidth = Math.min(250, (dp_psi / maxDpAllow) * 250);
+    s += '<rect x="180" y="215" width="' + dpWidth + '" height="10" rx="5" fill="' + dpColor + '"/>';
+    s += '<text x="440" y="225" font-size="11" font-weight="700" fill="' + dpColor + '">' + dp_psi.toFixed(1) + ' / ' + maxDpAllow.toFixed(0) + ' psi</text>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['al1_flow_rate', 'al1_density', 'al1_viscosity', 'al1_oper_press', 'al1_base_acc', 'al1_zero_stab', 'al1_max_dp_allow'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAL1);
+      el.addEventListener('change', calcAL1);
+    }
+  });
+
+  document.getElementById('al1_fluid_preset').addEventListener('change', onPresetChange);
+  document.getElementById('al1_meter_size').addEventListener('change', onMeterChange);
+  document.getElementById('al1_tube_geom').addEventListener('change', calcAL1);
+
+  var copyBtn = document.getElementById('al1_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var dpPsi = document.getElementById('al1_out_dp_psi').textContent;
+      var dpBar = document.getElementById('al1_out_dp_bar').textContent;
+      var vel = document.getElementById('al1_out_velocity').textContent;
+      var acc = document.getElementById('al1_out_uncertainty').textContent;
+      var vol = document.getElementById('al1_out_vol_flow').textContent;
+      var status = document.getElementById('al1_status_badge').textContent;
+
+      var text = "=== CORIOLIS MASS FLOW METER SIZING DIAGNOSTICS (ISO 10790) ===\n" +
+        "Status: " + status + "\n" +
+        "Total Pressure Drop: " + dpPsi + " (" + dpBar + ")\n" +
+        "Sensor Tube Velocity: " + vel + "\n" +
+        "Measurement Uncertainty: " + acc + "\n" +
+        "Flow Rate: " + document.getElementById('al1_flow_rate').value + " kg/h (" + vol + ")\n" +
+        "Fluid Density: " + document.getElementById('al1_density').value + " kg/m3, Viscosity: " + document.getElementById('al1_viscosity').value + " cP\n" +
+        "Meter Size: DN" + document.getElementById('al1_meter_size').value + " (" + document.getElementById('al1_tube_geom').value + ")\n" +
+        "Standard: ISO 10790 / ASME MFC-11M / API MPMS Ch 5.6\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ Coriolis Sizing Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy Coriolis Sizing Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAL1();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'coriolis-flow-meter-sizing-calculator.html'), renderTradePage({
+  title: 'Coriolis Mass Flow Meter Sizing Calculator | ISO 10790 & ASME MFC-11M',
+  metaDescription: 'Size industrial Coriolis mass flow meters per ISO 10790. Calculate tube velocity, pressure drop, zero stability uncertainty, and cavitation margin.',
+  canonical: 'https://digitaltoolsshed.com/calc/coriolis-flow-meter-sizing-calculator.html',
+  content: toolAL1Html,
+  faq: [
+    {
+      q: 'How does a Coriolis flow meter measure true mass flow directly?',
+      a: 'Inside the meter, electromagnetic drive coils vibrate one or two measurement tubes at their resonant frequency. When fluid flows through the vibrating tube, the fluid at the inlet resists upward motion while fluid at the outlet resists downward motion, creating an opposing Coriolis torque that twists the tubes. Electromagnetic pick-off coils measure the microsecond time phase shift (Δt) between tube ends, which is directly proportional to true mass flow rate (m = Ks * Δt).'
+    },
+    {
+      q: 'Why should a Coriolis meter never be sized purely based on nominal pipe line size?',
+      a: 'Industrial process pipes are typically sized for low velocities (1 to 2 m/s / 3 to 6 ft/s) to minimize pumping friction. If a Coriolis meter matches the line size, it operates in the bottom 10% to 15% of its measuring range. At this low turndown, the meter manufacturer Zero Stability (ZS) offset error dominates the reading, degrading calibration accuracy from ±0.1% to worse than ±2.0%. A properly sized meter is almost always 1 to 2 sizes smaller than the line.'
+    },
+    {
+      q: 'What is Meter Zero Stability (ZS) and how does it impact low-flow accuracy?',
+      a: 'Zero Stability is the maximum zero-point drift in kg/h or lb/h that can occur due to ambient temperature shifts, mechanical stress, or electronic noise when there is zero flow. At high flow rates, ZS represents a negligible fraction of the reading. However, as flow decreases, the relative zero error (ZS / Flow Rate * 100%) climbs hyperbolically, setting the practical minimum turndown ratio for custody transfer applications.'
+    },
+    {
+      q: 'What are the velocity limits for liquid and slurry service in Coriolis meters?',
+      a: 'For clean liquids, the optimal velocity is 2.0 to 6.0 m/s (6.5 to 20 ft/s) with an upper limit of 8.0 m/s (26 ft/s) to prevent excessive pressure drop. For abrasive slurries or fluids with suspended particulates, velocity must be restricted to 1.5 to 3.0 m/s (5 to 10 ft/s) to prevent erosion of the thin-walled measurement tubes, which operate under high fatigue cycles.'
+    },
+    {
+      q: 'Why does entrained gas cause Coriolis meters to stall or lose accuracy?',
+      a: 'Entrained gas bubbles create acoustic decoupling and severe energy damping in the vibrating fluid core. The drive amplifier must output maximum power (100% drive gain) to sustain oscillation. As liquid and gas accelerate at different rates inside the vibrating tube, the phase shift signal is severely distorted, resulting in false density readings and under-measurement of mass flow.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// TOOL AL2: Refrigerant Piping Line Sizing & Pressure Drop Calculator (ASHRAE Handbook & ASME B31.5)
+// ==========================================
+const toolAL2Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">ASHRAE Handbook - Refrigeration &bull; ASME B31.5 &bull; AHRI Standard 750</div>
+    <h1>Refrigerant Piping Line Sizing & Pressure Drop Calculator</h1>
+    <p class="text-muted">Size commercial and industrial refrigeration lines per ASHRAE and ASME B31.5. Calculate equivalent saturation temperature penalty ($\Delta T_{sat}$), friction pressure drop, oil entrainment velocity in vertical suction risers, and verify liquid subcooling margins against premature expansion valve flashing.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. System Refrigerant & Thermal Capacity</h3>
+
+      <div class="input-group">
+        <label for="al2_refrig">Refrigerant Selection</label>
+        <select id="al2_refrig">
+          <option value="R410A" selected>R-410A (High Pressure HFC - AC & Heat Pumps)</option>
+          <option value="R134a">R-134a (Medium Temp HFC - Chillers & Auto AC)</option>
+          <option value="R404A">R-404A (Low/Med Temp Commercial Refrigeration)</option>
+          <option value="R32">R-32 (A2L Low-GWP Split Systems)</option>
+          <option value="R454B">R-454B (A2L Next-Gen R-410A Replacement)</option>
+          <option value="R290">R-290 Propane (Natural Hydrocarbon Refrigerant)</option>
+          <option value="R717">R-717 Ammonia (Industrial Food & Cold Storage)</option>
+          <option value="R744">R-744 CO2 (Transcritical / Commercial Booster)</option>
+        </select>
+        <small class="text-muted">Thermodynamic state properties auto-loaded</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al2_capacity">Evaporator Cooling Capacity ($Q$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al2_capacity" value="10" min="0.5" max="1000" step="0.5">
+          <span class="unit-badge">Tons (TR)</span>
+        </div>
+        <small class="text-muted">1 TR = 12,000 BTU/hr = 3.517 kW</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al2_line_type">Line Service Application</label>
+        <select id="al2_line_type">
+          <option value="suction_horiz">Horizontal Suction Line (Vapor, Max ΔT ≤ 2°F)</option>
+          <option value="suction_riser" selected>Vertical Suction Riser (Vapor with Oil Return Drag)</option>
+          <option value="discharge">Hot Gas Discharge Line (High Temp Vapor)</option>
+          <option value="liquid">Liquid Line (Subcooled Liquid to TXV)</option>
+        </select>
+        <small class="text-muted">Governs target velocity and maximum permissible pressure drop</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al2_t_evap">Evaporating Saturation Temp ($T_{evap}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al2_t_evap" value="40" min="-60" max="60" step="1">
+          <span class="unit-badge">&deg;F</span>
+        </div>
+        <small class="text-muted">e.g. 40°F for AC, 20°F for med temp, -20°F for freezer</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al2_t_cond">Condensing Saturation Temp ($T_{cond}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al2_t_cond" value="115" min="70" max="160" step="1">
+          <span class="unit-badge">&deg;F</span>
+        </div>
+        <small class="text-muted">Design ambient condensing temperature</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Pipe Geometry & Hydraulic Parameters</h3>
+
+      <div class="input-group">
+        <label for="al2_pipe_size">ACR Copper Tube Outside Diameter (OD)</label>
+        <select id="al2_pipe_size">
+          <option value="0.375">3/8" OD (ID: 0.315" / 8.0 mm)</option>
+          <option value="0.500">1/2" OD (ID: 0.430" / 10.9 mm)</option>
+          <option value="0.625">5/8" OD (ID: 0.545" / 13.8 mm)</option>
+          <option value="0.875">7/8" OD (ID: 0.785" / 19.9 mm)</option>
+          <option value="1.125" selected>1-1/8" OD (ID: 1.025" / 26.0 mm)</option>
+          <option value="1.375">1-3/8" OD (ID: 1.265" / 32.1 mm)</option>
+          <option value="1.625">1-5/8" OD (ID: 1.505" / 38.2 mm)</option>
+          <option value="2.125">2-1/8" OD (ID: 1.985" / 50.4 mm)</option>
+          <option value="2.625">2-5/8" OD (ID: 2.465" / 62.6 mm)</option>
+          <option value="3.125">3-1/8" OD (ID: 2.945" / 74.8 mm)</option>
+          <option value="4.125">4-1/8" OD (ID: 3.905" / 99.2 mm)</option>
+        </select>
+        <small class="text-muted">Standard ASTM B280 seamless refrigeration tube</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al2_equiv_len">Equivalent Line Length ($L_{eq}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al2_equiv_len" value="75" min="5" max="1000" step="5">
+          <span class="unit-badge">ft</span>
+        </div>
+        <small class="text-muted">Total linear run plus equivalent elbow & valve losses</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al2_subcooling">Available Liquid Subcooling (at condenser exit)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al2_subcooling" value="10" min="0" max="30" step="1">
+          <span class="unit-badge">&deg;F</span>
+        </div>
+        <small class="text-muted">Required to prevent flashing in liquid line (typically 8 - 12°F)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al2_min_load_pct">Minimum Compressor Unload / Part-Load</label>
+        <div class="input-with-unit">
+          <input type="number" id="al2_min_load_pct" value="50" min="10" max="100" step="5">
+          <span class="unit-badge">%</span>
+        </div>
+        <small class="text-muted">For oil return check at minimum modulation (e.g. 50% or 25%)</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">Refrigeration Line Hydraulic & Thermodynamic Evaluation</h3>
+      <div id="al2_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Saturation Penalty ($\Delta T_{sat}$)</div>
+        <div id="al2_out_dtsat" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- &deg;F</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al2_out_dp_psi">&Delta;P: -- psi (-- bar)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Line Vapor / Liquid Velocity</div>
+        <div id="al2_out_velocity" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">-- fpm</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al2_out_vel_ms">-- m/s (Part-Load: -- fpm)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="al2_oil_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Oil Entrainment / Flashing Status</div>
+        <div id="al2_out_oil_status" style="font-size:18px; font-weight:800; color:#10b981; margin:4px 0;">SAFE OIL RETURN</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al2_out_oil_req">Min Velocity Req: 1,000 fpm</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Refrigerant Mass Flow</div>
+        <div id="al2_out_mdot" style="font-size:18px; font-weight:700; color:var(--text-primary); margin:4px 0;">-- lb/min</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al2_out_cap_loss">Capacity Penalty: - -- %</div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Details Breakdown -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; font-size:12.5px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div>
+        <span style="color:var(--text-muted);">Copper Tube Bore Area:</span>
+        <strong id="al2_diag_bore" style="float:right; color:var(--text-primary);">0.825 in² (ID: 1.025")</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Refrigerant Vapor Density:</span>
+        <strong id="al2_diag_density" style="float:right; color:var(--text-primary);">2.45 lb/ft³</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Saturation Pressure Gradient ($dP/dT$):</span>
+        <strong id="al2_diag_dpdt" style="float:right; color:var(--text-primary);">2.45 psi/°F</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Remaining Liquid Subcooling:</span>
+        <strong id="al2_diag_subcool" style="float:right; color:#10b981;">N/A (Suction)</strong>
+      </div>
+    </div>
+
+    <!-- Live SVG System Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Refrigeration Loop & Piping Schematic (ASHRAE Standard)</span>
+        <span style="font-size:11px; color:var(--text-muted);">P-H state tracking with oil entrainment vector</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="al2_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="al2_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy Refrigerant Line Sizing Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & ASHRAE Piping Principles</h2>
+    <p>Refrigeration piping design balances two opposing physical constraints: keeping pressure drop low enough to prevent compressor capacity loss, while keeping gas velocity high enough to carry lubricating oil up vertical risers back to the compressor crankcase.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Refrigerant Mass Flow Rate:</strong><br>
+      The mass flow required to produce cooling capacity $Q$ (in BTU/hr, where $1\ \text{TR} = 12,000\ \text{BTU/hr}$):<br>
+      $$\dot{m} = \frac{Q}{\Delta h_{net}} = \frac{Q}{h_{evap, out} - h_{liquid, in}}$$
+      where $\Delta h_{net}$ is net refrigeration effect in BTU/lb.<br><br>
+
+      <strong>2. Flowing Velocity in Copper Lines:</strong><br>
+      With inside pipe diameter $d_i$ (inches) and flowing vapor/liquid density $\rho$ (lb/ft³):<br>
+      $$v = \frac{\dot{m}}{\rho \cdot A_i} = \frac{\dot{m}}{\rho \cdot \frac{\pi d_i^2}{4 \times 144}} \quad (\text{fpm})$$<br>
+      
+      <strong>3. Pressure Drop & Darcy-Weisbach Friction:</strong><br>
+      $$\Delta P = f \cdot \frac{L_{eq}}{d_i/12} \cdot \frac{\rho (v/60)^2}{2 g_c \cdot 144} \quad (\text{psi})$$<br>
+      where $f$ is Darcy friction factor calculated via Churchill formula for smooth drawn copper tube ($e = 0.000005\text{ ft}$).<br><br>
+
+      <strong>4. Saturation Temperature Drop ($\Delta T_{sat}$):</strong><br>
+      The pressure drop corresponds to an equivalent drop in evaporating or condensing saturation temperature via the Clausius-Clapeyron relation:<br>
+      $$\Delta T_{sat} = \frac{\Delta P}{(dP/dT)_{sat}}$$<br>
+      ASHRAE limits: $\Delta T_{sat} \le 2^\circ\text{F}$ ($1.1\text{ K}$) for suction lines; $\Delta T_{sat} \le 1^\circ\text{F}$ preferred on low-temperature systems.<br><br>
+
+      <strong>5. Oil Return Drag in Vertical Risers:</strong><br>
+      Per ASHRAE Chapter 1, lubricating oil travels as an annular film along the tube wall. The minimum gas velocity required to overcome gravity and shear oil upward is:<br>
+      $$v_{min, riser} = C_r \cdot \left[\frac{\sigma_{oil} \cdot g \cdot (\rho_{oil} - \rho_g)}{\rho_g^2}\right]^{0.25} \approx 1,000\text{ to }1,500\text{ fpm}$$
+      If compressor part-load velocity drops below $1,000\text{ fpm}$, oil falls back into the evaporator, causing compressor starvation.
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in Refrigeration Line Sizing</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. The Part-Load Suction Riser Oil Starvation Trap</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Sizing a vertical suction riser exclusively for 100% full-load capacity is the #1 cause of catastrophic compressor seizure. When multi-stage or inverter compressors modulate down to 25% or 50% capacity, the suction gas velocity in an oversized line drops below the critical 1,000 fpm oil entrainment threshold. The lubricating oil falls back, forming a slug in the bottom P-trap or evaporator, leaving the compressor crankcase completely dry until the bearings seize. Double-suction risers are legally mandated whenever minimum capacity cannot sustain 1,000 fpm.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Liquid Line Flashing Before the Expansion Valve</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          If the friction head loss in a long liquid line—or static head loss in a vertical liquid riser (approx 0.5 psi per vertical foot for fluorocarbons)—exceeds the available subcooling, the liquid reaches its saturation boiling point. Bubbles of flash gas form ahead of the thermostatic expansion valve (TXV). Because vapor occupies 30x the volume of liquid, the TXV orifice chokes, starving the evaporator, causing low suction pressure trips and severe hunting.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Hydraulic Shock / Water Hammer from Rapid Liquid Solenoid Closure</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Liquid line velocity must be kept strictly below 300 fpm (1.5 m/s). When automated pump-down liquid line solenoid valves snap shut in 50 milliseconds, liquid moving at excessive velocity generates a Joukowsky pressure surge of 150 to 300 psi over operating pressure, fracturing copper brazed joints and rupturing sight glasses.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Compounding Compressor Capacity Penalty from Suction $\Delta P$</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          For every 1°F drop in saturation temperature caused by suction line friction, the compressor volumetric efficiency degrades and specific volume increases, slashing total system cooling capacity by 1.5% to 2.0% while driving up electric power consumption by 1.5%. An undersized suction line generating a 6°F penalty robs 10% to 12% of the entire plant cooling output year-round.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Copper Metallurgy Incompatibility with R-717 Ammonia</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Never specify ACR copper tubing for R-717 (anhydrous ammonia) systems. In the presence of trace moisture, ammonia vigorously reacts with copper, brass, and bronze to form cuprammonium hydroxide complexes, causing rapid stress corrosion cracking and pinhole wall perforations. Industrial ammonia lines must be constructed strictly from ASME B36.10M Schedule 40/80 seamless carbon steel or 304L stainless steel.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Refrigerant thermodynamic data lookup table
+  // Values: latent heat h_fg (BTU/lb), vapor density rho_v (lb/ft3 at 40F), liquid density rho_l (lb/ft3 at 100F),
+  // dP_dT (psi/F at 40F evap), visc_v (cP), visc_l (cP)
+  var refrigData = {
+    R410A: { hfg: 88, rho_v: 2.65, rho_l: 63.5, dpdt: 2.85, mu_v: 0.014, mu_l: 0.11 },
+    R134a: { hfg: 86, rho_v: 1.15, rho_l: 73.2, dpdt: 0.72, mu_v: 0.012, mu_l: 0.18 },
+    R404A: { hfg: 68, rho_v: 2.10, rho_l: 62.1, dpdt: 1.95, mu_v: 0.013, mu_l: 0.12 },
+    R32:   { hfg: 125, rho_v: 1.85, rho_l: 58.9, dpdt: 2.95, mu_v: 0.013, mu_l: 0.10 },
+    R454B: { hfg: 95, rho_v: 2.30, rho_l: 61.2, dpdt: 2.60, mu_v: 0.013, mu_l: 0.11 },
+    R290:  { hfg: 160, rho_v: 0.88, rho_l: 30.5, dpdt: 1.45, mu_v: 0.010, mu_l: 0.09 },
+    R717:  { hfg: 520, rho_v: 0.28, rho_l: 37.2, dpdt: 1.30, mu_v: 0.011, mu_l: 0.12 },
+    R744:  { hfg: 110, rho_v: 6.80, rho_l: 52.0, dpdt: 8.50, mu_v: 0.018, mu_l: 0.08 }
+  };
+
+  function calcAL2() {
+    var refKey = document.getElementById('al2_refrig').value;
+    var capTons = parseFloat(document.getElementById('al2_capacity').value) || 10;
+    var lineType = document.getElementById('al2_line_type').value;
+    var Tevap = parseFloat(document.getElementById('al2_t_evap').value) || 40;
+    var Tcond = parseFloat(document.getElementById('al2_t_cond').value) || 115;
+    var tubeOD = parseFloat(document.getElementById('al2_pipe_size').value) || 1.125;
+    var Leq = parseFloat(document.getElementById('al2_equiv_len').value) || 75;
+    var subcool = parseFloat(document.getElementById('al2_subcooling').value) || 10;
+    var minLoadPct = parseFloat(document.getElementById('al2_min_load_pct').value) || 50;
+
+    var r = refrigData[refKey] || refrigData.R410A;
+
+    // Tube Internal Diameter (ASTM B280 ACR Copper wall thickness approx)
+    var wallThk = 0.035;
+    if (tubeOD >= 1.125) wallThk = 0.050;
+    if (tubeOD >= 2.125) wallThk = 0.080;
+    if (tubeOD >= 3.125) wallThk = 0.090;
+    var id_in = tubeOD - 2 * wallThk;
+    var id_ft = id_in / 12;
+    var area_sqft = Math.PI * Math.pow(id_ft / 2, 2);
+    var area_sqin = area_sqft * 144;
+
+    // Total cooling capacity in BTU/min
+    var q_btu_min = capTons * 12000 / 60; // 200 BTU/min per ton
+    var mdot_lb_min = q_btu_min / r.hfg; // lb/min
+    var mdot_lb_s = mdot_lb_min / 60;
+
+    var isLiquid = (lineType === 'liquid');
+    var isRiser = (lineType === 'suction_riser');
+    var isDischarge = (lineType === 'discharge');
+
+    // Fluid flowing density & viscosity
+    var rho = isLiquid ? r.rho_l : r.rho_v;
+    if (isDischarge) rho = r.rho_v * 1.8; // compressed discharge vapor is denser
+    var mu_cp = isLiquid ? r.mu_l : r.mu_v;
+    var mu_lb_fts = mu_cp * 0.000672;
+
+    // Full-load velocity (fpm)
+    var volFlow_cfs = mdot_lb_s / rho;
+    var vel_fps = volFlow_cfs / area_sqft;
+    var vel_fpm = vel_fps * 60;
+    var vel_ms = vel_fps * 0.3048;
+
+    // Part-load velocity
+    var partVel_fpm = vel_fpm * (minLoadPct / 100);
+
+    // Reynolds Number
+    var Re = (rho * vel_fps * id_ft) / mu_lb_fts;
+
+    // Darcy friction factor (Churchill)
+    var e_D = 0.000005 / id_ft;
+    var f = 0.02;
+    if (Re < 2100) {
+      f = 64 / Math.max(1, Re);
+    } else {
+      var A = Math.pow(-2.457 * Math.log(Math.pow(7 / Re, 0.9) + 0.27 * e_D), 16);
+      var B = Math.pow(37530 / Re, 16);
+      f = 8 * Math.pow(Math.pow(8 / Re, 12) + 1 / Math.pow(A + B, 1.5), 1 / 12);
+    }
+
+    // Pressure drop (psi)
+    var dp_psi = f * (Leq / id_ft) * (rho * vel_fps * vel_fps / (2 * 32.174 * 144));
+    var dp_bar = dp_psi / 14.5038;
+
+    // Equivalent Saturation Temp Drop (deg F)
+    var dt_sat = dp_psi / r.dpdt;
+
+    // Capacity loss penalty (~1.75% per deg F of suction dt_sat)
+    var capPenalty = dt_sat * 1.75;
+    if (isLiquid || isDischarge) capPenalty = dt_sat * 0.8;
+
+    // Update Hero Outputs
+    document.getElementById('al2_out_dtsat').textContent = dt_sat.toFixed(2) + ' °F';
+    document.getElementById('al2_out_dp_psi').textContent = 'ΔP: ' + dp_psi.toFixed(2) + ' psi (' + dp_bar.toFixed(3) + ' bar)';
+    
+    document.getElementById('al2_out_velocity').textContent = Math.round(vel_fpm).toLocaleString() + ' fpm';
+    document.getElementById('al2_out_vel_ms').textContent = vel_ms.toFixed(1) + ' m/s (Part-Load: ' + Math.round(partVel_fpm).toLocaleString() + ' fpm)';
+
+    document.getElementById('al2_out_mdot').textContent = mdot_lb_min.toFixed(2) + ' lb/min';
+    document.getElementById('al2_out_cap_loss').textContent = 'Capacity Penalty: -' + capPenalty.toFixed(1) + ' %';
+
+    // Diagnostics
+    document.getElementById('al2_diag_bore').textContent = area_sqin.toFixed(3) + ' in² (ID: ' + id_in.toFixed(3) + '")';
+    document.getElementById('al2_diag_density').textContent = rho.toFixed(2) + ' lb/ft³';
+    document.getElementById('al2_diag_dpdt').textContent = r.dpdt.toFixed(2) + ' psi/°F';
+
+    // Oil Return / Liquid Flashing Evaluation
+    var oilStatusElem = document.getElementById('al2_out_oil_status');
+    var oilReqElem = document.getElementById('al2_out_oil_req');
+    var badge = document.getElementById('al2_status_badge');
+
+    if (isRiser) {
+      oilReqElem.textContent = 'Min Riser Velocity Req: 1,000 fpm';
+      document.getElementById('al2_diag_subcool').textContent = 'N/A (Suction Riser)';
+      if (partVel_fpm >= 1000 && vel_fpm <= 4000) {
+        oilStatusElem.textContent = 'SAFE OIL RETURN';
+        oilStatusElem.style.color = '#10b981';
+      } else if (partVel_fpm < 1000) {
+        oilStatusElem.textContent = 'OIL TRAP DANGER (Low Velocity)';
+        oilStatusElem.style.color = '#ef4444';
+      } else {
+        oilStatusElem.textContent = 'EXCESS VELOCITY (>4000 fpm)';
+        oilStatusElem.style.color = '#f59e0b';
+      }
+    } else if (isLiquid) {
+      var subcoolMargin = subcool - (dp_psi / r.dpdt);
+      document.getElementById('al2_diag_subcool').textContent = subcoolMargin.toFixed(1) + ' °F remaining subcooling';
+      if (subcoolMargin >= 3.0 && vel_fpm <= 300) {
+        oilStatusElem.textContent = 'NO FLASHING (Stable Liquid)';
+        oilStatusElem.style.color = '#10b981';
+      } else if (subcoolMargin < 1.0) {
+        oilStatusElem.textContent = 'FLASH GAS RISK AT TXV';
+        oilStatusElem.style.color = '#ef4444';
+      } else {
+        oilStatusElem.textContent = 'HIGH LIQUID VELOCITY (>300 fpm)';
+        oilStatusElem.style.color = '#f59e0b';
+      }
+    } else {
+      oilReqElem.textContent = 'Horizontal Suction Limit: 4,000 fpm';
+      document.getElementById('al2_diag_subcool').textContent = 'N/A (Suction Line)';
+      if (dt_sat <= 2.0 && vel_fpm <= 4000) {
+        oilStatusElem.textContent = 'OPTIMAL SIZING (ΔT ≤ 2°F)';
+        oilStatusElem.style.color = '#10b981';
+      } else if (dt_sat > 2.0) {
+        oilStatusElem.textContent = 'HIGH PRESSURE DROP (Over 2°F)';
+        oilStatusElem.style.color = '#ef4444';
+      } else {
+        oilStatusElem.textContent = 'HIGH NOISE / VIBRATION';
+        oilStatusElem.style.color = '#f59e0b';
+      }
+    }
+
+    // Overall Status Badge
+    if (refKey === 'R717' && tubeOD > 0) {
+      badge.textContent = '⚠️ AMMONIA COPPER DISSOLUTION RISK';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (dt_sat <= 2.0 && (isRiser ? partVel_fpm >= 1000 : true) && (isLiquid ? vel_fpm <= 300 : vel_fpm <= 4000)) {
+      badge.textContent = 'ASHRAE COMPLIANT (OPTIMAL)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    } else if (isRiser && partVel_fpm < 1000) {
+      badge.textContent = 'FAIL: PART-LOAD OIL DROPOUT';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (dt_sat > 2.5) {
+      badge.textContent = 'FAIL: EXCESSIVE ΔT PENALTY (>2.5°F)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else {
+      badge.textContent = 'MARGINAL SIZING';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    }
+
+    renderSvgAL2(lineType, vel_fpm, partVel_fpm, dt_sat, isRiser, isLiquid);
+  }
+
+  function renderSvgAL2(lineType, vel_fpm, partVel_fpm, dt_sat, isRiser, isLiquid) {
+    var svg = document.getElementById('al2_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Loop schematic
+    s += '<rect x="30" y="30" width="540" height="180" rx="12" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="2"/>';
+
+    // Components boxes
+    // Compressor (Bottom Right)
+    s += '<circle cx="480" cy="150" r="30" fill="var(--bg-secondary)" stroke="#ef4444" stroke-width="2.5"/>';
+    s += '<text x="480" y="154" font-size="11" font-weight="700" fill="#ef4444" text-anchor="middle">Compressor</text>';
+
+    // Condenser (Top Right)
+    s += '<rect x="420" y="45" width="120" height="40" rx="6" fill="var(--bg-secondary)" stroke="#f59e0b" stroke-width="2"/>';
+    s += '<text x="480" y="69" font-size="11" font-weight="700" fill="#f59e0b" text-anchor="middle">Condenser</text>';
+
+    // TXV (Top Left)
+    s += '<polygon points="120,55 140,75 140,55 120,75" fill="#3b82f6" stroke="#3b82f6" stroke-width="2"/>';
+    s += '<text x="130" y="45" font-size="11" font-weight="700" fill="#3b82f6" text-anchor="middle">TXV</text>';
+
+    // Evaporator (Bottom Left)
+    s += '<rect x="60" y="130" width="120" height="40" rx="6" fill="var(--bg-secondary)" stroke="#10b981" stroke-width="2"/>';
+    s += '<text x="120" y="154" font-size="11" font-weight="700" fill="#10b981" text-anchor="middle">Evaporator</text>';
+
+    // Piping connections
+    // Discharge: Compressor to Condenser
+    var isSelDischarge = (lineType === 'discharge');
+    s += '<path d="M 480 120 L 480 85" stroke="' + (isSelDischarge ? '#ef4444' : '#64748b') + '" stroke-width="' + (isSelDischarge ? '5' : '2') + '"/>';
+
+    // Liquid line: Condenser to TXV
+    s += '<path d="M 420 65 L 140 65" stroke="' + (isLiquid ? '#3b82f6' : '#64748b') + '" stroke-width="' + (isLiquid ? '5' : '2') + '"/>';
+
+    // Evap Feed: TXV to Evap
+    s += '<path d="M 120 75 L 120 130" stroke="#64748b" stroke-width="2"/>';
+
+    // Suction line / riser: Evaporator to Compressor
+    var isSelSuction = (lineType === 'suction_horiz' || isRiser);
+    var suctionColor = isSelSuction ? '#10b981' : '#64748b';
+    s += '<path d="M 180 150 L 250 150 L 250 110 L 380 110 L 380 150 L 450 150" fill="none" stroke="' + suctionColor + '" stroke-width="' + (isSelSuction ? '5' : '2') + '"/>';
+
+    if (isRiser) {
+      // Highlight vertical riser section with oil P-trap
+      s += '<path d="M 245 155 C 245 165, 255 165, 255 155 L 255 110" fill="none" stroke="#f59e0b" stroke-width="4"/>';
+      s += '<text x="250" y="98" font-size="10" font-weight="700" fill="#f59e0b" text-anchor="middle">Vertical Riser</text>';
+      var oilColor = partVel_fpm >= 1000 ? '#10b981' : '#ef4444';
+      s += '<circle cx="250" cy="130" r="6" fill="' + oilColor + '"/>';
+      s += '<text x="262" y="134" font-size="10" font-weight="600" fill="' + oilColor + '">' + (partVel_fpm >= 1000 ? 'Oil Lift ▲' : 'Oil Drop ▼') + '</text>';
+    }
+
+    // Velocity & ΔT display banner
+    s += '<text x="300" y="195" font-size="12" font-weight="700" fill="var(--text-primary)" text-anchor="middle">Flow Velocity: ' + Math.round(vel_fpm).toLocaleString() + ' fpm | Saturation Drop: ' + dt_sat.toFixed(2) + ' °F</text>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['al2_capacity', 'al2_t_evap', 'al2_t_cond', 'al2_equiv_len', 'al2_subcooling', 'al2_min_load_pct'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAL2);
+      el.addEventListener('change', calcAL2);
+    }
+  });
+
+  document.getElementById('al2_refrig').addEventListener('change', calcAL2);
+  document.getElementById('al2_line_type').addEventListener('change', calcAL2);
+  document.getElementById('al2_pipe_size').addEventListener('change', calcAL2);
+
+  var copyBtn = document.getElementById('al2_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var dtsat = document.getElementById('al2_out_dtsat').textContent;
+      var dp = document.getElementById('al2_out_dp_psi').textContent;
+      var vel = document.getElementById('al2_out_velocity').textContent;
+      var oil = document.getElementById('al2_out_oil_status').textContent;
+      var mdot = document.getElementById('al2_out_mdot').textContent;
+      var loss = document.getElementById('al2_out_cap_loss').textContent;
+      var status = document.getElementById('al2_status_badge').textContent;
+
+      var text = "=== REFRIGERANT PIPING LINE SIZING REPORT (ASHRAE / ASME B31.5) ===\n" +
+        "Status: " + status + "\n" +
+        "Saturation Temp Penalty: " + dtsat + " (" + dp + ")\n" +
+        "Line Velocity: " + vel + "\n" +
+        "Oil Return / Flashing Status: " + oil + "\n" +
+        "Mass Flow: " + mdot + " (" + loss + ")\n" +
+        "Refrigerant: " + document.getElementById('al2_refrig').value + ", Capacity: " + document.getElementById('al2_capacity').value + " TR\n" +
+        "Line: " + document.getElementById('al2_line_type').value + ", Tube OD: " + document.getElementById('al2_pipe_size').value + ' in\n' +
+        "Standard: ASHRAE Handbook - Refrigeration / ASME B31.5 / AHRI 750\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ Refrigerant Line Sizing Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy Refrigerant Line Sizing Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAL2();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'refrigerant-piping-pressure-drop-ashrae-calculator.html'), renderTradePage({
+  title: 'Refrigerant Piping Line Sizing Calculator | ASHRAE & ASME B31.5',
+  metaDescription: 'Size commercial refrigeration lines per ASHRAE and ASME B31.5. Calculate saturation temperature drop, friction pressure loss, and suction riser oil return velocity.',
+  canonical: 'https://digitaltoolsshed.com/calc/refrigerant-piping-pressure-drop-ashrae-calculator.html',
+  content: toolAL2Html,
+  faq: [
+    {
+      q: 'Why is equivalent saturation temperature drop (ΔT_sat) limited to 2°F in refrigeration suction lines?',
+      a: 'In refrigeration systems, suction line pressure drop directly reduces the vapor density entering the compressor suction cylinders. Each 1°F drop in saturation temperature reduces compressor cooling capacity by approximately 1.5% to 2.0% while simultaneously increasing electrical power consumption (kW/ton) by 1.5%. A 2°F (1.1°C) limit balances copper piping material costs against life-cycle operating efficiency.'
+    },
+    {
+      q: 'What is the minimum suction riser velocity required for oil entrainment?',
+      a: 'ASHRAE mandates a minimum gas velocity of 1,000 to 1,500 fpm (5.1 to 7.6 m/s) in vertical suction risers to drag lubricating oil upward against gravity. Crucially, this velocity must be maintained at the minimum part-load operating condition (e.g. 25% or 50% compressor unload). If velocity drops below 1,000 fpm, oil droplets fall back down the riser, accumulating in the evaporator and starving the compressor crankcase of lubrication.'
+    },
+    {
+      q: 'When are double suction risers required in refrigeration systems?',
+      a: 'Double suction risers are required when an unloading or variable-speed compressor has a wide operating turndown ratio (greater than 2:1) such that a single pipe sized for acceptable pressure drop at 100% capacity cannot sustain 1,000 fpm at minimum capacity. A smaller base riser handles low-load oil return, while a larger parallel riser with an oil trap only flows at higher loads.'
+    },
+    {
+      q: 'What causes liquid flashing in refrigeration liquid lines?',
+      a: 'Liquid flashing occurs when the cumulative pressure drop from line friction, valves, filters, and vertical elevation lift exceeds the liquid subcooling provided by the condenser. Once pressure drops below bubble point pressure, vapor bubbles form in the liquid line, choking the thermostatic expansion valve (TXV) orifice and causing severe refrigeration hunting.'
+    },
+    {
+      q: 'Why must copper tubing never be used with R-717 ammonia refrigeration systems?',
+      a: 'Ammonia reacts vigorously with copper and copper-bearing alloys (brass and bronze) in the presence of trace moisture, forming soluble cuprammonium complexes that rapidly corrode and pit pipe walls. Industrial ammonia systems must be constructed strictly using seamless carbon steel (Schedule 40 or 80 per ASME B36.10M) or stainless steel.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// TOOL AL3: CEMA Screw Conveyor Capacity & Motor Horsepower Calculator (CEMA Book No. 350)
+// ==========================================
+const toolAL3Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">CEMA Standard 350 &bull; ASME B20.1 &bull; ISO 7149 Bulk Handling</div>
+    <h1>CEMA Screw Conveyor Capacity & Motor Horsepower Calculator</h1>
+    <p class="text-muted">Size industrial bulk material screw conveyors per CEMA Book No. 350. Calculate volumetric throughput, required operating RPM, empty conveyor friction ($HP_f$), material conveying power ($HP_m$), incline angle deratings, and standard NEMA motor brake horsepower.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Bulk Material & Trough Parameters</h3>
+
+      <div class="input-group">
+        <label for="al3_mat_preset">CEMA Bulk Material Preset</label>
+        <select id="al3_mat_preset">
+          <option value="grain" selected>Grains / Wheat / Corn (45 lb/ft³, 45% Loading, Fm = 0.4)</option>
+          <option value="coal">Crushed Coal / Bituminous (50 lb/ft³, 30% Loading, Fm = 0.9)</option>
+          <option value="cement">Portland Cement (85 lb/ft³, 30% Loading, Fm = 1.4)</option>
+          <option value="sand">Dry Silica Sand (100 lb/ft³, 15% Loading, Fm = 2.0)</option>
+          <option value="flyash">Fly Ash (40 lb/ft³, 30% Loading, Fm = 1.7)</option>
+          <option value="woodchips">Wood Chips / Bark (20 lb/ft³, 45% Loading, Fm = 0.5)</option>
+          <option value="ironore">Iron Ore Pellets (140 lb/ft³, 15% Loading, Fm = 3.2)</option>
+          <option value="custom">Custom Bulk Material</option>
+        </select>
+        <small class="text-muted">Preloads density, loading percentage, and material factor ($F_m$)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_capacity">Design Material Throughput</label>
+        <div class="input-with-unit">
+          <input type="number" id="al3_capacity" value="20" min="0.5" max="1000" step="0.5">
+          <span class="unit-badge">Tons/hr (STPH)</span>
+        </div>
+        <small class="text-muted">Short tons per hour (2,000 lb/ton = 40,000 lb/hr)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_density">Bulk Density ($\rho_b$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al3_density" value="45" min="5" max="250" step="1">
+          <span class="unit-badge">lb/ft³</span>
+        </div>
+        <small class="text-muted">As-conveyed bulk loose density</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_trough_loading">Trough Loading Ratio</label>
+        <select id="al3_trough_loading">
+          <option value="0.15">15% Loading (Abrasive, Heavy & Sluggish Materials - Class 3 & 4)</option>
+          <option value="0.30">30% Loading (Mildly Abrasive, Medium Flowability - Class 2)</option>
+          <option value="0.45" selected>45% Loading (Light, Free-Flowing, Non-Abrasive - Class 1)</option>
+          <option value="0.95">95% Flood Loaded (Screw Feeders only)</option>
+        </select>
+        <small class="text-muted">CEMA Table 3-1 cross-sectional fill fraction</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_mat_factor">CEMA Material Factor ($F_m$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al3_mat_factor" value="0.4" min="0.3" max="5.0" step="0.1">
+          <span class="unit-badge">factor</span>
+        </div>
+        <small class="text-muted">Friction & resistance multiplier from CEMA Table 3-2</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Conveyor Dimensions & Mechanical Drive</h3>
+
+      <div class="input-group">
+        <label for="al3_screw_dia">Screw Diameter ($D$)</label>
+        <select id="al3_screw_dia">
+          <option value="6">6" Diameter (Pipe OD: 2.375", Max RPM: 150)</option>
+          <option value="9">9" Diameter (Pipe OD: 2.875", Max RPM: 135)</option>
+          <option value="12" selected>12" Diameter (Pipe OD: 3.500", Max RPM: 100)</option>
+          <option value="14">14" Diameter (Pipe OD: 4.000", Max RPM: 90)</option>
+          <option value="16">16" Diameter (Pipe OD: 4.500", Max RPM: 80)</option>
+          <option value="18">18" Diameter (Pipe OD: 4.500", Max RPM: 70)</option>
+          <option value="20">20" Diameter (Pipe OD: 5.563", Max RPM: 60)</option>
+          <option value="24">24" Diameter (Pipe OD: 6.625", Max RPM: 50)</option>
+        </select>
+        <small class="text-muted">Standard CEMA full-pitch screw conveyor diameter</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_conv_len">Conveyor Overall Length ($L$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al3_conv_len" value="40" min="5" max="300" step="1">
+          <span class="unit-badge">ft</span>
+        </div>
+        <small class="text-muted">Center-to-center distance between inlet and discharge</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_incline_deg">Conveyor Incline Angle ($\theta$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al3_incline_deg" value="0" min="0" max="45" step="1">
+          <span class="unit-badge">&deg; (deg)</span>
+        </div>
+        <small class="text-muted">0° = horizontal; >10° introduces material slip derating</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_bearing_type">Hanger Bearing Type</label>
+        <select id="al3_bearing_type">
+          <option value="1.0" selected>Ball / Roller Bearing (Fb = 1.0)</option>
+          <option value="1.7">UHMW / Polyethylene (Fb = 1.7)</option>
+          <option value="2.0">Bronze / Babbitt (Fb = 2.0)</option>
+          <option value="3.0">Stellite / Hard Iron (Fb = 3.0)</option>
+          <option value="4.4">Ceramic / White Iron (Severe Abrasive, Fb = 4.4)</option>
+        </select>
+        <small class="text-muted">Bearing friction factor ($F_b$) from CEMA Table 3-3</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al3_drive_eff">Drive Transmission Efficiency ($e$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al3_drive_eff" value="88" min="60" max="98" step="1">
+          <span class="unit-badge">%</span>
+        </div>
+        <small class="text-muted">Typically 85-90% for shaft-mounted gearmotor</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">Speed, Horsepower & Drive Motor Sizing</h3>
+      <div id="al3_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Recommended NEMA Motor</div>
+        <div id="al3_out_motor_hp" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- HP</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al3_out_total_bhp">Brake HP: -- BHP</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Operating Screw Speed</div>
+        <div id="al3_out_rpm" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">-- RPM</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al3_out_max_rpm">CEMA Max: -- RPM</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="al3_cap_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Volumetric Capacity</div>
+        <div id="al3_out_vol_cap" style="font-size:20px; font-weight:800; color:#10b981; margin:4px 0;">-- ft³/hr</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al3_out_cap_1rpm">Cap at 1 RPM: -- ft³/hr</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Horsepower Breakdown</div>
+        <div id="al3_out_hp_split" style="font-size:15px; font-weight:700; color:var(--text-primary); margin:4px 0;">Fric: -- | Mat: --</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al3_out_overload">Overload Factor: --</div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Details Breakdown -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; font-size:12.5px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div>
+        <span style="color:var(--text-muted);">Incline Derating Factor ($F_i$):</span>
+        <strong id="al3_diag_incline" style="float:right; color:var(--text-primary);">1.00 (0° Horizontal)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Shaft Torque at Operating Speed:</span>
+        <strong id="al3_diag_torque" style="float:right; color:var(--text-primary);">-- in-lb (-- ft-lb)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Linear Material Travel Velocity:</span>
+        <strong id="al3_diag_lin_vel" style="float:right; color:var(--text-primary);">-- ft/min</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Screw Speed Utilization:</span>
+        <strong id="al3_diag_speed_util" style="float:right; color:#10b981;">-- % of Max Limit</strong>
+      </div>
+    </div>
+
+    <!-- Live SVG Conveyor Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">CEMA U-Trough Cross-Section & Fill Level Dynamics</span>
+        <span style="font-size:11px; color:var(--text-muted);">Flight rotation and material pushing profile</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="al3_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="al3_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy CEMA Screw Sizing Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & CEMA Standard 350 Methodology</h2>
+    <p>CEMA Book No. 350 specifies standard formulas for calculating the mechanical horsepower and operational limits for screw conveyors handling bulk solids.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Volumetric Throughput ($C_v$) & Capacity at 1 RPM ($C_1$):</strong><br>
+      $$C_v = \frac{W}{\rho_b} = \frac{\text{Tons/hr} \times 2,000}{\rho_b} \quad (\text{ft}^3/\text{hr})$$<br>
+      For standard full-pitch screws (pitch $P = D$), the theoretical capacity at 1 RPM is:<br>
+      $$C_1 = \frac{\pi (D^2 - d^2)}{4 \times 144} \times \frac{P}{12} \times 60 \times (\% \text{ Loading}) \quad (\text{ft}^3/\text{hr per RPM})$$<br>
+      where $D$ is screw diameter and $d$ is center pipe outside diameter.<br><br>
+
+      <strong>2. Required Operating Screw Speed ($N$):</strong><br>
+      $$N = \frac{C_v}{C_1 \cdot F_i} \quad (\text{RPM})$$<br>
+      where $F_i$ is CEMA inclination derating factor: $F_i = 1.0$ at 0°, $0.90$ at 5°, $0.80$ at 10°, $0.70$ at 15°, $0.60$ at 20°, dropping to $0.40$ above 30° due to material gravity rollback.<br><br>
+
+      <strong>3. Empty Conveyor Friction Horsepower ($HP_f$):</strong><br>
+      Frictional resistance of empty screw rotating in hanger bearings:<br>
+      $$HP_f = \frac{L \cdot N \cdot F_d \cdot F_b}{1,000,000}$$<br>
+      where $F_d$ is conveyor diameter factor from CEMA Table 3-3 and $F_b$ is bearing factor.<br><br>
+
+      <strong>4. Material Conveying Horsepower ($HP_m$):</strong><br>
+      Power required to push bulk material along the trough:<br>
+      $$HP_m = \frac{C_v \cdot L \cdot \rho_b \cdot F_m \cdot F_f \cdot F_p}{1,000,000} = \frac{W \cdot L \cdot F_m}{1,000,000}$$<br>
+      where $F_m$ is CEMA material factor, $F_f = 1.0$ (standard flights), and $F_p = 1.0$ (no paddles).<br><br>
+
+      <strong>5. Total Drive Motor Sizing:</strong><br>
+      Total shaft power is adjusted for drive efficiency ($e$) and overload factor ($F_o$):<br>
+      $$BHP = \frac{(HP_f + HP_m) \cdot F_o}{e}$$
+      Standard NEMA electric motor frames are then selected to provide adequate torque margin: 1, 1.5, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 75, 100 HP.
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in CEMA Screw Conveyor Design</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. The 45% Trough Loading on Abrasive Media Trap</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Attempting to save equipment cost by specifying 45% trough loading on abrasive materials like silica sand, clinker, or fly ash causes rapid destruction. High trough fill submerges the intermediate hanger bearings in abrasive grit, grinding the bearing journal within weeks. Furthermore, the material wedges against the trough wall, wearing away flight thickness until blades fold over. CEMA strictly mandates 15% or 30% loading for abrasive bulk materials.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Ignoring Incline Gravity Rollback ($F_i$ Derating)</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          A screw conveyor inclined at 20° loses 40% of its conveying capacity because granular bulk material slips and rolls backward over the rotating center pipe. Sizing an inclined conveyor based on horizontal capacity formulas causes severe downstream starving. On inclines above 15°, short-pitch flights (pitch = 0.67 D) or tubular housings are mandatory to prevent severe fallback.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Start-Up Under Load Breakaway Torque Stall</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Sizing an electric drive motor strictly for running BHP will result in immediate motor stall during emergency restarts. When a conveyor shuts down full of material, the bulk solids settle and consolidate around the screw blades. Breakaway starting torque can be 200% to 300% of running torque. Drive motors must utilize CEMA overload factor $F_o$ and high-starting-torque NEMA Design C motors or variable frequency drives with flux-vector boost.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Intermediate Hanger Bearing Blockage with Lumpy Material</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          If material contains lumps exceeding 20% to 25% of the radial clearance between the center pipe and trough, the lumps become wedged beneath the intermediate hanger bearing assemblies. This causes severe shock loading, bending the center drive pipe and shearing coupling bolts. For large lump materials, hanger bearings must be eliminated using heavy-walled pipe spans or shaftless screw conveyors.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Exceeding Center Pipe Critical Whirling Speed</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Long screw sections supported only at the ends have a natural beam deflection under their own weight plus material load. If the operating RPM approaches the critical shaft whirling frequency, the screw whips violently, causing flight edges to machine through the trough bottom liner. CEMA recommends span lengths that limit deadweight shaft deflection to strictly less than 0.25 inches (6 mm).
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var matPresets = {
+    grain: { rho: 45, load: '0.45', fm: 0.4 },
+    coal: { rho: 50, load: '0.30', fm: 0.9 },
+    cement: { rho: 85, load: '0.30', fm: 1.4 },
+    sand: { rho: 100, load: '0.15', fm: 2.0 },
+    flyash: { rho: 40, load: '0.30', fm: 1.7 },
+    woodchips: { rho: 20, load: '0.45', fm: 0.5 },
+    ironore: { rho: 140, load: '0.15', fm: 3.2 }
+  };
+
+  // CEMA screw data: pipe OD, CEMA diameter factor Fd, max recommended RPM
+  var screwData = {
+    6:  { pipeOD: 2.375, fd: 18.0, maxRPM: 150 },
+    9:  { pipeOD: 2.875, fd: 31.0, maxRPM: 135 },
+    12: { pipeOD: 3.500, fd: 55.0, maxRPM: 100 },
+    14: { pipeOD: 4.000, fd: 78.0, maxRPM: 90 },
+    16: { pipeOD: 4.500, fd: 106.0, maxRPM: 80 },
+    18: { pipeOD: 4.500, fd: 135.0, maxRPM: 70 },
+    20: { pipeOD: 5.563, fd: 165.0, maxRPM: 60 },
+    24: { pipeOD: 6.625, fd: 235.0, maxRPM: 50 }
+  };
+
+  var standardNEMA = [0.5, 0.75, 1, 1.5, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150];
+
+  function onPresetChange() {
+    var key = document.getElementById('al3_mat_preset').value;
+    if (matPresets[key]) {
+      document.getElementById('al3_density').value = matPresets[key].rho;
+      document.getElementById('al3_trough_loading').value = matPresets[key].load;
+      document.getElementById('al3_mat_factor').value = matPresets[key].fm;
+    }
+    calcAL3();
+  }
+
+  function calcAL3() {
+    var tonsHr = parseFloat(document.getElementById('al3_capacity').value) || 20;
+    var rho = parseFloat(document.getElementById('al3_density').value) || 45;
+    var loadFrac = parseFloat(document.getElementById('al3_trough_loading').value) || 0.45;
+    var Fm = parseFloat(document.getElementById('al3_mat_factor').value) || 0.4;
+    var diaKey = parseInt(document.getElementById('al3_screw_dia').value) || 12;
+    var L = parseFloat(document.getElementById('al3_conv_len').value) || 40;
+    var inclineDeg = parseFloat(document.getElementById('al3_incline_deg').value) || 0;
+    var Fb = parseFloat(document.getElementById('al3_bearing_type').value) || 1.0;
+    var driveEff = (parseFloat(document.getElementById('al3_drive_eff').value) || 88) / 100;
+
+    var sInfo = screwData[diaKey] || screwData[12];
+    var D_in = diaKey;
+    var d_in = sInfo.pipeOD;
+    var pitch_in = D_in; // standard pitch = D
+    var Fd = sInfo.fd;
+    var maxRPM = sInfo.maxRPM;
+
+    // Incline factor Fi (CEMA empirical derating)
+    var Fi = 1.0;
+    if (inclineDeg > 0) {
+      if (inclineDeg <= 5) Fi = 1.0 - (inclineDeg / 5) * 0.10;
+      else if (inclineDeg <= 10) Fi = 0.90 - ((inclineDeg - 5) / 5) * 0.10;
+      else if (inclineDeg <= 15) Fi = 0.80 - ((inclineDeg - 10) / 5) * 0.10;
+      else if (inclineDeg <= 20) Fi = 0.70 - ((inclineDeg - 15) / 5) * 0.10;
+      else if (inclineDeg <= 25) Fi = 0.60 - ((inclineDeg - 20) / 5) * 0.10;
+      else Fi = Math.max(0.35, 0.50 - ((inclineDeg - 25) / 20) * 0.15);
+    }
+
+    // Material Mass Flow (lb/hr) & Volumetric Flow (ft3/hr)
+    var W_lb_hr = tonsHr * 2000;
+    var Cv_ft3_hr = W_lb_hr / rho;
+
+    // Capacity at 1 RPM (ft3/hr per RPM)
+    var netArea_sqin = (Math.PI * (D_in * D_in - d_in * d_in)) / 4;
+    var C1 = (netArea_sqin / 144) * (pitch_in / 12) * 60 * loadFrac;
+
+    // Operating RPM
+    var rpm = Cv_ft3_hr / (C1 * Fi);
+    var speedUtil = (rpm / maxRPM) * 100;
+
+    // Linear travel velocity (ft/min)
+    var linVel_fpm = (rpm * pitch_in) / 12;
+
+    // Horsepower calculations per CEMA 350
+    // Friction HP (empty conveyor)
+    var HP_f = (L * rpm * Fd * Fb) / 1000000;
+
+    // Material HP
+    var HP_m = (W_lb_hr * L * Fm) / 1000000;
+
+    // Incline lifting HP
+    var liftHeight = L * Math.sin(inclineDeg * Math.PI / 180);
+    var HP_lift = (W_lb_hr * liftHeight) / (33000 * 60);
+
+    var HP_shaft = HP_f + HP_m + HP_lift;
+
+    // CEMA Overload Factor Fo
+    var Fo = 1.0;
+    if (HP_shaft < 1.0) Fo = 2.0;
+    else if (HP_shaft < 2.0) Fo = 1.5;
+    else if (HP_shaft < 4.0) Fo = 1.25;
+    else if (HP_shaft < 5.0) Fo = 1.1;
+
+    var totalBHP = (HP_shaft * Fo) / driveEff;
+
+    // Select standard NEMA motor
+    var nemaMotor = standardNEMA[standardNEMA.length - 1];
+    for (var i = 0; i < standardNEMA.length; i++) {
+      if (standardNEMA[i] >= totalBHP) {
+        nemaMotor = standardNEMA[i];
+        break;
+      }
+    }
+
+    // Shaft torque at operating RPM (in-lb)
+    var torque_in_lb = (rpm > 0) ? (63025 * HP_shaft / rpm) : 0;
+    var torque_ft_lb = torque_in_lb / 12;
+
+    // Update Hero Outputs
+    document.getElementById('al3_out_motor_hp').textContent = nemaMotor + ' HP NEMA';
+    document.getElementById('al3_out_total_bhp').textContent = 'Brake HP: ' + totalBHP.toFixed(2) + ' BHP (Shaft: ' + HP_shaft.toFixed(2) + ' HP)';
+
+    document.getElementById('al3_out_rpm').textContent = rpm.toFixed(1) + ' RPM';
+    document.getElementById('al3_out_max_rpm').textContent = 'CEMA Limit: ' + maxRPM + ' RPM (' + speedUtil.toFixed(0) + '% utilized)';
+
+    document.getElementById('al3_out_vol_cap').textContent = Math.round(Cv_ft3_hr).toLocaleString() + ' ft³/hr';
+    document.getElementById('al3_out_cap_1rpm').textContent = 'Cap at 1 RPM: ' + C1.toFixed(2) + ' ft³/hr';
+
+    document.getElementById('al3_out_hp_split').textContent = 'Fric: ' + HP_f.toFixed(2) + ' | Mat: ' + HP_m.toFixed(2) + (inclineDeg > 0 ? (' | Lift: ' + HP_lift.toFixed(2)) : '');
+    document.getElementById('al3_out_overload').textContent = 'Overload Factor Fo: ' + Fo.toFixed(2) + ' (Eff: ' + (driveEff * 100).toFixed(0) + '%)';
+
+    // Diagnostics
+    document.getElementById('al3_diag_incline').textContent = Fi.toFixed(2) + ' (' + inclineDeg + '° Incline Derating)';
+    document.getElementById('al3_diag_torque').textContent = Math.round(torque_in_lb).toLocaleString() + ' in-lb (' + Math.round(torque_ft_lb).toLocaleString() + ' ft-lb)';
+    document.getElementById('al3_diag_lin_vel').textContent = linVel_fpm.toFixed(1) + ' ft/min';
+
+    var utilElem = document.getElementById('al3_diag_speed_util');
+    utilElem.textContent = speedUtil.toFixed(1) + '% of CEMA Limit (' + maxRPM + ' RPM)';
+    utilElem.style.color = speedUtil > 100 ? '#ef4444' : (speedUtil > 80 ? '#f59e0b' : '#10b981');
+
+    // Status Badge
+    var badge = document.getElementById('al3_status_badge');
+    if (speedUtil > 100) {
+      badge.textContent = 'EXCEEDS CEMA MAX RPM (UPSIZE SCREW)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (inclineDeg > 20 && loadFrac > 0.30) {
+      badge.textContent = 'WARNING: SEVERE INCLINE ROLLBACK';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else if (speedUtil > 80) {
+      badge.textContent = 'MARGINAL SPEED (>80% MAX)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else {
+      badge.textContent = 'OPTIMAL CEMA SIZING';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    }
+
+    renderSvgAL3(loadFrac, diaKey, rpm, maxRPM);
+  }
+
+  function renderSvgAL3(loadFrac, diaKey, rpm, maxRPM) {
+    var svg = document.getElementById('al3_svg');
+    if (!svg) return;
+    var s = '';
+
+    // U-Trough Cross Section
+    // Center at (300, 120), Radius 80
+    var cx = 300, cy = 120, r = 80;
+
+    // Trough outer shell
+    s += '<path d="M ' + (cx - r) + ' ' + (cy - 30) + ' L ' + (cx - r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 0 0 ' + (cx + r) + ' ' + cy + ' L ' + (cx + r) + ' ' + (cy - 30) + '" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="4"/>';
+
+    // Trough top cover flange
+    s += '<line x1="' + (cx - r - 15) + '" y1="' + (cy - 30) + '" x2="' + (cx + r + 15) + '" y2="' + (cy - 30) + '" stroke="#64748b" stroke-width="3"/>';
+
+    // Material Fill Area (arc representing percent loading)
+    var fillAngle = loadFrac * Math.PI; // angle from bottom
+    var yFill = cy + r * (1 - 2 * loadFrac);
+    var fillColor = loadFrac > 0.4 ? '#f59e0b' : '#3b82f6';
+    
+    s += '<path d="M ' + (cx - r * 0.95) + ' ' + yFill + ' A ' + r + ' ' + r + ' 0 0 0 ' + (cx + r * 0.95) + ' ' + yFill + ' Z" fill="' + fillColor + '" opacity="0.35"/>';
+    s += '<text x="' + cx + '" y="' + (cy + r * 0.65) + '" font-size="11" font-weight="700" fill="' + fillColor + '" text-anchor="middle">Material Load (' + Math.round(loadFrac * 100) + '%)</text>';
+
+    // Screw Flight Edge (Circle outline)
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r - 6) + '" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="8,4"/>';
+
+    // Center Drive Pipe (OD: e.g. radius 25)
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="24" fill="var(--bg-secondary)" stroke="var(--text-primary)" stroke-width="3"/>';
+    s += '<text x="' + cx + '" y="' + (cy + 4) + '" font-size="10" font-weight="700" fill="var(--text-primary)" text-anchor="middle">Pipe</text>';
+
+    // Rotation Direction Arrow
+    s += '<path d="M 285 70 A 55 55 0 0 1 335 70" fill="none" stroke="#10b981" stroke-width="3"/>';
+    s += '<text x="345" y="68" font-size="11" font-weight="700" fill="#10b981">' + rpm.toFixed(1) + ' RPM</text>';
+
+    // Conveyor Dimension callouts
+    s += '<text x="70" y="55" font-size="12" font-weight="700" fill="var(--text-primary)">Screw Size: ' + diaKey + '" Standard Pitch</text>';
+    s += '<text x="70" y="75" font-size="11" fill="var(--text-muted)">Clearance to Trough: 0.50"</text>';
+
+    // Drive Motor Block (Left side)
+    s += '<rect x="60" y="100" width="80" height="60" rx="6" fill="var(--bg-secondary)" stroke="#3b82f6" stroke-width="2"/>';
+    s += '<text x="100" y="135" font-size="11" font-weight="700" fill="#3b82f6" text-anchor="middle">Drive Motor</text>';
+    s += '<line x1="140" y1="130" x2="' + (cx - r - 15) + '" y2="130" stroke="#64748b" stroke-width="4"/>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['al3_capacity', 'al3_density', 'al3_mat_factor', 'al3_conv_len', 'al3_incline_deg', 'al3_drive_eff'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAL3);
+      el.addEventListener('change', calcAL3);
+    }
+  });
+
+  document.getElementById('al3_mat_preset').addEventListener('change', onPresetChange);
+  document.getElementById('al3_trough_loading').addEventListener('change', calcAL3);
+  document.getElementById('al3_screw_dia').addEventListener('change', calcAL3);
+  document.getElementById('al3_bearing_type').addEventListener('change', calcAL3);
+
+  var copyBtn = document.getElementById('al3_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var motor = document.getElementById('al3_out_motor_hp').textContent;
+      var bhp = document.getElementById('al3_out_total_bhp').textContent;
+      var rpm = document.getElementById('al3_out_rpm').textContent;
+      var cap = document.getElementById('al3_out_vol_cap').textContent;
+      var split = document.getElementById('al3_out_hp_split').textContent;
+      var status = document.getElementById('al3_status_badge').textContent;
+
+      var text = "=== CEMA SCREW CONVEYOR SIZING REPORT (CEMA BOOK NO. 350) ===\n" +
+        "Status: " + status + "\n" +
+        "Motor Sizing: " + motor + " (" + bhp + ")\n" +
+        "Operating Speed: " + rpm + "\n" +
+        "Volumetric Capacity: " + cap + "\n" +
+        "Power Components: " + split + "\n" +
+        "Throughput: " + document.getElementById('al3_capacity').value + " STPH, Density: " + document.getElementById('al3_density').value + " lb/ft3\n" +
+        "Screw Dia: " + document.getElementById('al3_screw_dia').value + '", Length: ' + document.getElementById('al3_conv_len').value + " ft, Incline: " + document.getElementById('al3_incline_deg').value + ' deg\n' +
+        "Standard: CEMA 350 / ASME B20.1 / ISO 7149\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ CEMA Sizing Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy CEMA Screw Sizing Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAL3();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'screw-conveyor-capacity-horsepower-cema-calculator.html'), renderTradePage({
+  title: 'CEMA Screw Conveyor Capacity & Horsepower Calculator | CEMA 350',
+  metaDescription: 'Size bulk material screw conveyors per CEMA Standard 350. Calculate required RPM, friction and material horsepower, incline derating, and NEMA motor size.',
+  canonical: 'https://digitaltoolsshed.com/calc/screw-conveyor-capacity-horsepower-cema-calculator.html',
+  content: toolAL3Html,
+  faq: [
+    {
+      q: 'How is screw conveyor throughput capacity calculated per CEMA Standard 350?',
+      a: 'CEMA calculates capacity using the cross-sectional area between the screw outer diameter (D) and center pipe (d), multiplied by screw pitch (P), rotational speed (RPM), and percent trough loading (15%, 30%, 45%, or 95%). For standard full-pitch screws (pitch = diameter), capacity at 1 RPM is multiplied by actual speed and the incline correction factor (Fi).'
+    },
+    {
+      q: 'Why does conveyor inclination drastically reduce screw capacity?',
+      a: 'As a screw conveyor inclines upward, bulk material tends to roll backward under gravity over the rotating center pipe rather than being pushed forward. At a 10° incline, capacity drops by 20% (Fi = 0.80); at 20°, capacity drops by 40% (Fi = 0.60). Inclines steeper than 15° require short-pitch flights (2/3 standard pitch) or tubular housings to maintain conveying efficiency.'
+    },
+    {
+      q: 'What is the difference between Friction Horsepower (HPf) and Material Horsepower (HPm)?',
+      a: 'Friction Horsepower (HPf) represents the mechanical power needed to rotate the empty screw against hanger bearing and seal friction. Material Horsepower (HPm) represents the work done pushing and tumbling the bulk solid along the trough, which depends directly on material throughput (lb/hr), conveyor length, and the CEMA material factor (Fm).'
+    },
+    {
+      q: 'How do you choose the correct trough loading percentage (15%, 30%, 45%)?',
+      a: 'CEMA designates 15% loading for heavy, abrasive, and sluggish materials (sand, clinker, iron ore) to keep material level below the hanger bearings and minimize wear. 30% loading applies to medium-weight, mildly abrasive materials (coal, cement, limestone). 45% loading is reserved strictly for light, non-abrasive, free-flowing solids (grains, flour, seeds, wood pellets).'
+    },
+    {
+      q: 'Why is an Overload Factor (Fo) necessary when selecting screw conveyor drive motors?',
+      a: 'At low operating horsepowers (under 5 HP), mechanical friction and starting inertia can be disproportionately high, especially during cold starts or when restarting under a full head of consolidated material. CEMA specifies overload multipliers up to Fo = 2.0 for fractional horsepowers to provide adequate breakaway starting torque without motor overheating.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// TOOL AL4: Thermosyphon & Heat Pipe Waste Heat Recovery Calculator (Cotter's Theory & ESDU 80017)
+// ==========================================
+const toolAL4Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Cotter's Theory &bull; ESDU 80017 / 81038 &bull; ASME Heat Transfer Division</div>
+    <h1>Thermosyphon & Heat Pipe Waste Heat Recovery Calculator</h1>
+    <p class="text-muted">Calculate maximum thermal transport capacity ($Q_{max}$), effective thermal conductivity ($k_{eff}$), and operating envelope limits (Capillary, Sonic, Entrainment/Flooding, and Boiling Burnout) for two-phase heat pipes and thermosyphons per Cotter's theory and ESDU 80017.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Working Fluid & Operating Conditions</h3>
+
+      <div class="input-group">
+        <label for="al4_fluid">Working Fluid Selection</label>
+        <select id="al4_fluid">
+          <option value="water" selected>Water (Distilled/Degassed, 50°C to 220°C)</option>
+          <option value="methanol">Methanol (-40°C to 120°C - Cold Climate / Cryo)</option>
+          <option value="acetone">Acetone (0°C to 120°C - Fast Response)</option>
+          <option value="ammonia">Ammonia (R-717, -60°C to 80°C - Aerospace / Low Temp)</option>
+          <option value="ethanol">Ethanol (0°C to 140°C - Sanitary Non-Toxic)</option>
+          <option value="dowtherm">Dowtherm A / Therminol (150°C to 380°C - High Temp Economizer)</option>
+        </select>
+        <small class="text-muted">Thermodynamic fluid properties auto-loaded</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al4_temp">Vapor Core Operating Temperature ($T_v$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al4_temp" value="85" min="-50" max="350" step="1">
+          <span class="unit-badge">&deg;C</span>
+        </div>
+        <small class="text-muted">Design adiabatic vapor temperature (85°C = 185°F)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al4_wick_type">Wick Structure / Geometry</label>
+        <select id="al4_wick_type">
+          <option value="sintered" selected>Sintered Copper Powder (High Capillary, Works Against Gravity)</option>
+          <option value="mesh">Screen Wire Mesh (150 Mesh, Balanced Industrial)</option>
+          <option value="grooved">Axially Grooved (Low Liquid ΔP, High Horizontal Capacity)</option>
+          <option value="thermosyphon">Wickless Thermosyphon (Gravity Return Only, Highest Q)</option>
+        </select>
+        <small class="text-muted">Governs pore radius ($r_c$) and liquid permeability ($K$)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al4_tilt_deg">Orientation Tilt Angle ($\theta$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al4_tilt_deg" value="45" min="-90" max="90" step="5">
+          <span class="unit-badge">&deg; (deg)</span>
+        </div>
+        <small class="text-muted">+90° = vertical (gravity assist); 0° = horizontal; -90° = anti-gravity (evap on top)</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Tube Geometry & Section Lengths</h3>
+
+      <div class="input-group">
+        <label for="al4_tube_od">Tube Outside Diameter ($D_o$)</label>
+        <select id="al4_tube_od">
+          <option value="6">6.0 mm (1/4") - Micro/Electronics</option>
+          <option value="8">8.0 mm (5/16") - Standard Laptop/Server</option>
+          <option value="12">12.7 mm (1/2") - Industrial Electronic Cooling</option>
+          <option value="16">16.0 mm (5/8") - HVAC Heat Recovery</option>
+          <option value="25" selected>25.4 mm (1.0") - Heavy Waste Heat Exchanger</option>
+          <option value="32">32.0 mm (1-1/4") - Flue Gas Economizer</option>
+          <option value="50">50.8 mm (2.0") - Large Industrial Thermosyphon</option>
+        </select>
+        <small class="text-muted">Outer copper or stainless steel pipe diameter</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al4_evap_len">Evaporator Section Length ($L_e$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al4_evap_len" value="150" min="10" max="2000" step="10">
+          <span class="unit-badge">mm</span>
+        </div>
+        <small class="text-muted">Heat input zone length</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al4_adiab_len">Adiabatic Transport Length ($L_a$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al4_adiab_len" value="200" min="0" max="5000" step="10">
+          <span class="unit-badge">mm</span>
+        </div>
+        <small class="text-muted">Insulated transport length (0 if evaporator directly touches condenser)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="al4_cond_len">Condenser Section Length ($L_c$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="al4_cond_len" value="150" min="10" max="2000" step="10">
+          <span class="unit-badge">mm</span>
+        </div>
+        <small class="text-muted">Heat rejection zone length</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">Thermal Capacity & Operational Limit Envelope</h3>
+      <div id="al4_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Max Heat Transport ($Q_{max}$)</div>
+        <div id="al4_out_qmax_w" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- W</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al4_out_qmax_btu">-- BTU/hr</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Governing Physical Limit</div>
+        <div id="al4_out_gov_limit" style="font-size:20px; font-weight:800; color:#3b82f6; margin:4px 0;">Capillary Limit</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al4_out_limit_ratio">Dryout Risk: -- %</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="al4_keff_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Effective Conductivity ($k_{eff}$)</div>
+        <div id="al4_out_keff" style="font-size:22px; font-weight:800; color:#10b981; margin:4px 0;">-- W/m&bull;K</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al4_out_cu_mult">-- x Pure Solid Copper</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Thermal Resistance & $Delta T$</div>
+        <div id="al4_out_delta_t" style="font-size:18px; font-weight:700; color:var(--text-primary); margin:4px 0;">&Delta;T: -- &deg;C</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="al4_out_rth">R_th: -- &deg;C/W</div>
+      </div>
+    </div>
+
+    <!-- 5 Physical Limits Breakdown Table -->
+    <div style="margin-top:18px; overflow-x:auto;">
+      <h4 style="font-size:13px; margin:0 0 8px 0; color:var(--text-secondary);">Cotter / ESDU 5 Physical Operating Limits Breakdown (at Operating Temperature)</h4>
+      <table style="width:100%; font-size:12px; border-collapse:collapse; text-align:right;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border-color); color:var(--text-muted);">
+            <th style="text-align:left; padding:6px 8px;">Physical Boundary Limit</th>
+            <th style="padding:6px 8px;">Threshold (Watts)</th>
+            <th style="padding:6px 8px;">Threshold (BTU/hr)</th>
+            <th style="padding:6px 8px;">Mechanism Description</th>
+            <th style="padding:6px 8px;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="al4_limits_tbody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Live SVG Heat Pipe Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Two-Phase Cyclic Flow & Operating Limit Envelope</span>
+        <span style="font-size:11px; color:var(--text-muted);">Vapor flow (core) vs Liquid return (wick/gravity)</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="al4_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="al4_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy Heat Pipe Performance Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & Heat Pipe Operating Limits (Cotter / ESDU)</h2>
+    <p>A heat pipe's heat transport capacity is bounded by a closed operating curve consisting of five distinct physical mechanisms:</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Capillary Limit ($Q_{cap}$ per Darcy's Law):</strong><br>
+      The capillary pumping head developed in the porous wick must exceed the sum of vapor pressure drop, liquid viscous loss, and hydrostatic gravity head:<br>
+      $$\Delta P_{cap, max} = \frac{2 \sigma}{r_c} \ge \Delta P_v + \Delta P_l + \rho_l g L_{eff} \sin\theta$$<br>
+      $$Q_{cap} = \frac{\frac{2 \sigma}{r_c} - \rho_l g L_{eff} \sin\theta}{\left( \frac{\mu_l}{\rho_l A_w K h_{fg}} + \frac{F_v}{h_{fg}} \right) L_{eff}}$$
+      where $r_c$ is effective capillary pore radius, $K$ is wick permeability, and $L_{eff} = L_a + \frac{L_e + L_c}{2}$.<br><br>
+
+      <strong>2. Sonic Limit ($Q_{sonic}$ - Choked Vapor Flow):</strong><br>
+      When vapor velocity reaches Mach 1 ($Ma = 1$) at the evaporator exit, further lowering the condenser temperature cannot increase flow rate:<br>
+      $$Q_{sonic} = A_v \rho_v h_{fg} \sqrt{\frac{\gamma R T_v}{2 (\gamma + 1)}}$$<br>
+      
+      <strong>3. Entrainment / Flooding Limit ($Q_{ent}$):</strong><br>
+      High-velocity counter-current vapor flow generates interfacial shear stress that tears liquid droplets off the wick/wall surface (governed by Weber number $We \approx 1.0$):<br>
+      $$Q_{ent} = A_v h_{fg} \sqrt{\frac{\sigma \rho_v}{2 r_{hs}}}$$<br>
+
+      <strong>4. Boiling / Burnout Limit ($Q_{boil}$):</strong><br>
+      When radial heat flux into the evaporator exceeds the nucleate boiling limit, vapor bubbles coalesce inside the wick, insulating the wall from liquid and causing thermal runaway:<br>
+      $$Q_{boil} = \frac{2 \pi L_e k_{eff} T_v}{\ln(r_o / r_i)} \cdot \frac{2 \sigma}{h_{fg} \rho_v} \left( \frac{1}{r_n} - \frac{1}{r_c} \right)$$<br>
+
+      <strong>5. Effective Thermal Conductivity ($k_{eff}$):</strong><br>
+      $$k_{eff} = \frac{Q_{max} \cdot L_{eff}}{A_{total} \cdot \Delta T}$$
+      Because latent heat transport is nearly isothermal, $k_{eff}$ typically ranges from $10,000$ to $50,000\ \text{W/m}\cdot\text{K}$, outperforming solid copper ($390\ \text{W/m}\cdot\text{K}$) by a factor of 25x to 150x.
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in Heat Pipe / Thermosyphon Design</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. The Anti-Gravity Orientation Stall</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Using grooved wicks or wickless thermosyphons in an orientation where the evaporator is positioned above the condenser (negative tilt angle $\theta < 0$) causes immediate failure. Wickless thermosyphons rely 100% on gravity for condensate return; when tilted upside down, liquid pools at the bottom condenser and the evaporator dries out completely within seconds. Only fine-pore sintered copper powder wicks can pump liquid upwards against gravity.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Non-Condensable Gas (NCG) Hydrogen Blinding</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          If copper-water or aluminum-water heat pipes are manufactured without rigorous chemical cleaning and internal passivation, water reacts with the metal to generate non-condensable hydrogen gas ($H_2$). The sweeping vapor pushes the hydrogen into the condenser end, creating a "cold slug" that blinds 20% to 50% of the condensing area, driving up thermal resistance exponentially.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Radial Boiling Burnout at Concentrated Heat Fluxes</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Concentrating a high-power heat source (e.g. CPU/GPU die or high-temperature burner) over a small evaporator surface area can exceed the radial boiling limit ($> 20\ \text{W/cm}^2$). Instead of smooth surface evaporation, violent nucleate boiling occurs inside the wick pores, generating vapor bubbles that push liquid away from the heated wall, causing localized dryout and copper melting.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Freeze-Thaw Structural Tube Rupture</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Water-filled copper heat pipes installed outdoors in HVAC energy recovery loops or economizers freeze solid during winter plant shutdowns. Water expands by 9% upon freezing; the rigid ice plug exerts hoop stresses exceeding 30,000 psi on the thin copper wall, bulging and splitting the tube seam. Freeze-tolerant sintered wicks or methanol/ethanol working fluids must be selected for sub-zero environments.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Transonic Choking During Frozen Startup</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          When starting a heat pipe from very cold ambient temperatures, the vapor density inside the core is orders of magnitude lower than at design operating temperatures. Applying full thermal load immediately pushes vapor velocity to Mach 1, choking flow at the sonic limit. The evaporator overheats rapidly while the condenser remains ice-cold until sufficient vapor pressure accumulates to establish steady-state circulation.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Thermodynamic fluid property curves around standard operating points
+  // Properties: sigma (N/m), hfg (J/kg), rho_l (kg/m3), rho_v (kg/m3), mu_l (Pa.s), mu_v (Pa.s), Pv (Pa), gamma
+  var fluidData = {
+    water: {
+      getProps: function(T) {
+        var Tk = T + 273.15;
+        var sigma = Math.max(0.02, 0.0756 - 0.00014 * T);
+        var hfg = (2500 - 2.4 * T) * 1000;
+        var rho_l = 1000 - 0.003 * Math.pow(T - 4, 2);
+        var Pv = Math.exp(20.386 - 5132 / Tk) * 133.322;
+        var rho_v = (Pv * 0.018) / (8.314 * Tk);
+        return { sigma: sigma, hfg: hfg, rho_l: rho_l, rho_v: rho_v, mu_l: 0.00035, mu_v: 0.000012, Pv: Pv, gamma: 1.33 };
+      }
+    },
+    methanol: {
+      getProps: function(T) {
+        var Tk = T + 273.15;
+        var sigma = Math.max(0.015, 0.024 - 0.00008 * T);
+        var hfg = 1100000;
+        var rho_l = 790;
+        var Pv = Math.exp(18.5 - 4500 / Tk) * 1000;
+        var rho_v = (Pv * 0.032) / (8.314 * Tk);
+        return { sigma: sigma, hfg: hfg, rho_l: rho_l, rho_v: Math.max(0.1, rho_v), mu_l: 0.0004, mu_v: 0.00001, Pv: Pv, gamma: 1.25 };
+      }
+    },
+    acetone: {
+      getProps: function(T) {
+        var Tk = T + 273.15;
+        var sigma = 0.023 - 0.0001 * T;
+        var hfg = 520000;
+        var rho_l = 785;
+        var Pv = Math.exp(18.2 - 4200 / Tk) * 1000;
+        var rho_v = (Pv * 0.058) / (8.314 * Tk);
+        return { sigma: sigma, hfg: hfg, rho_l: rho_l, rho_v: Math.max(0.2, rho_v), mu_l: 0.0003, mu_v: 0.000009, Pv: Pv, gamma: 1.20 };
+      }
+    },
+    ammonia: {
+      getProps: function(T) {
+        var Tk = T + 273.15;
+        var sigma = 0.025 - 0.00012 * T;
+        var hfg = 1200000;
+        var rho_l = 610;
+        var Pv = Math.exp(17.8 - 3200 / Tk) * 1000;
+        var rho_v = (Pv * 0.017) / (8.314 * Tk);
+        return { sigma: sigma, hfg: hfg, rho_l: rho_l, rho_v: Math.max(0.5, rho_v), mu_l: 0.0002, mu_v: 0.00001, Pv: Pv, gamma: 1.31 };
+      }
+    },
+    ethanol: {
+      getProps: function(T) {
+        var Tk = T + 273.15;
+        var sigma = 0.022 - 0.00009 * T;
+        var hfg = 850000;
+        var rho_l = 780;
+        var Pv = Math.exp(18.6 - 4600 / Tk) * 1000;
+        var rho_v = (Pv * 0.046) / (8.314 * Tk);
+        return { sigma: sigma, hfg: hfg, rho_l: rho_l, rho_v: Math.max(0.1, rho_v), mu_l: 0.0005, mu_v: 0.000011, Pv: Pv, gamma: 1.22 };
+      }
+    },
+    dowtherm: {
+      getProps: function(T) {
+        var Tk = T + 273.15;
+        var sigma = 0.035 - 0.00008 * T;
+        var hfg = 300000;
+        var rho_l = 950;
+        var Pv = Math.exp(19.0 - 5800 / Tk) * 1000;
+        var rho_v = (Pv * 0.166) / (8.314 * Tk);
+        return { sigma: sigma, hfg: hfg, rho_l: rho_l, rho_v: Math.max(0.1, rho_v), mu_l: 0.001, mu_v: 0.000015, Pv: Pv, gamma: 1.15 };
+      }
+    }
+  };
+
+  // Wick characteristics
+  var wickData = {
+    sintered: { rc: 0.000025, K: 1.5e-11, eps: 0.55, kw: 25 },
+    mesh:     { rc: 0.000065, K: 3.5e-11, eps: 0.65, kw: 15 },
+    grooved:  { rc: 0.000180, K: 2.0e-9,  eps: 0.70, kw: 40 },
+    thermosyphon: { rc: 0.001000, K: 1.0e-7, eps: 0.95, kw: 50 }
+  };
+
+  function calcAL4() {
+    var fKey = document.getElementById('al4_fluid').value;
+    var T = parseFloat(document.getElementById('al4_temp').value) || 85;
+    var wKey = document.getElementById('al4_wick_type').value;
+    var tiltDeg = parseFloat(document.getElementById('al4_tilt_deg').value) || 45;
+    var Do_mm = parseFloat(document.getElementById('al4_tube_od').value) || 25.4;
+    var Le_mm = parseFloat(document.getElementById('al4_evap_len').value) || 150;
+    var La_mm = parseFloat(document.getElementById('al4_adiab_len').value) || 200;
+    var Lc_mm = parseFloat(document.getElementById('al4_cond_len').value) || 150;
+
+    var fModel = fluidData[fKey] || fluidData.water;
+    var props = fModel.getProps(T);
+    var w = wickData[wKey] || wickData.sintered;
+
+    // Dimensions in meters
+    var Do = Do_mm / 1000;
+    var tw = 0.0009; // 0.9 mm wall thickness
+    var Di = Do - 2 * tw;
+    var twick = (wKey === 'thermosyphon') ? 0.0002 : 0.0010; // wick thickness
+    var Dv = Di - 2 * twick; // vapor core diameter
+    var Av = Math.PI * Math.pow(Dv / 2, 2);
+    var Aw = Math.PI * (Math.pow(Di / 2, 2) - Math.pow(Dv / 2, 2));
+    var Atotal = Math.PI * Math.pow(Do / 2, 2);
+
+    var Le = Le_mm / 1000;
+    var La = La_mm / 1000;
+    var Lc = Lc_mm / 1000;
+    var Leff = La + (Le + Lc) / 2;
+    var Ltotal = Le + La + Lc;
+
+    // 1. Capillary Limit (Qcap)
+    var dPcap = (2 * props.sigma) / w.rc;
+    var dP_grav = props.rho_l * 9.80665 * Leff * Math.sin(tiltDeg * Math.PI / 180);
+    var netPumping = dPcap - dP_grav;
+
+    var Qcap = 0;
+    if (netPumping > 0) {
+      var Cl = (props.mu_l) / (props.rho_l * Aw * w.K * props.hfg);
+      var Cv = (16 * props.mu_v) / (Math.PI * Math.pow(Dv / 2, 4) * props.rho_v * props.hfg);
+      Qcap = netPumping / ((Cl + Cv) * Leff);
+    }
+
+    // 2. Sonic Limit (Qsonic)
+    var R_gas = 8.314 / 0.018; // approx J/kg.K
+    if (fKey === 'methanol') R_gas = 8.314 / 0.032;
+    if (fKey === 'ammonia') R_gas = 8.314 / 0.017;
+    var c_sound = Math.sqrt(props.gamma * R_gas * (T + 273.15));
+    var Qsonic = Av * props.rho_v * props.hfg * c_sound * Math.sqrt(1 / (2 * (props.gamma + 1)));
+
+    // 3. Entrainment Limit (Qent)
+    var rhs = w.rc; // hydraulic diameter of wick surface
+    var Qent = Av * props.hfg * Math.sqrt((props.sigma * props.rho_v) / (2 * rhs));
+
+    // 4. Boiling Limit (Qboil)
+    var rn = 0.000001; // nucleation radius 1 micron
+    var keff_wick = w.kw;
+    var Qboil = (2 * Math.PI * Le * keff_wick * (T + 273.15) / Math.log(Di / Dv)) *
+                ((2 * props.sigma) / (props.hfg * props.rho_v)) *
+                (1 / rn - 1 / w.rc);
+    if (Qboil < 0 || isNaN(Qboil)) Qboil = Qcap * 3.5;
+
+    // 5. Viscous Limit (Qvisc)
+    var Qvisc = (Av * Math.pow(Dv / 2, 2) * props.hfg * props.rho_v * props.Pv) / (16 * props.mu_v * Leff);
+
+    // Limit evaluation
+    var limits = [
+      { name: 'Capillary Limit', val: Qcap, desc: 'Balance of wick pumping head vs liquid viscous friction' },
+      { name: 'Sonic Limit', val: Qsonic, desc: 'Mach 1 choked vapor flow at evaporator exit' },
+      { name: 'Entrainment / Flooding', val: Qent, desc: 'Vapor shear tearing liquid droplets off wick surface' },
+      { name: 'Boiling Burnout', val: Qboil, desc: 'Critical radial heat flux nucleate boiling dryout' },
+      { name: 'Viscous Limit', val: Qvisc, desc: 'Vapor pressure flow resistance during cold start' }
+    ];
+
+    var validLimits = limits.filter(function(l){ return l.val > 0 && isFinite(l.val); });
+    validLimits.sort(function(a, b){ return a.val - b.val; });
+
+    var govLimit = validLimits[0] || limits[0];
+    var Qmax = govLimit.val;
+    var Qmax_btu = Qmax * 3.41214;
+
+    // Effective Thermal Conductivity (keff)
+    // Typical temperature drop across heat pipe is 2 to 6 °C
+    var deltaT = Math.max(1.5, Math.min(12, 2.0 + (Qmax / 500)));
+    var Rth = deltaT / Qmax; // °C/W
+    var keff = (Qmax * Leff) / (Atotal * deltaT); // W/m.K
+    var cuMult = keff / 390; // pure copper ~390 W/m.K
+
+    // Hero Outputs
+    document.getElementById('al4_out_qmax_w').textContent = Math.round(Qmax).toLocaleString() + ' W';
+    document.getElementById('al4_out_qmax_btu').textContent = Math.round(Qmax_btu).toLocaleString() + ' BTU/hr';
+
+    document.getElementById('al4_out_gov_limit').textContent = govLimit.name;
+    document.getElementById('al4_out_limit_ratio').textContent = (Qcap <= 0 ? 'DRYOUT (Tilt opposed)' : 'Governing threshold reached first');
+
+    document.getElementById('al4_out_keff').textContent = Math.round(keff).toLocaleString() + ' W/m·K';
+    document.getElementById('al4_out_cu_mult').textContent = Math.round(cuMult).toLocaleString() + 'x Solid Copper (390 W/mK)';
+
+    document.getElementById('al4_out_delta_t').textContent = 'ΔT: ' + deltaT.toFixed(1) + ' °C';
+    document.getElementById('al4_out_rth').textContent = 'R_th: ' + Rth.toFixed(4) + ' °C/W';
+
+    // Populate Limits Table
+    var tableHtml = '';
+    limits.forEach(function(lim){
+      var isGov = (lim.name === govLimit.name);
+      var wVal = isFinite(lim.val) && lim.val > 0 ? Math.round(lim.val).toLocaleString() + ' W' : 'N/A (Tilt Exceeded)';
+      var btuVal = isFinite(lim.val) && lim.val > 0 ? Math.round(lim.val * 3.41214).toLocaleString() + ' BTU/hr' : '--';
+      var statusColor = isGov ? '#ef4444' : '#10b981';
+      var statusText = isGov ? 'GOVERNING LIMIT' : 'OK (Above Operating)';
+
+      tableHtml += '<tr style="border-bottom:1px solid var(--border-color);' + (isGov ? ' background:rgba(239,68,68,0.06);' : '') + '">' +
+        '<td style="text-align:left; font-weight:700; padding:6px 8px;' + (isGov ? ' color:#ef4444;' : '') + '">' + lim.name + '</td>' +
+        '<td style="padding:6px 8px; font-weight:700;">' + wVal + '</td>' +
+        '<td style="padding:6px 8px;">' + btuVal + '</td>' +
+        '<td style="text-align:left; padding:6px 8px; color:var(--text-secondary);">' + lim.desc + '</td>' +
+        '<td style="padding:6px 8px; font-weight:700; color:' + statusColor + ';">' + statusText + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('al4_limits_tbody').innerHTML = tableHtml;
+
+    // Status Badge
+    var badge = document.getElementById('al4_status_badge');
+    if (Qcap <= 0 && tiltDeg < 0) {
+      badge.textContent = 'DRYOUT FAILURE (ANTI-GRAVITY)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (Qmax > 250) {
+      badge.textContent = 'HIGH THERMAL TRANSPORT';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    } else {
+      badge.textContent = 'MODERATE CAPACITY';
+      badge.style.background = 'rgba(59, 130, 246, 0.15)';
+      badge.style.color = '#3b82f6';
+      badge.style.border = '1px solid #3b82f6';
+    }
+
+    renderSvgAL4(tiltDeg, Qmax, govLimit.name, wKey);
+  }
+
+  function renderSvgAL4(tiltDeg, Qmax, govName, wKey) {
+    var svg = document.getElementById('al4_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Heat pipe container outline
+    s += '<rect x="40" y="50" width="520" height="110" rx="14" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="2"/>';
+
+    // Evaporator Zone (Left 140px) - Red heat input
+    s += '<rect x="45" y="55" width="140" height="100" rx="10" fill="rgba(239,68,68,0.12)" stroke="#ef4444" stroke-width="1.5"/>';
+    s += '<text x="115" y="42" font-size="11" font-weight="700" fill="#ef4444" text-anchor="middle">Evaporator (Qin)</text>';
+    s += '<text x="115" y="105" font-size="10" font-weight="600" fill="#ef4444" text-anchor="middle">Liquid Vaporizes ▲</text>';
+
+    // Adiabatic Zone (Center 200px) - Insulated transport
+    s += '<rect x="200" y="55" width="200" height="100" rx="4" fill="var(--bg-secondary)" stroke="#64748b" stroke-width="1"/>';
+    s += '<text x="300" y="42" font-size="11" font-weight="700" fill="var(--text-muted)" text-anchor="middle">Adiabatic Section (Transport)</text>';
+
+    // Condenser Zone (Right 140px) - Blue heat rejection
+    s += '<rect x="415" y="55" width="140" height="100" rx="10" fill="rgba(59,130,246,0.12)" stroke="#3b82f6" stroke-width="1.5"/>';
+    s += '<text x="485" y="42" font-size="11" font-weight="700" fill="#3b82f6" text-anchor="middle">Condenser (Qout)</text>';
+    s += '<text x="485" y="105" font-size="10" font-weight="600" fill="#3b82f6" text-anchor="middle">Vapor Condenses ▼</text>';
+
+    // Wick Layer (Top and bottom margins)
+    s += '<rect x="45" y="55" width="510" height="14" fill="#f59e0b" opacity="0.3"/>';
+    s += '<rect x="45" y="141" width="510" height="14" fill="#f59e0b" opacity="0.3"/>';
+    s += '<text x="300" y="66" font-size="9" font-weight="700" fill="#f59e0b" text-anchor="middle">Wick / Annulus (Capillary Liquid Return ◄◄)</text>';
+    s += '<text x="300" y="152" font-size="9" font-weight="700" fill="#f59e0b" text-anchor="middle">Wick / Annulus (Capillary Liquid Return ◄◄)</text>';
+
+    // Center Vapor Core Flow (Left to Right arrow)
+    s += '<line x1="160" y1="105" x2="430" y2="105" stroke="#ef4444" stroke-width="3" stroke-dasharray="8,4"/>';
+    s += '<polygon points="440,105 425,100 425,110" fill="#ef4444"/>';
+    s += '<text x="300" y="98" font-size="10" font-weight="700" fill="#ef4444" text-anchor="middle">Fast Vapor Flow ►►</text>';
+
+    // Tilt & Governing Limit callout at bottom
+    s += '<text x="50" y="195" font-size="12" font-weight="700" fill="var(--text-primary)">Capacity: ' + Math.round(Qmax).toLocaleString() + ' Watts (' + govName + ')</text>';
+    s += '<text x="50" y="215" font-size="11" fill="var(--text-muted)">Tilt: ' + tiltDeg + '° (' + (tiltDeg > 0 ? 'Gravity Assist' : (tiltDeg < 0 ? 'Anti-Gravity' : 'Horizontal')) + ') | Wick: ' + wKey + '</text>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['al4_temp', 'al4_tilt_deg', 'al4_evap_len', 'al4_adiab_len', 'al4_cond_len'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAL4);
+      el.addEventListener('change', calcAL4);
+    }
+  });
+
+  document.getElementById('al4_fluid').addEventListener('change', calcAL4);
+  document.getElementById('al4_wick_type').addEventListener('change', calcAL4);
+  document.getElementById('al4_tube_od').addEventListener('change', calcAL4);
+
+  var copyBtn = document.getElementById('al4_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var qmax = document.getElementById('al4_out_qmax_w').textContent;
+      var qbtu = document.getElementById('al4_out_qmax_btu').textContent;
+      var gov = document.getElementById('al4_out_gov_limit').textContent;
+      var keff = document.getElementById('al4_out_keff').textContent;
+      var dt = document.getElementById('al4_out_delta_t').textContent;
+      var status = document.getElementById('al4_status_badge').textContent;
+
+      var text = "=== HEAT PIPE & THERMOSYPHON PERFORMANCE REPORT (ESDU 80017) ===\n" +
+        "Status: " + status + "\n" +
+        "Max Thermal Transport: " + qmax + " (" + qbtu + ")\n" +
+        "Governing Limit: " + gov + "\n" +
+        "Effective Conductivity: " + keff + " (" + document.getElementById('al4_out_cu_mult').textContent + ")\n" +
+        "Temp Drop: " + dt + ", Resistance: " + document.getElementById('al4_out_rth').textContent + "\n" +
+        "Fluid: " + document.getElementById('al4_fluid').value + " at " + document.getElementById('al4_temp').value + " deg C\n" +
+        "Geometry: OD " + document.getElementById('al4_tube_od').value + " mm, Wick: " + document.getElementById('al4_wick_type').value + ", Tilt: " + document.getElementById('al4_tilt_deg').value + " deg\n" +
+        "Standard: Cotter's Theory / ESDU 80017 & 81038\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ Heat Pipe Performance Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy Heat Pipe Performance Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAL4();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'heat-pipe-heat-recovery-exchanger-calculator.html'), renderTradePage({
+  title: 'Heat Pipe Waste Heat Recovery Sizing Calculator | ESDU 80017 & Cotter',
+  metaDescription: 'Calculate maximum heat pipe thermal transport capacity (Qmax), effective conductivity, and operating limits (Capillary, Sonic, Entrainment, Boiling) per ESDU 80017.',
+  canonical: 'https://digitaltoolsshed.com/calc/heat-pipe-heat-recovery-exchanger-calculator.html',
+  content: toolAL4Html,
+  faq: [
+    {
+      q: 'How does a heat pipe achieve an effective thermal conductivity tens of times higher than solid copper?',
+      a: 'A heat pipe transports thermal energy via the latent heat of vaporization of an internal working fluid rather than simple solid-state conduction. Liquid vaporizes in the evaporator section absorbing enormous heat (e.g. ~2,300 kJ/kg for water), travels rapidly through the vapor core, and condenses in the cooling zone, releasing its latent heat isothermally. This two-phase cycle yields an effective thermal conductivity (keff) of 10,000 to 50,000 W/m·K, compared to only 390 W/m·K for pure solid copper.'
+    },
+    {
+      q: 'What is the Capillary Limit and why is it usually the governing limit in wicked heat pipes?',
+      a: 'The Capillary Limit represents the maximum pumping pressure developed by the microscopic meniscus pores of the wick structure. The capillary pressure (2*sigma / rc) must overcome the frictional pressure drop of the returning liquid through the porous wick plus the vapor pressure drop and any gravitational head. If the heat load exceeds the capillary limit, liquid cannot return fast enough, causing evaporator wick dryout and sudden thermal runaway.'
+    },
+    {
+      q: 'What is the difference between a wicked heat pipe and a closed thermosyphon?',
+      a: 'A heat pipe contains an internal porous wick (such as sintered copper powder, wire mesh, or axial grooves) that pumps liquid by capillary action, allowing it to operate horizontally or even against gravity. A thermosyphon is completely wickless and relies 100% on gravity to return condensate. Thermosyphons can carry significantly higher heat loads at lower cost, but must always operate with the evaporator positioned below the condenser.'
+    },
+    {
+      q: 'What causes Non-Condensable Gas (NCG) generation in copper-water heat pipes?',
+      a: 'Trace chemical impurities or lack of proper internal chemical passivation allow water to react with copper or iron contaminants, releasing free hydrogen gas (H2). Because hydrogen cannot condense at operating temperatures, vapor flow sweeps it into the far end of the condenser section, creating a dead gas slug that blinds condensing area and degrades heat transfer efficiency.'
+    },
+    {
+      q: 'What are the Sonic, Entrainment, and Boiling Limits in heat pipe design?',
+      a: 'The Sonic Limit occurs when vapor velocity reaches Mach 1 at the evaporator exit, choking mass flow. The Entrainment Limit occurs when high-velocity counter-current vapor shears liquid droplets off the wick surface, starving the evaporator. The Boiling Limit occurs when high radial heat flux causes nucleate boiling inside the wick, forming vapor bubbles that insulate the heated wall.'
+    }
+  ]
+}));
+
+
+console.log('  ✓ Built Trade & Construction Suite (95 calculators in /calc/)');
 }
 
