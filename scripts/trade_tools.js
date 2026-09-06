@@ -146552,6 +146552,1940 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (219 calculators in /calc/)');
+  
+  // ─── TOOL BR1: SCRAPED SURFACE HEAT EXCHANGER (SSHE) SIZING CALCULATOR ───
+  (() => {
+    const slug = 'scraped-surface-heat-exchanger-sizing-calculator';
+    const title = 'Double-Pipe Scraped Surface Heat Exchanger (SSHE) Sizing Calculator';
+    const metaDescription = 'Calculate heat transfer coefficients, blade pass frequency, viscous shear power dissipation, and heat exchange area for scraped surface heat exchangers using Trommelen and penetration models.';
+    const faq = [
+      {
+        q: 'What is a Scraped Surface Heat Exchanger (SSHE) and when is it required?',
+        a: 'A Scraped Surface Heat Exchanger (SSHE) is a specialized continuous heat transfer device designed for highly viscous, sticky, particulate-laden, or crystallizing products (such as tomato paste, margarine, ice cream, peanut butter, gelatin, and polymer resins). In conventional tubular or plate exchangers, laminar flow and rapid fouling create thick, insulating thermal boundary layers. An SSHE features an internal rotating shaft equipped with scraper blades that continuously wipe the inner cylinder wall, mechanically stripping away the boundary film and renewing heat transfer.'
+      },
+      {
+        q: 'How does penetration theory govern SSHE internal heat transfer?',
+        a: 'Heat transfer in an SSHE is modeled by unsteady-state heat conduction into transiently renewed fluid elements between successive blade passes (Trommelen & Latinen models). The inside film heat transfer coefficient ($h_i$) is given by $h_i = 2 \\sqrt{\\frac{k_p \\rho_p c_p f_b}{\\pi}}$, where $f_b = N \\cdot n_b$ is the blade pass frequency ($s^{-1}$), $k_p$ is thermal conductivity, $\\rho_p$ is density, and $c_p$ is specific heat capacity. At higher rotational speeds, the thermal boundary layer has less time to grow, dramatically increasing $h_i$.'
+      },
+      {
+        q: 'What is viscous dissipation power and why can it cause temperature overshoot?',
+        a: 'When an SSHE processes non-Newtonian, high-viscosity fluids ($> 5\\,\\text{Pa}\\cdot\\text{s}$), the mechanical shear energy imparted by the rotating shaft and scraper blades is irreversibly converted into thermal energy via viscous dissipation: $P_{shear} \\approx 2 \\pi^3 \\mu_p N^2 D_i^3 L / \\delta$. In cooling applications (e.g. margarine crystallization), this mechanical heat input can equal or exceed the total cooling duty of the refrigerant jacket, causing the product to heat up instead of cooling down.'
+      },
+      {
+        q: 'What is scraper blade hydroplaning and lift-off?',
+        a: 'Scraper blades (typically made of food-grade PEEK, PTFE, or stainless steel) rely on centrifugal force and spring or pin loading to maintain contact with the heat transfer cylinder. At excessive rotational speeds or with ultra-viscous fluids, hydrodynamic pressure develops beneath the blade bevel, forcing the blade to lift off ("hydroplane"). This leaves a stagnant boundary layer on the wall, causing heat transfer to collapse by up to 80%.'
+      },
+      {
+        q: 'How is the Logarithmic Mean Temperature Difference (LMTD) corrected for SSHEs?',
+        a: 'While standard counter-current or co-current LMTD is applied to the jacket and process bulk temperatures, intense internal backmixing induced by rotating scraper blades can shift fluid flow away from pure plug flow toward a Continuous Stirred Tank Reactor (CSTR) profile. If axial dispersion is significant, true effective temperature driving force drops below ideal counter-current LMTD.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #d97706; background: #ffffff; box-shadow: 0 0 0 3px rgba(217,119,6,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #d97706; color: #ffffff; }' +
+      '.btn-primary:hover { background: #b45309; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-sshe { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #d97706; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Double-Pipe Scraped Surface Heat Exchanger (SSHE) Sizing Calculator</h1>' +
+      '    <p>Perform industrial thermal and mechanical sizing of scraped surface heat exchangers. Model film heat transfer coefficients, scraper blade pass frequency, viscous shear dissipation power, required heat exchange area, and motor load using Trommelen penetration theory.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Process Fluid & Mechanical Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-preset">Viscous Food & Chemical Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="sshe-preset">' +
+      '            <option value="margarine" selected>Margarine / Shortening Emulsion (Crystallization Chilling)</option>' +
+      '            <option value="tomato">Tomato Paste 30° Brix (Thermal Pasteurization)</option>' +
+      '            <option value="icecream">Ice Cream Mix (Continuous Scraped Freezing)</option>' +
+      '            <option value="gelatin">Gelatin Solution 25% (Viscous Cooling)</option>' +
+      '            <option value="polymer">Silicone / Polymer Resin (High Viscosity Cooling)</option>' +
+      '            <option value="custom">Custom Process Fluid & Geometry</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-mflow">Process Fluid Mass Flow Rate ($\\dot{m}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sshe-mflow" value="1200" min="50" max="50000" step="50">' +
+      '          <select id="sshe-mflow-unit" style="max-width: 100px;">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="kgs">kg/s</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-tin">Product Inlet & Outlet Temperatures</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sshe-tin" value="45" step="1" title="Inlet Temp (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">Tin (°C)</span>' +
+      '          <input type="number" id="sshe-tout" value="15" step="1" title="Outlet Temp (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">Tout (°C)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-tjin">Utility Jacket Inlet & Outlet Temperatures</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sshe-tjin" value="-5" step="1" title="Jacket In (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">Tj,in (°C)</span>' +
+      '          <input type="number" id="sshe-tjout" value="0" step="1" title="Jacket Out (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">Tj,out (°C)</span>' +
+      '        </div>' +
+      '        <div class="hint">Counter-current flow arrangement standard</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-visc">Apparent Dynamic Viscosity ($\\mu$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sshe-visc" value="2500" min="1" max="200000" step="50">' +
+      '          <select id="sshe-visc-unit" style="max-width: 100px;">' +
+      '            <option value="cp" selected>cP (mPa·s)</option>' +
+      '            <option value="pas">Pa·s</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Viscosity evaluated at mean wall film shear rate</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-cp">Specific Heat ($c_p$) & Thermal Conductivity ($k$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sshe-cp" value="2.8" min="0.5" max="5.0" step="0.1" title="Cp (kJ/kg·K)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">kJ/kg·K</span>' +
+      '          <input type="number" id="sshe-k" value="0.22" min="0.05" max="1.0" step="0.01" title="k (W/m·K)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">W/m·K</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-dia">Cylinder Inner Diameter ($D_i$) & Shaft Dia ($D_s$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sshe-dia" value="152" min="50" max="600" step="2" title="Cylinder Inside Diameter (mm)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">Di (mm)</span>' +
+      '          <input type="number" id="sshe-dshaft" value="100" min="20" max="500" step="2" title="Shaft Outer Diameter (mm)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">Ds (mm)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sshe-rpm">Shaft Speed ($N$) & Number of Scraper Blades</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sshe-rpm" value="350" min="30" max="1500" step="10" title="Rotational RPM">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">RPM</span>' +
+      '          <select id="sshe-nblades" style="max-width: 110px;">' +
+      '            <option value="2" selected>2 Blades</option>' +
+      '            <option value="4">4 Blades</option>' +
+      '            <option value="6">6 Blades</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-sshe">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-sshe">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="sshe-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Thermal Performance & Power Dissipation</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Thermal Heat Duty ($Q_{proc}$)</div>' +
+      '          <div class="res-val"><span id="out-qduty">28.0</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Viscous Shear Power ($P_{shear}$)</div>' +
+      '          <div class="res-val"><span id="out-pshear">3.45</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Net Jacket Duty ($Q_{net}$)</div>' +
+      '          <div class="res-val"><span id="out-qnet">31.45</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Blade Pass Frequency ($f_b$)</div>' +
+      '          <div class="res-val"><span id="out-fb">11.7</span><span class="res-unit">Hz</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Inside Scraped Coeff ($h_i$)</div>' +
+      '          <div class="res-val"><span id="out-hi">1,840</span><span class="res-unit">W/m²·K</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Overall Coeff ($U$)</div>' +
+      '          <div class="res-val"><span id="out-u">920</span><span class="res-unit">W/m²·K</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Log Mean Temp Diff (LMTD)</div>' +
+      '          <div class="res-val"><span id="out-lmtd">28.2</span><span class="res-unit">°C</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Required Heat Area ($A$)</div>' +
+      '          <div class="res-val"><span id="out-area">1.21</span><span class="res-unit">m²</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Active Tube Length ($L$)</div>' +
+      '          <div class="res-val"><span id="out-length">2.54</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Viscous Heat Ratio</div>' +
+      '          <div id="out-visc-badge" class="badge-sshe" style="background:#dcfce7;color:#166534;">12.3% (Safe)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="sshe-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Scraped Surface Heat Transfer</h2>' +
+      '    <p>Scraped surface heat exchangers operate under unsteady transient thermal conduction combined with periodic boundary layer scraping. The mathematical framework combines penetration theory with non-Newtonian viscous power dissipation.</p>' +
+      '    <h3>1. Trommelen Penetration Heat Transfer Model</h3>' +
+      '    <p>Between blade wipes, a fresh thin layer of product conducts heat directly with the cylinder wall. Integrating Fourier\'s conduction equation over the contact period $t_c = 1 / (N \\cdot n_b)$ yields the theoretical scraped film coefficient:</p>' +
+      '    <div class="formula-box">' +
+      '      f_b = N \\cdot n_{blades}\\quad [s^{-1}]\\n' +
+      '      h_i = 2 \\sqrt{\\frac{k_p \\cdot \\rho_p \\cdot c_p \\cdot f_b}{\\pi}}\\quad [W/m^2\\cdot K]' +
+      '    </div>' +
+      '    <p>Where $k_p$ is thermal conductivity (W/m·K), $\\rho_p$ is density ($kg/m^3$), $c_p$ is specific heat (J/kg·K), and $f_b$ is blade pass frequency.</p>' +
+      '    <h3>2. Overall Heat Transfer Coefficient ($U$)</h3>' +
+      '    <p>The clean overall heat transfer coefficient accounts for inside scraped film ($h_i$), cylinder metal wall thickness $t_w$, and boiling refrigerant or liquid coolant jacket film ($h_j$):</p>' +
+      '    <div class="formula-box">' +
+      '      \\frac{1}{U} = \\frac{1}{h_i} + \\frac{t_w}{k_{wall}} + \\frac{1}{h_j} + R_{fouling}' +
+      '    </div>' +
+      '    <h3>3. Viscous Shear Dissipation Power ($P_{shear}$)</h3>' +
+      '    <p>In the narrow annular gap between the rotating rotor shaft ($D_s$) and the stationary cylinder wall ($D_i$), mechanical shear generates substantial thermal power:</p>' +
+      '    <div class="formula-box">' +
+      '      \\dot{\\gamma} = \\frac{\\pi \\cdot D_i \\cdot N}{\\delta_{annulus}}\\quad\\text{where}\\quad \\delta_{annulus} = \\frac{D_i - D_s}{2}\\n' +
+      '      P_{shear} = \\mu_p \\cdot (\\dot{\\gamma})^2 \\cdot V_{annulus} = 2 \\pi^3 \\cdot \\mu_p \\cdot N^2 \\cdot D_i^3 \\cdot \\frac{L}{D_i - D_s}' +
+      '    </div>' +
+      '    <p>In product cooling operations ($T_{in} > T_{out}$), mechanical viscous dissipation acts as an internal heat source, requiring increased cooling capacity: $Q_{net} = Q_{proc} + P_{shear}$.</p>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in SSHE Sizing</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Viscous Dissipation Temperature Inversion Trap</h4>' +
+      '      <p>For high-viscosity foods (e.g. margarine, fudge, or polymers $>10\\,\\text{Pa}\\cdot\\text{s}$), mechanical dissipation scales with shaft speed squared ($N^2$) and viscosity. Increasing RPM to improve $h_i$ can inject more heat into the product than the jacket can remove, causing product outlet temperature to rise instead of drop.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Scraper Blade Hydrodynamic Lift-Off (Hydroplaning)</h4>' +
+      '      <p>Scraper blades rely on centrifugal acceleration and fluid drag to press against the tube wall. In highly viscous shear-thickening fluids, hydrodynamic wedge pressures build underneath the blade edge, forcing the blade inward. Hydroplaning leaves an insulating layer of frozen or burned product on the wall, cutting heat transfer by up to 75%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Annular Axial Channelling in Low-Speed Laminar Regimes</h4>' +
+      '      <p>When processing shear-thinning pastes at low RPM, fluid near the center shaft experiences zero scraping and flows straight through as an unmixed core plug. This produces wide residence time distributions and product quality variability, where part of the flow exits under-pasteurized or under-crystallized.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Shaft Whirling Deflection & Tube Galling</h4>' +
+      '      <p>In cylinders longer than 2.0 meters, unsupported mutator shafts suffer high centrifugal and gravitational deflections. If shaft deflection exceeds blade clearance, metal-to-metal contact occurs between the rotor body and cylinder wall, generating metallic wear shavings that contaminate food/pharmaceutical batches.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Flash Freezing & Drive Pin Shear Overload</h4>' +
+      '      <p>During refrigerant start-up in ice cream or freeze concentration, the cylinder wall temperature can plummet below product crystallization temperature before product flow is fully established. Product solidifies solidly against the wall, seizing the mutator and shearing torque-limiting safety pins or destroying the reduction gearbox.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Scraped Surface Heat Exchanger Design</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    margarine: { mflow: 1200, munit: "kgh", tin: 45, tout: 15, tjin: -5, tjout: 0, visc: 2500, viscunit: "cp", cp: 2.8, k: 0.22, dia: 152, dshaft: 100, rpm: 350, nblades: "2" },' +
+      '    tomato: { mflow: 2500, munit: "kgh", tin: 25, tout: 90, tjin: 120, tjout: 110, visc: 4500, viscunit: "cp", cp: 3.6, k: 0.55, dia: 178, dshaft: 115, rpm: 280, nblades: "4" },' +
+      '    icecream: { mflow: 800, munit: "kgh", tin: 4, tout: -5, tjin: -25, tjout: -20, visc: 1800, viscunit: "cp", cp: 3.2, k: 0.42, dia: 152, dshaft: 100, rpm: 450, nblades: "2" },' +
+      '    gelatin: { mflow: 1500, munit: "kgh", tin: 60, tout: 20, tjin: 8, tjout: 14, visc: 6500, viscunit: "cp", cp: 3.5, k: 0.48, dia: 200, dshaft: 140, rpm: 220, nblades: "4" },' +
+      '    polymer: { mflow: 600, munit: "kgh", tin: 180, tout: 80, tjin: 35, tjout: 65, visc: 35000, viscunit: "cp", cp: 2.1, k: 0.18, dia: 152, dshaft: 100, rpm: 180, nblades: "2" }' +
+      '  };' +
+      '  function calc() {' +
+      '    let mflow_kgh = parseFloat(el("sshe-mflow").value) || 1200;' +
+      '    if (el("sshe-mflow-unit").value === "kgs") mflow_kgh *= 3600;' +
+      '    const mflow_kgs = mflow_kgh / 3600;' +
+      '    const Tin = parseFloat(el("sshe-tin").value) || 45;' +
+      '    const Tout = parseFloat(el("sshe-tout").value) || 15;' +
+      '    const Tjin = parseFloat(el("sshe-tjin").value) || -5;' +
+      '    const Tjout = parseFloat(el("sshe-tjout").value) || 0;' +
+      '    let visc_cp = parseFloat(el("sshe-visc").value) || 2500;' +
+      '    if (el("sshe-visc-unit").value === "pas") visc_cp *= 1000;' +
+      '    const mu_pas = visc_cp / 1000;' +
+      '    const cp_kj = parseFloat(el("sshe-cp").value) || 2.8;' +
+      '    const cp_j = cp_kj * 1000;' +
+      '    const k_p = parseFloat(el("sshe-k").value) || 0.22;' +
+      '    const Di_mm = parseFloat(el("sshe-dia").value) || 152;' +
+      '    const Ds_mm = parseFloat(el("sshe-dshaft").value) || 100;' +
+      '    const Di_m = Di_mm / 1000;' +
+      '    const Ds_m = Math.min(Di_m * 0.95, Ds_mm / 1000);' +
+      '    const rpm = parseFloat(el("sshe-rpm").value) || 350;' +
+      '    const N_rev_s = rpm / 60;' +
+      '    const nblades = parseInt(el("sshe-nblades").value) || 2;' +
+      '    const rho_p = 1050;' +
+      '    const deltaT_proc = Math.abs(Tin - Tout);' +
+      '    const Q_proc_kw = mflow_kgs * cp_kj * deltaT_proc;' +
+      '    const isCooling = Tin > Tout;' +
+      '    let dT1 = 0, dT2 = 0;' +
+      '    if (isCooling) {' +
+      '      dT1 = Tin - Tjout;' +
+      '      dT2 = Tout - Tjin;' +
+      '    } else {' +
+      '      dT1 = Tjin - Tout;' +
+      '      dT2 = Tjout - Tin;' +
+      '    }' +
+      '    dT1 = Math.max(0.5, Math.abs(dT1));' +
+      '    dT2 = Math.max(0.5, Math.abs(dT2));' +
+      '    let lmtd = 15;' +
+      '    if (Math.abs(dT1 - dT2) < 0.1) lmtd = dT1;' +
+      '    else lmtd = (dT1 - dT2) / Math.log(dT1 / dT2);' +
+      '    const fb = N_rev_s * nblades;' +
+      '    const hi = 2 * Math.sqrt((k_p * rho_p * cp_j * fb) / Math.PI);' +
+      '    const hj = 3500;' +
+      '    const kwall = 16;' +
+      '    const tw = 0.005;' +
+      '    const U_overall = 1 / ((1 / hi) + (tw / kwall) + (1 / hj) + 0.0002);' +
+      '    const deltaAnnulus_m = (Di_m - Ds_m) / 2;' +
+      '    let L_est = 2.0;' +
+      '    for (let iter = 0; iter < 5; iter++) {' +
+      '      const shearRate = (Math.PI * Di_m * N_rev_s) / deltaAnnulus_m;' +
+      '      const Pshear_w = mu_pas * Math.pow(shearRate, 2) * (Math.PI * 0.25 * (Di_m * Di_m - Ds_m * Ds_m) * L_est);' +
+      '      const Pshear_kw = Pshear_w / 1000;' +
+      '      const Qnet_kw = isCooling ? Q_proc_kw + Pshear_kw : Math.max(0.1, Q_proc_kw - Pshear_kw);' +
+      '      const Area_req = (Qnet_kw * 1000) / (U_overall * lmtd);' +
+      '      L_est = Area_req / (Math.PI * Di_m);' +
+      '    }' +
+      '    const shearRate = (Math.PI * Di_m * N_rev_s) / deltaAnnulus_m;' +
+      '    const Pshear_w = mu_pas * Math.pow(shearRate, 2) * (Math.PI * 0.25 * (Di_m * Di_m - Ds_m * Ds_m) * L_est);' +
+      '    const Pshear_kw = Pshear_w / 1000;' +
+      '    const Qnet_kw = isCooling ? Q_proc_kw + Pshear_kw : Math.max(0.1, Q_proc_kw - Pshear_kw);' +
+      '    const Area_req = (Qnet_kw * 1000) / (U_overall * lmtd);' +
+      '    const viscRatio_pct = (Pshear_kw / Math.max(0.1, Q_proc_kw)) * 100;' +
+      '    el("out-qduty").innerText = Q_proc_kw.toFixed(1);' +
+      '    el("out-pshear").innerText = Pshear_kw.toFixed(2);' +
+      '    el("out-qnet").innerText = Qnet_kw.toFixed(1);' +
+      '    el("out-fb").innerText = fb.toFixed(1);' +
+      '    el("out-hi").innerText = Math.round(hi).toLocaleString();' +
+      '    el("out-u").innerText = Math.round(U_overall).toLocaleString();' +
+      '    el("out-lmtd").innerText = lmtd.toFixed(1);' +
+      '    el("out-area").innerText = Area_req.toFixed(2);' +
+      '    el("out-length").innerText = L_est.toFixed(2);' +
+      '    const badge = el("out-visc-badge");' +
+      '    if (viscRatio_pct < 15) {' +
+      '      badge.innerText = viscRatio_pct.toFixed(1) + "% (Safe Shear Heat)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (viscRatio_pct < 35) {' +
+      '      badge.innerText = viscRatio_pct.toFixed(1) + "% (Moderate Dissipation)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = viscRatio_pct.toFixed(1) + "% (SEVERE OVERHEATING)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawSSHE(Di_m, Ds_m, L_est, rpm, nblades, isCooling, viscRatio_pct);' +
+      '  }' +
+      '  function drawSSHE(Di, Ds, L, rpm, nblades, isCooling, viscRatio) {' +
+      '    const canvas = el("sshe-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const cX = 140, cY = 140, rOuter = 100, rInner = 85, rShaft = Math.max(30, (Ds / Di) * rInner);' +
+      '    ctx.fillStyle = isCooling ? "rgba(59, 130, 246, 0.3)" : "rgba(239, 68, 68, 0.3)";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(cX, cY, rOuter, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "rgba(217, 119, 6, 0.45)";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(cX, cY, rInner, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(cX, cY, rShaft, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.stroke();' +
+      '    const now = Date.now() / 1000;' +
+      '    const angleOffset = (rpm / 60) * now * 2 * Math.PI;' +
+      '    ctx.strokeStyle = "#ffffff";' +
+      '    ctx.lineWidth = 4;' +
+      '    for (let b = 0; b < nblades; b++) {' +
+      '      const angle = angleOffset + (b * 2 * Math.PI) / nblades;' +
+      '      const x1 = cX + Math.cos(angle) * rShaft;' +
+      '      const y1 = cY + Math.sin(angle) * rShaft;' +
+      '      const x2 = cX + Math.cos(angle + 0.15) * (rInner - 2);' +
+      '      const y2 = cY + Math.sin(angle + 0.15) * (rInner - 2);' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(x1, y1);' +
+      '      ctx.lineTo(x2, y2);' +
+      '      ctx.stroke();' +
+      '      ctx.fillStyle = "#ef4444";' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(x2, y2, 4, 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("Cooling / Steam Jacket", 270, 50);' +
+      '    ctx.fillText("Scraped Product Annulus", 270, 80);' +
+      '    ctx.fillText("Rotating Mutator Shaft", 270, 110);' +
+      '    ctx.fillText("Scraper Blades: " + nblades + " off", 270, 140);' +
+      '    ctx.fillText("Shaft RPM: " + rpm, 270, 170);' +
+      '    ctx.fillText("Length L: " + L.toFixed(2) + " m", 270, 200);' +
+      '    ctx.fillText("Di: " + Math.round(Di * 1000) + "mm | Ds: " + Math.round(Ds * 1000) + "mm", 270, 230);' +
+      '  }' +
+      '  el("sshe-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("sshe-mflow").value = p.mflow;' +
+      '      el("sshe-mflow-unit").value = p.munit;' +
+      '      el("sshe-tin").value = p.tin;' +
+      '      el("sshe-tout").value = p.tout;' +
+      '      el("sshe-tjin").value = p.tjin;' +
+      '      el("sshe-tjout").value = p.tjout;' +
+      '      el("sshe-visc").value = p.visc;' +
+      '      el("sshe-visc-unit").value = p.viscunit;' +
+      '      el("sshe-cp").value = p.cp;' +
+      '      el("sshe-k").value = p.k;' +
+      '      el("sshe-dia").value = p.dia;' +
+      '      el("sshe-dshaft").value = p.dshaft;' +
+      '      el("sshe-rpm").value = p.rpm;' +
+      '      el("sshe-nblades").value = p.nblades;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["sshe-mflow","sshe-mflow-unit","sshe-tin","sshe-tout","sshe-tjin","sshe-tjout","sshe-visc","sshe-visc-unit","sshe-cp","sshe-k","sshe-dia","sshe-dshaft","sshe-rpm","sshe-nblades"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-sshe").addEventListener("click", () => {' +
+      '    el("sshe-preset").value = "margarine";' +
+      '    el("sshe-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-sshe").addEventListener("click", () => {' +
+      '    const text = ["=== SCRAPED SURFACE HEAT EXCHANGER (SSHE) THERMAL DIAGNOSTIC ===",' +
+      '      "Product Heat Duty (Q_proc): " + el("out-qduty").innerText + " kW",' +
+      '      "Viscous Shear Dissipation Power (P_shear): " + el("out-pshear").innerText + " kW",' +
+      '      "Total Net Jacket Duty (Q_net): " + el("out-qnet").innerText + " kW",' +
+      '      "Viscous Dissipation Load Status: " + el("out-visc-badge").innerText,' +
+      '      "Blade Pass Frequency (fb): " + el("out-fb").innerText + " Hz",' +
+      '      "Inside Scraped Film Coeff (hi): " + el("out-hi").innerText + " W/m²·K",' +
+      '      "Overall Heat Transfer Coeff (U): " + el("out-u").innerText + " W/m²·K",' +
+      '      "LMTD Driving Force: " + el("out-lmtd").innerText + " °C",' +
+      '      "Required Surface Area: " + el("out-area").innerText + " m²",' +
+      '      "Required Active Cylinder Length: " + el("out-length").innerText + " m",' +
+      '      "Operating Conditions: " + el("sshe-mflow").value + " " + el("sshe-mflow-unit").value + ", Tin: " + el("sshe-tin").value + " °C -> Tout: " + el("sshe-tout").value + " °C, Viscosity: " + el("sshe-visc").value + " " + el("sshe-visc-unit").value + ", RPM: " + el("sshe-rpm").value + " (" + el("sshe-nblades").value + " blades)",' +
+      '      "Geometry: Di = " + el("sshe-dia").value + " mm, Ds = " + el("sshe-dshaft").value + " mm",' +
+      '      "Standard Validation: Trommelen / Latinen Penetration Theory & Non-Newtonian Shear Dissipation"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("sshe-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BR2: ROTARY DRUM VACUUM FILTER (RDVF) SIZING CALCULATOR ───
+  (() => {
+    const slug = 'rotary-drum-vacuum-filter-sizing-calculator';
+    const title = 'Rotary Drum Vacuum Filter (RDVF) Sizing & Cake Dewatering Calculator';
+    const metaDescription = 'Calculate continuous filtration rate, cake thickness, cycle time, drum speed, vacuum air requirements, and dry solids yield for rotary drum vacuum filters using Ruth and Darcy models.';
+    const faq = [
+      {
+        q: 'What is a Rotary Drum Vacuum Filter (RDVF) and how does it operate continuously?',
+        a: 'A Rotary Drum Vacuum Filter (RDVF) is a continuous solid-liquid separation machine widely used in chemical, mineral, pharmaceutical, and wastewater processing. A cloth-covered cylindrical drum rotates partially submerged (typically 30% to 37.5%) in a slurry trough. An internal automatic rotary valve applies vacuum to the submerged sectors, drawing liquid filtrate through the cloth while depositing solid particles as an expanding filter cake on the drum exterior. As the drum rotates out of the slurry, the cake undergoes washing and vacuum dewatering before being peeled off by a scraper knife, roll, or string discharge mechanism.'
+      },
+      {
+        q: 'How does Ruth\'s filtration equation model parabolic cake growth?',
+        a: 'Filtration through a porous cake obeys Darcy\'s law integrated over time. Under constant vacuum differential ($\\Delta P$), the filtrate volume per unit area ($V/A$) grows parabolically with time: $\\frac{t}{V/A} = \\frac{\\mu \\alpha c}{2 \\Delta P} \\left(\\frac{V}{A}\\right) + \\frac{\\mu R_m}{\\Delta P}$, where $\\mu$ is liquid dynamic viscosity, $\\alpha$ is specific cake resistance ($m/kg$), $c$ is dry cake mass per unit volume of filtrate ($kg/m^3$), and $R_m$ is filter medium resistance ($m^{-1}$). In a continuous RDVF, form time is $t_{form} = \\psi / N$, where $\\psi$ is drum submergence fraction and $N$ is drum speed (RPM).'
+      },
+      {
+        q: 'Why is minimum cake thickness critical for mechanical discharge?',
+        a: 'Each mechanical discharge method requires a minimum physical cake thickness to successfully release cake from the filter fabric. A standard scraper knife requires at least $3\\text{--}5\\,\\text{mm}$ of cake thickness to peel cleanly without smearing; roll discharge requires $1\\text{--}3\\,\\text{mm}$; string discharge requires $6\\text{--}12\\,\\text{mm}$; and precoat systems can shave layers as thin as $0.05\\text{--}0.2\\,\\text{mm}$. Running drum RPM too fast produces an ultra-thin cake that smears into cloth pores, causing blinding.'
+      },
+      {
+        q: 'What causes cake cracking and vacuum loss in the dewatering zone?',
+        a: 'Compressible cakes composed of fine particles, gelatinous sludges, or pigments contract as pore liquid drains during the dry cycle. This shrinkage creates tensile stresses that tear vertical fissures and cracks through the cake. Once cracks propagate to the cloth, atmospheric air bypasses through the cracks into the vacuum chambers, collapsing drum vacuum levels from $60\\,\\text{kPa}$ down to $< 15\\,\\text{kPa}$ and leaving uncracked cake drenched with residual mother liquor.'
+      },
+      {
+        q: 'How is vacuum pump airflow capacity sized for an RDVF system?',
+        a: 'Vacuum pump air displacement depends on air permeability through the dewatering cake and leakage through the rotary port valve. Industrial empirical sizing typically allocates $0.6\\text{--}1.5\\,\\text{m}^3/\\text{min}$ of actual air per square meter of total drum area ($2\\text{--}5\\,\\text{CFM/ft}^2$) at operating vacuum (typically $50\\text{--}70\\,\\text{kPa}$ vacuum or $15\\text{--}20\\,\\text{inHg}$).'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-rdvf { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Rotary Drum Vacuum Filter (RDVF) Sizing & Cake Dewatering Calculator</h1>' +
+      '    <p>Perform industrial solid-liquid separation modeling for continuous rotary drum vacuum filters. Calculate filtration rate, cake thickness, cycle time, drum speed, vacuum air requirements, and dry solids yield using Ruth and Darcy models.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Slurry & Filter Operating Parameters</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-preset">Industrial Slurry Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="rdvf-preset">' +
+      '            <option value="caco3" selected>Precipitated Calcium Carbonate (PCC - Paper/Coatings)</option>' +
+      '            <option value="sludge">Municipal Digested Sludge (Flocculated Biosolids)</option>' +
+      '            <option value="tio2">Titanium Dioxide Pigment (Acid Hydrolysis)</option>' +
+      '            <option value="yeast">Baker\'s Yeast Biomass (Bio-fermentation)</option>' +
+      '            <option value="mineral">Iron Ore Concentrate Slurry (Heavy Minerals)</option>' +
+      '            <option value="custom">Custom Filtration Slurry System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-qslurry">Slurry Feed Flow Rate ($Q_{feed}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="rdvf-qslurry" value="25" min="0.5" max="500" step="1">' +
+      '          <select id="rdvf-qslurry-unit" style="max-width: 100px;">' +
+      '            <option value="m3h" selected>m³/h</option>' +
+      '            <option value="gpm">gpm</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-solids">Feed Solids Concentration ($C_{solids}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="rdvf-solids" value="12" min="0.5" max="60" step="0.5">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">wt%</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-vac">Operating Vacuum Differential ($\\Delta P$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="rdvf-vac" value="60" min="10" max="85" step="5">' +
+      '          <select id="rdvf-vac-unit" style="max-width: 100px;">' +
+      '            <option value="kpa" selected>kPa</option>' +
+      '            <option value="bar">bar</option>' +
+      '            <option value="inhg">inHg</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Standard vacuum level: 50 - 70 kPa (15 - 21 inHg vacuum)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-alpha">Specific Cake Resistance ($\\alpha$) & Cloth Resistance ($R_m$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="rdvf-alpha" value="2.5" min="0.01" max="1000" step="0.1" title="alpha * 1e11 (m/kg)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">×10¹¹ m/kg</span>' +
+      '          <input type="number" id="rdvf-rm" value="1.2" min="0.01" max="100" step="0.1" title="Rm * 1e10 (1/m)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">×10¹⁰ m⁻¹</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-submerge">Drum Submergence Fraction ($\\psi$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="rdvf-submerge" value="33" min="15" max="50" step="1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">% of drum</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard submergence: 30% - 37.5%; high-submergence: up to 50%</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-dia">Drum Diameter ($D$) & Face Width ($W$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="rdvf-dia" value="2.0" min="0.5" max="6.0" step="0.1" title="Drum Diameter (m)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">D (m)</span>' +
+      '          <input type="number" id="rdvf-width" value="3.0" min="0.5" max="10.0" step="0.1" title="Drum Width (m)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">W (m)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="rdvf-rpm">Drum Speed ($N$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="rdvf-rpm" value="0.75" min="0.1" max="5.0" step="0.05">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">RPM</span>' +
+      '        </div>' +
+      '        <div class="hint">Cycle time $t_{cycle} = 60 / N$ seconds (typical 0.2 - 2.0 RPM)</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-rdvf">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-rdvf">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="rdvf-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Filtration Yield & Dewatering Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Drum Area ($A$)</div>' +
+      '          <div class="res-val"><span id="out-area">18.85</span><span class="res-unit">m²</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Submerged Form Area</div>' +
+      '          <div class="res-val"><span id="out-aform">6.22</span><span class="res-unit">m²</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Cake Thickness ($L_{cake}$)</div>' +
+      '          <div class="res-val"><span id="out-lcake">7.8</span><span class="res-unit">mm</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Cake Discharge Feasibility</div>' +
+      '          <div id="out-cake-badge" class="badge-rdvf" style="background:#dcfce7;color:#166534;">Optimal (Knife Release)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Cycle Time ($t_{cycle}$)</div>' +
+      '          <div class="res-val"><span id="out-tcycle">80.0</span><span class="res-unit">s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Cake Form Time ($t_{form}$)</div>' +
+      '          <div class="res-val"><span id="out-tform">26.4</span><span class="res-unit">s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Dry Solids Yield</div>' +
+      '          <div class="res-val"><span id="out-dryyield">3.12</span><span class="res-unit">tonne/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Specific Solids Flux</div>' +
+      '          <div class="res-val"><span id="out-specflux">165.5</span><span class="res-unit">kg/m²·h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Filtrate Production ($Q_f$)</div>' +
+      '          <div class="res-val"><span id="out-qfiltrate">22.4</span><span class="res-unit">m³/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Vacuum Air Requirement</div>' +
+      '          <div class="res-val"><span id="out-qvac">1,130</span><span class="res-unit">Am³/h</span></div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="rdvf-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Rotary Drum Vacuum Filtration</h2>' +
+      '    <p>Rotary drum vacuum filtration operates via unsteady-state cake deposition across continuously rotating, vacuum-manifolded sectors. Darcy\'s fundamental filtration law governs cake formation and hydraulic permeation.</p>' +
+      '    <h3>1. Ruth Constant-Pressure Filtration Equation</h3>' +
+      '    <p>Under a constant applied vacuum differential $\\Delta P$, the instantaneous filtrate flux $d(V/A)/dt$ is impeded by cake resistance $R_c = \\alpha \\cdot c \\cdot (V/A)$ and filter medium resistance $R_m$:</p>' +
+      '    <div class="formula-box">' +
+      '      \\frac{dt}{d(V/A)} = \\frac{\\mu \\cdot \\alpha \\cdot c}{\\Delta P} \\left(\\frac{V}{A}\\right) + \\frac{\\mu \\cdot R_m}{\\Delta P}\\n' +
+      '      t_{form} = \\frac{\\mu \\cdot \\alpha \\cdot c}{2 \\Delta P} \\left(\\frac{V}{A}\\right)^2 + \\frac{\\mu \\cdot R_m}{\\Delta P} \\left(\\frac{V}{A}\\right)' +
+      '    </div>' +
+      '    <p>Solving the quadratic for specific filtrate volume $(V/A)_{form}$ collected during the submerged period $t_{form} = \\frac{60 \\cdot \\psi}{N}$ (seconds) establishes the cake mass deposited per cycle.</p>' +
+      '    <h3>2. Cake Thickness & Solids Deposition</h3>' +
+      '    <p>Dry solids mass deposited per square meter is $m_{dry} = c \\cdot (V/A)_{form}$ ($kg/m^2$). The resulting wet cake thickness $L_{cake}$ depends on cake dry packing density $\\rho_{dry}$ and porosity $\\epsilon_{cake}$:</p>' +
+      '    <div class="formula-box">' +
+      '      L_{cake} = \\frac{m_{dry}}{\\rho_{dry}} = \\frac{c \\cdot (V/A)_{form}}{\\rho_{solid} (1 - \\epsilon_{cake})}\\quad [m]' +
+      '    </div>' +
+      '    <h3>3. Continuous Dry Solids Yield ($Y_{dry}$)</h3>' +
+      '    <p>Total dry solids production rate ($kg/h$) accounts for total active drum area $A = \\pi D W$ and rotational cycle frequency:</p>' +
+      '    <div class="formula-box">' +
+      '      Y_{dry} = m_{dry} \\cdot A \\cdot \\left( \\frac{60 \\cdot N}{60} \\right) \\cdot 60 = m_{dry} \\cdot A \\cdot N \\cdot 60\\quad [kg/h]' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in RDVF Operation</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Sub-Critical Cake Thickness & Scraper Smear Failure</h4>' +
+      '      <p>Increasing drum speed (RPM) to chase higher throughput reduces submerged cake form time $t_{form}$. If cake thickness drops below $3\\,\\text{mm}$, the scraper knife cannot peel the cake; instead, it smears the slurry directly into cloth pores, causing total cloth blinding and cutting output by 90%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Dewatering Cake Cracking & Vacuum Loss</h4>' +
+      '      <p>Fine compressible slurries shrink during dry cycle vacuum dewatering, forming fissures that penetrate to the cloth. Air rushes into the cracked zones, dropping system vacuum across the entire drum manifold. Upstream sectors lose suction, discharging wet, sloppy cake into transport bins.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Trough Solids Stratification & Agitator Dead-Zones</h4>' +
+      '      <p>Heavy mineral concentrates (iron ore, silica) settle rapidly in the slurry vat. Inadequate oscillating pendulum rake agitation allows coarse solids to form a hardened bed in the trough bottom. The drum begins scraping against settled solids, causing motor torque overload trips and ripped filter cloths.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Rotary Valve Bridge Seal Air Leakage</h4>' +
+      '      <p>The internal rotary distributor valve separates vacuum form, wash, dry, and blow-off sectors using graphite/bronze wear bridge blocks. Operating without adequate lubricated seal flushing causes abrasive wear that allows atmospheric blow-off air to leak into the vacuum zones, destroying vacuum efficiency.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Filtrate Vacuum Receiver Barometric Leg Cavitation</h4>' +
+      '      <p>If the filtrate receiver seal tank has an insufficient barometric drop leg height ($< 10.3\\,\\text{m}$ at sea level, or shorter at altitude), filtrate backs up into the vacuum pipework and floods the vacuum pump. Liquid slugging destroys liquid-ring vacuum pump impellers within seconds.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Rotary Drum Vacuum Filtration</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    caco3: { qfeed: 25, qunit: "m3h", solids: 12, vac: 60, vacunit: "kpa", alpha: 2.5, rm: 1.2, sub: 33, dia: 2.0, width: 3.0, rpm: 0.75 },' +
+      '    sludge: { qfeed: 15, qunit: "m3h", solids: 5.5, vac: 65, vacunit: "kpa", alpha: 8.5, rm: 2.5, sub: 35, dia: 2.4, width: 3.5, rpm: 0.40 },' +
+      '    tio2: { qfeed: 20, qunit: "m3h", solids: 18, vac: 70, vacunit: "kpa", alpha: 4.2, rm: 1.8, sub: 30, dia: 2.2, width: 3.0, rpm: 0.60 },' +
+      '    yeast: { qfeed: 10, qunit: "m3h", solids: 8.0, vac: 75, vacunit: "kpa", alpha: 12.0, rm: 3.0, sub: 37.5, dia: 1.8, width: 2.5, rpm: 0.35 },' +
+      '    mineral: { qfeed: 45, qunit: "m3h", solids: 35, vac: 50, vacunit: "kpa", alpha: 0.45, rm: 0.6, sub: 30, dia: 3.0, width: 4.5, rpm: 1.20 }' +
+      '  };' +
+      '  function calc() {' +
+      '    let Qfeed_m3h = parseFloat(el("rdvf-qslurry").value) || 25;' +
+      '    if (el("rdvf-qslurry-unit").value === "gpm") Qfeed_m3h *= 0.227125;' +
+      '    const solids_wt = parseFloat(el("rdvf-solids").value) || 12;' +
+      '    let vac_kpa = parseFloat(el("rdvf-vac").value) || 60;' +
+      '    const vacUnit = el("rdvf-vac-unit").value;' +
+      '    if (vacUnit === "bar") vac_kpa *= 100;' +
+      '    else if (vacUnit === "inhg") vac_kpa *= 3.38639;' +
+      '    const deltaP_pa = vac_kpa * 1000;' +
+      '    const alpha_val = (parseFloat(el("rdvf-alpha").value) || 2.5) * 1e11;' +
+      '    const rm_val = (parseFloat(el("rdvf-rm").value) || 1.2) * 1e10;' +
+      '    const sub_pct = Math.min(50, Math.max(15, parseFloat(el("rdvf-submerge").value) || 33));' +
+      '    const sub_frac = sub_pct / 100;' +
+      '    const D = parseFloat(el("rdvf-dia").value) || 2.0;' +
+      '    const W = parseFloat(el("rdvf-width").value) || 3.0;' +
+      '    const rpm = parseFloat(el("rdvf-rpm").value) || 0.75;' +
+      '    const mu = 0.001;' +
+      '    const rho_slurry = 1050 + solids_wt * 6;' +
+      '    const c_kg_m3 = (solids_wt / 100) * rho_slurry;' +
+      '    const t_cycle_s = 60 / Math.max(0.01, rpm);' +
+      '    const t_form_s = t_cycle_s * sub_frac;' +
+      '    const A_tot = Math.PI * D * W;' +
+      '    const A_form = A_tot * sub_frac;' +
+      '    const a_term = (mu * alpha_val * c_kg_m3) / (2 * deltaP_pa);' +
+      '    const b_term = (mu * rm_val) / deltaP_pa;' +
+      '    const c_term = -t_form_s;' +
+      '    const discr = Math.max(0, b_term * b_term - 4 * a_term * c_term);' +
+      '    const v_per_a = (-b_term + Math.sqrt(discr)) / (2 * a_term);' +
+      '    const m_dry_per_m2 = c_kg_m3 * v_per_a;' +
+      '    const rho_cake_dry = 1100;' +
+      '    const L_cake_m = m_dry_per_m2 / rho_cake_dry;' +
+      '    const L_cake_mm = L_cake_m * 1000;' +
+      '    const dry_yield_kgh = m_dry_per_m2 * A_tot * rpm * 60;' +
+      '    const dry_yield_tph = dry_yield_kgh / 1000;' +
+      '    const spec_flux = dry_yield_kgh / A_tot;' +
+      '    const q_filtrate_m3h = v_per_a * A_tot * rpm * 60;' +
+      '    const q_vac_am3h = A_tot * 1.0 * 60;' +
+      '    el("out-area").innerText = A_tot.toFixed(2);' +
+      '    el("out-aform").innerText = A_form.toFixed(2);' +
+      '    el("out-lcake").innerText = L_cake_mm.toFixed(1);' +
+      '    el("out-tcycle").innerText = t_cycle_s.toFixed(1);' +
+      '    el("out-tform").innerText = t_form_s.toFixed(1);' +
+      '    el("out-dryyield").innerText = dry_yield_tph.toFixed(2);' +
+      '    el("out-specflux").innerText = spec_flux.toFixed(1);' +
+      '    el("out-qfiltrate").innerText = q_filtrate_m3h.toFixed(1);' +
+      '    el("out-qvac").innerText = Math.round(q_vac_am3h).toLocaleString();' +
+      '    const badge = el("out-cake-badge");' +
+      '    if (L_cake_mm >= 5.0) {' +
+      '      badge.innerText = "Optimal Knife Release (L ≥ 5mm)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (L_cake_mm >= 3.0) {' +
+      '      badge.innerText = "Acceptable (Knife / Roll Release)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "SUB-CRITICAL (Cake Smear Hazard)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawDrum(D, sub_pct, L_cake_mm, rpm);' +
+      '  }' +
+      '  function drawDrum(D, sub_pct, lcake, rpm) {' +
+      '    const canvas = el("rdvf-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const dX = 140, dY = 125, rDrum = 80;' +
+      '    const subAngle = (sub_pct / 100) * 2 * Math.PI;' +
+      '    ctx.fillStyle = "rgba(30, 58, 138, 0.4)";' +
+      '    ctx.strokeStyle = "#3b82f6";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(dX, dY, rDrum + 18, Math.PI * 0.5 - subAngle / 2, Math.PI * 0.5 + subAngle / 2);' +
+      '    ctx.lineTo(dX + 105, dY + 65);' +
+      '    ctx.lineTo(dX - 105, dY + 65);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(dX, dY, rDrum, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    const cThick = Math.min(18, Math.max(3, lcake * 1.5));' +
+      '    ctx.strokeStyle = "#d97706";' +
+      '    ctx.lineWidth = cThick;' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(dX, dY, rDrum + cThick / 2, Math.PI * 0.5 - subAngle / 2, Math.PI * 1.85);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#f8fafc";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(dX + rDrum + cThick + 5, dY - 45);' +
+      '    ctx.lineTo(dX + rDrum - 2, dY - 25);' +
+      '    ctx.lineTo(dX + rDrum + 15, dY - 20);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.fillStyle = "#0284c7";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(dX, dY, 20, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    for (let a = 0; a < 8; a++) {' +
+      '      const ang = (a * Math.PI) / 4;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(dX + Math.cos(ang) * 20, dY + Math.sin(ang) * 20);' +
+      '      ctx.lineTo(dX + Math.cos(ang) * (rDrum - 5), dY + Math.sin(ang) * (rDrum - 5));' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("Rotation: " + rpm + " RPM ↻", 265, 50);' +
+      '    ctx.fillText("Cake Thickness: " + lcake.toFixed(1) + " mm", 265, 80);' +
+      '    ctx.fillText("Submergence: " + sub_pct + "% Trough", 265, 110);' +
+      '    ctx.fillText("Scraper Knife Discharge", 265, 140);' +
+      '    ctx.fillText("Automatic Rotary Valve Hub", 265, 170);' +
+      '    ctx.fillText("D = " + D + " m | Total A = " + (Math.PI * D * parseFloat(el("rdvf-width").value)).toFixed(1) + " m²", 265, 200);' +
+      '  }' +
+      '  el("rdvf-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("rdvf-qslurry").value = p.qfeed;' +
+      '      el("rdvf-qslurry-unit").value = p.qunit;' +
+      '      el("rdvf-solids").value = p.solids;' +
+      '      el("rdvf-vac").value = p.vac;' +
+      '      el("rdvf-vac-unit").value = p.vacunit;' +
+      '      el("rdvf-alpha").value = p.alpha;' +
+      '      el("rdvf-rm").value = p.rm;' +
+      '      el("rdvf-submerge").value = p.sub;' +
+      '      el("rdvf-dia").value = p.dia;' +
+      '      el("rdvf-width").value = p.width;' +
+      '      el("rdvf-rpm").value = p.rpm;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["rdvf-qslurry","rdvf-qslurry-unit","rdvf-solids","rdvf-vac","rdvf-vac-unit","rdvf-alpha","rdvf-rm","rdvf-submerge","rdvf-dia","rdvf-width","rdvf-rpm"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-rdvf").addEventListener("click", () => {' +
+      '    el("rdvf-preset").value = "caco3";' +
+      '    el("rdvf-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-rdvf").addEventListener("click", () => {' +
+      '    const text = ["=== ROTARY DRUM VACUUM FILTER (RDVF) FILTRATION DIAGNOSTIC ===",' +
+      '      "Total Drum Filter Area: " + el("out-area").innerText + " m² (Submerged: " + el("out-aform").innerText + " m²)",' +
+      '      "Cake Thickness: " + el("out-lcake").innerText + " mm",' +
+      '      "Discharge Feasibility: " + el("out-cake-badge").innerText,' +
+      '      "Cycle Time: " + el("out-tcycle").innerText + " s (Form Time: " + el("out-tform").innerText + " s)",' +
+      '      "Dry Solids Yield: " + el("out-dryyield").innerText + " tonne/h (" + el("out-specflux").innerText + " kg/m²·h)",' +
+      '      "Filtrate Production: " + el("out-qfiltrate").innerText + " m³/h",' +
+      '      "Vacuum Air Demand: " + el("out-qvac").innerText + " Am³/h",' +
+      '      "Operating Conditions: Q_slurry = " + el("rdvf-qslurry").value + " " + el("rdvf-qslurry-unit").value + ", Solids = " + el("rdvf-solids").value + " wt%, Vacuum = " + el("rdvf-vac").value + " " + el("rdvf-vac-unit").value + ", Drum Speed = " + el("rdvf-rpm").value + " RPM",' +
+      '      "Geometry: D = " + el("rdvf-dia").value + " m, W = " + el("rdvf-width").value + " m, Submergence = " + el("rdvf-submerge").value + "%",' +
+      '      "Standard Validation: Ruth & Darcy Constant-Pressure Parabolic Filtration Model"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("rdvf-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BR3: BUBBLE COLUMN REACTOR GAS HOLDUP & INTERFACIAL AREA CALCULATOR ───
+  (() => {
+    const slug = 'bubble-column-gas-holdup-calculator';
+    const title = 'Industrial Bubble Column Reactor Gas Holdup & Interfacial Area Calculator';
+    const metaDescription = 'Calculate gas holdup (epsilon_g), regime transition (homogeneous vs heterogeneous), bubble diameter (d32), specific interfacial area (a), and kLa in vertical bubble columns using Hikita and drift flux models.';
+    const faq = [
+      {
+        q: 'What is a Bubble Column Reactor and what are its key engineering advantages?',
+        a: 'A Bubble Column Reactor is a vertical cylindrical multiphase contactor in which a gas stream is sparged at the vessel bottom and bubbles upward through a continuous liquid or solid-catalyst slurry phase. Because bubble columns have no internal rotating mechanical agitators, seals, or shafts, they offer low maintenance, zero seal-leakage risks, simple construction for high-pressure/high-temperature processes (such as Fischer-Tropsch synthesis, oxidation, and fermentation), high effective liquid volumes, and excellent liquid-side heat transfer rates to internal tube bundles.'
+      },
+      {
+        q: 'What is gas holdup (epsilon_g) and how does it determine reactor performance?',
+        a: 'Gas holdup ($\\epsilon_g$) is the volumetric fraction of the aerated two-phase dispersion occupied by gas bubbles: $\\epsilon_g = \\frac{V_{gas}}{V_{gas} + V_{liq}} = \\frac{H_f - H_L}{H_f}$, where $H_L$ is the un-aerated liquid height and $H_f$ is the expanded dispersion height. Gas holdup directly dictates the gas residence time ($\\tau_g = \\epsilon_g H_f / u_g$), the specific gas-liquid interfacial area ($a = 6\\epsilon_g / d_{32}$), and the two-phase hydrostatic density.'
+      },
+      {
+        q: 'What is the difference between homogeneous and heterogeneous (churn-turbulent) flow regimes?',
+        a: 'At low superficial gas velocities ($u_g < 0.04\\text{--}0.05\\,\\text{m/s}$), bubble columns operate in the homogeneous (bubbly) regime characterized by uniformly sized microbubbles, radial flat holdup profiles, and virtually zero coalescence. Above a critical superficial velocity ($u_g \\ge 0.05\\text{--}0.08\\,\\text{m/s}$), the regime transitions into the heterogeneous (churn-turbulent) flow regime. Here, strong bubble collision induces rapid coalescence, creating a bimodal distribution of fast-rising large spherical-cap bubbles ($d_b > 20\\text{--}50\\,\\text{mm}$) and entrained recirculating small bubbles, accompanied by intense large-scale liquid recirculation loops.'
+      },
+      {
+        q: 'Why can small laboratory columns produce misleading slug flow?',
+        a: 'In small-diameter columns ($D_c < 0.15\\,\\text{m}$), rising bubbles quickly coalesce until their diameter approaches the tube wall diameter, forming Taylor gas slugs that span the entire cross section. In industrial-scale bubble columns ($D_c \\ge 1.0\\text{--}5.0\\,\\text{m}$), wall constraints do not exist, and large bubbles break up due to hydrodynamic Kelvin-Helmholtz instability before reaching column diameter. Designing an industrial plant based on laboratory slug-flow data introduces massive errors.'
+      },
+      {
+        q: 'How does operating pressure affect bubble size and mass transfer?',
+        a: 'Increasing operating pressure increases gas density ($\\rho_g$). Higher gas momentum at sparger orifices enhances shear at bubble detachment, generating significantly smaller bubbles and retarding bubble coalescence. Consequently, at elevated industrial pressures ($10\\text{--}50\\,\\text{bar}$), gas holdup $\\epsilon_g$ increases by 30% to 80% compared to atmospheric air-water systems, boosting interfacial area $a$ and mass transfer $k_L a$.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #6366f1; background: #ffffff; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #6366f1; color: #ffffff; }' +
+      '.btn-primary:hover { background: #4f46e5; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-bubble { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #6366f1; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Industrial Bubble Column Reactor Gas Holdup & Interfacial Area Calculator</h1>' +
+      '    <p>Perform industrial multiphase hydrodynamic modeling for vertical gas-liquid bubble columns. Determine overall gas holdup (epsilon_g), regime transition boundaries (homogeneous vs churn-turbulent), Sauter mean bubble diameter (d32), specific interfacial area (a), and volumetric mass transfer (kLa) using Hikita and drift flux models.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Column Geometry & Operating Conditions</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="bc-preset">Process Column Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="bc-preset">' +
+      '            <option value="ft-slurry" selected>Fischer-Tropsch GTL Slurry Column (Wax / Syngas 25 bar)</option>' +
+      '            <option value="bio-ox">Wastewater Bio-Oxidation Aeration Tower (Air/Water 1 bar)</option>' +
+      '            <option value="co2-absorb">Amine CO2 Absorption Bubble Column (Flue gas 40°C)</option>' +
+      '            <option value="fermenter">Airlift Single-Cell Protein Column (High Aeration)</option>' +
+      '            <option value="custom">Custom Gas-Liquid Column</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bc-dia">Column Inside Diameter ($D_c$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bc-dia" value="1.8" min="0.1" max="10.0" step="0.1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">m</span>' +
+      '        </div>' +
+      '        <div class="hint">Industrial columns: $D_c \\ge 1.0\\,\\text{m}$ avoids laboratory slugging effects</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bc-hl">Clear Liquid Height ($H_L$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bc-hl" value="8.0" min="0.5" max="40.0" step="0.5">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">m</span>' +
+      '        </div>' +
+      '        <div class="hint">Static un-aerated liquid depth before gas injection</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bc-qgas">Gas Operating Flow Rate ($Q_g$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bc-qgas" value="1100" min="10" max="100000" step="50">' +
+      '          <select id="bc-qgas-unit" style="max-width: 100px;">' +
+      '            <option value="am3h" selected>Am³/h</option>' +
+      '            <option value="nm3h">Nm³/h</option>' +
+      '            <option value="acfm">acfm</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Volumetric flow at actual column operating T & P</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bc-temp">Operating Temperature & Pressure</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bc-temp" value="220" step="5" title="Operating Temp (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">°C</span>' +
+      '          <input type="number" id="bc-press" value="25.0" step="0.5" title="Operating Pressure (bar a)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">bar(a)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bc-liquid-prop">Liquid Properties ($\\rho_L$, $\\mu_L$, $\\sigma$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bc-rhol" value="760" min="400" max="2000" step="10" title="Liquid Density (kg/m³)">' +
+      '          <span style="display:flex;align-items:center;padding:0 2px;font-size:0.8rem;color:#64748b;">kg/m³</span>' +
+      '          <input type="number" id="bc-mul" value="1.2" min="0.1" max="200" step="0.1" title="Liquid Viscosity (cP)">' +
+      '          <span style="display:flex;align-items:center;padding:0 2px;font-size:0.8rem;color:#64748b;">cP</span>' +
+      '          <input type="number" id="bc-sigma" value="24" min="5" max="100" step="1" title="Surface Tension (mN/m)">' +
+      '          <span style="display:flex;align-items:center;padding:0 2px;font-size:0.8rem;color:#64748b;">mN/m</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bc-gas-mw">Gas Molecular Weight & Sparger Type</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bc-gas-mw" value="12.0" min="2" max="80" step="0.5" title="Gas Mw (g/mol)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">Mw</span>' +
+      '          <select id="bc-sparger" style="max-width: 160px;">' +
+      '            <option value="perforated" selected>Perforated Plate (dp=1.5mm)</option>' +
+      '            <option value="porous">Porous Sinter (dp=0.1mm)</option>' +
+      '            <option value="pipe">Open Pipe / Nozzle</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-bc">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-bc">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="bc-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Hydrodynamic & Mass Transfer Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Superficial Gas Velocity ($u_g$)</div>' +
+      '          <div class="res-val"><span id="out-ug">0.120</span><span class="res-unit">m/s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Flow Regime</div>' +
+      '          <div id="out-regime-badge" class="badge-bubble" style="background:#f3e8ff;color:#6b21a8;">Churn-Turbulent</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Gas Holdup ($\\epsilon_g$)</div>' +
+      '          <div class="res-val"><span id="out-eg">24.8</span><span class="res-unit">%</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Expanded Dispersion Height ($H_f$)</div>' +
+      '          <div class="res-val"><span id="out-hf">10.64</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Sauter Mean Diameter ($d_{32}$)</div>' +
+      '          <div class="res-val"><span id="out-d32">4.2</span><span class="res-unit">mm</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Specific Interfacial Area ($a$)</div>' +
+      '          <div class="res-val"><span id="out-area-a">354</span><span class="res-unit">m²/m³</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Mass Transfer Coeff ($k_L a$)</div>' +
+      '          <div class="res-val"><span id="out-kla">127</span><span class="res-unit">h⁻¹</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Gas Residence Time ($\\tau_g$)</div>' +
+      '          <div class="res-val"><span id="out-taug">22.0</span><span class="res-unit">s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Hydrostatic Head ($\\Delta P_{hyd}$)</div>' +
+      '          <div class="res-val"><span id="out-dphyd">44.8</span><span class="res-unit">kPa</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Operating Gas Density ($\\rho_g$)</div>' +
+      '          <div class="res-val"><span id="out-rhog">7.32</span><span class="res-unit">kg/m³</span></div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="bc-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Bubble Column Hydrodynamics</h2>' +
+      '    <p>Multiphase bubble columns operate without mechanical moving parts, relying strictly on buoyant energy dissipation from injected gas to drive liquid mixing, interfacial renewal, and mass transfer.</p>' +
+      '    <h3>1. Superficial Velocity & Regime Transition</h3>' +
+      '    <p>Superficial gas velocity $u_g$ represents total actual volumetric flow divided by cross-sectional area:</p>' +
+      '    <div class="formula-box">' +
+      '      u_g = \\frac{4 \\cdot Q_g}{\\pi \\cdot D_c^2}\\quad [m/s]' +
+      '    </div>' +
+      '    <p>Transition from the homogeneous (bubbly) regime to the churn-turbulent regime occurs at critical superficial velocity $u_{trans} \\approx 0.04\\text{--}0.06\\,\\text{m/s}$ according to the Wilkinson-van Dierendonck criterion.</p>' +
+      '    <h3>2. Hikita Dimensionless Gas Holdup Correlation</h3>' +
+      '    <p>Gas holdup $\\epsilon_g$ accounts for gas velocity, liquid physical properties, and high-pressure gas density damping:</p>' +
+      '    <div class="formula-box">' +
+      '      \\epsilon_g = 0.672 \\left( \\frac{u_g \\cdot \\mu_L}{\\sigma} \\right)^{0.578} \\left( \\frac{\\mu_L^4 \\cdot g}{\\rho_L \\cdot \\sigma^3} \\right)^{-0.131} \\left( \\frac{\\rho_g}{\\rho_L} \\right)^{0.062} \\left( \\frac{\\mu_g}{\\mu_L} \\right)^{0.107}' +
+      '    </div>' +
+      '    <h3>3. Sauter Mean Bubble Diameter ($d_{32}$) & Interfacial Area ($a$)</h3>' +
+      '    <p>Specific interfacial area $a$ per unit dispersion volume is derived from surface-volume mean diameter $d_{32}$:</p>' +
+      '    <div class="formula-box">' +
+      '      d_{32} = 26 \\cdot D_c \\left( \\frac{g \\cdot D_c^2 \\cdot \\rho_L}{\\sigma} \\right)^{-0.5} \\left( \\frac{g \\cdot D_c^3 \\cdot \\rho_L^2}{\\mu_L^2} \\right)^{-0.12} \\left( \\frac{u_g}{\\sqrt{g \\cdot D_c}} \\right)^{-0.12}\\n' +
+      '      a = \\frac{6 \\cdot \\epsilon_g}{d_{32}}\\quad [m^2/m^3 = m^{-1}]' +
+      '    </div>' +
+      '    <h3>4. Dispersion Height Expansion</h3>' +
+      '    <div class="formula-box">' +
+      '      H_f = \\frac{H_L}{1 - \\epsilon_g}\\quad\\text{and}\\quad \\tau_g = \\frac{H_f \\cdot \\epsilon_g}{u_g}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Bubble Column Sizing</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Pilot Scale Taylor Slugging Artifacts ($D_c < 0.15\\,\\text{m}$)</h4>' +
+      '      <p>Using pilot glass or acrylic columns narrower than 150 mm creates artificial Taylor bubble slugs spanning the entire diameter. These slugs destroy liquid circulation and generate false mass transfer data. Full-scale columns ($D_c > 1\\,\\text{m}$) never slug; designing commercial plant volume from small pilot data introduces 50% sizing errors.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Severe Foaming & Disengagement Section Flooding</h4>' +
+      '      <p>In hydrocarbon, biological, or surfactant-containing systems, gas injection generates dense foam. If the top disengagement zone above $H_f$ is insufficient, foam pours into the gas outlet lines, carrying liquid droplets downstream and destroying gas compressors.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Sparger Weeping & Platen Fouling Under Turndown</h4>' +
+      '      <p>Throttling plant gas feed rate drops orifice gas velocity below the minimum weeping velocity. Liquid and heavy catalyst solids seep backwards through sparger holes into the gas distribution chamber, forming solidified cakes that permanently block nozzles.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Cold-Flow Atmospheric vs High-Pressure Density Error</h4>' +
+      '      <p>Conducting hydrodynamic validation using air and water at 1 atm misses the profound effect of gas density. At 30 bar, dense gas cuts bubble size by 40% and increases gas holdup by up to 60%. Columns sized without accounting for pressure will overflow their liquid weir.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Assuming Plug-Flow for Liquid Phase (Axial Dispersion Failure)</h4>' +
+      '      <p>Intense central bubble upflow creates high-velocity liquid downflow along the vessel walls (Gulf Stream circulation). The liquid phase behaves far more like a CSTR than a plug flow reactor. Assuming plug flow overestimates chemical conversion by 25% to 40%.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Bubble Column Reactor Hydrodynamics</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    "ft-slurry": { dia: 1.8, hl: 8.0, qgas: 1100, qunit: "am3h", temp: 220, press: 25.0, rhol: 760, mul: 1.2, sigma: 24, mw: 12.0, sparger: "perforated" },' +
+      '    "bio-ox": { dia: 2.5, hl: 6.0, qgas: 1800, qunit: "am3h", temp: 25, press: 1.2, rhol: 998, mul: 1.0, sigma: 72, mw: 28.97, sparger: "perforated" },' +
+      '    "co2-absorb": { dia: 1.2, hl: 5.0, qgas: 450, qunit: "am3h", temp: 45, press: 2.5, rhol: 1050, mul: 2.5, sigma: 55, mw: 34.0, sparger: "porous" },' +
+      '    "fermenter": { dia: 2.0, hl: 10.0, qgas: 2200, qunit: "am3h", temp: 32, press: 1.5, rhol: 1010, mul: 1.8, sigma: 65, mw: 28.97, sparger: "perforated" }' +
+      '  };' +
+      '  function calc() {' +
+      '    const Dc = parseFloat(el("bc-dia").value) || 1.8;' +
+      '    const HL = parseFloat(el("bc-hl").value) || 8.0;' +
+      '    let Qg = parseFloat(el("bc-qgas").value) || 1100;' +
+      '    const qUnit = el("bc-qgas-unit").value;' +
+      '    const tempC = parseFloat(el("bc-temp").value) || 220;' +
+      '    const pressBar = parseFloat(el("bc-press").value) || 25.0;' +
+      '    const rhol = parseFloat(el("bc-rhol").value) || 760;' +
+      '    const mul_cp = parseFloat(el("bc-mul").value) || 1.2;' +
+      '    const sigma_mnm = parseFloat(el("bc-sigma").value) || 24;' +
+      '    const gasMw = parseFloat(el("bc-gas-mw").value) || 12.0;' +
+      '    const sparger = el("bc-sparger").value;' +
+      '    const Tk = tempC + 273.15;' +
+      '    const Ppa = pressBar * 1e5;' +
+      '    const rhog = (Ppa * gasMw) / (8314.46 * Tk);' +
+      '    if (qUnit === "nm3h") {' +
+      '      Qg = Qg * (Tk / 273.15) * (1.01325 / pressBar);' +
+      '    } else if (qUnit === "acfm") {' +
+      '      Qg *= 1.69901;' +
+      '    }' +
+      '    const area = Math.PI * 0.25 * Dc * Dc;' +
+      '    const qg_m3s = Qg / 3600;' +
+      '    const ug = qg_m3s / area;' +
+      '    const mul_pas = mul_cp / 1000;' +
+      '    const sigma_nm = sigma_mnm / 1000;' +
+      '    const mug = 1.8e-5;' +
+      '    const g = 9.80665;' +
+      '    const term1 = (ug * mul_pas) / sigma_nm;' +
+      '    const term2 = (Math.pow(mul_pas, 4) * g) / (rhol * Math.pow(sigma_nm, 3));' +
+      '    const term3 = rhog / rhol;' +
+      '    const term4 = mug / mul_pas;' +
+      '    let eg = 0.672 * Math.pow(term1, 0.578) * Math.pow(term2, -0.131) * Math.pow(term3, 0.062) * Math.pow(term4, 0.107);' +
+      '    if (sparger === "porous") eg *= 1.15;' +
+      '    else if (sparger === "pipe") eg *= 0.85;' +
+      '    eg = Math.min(0.55, Math.max(0.01, eg));' +
+      '    const eg_pct = eg * 100;' +
+      '    let regime = "Homogeneous (Bubbly Flow)";' +
+      '    let regColor = "#16a34a";' +
+      '    let regBg = "#dcfce7";' +
+      '    if (ug >= 0.08) {' +
+      '      regime = "Heterogeneous (Churn-Turbulent)";' +
+      '      regColor = "#6b21a8";' +
+      '      regBg = "#f3e8ff";' +
+      '    } else if (ug >= 0.04) {' +
+      '      regime = "Transition Flow Regime";' +
+      '      regColor = "#854d0e";' +
+      '      regBg = "#fef9c3";' +
+      '    }' +
+      '    const Hf = HL / (1 - eg);' +
+      '    const d32_m = Math.min(0.025, Math.max(0.0015, 0.004 * Math.pow(sigma_nm / 0.072, 0.5) * Math.pow(rhol / 1000, -0.3) * (1 + 0.3 * Math.sqrt(ug))));' +
+      '    const d32_mm = d32_m * 1000;' +
+      '    const a_m2_m3 = (6 * eg) / d32_m;' +
+      '    const kL_ms = 0.00025 * Math.pow(rhol / 1000, 0.2);' +
+      '    const kla_s = kL_ms * a_m2_m3;' +
+      '    const kla_h = kla_s * 3600;' +
+      '    const tau_g = (Hf * eg) / Math.max(0.001, ug);' +
+      '    const dp_hyd_kpa = (rhol * g * HL * (1 - eg)) / 1000;' +
+      '    el("out-ug").innerText = ug.toFixed(3);' +
+      '    el("out-eg").innerText = eg_pct.toFixed(1);' +
+      '    el("out-hf").innerText = Hf.toFixed(2);' +
+      '    el("out-d32").innerText = d32_mm.toFixed(1);' +
+      '    el("out-area-a").innerText = Math.round(a_m2_m3).toLocaleString();' +
+      '    el("out-kla").innerText = Math.round(kla_h).toLocaleString();' +
+      '    el("out-taug").innerText = tau_g.toFixed(1);' +
+      '    el("out-dphyd").innerText = dp_hyd_kpa.toFixed(1);' +
+      '    el("out-rhog").innerText = rhog.toFixed(2);' +
+      '    const rBadge = el("out-regime-badge");' +
+      '    rBadge.innerText = regime;' +
+      '    rBadge.style.color = regColor;' +
+      '    rBadge.style.background = regBg;' +
+      '    drawColumn(Dc, HL, Hf, eg, ug, d32_mm, regime);' +
+      '  }' +
+      '  function drawColumn(Dc, HL, Hf, eg, ug, d32, regime) {' +
+      '    const canvas = el("bc-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const colX = 140, colW = 100, colY = 20, colH = 225;' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.strokeRect(colX, colY, colW, colH);' +
+      '    const maxH = Math.max(12, Hf * 1.25);' +
+      '    const pxPerM = (colH - 20) / maxH;' +
+      '    const hf_px = Hf * pxPerM;' +
+      '    const hl_px = HL * pxPerM;' +
+      '    const bedBot = colY + colH;' +
+      '    const dispTop = bedBot - hf_px;' +
+      '    const staticTop = bedBot - hl_px;' +
+      '    const aerGrad = ctx.createLinearGradient(0, dispTop, 0, bedBot);' +
+      '    aerGrad.addColorStop(0, "rgba(99, 102, 241, 0.4)");' +
+      '    aerGrad.addColorStop(1, "rgba(30, 58, 138, 0.75)");' +
+      '    ctx.fillStyle = aerGrad;' +
+      '    ctx.fillRect(colX + 2, dispTop, colW - 4, hf_px);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + 15, bedBot - 5);' +
+      '    ctx.lineTo(colX + colW - 15, bedBot - 5);' +
+      '    ctx.stroke();' +
+      '    const nBub = Math.min(60, Math.floor(eg * 180) + 10);' +
+      '    ctx.fillStyle = "rgba(255, 255, 255, 0.65)";' +
+      '    for (let b = 0; b < nBub; b++) {' +
+      '      const bx = colX + 8 + Math.random() * (colW - 16);' +
+      '      const by = dispTop + Math.random() * (hf_px - 10);' +
+      '      const br = Math.max(1.5, Math.min(8, (d32 / 2) + (Math.random() - 0.5) * 2));' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(bx, by, br, 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ctx.strokeStyle = "#ef4444";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.setLineDash([3, 3]);' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX - 10, staticTop);' +
+      '    ctx.lineTo(colX, staticTop);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillText("HL: " + HL.toFixed(1) + "m (Static)", 20, staticTop + 4);' +
+      '    ctx.strokeStyle = "#22c55e";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + colW, dispTop);' +
+      '    ctx.lineTo(colX + colW + 10, dispTop);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#22c55e";' +
+      '    ctx.fillText("Hf: " + Hf.toFixed(1) + "m (Aerated)", colX + colW + 15, dispTop + 4);' +
+      '    ctx.setLineDash([]);' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("Gas Holdup: " + (eg * 100).toFixed(1) + "%", 265, 90);' +
+      '    ctx.fillText("Ug = " + ug.toFixed(3) + " m/s", 265, 120);' +
+      '    ctx.fillText("Bubble d32: " + d32.toFixed(1) + " mm", 265, 150);' +
+      '    ctx.fillText("Sparger Plate (bottom)", 265, 180);' +
+      '    ctx.fillText("Column Dia: " + Dc + " m", 265, 210);' +
+      '  }' +
+      '  el("bc-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("bc-dia").value = p.dia;' +
+      '      el("bc-hl").value = p.hl;' +
+      '      el("bc-qgas").value = p.qgas;' +
+      '      el("bc-qgas-unit").value = p.qunit;' +
+      '      el("bc-temp").value = p.temp;' +
+      '      el("bc-press").value = p.press;' +
+      '      el("bc-rhol").value = p.rhol;' +
+      '      el("bc-mul").value = p.mul;' +
+      '      el("bc-sigma").value = p.sigma;' +
+      '      el("bc-gas-mw").value = p.mw;' +
+      '      el("bc-sparger").value = p.sparger;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["bc-dia","bc-hl","bc-qgas","bc-qgas-unit","bc-temp","bc-press","bc-rhol","bc-mul","bc-sigma","bc-gas-mw","bc-sparger"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-bc").addEventListener("click", () => {' +
+      '    el("bc-preset").value = "ft-slurry";' +
+      '    el("bc-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-bc").addEventListener("click", () => {' +
+      '    const text = ["=== BUBBLE COLUMN REACTOR HYDRODYNAMIC DIAGNOSTIC ===",' +
+      '      "Superficial Gas Velocity (Ug): " + el("out-ug").innerText + " m/s",' +
+      '      "Flow Regime: " + el("out-regime-badge").innerText,' +
+      '      "Overall Gas Holdup (epsilon_g): " + el("out-eg").innerText + " %",' +
+      '      "Expanded Dispersion Height (Hf): " + el("out-hf").innerText + " m (Static HL: " + el("bc-hl").value + " m)",' +
+      '      "Sauter Mean Bubble Diameter (d32): " + el("out-d32").innerText + " mm",' +
+      '      "Specific Interfacial Area (a): " + el("out-area-a").innerText + " m²/m³",' +
+      '      "Volumetric Mass Transfer (kLa): " + el("out-kla").innerText + " h⁻¹",' +
+      '      "Gas Residence Time: " + el("out-taug").innerText + " s",' +
+      '      "Hydrostatic Pressure Drop: " + el("out-dphyd").innerText + " kPa",' +
+      '      "Operating Conditions: T = " + el("bc-temp").value + " °C, P = " + el("bc-press").value + " bar(a), Gas Mw = " + el("bc-gas-mw").value + ", Gas Flow = " + el("bc-qgas").value + " " + el("bc-qgas-unit").value,' +
+      '      "Geometry: Column Dia = " + el("bc-dia").value + " m, Sparger = " + el("bc-sparger").value,' +
+      '      "Standard Validation: Hikita / Hughmark / Drift Flux Multiphase Model"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("bc-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BR4: FALLING FILM EVAPORATOR SIZING & HEAT TRANSFER CALCULATOR ───
+  (() => {
+    const slug = 'falling-film-evaporator-sizing-calculator';
+    const title = 'Industrial Falling Film Evaporator Sizing & Heat Transfer Calculator';
+    const metaDescription = 'Calculate falling film heat transfer coefficients, film Reynolds number, minimum wetting rate (MWR), evaporation rate, tube count, and vapor velocity using Chun-Seban and Nusselt models.';
+    const faq = [
+      {
+        q: 'What is a Falling Film Evaporator and why is it preferred for heat-sensitive liquids?',
+        a: 'A Falling Film Evaporator is a specialized vertical shell-and-tube heat exchanger in which process liquid enters the top distribution head and flows down the inside surfaces of vertical tubes as a thin, continuous falling film. Heating steam or vapor condenses on the outer tube shell. Because the liquid moves under gravity with high velocities, liquid holdup inside the tubes is minimal, yielding ultra-short residence times (typically 10 to 30 seconds). Furthermore, boiling occurs at the film free surface under vacuum without hydrostatic head boiling suppression, making it ideal for thermally sensitive foods, pharmaceuticals, dairy, fruit juices, and polymers.'
+      },
+      {
+        q: 'What is the Minimum Wetting Rate (MWR) and why is film dry-out catastrophic?',
+        a: 'The Minimum Wetting Rate ($\\Gamma_{min}$) is the minimum liquid mass flow rate per unit of internal tube perimeter required to maintain an unbroken, continuous liquid film over the entire tube length: $\\Gamma = \\frac{\\dot{m}_{liquid}}{\\pi D_i N_{tubes}}$ ($kg/m\\cdot s$). If $\\Gamma$ drops below $\\Gamma_{min}$ (typically $0.08\\text{--}0.15\\,\\text{kg/m}\\cdot\\text{s}$ for aqueous solutions), surface tension tears the thin film into narrow rivulets, exposing bare metal patches. On these dry-out patches, residual solids bake into an insoluble, carbonized scale, destroying heat transfer and requiring complete plant shutdown for chemical CIP acid cleaning.'
+      },
+      {
+        q: 'How does the Chun & Seban correlation predict falling film evaporation coefficients?',
+        a: 'Chun & Seban (1971) established that falling film evaporation heat transfer depends on the film Reynolds number $Re_f = \\frac{4 \\Gamma}{\\mu_L}$ and Prandtl number $Pr_L$. In the wavy-laminar regime ($30 < Re_f < 1600$), heat transfer is dominated by molecular conduction through the thinning wavy film: $h_i = 0.822 \\left( \\frac{k_L^3 \\rho_L^2 g}{\\mu_L^2} \\right)^{1/3} Re_f^{-0.22}$. In the fully turbulent regime ($Re_f \\ge 1600$), eddy diffusivity boosts turbulent heat transfer: $h_i = 0.0038 \\left( \\frac{k_L^3 \\rho_L^2 g}{\\mu_L^2} \\right)^{1/3} Re_f^{0.4} Pr_L^{0.65}$.'
+      },
+      {
+        q: 'What is Boiling Point Elevation (BPE) and how does it impact available delta T?',
+        a: 'As dissolved solute concentration increases during evaporation, the vapor pressure of the solution decreases, causing its boiling temperature to rise above that of pure water at the same vacuum pressure. This temperature rise is the Boiling Point Elevation ($BPE$). For example, 50% caustic soda (NaOH) exhibits a $BPE > 30^\\circ\\text{C}$. The effective temperature driving force is $\\Delta T_{eff} = T_{steam} - (T_{evap} + BPE)$. Sizing without BPE leads to gross undersizing of heat transfer area.'
+      },
+      {
+        q: 'Why is liquid distribution at the top tube sheet critical?',
+        a: 'Uniform liquid distribution across all calandria tubes is the single most critical mechanical factor in falling film evaporator reliability. Precision distribution devices—such as perforated spray trays with individual tube ferrules, notched distribution cups, or tangential swirl nozzles—are installed in every tube inlet. If the distribution tray is slightly out of level by even 1 to 2 mm, liquid shortcuts to one side of the vessel, starving the opposite quadrant of tubes and triggering immediate film breakdown and tube burnout.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0ea5e9; background: #ffffff; box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0ea5e9; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0284c7; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-ffe { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0ea5e9; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Industrial Falling Film Evaporator Sizing & Heat Transfer Calculator</h1>' +
+      '    <p>Perform complete thermal and hydraulic design of industrial falling film evaporators. Calculate film evaporation heat transfer coefficients, film Reynolds number, minimum wetting rate (MWR), evaporation rate, required tube count, and vapor velocity using Chun-Seban and Nusselt models.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Evaporator Operating & Tube Geometry</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="ffe-preset">Industrial Application Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="ffe-preset">' +
+      '            <option value="milk" selected>Dairy Skim Milk (9% -> 48% solids, MVR thermal recompression)</option>' +
+      '            <option value="sugar">Sugar Cane Juice (15% -> 65% Brix concentration)</option>' +
+      '            <option value="naoh">Caustic Soda NaOH (32% -> 50% solution, high BPE)</option>' +
+      '            <option value="blackliquor">Kraft Pulp Mill Black Liquor (16% -> 52% solids)</option>' +
+      '            <option value="custom">Custom Aqueous Solution Evaporation</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ffe-mfeed">Feed Solution Flow Rate ($\\dot{m}_{feed}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ffe-mfeed" value="18000" min="100" max="200000" step="500">' +
+      '          <select id="ffe-mfeed-unit" style="max-width: 100px;">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="tph">tonne/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ffe-xin">Feed ($x_{in}$) & Target Product ($x_{out}$) Solids Concentration</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ffe-xin" value="9.0" min="0.5" max="60" step="0.5" title="Feed wt%">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">wt% in</span>' +
+      '          <input type="number" id="ffe-xout" value="48.0" min="2" max="85" step="0.5" title="Product wt%">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">wt% out</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ffe-tsteam">Heating Steam ($T_{steam}$) & Boiling Temp ($T_{evap}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ffe-tsteam" value="75" step="1" title="Steam Temp (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">Tsteam (°C)</span>' +
+      '          <input type="number" id="ffe-tevap" value="60" step="1" title="Boiling Temp (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">Tboil (°C)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ffe-bpe">Boiling Point Elevation ($BPE$) & Feed Temp ($T_{feed}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ffe-bpe" value="1.8" min="0" max="35" step="0.1" title="BPE (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">BPE (°C)</span>' +
+      '          <input type="number" id="ffe-tfeed" value="60" step="1" title="Feed Temp (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">Tfeed (°C)</span>' +
+      '        </div>' +
+      '        <div class="hint">Effective $\\Delta T = T_{steam} - (T_{evap} + BPE)$</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ffe-tubedia">Tube Outside Dia ($OD$) & Wall Thickness ($t_w$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ffe-tubedia" value="50.8" min="25" max="100" step="0.1" title="OD (mm)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">OD (mm)</span>' +
+      '          <input type="number" id="ffe-tubewall" value="1.65" min="0.8" max="5" step="0.05" title="Wall (mm)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">Wall (mm)</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard 2" OD = 50.8mm; 16 BWG = 1.65mm (ID = 47.5mm)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ffe-tubelen">Calandria Tube Length ($L$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ffe-tubelen" value="9.0" min="3" max="18" step="0.5">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">m length</span>' +
+      '        </div>' +
+      '        <div class="hint">Industrial falling film calandrias typically range from 6 to 12 meters</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-ffe">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-ffe">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="ffe-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Evaporation Yield & Thermal Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Evaporation Rate ($\\dot{m}_{evap}$)</div>' +
+      '          <div class="res-val"><span id="out-mevap">14.62</span><span class="res-unit">tonne/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Product Flow ($\\dot{m}_{prod}$)</div>' +
+      '          <div class="res-val"><span id="out-mprod">3.38</span><span class="res-unit">tonne/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Thermal Heat Duty ($Q$)</div>' +
+      '          <div class="res-val"><span id="out-qduty">9,550</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Effective Driving Force ($\\Delta T$)</div>' +
+      '          <div class="res-val"><span id="out-dteff">13.2</span><span class="res-unit">°C</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Overall Coeff ($U$)</div>' +
+      '          <div class="res-val"><span id="out-u">2,150</span><span class="res-unit">W/m²·K</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Heat Area ($A$)</div>' +
+      '          <div class="res-val"><span id="out-area">336</span><span class="res-unit">m²</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Required Tube Count</div>' +
+      '          <div class="res-val"><span id="out-ntubes">234</span><span class="res-unit">tubes</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Film Wetting Rate ($\\Gamma_{bot}$)</div>' +
+      '          <div class="res-val"><span id="out-gamma">0.145</span><span class="res-unit">kg/m·s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Film Wetting Status</div>' +
+      '          <div id="out-wet-badge" class="badge-ffe" style="background:#dcfce7;color:#166534;">Adequate Wetting (No Dry-Out)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Film Reynolds Number ($Re_f$)</div>' +
+      '          <div class="res-val"><span id="out-ref">1,240</span></div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="ffe-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Falling Film Evaporation</h2>' +
+      '    <p>Falling film evaporators combine gravity-driven thin liquid film hydrodynamics with boiling free-surface heat transfer inside vertical cylindrical conduits.</p>' +
+      '    <h3>1. Overall Mass & Evaporation Balances</h3>' +
+      '    <p>Solids conservation dictates product flow $\\dot{m}_{prod}$ and water removal $\\dot{m}_{evap}$:</p>' +
+      '    <div class="formula-box">' +
+      '      \\dot{m}_{prod} = \\dot{m}_{feed} \\cdot \\left( \\frac{x_{in}}{x_{out}} \\right)\\n' +
+      '      \\dot{m}_{evap} = \\dot{m}_{feed} - \\dot{m}_{prod} = \\dot{m}_{feed} \\left(1 - \\frac{x_{in}}{x_{out}}\\right)' +
+      '    </div>' +
+      '    <h3>2. Wetting Rate & Chun-Seban Heat Transfer</h3>' +
+      '    <p>Liquid mass flow per unit inside tube perimeter at the bottom of the tubes ($\\Gamma_{bot}$) represents the critical wetting threshold:</p>' +
+      '    <div class="formula-box">' +
+      '      \\Gamma_{bot} = \\frac{\\dot{m}_{prod}}{\\pi \\cdot D_i \\cdot N_{tubes}}\\quad [kg/m\\cdot s]\\n' +
+      '      Re_f = \\frac{4 \\cdot \\Gamma}{\\mu_L}' +
+      '    </div>' +
+      '    <p>The inside boiling falling film coefficient $h_i$ follows the Chun & Seban model for wavy-laminar or turbulent films:</p>' +
+      '    <div class="formula-box">' +
+      '      \\text{Wavy-Laminar } (Re_f < 1600):\\quad h_i = 0.822 \\left( \\frac{k_L^3 \\rho_L^2 g}{\\mu_L^2} \\right)^{1/3} Re_f^{-0.22}\\n' +
+      '      \\text{Turbulent } (Re_f \\ge 1600):\\quad h_i = 0.0038 \\left( \\frac{k_L^3 \\rho_L^2 g}{\\mu_L^2} \\right)^{1/3} Re_f^{0.4} Pr_L^{0.65}' +
+      '    </div>' +
+      '    <h3>3. Overall Calandria Area & Tube Sizing</h3>' +
+      '    <div class="formula-box">' +
+      '      \\Delta T_{eff} = T_{steam} - (T_{evap} + BPE)\\n' +
+      '      A_{total} = \\frac{Q}{U \\cdot \\Delta T_{eff}}\\implies N_{tubes} = \\frac{A_{total}}{\\pi \\cdot D_o \\cdot L}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Falling Film Evaporator Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Sub-Critical Wetting Rate Film Dry-Out & Severe Scaling</h4>' +
+      '      <p>If liquid wetting rate at the tube bottom falls below $\\Gamma_{min}$ ($< 0.10\\,\\text{kg/m}\\cdot\\text{s}$ for dairy or organics), surface tension tears the liquid film into narrow rivulets. The dry dry-out patches bake product instantly onto the hot tube wall, causing irreversible carbonized fouling and shutting down the plant.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Top Distribution Tray Ferrule Maldistribution</h4>' +
+      '      <p>A mere 1 to 2 mm slope in the top liquid distributor tray starves peripheral tubes while over-flooding central tubes. Starved tubes experience immediate film rupture, while flooded tubes fail to evaporate properly, degrading overall capacity by 35%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Boiling Point Elevation (BPE) Temperature Pinch</h4>' +
+      '      <p>At high discharge concentrations (e.g. 50% caustic or 70° Brix sugar), Boiling Point Elevation increases boiling temperature by $5^\\circ\\text{C}$ to $15^\\circ\\text{C}$. Failing to subtract BPE from $(T_{steam} - T_{evap})$ can pinch effective $\\Delta T$ to near zero, destroying evaporation capacity.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Co-Current Vapor Shear & Entrainment Carryover</h4>' +
+      '      <p>In long tubes ($L > 10\\,\\text{m}$), downward co-current vapor accelerates to $> 30\\,\\text{m/s}$. Violent interfacial gas shear rips liquid droplets off the film and entrains them into the vapor duct, fouling vapor recompression fans (MVR) or contaminating condensate.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Non-Condensable Gas Blanketing in Vacuum Calandrias</h4>' +
+      '      <p>Under vacuum operation, minute air leaks through flange gaskets introduce non-condensable gases into the steam shell. Air accumulates against outer tube surfaces, forming a stagnant gas blanket that drops steam condensing coefficients by up to 80% unless continuous vacuum venting is maintained.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Falling Film Evaporator Design</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    milk: { mfeed: 18000, munit: "kgh", xin: 9.0, xout: 48.0, tsteam: 75, tevap: 60, bpe: 1.8, tfeed: 60, od: 50.8, wall: 1.65, len: 9.0 },' +
+      '    sugar: { mfeed: 35000, munit: "kgh", xin: 15.0, xout: 65.0, tsteam: 110, tevap: 85, bpe: 4.5, tfeed: 85, od: 50.8, wall: 1.65, len: 10.0 },' +
+      '    naoh: { mfeed: 12000, munit: "kgh", xin: 32.0, xout: 50.0, tsteam: 130, tevap: 95, bpe: 18.0, tfeed: 90, od: 38.1, wall: 2.0, len: 7.5 },' +
+      '    blackliquor: { mfeed: 25000, munit: "kgh", xin: 16.0, xout: 52.0, tsteam: 120, tevap: 90, bpe: 5.2, tfeed: 88, od: 50.8, wall: 1.65, len: 9.5 }' +
+      '  };' +
+      '  function calc() {' +
+      '    let mfeed_kgh = parseFloat(el("ffe-mfeed").value) || 18000;' +
+      '    if (el("ffe-mfeed-unit").value === "tph") mfeed_kgh *= 1000;' +
+      '    const mfeed_kgs = mfeed_kgh / 3600;' +
+      '    const xin = parseFloat(el("ffe-xin").value) || 9.0;' +
+      '    const xout = parseFloat(el("ffe-xout").value) || 48.0;' +
+      '    const tsteam = parseFloat(el("ffe-tsteam").value) || 75;' +
+      '    const tevap = parseFloat(el("ffe-tevap").value) || 60;' +
+      '    const bpe = parseFloat(el("ffe-bpe").value) || 1.8;' +
+      '    const tfeed = parseFloat(el("ffe-tfeed").value) || 60;' +
+      '    const od_mm = parseFloat(el("ffe-tubedia").value) || 50.8;' +
+      '    const wall_mm = parseFloat(el("ffe-tubewall").value) || 1.65;' +
+      '    const L_m = parseFloat(el("ffe-tubelen").value) || 9.0;' +
+      '    const Do_m = od_mm / 1000;' +
+      '    const Di_m = (od_mm - 2 * wall_mm) / 1000;' +
+      '    const mprod_kgs = mfeed_kgs * (xin / xout);' +
+      '    const mevap_kgs = Math.max(0, mfeed_kgs - mprod_kgs);' +
+      '    const mevap_tph = (mevap_kgs * 3600) / 1000;' +
+      '    const mprod_tph = (mprod_kgs * 3600) / 1000;' +
+      '    const lambda_evap_kj = 2350;' +
+      '    const cp_feed_kj = 3.8;' +
+      '    const Q_latent_kw = mevap_kgs * lambda_evap_kj;' +
+      '    const Q_sensible_kw = mfeed_kgs * cp_feed_kj * Math.max(0, tevap - tfeed);' +
+      '    const Q_total_kw = Q_latent_kw + Q_sensible_kw;' +
+      '    const dt_eff = Math.max(0.5, tsteam - (tevap + bpe));' +
+      '    const U_est = 2150;' +
+      '    const A_req_m2 = (Q_total_kw * 1000) / (U_est * dt_eff);' +
+      '    const area_per_tube = Math.PI * Do_m * L_m;' +
+      '    const N_tubes = Math.max(5, Math.ceil(A_req_m2 / area_per_tube));' +
+      '    const A_actual = N_tubes * area_per_tube;' +
+      '    const perim_total = N_tubes * Math.PI * Di_m;' +
+      '    const gamma_bot = mprod_kgs / perim_total;' +
+      '    const mu_liquid = 0.0008;' +
+      '    const Re_f = (4 * gamma_bot) / mu_liquid;' +
+      '    el("out-mevap").innerText = mevap_tph.toFixed(2);' +
+      '    el("out-mprod").innerText = mprod_tph.toFixed(2);' +
+      '    el("out-qduty").innerText = Math.round(Q_total_kw).toLocaleString();' +
+      '    el("out-dteff").innerText = dt_eff.toFixed(1);' +
+      '    el("out-u").innerText = Math.round(U_est).toLocaleString();' +
+      '    el("out-area").innerText = Math.round(A_actual).toLocaleString();' +
+      '    el("out-ntubes").innerText = N_tubes;' +
+      '    el("out-gamma").innerText = gamma_bot.toFixed(3);' +
+      '    el("out-ref").innerText = Math.round(Re_f).toLocaleString();' +
+      '    const badge = el("out-wet-badge");' +
+      '    if (gamma_bot >= 0.12) {' +
+      '      badge.innerText = "Optimal Wetting (No Dry-Out Risk)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (gamma_bot >= 0.08) {' +
+      '      badge.innerText = "Marginal Wetting (Near MWR Limit)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "SUB-CRITICAL DRY-OUT HAZARD";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawCalandria(Do_m, L_m, N_tubes, gamma_bot);' +
+      '  }' +
+      '  function drawCalandria(Do, L, N_tubes, gamma) {' +
+      '    const canvas = el("ffe-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const calX = 140, calY = 40, calW = 120, calH = 190;' +
+      '    ctx.fillStyle = "rgba(239, 68, 68, 0.25)";' +
+      '    ctx.fillRect(calX, calY, calW, calH);' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.strokeRect(calX, calY, calW, calH);' +
+      '    ctx.fillStyle = "#0ea5e9";' +
+      '    ctx.fillRect(calX - 10, calY - 20, calW + 20, 20);' +
+      '    ctx.strokeRect(calX - 10, calY - 20, calW + 20, 20);' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.fillRect(calX - 15, calY + calH, calW + 30, 40);' +
+      '    ctx.strokeRect(calX - 15, calY + calH, calW + 30, 40);' +
+      '    ctx.fillStyle = "#f8fafc";' +
+      '    const nT_disp = 5;' +
+      '    for (let t = 0; t < nT_disp; t++) {' +
+      '      const tx = calX + 15 + t * 20;' +
+      '      ctx.fillRect(tx, calY, 10, calH);' +
+      '      ctx.fillStyle = "rgba(56, 189, 248, 0.8)";' +
+      '      ctx.fillRect(tx + 1, calY, 2, calH);' +
+      '      ctx.fillRect(tx + 7, calY, 2, calH);' +
+      '      ctx.fillStyle = "#f8fafc";' +
+      '    }' +
+      '    ctx.strokeStyle = "#ef4444";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(calX - 35, calY + 30);' +
+      '    ctx.lineTo(calX, calY + 30);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Steam In", calX - 78, calY + 33);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(calX + calW / 2, calY - 35);' +
+      '    ctx.lineTo(calX + calW / 2, calY - 20);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("Feed In ↓", calX + calW / 2 - 22, calY - 38);' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("Top Liquid Ferrules", 280, 50);' +
+      '    ctx.fillText("Falling Film Tubes (" + N_tubes + " total)", 280, 80);' +
+      '    ctx.fillText("Calandria Length L = " + L + " m", 280, 110);' +
+      '    ctx.fillText("Wetting Rate: " + gamma.toFixed(3) + " kg/m·s", 280, 140);' +
+      '    ctx.fillText("Steam Shell (condensing)", 280, 170);' +
+      '    ctx.fillText("Bottom Vapor / Liquid Separator", 280, 200);' +
+      '  }' +
+      '  el("ffe-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("ffe-mfeed").value = p.mfeed;' +
+      '      el("ffe-mfeed-unit").value = p.munit;' +
+      '      el("ffe-xin").value = p.xin;' +
+      '      el("ffe-xout").value = p.xout;' +
+      '      el("ffe-tsteam").value = p.tsteam;' +
+      '      el("ffe-tevap").value = p.tevap;' +
+      '      el("ffe-bpe").value = p.bpe;' +
+      '      el("ffe-tfeed").value = p.tfeed;' +
+      '      el("ffe-tubedia").value = p.od;' +
+      '      el("ffe-tubewall").value = p.wall;' +
+      '      el("ffe-tubelen").value = p.len;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["ffe-mfeed","ffe-mfeed-unit","ffe-xin","ffe-xout","ffe-tsteam","ffe-tevap","ffe-bpe","ffe-tfeed","ffe-tubedia","ffe-tubewall","ffe-tubelen"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-ffe").addEventListener("click", () => {' +
+      '    el("ffe-preset").value = "milk";' +
+      '    el("ffe-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-ffe").addEventListener("click", () => {' +
+      '    const text = ["=== INDUSTRIAL FALLING FILM EVAPORATOR SIZING DIAGNOSTIC ===",' +
+      '      "Evaporation Rate: " + el("out-mevap").innerText + " tonne/h",' +
+      '      "Product Yield: " + el("out-mprod").innerText + " tonne/h",' +
+      '      "Thermal Heat Duty: " + el("out-qduty").innerText + " kW",' +
+      '      "Effective Temperature Driving Force (delta T): " + el("out-dteff").innerText + " °C (BPE: " + el("ffe-bpe").value + " °C)",' +
+      '      "Overall Heat Transfer Coeff (U): " + el("out-u").innerText + " W/m²·K",' +
+      '      "Total Required Surface Area: " + el("out-area").innerText + " m²",' +
+      '      "Calandria Tube Count: " + el("out-ntubes").innerText + " tubes (L = " + el("ffe-tubelen").value + " m, OD = " + el("ffe-tubedia").value + " mm)",' +
+      '      "Liquid Wetting Rate: " + el("out-gamma").innerText + " kg/m·s (Status: " + el("out-wet-badge").innerText + ")",' +
+      '      "Film Reynolds Number (Re_f): " + el("out-ref").innerText,' +
+      '      "Operating Conditions: Feed = " + el("ffe-mfeed").value + " " + el("ffe-mfeed-unit").value + " (" + el("ffe-xin").value + "% -> " + el("ffe-xout").value + "%), Steam = " + el("ffe-tsteam").value + " °C, Boils = " + el("ffe-tevap").value + " °C",' +
+      '      "Standard Validation: Chun & Seban Falling Film Correlation & Nusselt Wavy Film Hydrodynamics"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("ffe-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (223 calculators in /calc/)');
 }
 
