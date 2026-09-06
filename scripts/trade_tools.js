@@ -6218,6 +6218,1980 @@ export function buildTradeTools() {
   }));
 
 
+    // ─────────────────────────────────────────────────────────────────────────────
+  // 30. CNC & MANUAL MACHINING FEEDS AND SPEEDS CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const feedsSpeedsBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Feeds &amp; Speeds Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">CNC Milling &amp; Lathe Machining</span>
+          <span class="badge badge-green">Radial Chip Thinning Compensation</span>
+          <span class="badge badge-blue">Material Removal Rate (MRR) &amp; Spindle HP</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">CNC Feeds &amp; Speeds Calculator with Chip Thinning</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate precise spindle RPM, table feed rate (IPM &amp; mm/min), chip load per tooth, volumetric material removal rate (MRR), and required cutting horsepower across aluminum, steel, titanium, and plastics. Features automated <strong>radial chip thinning compensation (RCTC)</strong> for high-speed trochoidal and light radial stepover toolpaths.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: Material & Cutter Type -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Workpiece Material Preset</label>
+            <select id="fs-material-preset" class="input-field" style="width: 100%;" onchange="applyFsMaterialPreset()">
+              <option value="600,0.004,0.3" selected>6061-T6 Aluminum (SFM: 600–1200, K: 0.3 HP/in³)</option>
+              <option value="100,0.0025,0.8">1018 / Mild Carbon Steel (SFM: 100–150, K: 0.8 HP/in³)</option>
+              <option value="75,0.002,1.0">4140 Alloy Steel Pre-Hardened (SFM: 75–110, K: 1.0 HP/in³)</option>
+              <option value="60,0.0018,1.2">304 / 316 Stainless Steel (SFM: 50–80, K: 1.2 HP/in³)</option>
+              <option value="45,0.0015,1.4">Titanium Grade 5 (Ti-6Al-4V) (SFM: 40–60, K: 1.4 HP/in³)</option>
+              <option value="120,0.003,0.6">Grey Cast Iron Class 30 (SFM: 100–140, K: 0.6 HP/in³)</option>
+              <option value="300,0.003,0.4">C360 Brass / Bronze (SFM: 250–400, K: 0.4 HP/in³)</option>
+              <option value="500,0.005,0.2">Delrin / Acetal / HDPE (SFM: 400–800, K: 0.2 HP/in³)</option>
+              <option value="custom">Custom SFM, Chip Load &amp; Power Constant...</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Surface Feet per Minute (SFM)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="fs-sfm" class="input-field" value="600" min="10" max="3000" step="25" style="width: 100%;" oninput="calcFeedsSpeeds()">
+              <span style="font-weight: bold; min-width: 50px;">SFM</span>
+            </div>
+            <small style="color: var(--text-muted);">Cutting tool peripheral surface speed</small>
+          </div>
+        </div>
+
+        <!-- Row 2: Cutter Geometry -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Cutter Diameter (D)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="fs-cutter-diam" class="input-field" value="0.500" min="0.015" max="6.0" step="0.0625" style="width: 100%;" oninput="calcFeedsSpeeds()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">e.g. 0.250", 0.500"</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Number of Flutes (z)</label>
+            <input type="number" id="fs-flutes" class="input-field" value="3" min="1" max="12" step="1" style="width: 100%;" oninput="calcFeedsSpeeds()">
+            <small style="color: var(--text-muted);">3 flutes for Al, 4–5 for Steel</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Nominal Chip Load (IPT / fz)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="fs-chip-load" class="input-field" value="0.004" min="0.0001" max="0.050" step="0.0005" style="width: 100%;" oninput="calcFeedsSpeeds()">
+              <span style="font-weight: bold;">in/tooth</span>
+            </div>
+            <small style="color: var(--text-muted);">Target unthinned chip thickness</small>
+          </div>
+        </div>
+
+        <!-- Row 3: Cut Depths (Radial & Axial) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Radial Width of Cut (ae / Stepover)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="fs-radial-stepover" class="input-field" value="0.100" min="0.001" max="6.0" step="0.025" style="width: 100%;" oninput="calcFeedsSpeeds()">
+              <span style="font-weight: bold;">in</span>
+              <span id="fs-stepover-pct" style="font-size: 0.85rem; color: #3b82f6; min-width: 65px; font-weight: 600;">(20% D)</span>
+            </div>
+            <small style="color: var(--text-muted);">Radial engagement (triggers chip thinning if &lt; 50% D)</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Axial Depth of Cut (ap / Stepdown)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="fs-axial-depth" class="input-field" value="0.500" min="0.005" max="6.0" step="0.050" style="width: 100%;" oninput="calcFeedsSpeeds()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Flute length engaged in cutting</small>
+          </div>
+        </div>
+
+        <!-- Diagnostic Metrics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Spindle Speed</div>
+            <div id="res-fs-rpm" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-fs-metric-speed" style="font-size: 0.8rem; color: var(--text-muted);">-- m/min</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Compensated Feed Rate</div>
+            <div id="res-fs-ipm" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-fs-mmpm" style="font-size: 0.8rem; color: var(--text-muted);">-- mm/min</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Chip Thinning Factor</div>
+            <div id="res-fs-rctc-factor" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-fs-rctc-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Material Removal Rate &amp; HP</div>
+            <div id="res-fs-mrr" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-fs-hp" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">-- HP Net Spindle</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-fs-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyFsSummary()">
+            <span>📋</span> Copy CNC Toolpath &amp; Machining Sheet
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Cutter Radial Engagement &amp; Dynamic Chip Profile</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Top-down cross-section of end mill rotating into workpiece showing radial stepover ($a_e$), engagement arc angle ($\theta$), and actual vs thinned chip geometry.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="fs-cutter-svg" viewBox="0 0 720 280" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Engineering Derivation &amp; Chip Thinning Math</h3>
+        <div id="fs-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal CNC Machining Traps &amp; Feeds Pitfalls</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Tool breakage, poor surface finish, and burned carbide rarely happen because of aggressive feeds&mdash;they happen from rubbing, chip recutting, and uncompensated chip thinning.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔥</span> 1. Uncompensated Radial Chip Thinning Rubbing &amp; Premature Burnout
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When taking light radial cuts ($a_e &lt; 50\\%$ of cutter diameter, such as 10% stepover in modern trochoidal / dynamic toolpaths), the cutter tooth enters and exits the material without ever achieving its programmed chip thickness. At a 10% stepover, the actual chip thickness is less than 60% of the programmed feed per tooth. If the feed rate is not multiplied by the <strong>Radial Chip Thinning Factor ($1 / \\sqrt{a_e/D}$)</strong>, the cutting edge simply rubs, burnishes, and work-hardens the material rather than shearing clean chips, destroying carbide edge sharpness in minutes.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚡</span> 2. Excessive Tool Stickout Deflection &amp; Chatter ($L^3$ Rule)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Tool shank deflection varies with the <strong>cube of overhang length ($L^3 / D^4$)</strong>. Doubling tool stickout from 3&times; diameter (1.5 inches for a 1/2&quot; tool) to 6&times; diameter (3 inches) increases deflection and flexural vibration by $2^3 = \\mathbf{8\\times}$. Even a tiny deflection of 0.001&quot; causes dynamic chatter, wavy wall surface finish, and catastrophic carbide chipping on the tool flutes. Always choke up on tools and keep stickout under 3&times; diameter unless using tapered neck reach tooling.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🛑</span> 3. Titanium &amp; Stainless Dwell Hesitation (Work-Hardening Glass Skin)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Austenitic stainless steels (304, 316) and Titanium alloys (Ti-6Al-4V) work-harden instantaneously under mechanical shear friction. If an operator hesitates, uses too low a chip load ($f_z &lt; 0.001&quot;$), or allows an end mill to dwell in a corner, the material surface transforms into an impenetrable, glass-hard outer shell (~55 HRC). The next pass rubs against this hardened layer, sparks intensely, and snaps the end mill instantly. Maintain positive, aggressive tooth chip load at all times.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>💥</span> 4. Climb vs. Conventional Milling Backlash Slam on Manual Mills
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              While CNC mills equipped with preloaded zero-backlash ball screws always use climb (down) milling to optimize tool life and chip evacuation, using climb milling on a manual Bridgeport mill with acme leadscrews is deadly. Climb milling forces the cutter tooth into the workpiece at maximum thickness, grabbing the table and slamming it forward across the leadscrew backlash gap (often 0.010&quot; to 0.025&quot;). This sudden table jump stalls the spindle, shatters the cutter, and can throw the workpiece out of the vise.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🌪️</span> 5. Aluminum Chip Packing &amp; Recutting Welding
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Aluminum has a high affinity for solid carbide at elevated temperatures. When slotting or pocketing without high-pressure air blast or flood coolant, hot chips fall back into the cutter path and are recut. Recutting chips compresses aluminum particles into the flute gullets under extreme pressure, &quot;welding&quot; the chips solidly into the flutes within 2 spindle revolutions. Once the flutes are packed with melted aluminum, cutting geometry is destroyed and the solid carbide shank breaks cleanly in half. Always use 2 or 3-flute end mills with polished flutes for aluminum.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: CNC Feeds &amp; Speeds</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is Radial Chip Thinning Compensation (RCTC) and when is it required?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Radial Chip Thinning occurs whenever the radial depth of cut (width of cut $a_e$) is less than 50% of the cutter diameter ($D/2$). Because the cutter tooth is engaged for less than a 90-degree arc, the maximum thickness of the chip produced is significantly smaller than the programmed advance per tooth ($f_z$). To compensate and prevent rubbing, the programmed feed per tooth must be increased: <code>f_actual = f_target / sqrt(a_e / D)</code>.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How is spindle speed (RPM) calculated from Surface Feet per Minute (SFM)?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Spindle speed is calculated using the formula: <code>RPM = (SFM * 12) / (π * D)</code>, which simplifies to approximately <code>RPM = (SFM * 3.82) / D</code>, where <em>SFM</em> is the material's recommended surface cutting speed and <em>D</em> is the tool diameter in inches. For example, a 0.500" cutter in aluminum at 600 SFM requires <code>(600 * 3.82) / 0.500 = 4,584 RPM</code>.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is Material Removal Rate (MRR) and how does it relate to spindle horsepower?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              MRR measures the volume of metal removed per minute: <code>MRR = a_p * a_e * FeedRate_IPM</code> (expressed in cubic inches per minute, in³/min). Required spindle power is calculated by multiplying MRR by the material's unit power constant ($K_c$): <code>HP = MRR * K_c</code>. Aluminum requires ~0.25 to 0.35 HP per in³/min, while titanium requires ~1.4 to 1.6 HP per in³/min.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Why do aluminum tools have fewer flutes than steel tools?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Aluminum is soft and produces large, curly, high-volume chips at high feed rates. A 2-flute or 3-flute end mill provides deep, wide flute valleys (gullets) that allow massive chips to evacuate freely without jamming. Steel produces much smaller, powdery or tightly curled chips and exerts higher cutting forces, allowing 4, 5, or 6-flute tools with a thicker, stiffer central core to be used without clogging.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the difference between climb milling and conventional milling?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              In <strong>climb milling</strong> (down milling), the cutter rotates in the direction of feed, entering at maximum chip thickness and exiting at zero thickness, resulting in lower heat in the tool, superior surface finish, and longer tool life. In <strong>conventional milling</strong> (up milling), the cutter rotates against feed direction, starting at zero thickness and rubbing upward, which causes friction wear and work hardening, but is necessary on loose manual machines with table backlash.
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      var materialUnitPower = 0.3; // HP per in3/min
+
+      function applyFsMaterialPreset() {
+        var val = document.getElementById('fs-material-preset').value;
+        if (val !== 'custom') {
+          var parts = val.split(',');
+          document.getElementById('fs-sfm').value = parts[0];
+          document.getElementById('fs-chip-load').value = parts[1];
+          materialUnitPower = parseFloat(parts[2]);
+          calcFeedsSpeeds();
+        }
+      }
+
+      function calcFeedsSpeeds() {
+        var sfm = parseFloat(document.getElementById('fs-sfm').value) || 100;
+        var diam = parseFloat(document.getElementById('fs-cutter-diam').value) || 0.5;
+        var z = parseInt(document.getElementById('fs-flutes').value) || 3;
+        var fz = parseFloat(document.getElementById('fs-chip-load').value) || 0.003;
+        var ae = parseFloat(document.getElementById('fs-radial-stepover').value) || 0.1;
+        var ap = parseFloat(document.getElementById('fs-axial-depth').value) || 0.25;
+
+        // Stepover percentage
+        var stepoverPct = (ae / diam) * 100;
+        var pctEl = document.getElementById('fs-stepover-pct');
+        pctEl.textContent = '(' + stepoverPct.toFixed(1) + '% D)';
+        pctEl.style.color = stepoverPct < 25 ? '#f59e0b' : '#3b82f6';
+
+        // 1. Spindle RPM: RPM = (SFM * 12) / (pi * D) = (SFM * 3.8197) / D
+        var rpm = (sfm * 3.8197) / diam;
+        var surfaceMpm = sfm * 0.3048;
+
+        // 2. Chip Thinning Factor
+        // If ae < D / 2: RCTC = 1 / sqrt(ae / D)
+        var rctcFactor = 1.0;
+        var isThinning = false;
+        if (ae < (diam / 2)) {
+          isThinning = true;
+          rctcFactor = 1 / Math.sqrt(Math.max(0.01, ae / diam));
+        }
+
+        var effectiveFz = fz * rctcFactor;
+
+        // 3. Feed Rate (IPM & mm/min)
+        var unthinnedIpm = rpm * z * fz;
+        var compensatedIpm = rpm * z * effectiveFz;
+        var compensatedMmpm = compensatedIpm * 25.4;
+
+        // 4. MRR: ae * ap * FeedRate_IPM
+        var mrr = ae * ap * compensatedIpm;
+        var hp = mrr * materialUnitPower;
+
+        // Update UI Cards
+        document.getElementById('res-fs-rpm').textContent = Math.round(rpm).toLocaleString() + ' RPM';
+        document.getElementById('res-fs-metric-speed').textContent = surfaceMpm.toFixed(1) + ' m/min peripheral';
+
+        document.getElementById('res-fs-ipm').textContent = compensatedIpm.toFixed(1) + ' IPM';
+        document.getElementById('res-fs-mmpm').textContent = Math.round(compensatedMmpm).toLocaleString() + ' mm/min';
+
+        var rctcEl = document.getElementById('res-fs-rctc-factor');
+        rctcEl.textContent = rctcFactor.toFixed(2) + 'x';
+        var rctcStatEl = document.getElementById('res-fs-rctc-status');
+        if (isThinning) {
+          rctcStatEl.textContent = 'Active (+ ' + Math.round((rctcFactor - 1) * 100) + '% Feed Boost)';
+          rctcStatEl.style.color = '#f59e0b';
+        } else {
+          rctcStatEl.textContent = 'Standard (No Thinning)';
+          rctcStatEl.style.color = '#10b981';
+        }
+
+        document.getElementById('res-fs-mrr').textContent = mrr.toFixed(2) + ' in³/min';
+        document.getElementById('res-fs-hp').textContent = hp.toFixed(2) + ' HP Spindle Cut Power';
+
+        // Render SVG and Derivation
+        renderFsSvg(diam, ae, stepoverPct, isThinning, rctcFactor);
+        renderFsDerivation(sfm, diam, z, fz, ae, ap, rpm, rctcFactor, compensatedIpm, mrr, hp);
+      }
+
+      function renderFsSvg(diam, ae, stepoverPct, isThinning, factor) {
+        var svg = document.getElementById('fs-cutter-svg');
+        if (!svg) return;
+
+        var cx = 200, cy = 140, r = 85;
+        var svgHtml = '';
+
+        // Draw Workpiece Block
+        var cutW = Math.min(r * 1.8, Math.max(10, (ae / diam) * (2 * r)));
+        svgHtml += '<rect x="' + (cx - r) + '" y="' + (cy - r - 10) + '" width="' + (r * 2 + 100) + '" height="' + (r * 2 + 20) + '" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6" />';
+        svgHtml += '<text x="' + (cx + r + 30) + '" y="' + (cy - r + 15) + '" fill="#94a3b8" font-size="11" font-weight="bold">Workpiece</text>';
+
+        // Cutter Circle
+        svgHtml += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(59, 130, 246, 0.15)" stroke="#3b82f6" stroke-width="3" />';
+        svgHtml += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#60a5fa" />';
+
+        // Flutes indication
+        svgHtml += '<line x1="' + cx + '" y1="' + (cy - r) + '" x2="' + cx + '" y2="' + (cy + r) + '" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,4" />';
+        svgHtml += '<line x1="' + (cx - r) + '" y1="' + cy + '" x2="' + (cx + r) + '" y2="' + cy + '" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,4" />';
+
+        // Engaged cut zone overlay
+        svgHtml += '<rect x="' + (cx + r - cutW) + '" y="' + (cy - r) + '" width="' + cutW + '" height="' + (r * 2) + '" fill="rgba(245, 158, 11, 0.25)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,2" />';
+
+        // Dimension lines for radial stepover
+        svgHtml += '<line x1="' + (cx + r - cutW) + '" y1="' + (cy + r + 20) + '" x2="' + (cx + r) + '" y2="' + (cy + r + 20) + '" stroke="#f59e0b" stroke-width="2" />';
+        svgHtml += '<text x="' + (cx + r - cutW / 2) + '" y="' + (cy + r + 36) + '" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">ae = ' + ae.toFixed(3) + '\\" (' + stepoverPct.toFixed(1) + '%)</text>';
+
+        // Rotation arrow on tool
+        svgHtml += '<path d="M ' + (cx - 30) + ' ' + (cy - 50) + ' A 55 55 0 0 1 ' + (cx + 40) + ' ' + (cy - 40) + '" fill="none" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrow)" />';
+
+        // Info Dashboard Panel on Right
+        svgHtml += '<g transform="translate(430, 30)">';
+        svgHtml += '<rect x="0" y="0" width="260" height="220" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<text x="130" y="28" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Chip Dynamics &amp; Geometry</text>';
+        
+        svgHtml += '<text x="25" y="60" fill="#94a3b8" font-size="11">• Cutter Diameter: <tspan fill="#3b82f6" font-weight="bold">' + diam.toFixed(3) + '\\"</tspan></text>';
+        svgHtml += '<text x="25" y="85" fill="#94a3b8" font-size="11">• Radial Immersion: <tspan fill="#f59e0b" font-weight="bold">' + stepoverPct.toFixed(1) + '%</tspan></text>';
+        svgHtml += '<text x="25" y="110" fill="#94a3b8" font-size="11">• Engagement Status: <tspan fill="' + (isThinning ? '#f59e0b' : '#10b981') + '" font-weight="bold">' + (isThinning ? 'Light Stepover (Thinning)' : 'Heavy Slotting (Full)') + '</tspan></text>';
+        svgHtml += '<text x="25" y="135" fill="#94a3b8" font-size="11">• Feed Compensation: <tspan fill="#10b981" font-weight="bold">' + factor.toFixed(2) + 'x Multiplier</tspan></text>';
+        
+        svgHtml += '<rect x="20" y="155" width="220" height="50" rx="6" fill="' + (isThinning ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)') + '" stroke="' + (isThinning ? '#f59e0b' : '#10b981') + '" stroke-width="0.8" />';
+        svgHtml += '<text x="130" y="176" text-anchor="middle" fill="' + (isThinning ? '#f59e0b' : '#10b981') + '" font-size="10.5" font-weight="bold">' + (isThinning ? '✓ RCTC Active: Prevents Rubbing' : '✓ Standard Chip Load Engaged') + '</text>';
+        svgHtml += '<text x="130" y="194" text-anchor="middle" fill="#94a3b8" font-size="9.5">High-Speed Machining (HSM) Mode</text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderFsDerivation(sfm, d, z, fz, ae, ap, rpm, factor, ipm, mrr, hp) {
+        var el = document.getElementById('fs-derivation-content');
+        if (!el) return;
+
+        var html = '';
+        html += '<p><strong>Step 1: Calculate Spindle Angular Velocity (RPM)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{RPM} = \\\\frac{\\\\text{SFM} \\\\times 12}{\\\\pi \\\\times D} = \\\\frac{' + sfm + ' \\\\times 12}{\\\\pi \\\\times ' + d.toFixed(3) + '} = \\\\mathbf{' + Math.round(rpm).toLocaleString() + '\\\\text{ RPM}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Radial Chip Thinning Compensation (RCTC)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$a_e = ' + ae.toFixed(3) + '\\" \\\\quad (D/2 = ' + (d / 2).toFixed(3) + '\\") \\\\quad\\\\implies\\\\quad \\\\text{Factor} = \\\\frac{1}{\\\\sqrt{a_e / D}} = \\\\mathbf{' + factor.toFixed(2) + '\\\\times}$$<br>';
+        html += '$$\\\\text{Compensated Feed per Tooth } f_{z,\\\\text{comp}} = ' + fz.toFixed(4) + ' \\\\times ' + factor.toFixed(2) + ' = \\\\mathbf{' + (fz * factor).toFixed(4) + '\\" / \\\\text{tooth}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Table Feed Rate, Volumetric MRR &amp; Net Spindle Horsepower</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{Feed Rate (IPM)} = \\\\text{RPM} \\\\times z \\\\times f_{z,\\\\text{comp}} = ' + Math.round(rpm) + ' \\\\times ' + z + ' \\\\times ' + (fz * factor).toFixed(4) + ' = \\\\mathbf{' + ipm.toFixed(1) + '\\\\text{ IPM}} \\\\quad (' + Math.round(ipm * 25.4) + '\\\\text{ mm/min})$$<br>';
+        html += '$$\\\\text{MRR} = a_p \\\\times a_e \\\\times \\\\text{IPM} = ' + ap.toFixed(3) + ' \\\\times ' + ae.toFixed(3) + ' \\\\times ' + ipm.toFixed(1) + ' = \\\\mathbf{' + mrr.toFixed(2) + '\\\\text{ in}^3 / \\\\text{min}}$$';
+        html += '$$\\\\text{Net Spindle HP} = \\\\text{MRR} \\\\times K_c = ' + mrr.toFixed(2) + ' \\\\times ' + materialUnitPower.toFixed(2) + ' = \\\\mathbf{' + hp.toFixed(2) + '\\\\text{ HP}}$$';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyFsSummary() {
+        var mat = document.getElementById('fs-material-preset').selectedOptions[0].text;
+        var sfm = document.getElementById('fs-sfm').value;
+        var diam = document.getElementById('fs-cutter-diam').value;
+        var z = document.getElementById('fs-flutes').value;
+        var ae = document.getElementById('fs-radial-stepover').value;
+        var ap = document.getElementById('fs-axial-depth').value;
+        var rpm = document.getElementById('res-fs-rpm').textContent;
+        var ipm = document.getElementById('res-fs-ipm').textContent;
+        var mmpm = document.getElementById('res-fs-mmpm').textContent;
+        var rctc = document.getElementById('res-fs-rctc-factor').textContent;
+        var mrr = document.getElementById('res-fs-mrr').textContent;
+        var hp = document.getElementById('res-fs-hp').textContent;
+
+        var text = '=== CNC FEEDS & SPEEDS MACHINING SHEET ===\\n' +
+          'Material: ' + mat + '\\n' +
+          'Cutter: ∅' + diam + '" End Mill (' + z + ' flutes)\\n' +
+          'Radial Cut (ae): ' + ae + '" | Axial Cut (ap): ' + ap + '"\\n' +
+          'Target SFM: ' + sfm + ' SFM\\n' +
+          '----------------------------------------\\n' +
+          'Spindle Speed: ' + rpm + '\\n' +
+          'Feed Rate: ' + ipm + ' (' + mmpm + ')\\n' +
+          'Chip Thinning: ' + rctc + ' Boost\\n' +
+          'Metal Removal Rate: ' + mrr + '\\n' +
+          'Spindle Power: ' + hp + '\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/feeds-and-speeds-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-fs-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied CNC Machining Sheet!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcFeedsSpeeds);
+      } else {
+        calcFeedsSpeeds();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'feeds-and-speeds-calculator.html'), renderTradePage({
+    title: "CNC Feeds and Speeds Calculator with Radial Chip Thinning | Digital Tools Shed",
+    metaDesc: "Calculate milling and CNC spindle RPM, IPM feed rates, radial chip thinning compensation (RCTC), material removal rate (MRR), and required cutting horsepower.",
+    canonical: `${DOMAIN}/calc/feeds-and-speeds-calculator`,
+    bodyContent: feedsSpeedsBody,
+    currentPath: '/calc/feeds-and-speeds-calculator',
+    faq: [
+      {
+        "q": "What is Radial Chip Thinning Compensation (RCTC) and when is it required?",
+        "a": "Radial chip thinning occurs whenever the radial width of cut (ae) is less than 50% of the cutter diameter. Because the cutting tooth engages for less than 90 degrees, the actual chip thickness is smaller than the programmed feed per tooth. RCTC increases feed rate by 1/sqrt(ae/D) to prevent friction rubbing and tool burnout."
+      },
+      {
+        "q": "How is spindle speed (RPM) calculated from Surface Feet per Minute (SFM)?",
+        "a": "Spindle RPM is calculated using RPM = (SFM * 12) / (π * D), or approximately (SFM * 3.82) / D, where SFM is peripheral cutting speed and D is tool diameter in inches."
+      },
+      {
+        "q": "What is Material Removal Rate (MRR) and how does it relate to spindle horsepower?",
+        "a": "MRR measures the volume of metal removed per minute: MRR = ap * ae * IPM (in³/min). Required spindle power is HP = MRR * Kc, where Kc is the material power constant (0.3 for aluminum, 1.0 for alloy steel, 1.4 for titanium)."
+      },
+      {
+        "q": "Why do aluminum tools have fewer flutes than steel tools?",
+        "a": "Aluminum produces large, ductile chips at high removal rates that require deep, wide flute valleys (gullets) to evacuate without packing. 2-flute and 3-flute end mills prevent chip welding, while stiffer 4 to 6-flute tools are preferred for harder steels."
+      },
+      {
+        "q": "What is the difference between climb milling and conventional milling?",
+        "a": "In climb milling, the cutter rotates in the direction of feed, producing thick-to-thin chips with minimal heat and superior finish (ideal for CNC). In conventional milling, the cutter rotates against feed, rubbing thin-to-thick, which is necessary on older manual mills to avoid table backlash slam."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 31. THERMAL EXPANSION, STRESS & JOINT CLEARANCE CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const thermalExpBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Thermal Expansion Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Thermodynamics &amp; Structural Piping</span>
+          <span class="badge badge-green">Linear, Areal &amp; Volumetric Expansion</span>
+          <span class="badge badge-blue">Constrained Thermal Stress &amp; Crushing Force</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Thermal Expansion, Clearance &amp; Stress Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate precise dimensional expansion ($\Delta L, \Delta A, \Delta V$) across metals, plastics, piping, and concrete under temperature changes. Size bridge expansion joints, plumbing loops, and evaluate <strong>destructive compressive thermal stress ($\sigma$)</strong> when structural members are rigidly anchored.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: Material & Coefficient -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Material Preset</label>
+            <select id="te-material-preset" class="input-field" style="width: 100%;" onchange="applyTeMaterialPreset()">
+              <option value="6.7,29000000" selected>Structural Carbon Steel A36 (α: 6.7 × 10⁻⁶ /°F)</option>
+              <option value="13.0,10000000">6061-T6 Aluminum (α: 13.0 × 10⁻⁶ /°F)</option>
+              <option value="9.4,17000000">Copper Type L/K Pipe (α: 9.4 × 10⁻⁶ /°F)</option>
+              <option value="10.5,15000000">C360 Brass / Bronze (α: 10.5 × 10⁻⁶ /°F)</option>
+              <option value="5.5,3600000">Structural Concrete (α: 5.5 × 10⁻⁶ /°F)</option>
+              <option value="30.0,400000">PVC Schedule 40/80 Pipe (α: 30.0 × 10⁻⁶ /°F)</option>
+              <option value="90.0,100000">PEX Plastic Plumbing Tube (α: 90.0 × 10⁻⁶ /°F)</option>
+              <option value="1.8,9300000">Pyrex / Borosilicate Glass (α: 1.8 × 10⁻⁶ /°F)</option>
+              <option value="0.67,21000000">Invar 36 Low-Expansion Alloy (α: 0.67 × 10⁻⁶ /°F)</option>
+              <option value="custom">Custom Thermal Coefficient &amp; Modulus...</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Linear Expansion Coefficient (α)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="te-alpha-input" class="input-field" value="6.7" min="0.01" max="500" step="0.1" style="width: 100%;" oninput="calcThermalExp()">
+              <span style="font-weight: bold; min-width: 95px;">× 10⁻⁶ / °F</span>
+            </div>
+            <small style="color: var(--text-muted);">Fractional change in length per degree Fahrenheit</small>
+          </div>
+        </div>
+
+        <!-- Row 2: Dimensions & Expansion Joint Gap -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Initial Length / Span (L₀)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="te-length-ft" class="input-field" value="50" min="0.5" max="10000" step="1" style="width: 100%;" oninput="calcThermalExp()">
+              <span style="font-weight: bold; min-width: 30px;">ft</span>
+              <input type="number" id="te-length-in" class="input-field" value="0" min="0" max="11.875" step="0.5" style="width: 80px;" oninput="calcThermalExp()">
+              <span style="font-weight: bold; min-width: 30px;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Total baseline length of pipe, rail, or bridge girder</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Existing Expansion Joint Gap (g₀)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="te-gap-input" class="input-field" value="0.75" min="0" max="48" step="0.125" style="width: 100%;" oninput="calcThermalExp()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Physical clearance before member bottoms out against fixed wall</small>
+          </div>
+        </div>
+
+        <!-- Row 3: Temperatures & Cross-Section -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Installation Temp (T₁)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="te-t1" class="input-field" value="65" min="-100" max="1500" step="5" style="width: 100%;" oninput="calcThermalExp()">
+              <span style="font-weight: bold;">°F</span>
+            </div>
+            <small style="color: var(--text-muted);">Ambient temperature during assembly</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Operating Max Temp (T₂)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="te-t2" class="input-field" value="135" min="-100" max="2500" step="5" style="width: 100%;" oninput="calcThermalExp()">
+              <span style="font-weight: bold;">°F</span>
+            </div>
+            <small style="color: var(--text-muted);">Peak summer solar or fluid temperature</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Cross-Section Area (A)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="te-area" class="input-field" value="12.0" min="0.05" max="10000" step="0.5" style="width: 100%;" oninput="calcThermalExp()">
+              <span style="font-weight: bold;">in²</span>
+            </div>
+            <small style="color: var(--text-muted);">For thermal stress crushing force</small>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Linear Expansion (ΔL)</div>
+            <div id="res-te-delta-in" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-te-delta-mm" style="font-size: 0.8rem; color: var(--text-muted);">-- mm / fractional</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Remaining Joint Gap</div>
+            <div id="res-te-gap-left" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-te-gap-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Constrained Stress (σ)</div>
+            <div id="res-te-stress-psi" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-te-stress-mpa" style="font-size: 0.8rem; color: var(--text-muted);">-- MPa (If Fully Constrained)</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Total Crushing Force</div>
+            <div id="res-te-force-lbs" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-te-force-tons" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">-- Tons Axial Thrust</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-te-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyTeSummary()">
+            <span>📋</span> Copy Thermal Expansion &amp; Stress Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Expansion Joint Kinematics &amp; Gap Clearance</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Real-time structural joint schematic showing cold baseline position, thermal elongation ($\Delta L$), and remaining gap buffer versus rigid clash boundary.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="te-joint-svg" viewBox="0 0 720 280" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Thermodynamic Derivation &amp; Stress Equations</h3>
+        <div id="te-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal Thermal Expansion Traps &amp; Structural Pitfalls</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Thermal forces are practically irresistible&mdash;when a heated structure cannot expand, molecular bond energy generates immense stresses capable of crushing concrete piers and bending rails.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>💥</span> 1. PVC &amp; PEX Plastic Piping Expansion Surge (4.5x Steel)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Plastics exhibit enormous thermal expansion coefficients. Schedule 40/80 PVC expands at <strong>$30.0 \times 10^{-6} / ^\circ\text{F}$</strong>&mdash;over 4.5&times; that of steel and 3.2&times; that of copper. On a 100-foot commercial drain run experiencing an 80&deg;F temperature swing, PVC expands by <strong>nearly 3 inches</strong> (2.88&quot;). If rigidly clamped into wall framing without expansion loops or telescoping slip joints, the pipe buckles out of drywall or shears solvent-welded elbow fittings completely off.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🚂</span> 2. Continuous Welded Rail Sun-Kink Buckling (15,000 PSI Crush)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Modern railroad tracks use continuous welded rail (CWR) without joint gaps. In summer direct sunlight, steel rail temperatures easily exceed 140&deg;F (an 80&deg;F rise above neutral laying temperature). Because the rail cannot expand longitudinally, thermal compressive stress builds according to $\sigma = E \cdot \alpha \cdot \Delta T = (29 \times 10^6) \times (6.7 \times 10^{-6}) \times 80 = \mathbf{15,544\text{ PSI}}$. Across a 136-lb rail section ($A = 13.3\text{ in}^2$), this creates over <strong>100 tons of compressive force per rail</strong>, triggering violent lateral &quot;sun-kinks&quot; that derail trains.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔄</span> 3. Bimetallic Differential Expansion Shear Delamination
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When dissimilar metals are fastened together&mdash;such as aluminum architectural facade panels ($\alpha = 13.0 \times 10^{-6}$) bolted to a structural steel frame ($\alpha = 6.7 \times 10^{-6}$)&mdash;they expand at vastly different rates (nearly 2:1 ratio). Over a 20-foot panel across a 100&deg;F seasonal shift, the aluminum expands 0.15 inches more than the steel frame. Rigid non-slotted fasteners will either shear in two, tear through the aluminum sheet, or buckle the panel into an oil-canning wave. Slotted mounting holes with nylon washers are mandatory.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>❄️</span> 4. Concrete Slab Thermal Contraction Cracking (&gt;30x Thickness Rule)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              While thermal expansion causes concrete joint spalling in summer, winter thermal contraction is even deadlier. Concrete has very high compressive strength (4,000+ PSI) but pathetic tensile strength (~400 PSI). As temperatures plunge by 60&deg;F, subgrade friction restrains the slab from contracting freely. If control joint spacing exceeds 24&times; to 30&times; the slab thickness (e.g. 10 to 12 feet for a 4-inch slab), internal tensile stress easily exceeds 400 PSI, causing random meandering surface fractures across the driveway.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔥</span> 5. High-Pressure Steam &amp; Hydronic Piping Anchor Destruction
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              In district energy and high-pressure steam distribution systems, steam enters cold steel piping at 350&deg;F to 450&deg;F ($\Delta T \approx 380^\circ\text{F}$). Over a 200-foot run, the pipe expands by over <strong>6 inches</strong> ($0.5\text{ ft}$). If pipe guides, ball joints, or U-bend expansion loops are undersized or locked by rust, the expanding pipe exerts millions of foot-pounds of bending moment, tearing concrete anchor pilings out of structural foundation slabs like toothpicks.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: Thermal Expansion</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the formula for calculating linear thermal expansion?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The linear thermal expansion formula is: <code>ΔL = α * L₀ * ΔT</code>, where <em>ΔL</em> is the change in length, <em>α</em> is the linear expansion coefficient of the material (in 1/°F or 1/°C), <em>L₀</em> is the initial length, and <em>ΔT</em> is the temperature change (T₂ - T₁). For volumetric expansion of solids, <code>ΔV ≈ 3 * α * V₀ * ΔT</code>.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How much force is generated if an expanding beam is prevented from expanding?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              When fully constrained, thermal strain ($\epsilon = \alpha \cdot \Delta T$) converts directly into mechanical stress via Hooke's Law: <code>σ = E * α * ΔT</code>. The total crushing force is <code>F = σ * A</code>, where <em>E</em> is the Modulus of Elasticity and <em>A</em> is cross-sectional area. Notice that length ($L₀$) cancels out&mdash;a 1-foot bar and a 1,000-foot rail exert the exact same crushing stress for an identical temperature rise!
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Why do bridges have metal finger joints or comb teeth?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              A 1,000-foot steel bridge truss expanding over an 80°F temperature differential elongates by over <strong>6.4 inches</strong>. Interlocking metal finger joints bridge this gap, providing a continuous smooth driving surface for vehicular tires while allowing the bridge girders to freely slide back and forth on low-friction elastomeric or PTFE Teflon bearings without cracking concrete abutments.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Why does Pyrex glass resist thermal shock shattering?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Borosilicate glass (authentic Pyrex) has an extremely low coefficient of thermal expansion ($\alpha \approx 1.8 \times 10^{-6} / ^\circ\text{F}$), less than one-third that of standard soda-lime window glass. When boiling water is poured into borosilicate glass, the inner and outer surfaces expand minimally, avoiding the high differential tensile stresses that crack ordinary glass.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is Invar and why is it used in precision instruments?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Invar (FeNi36) is a 36% nickel-iron alloy with an anomalously low thermal expansion coefficient ($\alpha \approx 0.67 \times 10^{-6} / ^\circ\text{F}$ between -20°C and 100°C), near zero. Due to the Invar effect (magnetostrictive volume contraction canceling normal thermal phonon expansion), Invar is used in laser measuring frames, optical space telescopes, seismic land survey tapes, and precision clock pendulums.
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      var currentModulusE = 29000000;
+
+      function applyTeMaterialPreset() {
+        var val = document.getElementById('te-material-preset').value;
+        if (val !== 'custom') {
+          var parts = val.split(',');
+          document.getElementById('te-alpha-input').value = parts[0];
+          currentModulusE = parseFloat(parts[1]);
+          calcThermalExp();
+        }
+      }
+
+      function calcThermalExp() {
+        var alphaPpm = parseFloat(document.getElementById('te-alpha-input').value) || 6.7;
+        var alpha = alphaPpm * 1e-6; // per °F
+
+        var ft = parseFloat(document.getElementById('te-length-ft').value) || 0;
+        var inLen = parseFloat(document.getElementById('te-length-in').value) || 0;
+        var totalInches = (ft * 12) + inLen;
+        if (totalInches <= 0) totalInches = 12;
+
+        var gap = parseFloat(document.getElementById('te-gap-input').value) || 0;
+        var t1 = parseFloat(document.getElementById('te-t1').value) || 65;
+        var t2 = parseFloat(document.getElementById('te-t2').value) || 135;
+        var deltaT = t2 - t1;
+
+        var area = parseFloat(document.getElementById('te-area').value) || 12.0;
+
+        // 1. Linear Expansion: deltaL = alpha * L0 * deltaT
+        var deltaL = alpha * totalInches * deltaT; // inches
+        var deltaL_mm = deltaL * 25.4;
+
+        // 2. Remaining Gap & Clash Check
+        var remainingGap = gap - deltaL;
+        var isClash = remainingGap < 0;
+
+        // 3. Constrained Thermal Stress: sigma = E * alpha * deltaT (if fully constrained)
+        var stressPsi = currentModulusE * alpha * Math.max(0, deltaT);
+        var stressMpa = stressPsi * 0.00689476;
+
+        // 4. Crushing Force: F = sigma * A
+        var forceLbs = stressPsi * area;
+        var forceTons = forceLbs / 2000;
+
+        // UI Metric Updates
+        var dInEl = document.getElementById('res-te-delta-in');
+        dInEl.textContent = (deltaL >= 0 ? '+' : '') + deltaL.toFixed(3) + '\\"';
+        dInEl.style.color = deltaL > 0 ? '#3b82f6' : (deltaL < 0 ? '#06b6d4' : 'var(--fg)');
+
+        document.getElementById('res-te-delta-mm').textContent = (deltaL_mm >= 0 ? '+' : '') + deltaL_mm.toFixed(2) + ' mm (' + deltaT.toFixed(1) + '°F ΔT)';
+
+        var gapEl = document.getElementById('res-te-gap-left');
+        var gapStat = document.getElementById('res-te-gap-status');
+        gapEl.textContent = remainingGap.toFixed(3) + '\\"';
+
+        if (isClash) {
+          gapEl.style.color = '#ef4444';
+          gapStat.textContent = '❌ JOINT CLASH (-' + Math.abs(remainingGap).toFixed(3) + '\\" Deficit)';
+          gapStat.style.color = '#ef4444';
+        } else if (remainingGap < 0.125) {
+          gapEl.style.color = '#f59e0b';
+          gapStat.textContent = '⚠️ Tight Clearance (< 1/8\\")';
+          gapStat.style.color = '#f59e0b';
+        } else {
+          gapEl.style.color = '#10b981';
+          gapStat.textContent = '✓ Clearance Safe (' + ((remainingGap / Math.max(0.01, gap)) * 100).toFixed(0) + '% Left)';
+          gapStat.style.color = '#10b981';
+        }
+
+        document.getElementById('res-te-stress-psi').textContent = Math.round(stressPsi).toLocaleString() + ' PSI';
+        document.getElementById('res-te-stress-mpa').textContent = Math.round(stressMpa).toLocaleString() + ' MPa (Fully Fixed)';
+
+        document.getElementById('res-te-force-lbs').textContent = Math.round(forceLbs).toLocaleString() + ' lbs';
+        document.getElementById('res-te-force-tons').textContent = forceTons.toFixed(1) + ' Tons Axial Force';
+
+        // Render SVG and Derivation
+        renderTeSvg(totalInches, gap, deltaL, remainingGap, isClash);
+        renderTeDerivation(alphaPpm, totalInches, ft, inLen, t1, t2, deltaT, deltaL, gap, remainingGap, stressPsi, stressMpa, forceLbs, forceTons, area);
+      }
+
+      function renderTeSvg(L0, gap, dL, remGap, isClash) {
+        var svg = document.getElementById('te-joint-svg');
+        if (!svg) return;
+
+        var startX = 80;
+        var beamW = 440;
+        var beamY = 110;
+        var beamH = 45;
+
+        // Gap visual width (proportional)
+        var gapPx = 80;
+        var dL_px = Math.max(-50, Math.min(gapPx * 1.5, (dL / Math.max(0.1, gap)) * gapPx));
+
+        var wallX = startX + beamW + gapPx;
+
+        var svgHtml = '';
+
+        // Left Anchor Wall (Fixed)
+        svgHtml += '<rect x="' + (startX - 25) + '" y="' + (beamY - 25) + '" width="25" height="' + (beamH + 50) + '" fill="#334155" stroke="#475569" stroke-width="1.5" />';
+        for (var i = 0; i < 4; i++) {
+          svgHtml += '<line x1="' + (startX - 25) + '" y1="' + (beamY - 15 + i * 20) + '" x2="' + (startX - 5) + '" y2="' + (beamY - 25 + i * 20) + '" stroke="#64748b" stroke-width="1.5" />';
+        }
+        svgHtml += '<text x="' + (startX - 12) + '" y="' + (beamY + beamH + 35) + '" fill="#94a3b8" font-size="10" text-anchor="middle">Fixed</text>';
+
+        // Main Baseline Beam
+        svgHtml += '<rect x="' + startX + '" y="' + beamY + '" width="' + beamW + '" height="' + beamH + '" fill="#1e293b" stroke="#3b82f6" stroke-width="2" rx="4" />';
+        svgHtml += '<text x="' + (startX + beamW / 2) + '" y="' + (beamY + 28) + '" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="bold">Structural Member (L₀ = ' + (L0 / 12).toFixed(1) + ' ft)</text>';
+
+        // Right Thermal Elongation Head (Dynamic)
+        var headColor = isClash ? '#ef4444' : (dL > 0 ? '#f59e0b' : '#06b6d4');
+        var headW = Math.max(2, Math.abs(dL_px));
+        var headX = dL >= 0 ? (startX + beamW) : (startX + beamW - headW);
+
+        svgHtml += '<rect x="' + headX + '" y="' + beamY + '" width="' + headW + '" height="' + beamH + '" fill="' + headColor + '" opacity="0.85" rx="2" />';
+        svgHtml += '<text x="' + (headX + headW / 2) + '" y="' + (beamY - 8) + '" text-anchor="middle" fill="' + headColor + '" font-size="11" font-weight="bold">ΔL: ' + (dL >= 0 ? '+' : '') + dL.toFixed(3) + '\\"</text>';
+
+        // Right Clearance Gap & Abutment Wall
+        svgHtml += '<rect x="' + wallX + '" y="' + (beamY - 25) + '" width="25" height="' + (beamH + 50) + '" fill="#334155" stroke="#475569" stroke-width="1.5" />';
+        for (var j = 0; j < 4; j++) {
+          svgHtml += '<line x1="' + wallX + '" y1="' + (beamY - 15 + j * 20) + '" x2="' + (wallX + 20) + '" y2="' + (beamY - 25 + j * 20) + '" stroke="#64748b" stroke-width="1.5" />';
+        }
+        svgHtml += '<text x="' + (wallX + 12) + '" y="' + (beamY + beamH + 35) + '" fill="#94a3b8" font-size="10" text-anchor="middle">Abutment</text>';
+
+        // Gap dimension bracket
+        svgHtml += '<line x1="' + (startX + beamW) + '" y1="' + (beamY + beamH + 15) + '" x2="' + wallX + '" y2="' + (beamY + beamH + 15) + '" stroke="#10b981" stroke-width="1.5" />';
+        svgHtml += '<text x="' + (startX + beamW + gapPx / 2) + '" y="' + (beamY + beamH + 30) + '" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">Gap g₀ = ' + gap.toFixed(3) + '\\"</text>';
+
+        // Status callout box at top
+        var statColor = isClash ? '#ef4444' : (remGap < 0.125 ? '#f59e0b' : '#10b981');
+        svgHtml += '<g transform="translate(430, 20)">';
+        svgHtml += '<rect x="0" y="0" width="260" height="65" rx="6" fill="#0f172a" stroke="' + statColor + '" stroke-width="1.5" />';
+        svgHtml += '<text x="130" y="25" text-anchor="middle" fill="' + statColor + '" font-size="12" font-weight="bold">' + (isClash ? 'CRUSHING CLASH DETECTED' : 'CLEARANCE ADEQUATE') + '</text>';
+        svgHtml += '<text x="130" y="48" text-anchor="middle" fill="#94a3b8" font-size="11">Remaining Gap: <tspan fill="' + statColor + '" font-weight="bold">' + remGap.toFixed(3) + '\\"</tspan></text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderTeDerivation(alphaPpm, totalIn, ft, inch, t1, t2, dT, dL, gap, remGap, stress, mpa, force, tons, area) {
+        var el = document.getElementById('te-derivation-content');
+        if (!el) return;
+
+        var html = '';
+        html += '<p><strong>Step 1: Calculate Linear Thermal Expansion Elongation (ΔL)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\Delta L = \\\\alpha \\\\cdot L_0 \\\\cdot \\\\Delta T = (' + alphaPpm + ' \\\\times 10^{-6}) \\\\times ' + totalIn.toFixed(1) + '\\" \\\\times (' + t2 + '^\\\\circ\\\\text{F} - ' + t1 + '^\\\\circ\\\\text{F})$$<br>';
+        html += '$$\\\\Delta L = \\\\mathbf{' + (dL >= 0 ? '+' : '') + dL.toFixed(3) + '\\\\text{ inches}} \\\\quad (' + (dL * 25.4).toFixed(2) + '\\\\text{ mm})$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Verify Expansion Joint Clearance &amp; Bottom-Out Clash</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{Remaining Gap } g = g_0 - \\\\Delta L = ' + gap.toFixed(3) + '\\" - ' + dL.toFixed(3) + '\\" = \\\\mathbf{' + remGap.toFixed(3) + '\\"}$$<br>';
+        html += 'Joint Status: <strong>' + (remGap >= 0 ? 'Clearance Maintained (' + remGap.toFixed(3) + '\\" Open)' : 'CRUSH CLASH (-' + Math.abs(remGap).toFixed(3) + '\\" Deficit)') + '</strong>';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Constrained Thermal Compressive Stress &amp; Crushing Force</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\sigma = E \\\\cdot \\\\alpha \\\\cdot \\\\Delta T = ' + (currentModulusE / 1e6).toFixed(1) + 'M \\\\times (' + alphaPpm + ' \\\\times 10^{-6}) \\\\times ' + dT.toFixed(1) + '^\\\\circ\\\\text{F} = \\\\mathbf{' + Math.round(stress).toLocaleString() + '\\\\text{ PSI}} \\\\quad (' + Math.round(mpa).toLocaleString() + '\\\\text{ MPa})$$<br>';
+        html += '$$F = \\\\sigma \\\\cdot A = ' + Math.round(stress) + '\\\\text{ PSI} \\\\times ' + area.toFixed(2) + '\\\\text{ in}^2 = \\\\mathbf{' + Math.round(force).toLocaleString() + '\\\\text{ lbs}} \\\\quad (\\\\mathbf{' + tons.toFixed(1) + '\\\\text{ Tons Axial Thrust}})$$';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyTeSummary() {
+        var mat = document.getElementById('te-material-preset').selectedOptions[0].text;
+        var ft = document.getElementById('te-length-ft').value;
+        var inL = document.getElementById('te-length-in').value;
+        var t1 = document.getElementById('te-t1').value;
+        var t2 = document.getElementById('te-t2').value;
+        var dIn = document.getElementById('res-te-delta-in').textContent;
+        var dMm = document.getElementById('res-te-delta-mm').textContent;
+        var remGap = document.getElementById('res-te-gap-left').textContent;
+        var gapStat = document.getElementById('res-te-gap-status').textContent;
+        var stress = document.getElementById('res-te-stress-psi').textContent;
+        var force = document.getElementById('res-te-force-lbs').textContent;
+        var tons = document.getElementById('res-te-force-tons').textContent;
+
+        var text = '=== THERMAL EXPANSION & STRESS ANALYSIS REPORT ===\\n' +
+          'Material: ' + mat + '\\n' +
+          'Length: ' + ft + ' ft ' + inL + ' in\\n' +
+          'Temperature Range: ' + t1 + '°F to ' + t2 + '°F\\n' +
+          '------------------------------------------------\\n' +
+          'Thermal Elongation (ΔL): ' + dIn + ' (' + dMm + ')\\n' +
+          'Remaining Joint Gap: ' + remGap + ' [' + gapStat + ']\\n' +
+          'Constrained Compressive Stress: ' + stress + '\\n' +
+          'Axial Thrust Force: ' + force + ' (' + tons + ')\\n' +
+          'Thermodynamic Reference: ASTM / ASME Piping Standards\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/thermal-expansion-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-te-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Thermal Analysis!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcThermalExp);
+      } else {
+        calcThermalExp();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'thermal-expansion-calculator.html'), renderTradePage({
+    title: "Thermal Expansion, Stress & Joint Clearance Calculator | Digital Tools Shed",
+    metaDesc: "Calculate linear thermal expansion (ΔL), expansion joint clearances, constrained thermal compressive stress (PSI & MPa), and axial crushing force across materials.",
+    canonical: `${DOMAIN}/calc/thermal-expansion-calculator`,
+    bodyContent: thermalExpBody,
+    currentPath: '/calc/thermal-expansion-calculator',
+    faq: [
+      {
+        "q": "What is the formula for calculating linear thermal expansion?",
+        "a": "The linear expansion formula is ΔL = α * L₀ * ΔT, where ΔL is change in length, α is the coefficient of thermal expansion, L₀ is initial length, and ΔT is temperature change. Volumetric expansion of solids is ΔV ≈ 3 * α * V₀ * ΔT."
+      },
+      {
+        "q": "How much force is generated if an expanding beam is prevented from expanding?",
+        "a": "When fully constrained, thermal strain converts to mechanical compressive stress via σ = E * α * ΔT. Total force is F = σ * A. Because initial length cancels out, a 1-foot bar and 1,000-foot rail exert identical crushing stress for the same temperature change."
+      },
+      {
+        "q": "Why do bridges have metal finger joints or comb teeth?",
+        "a": "A 1,000-foot steel bridge expanding over an 80°F rise elongates by over 6.4 inches. Interlocking finger joints bridge this gap, providing a smooth continuous tire surface while allowing bridge girders to slide freely on bearings without cracking abutments."
+      },
+      {
+        "q": "Why does Pyrex glass resist thermal shock shattering?",
+        "a": "Borosilicate glass (authentic Pyrex) has an extremely low thermal expansion coefficient (1.8 × 10⁻⁶ /°F), less than one-third that of soda-lime glass. Thermal gradients create minimal differential strain, preventing tensile fracture."
+      },
+      {
+        "q": "What is Invar and why is it used in precision instruments?",
+        "a": "Invar is a 36% nickel-iron alloy with an expansion coefficient near zero (0.67 × 10⁻⁶ /°F). Due to magnetostrictive volume contraction canceling thermal phonon expansion, it is used in optical space telescopes, laser interferometers, and precision clockwork."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 32. PULLEY RPM RATIO, BELT LENGTH & CENTER DISTANCE CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const pulleyBeltBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Pulley &amp; Belt Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Mechanical Power Transmission</span>
+          <span class="badge badge-green">V-Belt &amp; Timing Belt Drive Design</span>
+          <span class="badge badge-blue">Arc of Wrap &amp; Speed Ratio</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Pulley Ratio, Belt Length &amp; Center Distance Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate exact pitch belt length ($L$), shaft center distance ($C$), pulley speed ratios ($N_1 : N_2$), linear surface speed (FPM), and <strong>small pulley contact arc of wrap ($\theta$)</strong>. Supports standard open drives and crossed reversing belt configurations.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: Calculation Mode & Drive Type -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Calculation Mode</label>
+            <select id="pb-calc-mode" class="input-field" style="width: 100%;" onchange="calcPulleyBelt()">
+              <option value="find_length" selected>Find Belt Length (Given Center Distance)</option>
+              <option value="find_center">Find Center Distance (Given Standard Belt Length)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Belt Drive Configuration</label>
+            <select id="pb-drive-type" class="input-field" style="width: 100%;" onchange="calcPulleyBelt()">
+              <option value="open" selected>Open Belt Drive (Standard Co-Rotating)</option>
+              <option value="crossed">Crossed Belt Drive (Counter-Rotating Reversing)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: Pulley Diameters & Motor RPM -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Driver Pulley Pitch Diam (D₁)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="pb-diam1" class="input-field" value="4.0" min="0.5" max="100" step="0.25" style="width: 100%;" oninput="calcPulleyBelt()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Motor / input sheave diameter</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Driven Pulley Pitch Diam (D₂)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="pb-diam2" class="input-field" value="8.0" min="0.5" max="100" step="0.25" style="width: 100%;" oninput="calcPulleyBelt()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Output machine sheave diameter</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Driver Shaft Speed (N₁)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="pb-rpm1" class="input-field" value="1750" min="10" max="20000" step="25" style="width: 100%;" oninput="calcPulleyBelt()">
+              <span style="font-weight: bold; min-width: 40px;">RPM</span>
+            </div>
+            <small style="color: var(--text-muted);">Standard AC motor (1750/3450 RPM)</small>
+          </div>
+        </div>
+
+        <!-- Row 3: Center Distance or Belt Length Input -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div id="col-pb-center">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Shaft Center-to-Center Distance (C)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="pb-center-dist" class="input-field" value="18.0" min="1" max="500" step="0.25" style="width: 100%;" oninput="calcPulleyBelt()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Distance between motor shaft and driven shaft centers</small>
+          </div>
+          <div id="col-pb-length" style="display: none;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Standard Belt Pitch Length (L)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="pb-belt-len-input" class="input-field" value="55.0" min="5" max="1000" step="0.5" style="width: 100%;" oninput="calcPulleyBelt()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Nominal belt size (e.g. A54, B68, 55.0" length)</small>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Belt Pitch Length</div>
+            <div id="res-pb-belt-len" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-pb-belt-nearest" style="font-size: 0.8rem; color: var(--text-muted);">Nearest standard: --</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Driven Shaft Speed</div>
+            <div id="res-pb-driven-rpm" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-pb-ratio" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ratio: --</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Arc of Contact (Wrap)</div>
+            <div id="res-pb-wrap-angle" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-pb-wrap-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Belt Linear Velocity</div>
+            <div id="res-pb-fpm" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-pb-fpm-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-pb-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyPbSummary()">
+            <span>📋</span> Copy Pulley Drive Specification Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Two-Sheave Drive Geometry &amp; Arc of Wrap</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Visual diagram of driver and driven pitch circles, tangent belt paths, and highlighted small pulley contact wrap angle ($\theta$) with slip warning indicators.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="pb-drive-svg" viewBox="0 0 720 280" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Engineering Derivation &amp; Kinematic Equations</h3>
+        <div id="pb-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal Pulley &amp; Belt Drive Traps</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Belt drives are forgiving mechanical couplings, but subtle mistakes in wrap angle, over-tensioning, and centrifugal lift destroy bearings and snap belts.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 1. Insufficient Arc of Wrap (&lt;120°) Severe Belt Slip &amp; Glazing
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When the speed ratio is high (e.g. 4:1) and center distance is short, the belt's contact angle on the small driver pulley drops drastically below 180&deg;. If the arc of contact drops below <strong>120&deg;</strong>, frictional grip diminishes exponentially according to the Belt Friction equation ($T_1 / T_2 = e^{\mu \theta}$). The belt will slip continuously under peak load, generating frictional heat that bakes the polychloroprene rubber into a shiny, hardened &quot;glazed&quot; glaze that loses all traction. Install an idler pulley or increase center distance.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>💥</span> 2. Belt Over-Tensioning Bearing Brinelling &amp; Shaft Fatigue
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When operators hear a slipping belt squeal, their instinct is to crank down the motor tensioner bolts until the belt feels as rigid as a steel rod. Excessive static belt tension creates enormous radial overhang loads on motor and spindle bearings. This constant side-loading indents the ball bearing raceways (false brinelling), leading to noisy, rumbling bearings and catastrophic motor bearing seizure within weeks. Always measure belt tension with a spring plunger deflection gauge.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🌪️</span> 3. Centrifugal Lift &amp; Cast Iron Pulley Rim Explosion (&gt;6,500 FPM)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Standard class 30 cast iron pulleys are rated for a maximum linear rim speed of <strong>6,500 FPM (33 m/s)</strong>. Above 6,500 FPM, two dangerous phenomena occur: first, centrifugal force flings the belt radially outward from the sheave grooves, severely reducing contact pressure and power transmission; second, centrifugal hoop stress in the pulley rim exceeds the tensile strength of brittle cast iron, risking an explosive burst that flings metal shrapnel through the shop. Use ductile iron or dynamic-balanced steel sheaves for high speeds.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📐</span> 4. Shaft Non-Parallelism &amp; Angular Misalignment (&gt;0.5° Ruin)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Even a tiny angular misalignment of just <strong>0.5 degrees</strong> between driver and driven shafts causes the V-belt to enter the sheave groove cocked at an angle. The edge of the belt rubs continuously against the top rim of the sheave, fraying the sidewall cords, creating intense squealing, and causing the belt to flip over upside down in its groove (&quot;belt turnover&quot;). Check alignment using a precision laser alignment tool or machined straightedge across sheave outer rims.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🤝</span> 5. Multi-Groove Sheave Unmatched Belt Sets (80% Load on 1 Belt)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When replacing belts on a 3-groove or 4-groove sheave, never replace just the one broken belt while leaving the older stretched belts in place. Even among new belts, slight manufacturing tolerances cause length variations. If non-matched belts are installed, the shortest belt carries over <strong>80% of the entire mechanical load</strong> while the others flop loosely. The overloaded belt snaps prematurely, followed immediately by the remaining loose belts. Always specify factory-matched sets (&quot;MatchMaker&quot; / V-80 tolerance).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: Pulley &amp; Belt Drives</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the formula for calculating open belt length?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The standard engineering formula for pitch length of an open belt is: <code>L = 2*C + (π/2)*(D + d) + (D - d)² / (4*C)</code>, where <em>C</em> is center-to-center distance, <em>D</em> is the large pulley pitch diameter, and <em>d</em> is the small pulley pitch diameter.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How do you calculate driven pulley RPM from pulley diameters?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Because pitch line speed is identical on both pulleys: <code>D₁ * N₁ = D₂ * N₂</code>. Therefore, driven shaft RPM is: <code>N₂ = N₁ * (D₁ / D₂)</code>. For example, an 1,750 RPM motor with a 4" pulley driving an 8" pulley will turn at <code>1750 * (4 / 8) = 875 RPM</code> (a 2:1 speed reduction).
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Why is the small pulley arc of contact (wrap angle) critical?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The arc of wrap ($\theta$) determines the total friction contact area. When $\theta$ drops below 160°, horsepower ratings must be derated by correction factors ($C_\theta$). When $\theta$ falls below 120°, standard V-belts slip severely under torque loads, generating heat and causing rapid belt failure.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the maximum safe belt speed for standard pulleys?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Linear belt speed is calculated as <code>V = (π * D * N) / 12</code> (in FPM). Standard cast iron pulleys should not exceed <strong>6,500 FPM (33 m/s)</strong> due to centrifugal bursting stress. Beyond 5,000 FPM, centrifugal force begins flinging the belt away from the sheave grooves, reducing grip.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the difference between outside diameter and pitch diameter?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Outside Diameter (OD) is the physical measurement across the outermost lips of the sheave. Pitch Diameter (PD) is the effective diameter at the neutral bending axis of the belt's internal tensile cords within the V-groove. Calculations must always use pitch diameter; using OD will produce inaccurate speed ratios.
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function calcPulleyBelt() {
+        var mode = document.getElementById('pb-calc-mode').value;
+        var driveType = document.getElementById('pb-drive-type').value;
+
+        var d1 = parseFloat(document.getElementById('pb-diam1').value) || 4;
+        var d2 = parseFloat(document.getElementById('pb-diam2').value) || 8;
+        var rpm1 = parseFloat(document.getElementById('pb-rpm1').value) || 1750;
+
+        var colCenter = document.getElementById('col-pb-center');
+        var colLength = document.getElementById('col-pb-length');
+
+        if (mode === 'find_length') {
+          colCenter.style.display = 'block';
+          colLength.style.display = 'none';
+        } else {
+          colCenter.style.display = 'none';
+          colLength.style.display = 'block';
+        }
+
+        var D = Math.max(d1, d2);
+        var d = Math.min(d1, d2);
+
+        var C = 18;
+        var L = 0;
+
+        if (mode === 'find_length') {
+          C = parseFloat(document.getElementById('pb-center-dist').value) || 18;
+          if (C < (D + d) / 2) {
+            C = (D + d) / 2 + 0.5; // clearance
+          }
+          if (driveType === 'open') {
+            L = 2 * C + (Math.PI / 2) * (D + d) + Math.pow(D - d, 2) / (4 * C);
+          } else {
+            L = 2 * C + (Math.PI / 2) * (D + d) + Math.pow(D + d, 2) / (4 * C);
+          }
+        } else {
+          // Find center distance given L
+          L = parseFloat(document.getElementById('pb-belt-len-input').value) || 55;
+          var m = L - (Math.PI / 2) * (D + d);
+          var diffSq = driveType === 'open' ? Math.pow(D - d, 2) : Math.pow(D + d, 2);
+          var discriminant = Math.pow(m, 2) - 2 * diffSq;
+          if (discriminant >= 0) {
+            C = (m + Math.sqrt(discriminant)) / 4;
+          } else {
+            C = (D + d) / 2 + 1;
+          }
+        }
+
+        // Driven RPM & Ratio
+        var rpm2 = rpm1 * (d1 / d2);
+        var ratio = d1 > d2 ? (d1 / d2).toFixed(2) + ':1 Overdrive' : (d2 / d1).toFixed(2) + ':1 Reduction';
+
+        // Arc of Contact on Small Pulley
+        var wrapRad = 0;
+        if (driveType === 'open') {
+          wrapRad = Math.PI - 2 * Math.asin(Math.min(0.99, (D - d) / (2 * C)));
+        } else {
+          wrapRad = Math.PI + 2 * Math.asin(Math.min(0.99, (D + d) / (2 * C)));
+        }
+        var wrapDeg = wrapRad * (180 / Math.PI);
+
+        // Linear Surface Speed: V = (pi * D * N) / 12
+        var fpm = (Math.PI * d1 * rpm1) / 12;
+
+        // UI Metric Updates
+        document.getElementById('res-pb-belt-len').textContent = L.toFixed(2) + '\\"';
+        document.getElementById('res-pb-belt-nearest').textContent = 'Nearest std: ' + Math.round(L) + '\\" (C = ' + C.toFixed(2) + '\\")';
+
+        document.getElementById('res-pb-driven-rpm').textContent = Math.round(rpm2).toLocaleString() + ' RPM';
+        document.getElementById('res-pb-ratio').textContent = ratio;
+
+        var wrapEl = document.getElementById('res-pb-wrap-angle');
+        wrapEl.textContent = wrapDeg.toFixed(1) + '°';
+        var wrapStat = document.getElementById('res-pb-wrap-status');
+        if (wrapDeg >= 160) {
+          wrapStat.textContent = '✓ Optimal Grip (≥160°)';
+          wrapStat.style.color = '#10b981';
+        } else if (wrapDeg >= 120) {
+          wrapStat.textContent = '⚠️ Marginal (120°–160°)';
+          wrapStat.style.color = '#f59e0b';
+        } else {
+          wrapStat.textContent = '❌ Severe Slip Risk (<120°)';
+          wrapStat.style.color = '#ef4444';
+        }
+
+        var fpmEl = document.getElementById('res-pb-fpm');
+        fpmEl.textContent = Math.round(fpm).toLocaleString() + ' FPM';
+        var fpmStat = document.getElementById('res-pb-fpm-status');
+        if (fpm < 5000) {
+          fpmStat.textContent = '✓ Safe Speed (<5,000 FPM)';
+          fpmStat.style.color = '#10b981';
+        } else if (fpm <= 6500) {
+          fpmStat.textContent = '⚠️ Upper Limit (5,000–6,500)';
+          fpmStat.style.color = '#f59e0b';
+        } else {
+          fpmStat.textContent = '❌ DANGER (>6,500 FPM Cast Burst)';
+          fpmStat.style.color = '#ef4444';
+        }
+
+        renderPbSvg(d1, d2, C, driveType, wrapDeg);
+        renderPbDerivation(d1, d2, D, d, rpm1, rpm2, C, L, wrapDeg, fpm, driveType);
+      }
+
+      function renderPbSvg(d1, d2, C, driveType, wrapDeg) {
+        var svg = document.getElementById('pb-drive-svg');
+        if (!svg) return;
+
+        var maxD = Math.max(d1, d2, 1);
+        var scale = 70 / maxD;
+
+        var r1 = (d1 * scale) / 2;
+        var r2 = (d2 * scale) / 2;
+
+        var cx1 = 160;
+        var cy1 = 140;
+
+        var cDistPx = Math.min(380, Math.max(160, C * scale * 0.8));
+        var cx2 = cx1 + cDistPx;
+        var cy2 = 140;
+
+        var svgHtml = '';
+
+        // Center Distance Dimension Line
+        svgHtml += '<line x1="' + cx1 + '" y1="' + (cy1 + 80) + '" x2="' + cx2 + '" y2="' + (cy2 + 80) + '" stroke="#94a3b8" stroke-width="1.5" />';
+        svgHtml += '<line x1="' + cx1 + '" y1="' + (cy1 + 72) + '" x2="' + cx1 + '" y2="' + (cy1 + 88) + '" stroke="#94a3b8" stroke-width="1.5" />';
+        svgHtml += '<line x1="' + cx2 + '" y1="' + (cy2 + 72) + '" x2="' + cx2 + '" y2="' + (cy2 + 88) + '" stroke="#94a3b8" stroke-width="1.5" />';
+        svgHtml += '<text x="' + ((cx1 + cx2) / 2) + '" y="' + (cy1 + 98) + '" text-anchor="middle" fill="#94a3b8" font-size="11">Center Distance C = ' + C.toFixed(2) + '\\"</text>';
+
+        // Tangent belt paths
+        if (driveType === 'open') {
+          svgHtml += '<line x1="' + cx1 + '" y1="' + (cy1 - r1) + '" x2="' + cx2 + '" y2="' + (cy2 - r2) + '" stroke="#10b981" stroke-width="4" stroke-linecap="round" />';
+          svgHtml += '<line x1="' + cx1 + '" y1="' + (cy1 + r1) + '" x2="' + cx2 + '" y2="' + (cy2 + r2) + '" stroke="#10b981" stroke-width="4" stroke-linecap="round" />';
+        } else {
+          // Crossed belt
+          svgHtml += '<line x1="' + cx1 + '" y1="' + (cy1 - r1) + '" x2="' + cx2 + '" y2="' + (cy2 + r2) + '" stroke="#10b981" stroke-width="4" stroke-linecap="round" />';
+          svgHtml += '<line x1="' + cx1 + '" y1="' + (cy1 + r1) + '" x2="' + cx2 + '" y2="' + (cy2 - r2) + '" stroke="#10b981" stroke-width="4" stroke-linecap="round" />';
+        }
+
+        // Driver Pulley 1
+        svgHtml += '<circle cx="' + cx1 + '" cy="' + cy1 + '" r="' + r1 + '" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" stroke-width="3" />';
+        svgHtml += '<circle cx="' + cx1 + '" cy="' + cy1 + '" r="6" fill="#3b82f6" />';
+        svgHtml += '<text x="' + cx1 + '" y="' + (cy1 - r1 - 10) + '" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="bold">D₁: ' + d1.toFixed(1) + '\\" Driver</text>';
+
+        // Driven Pulley 2
+        svgHtml += '<circle cx="' + cx2 + '" cy="' + cy2 + '" r="' + r2 + '" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="3" />';
+        svgHtml += '<circle cx="' + cx2 + '" cy="' + cy2 + '" r="6" fill="#10b981" />';
+        svgHtml += '<text x="' + cx2 + '" y="' + (cy2 - r2 - 10) + '" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">D₂: ' + d2.toFixed(1) + '\\" Driven</text>';
+
+        // Contact Arc Highlight on Small Pulley
+        var smallCx = d1 <= d2 ? cx1 : cx2;
+        var smallCy = d1 <= d2 ? cy1 : cy2;
+        var smallR = d1 <= d2 ? r1 : r2;
+
+        var arcColor = wrapDeg >= 160 ? '#10b981' : (wrapDeg >= 120 ? '#f59e0b' : '#ef4444');
+        svgHtml += '<circle cx="' + smallCx + '" cy="' + smallCy + '" r="' + (smallR + 3) + '" fill="none" stroke="' + arcColor + '" stroke-width="3.5" stroke-dasharray="12,4" />';
+        svgHtml += '<text x="' + smallCx + '" y="' + (smallCy + 4) + '" text-anchor="middle" fill="' + arcColor + '" font-size="10" font-weight="bold">' + wrapDeg.toFixed(0) + '° Wrap</text>';
+
+        // Callout box on top right
+        svgHtml += '<g transform="translate(480, 20)">';
+        svgHtml += '<rect x="0" y="0" width="220" height="70" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<text x="110" y="24" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="bold">Drive Dynamics Check</text>';
+        svgHtml += '<text x="15" y="45" fill="#94a3b8" font-size="10.5">• Grip Status: <tspan fill="' + arcColor + '" font-weight="bold">' + (wrapDeg >= 160 ? 'Optimal Traction' : 'Check Slip') + '</tspan></text>';
+        svgHtml += '<text x="15" y="62" fill="#94a3b8" font-size="10.5">• Drive Type: <tspan fill="#60a5fa">' + (driveType === 'open' ? 'Co-Rotating Open' : 'Counter-Crossed') + '</tspan></text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderPbDerivation(d1, d2, D, d, rpm1, rpm2, C, L, wrapDeg, fpm, driveType) {
+        var el = document.getElementById('pb-derivation-content');
+        if (!el) return;
+
+        var html = '';
+        html += '<p><strong>Step 1: Calculate Pitch Belt Length Equation</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        if (driveType === 'open') {
+          html += '$$L = 2C + \\\\frac{\\\\pi}{2}(D + d) + \\\\frac{(D - d)^2}{4C}$$<br>';
+          html += '$$L = 2(' + C.toFixed(2) + ') + \\\\frac{\\\\pi}{2}(' + D.toFixed(1) + ' + ' + d.toFixed(1) + ') + \\\\frac{(' + (D - d).toFixed(1) + ')^2}{4(' + C.toFixed(2) + ')} = \\\\mathbf{' + L.toFixed(2) + '\\\\text{ inches}}$$';
+        } else {
+          html += '$$L = 2C + \\\\frac{\\\\pi}{2}(D + d) + \\\\frac{(D + d)^2}{4C} = \\\\mathbf{' + L.toFixed(2) + '\\\\text{ inches}}$$';
+        }
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Shaft Speed Ratio &amp; Small Pulley Arc of Wrap</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$N_2 = N_1 \\\\times \\\\frac{D_1}{D_2} = ' + rpm1 + ' \\\\times \\\\frac{' + d1.toFixed(1) + '}{' + d2.toFixed(1) + '} = \\\\mathbf{' + Math.round(rpm2).toLocaleString() + '\\\\text{ RPM}}$$<br>';
+        html += '$$\\\\theta = 180^\\\\circ - 2 \\\\arcsin\\\\left( \\\\frac{D - d}{2C} \\\\right) = 180^\\\\circ - 2 \\\\arcsin\\\\left( \\\\frac{' + (D - d).toFixed(1) + '}{' + (2 * C).toFixed(1) + '} \\\\right) = \\\\mathbf{' + wrapDeg.toFixed(1) + '^\\\\circ}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Linear Belt Velocity &amp; Centrifugal Safety Check</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$V = \\\\frac{\\\\pi \\\\cdot D_1 \\\\cdot N_1}{12} = \\\\frac{\\\\pi \\\\times ' + d1.toFixed(1) + ' \\\\times ' + rpm1 + '}{12} = \\\\mathbf{' + Math.round(fpm).toLocaleString() + '\\\\text{ FPM}}$$<br>';
+        html += 'Maximum Cast Iron Rim Limit = 6,500 FPM &rarr; <strong>' + (fpm < 5000 ? 'PASS (Well Within Safe Dynamic Limits)' : (fpm <= 6500 ? 'Marginal (Near Maximum)' : 'FAIL (Exceeds Rim Burst Threshold)')) + '</strong>';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyPbSummary() {
+        var d1 = document.getElementById('pb-diam1').value;
+        var d2 = document.getElementById('pb-diam2').value;
+        var rpm1 = document.getElementById('pb-rpm1').value;
+        var rpm2 = document.getElementById('res-pb-driven-rpm').textContent;
+        var ratio = document.getElementById('res-pb-ratio').textContent;
+        var len = document.getElementById('res-pb-belt-len').textContent;
+        var wrap = document.getElementById('res-pb-wrap-angle').textContent;
+        var fpm = document.getElementById('res-pb-fpm').textContent;
+
+        var text = '=== PULLEY DRIVE & BELT SPECIFICATION REPORT ===\\n' +
+          'Driver Sheave: ∅' + d1 + '" @ ' + rpm1 + ' RPM\\n' +
+          'Driven Sheave: ∅' + d2 + '" @ ' + rpm2 + '\\n' +
+          'Speed Ratio: ' + ratio + '\\n' +
+          '---------------------------------------------\\n' +
+          'Belt Pitch Length: ' + len + '\\n' +
+          'Small Pulley Contact Wrap: ' + wrap + '\\n' +
+          'Linear Belt Velocity: ' + fpm + '\\n' +
+          'Design Standard: RMA / MPTA Power Transmission Guidelines\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/pulley-belt-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-pb-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Pulley Report!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcPulleyBelt);
+      } else {
+        calcPulleyBelt();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'pulley-belt-calculator.html'), renderTradePage({
+    title: "Pulley RPM Ratio, Belt Length & Center Distance Calculator | Digital Tools Shed",
+    metaDesc: "Calculate pulley speed ratio, pitch belt length, shaft center distance, linear belt velocity (FPM), and small pulley contact arc of wrap for open and crossed drives.",
+    canonical: `${DOMAIN}/calc/pulley-belt-calculator`,
+    bodyContent: pulleyBeltBody,
+    currentPath: '/calc/pulley-belt-calculator',
+    faq: [
+      {
+        "q": "What is the formula for calculating open belt length?",
+        "a": "The pitch length of an open belt is: L = 2*C + (π/2)*(D + d) + (D - d)² / (4*C), where C is center distance, D is the large pulley diameter, and d is the small pulley diameter."
+      },
+      {
+        "q": "How do you calculate driven pulley RPM from pulley diameters?",
+        "a": "Because pitch line speed is identical on both pulleys: D₁ * N₁ = D₂ * N₂. Driven RPM is N₂ = N₁ * (D₁ / D₂). For example, a 1,750 RPM motor with a 4\" pulley driving an 8\" pulley turns at 875 RPM."
+      },
+      {
+        "q": "Why is the small pulley arc of contact (wrap angle) critical?",
+        "a": "The arc of contact (wrap angle θ) determines frictional grip. When wrap drops below 160°, transmitted horsepower decreases. When wrap falls below 120°, V-belts slip severely, generating heat and causing premature glazing."
+      },
+      {
+        "q": "What is the maximum safe belt speed for standard pulleys?",
+        "a": "Linear belt speed is V = (π * D * N) / 12 (in FPM). Standard cast iron pulleys should not exceed 6,500 FPM (33 m/s) to prevent catastrophic centrifugal rim bursting."
+      },
+      {
+        "q": "What is the difference between outside diameter and pitch diameter?",
+        "a": "Outside diameter (OD) is the physical sheave rim diameter. Pitch diameter (PD) is the effective diameter at the neutral bending cords of the belt. Speed ratios and lengths must always be calculated using pitch diameter."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 33. WET-BULB GLOBE TEMPERATURE (WBGT) & HEAT STRESS CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const wbgtBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; WBGT Heat Stress Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Occupational Safety &amp; Athletic Health</span>
+          <span class="badge badge-green">OSHA &amp; ACGIH Work/Rest Regimes</span>
+          <span class="badge badge-blue">NOAA Heat Index &amp; Stull Wet-Bulb</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Wet-Bulb Globe Temperature (WBGT) &amp; Heat Stress Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate accurate Wet-Bulb Globe Temperature (WBGT), NOAA Heat Index, and natural wet-bulb temperature from ambient dry-bulb and relative humidity. Determine mandatory <strong>OSHA/ACGIH work/rest cycles</strong>, hydration quotas, and military heat safety flag levels.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Row 1: Ambient Weather Inputs -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Dry-Bulb Air Temperature (T_db)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="wbgt-temp-input" class="input-field" value="92" min="40" max="140" step="1" style="width: 100%;" oninput="calcWbgt()">
+              <select id="wbgt-temp-unit" class="input-field" style="width: 80px;" onchange="calcWbgt()">
+                <option value="F" selected>°F</option>
+                <option value="C">°C</option>
+              </select>
+            </div>
+            <small style="color: var(--text-muted);">Standard shaded thermometer temperature</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Relative Humidity (RH)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="wbgt-rh-input" class="input-field" value="65" min="5" max="100" step="1" style="width: 100%;" oninput="calcWbgt()">
+              <span style="font-weight: bold;">%</span>
+            </div>
+            <small style="color: var(--text-muted);">Atmospheric moisture percentage</small>
+          </div>
+        </div>
+
+        <!-- Row 2: Solar Exposure & Metabolic Workload -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Solar Exposure Environment</label>
+            <select id="wbgt-solar-mode" class="input-field" style="width: 100%;" onchange="calcWbgt()">
+              <option value="outdoor_sun" selected>Outdoor in Full Direct Sunlight (Peak Radiation)</option>
+              <option value="outdoor_part">Outdoor Partial Sun / Cloud Cover</option>
+              <option value="indoor_shade">Indoor or Full Shaded Outdoor Area (No Direct Sun)</option>
+            </select>
+            <small style="color: var(--text-muted);">Radiant solar load dramatically elevates black globe temp</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Worker Metabolic Rate / Workload</label>
+            <select id="wbgt-workload" class="input-field" style="width: 100%;" onchange="calcWbgt()">
+              <option value="light">Light Work (200W: Sitting, inspection, light assembly)</option>
+              <option value="moderate" selected>Moderate Work (300W: Walking, carpentry, machinery operation)</option>
+              <option value="heavy">Heavy Work (400W: Shoveling, roofing, intense sports)</option>
+              <option value="very_heavy">Very Heavy Work (500W: Concrete laying, bunker firefighting)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Wet-Bulb Globe (WBGT)</div>
+            <div id="res-wbgt-val" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-wbgt-flag" style="font-size: 0.85rem; font-weight: 700;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">OSHA Work / Rest Regime</div>
+            <div id="res-wbgt-work-rest" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-wbgt-hourly-rest" style="font-size: 0.8rem; color: var(--text-muted);">-- min rest per hour</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">NOAA Heat Index</div>
+            <div id="res-wbgt-heat-index" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-wbgt-hi-category" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Water Hydration Intake</div>
+            <div id="res-wbgt-hydration" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-wbgt-wet-bulb" style="font-size: 0.8rem; color: var(--text-muted);">Twb: --°F</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-wbgt-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyWbgtSummary()">
+            <span>📋</span> Copy OSHA Heat Stress Safety Brief
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">OSHA &amp; Military Heat Stress Flag Dial Meter</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Visual gauge displaying current WBGT against military flag conditions (White, Green, Yellow, Red, Black Flag) and hourly work/rest division.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="wbgt-dial-svg" viewBox="0 0 720 280" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Heat Stress Derivation &amp; Psychrometric Equations</h3>
+        <div id="wbgt-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal Heat Stress Traps &amp; Occupational Pitfalls</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Exertional heat stroke is 100% preventable, yet workers and athletes die every summer due to flawed metric reliance and physiological misunderstandings.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 1. The Heat Index vs. WBGT Fatal Assumption (Full Sun Radiation)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              The standard National Weather Service Heat Index is measured strictly <strong>in full shade with light breeze</strong>. In direct summer sun, solar radiant heat absorbed by dark asphalt, roofing shingles, and skin elevates the effective heat load by <strong>10&deg;F to 15&deg;F</strong>. Relying on weather app Heat Index readings to schedule roofing, asphalt paving, or athletic two-a-days severely understates environmental danger. Only WBGT accounts for direct radiant solar energy ($T_g$) and air movement.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔥</span> 2. The 95°F (35°C) Wet-Bulb Human Thermodynamic Survivability Limit
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Human core body temperature is regulated at 98.6&deg;F (37&deg;C) with skin temperature around 95&deg;F (35&deg;C). Sweating cools the body strictly through latent heat of vaporization. When wet-bulb temperature ($T_{wb}$) reaches <strong>95&deg;F (35&deg;C)</strong>, the air is 100% saturated with moisture at skin temperature. Sweat cannot evaporate. Even a naked, well-hydrated person sitting motionless in front of an electric fan will suffer fatal heatstroke within 6 hours because metabolic heat cannot leave the body.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🌀</span> 3. The Convection Oven Fan Dehydration Trap (&gt;95°F Dry Heat)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Electric fans cool the human body by accelerating sweat evaporation. However, when dry-bulb air temperature exceeds skin temperature (<strong>&gt;95&deg;F / 35&deg;C</strong>) in low-to-moderate humidity, fans stop cooling the body. Instead, blowing air hotter than skin turns the room into a <strong>convection oven</strong>, actively pumping heat into the body and accelerating dehydration through sweat evaporation without core cooling. CDC and OSHA guidelines explicitly state electric fans must not be used as primary cooling when temperatures exceed 95&deg;F.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>💧</span> 4. Dilutional Hyponatremia from Pure Water Over-Hydration
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              When sweating profusely (1 to 2 liters per hour), workers lose vast amounts of sodium chloride alongside water. If workers chug 2 to 3 gallons of pure water without replacing electrolytes, blood sodium levels plunge below 135 mEq/L (exercise-associated hyponatremia). Osmotic pressure drives fluid into brain cells, causing cerebral edema, confusion, seizures, and coma. Never drink more than <strong>48 ounces (1.5 quarts) of fluid per hour</strong>, and always mix electrolyte replacement packets into drinking water during heavy shifts.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🛡️</span> 5. Unacclimatized Worker Vulnerability (70% First-Week Fatalities)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              According to OSHA fatality investigation statistics, nearly <strong>70% of all occupational heat fatalities occur during a worker's first week on the job</strong>, and 50% occur on the very first day. Full physiological heat acclimatization (increased plasma volume, earlier onset of sweating with lower salt content, and reduced heart rate) takes <strong>7 to 14 days</strong> of gradual progressive exposure. New or returning workers must follow the 20% rule: no more than 20% normal duration on Day 1, increasing by 20% each subsequent day.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: WBGT &amp; Heat Stress</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the difference between Heat Index and WBGT?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Heat Index measures &quot;feels-like&quot; temperature calculated solely from dry-bulb air temperature and relative humidity in shaded, calm conditions. <strong>Wet-Bulb Globe Temperature (WBGT)</strong> is a comprehensive environmental heat measure that incorporates four factors: air temperature, relative humidity, wind speed, and <strong>direct radiant solar heat</strong> (measured by a black globe thermometer). WBGT is the global standard for OSHA, the US Military, and NCAA athletics.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What are the military WBGT heat flag categories?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The US Military and OSHA categorize heat stress via colored flags based on WBGT (°F):<br>
+              &bull; <strong>White Flag (&lt;78°F)</strong>: Normal physical activity.<br>
+              &bull; <strong>Green Flag (78°F–81.9°F)</strong>: Discretion required for unacclimatized personnel.<br>
+              &bull; <strong>Yellow Flag (82°F–84.9°F)</strong>: Strenuous exercise curtailed for unacclimatized personnel.<br>
+              &bull; <strong>Red Flag (85°F–87.9°F)</strong>: Strenuous exercise restricted to 30 min/hr for all personnel.<br>
+              &bull; <strong>Black Flag (≥90°F)</strong>: All non-essential physical training and strenuous outdoor labor suspended.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How is wet-bulb temperature calculated from dry-bulb and humidity?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Wet-bulb temperature ($T_{wb}$) is commonly approximated using the empirical <strong>Stull equation</strong>: <code>T_wb = T * atan(0.151977 * sqrt(RH + 8.313659)) + atan(T + RH) - atan(RH - 1.676331) + 0.00391838 * (RH)^1.5 * atan(0.023101 * RH) - 4.686035</code>, where T is dry-bulb temperature in °C and RH is relative humidity in percent.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How much water should outdoor workers drink in extreme heat?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Under OSHA recommendations, workers in moderate to high heat stress should consume <strong>1 cup (8 oz) of water every 15 to 20 minutes</strong> (equivalent to approximately 1 quart or 32 oz per hour). Do not exceed 48 oz (1.5 quarts) per hour to avoid dilutional hyponatremia.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the OSHA 20% rule for heat acclimatization?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              For workers who are new to working in the heat or returning from an absence of 7 or more days, OSHA recommends the 20% acclimatization schedule: expose workers to no more than <strong>20% of their normal work duration</strong> on Day 1, and increase exposure by no more than 20% each subsequent day (Day 2: 40%, Day 3: 60%, Day 4: 80%, Day 5: 100%).
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function calcWbgt() {
+        var rawT = parseFloat(document.getElementById('wbgt-temp-input').value) || 90;
+        var unit = document.getElementById('wbgt-temp-unit').value;
+        var rh = parseFloat(document.getElementById('wbgt-rh-input').value) || 50;
+        var solarMode = document.getElementById('wbgt-solar-mode').value;
+        var workload = document.getElementById('wbgt-workload').value;
+
+        // Convert to Fahrenheit for internal formulas
+        var tF = unit === 'C' ? (rawT * 9 / 5) + 32 : rawT;
+        var tC = (tF - 32) * 5 / 9;
+
+        // 1. Stull Wet-Bulb Temperature Formula (using Celsius)
+        // Tw = T * atan(0.151977 * (rh + 8.313659)^0.5) + atan(T + rh) - atan(rh - 1.676331) + 0.00391838 * (rh)^1.5 * atan(0.023101 * rh) - 4.686035
+        var twC = tC * Math.atan(0.151977 * Math.pow(rh + 8.313659, 0.5)) +
+                  Math.atan(tC + rh) -
+                  Math.atan(rh - 1.676331) +
+                  0.00391838 * Math.pow(rh, 1.5) * Math.atan(0.023101 * rh) -
+                  4.686035;
+        var twF = (twC * 9 / 5) + 32;
+
+        // 2. Black Globe Temperature Estimation (Tg)
+        // In full sun, Tg exceeds Tdb by 15°F to 22°F. In partial sun, ~8°F. In shade, Tg ≈ Tdb.
+        var tgF = tF;
+        if (solarMode === 'outdoor_sun') {
+          tgF = tF + 18.0;
+        } else if (solarMode === 'outdoor_part') {
+          tgF = tF + 8.0;
+        }
+
+        // 3. WBGT Formula
+        // Outdoor with sun: WBGT = 0.7 * Tw + 0.2 * Tg + 0.1 * Tdb
+        // Indoor / shade: WBGT = 0.7 * Tw + 0.3 * Tg
+        var wbgtF = 0;
+        if (solarMode === 'indoor_shade') {
+          wbgtF = 0.7 * twF + 0.3 * tgF;
+        } else {
+          wbgtF = 0.7 * twF + 0.2 * tgF + 0.1 * tF;
+        }
+        var wbgtC = (wbgtF - 32) * 5 / 9;
+
+        // 4. NOAA Heat Index Formula (Rothfusz regression)
+        var hiF = tF;
+        if (tF >= 80) {
+          hiF = -42.379 + 2.04901523 * tF + 10.14333127 * rh - 0.22475541 * tF * rh -
+                6.83783e-3 * Math.pow(tF, 2) - 5.481717e-2 * Math.pow(rh, 2) +
+                1.22874e-3 * Math.pow(tF, 2) * rh + 8.5282e-4 * tF * Math.pow(rh, 2) -
+                1.99e-6 * Math.pow(tF, 2) * Math.pow(rh, 2);
+        }
+
+        // 5. Military Flag & OSHA Work/Rest Regimes
+        var flagName = '';
+        var flagColor = '';
+        var workRest = '';
+        var restMin = 0;
+        var waterQuarts = '0.75 qt/hr';
+
+        if (wbgtF < 78.0) {
+          flagName = 'White Flag (Normal)';
+          flagColor = '#94a3b8';
+          workRest = 'Continuous Work';
+          restMin = 0;
+          waterQuarts = '0.5 qt/hr (1 cup / 20 min)';
+        } else if (wbgtF < 82.0) {
+          flagName = 'Green Flag (Low Heat)';
+          flagColor = '#10b981';
+          workRest = workload === 'heavy' || workload === 'very_heavy' ? '50 / 10 min' : 'Continuous Work';
+          restMin = workload === 'heavy' || workload === 'very_heavy' ? 10 : 0;
+          waterQuarts = '0.75 qt/hr';
+        } else if (wbgtF < 85.0) {
+          flagName = 'Yellow Flag (Moderate)';
+          flagColor = '#f59e0b';
+          workRest = workload === 'very_heavy' ? '40 / 20 min' : (workload === 'heavy' ? '45 / 15 min' : '50 / 10 min');
+          restMin = workload === 'very_heavy' ? 20 : (workload === 'heavy' ? 15 : 10);
+          waterQuarts = '0.75 to 1.0 qt/hr';
+        } else if (wbgtF < 88.0) {
+          flagName = 'Red Flag (High Heat)';
+          flagColor = '#ef4444';
+          workRest = workload === 'very_heavy' ? '20 / 40 min' : (workload === 'heavy' ? '30 / 30 min' : '40 / 20 min');
+          restMin = workload === 'very_heavy' ? 40 : (workload === 'heavy' ? 30 : 20);
+          waterQuarts = '1.0 qt/hr (Mandatory)';
+        } else {
+          flagName = 'Black Flag (Extreme Danger)';
+          flagColor = '#8b5cf6';
+          workRest = workload === 'very_heavy' ? 'STOP ALL WORK' : '15 / 45 min';
+          restMin = workload === 'very_heavy' ? 60 : 45;
+          waterQuarts = '1.0+ qt/hr (Electrolytes Required)';
+        }
+
+        // UI Updates
+        document.getElementById('res-wbgt-val').textContent = wbgtF.toFixed(1) + '°F (' + wbgtC.toFixed(1) + '°C)';
+        var flagEl = document.getElementById('res-wbgt-flag');
+        flagEl.textContent = flagName;
+        flagEl.style.color = flagColor;
+
+        var wrEl = document.getElementById('res-wbgt-work-rest');
+        wrEl.textContent = workRest;
+        wrEl.style.color = restMin > 20 ? '#ef4444' : (restMin > 0 ? '#f59e0b' : '#10b981');
+        document.getElementById('res-wbgt-hourly-rest').textContent = restMin + ' min mandatory rest per hour';
+
+        document.getElementById('res-wbgt-heat-index').textContent = Math.round(hiF) + '°F';
+        var hiCat = document.getElementById('res-wbgt-hi-category');
+        if (hiF < 90) {
+          hiCat.textContent = 'Caution Category';
+          hiCat.style.color = '#10b981';
+        } else if (hiF < 103) {
+          hiCat.textContent = 'Extreme Caution (Cramps)';
+          hiCat.style.color = '#f59e0b';
+        } else if (hiF < 125) {
+          hiCat.textContent = 'DANGER: Heat Exhaustion';
+          hiCat.style.color = '#ef4444';
+        } else {
+          hiCat.textContent = 'EXTREME DANGER: Heatstroke';
+          hiCat.style.color = '#8b5cf6';
+        }
+
+        document.getElementById('res-wbgt-hydration').textContent = waterQuarts;
+        document.getElementById('res-wbgt-wet-bulb').textContent = 'Twb: ' + twF.toFixed(1) + '°F | Tg: ' + tgF.toFixed(1) + '°F';
+
+        renderWbgtSvg(wbgtF, flagName, flagColor, restMin);
+        renderWbgtDerivation(tF, rh, twF, tgF, wbgtF, hiF, flagName, workRest);
+      }
+
+      function renderWbgtSvg(wbgt, flag, flagCol, restMin) {
+        var svg = document.getElementById('wbgt-dial-svg');
+        if (!svg) return;
+
+        var cx = 220, cy = 160, r = 100;
+        var svgHtml = '';
+
+        // Semi-circle background track zones
+        // Gauge spans from 65°F to 100°F (35° span)
+        // White: 65-78, Green: 78-82, Yellow: 82-85, Red: 85-90, Black: 90-100
+        var minW = 65, maxW = 100;
+        var clampedW = Math.max(minW, Math.min(maxW, wbgt));
+        var needleAngle = Math.PI - ((clampedW - minW) / (maxW - minW)) * Math.PI;
+
+        // Gauge arc background
+        svgHtml += '<path d="M ' + (cx - r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 0 1 ' + (cx + r) + ' ' + cy + '" fill="none" stroke="#334155" stroke-width="24" stroke-linecap="round" />';
+
+        // Colored zone arcs
+        function getArcPoint(deg) {
+          var ang = Math.PI - ((deg - minW) / (maxW - minW)) * Math.PI;
+          return { x: cx + r * Math.cos(ang), y: cy - r * Math.sin(ang) };
+        }
+
+        // Draw active needle
+        var nx = cx + (r - 15) * Math.cos(needleAngle);
+        var ny = cy - (r - 15) * Math.sin(needleAngle);
+        svgHtml += '<line x1="' + cx + '" y1="' + cy + '" x2="' + nx + '" y2="' + ny + '" stroke="' + flagCol + '" stroke-width="4" stroke-linecap="round" />';
+        svgHtml += '<circle cx="' + cx + '" cy="' + cy + '" r="10" fill="' + flagCol + '" stroke="#0f172a" stroke-width="2" />';
+
+        // Dial text inside
+        svgHtml += '<text x="' + cx + '" y="' + (cy - 30) + '" text-anchor="middle" fill="' + flagCol + '" font-size="22" font-weight="bold">' + wbgt.toFixed(1) + '°F</text>';
+        svgHtml += '<text x="' + cx + '" y="' + (cy - 12) + '" text-anchor="middle" fill="#94a3b8" font-size="11">Current WBGT Index</text>';
+
+        // Scale labels
+        svgHtml += '<text x="' + (cx - r - 8) + '" y="' + (cy + 18) + '" fill="#94a3b8" font-size="10">65°</text>';
+        svgHtml += '<text x="' + (cx + r - 8) + '" y="' + (cy + 18) + '" fill="#94a3b8" font-size="10">100°+</text>';
+
+        // Right Info Card: OSHA Rest Regime
+        svgHtml += '<g transform="translate(420, 30)">';
+        svgHtml += '<rect x="0" y="0" width="270" height="210" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<text x="135" y="28" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">OSHA Hourly Work / Rest Division</text>';
+
+        // Progress bar for work vs rest
+        var workMin = 60 - restMin;
+        var barW = 210;
+        var workW = (workMin / 60) * barW;
+        var restW = (restMin / 60) * barW;
+
+        svgHtml += '<rect x="30" y="50" width="' + workW + '" height="20" rx="4" fill="#10b981" />';
+        if (restMin > 0) {
+          svgHtml += '<rect x="' + (30 + workW) + '" y="50" width="' + restW + '" height="20" rx="4" fill="#ef4444" />';
+        }
+
+        svgHtml += '<text x="30" y="86" fill="#10b981" font-size="11" font-weight="bold">Work: ' + workMin + ' min</text>';
+        svgHtml += '<text x="170" y="86" fill="#ef4444" font-size="11" font-weight="bold">Rest: ' + restMin + ' min</text>';
+
+        svgHtml += '<rect x="20" y="105" width="230" height="85" rx="6" fill="#1e293b" stroke="#334155" stroke-width="0.5" />';
+        svgHtml += '<text x="30" y="128" fill="#94a3b8" font-size="10.5">• Flag Status: <tspan fill="' + flagCol + '" font-weight="bold">' + flag + '</tspan></text>';
+        svgHtml += '<text x="30" y="148" fill="#94a3b8" font-size="10.5">• Rest Area: <tspan fill="#38bdf8">Shade with Airflow</tspan></text>';
+        svgHtml += '<text x="30" y="168" fill="#94a3b8" font-size="10.5">• Electrolytes: <tspan fill="' + (restMin > 15 ? '#f59e0b' : '#10b981') + '">' + (restMin > 15 ? 'Required' : 'Recommended') + '</tspan></text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderWbgtDerivation(tF, rh, tw, tg, wbgt, hi, flag, regime) {
+        var el = document.getElementById('wbgt-derivation-content');
+        if (!el) return;
+
+        var html = '';
+        html += '<p><strong>Step 1: Calculate Natural Wet-Bulb Temperature (Twb) via Stull Equation</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$T_{db} = ' + tF.toFixed(1) + '^\\\\circ\\\\text{F} \\\\quad RH = ' + rh + '\\% \\\\quad\\\\implies\\\\quad T_{wb} = \\\\mathbf{' + tw.toFixed(1) + '^\\\\circ\\\\text{F}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Calculate Outdoor Wet-Bulb Globe Temperature (WBGT)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{WBGT} = 0.7 \\\\, T_{wb} + 0.2 \\\\, T_g + 0.1 \\\\, T_{db}$$<br>';
+        html += '$$\\\\text{WBGT} = 0.7(' + tw.toFixed(1) + ') + 0.2(' + tg.toFixed(1) + ') + 0.1(' + tF.toFixed(1) + ') = \\\\mathbf{' + wbgt.toFixed(1) + '^\\\\circ\\\\text{F}}$$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: NOAA Shaded Heat Index Comparison &amp; Safety Compliance</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\text{Shaded Heat Index (NOAA)} = \\\\mathbf{' + Math.round(hi) + '^\\\\circ\\\\text{F}} \\\\quad\\\\text{vs.}\\\\quad \\\\text{Outdoor Direct Sun WBGT} = \\\\mathbf{' + wbgt.toFixed(1) + '^\\\\circ\\\\text{F}}$$<br>';
+        html += 'OSHA / ACGIH Classification: <strong>' + flag + '</strong> &rarr; Mandatory Work Regime = <strong>' + regime + '</strong>';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyWbgtSummary() {
+        var temp = document.getElementById('wbgt-temp-input').value;
+        var unit = document.getElementById('wbgt-temp-unit').value;
+        var rh = document.getElementById('wbgt-rh-input').value;
+        var wbgt = document.getElementById('res-wbgt-val').textContent;
+        var flag = document.getElementById('res-wbgt-flag').textContent;
+        var wr = document.getElementById('res-wbgt-work-rest').textContent;
+        var rest = document.getElementById('res-wbgt-hourly-rest').textContent;
+        var hi = document.getElementById('res-wbgt-heat-index').textContent;
+        var water = document.getElementById('res-wbgt-hydration').textContent;
+
+        var text = '=== OSHA & MILITARY HEAT STRESS SAFETY BRIEF ===\\n' +
+          'Dry-Bulb Temperature: ' + temp + '°' + unit + ' | Relative Humidity: ' + rh + '%\\n' +
+          '---------------------------------------------\\n' +
+          'Wet-Bulb Globe Temp (WBGT): ' + wbgt + '\\n' +
+          'Heat Safety Condition: ' + flag + '\\n' +
+          'Work / Rest Schedule: ' + wr + ' (' + rest + ')\\n' +
+          'NOAA Shaded Heat Index: ' + hi + '\\n' +
+          'Hourly Water Quota: ' + water + '\\n' +
+          'Safety Reference: OSHA Technical Manual / ACGIH TLV\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/wbgt-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-wbgt-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Heat Stress Brief!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcWbgt);
+      } else {
+        calcWbgt();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'wbgt-calculator.html'), renderTradePage({
+    title: "Wet-Bulb Globe Temperature (WBGT) & Heat Stress Calculator | Digital Tools Shed",
+    metaDesc: "Calculate Wet-Bulb Globe Temperature (WBGT), NOAA Heat Index, and Stull wet-bulb temperature. Determine OSHA work/rest schedules and military heat flag limits.",
+    canonical: `${DOMAIN}/calc/wbgt-calculator`,
+    bodyContent: wbgtBody,
+    currentPath: '/calc/wbgt-calculator',
+    faq: [
+      {
+        "q": "What is the difference between Heat Index and WBGT?",
+        "a": "Heat Index is calculated solely from ambient temperature and humidity in full shade and light breeze. WBGT is an all-inclusive environmental heat measurement combining temperature, humidity, wind speed, and direct radiant solar heat, making it the preferred safety standard for OSHA and the US Military."
+      },
+      {
+        "q": "What are the military WBGT heat flag categories?",
+        "a": "White Flag (<78°F): normal activity. Green Flag (78°F–81.9°F): alert unacclimatized personnel. Yellow Flag (82°F–84.9°F): strenuous activity curtailed. Red Flag (85°F–87.9°F): 30 min work/30 min rest. Black Flag (≥90°F): suspend all non-essential strenuous outdoor labor."
+      },
+      {
+        "q": "How is wet-bulb temperature calculated from dry-bulb and humidity?",
+        "a": "Wet-bulb temperature (Twb) is commonly computed using the empirical Stull formula, which relates dry-bulb temperature and relative humidity via trigonometric arctangent approximations."
+      },
+      {
+        "q": "How much water should outdoor workers drink in extreme heat?",
+        "a": "Under OSHA guidelines, workers should drink approximately 1 cup (8 oz) of water every 15 to 20 minutes (about 1 quart per hour). Intake should not exceed 48 oz (1.5 quarts) per hour to prevent dangerous hyponatremia."
+      },
+      {
+        "q": "What is the OSHA 20% rule for heat acclimatization?",
+        "a": "New or returning workers should work no more than 20% of their normal shift duration on Day 1, with duration increasing by 20% each subsequent day (reaching 100% on Day 5) to allow physiological cardiovascular adaptations to occur safely."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
