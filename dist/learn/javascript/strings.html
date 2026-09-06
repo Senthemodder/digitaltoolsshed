@@ -1031,109 +1031,188 @@
           
 
           
-        <div class="article-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
-          <nav style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-muted);">
-            <a href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
-            <a href="/learn/" style="color: inherit; text-decoration: none;">Learn</a> &gt; 
-            <a href="/learn/javascript/" style="color: inherit; text-decoration: none;">JavaScript</a> &gt; 
-            <span style="color: var(--fg);">Strings & String Methods</span>
-          </nav>
+      <div class="article-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+        <nav style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+          <a href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
+          <a href="/learn/" style="color: inherit; text-decoration: none;">Learn</a> &gt; 
+          <a href="/learn/javascript/" style="color: inherit; text-decoration: none;">JavaScript</a> &gt; 
+          <span style="color: var(--fg);">Strings & String Methods</span>
+        </nav>
+        
+        <article>
           
-          <article>
-            
-          <h1 style="font-family: var(--serif); margin-bottom: 0.5rem;">Strings & String Methods</h1>
-          <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted);">Strings represent text in JavaScript. You can enclose them in single quotes, double quotes, or backticks.</p>
-          
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Creating and Combining Strings</h2>
-          <p>You can combine (concatenate) strings using the <code>+</code> operator. The length property tells you how many characters are in the string.</p>
-          
-      <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
-        <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
-          Try It Yourself
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-str-1">
-          <textarea id="pg-code-str-1" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const first = "Java";
+        <h1 style="font-family: var(--serif); margin-bottom: 0.5rem;">Strings & String Methods</h1>
+        <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted);">Strings represent text in JavaScript. You can enclose them in single quotes, double quotes, or backticks.</p>
+        
+        <h2 style="font-family: var(--serif); margin-top: 2rem;">Creating and Combining Strings</h2>
+        <p>You can combine (concatenate) strings using the <code>+</code> operator. The length property tells you how many characters are in the string.</p>
+        
+    <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+      <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
+        Try It Yourself
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-str-1">
+        <textarea id="pg-code-str-1" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const first = "Java";
 const second = "Script";
 const combined = first + second;
 console.log(combined);
 console.log("Length:", combined.length);</textarea>
-          <pre id="pg-out-str-1" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
-        </div>
-        <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
-          <button onclick="runPlayground('str-1')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
-          <button onclick="resetPlayground('str-1')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
-        </div>
+        <pre id="pg-out-str-1" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
       </div>
-    
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">String Methods</h2>
-          <p>Strings come with built-in functions (methods) to manipulate them, like changing case or extracting parts.</p>
-          
-      <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
-        <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
-          Try It Yourself
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-str-2">
-          <textarea id="pg-code-str-2" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const msg = "  Hello World!  ";
-console.log(msg.trim()); // Removes spaces
-console.log(msg.toUpperCase());
-console.log(msg.slice(2, 7)); // "Hello"
-console.log(msg.replace("World", "Friend"));</textarea>
-          <pre id="pg-out-str-2" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
-        </div>
-        <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
-          <button onclick="runPlayground('str-2')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
-          <button onclick="resetPlayground('str-2')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
-        </div>
+      <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
+        <button onclick="runPlayground('str-1')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
+        <button onclick="resetPlayground('str-1')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
       </div>
-    
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Practice</h2>
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1rem 0;">
-            <p><strong>Challenge 1:</strong> Create a variable containing the string "javascript" and use a method to make it uppercase.</p>
-            <p><strong>Challenge 2:</strong> Find the length of the string "Supercalifragilisticexpialidocious".</p>
-          </div>
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
-          <ul>
-            <li><a href="/learn/javascript/template-literals">Template Literals</a></li>
-            <li><a href="/learn/javascript/variables">Variables</a></li>
-          </ul>
-        
-          </article>
-          
-          
-      <script>
-        function runPlayground(id) {
-          const code = document.getElementById('pg-code-' + id).value;
-          const out = document.getElementById('pg-out-' + id);
-          out.textContent = '';
-          const logs = [];
-          const fakeConsole = { log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')) };
-          try {
-            const fn = new Function('console', code);
-            const result = fn(fakeConsole);
-            out.textContent = logs.join('\n');
-            if (result !== undefined && logs.length === 0) out.textContent = String(result);
-          } catch(e) {
-            out.textContent = 'Error: ' + e.message;
-            out.style.color = '#ef4444';
-          }
-        }
-        function resetPlayground(id) {
-          const ta = document.getElementById('pg-code-' + id);
-          ta.value = ta.getAttribute('data-original');
-          const out = document.getElementById('pg-out-' + id);
-          out.textContent = '';
-          out.style.color = 'inherit';
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('textarea[id^="pg-code-"]').forEach(ta => ta.setAttribute('data-original', ta.value));
-        });
-      </script>
-    
-        </div>
+    </div>
+  
       
+        </article>
+
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy JavaScript String Formatting & Methods Snippet</span>
+          <button id="btnCopy_strings" class="btn-copy" onclick="copySnippet('btnCopy_strings', `const name = "Ada Lovelace";
+const score = 98.756;
+
+// Template Literals with Expressions
+const message = \`Player \${name.toUpperCase()} scored \${score.toFixed(1)}%\`;
+
+// Modern String Methods
+const slug = name.toLowerCase().trim().replaceAll(" ", "-");
+const hasMatch = message.includes("PLAYER");
+const padded = "42".padStart(5, "0"); // "00042"`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code>const name = "Ada Lovelace";
+const score = 98.756;
+
+// Template Literals with Expressions
+const message = `Player ${name.toUpperCase()} scored ${score.toFixed(1)}%`;
+
+// Modern String Methods
+const slug = name.toLowerCase().trim().replaceAll(" ", "-");
+const hasMatch = message.includes("PLAYER");
+const padded = "42".padStart(5, "0"); // "00042"</code></pre>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & JavaScript Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: String Immutability Assumption</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Strings in JavaScript are immutable primitives. Methods like <code>str.toUpperCase()</code> and <code>str.replace()</code> return a brand-new string without modifying the original. You must reassign the result.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: str.replace() vs str.replaceAll() Single Match Trap</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Calling <code>"a-b-c".replace("-", ":")</code> replaces only the FIRST hyphen, producing <code>"a:b-c"</code>. Use <code>str.replaceAll("-", ":")</code> or a global regular expression <code>/-/g</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: Unicode Surrogate Pairs and Emoji Length</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">JavaScript strings are UTF-16 code units. An emoji like <code>"👍".length</code> evaluates to <code>2</code>, and complex emojis can have a length of 7+. Use <code>[..."👍"].length</code> to count perceived characters accurately.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: Template Literal Multi-Line Indentation Bleed</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Multi-line template literals preserve all leading indentation tabs and spaces as literal characters, which can break formatted text and terminal messages.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: Lexicographic String Sorting Mismatch</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Comparing strings with <code>&gt;</code> or <code>&lt;</code> uses ASCII/UTF-16 code point values, meaning <code>"Z" &lt; "a"</code> evaluates to true. Use <code>strA.localeCompare(strB)</code> for natural language sorting.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the difference between single quotes, double quotes, and backticks?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Single and double quotes are interchangeable for string literals. Backticks define template literals that support multi-line text, expression interpolation with ${expr}, and tagged template functions.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How do you check if a string contains a substring in modern JavaScript?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Use str.includes(substring), which returns true or false, replacing the legacy str.indexOf(substring) !== -1 idiom.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What does str.padStart() do?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">padStart(targetLength, padString) pads the current string from the start with a given string until the resulting string reaches the target length (e.g. formatting numbers as 001).</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How does str.trim() handle whitespace?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">trim() removes spaces, tabs, and all newline characters from both ends of a string. trimStart() and trimEnd() trim individual ends.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Why should you avoid using eval() to parse stringified expressions?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">eval() executes strings as arbitrary JavaScript with full access to the lexical scope, opening catastrophic Cross-Site Scripting (XSS) and code injection vulnerabilities.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Strings & String Methods FAQs","url":"https://digitaltoolsshed.com/learn/javascript/strings","mainEntity":[{"@type":"Question","name":"What is the difference between single quotes, double quotes, and backticks?","acceptedAnswer":{"@type":"Answer","text":"Single and double quotes are interchangeable for string literals. Backticks define template literals that support multi-line text, expression interpolation with ${expr}, and tagged template functions."}},{"@type":"Question","name":"How do you check if a string contains a substring in modern JavaScript?","acceptedAnswer":{"@type":"Answer","text":"Use str.includes(substring), which returns true or false, replacing the legacy str.indexOf(substring) !== -1 idiom."}},{"@type":"Question","name":"What does str.padStart() do?","acceptedAnswer":{"@type":"Answer","text":"padStart(targetLength, padString) pads the current string from the start with a given string until the resulting string reaches the target length (e.g. formatting numbers as 001)."}},{"@type":"Question","name":"How does str.trim() handle whitespace?","acceptedAnswer":{"@type":"Answer","text":"trim() removes spaces, tabs, and all newline characters from both ends of a string. trimStart() and trimEnd() trim individual ends."}},{"@type":"Question","name":"Why should you avoid using eval() to parse stringified expressions?","acceptedAnswer":{"@type":"Answer","text":"eval() executes strings as arbitrary JavaScript with full access to the lexical scope, opening catastrophic Cross-Site Scripting (XSS) and code injection vulnerabilities."}}]}</script>
+
+        <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <a href="/learn/javascript/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; JavaScript Hub</a>
+          <a href="/learn/" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">All Learn Tracks &rarr;</a>
+        </div>
+        
+        
+    <script>
+      function runPlayground(id) {
+        const code = document.getElementById('pg-code-' + id).value;
+        const out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        const logs = [];
+        const fakeConsole = { log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')) };
+        try {
+          const fn = new Function('console', code);
+          const result = fn(fakeConsole);
+          out.textContent = logs.join('\n');
+          if (result !== undefined && logs.length === 0) out.textContent = String(result);
+        } catch(e) {
+          out.textContent = 'Error: ' + e.message;
+          out.style.color = '#ef4444';
+        }
+      }
+      function resetPlayground(id) {
+        const ta = document.getElementById('pg-code-' + id);
+        ta.value = ta.getAttribute('data-original');
+        const out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        out.style.color = 'inherit';
+      }
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('textarea[id^="pg-code-"]').forEach(ta => ta.setAttribute('data-original', ta.value));
+      });
+    </script>
+  
+      </div>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

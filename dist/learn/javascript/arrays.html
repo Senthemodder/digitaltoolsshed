@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arrays & Array Methods | Digital Tools Shed</title>
-  <meta name="description" content="Store lists of data in JavaScript using arrays. Learn how to add, remove, and access array items. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="description" content="Store and manipulate ordered lists of data in JavaScript. Covers push, pop, slice, splice, and common operations. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
   <link rel="canonical" href="https://digitaltoolsshed.com/learn/javascript/arrays">
   <meta property="og:title" content="Arrays & Array Methods | Digital Tools Shed">
-  <meta property="og:description" content="Store lists of data in JavaScript using arrays. Learn how to add, remove, and access array items. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta property="og:description" content="Store and manipulate ordered lists of data in JavaScript. Covers push, pop, slice, splice, and common operations. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
   <meta property="og:url" content="https://digitaltoolsshed.com/learn/javascript/arrays">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Arrays & Array Methods | Digital Tools Shed">
-  <meta name="twitter:description" content="Store lists of data in JavaScript using arrays. Learn how to add, remove, and access array items. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="twitter:description" content="Store and manipulate ordered lists of data in JavaScript. Covers push, pop, slice, splice, and common operations. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -97,7 +97,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Store lists of data in JavaScript using arrays. Learn how to add, remove, and access array items.",
+  "description": "Store and manipulate ordered lists of data in JavaScript. Covers push, pop, slice, splice, and common operations.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -142,7 +142,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Arrays & Array Methods",
-  "description": "Store lists of data in JavaScript using arrays. Learn how to add, remove, and access array items.",
+  "description": "Store and manipulate ordered lists of data in JavaScript. Covers push, pop, slice, splice, and common operations.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1031,108 +1031,183 @@
           
 
           
-        <div class="article-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
-          <nav style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-muted);">
-            <a href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
-            <a href="/learn/" style="color: inherit; text-decoration: none;">Learn</a> &gt; 
-            <a href="/learn/javascript/" style="color: inherit; text-decoration: none;">JavaScript</a> &gt; 
-            <span style="color: var(--fg);">Arrays & Array Methods</span>
-          </nav>
-          
-          <article>
-            
-          <h1 style="font-family: var(--serif); margin-bottom: 0.5rem;">Arrays & Array Methods</h1>
-          <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted);">Arrays are ordered lists of data. They let you group multiple values into a single variable.</p>
-          
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Creating and Accessing Arrays</h2>
-          <p>Arrays are zero-indexed, meaning the first item is at position 0.</p>
-          
-      <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
-        <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
-          Try It Yourself
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-arr-1">
-          <textarea id="pg-code-arr-1" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const fruits = ["Apple", "Banana", "Cherry"];
-console.log(fruits[0]); // Apple
-console.log(fruits.length); // 3</textarea>
-          <pre id="pg-out-arr-1" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
-        </div>
-        <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
-          <button onclick="runPlayground('arr-1')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
-          <button onclick="resetPlayground('arr-1')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
-        </div>
-      </div>
-    
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Modifying Arrays</h2>
-          <p>You can add and remove items using built-in methods like <code>push()</code> (add to end) and <code>pop()</code> (remove from end).</p>
-          
-      <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
-        <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
-          Try It Yourself
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-arr-2">
-          <textarea id="pg-code-arr-2" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const tasks = ["Learn JS"];
-tasks.push("Build app"); // Adds to end
-console.log(tasks);
-
-const lastTask = tasks.pop(); // Removes and returns last
-console.log("Removed:", lastTask);
-console.log(tasks);</textarea>
-          <pre id="pg-out-arr-2" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
-        </div>
-        <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
-          <button onclick="runPlayground('arr-2')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
-          <button onclick="resetPlayground('arr-2')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
-        </div>
-      </div>
-    
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Practice</h2>
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1rem 0;">
-            <p><strong>Challenge 1:</strong> Create an array of three numbers, add a fourth number using push, then log the array.</p>
-          </div>
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
-          <ul>
-            <li><a href="/learn/javascript/objects">Objects</a></li>
-            <li><a href="/learn/javascript/map-filter-reduce">Map, Filter, Reduce</a></li>
-          </ul>
+      <div class="article-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+        <nav style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+          <a href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
+          <a href="/learn/" style="color: inherit; text-decoration: none;">Learn</a> &gt; 
+          <a href="/learn/javascript/" style="color: inherit; text-decoration: none;">JavaScript</a> &gt; 
+          <span style="color: var(--fg);">Arrays & Array Methods</span>
+        </nav>
         
-          </article>
+        <article>
           
-          
-      <script>
-        function runPlayground(id) {
-          const code = document.getElementById('pg-code-' + id).value;
-          const out = document.getElementById('pg-out-' + id);
-          out.textContent = '';
-          const logs = [];
-          const fakeConsole = { log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')) };
-          try {
-            const fn = new Function('console', code);
-            const result = fn(fakeConsole);
-            out.textContent = logs.join('\n');
-            if (result !== undefined && logs.length === 0) out.textContent = String(result);
-          } catch(e) {
-            out.textContent = 'Error: ' + e.message;
-            out.style.color = '#ef4444';
-          }
-        }
-        function resetPlayground(id) {
-          const ta = document.getElementById('pg-code-' + id);
-          ta.value = ta.getAttribute('data-original');
-          const out = document.getElementById('pg-out-' + id);
-          out.textContent = '';
-          out.style.color = 'inherit';
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('textarea[id^="pg-code-"]').forEach(ta => ta.setAttribute('data-original', ta.value));
-        });
-      </script>
-    
-        </div>
+        <h1 style="font-family: var(--serif); margin-bottom: 0.5rem;">Arrays</h1>
+        <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted);">Arrays are ordered collections of values. You can store strings, numbers, objects, or even other arrays inside them.</p>
+        
+    <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+      <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
+        Try It Yourself
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-arr-1">
+        <textarea id="pg-code-arr-1" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const fruits = ["Apple", "Banana", "Cherry"];
+fruits.push("Date");
+console.log("Fruits:", fruits);
+console.log("First:", fruits[0]);
+console.log("Total:", fruits.length);</textarea>
+        <pre id="pg-out-arr-1" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
+      </div>
+      <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
+        <button onclick="runPlayground('arr-1')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
+        <button onclick="resetPlayground('arr-1')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
+      </div>
+    </div>
+  
       
+        </article>
+
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy Modern JavaScript Array Methods Snippet</span>
+          <button id="btnCopy_arrays" class="btn-copy" onclick="copySnippet('btnCopy_arrays', `const numbers = [10, 5, 25, 40, 1];
+
+// Immutable Modern Array Methods (ES2023+)
+const sorted = numbers.toSorted((a, b) => a - b);
+const reversed = numbers.toReversed();
+const replaced = numbers.with(0, 99);
+
+// Deduplication
+const unique = [...new Set(numbers)];`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code>const numbers = [10, 5, 25, 40, 1];
+
+// Immutable Modern Array Methods (ES2023+)
+const sorted = numbers.toSorted((a, b) =&gt; a - b);
+const reversed = numbers.toReversed();
+const replaced = numbers.with(0, 99);
+
+// Deduplication
+const unique = [...new Set(numbers)];</code></pre>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & JavaScript Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: Array.prototype.sort() Converts to Strings by Default</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Calling <code>[10, 5, 25, 1].sort()</code> produces <code>[1, 10, 25, 5]</code> because JavaScript converts numbers to strings and sorts lexicographically. Always pass a comparator: <code>(a, b) =&gt; a - b</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: Mutating Methods (push, splice, reverse) Altering State</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Legacy methods like <code>sort()</code>, <code>reverse()</code>, and <code>splice()</code> mutate the original array in-place, causing bugs in state-driven UI libraries. Use ES2023 immutable methods: <code>toSorted()</code>, <code>toReversed()</code>, <code>toSpliced()</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: Sparse Arrays Created by new Array(length)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Writing <code>new Array(5)</code> creates empty slots, NOT undefined values. Iterative methods like <code>map()</code>, <code>forEach()</code>, and <code>filter()</code> completely skip empty slots! Use <code>Array.from({ length: 5 })</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: delete arr[index] Leaves Empty Holes</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Calling <code>delete arr[1]</code> deletes the value but leaves an empty slot without updating <code>arr.length</code>. Use <code>splice()</code> or <code>toSpliced()</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: Shallow Array Cloning with Nested Objects</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);"><code>[...arr]</code> and <code>arr.slice()</code> copy object references. Modifying an object inside the cloned array mutates the object in the original array. Use <code>structuredClone()</code> for deep copying.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What are the ES2023 non-mutating array methods?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">ES2023 introduced toSorted(), toReversed(), toSpliced(), and with(), which perform sorting, reversing, splicing, and item replacement while returning a new array without mutating the original.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How do you check if a variable is an array in JavaScript?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Use Array.isArray(val). Never use typeof, which returns "object".</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the fastest way to empty an array in JavaScript?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Setting array.length = 0 empties the array in-place and clears all elements for all references to that array.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What does the Array.prototype.flat() method do?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">flat(depth) creates a new array with all sub-array elements concatenated recursively up to the specified depth (defaults to 1).</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How does Array.from() create arrays from iterables or array-like objects?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Array.from(iterable, mapFn) converts array-like objects (such as NodeList or arguments) and iterables into genuine arrays, with an optional mapping transform.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Arrays & Array Methods FAQs","url":"https://digitaltoolsshed.com/learn/javascript/arrays","mainEntity":[{"@type":"Question","name":"What are the ES2023 non-mutating array methods?","acceptedAnswer":{"@type":"Answer","text":"ES2023 introduced toSorted(), toReversed(), toSpliced(), and with(), which perform sorting, reversing, splicing, and item replacement while returning a new array without mutating the original."}},{"@type":"Question","name":"How do you check if a variable is an array in JavaScript?","acceptedAnswer":{"@type":"Answer","text":"Use Array.isArray(val). Never use typeof, which returns \"object\"."}},{"@type":"Question","name":"What is the fastest way to empty an array in JavaScript?","acceptedAnswer":{"@type":"Answer","text":"Setting array.length = 0 empties the array in-place and clears all elements for all references to that array."}},{"@type":"Question","name":"What does the Array.prototype.flat() method do?","acceptedAnswer":{"@type":"Answer","text":"flat(depth) creates a new array with all sub-array elements concatenated recursively up to the specified depth (defaults to 1)."}},{"@type":"Question","name":"How does Array.from() create arrays from iterables or array-like objects?","acceptedAnswer":{"@type":"Answer","text":"Array.from(iterable, mapFn) converts array-like objects (such as NodeList or arguments) and iterables into genuine arrays, with an optional mapping transform."}}]}</script>
+
+        <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <a href="/learn/javascript/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; JavaScript Hub</a>
+          <a href="/learn/" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">All Learn Tracks &rarr;</a>
+        </div>
+        
+        
+    <script>
+      function runPlayground(id) {
+        const code = document.getElementById('pg-code-' + id).value;
+        const out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        const logs = [];
+        const fakeConsole = { log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')) };
+        try {
+          const fn = new Function('console', code);
+          const result = fn(fakeConsole);
+          out.textContent = logs.join('\n');
+          if (result !== undefined && logs.length === 0) out.textContent = String(result);
+        } catch(e) {
+          out.textContent = 'Error: ' + e.message;
+          out.style.color = '#ef4444';
+        }
+      }
+      function resetPlayground(id) {
+        const ta = document.getElementById('pg-code-' + id);
+        ta.value = ta.getAttribute('data-original');
+        const out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        out.style.color = 'inherit';
+      }
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('textarea[id^="pg-code-"]').forEach(ta => ta.setAttribute('data-original', ta.value));
+      });
+    </script>
+  
+      </div>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

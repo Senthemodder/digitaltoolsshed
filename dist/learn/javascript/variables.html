@@ -1031,50 +1031,50 @@
           
 
           
-        <div class="article-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
-          <nav style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-muted);">
-            <a href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
-            <a href="/learn/" style="color: inherit; text-decoration: none;">Learn</a> &gt; 
-            <a href="/learn/javascript/" style="color: inherit; text-decoration: none;">JavaScript</a> &gt; 
-            <span style="color: var(--fg);">JavaScript Variables & Data Types</span>
-          </nav>
+      <div class="article-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+        <nav style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+          <a href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
+          <a href="/learn/" style="color: inherit; text-decoration: none;">Learn</a> &gt; 
+          <a href="/learn/javascript/" style="color: inherit; text-decoration: none;">JavaScript</a> &gt; 
+          <span style="color: var(--fg);">JavaScript Variables & Data Types</span>
+        </nav>
+        
+        <article>
           
-          <article>
-            
-          <h1 style="font-family: var(--serif); margin-bottom: 0.5rem;">Variables & Data Types</h1>
-          <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted);">Variables are the building blocks of any programming language. They allow you to store data, update it, and reference it by name throughout your code.</p>
-          
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Declaring Variables</h2>
-          <p>In modern JavaScript, you should almost always use <code>let</code> and <code>const</code>. <code>const</code> is for values that won't be reassigned, while <code>let</code> is for values that will change.</p>
-          
-      <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
-        <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
-          Try It Yourself
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-var-1">
-          <textarea id="pg-code-var-1" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const greeting = "Hello, World!";
+        <h1 style="font-family: var(--serif); margin-bottom: 0.5rem;">Variables & Data Types</h1>
+        <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted);">Variables are the building blocks of any programming language. They allow you to store data, update it, and reference it by name throughout your code.</p>
+        
+        <h2 style="font-family: var(--serif); margin-top: 2rem;">Declaring Variables</h2>
+        <p>In modern JavaScript, you should almost always use <code>let</code> and <code>const</code>. <code>const</code> is for values that won't be reassigned, while <code>let</code> is for values that will change.</p>
+        
+    <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+      <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
+        Try It Yourself
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-var-1">
+        <textarea id="pg-code-var-1" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const greeting = "Hello, World!";
 let score = 0;
 score = score + 10;
 console.log(greeting);
 console.log("Score:", score);</textarea>
-          <pre id="pg-out-var-1" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
-        </div>
-        <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
-          <button onclick="runPlayground('var-1')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
-          <button onclick="resetPlayground('var-1')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
-        </div>
+        <pre id="pg-out-var-1" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
       </div>
-    
+      <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
+        <button onclick="runPlayground('var-1')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
+        <button onclick="resetPlayground('var-1')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
+      </div>
+    </div>
+  
 
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Data Types</h2>
-          <p>JavaScript has several basic data types: Strings (text), Numbers (integers and decimals), Booleans (true/false), Null (intentional absence of value), and Undefined (variable declared but not assigned).</p>
-          
-      <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
-        <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
-          Try It Yourself
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-var-2">
-          <textarea id="pg-code-var-2" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const name = "Alice"; // String
+        <h2 style="font-family: var(--serif); margin-top: 2rem;">Data Types</h2>
+        <p>JavaScript has several basic data types: Strings (text), Numbers (integers and decimals), Booleans (true/false), Null (intentional absence of value), and Undefined (variable declared but not assigned).</p>
+        
+    <div style="margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+      <div style="background: var(--surface-alt); padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border);">
+        Try It Yourself
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; background: var(--bg);" id="pg-var-2">
+        <textarea id="pg-code-var-2" style="width: 100%; height: 100%; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; resize: none; outline: none; margin: 0; box-sizing: border-box;" spellcheck="false">const name = "Alice"; // String
 const age = 28;       // Number
 const isCool = true;  // Boolean
 let futurePlans;      // Undefined
@@ -1083,61 +1083,164 @@ const empty = null;   // Null
 console.log(typeof name);
 console.log(typeof age);
 console.log(typeof isCool);</textarea>
-          <pre id="pg-out-var-2" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
+        <pre id="pg-out-var-2" style="width: 100%; height: 100%; padding: 1rem; border: none; background: var(--surface); color: var(--fg); font-family: var(--mono); font-size: 0.9rem; overflow: auto; margin: 0; box-sizing: border-box;"></pre>
+      </div>
+      <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
+        <button onclick="runPlayground('var-2')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
+        <button onclick="resetPlayground('var-2')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
+      </div>
+    </div>
+  
+      
+        </article>
+
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy JavaScript Variables & Data Types Cheat Sheet</span>
+          <button id="btnCopy_variables" class="btn-copy" onclick="copySnippet('btnCopy_variables', `// Modern JavaScript Variable Declarations
+const MAX_RETRIES = 3;         // Block-scoped, immutable identifier binding
+let attempts = 0;              // Block-scoped, mutable variable
+
+// Destructuring assignment
+const { id, username } = { id: 101, username: "neo" };
+const [first, ...rest] = [10, 20, 30, 40];
+
+// Primitive Data Types: string, number, bigint, boolean, undefined, symbol, null
+const idSymbol = Symbol("userId");
+const bigIntNum = 9007199254740991n;`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
         </div>
-        <div style="background: var(--surface-alt); padding: 0.5rem; display: flex; gap: 0.5rem; border-top: 1px solid var(--border);">
-          <button onclick="runPlayground('var-2')" style="background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">&#x25B6; Run</button>
-          <button onclick="resetPlayground('var-2')" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">&#x21BA; Reset</button>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code>// Modern JavaScript Variable Declarations
+const MAX_RETRIES = 3;         // Block-scoped, immutable identifier binding
+let attempts = 0;              // Block-scoped, mutable variable
+
+// Destructuring assignment
+const { id, username } = { id: 101, username: "neo" };
+const [first, ...rest] = [10, 20, 30, 40];
+
+// Primitive Data Types: string, number, bigint, boolean, undefined, symbol, null
+const idSymbol = Symbol("userId");
+const bigIntNum = 9007199254740991n;</code></pre>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & JavaScript Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: Temporal Dead Zone (TDZ) with let and const</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Accessing a <code>let</code> or <code>const</code> variable before its declaration throws a fatal <code>ReferenceError: Cannot access variable before initialization</code>. Unlike <code>var</code>, variables are hoisted into the TDZ without an initial value.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: var Function Scoping & Bleed Trap</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Variables declared with <code>var</code> are function-scoped or globally-scoped, completely ignoring <code>if</code> blocks and <code>for</code> loops. This leaks variables outside loops and causes unintended mutations.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: typeof null === "object" Historical Bug</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Due to a legacy type tag quirk from JavaScript's first version in 1995, <code>typeof null</code> returns <code>"object"</code>. Always check <code>val === null</code> explicitly.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: const Object Mutation Misconception</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);"><code>const</code> freezes the variable binding, NOT the underlying object. Writing <code>const user = {}; user.name = "Neo";</code> is completely legal. To make an object immutable, use <code>Object.freeze(user)</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: Silent Global Creation in Non-Strict Mode</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Assigning to an undeclared variable (<code>score = 100</code>) in sloppy mode automatically creates a property on the global <code>window</code> object. Always write <code>"use strict";</code> or use ES modules.</div>
+            </div>
+          
         </div>
       </div>
     
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Practice</h2>
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1rem 0;">
-            <p><strong>Challenge 1:</strong> Create a <code>const</code> variable with your favorite color and log it.</p>
-            <p><strong>Challenge 2:</strong> Create a <code>let</code> variable called <code>counter</code>, set it to 1, then update it to 2 and log it.</p>
-          </div>
-
-          <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
-          <ul>
-            <li><a href="/learn/javascript/strings">Strings & String Methods</a></li>
-            <li><a href="/learn/javascript/numbers">Numbers & Math</a></li>
-          </ul>
         
-          </article>
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
           
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the practical difference between let and const in modern JavaScript?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Use const by default for all variables that will not be reassigned. Use let only when a variable needs to be rebound to a new value (such as loop counters or state accumulators).</div>
+            </details>
           
-      <script>
-        function runPlayground(id) {
-          const code = document.getElementById('pg-code-' + id).value;
-          const out = document.getElementById('pg-out-' + id);
-          out.textContent = '';
-          const logs = [];
-          const fakeConsole = { log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')) };
-          try {
-            const fn = new Function('console', code);
-            const result = fn(fakeConsole);
-            out.textContent = logs.join('\n');
-            if (result !== undefined && logs.length === 0) out.textContent = String(result);
-          } catch(e) {
-            out.textContent = 'Error: ' + e.message;
-            out.style.color = '#ef4444';
-          }
-        }
-        function resetPlayground(id) {
-          const ta = document.getElementById('pg-code-' + id);
-          ta.value = ta.getAttribute('data-original');
-          const out = document.getElementById('pg-out-' + id);
-          out.textContent = '';
-          out.style.color = 'inherit';
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('textarea[id^="pg-code-"]').forEach(ta => ta.setAttribute('data-original', ta.value));
-        });
-      </script>
-    
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What are the 7 primitive data types in JavaScript?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The 7 primitives are string, number, bigint, boolean, undefined, symbol, and null. All other data structures (functions, arrays, objects) are reference objects.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How does variable hoisting work in JavaScript?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">During the compilation phase, variable and function declarations are moved to the top of their containing scope. var declarations are initialized to undefined, while let and const enter the Temporal Dead Zone.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Why does Symbol exist in JavaScript?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Symbol creates unique, collision-proof identifiers often used as hidden object property keys that will not conflict with normal string keys.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the difference between null and undefined?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">undefined indicates a variable has been declared but has not yet been assigned any value. null is an intentional assignment representing the explicit absence of any object value.</div>
+            </details>
+          
         </div>
-      
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"JavaScript Variables & Data Types FAQs","url":"https://digitaltoolsshed.com/learn/javascript/variables","mainEntity":[{"@type":"Question","name":"What is the practical difference between let and const in modern JavaScript?","acceptedAnswer":{"@type":"Answer","text":"Use const by default for all variables that will not be reassigned. Use let only when a variable needs to be rebound to a new value (such as loop counters or state accumulators)."}},{"@type":"Question","name":"What are the 7 primitive data types in JavaScript?","acceptedAnswer":{"@type":"Answer","text":"The 7 primitives are string, number, bigint, boolean, undefined, symbol, and null. All other data structures (functions, arrays, objects) are reference objects."}},{"@type":"Question","name":"How does variable hoisting work in JavaScript?","acceptedAnswer":{"@type":"Answer","text":"During the compilation phase, variable and function declarations are moved to the top of their containing scope. var declarations are initialized to undefined, while let and const enter the Temporal Dead Zone."}},{"@type":"Question","name":"Why does Symbol exist in JavaScript?","acceptedAnswer":{"@type":"Answer","text":"Symbol creates unique, collision-proof identifiers often used as hidden object property keys that will not conflict with normal string keys."}},{"@type":"Question","name":"What is the difference between null and undefined?","acceptedAnswer":{"@type":"Answer","text":"undefined indicates a variable has been declared but has not yet been assigned any value. null is an intentional assignment representing the explicit absence of any object value."}}]}</script>
+
+        <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <a href="/learn/javascript/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; JavaScript Hub</a>
+          <a href="/learn/" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">All Learn Tracks &rarr;</a>
+        </div>
+        
+        
+    <script>
+      function runPlayground(id) {
+        const code = document.getElementById('pg-code-' + id).value;
+        const out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        const logs = [];
+        const fakeConsole = { log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')) };
+        try {
+          const fn = new Function('console', code);
+          const result = fn(fakeConsole);
+          out.textContent = logs.join('\n');
+          if (result !== undefined && logs.length === 0) out.textContent = String(result);
+        } catch(e) {
+          out.textContent = 'Error: ' + e.message;
+          out.style.color = '#ef4444';
+        }
+      }
+      function resetPlayground(id) {
+        const ta = document.getElementById('pg-code-' + id);
+        ta.value = ta.getAttribute('data-original');
+        const out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        out.style.color = 'inherit';
+      }
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('textarea[id^="pg-code-"]').forEach(ta => ta.setAttribute('data-original', ta.value));
+      });
+    </script>
+  
+      </div>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
