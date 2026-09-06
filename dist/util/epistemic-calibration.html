@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is Epistemic Calibration?",
+      "name": "What is Epistemic Calibration in decision science?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Epistemic calibration is the degree to which a person's confidence matches their actual frequency of being correct."
+        "text": "Epistemic calibration is the degree of alignment between a person's subjective certainty and objective reality. If you claim 80% confidence across 100 distinct factual estimates, exactly 80 of them should contain the true answer."
       }
     },
     {
       "@type": "Question",
-      "name": "Why do most people fail this test?",
+      "name": "Why do most educated adults only hit 30% to 50% on 80% interval tests?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Most people provide intervals that are 3x to 5x too narrow because human culture punishes expressions of uncertainty."
+        "text": "Decades of research by Daniel Kahneman, Amos Tversky, and Philip Tetlock demonstrate that humans suffer from pervasive overconfidence. Social conditioning rewards decisive certainty over honest ambiguity, prompting people to provide intervals that are 3&times; to 5&times; too narrow."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do professional superforecasters train themselves to give wider intervals?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Superforecasters employ the 'outside view' and adversarial self-interrogation: they ask 'What would cause the true number to be 10 times higher or lower than my intuition?' and deliberately widen their boundaries until missing 1 out of 5 feels genuinely plausible."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between calibration, resolution, and accuracy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Accuracy measures closeness to the true value; resolution measures how decisively probabilities diverge from base rates; calibration measures whether your assigned confidence probabilities match long-run empirical hit frequencies."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Brier score and how does it evaluate epistemic humility?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Invented by Glenn Brier in 1950, the Brier score calculates the mean squared error between forecasted subjective probabilities and actual binary outcomes (0 or 1). Lower scores denote superior calibration and probabilistic foresight."
       }
     }
   ]
@@ -1041,51 +1065,91 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Superforecasting & Bayesian Rationality</div>
-        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Epistemic Calibration & Overconfidence Game</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Bayesian Probability & Rationality Benchmark</div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Epistemic Calibration & Overconfidence Benchmark</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          Are you as smart as you think? For each question below, provide an <strong>80% Confidence Interval</strong> (a lower and upper bound where you are 80% confident the true answer lies). If your brain is calibrated, exactly 8 out of 10 answers will fall inside your bands.
+          Measure your epistemic calibration against objective reality. Provide an <strong>80% confidence interval</strong> for 10 trivia questions. If your brain is perfectly calibrated, exactly 8 out of 10 answers will fall inside your specified bounds.
         </p>
       </header>
 
-      <div class="neuro-card" id="quizCard">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem;">Provide 80% Confidence Intervals</h2>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-          Make your intervals wide enough to capture truth, but narrow enough to be meaningful. Do NOT look up answers!
+      <!-- QUIZ CARD -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.5rem;">Enter Your 80% Confidence Interval</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          For each question, specify a Lower Bound and Upper Bound such that you are <strong>80% confident</strong> the true value lies between them. You should feel comfortable betting $80 against $20 on your interval.
         </p>
 
-        <form id="calibForm">
-          <div id="questionsContainer"></div>
-          <div style="text-align: center; margin-top: 1.5rem;">
-            <button type="button" onclick="scoreCalibration()" class="neuro-btn-primary">🎯 Calculate Epistemic Calibration Score</button>
-          </div>
-        </form>
-      </div>
+        <div id="calibErrorMsg" style="display:none; background:rgba(239,68,68,0.1); border-left:4px solid #ef4444; padding:0.75rem 1rem; border-radius:4px; margin-bottom:1rem; color:#ef4444; font-weight:600;"></div>
 
-      <!-- RESULTS REPORT -->
-      <div id="calibResultsCard" class="neuro-card" style="display: none; text-align: center;">
-        <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Calibration Benchmark Results</div>
-        <div id="hitRateDisplay" style="font-family: var(--mono); font-size: 3.5rem; font-weight: 900; margin: 0.25rem 0; color: #3b82f6;">0%</div>
-        <div id="hitArchetype" style="font-family: var(--serif); font-size: 1.35rem; font-weight: bold; margin-bottom: 0.5rem;">Analyzing...</div>
-        <p id="hitDesc" style="font-size: 0.95rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 1.5rem; line-height: 1.6;"></p>
+        <div id="questionsContainer"></div>
 
-        <div id="detailedAnswersTable" style="text-align: left; margin-top: 1.5rem; overflow-x: auto;"></div>
-      </div>
-
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is Epistemic Calibration?</div>
-          <div class="faq-a">
-            In cognitive psychology and decision science, an individual is well-calibrated when their subjective degree of certainty matches objective reality. If you claim 80% confidence across 100 predictions, exactly 80 should be correct. Most humans only hit 40–50%, suffering from severe cognitive overconfidence.
-          </div>
+        <div style="margin-top: 1.5rem;">
+          <button onclick="scoreCalibration()" class="neuro-btn-primary" style="font-size: 1rem; padding: 0.75rem 1.5rem;">🎯 Score My Epistemic Calibration</button>
         </div>
-        <div class="faq-item">
-          <div class="faq-q">Why does the human brain make intervals too narrow?</div>
-          <div class="faq-a">
-            Social status and conversational rewards favor false certainty over honest ambiguity. Expressing wide intervals feels foolish, so our ego artificially compresses the bounds to look knowledgeable, leading to frequent misses.
-          </div>
+      </div>
+
+      <!-- RESULTS CARD -->
+      <div id="calibResultsCard" class="neuro-card" style="display: none; border-top: 4px solid #10b981;">
+        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.5rem;">Your Calibration Diagnostic Scorecard</h3>
+        <div id="hitRateDisplay" style="font-family: var(--serif); font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;"></div>
+        <div id="hitArchetype" style="font-family: var(--mono); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;"></div>
+        <p id="hitDesc" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;"></p>
+
+        <div id="detailedAnswersTable" style="overflow-x: auto; margin-bottom: 1.25rem;"></div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyCalibReport()" id="copyCalibBtn" class="neuro-btn-primary">📋 Copy Calibration Scorecard</button>
+        </div>
+      </div>
+
+      <!-- MATHEMATICAL DERIVATION CARD -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical Foundations of Epistemic Calibration</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          In decision theory and subjective probability, calibration measures how closely subjective confidence intervals match empirical reality:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Perfect Calibration Condition:<br>
+          &nbsp;&nbsp;&nbsp;P(True &in; [L_i, U_i] | Confidence = c) = c<br>
+          &nbsp;&nbsp;&nbsp;For an 80% interval (c = 0.80), exactly 8 out of 10 bounds must capture truth.<br><br>
+          2. Calibration Hit Rate:<br>
+          &nbsp;&nbsp;&nbsp;Hit_Rate = (1 / N) &times; &sum; I(True_i &in; [L_i, U_i])<br><br>
+          3. Overconfidence Bias Measure (&Delta;C):<br>
+          &nbsp;&nbsp;&nbsp;&Delta;C = Target_Confidence - Hit_Rate<br>
+          &nbsp;&nbsp;&nbsp;If &Delta;C &gt; 0: Overconfidence (intervals too narrow)<br>
+          &nbsp;&nbsp;&nbsp;If &Delta;C &lt; 0: Underconfidence / Excess Timidity (intervals too wide)<br><br>
+          4. Brier Calibration Penalty:<br>
+          &nbsp;&nbsp;&nbsp;BS = (1 / N) &times; &sum; (f_k - o_k)^2
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & COGNITIVE OVERCONFIDENCE PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Epistemic Overconfidence Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Social Penalty on Expressing Uncertainty</strong>
+          Human social hierarchies reward individuals who project certainty with rapid answers and narrow ranges. Expressing genuine uncertainty is often culturally misinterpreted as incompetence, training the brain to give artificially tight intervals.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Anchor-and-Adjust Insufficiency</strong>
+          When asked for an interval, the mind instinctively anchors on a single point guess, then nudges slightly higher and lower. This heuristic systematically fails to account for tail risks and distribution skewness.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. Confusing Calibration with Trivia Knowledge</strong>
+          Believing that calibration requires encyclopedic knowledge. Perfect calibration does not require knowing the answer; it requires knowing <em>how much you do not know</em> and setting your interval wide enough (e.g. 100 to 100,000,000) to honestly achieve 80% confidence.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Linear Certainty Fallacy</strong>
+          Treating unfamiliar physical quantities linearly rather than exponentially. Many astronomical, historical, and geological variables span multiple orders of magnitude, requiring log-scale bounds to be properly captured.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Unscored Belief Feedback Deprivation</strong>
+          Most everyday opinions, business forecasts, and geopolitical predictions are never scored against empirical numbers. Without quantified scoring and Brier tracking, the brain's overconfidence mechanism never receives corrective feedback.
         </div>
       </div>
     </div>
@@ -1121,6 +1185,9 @@
       }
 
       function scoreCalibration() {
+        var errEl = document.getElementById('calibErrorMsg');
+        errEl.style.display = 'none';
+
         var hits = 0;
         var tableHtml = '<table style="width:100%;font-size:0.85rem;border-collapse:collapse;margin-top:1rem;"><thead><tr style="border-bottom:1px solid var(--border);text-align:left;"><th style="padding:0.4rem;">#</th><th style="padding:0.4rem;">Question</th><th style="padding:0.4rem;">Your 80% Band</th><th style="padding:0.4rem;">True Value</th><th style="padding:0.4rem;">Result</th></tr></thead><tbody>';
 
@@ -1130,7 +1197,9 @@
           var high = parseFloat(document.getElementById('high_' + item.id).value);
 
           if (isNaN(low) || isNaN(high)) {
-            alert('Please fill out both lower and upper bounds for question #' + (i + 1));
+            errEl.textContent = 'Please fill out both lower and upper bounds for question #' + (i + 1);
+            errEl.style.display = 'block';
+            errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
           }
 
@@ -1172,9 +1241,108 @@
         document.getElementById('calibResultsCard').scrollIntoView({ behavior: 'smooth' });
       }
 
+      function copyCalibReport() {
+        var rate = document.getElementById('hitRateDisplay').textContent;
+        var arch = document.getElementById('hitArchetype').textContent;
+        var desc = document.getElementById('hitDesc').textContent;
+        var text = '=== EPISTEMIC CALIBRATION BENCHMARK REPORT ===
+' +
+          '80% Confidence Interval Hit Rate: ' + rate + '
+' +
+          'Calibration Archetype: ' + arch + '
+' +
+          'Diagnostic Evaluation: ' + desc + '
+
+' +
+          'COGNITIVE TAKEAWAY:
+' +
+          'Human culture rewards false certainty over honest ambiguity. To achieve true superforecaster ' +
+          'calibration, deliberately widen intervals until 1 out of 5 statements genuinely feels surprising when missed.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCalibBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Calibration Report!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', renderCalibQuiz);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Epistemic Calibration in decision science?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Epistemic calibration is the degree of alignment between a person's subjective certainty and objective reality. If you claim 80% confidence across 100 distinct factual estimates, exactly 80 of them should contain the true answer.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why do most educated adults only hit 30% to 50% on 80% interval tests?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Decades of research by Daniel Kahneman, Amos Tversky, and Philip Tetlock demonstrate that humans suffer from pervasive overconfidence. Social conditioning rewards decisive certainty over honest ambiguity, prompting people to provide intervals that are 3&times; to 5&times; too narrow.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do professional superforecasters train themselves to give wider intervals?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Superforecasters employ the 'outside view' and adversarial self-interrogation: they ask 'What would cause the true number to be 10 times higher or lower than my intuition?' and deliberately widen their boundaries until missing 1 out of 5 feels genuinely plausible.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the difference between calibration, resolution, and accuracy?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Accuracy measures closeness to the true value; resolution measures how decisively probabilities diverge from base rates; calibration measures whether your assigned confidence probabilities match long-run empirical hit frequencies.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the Brier score and how does it evaluate epistemic humility?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Invented by Glenn Brier in 1950, the Brier score calculates the mean squared error between forecasted subjective probabilities and actual binary outcomes (0 or 1). Lower scores denote superior calibration and probabilistic foresight.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

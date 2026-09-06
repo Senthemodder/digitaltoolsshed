@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the Cosmic Perspective Clock?",
+      "name": "How does reflecting on cosmic deep time calm acute anxiety?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A real-time clock tracking your personal existence against cosmic deep time to down-regulate the default mode network and relieve acute anxiety."
+        "text": "Neuroimaging studies reveal that feelings of awe and cosmic scale down-regulate activity in the Default Mode Network (DMN), the brain's neural hub for self-referential rumination, social anxiety, and perceived existential crisis."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the View from Above in Stoicism?",
+      "name": "What is Carl Sagan's Cosmic Calendar and where do humans appear?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A mental exercise recommended by Marcus Aurelius to visualize your life and dilemmas from orbit, stripping away petty ego attachments."
+        "text": "Popularized in Sagan's 'Dragons of Eden' and 'Cosmos', the 13.8-billion-year history of the cosmos is mapped onto a single 365-day year. The Big Bang occurs January 1 at midnight; modern Homo sapiens emerge on December 31 at 11:52 PM, and all of recorded human civilization occurs in the final 11 seconds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between active existentialism and passive nihilism?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Passive nihilism concludes that because the universe is indifferent and will eventually reach heat death, nothing matters and effort is futile. Active existentialism recognizes that because the cosmos has no inherent script, humans have radical freedom and responsibility to create subjective meaning, beauty, and kindness."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the 'Overview Effect' reported by astronauts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Overview Effect is a cognitive shift in awareness reported by space travelers upon viewing Earth from orbit: an overwhelming visceral sensation of the fragility and unity of life against the silent cosmic vacuum, diminishing tribal conflict and ego attachments."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long will the universe support biological life before the Stelliferous Era ends?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Astrophysicists estimate the Stelliferous (star-forming) Era will continue for approximately 100 trillion years ($10^{14}$ years) as low-mass red dwarfs burn their hydrogen reserves slowly, providing vast horizons for consciousness before stellar cooling."
       }
     }
   ]
@@ -1091,20 +1115,56 @@
         <div id="vaporizeOutput" style="display: none; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-size: 0.95rem; line-height: 1.6;"></div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is the Cosmic Year?</div>
-          <div class="faq-a">
-            A concept popularized by Carl Sagan where the 13.8-billion-year lifespan of the universe is compressed into a single 365-day calendar year. The Big Bang occurs on January 1 at 00:00:00, modern humans appear on December 31 at 23:52, and an 80-year human life lasts roughly 0.18 seconds.
-          </div>
+      <!-- ASTROPHYSICAL & TEMPORAL DERIVATION -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Astrophysical & Temporal Derivation: The Logarithmic Horizon</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Cosmic deep time scales span more than 100 orders of magnitude, contextualizing the microscopic duration of organic consciousness:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Personal Elapsed Fraction of Earth Age:<br>
+          &nbsp;&nbsp;&nbsp;F_earth = t_personal / (4.54 &times; 10^9 &times; 365.25 &times; 86,400) &approx; 6.2 &times; 10^-10<br><br>
+          2. Cosmic Year Transformation (Carl Sagan Compressed Epoch):<br>
+          &nbsp;&nbsp;&nbsp;T_cosmic = (Age_Years / 1.38 &times; 10^10) &times; 31,536,000 seconds<br>
+          &nbsp;&nbsp;&nbsp;An 80-year human life corresponds to ~0.18 seconds on December 31 at 23:59:59.<br><br>
+          3. Thermodynamic Time Horizons (Dyson & Adams):<br>
+          &nbsp;&nbsp;&nbsp;&bull; Solar Red Giant Expansion: ~5.0 &times; 10^9 years<br>
+          &nbsp;&nbsp;&nbsp;&bull; Stelliferous Era End: ~1.0 &times; 10^14 years<br>
+          &nbsp;&nbsp;&nbsp;&bull; Degenerate Era Proton Decay: ~1.0 &times; 10^34 years<br>
+          &nbsp;&nbsp;&nbsp;&bull; Black Hole Evaporation (Hawking Radiation): ~1.0 &times; 10^100 years
         </div>
-        <div class="faq-item">
-          <div class="faq-q">How does cosmic awe reduce stress?</div>
-          <div class="faq-a">
-            Neuroscience research shows that experiencing awe quiets the Default Mode Network (DMN), the brain region responsible for self-focused rumination and anxiety.
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyCosmicSummary()" id="copyCosmicBtn" class="neuro-btn-primary">📋 Copy Cosmic Grounding Summary</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & COSMIC TIME PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Existential Perspective & Deep Time Traps</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Amygdala Temporal Myopia Trap</strong>
+          Evolutionary biology wired human brains for acute, immediate survival on the savannah. Our nervous system mistakes trivial social friction (e.g. an uncomfortable meeting) for a life-threatening crisis, triggering prolonged cortisol dumps for microscopic non-events.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Passive Nihilism Paralysis</strong>
+          Confusing cosmic vastness with total futility. Concluding that 'because stars burn out, nothing matters' is an epistemic error. Value is generated locally by conscious observers; cosmic indifference liberates you to choose your own virtues without universal judgment.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Egocentric Epoch Illusion</strong>
+          Intuitively feeling that current modern society represents the permanent climax of history. In reality, human civilization represents 0.000002% of planetary history; trillions of years of physical evolution remain ahead.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Linear Time Intuition Breakdown</strong>
+          Attempting to visualize deep cosmological time using linear intuition. The difference between 1 million years and 1 billion years cannot be grasped linearly; logarithmic scales and calendar compression are mathematically required for neural grounding.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Deferral of Living Fallacy</strong>
+          Postponing authentic connection, creative expression, and gratitude under the illusion that you will 'get around to living' in a later chapter. In cosmic terms, your conscious aperture is open for a fraction of a millisecond; there is only now.
         </div>
       </div>
     </div>
@@ -1130,12 +1190,13 @@
 
       function vaporizeAnxiety() {
         var str = document.getElementById('anxietyInput').value.trim();
+        var out = document.getElementById('vaporizeOutput');
         if (!str) {
-          alert('Please enter a current worry or stressor.');
+          out.style.display = 'block';
+          out.innerHTML = '<div style="color:#ef4444; font-weight:600;">⚠️ Please enter a current worry or stressor above to dissolve it against cosmic scale.</div>';
           return;
         }
 
-        var out = document.getElementById('vaporizeOutput');
         out.style.display = 'block';
         out.innerHTML = 
           '<div style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;color:#a855f7;font-weight:bold;margin-bottom:0.4rem;">Cosmic Perspective Grounding</div>' +
@@ -1144,10 +1205,110 @@
           '<p style="margin:0;font-weight:bold;color:#10b981;">Your problem is real in your immediate subjective experience, but completely weightless against the cosmos. Breathe deeply, handle what is directly in your control right now, and let go of the rest.</p>';
       }
 
+      function copyCosmicSummary() {
+        var sec = document.getElementById('personalSeconds').textContent;
+        var ef = document.getElementById('earthFraction').textContent;
+        var cy = document.getElementById('cosmicYearTime').textContent;
+        var text = '=== COSMIC PERSPECTIVE GROUNDING SUMMARY ===
+' +
+          'Personal Earth Lifetime Fraction: ' + ef + '
+' +
+          'Elapsed Personal Consciousness: ' + sec + '
+' +
+          'Position on Sagan Cosmic Calendar: ' + cy + '
+
+' +
+          'STOIC PERSPECTIVE GROUNDING:
+' +
+          'Against the 13.8 billion-year timeline of the cosmos, current acute anxieties are ' +
+          'microscopic and temporary. Act with honor and kindness in your conscious window, ' +
+          'focus exclusively on what is within your agency, and release the rest.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCosmicBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Cosmic Summary!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       setInterval(updateCosmicTick, 1000);
       document.addEventListener('DOMContentLoaded', updateCosmicTick);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does reflecting on cosmic deep time calm acute anxiety?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Neuroimaging studies reveal that feelings of awe and cosmic scale down-regulate activity in the Default Mode Network (DMN), the brain's neural hub for self-referential rumination, social anxiety, and perceived existential crisis.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Carl Sagan's Cosmic Calendar and where do humans appear?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Popularized in Sagan's 'Dragons of Eden' and 'Cosmos', the 13.8-billion-year history of the cosmos is mapped onto a single 365-day year. The Big Bang occurs January 1 at midnight; modern Homo sapiens emerge on December 31 at 11:52 PM, and all of recorded human civilization occurs in the final 11 seconds.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the difference between active existentialism and passive nihilism?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Passive nihilism concludes that because the universe is indifferent and will eventually reach heat death, nothing matters and effort is futile. Active existentialism recognizes that because the cosmos has no inherent script, humans have radical freedom and responsibility to create subjective meaning, beauty, and kindness.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the 'Overview Effect' reported by astronauts?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The Overview Effect is a cognitive shift in awareness reported by space travelers upon viewing Earth from orbit: an overwhelming visceral sensation of the fragility and unity of life against the silent cosmic vacuum, diminishing tribal conflict and ego attachments.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How long will the universe support biological life before the Stelliferous Era ends?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Astrophysicists estimate the Stelliferous (star-forming) Era will continue for approximately 100 trillion years ($10^{14}$ years) as low-mass red dwarfs burn their hydrogen reserves slowly, providing vast horizons for consciousness before stellar cooling.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

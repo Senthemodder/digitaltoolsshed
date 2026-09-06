@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is Hebbian Plasticity?",
+      "name": "What is Donald Hebb's rule and how does it govern habit decay?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Formulated by Donald Hebb in 1949, it describes how neurons adapt during learning: synaptic connections strengthen when repeatedly fired, and weaken when disused."
+        "text": "Formulated by Canadian neuropsychologist Donald Hebb in 1949 ('neurons that fire together wire together'), synaptic connections strengthen through repetitive synchronous firing (long-term potentiation). Conversely, when an established pathway is left unactivated, dendritic spine density gradually declines through activity-dependent synaptic pruning."
       }
     },
     {
       "@type": "Question",
-      "name": "Why does missing twice cause a synaptic cliff?",
+      "name": "Why is the 'Never Miss Twice' rule neurobiologically decisive?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "One day missed is an anomaly; two consecutive days begins dendritic spine re-absorption."
+        "text": "A single day off represents an isolated anomaly; synaptic transmission efficiency remains at ~96%. However, two consecutive absences break the temporal predictive loop in the basal ganglia, triggering dendritic retraction and nearly doubling the prefrontal activation energy required to initiate the routine again."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the 2-Minute Minimum Viable Repetition (MVR) stop synaptic pruning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The nervous system prioritizes pathway recruitment over total metabolic volume. Performing a 60-second or 2-minute micro-rep (e.g., doing 2 push-ups or reading 1 paragraph) fires the exact same neural circuit, releasing neurotransmitters that preserve synaptic potentiation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between basal ganglia automaticity and prefrontal effort?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When a behavior is new, it relies heavily on the prefrontal cortex, which consumes substantial glucose and feels effortful. As the habit becomes automated, control transfers to the dorsolateral striatum within the basal ganglia, requiring virtually zero conscious willpower."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does it actually take to restore a lapsed habit pathway?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Restoring an interrupted habit takes far fewer repetitions than building one from scratch due to residual synaptic scaffolding. For each day missed up to 14 days, approximately 1.8 consecutive daily repetitions are required to rebuild peak automaticity."
       }
     }
   ]
@@ -1041,19 +1065,18 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Hebbian Plasticity & Myelination Dynamics</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Cognitive Neurobiology & Hebbian Plasticity</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Habit Decay Half-Life & Synaptic Pruning Simulator</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          "Neurons that fire together wire together; neurons that fire apart fall apart." When you skip days, synaptic strength and myelin sheath insulation decay exponentially. Discover the mathematical and neurobiological proof behind the "Never Miss Twice" rule.
+          Mathematically simulate neural pathway degradation when habits are interrupted. Explore exponential synaptic degradation, Hebbian plasticity, and why the <em>"never miss twice"</em> rule protects myelination.
         </p>
       </header>
 
+      <!-- INTERACTIVE SIMULATOR CARD -->
       <div class="neuro-card">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem;">1. Configure Habit Baseline</h2>
-
-        <div class="neuro-slider-row">
+        <div class="neuro-slider-row" style="margin-bottom: 1.25rem;">
           <div class="neuro-slider-label">
-            <span>Consecutive Days Practiced (Streak Length)</span>
+            <span>Prior Established Habit Streak (Consistency Duration)</span>
             <strong id="valStreak" style="color: #3b82f6;">45 Days</strong>
           </div>
           <input type="range" id="streakInput" min="1" max="365" value="45" class="neuro-slider-input" oninput="simHabit()" />
@@ -1093,7 +1116,7 @@
       <div class="neuro-card">
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Synaptic Cliff: 14-Day Pruning Trajectory</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-          Missing 1 day produces minor decay (4%). Missing 2 consecutive days triggers synaptic destabilization. Missing 3+ days triggers active dendritic spine retraction.
+          Missing 1 day produces minor decay (~4%). Missing 2 consecutive days triggers synaptic destabilization. Missing 3+ days triggers active dendritic spine retraction.
         </p>
 
         <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; text-align: center;">
@@ -1109,20 +1132,56 @@
         </p>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">Why is 'Never Miss Twice' so powerful?</div>
-          <div class="faq-a">
-            Neurobiologically, a single missed day causes minimal myelination loss. However, missing two consecutive days causes dendritic spine retraction and breaks the temporal conditioning loop, multiplying activation energy needed to restart.
-          </div>
+      <!-- MATHEMATICAL & NEUROBIOLOGICAL DERIVATION -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical & Neurobiological Derivation of Synaptic Decay</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Habit automaticity follows Donald Hebb's Law of Coincident Activation coupled with non-linear exponential decay during periods of disuse:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Peak Synaptic Strength (Lally Logistic Assimilation):<br>
+          &nbsp;&nbsp;&nbsp;S_peak = 100 &times; (1 - e^(-Streak / 45))<br><br>
+          2. Accelerated Disuse Factor (Non-Linear Decay):<br>
+          &nbsp;&nbsp;&nbsp;&lambda;(Gap) = e^(-0.04 &times; Gap - 0.03 &times; Gap^1.6)<br><br>
+          3. Residual Automated Automaticity:<br>
+          &nbsp;&nbsp;&nbsp;S(t) = S_peak &times; &lambda;(Gap)<br><br>
+          4. Prefrontal Re-entry Activation Energy (&Delta;E):<br>
+          &nbsp;&nbsp;&nbsp;&Delta;E = (100 - S(t)) &times; 0.70<br><br>
+          5. Restorative Repetitions to Regain Full Myelination:<br>
+          &nbsp;&nbsp;&nbsp;R_rest = max(1, round(Gap &times; 1.8))
         </div>
-        <div class="faq-item">
-          <div class="faq-q">How long does automaticity actually take?</div>
-          <div class="faq-a">
-            Dr. Phillippa Lally’s UCL study showed habit automaticity takes an average of 66 days (ranging from 18 to 254 days depending on complexity).
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyHabitProtocol()" id="copyHabitBtn" class="neuro-btn-primary">📋 Copy Habit Preservation Protocol</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & NEUROBIOLOGICAL PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Habit Degradation & Recovery Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The "All-or-Nothing" Streak Identity Trap</strong>
+          Believing that missing a single day resets your progress to absolute zero. This triggers the psychological "what-the-hell" effect (counter-regulatory bingeing or complete cessation). In reality, a single missed day retains ~96% of synaptic potentiation. The real danger is the consecutive second miss.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Motivation Re-ignition Fallacy</strong>
+          Relying on emotional motivation or willpower rather than reducing environmental friction to resume an interrupted routine. After a lapse, the prefrontal cortex experiences elevated cognitive drag; the only reliable remedy is drastically lowering initial task friction (e.g. setting gym clothes out).
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Volume Compensation Trap</strong>
+          Attempting a punishing 3-hour marathon workout or study session to "make up" for 4 missed days. The basal ganglia encodes daily temporal frequency, not sporadic volume spikes. Overcompensating induces severe soreness, cognitive burnout, and further consecutive absences.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Context-Decoupling Blindspot</strong>
+          Failing to recognize that habits are neurologically anchored to environmental sensory cues (time of day, physical location, room layout). Traveling or schedule disruptions dismantle these associative cues; you must deliberately map the habit to a portable trigger (e.g., right after morning coffee).
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The 21-Day Automaticity Myth</strong>
+          Relying on the popular folklore that habits require exactly 21 days to form (derived from Dr. Maxwell Maltz's cosmetic surgery observations in 1960). Empirical University College London research by Dr. Phillippa Lally demonstrates real automaticity requires 66 to 254 days of consistent myelination.
         </div>
       </div>
     </div>
@@ -1202,9 +1261,114 @@
         ctx.fillText('Day 14 (Extinction)', w - 120, h - 6);
       }
 
+      function copyHabitProtocol() {
+        var streak = document.getElementById('streakInput').value;
+        var missed = document.getElementById('missedInput').value;
+        var s = document.getElementById('synapticStrength').textContent;
+        var f = document.getElementById('frictionScore').textContent;
+        var r = document.getElementById('restoreDays').textContent;
+        var text = '=== HABIT DECAY & SYNAPTIC PRESERVATION AUDIT ===
+' +
+          'Baseline Habit Streak: ' + streak + ' Days
+' +
+          'Current Interruption Gap: ' + missed + ' Days Missed
+' +
+          'Retained Synaptic Strength: ' + s + '
+' +
+          'Prefrontal Friction Surcharge: ' + f + '
+' +
+          'Consecutive Reps to Restore Automaticity: ' + r + '
+
+' +
+          'NEVER MISS TWICE RECOVERY RULE:
+' +
+          'Execute a Minimum Viable Repetition (MVR) within 24 hours (e.g., 60 seconds of activity) ' +
+          'to trigger synaptic facilitation and halt dendritic spine retraction.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyHabitBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Habit Protocol!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', simHabit);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Donald Hebb's rule and how does it govern habit decay?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Formulated by Canadian neuropsychologist Donald Hebb in 1949 ('neurons that fire together wire together'), synaptic connections strengthen through repetitive synchronous firing (long-term potentiation). Conversely, when an established pathway is left unactivated, dendritic spine density gradually declines through activity-dependent synaptic pruning.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why is the 'Never Miss Twice' rule neurobiologically decisive?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                A single day off represents an isolated anomaly; synaptic transmission efficiency remains at ~96%. However, two consecutive absences break the temporal predictive loop in the basal ganglia, triggering dendritic retraction and nearly doubling the prefrontal activation energy required to initiate the routine again.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does the 2-Minute Minimum Viable Repetition (MVR) stop synaptic pruning?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The nervous system prioritizes pathway recruitment over total metabolic volume. Performing a 60-second or 2-minute micro-rep (e.g., doing 2 push-ups or reading 1 paragraph) fires the exact same neural circuit, releasing neurotransmitters that preserve synaptic potentiation.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the difference between basal ganglia automaticity and prefrontal effort?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                When a behavior is new, it relies heavily on the prefrontal cortex, which consumes substantial glucose and feels effortful. As the habit becomes automated, control transfers to the dorsolateral striatum within the basal ganglia, requiring virtually zero conscious willpower.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How long does it actually take to restore a lapsed habit pathway?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Restoring an interrupted habit takes far fewer repetitions than building one from scratch due to residual synaptic scaffolding. For each day missed up to 14 days, approximately 1.8 consecutive daily repetitions are required to rebuild peak automaticity.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

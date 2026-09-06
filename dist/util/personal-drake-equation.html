@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the Personal Drake Equation?",
+      "name": "What is the Personal Drake Equation and who formulated it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "An adaptation of Frank Drake's astronomical formula by mathematician Peter Backus that cascades demographic, interest, attraction, and availability probabilities."
+        "text": "In 2010, University of Warwick / Cambridge mathematician Peter Backus published 'Why I Don't Have a Girlfriend', adapting Frank Drake's 1961 SETI astrophysics formula to compute that out of 30 million women in the UK, only 26 were compatible matches for him (a probability of 1 in 285,000)."
       }
     },
     {
       "@type": "Question",
-      "name": "How can I improve my statistical odds?",
+      "name": "Why does multiplying independent fractions collapse probability so rapidly?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The highest leverage comes from expanding geographic radius and relaxing non-essential secondary criteria."
+        "text": "Compound multiplication demonstrates geometric decay: 0.50 &times; 0.20 &times; 0.45 &times; 0.15 &times; 0.10 &times; 0.10 produces 0.0000675 (less than 1 in 14,000). Every additional 'nice-to-have' condition slices the remaining pool exponentially."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are human compatibility traits truly independent in demographic studies?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. In real populations, socioeconomic status, educational attainment, political worldview, and recreational interests exhibit strong positive correlation. Assuming complete statistical independence underestimates the true candidate volume in targeted subcultures."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the single most effective way to improve my odds?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Expanding your search radius or spending time in concentrated affinity hubs (specialized professional groups, hobby clubs, academic environments) yields 10&times; greater pool density than using generic mass-market dating apps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does reciprocal selectivity affect the final candidate count?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Mutual attraction is bidirectional. If you find 10% of candidates attractive, and they find 10% of candidates attractive, the joint mutual attraction fraction is 0.10 &times; 0.10 = 0.01 (1%), not 10%."
       }
     }
   ]
@@ -1041,28 +1065,27 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ec4899; margin-bottom: 0.5rem;">Peter Backus Mathematical Model</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ec4899; margin-bottom: 0.5rem;">Conditional Probability & Demographic Funnel</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Personal Drake Equation</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          How rare is the person you are searching for? In 2010, mathematician Peter Backus famously adapted Frank Drake’s equation for alien civilizations to calculate why he didn't have a girlfriend. Cascade your filters to reveal the true statistical odds.
+          Calculate the exact mathematical probability of finding your ideal romantic partner or intellectual peer. Cascades demographic and psychological filters into an interactive probability funnel.
         </p>
       </header>
 
+      <!-- SIMULATOR CONTROLS -->
       <div class="neuro-card">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem;">1. Configure Probability Funnel</h2>
-
-        <div class="neuro-slider-row">
-          <div class="neuro-slider-label">
-            <span>Target Metro Area / City Population (N)</span>
-            <strong id="valPop" style="color: #3b82f6;">4,000,000 People</strong>
-          </div>
-          <input type="range" id="popInput" min="100000" max="20000000" step="100000" value="4000000" class="neuro-slider-input" oninput="calcPersonalDrake()" />
-        </div>
-
-        <div class="neuro-grid-2">
+        <div style="margin-bottom: 1.25rem;">
           <div class="neuro-slider-row">
             <div class="neuro-slider-label">
-              <span>Target Gender & Orientation (fg)</span>
+              <span>Metropolitan / Regional Population (N_pop)</span>
+              <strong id="valPop" style="color: #3b82f6;">1,000,000 People</strong>
+            </div>
+            <input type="range" id="popInput" min="50000" max="15000000" step="50000" value="1000000" class="neuro-slider-input" oninput="calcPersonalDrake()" />
+          </div>
+
+          <div class="neuro-slider-row">
+            <div class="neuro-slider-label">
+              <span>Target Gender Orientation Fraction (fg)</span>
               <strong id="valGender" style="color: #ec4899;">50%</strong>
             </div>
             <input type="range" id="genderInput" min="1" max="100" value="50" class="neuro-slider-input" oninput="calcPersonalDrake()" />
@@ -1137,20 +1160,56 @@
         <p id="drakeAnalysisText" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin: 0;"></p>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What was Peter Backus's original result?</div>
-          <div class="faq-a">
-            In 2010, Peter Backus calculated that out of 30 million women in the UK, only 26 were compatible with him (a probability of roughly 1 in 285,000). He met his future wife shortly after publishing the paper!
-          </div>
+      <!-- MATHEMATICAL DERIVATION CARD -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical Architecture: Conditional Probability Funnel</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Adapted from Dr. Frank Drake's 1961 interstellar communications equation by Cambridge mathematician Peter Backus (2010), the formula cascades demographic filters as sequential conditional fractions:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          N = N_pop &times; f_g &times; f_a &times; f_s &times; f_v &times; f_m &times; f_c<br><br>
+          Where:<br>
+          &bull; N_pop = Total regional or metropolitan search population<br>
+          &bull; f_g = Target gender orientation fraction (typically ~0.50)<br>
+          &bull; f_a = Target age cohort fraction (typically 0.15 - 0.25)<br>
+          &bull; f_s = Unpartnered / actively available fraction (typically 0.35 - 0.50)<br>
+          &bull; f_v = Values, intellectual, and lifestyle alignment threshold (0.05 - 0.25)<br>
+          &bull; f_m = Mutual physical attraction probability (P(you like them) &times; P(they like you))<br>
+          &bull; f_c = Relational chemistry and mutual life-stage timing (0.05 - 0.20)<br><br>
+          Joint Probability P_joint = &prod; f_i | Odds = 1 / P_joint
         </div>
-        <div class="faq-item">
-          <div class="faq-q">Why does joint probability drop so drastically?</div>
-          <div class="faq-a">
-            Multiplying independent fractions (0.5 * 0.2 * 0.45 * 0.15 * 0.1 * 0.1) collapses cumulative probability exponentially.
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyDrakeSummary()" id="copyDrakeBtn" class="neuro-btn-primary">📋 Copy Compatibility Funnel Audit</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & PROBABILITY PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Compatibility Filtering & Mathematical Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Trait Independence Assumption Fallacy</strong>
+          Treating traits like education, shared humor, and core lifestyle values as statistically independent variables. In reality, desirable cultural and intellectual traits exhibit strong positive covariance; someone who shares your aesthetic taste is statistically far more likely to share your educational background.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Geographic Micro-Bubble Trap</strong>
+          Confining partner search to an arbitrary 5-mile radius while requiring 6 top-decile preferences. In a city of 1 million, applying six 10% filters yields 1 candidate. Expanding search radius to 30 miles increases the base population pool by 800% without sacrificing standards.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Checklist Maximization Dilemma</strong>
+          Adding arbitrary non-essential criteria (e.g., exact height cutoffs, hyper-specific musical subgenres) that exponentially decimate candidate volume without yielding measurable improvements in long-term marital or relational satisfaction.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The One-Way Attractiveness Blindspot</strong>
+          Calculating only the percentage of candidates <em>you</em> find physically or intellectually attractive, while completely neglecting the reciprocal probability filter: the percentage of those individuals who will find <em>you</em> attractive and suitable for their life goals.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Static Pool Assumption</strong>
+          Treating the target dating pool as a closed, static container. Human populations are in constant dynamic equilibrium: every month, thousands of individuals graduate, relocate, break up, and enter availability within your geographical radius.
         </div>
       </div>
     </div>
@@ -1191,9 +1250,122 @@
         document.getElementById('drakeAnalysisText').innerHTML = analysis;
       }
 
+      function copyDrakeSummary() {
+        var pop = document.getElementById('valPop').textContent;
+        var cand = document.getElementById('drakeCandidates').textContent;
+        var odds = document.getElementById('drakeOdds').textContent;
+        var text = '=== PERSONAL DRAKE EQUATION COMPATIBILITY REPORT ===
+' +
+          'Search Population Pool: ' + pop + '
+' +
+          'Compatible Candidates in Region: ' + cand + '
+' +
+          'Joint Probability Odds: ' + odds + '
+' +
+          'Demographic Filters:
+' +
+          '  - Gender Fraction: ' + document.getElementById('valGender').textContent + '
+' +
+          '  - Age Bracket: ' + document.getElementById('valAge').textContent + '
+' +
+          '  - Single / Available: ' + document.getElementById('valSingle').textContent + '
+' +
+          '  - Values / Lifestyle: ' + document.getElementById('valValues').textContent + '
+' +
+          '  - Mutual Attraction: ' + document.getElementById('valAttr').textContent + '
+' +
+          '  - Chemistry & Timing: ' + document.getElementById('valChem').textContent + '
+
+' +
+          'STRATEGIC RECOMMENDATION:
+' +
+          'Expanding geographic radius by 25 miles or relaxing secondary non-essential preferences ' +
+          'multiplies the viable candidate pool by 200% to 400% through compound probability expansion.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyDrakeBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Compatibility Report!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', calcPersonalDrake);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the Personal Drake Equation and who formulated it?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                In 2010, University of Warwick / Cambridge mathematician Peter Backus published 'Why I Don't Have a Girlfriend', adapting Frank Drake's 1961 SETI astrophysics formula to compute that out of 30 million women in the UK, only 26 were compatible matches for him (a probability of 1 in 285,000).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why does multiplying independent fractions collapse probability so rapidly?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Compound multiplication demonstrates geometric decay: 0.50 &times; 0.20 &times; 0.45 &times; 0.15 &times; 0.10 &times; 0.10 produces 0.0000675 (less than 1 in 14,000). Every additional 'nice-to-have' condition slices the remaining pool exponentially.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Are human compatibility traits truly independent in demographic studies?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                No. In real populations, socioeconomic status, educational attainment, political worldview, and recreational interests exhibit strong positive correlation. Assuming complete statistical independence underestimates the true candidate volume in targeted subcultures.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the single most effective way to improve my odds?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Expanding your search radius or spending time in concentrated affinity hubs (specialized professional groups, hobby clubs, academic environments) yields 10&times; greater pool density than using generic mass-market dating apps.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does reciprocal selectivity affect the final candidate count?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Mutual attraction is bidirectional. If you find 10% of candidates attractive, and they find 10% of candidates attractive, the joint mutual attraction fraction is 0.10 &times; 0.10 = 0.01 (1%), not 10%.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

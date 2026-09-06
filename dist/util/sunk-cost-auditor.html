@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the Sunk Cost Fallacy?",
+      "name": "What is the formal economic definition of a sunk cost?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Continuing a course of action based on resources already consumed rather than forward marginal utility."
+        "text": "A sunk cost is any expenditure of financial capital, time, or emotional energy that has already been incurred and cannot be recovered under any future contingency. In rational economics, sunk costs should exert zero influence on prospective choices."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the Concorde Fallacy?",
+      "name": "Why does the human brain instinctively escalate commitment to failing projects?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A historical instance where the British and French governments continued funding the supersonic Concorde airliner simply because billions had already been spent."
+        "text": "Evolutionary psychology reveals that acknowledging an unforced loss induces status anxiety, ego dissonance, and social embarrassment. Human brains subconsciously rationalize that continuing the project keeps hope alive, delaying the pain of public admission."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Daniel Kahneman and Amos Tversky's Prospect Theory model loss aversion?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Formulated in 1979, Prospect Theory demonstrated that the subjective pain of an economic loss is approximately 2.25 times greater than the subjective pleasure of an equivalent financial gain. This asymmetry causes individuals to accept reckless risks in a desperate bid to return to break-even."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Concorde Fallacy and what can we learn from it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Concorde Fallacy refers to the joint British and French government development of the supersonic passenger jet. Long after it was mathematically evident that the airliner was commercially unviable, politicians continued pouring hundreds of millions into the project simply because 'too much had already been invested to stop'."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do elite venture capitalists and poker players eliminate sunk cost bias?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Top practitioners use pre-mortem commitments, portfolio diversification, and external investment committees. When evaluating an existing portfolio company, they ask: 'Knowing everything we know today, would we write a fresh check into this business right now?' If the answer is no, they immediately cut losses."
       }
     }
   ]
@@ -1041,30 +1065,33 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">Behavioral Economics & Prospect Theory</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Behavioral Economics & Prospect Theory</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Sunk Cost Fallacy & Irretrievable Loss Auditor</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          Are you continuing a struggling project, bad investment, or unfulfilling commitment just because of how much time or money you already poured in? In marginal decision theory, the past is zero. Audit your forward Expected Value (EV).
+          Audit failing projects, bad investments, or unfulfilling commitments. Strip away past unrecoverable time and money using Daniel Kahneman's Prospect Theory to calculate forward expected value.
         </p>
       </header>
 
-      <div class="neuro-card">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem;">1. Audit The Stalled Commitment</h2>
-
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-          <button class="neuro-pill-btn" onclick="setSunkPreset('startup')">🚀 Stalled Startup / Codebase</button>
-          <button class="neuro-pill-btn" onclick="setSunkPreset('degree')">🎓 Unwanted Degree / Career Path</button>
-          <button class="neuro-pill-btn" onclick="setSunkPreset('investment')">📉 Underwater Investment</button>
-          <button class="neuro-pill-btn" onclick="setSunkPreset('project')">🎨 Creative Hobby / Book Project</button>
+      <!-- PRESET SELECTOR -->
+      <div class="neuro-card" style="margin-bottom: 1.5rem;">
+        <div style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; margin-bottom: 0.5rem; text-transform: uppercase; color: var(--text-muted);">Quick Scenario Presets</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button onclick="setSunkPreset('startup')" class="neuro-tag-btn">🚀 Failing Startup Project</button>
+          <button onclick="setSunkPreset('degree')" class="neuro-tag-btn">🎓 Mismatched Academic Degree</button>
+          <button onclick="setSunkPreset('investment')" class="neuro-tag-btn">📉 Depreciating Stock/Asset</button>
+          <button onclick="setSunkPreset('project')" class="neuro-tag-btn">🔨 Home Renovation Runaway</button>
         </div>
+      </div>
 
-        <div class="neuro-grid-2">
+      <!-- INPUT CONTROLS -->
+      <div class="neuro-card">
+        <div style="margin-bottom: 1.25rem;">
           <div class="neuro-slider-row">
             <div class="neuro-slider-label">
-              <span>Sunk Time Already Spent (Hours)</span>
+              <span>Sunk Time Already Invested (Hours)</span>
               <strong id="valSunkHours" style="color: #ef4444;">400 Hours</strong>
             </div>
-            <input type="range" id="sunkHours" min="10" max="3000" step="20" value="400" class="neuro-slider-input" oninput="calcSunkCost()" />
+            <input type="range" id="sunkHours" min="0" max="3000" step="25" value="400" class="neuro-slider-input" oninput="calcSunkCost()" />
           </div>
 
           <div class="neuro-slider-row">
@@ -1119,20 +1146,56 @@
         <p id="sunkAnalysisText" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin: 0;"></p>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is the Sunk Cost Fallacy?</div>
-          <div class="faq-a">
-            The tendency for human beings to continue an endeavor once an investment in money, effort, or time has been made, rather than evaluating only future costs and benefits.
-          </div>
+      <!-- MATHEMATICAL & ECONOMIC DERIVATION -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical & Behavioral Derivation: Forward Marginal Utility</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Classical microeconomics dictates that all rational decisions must be based exclusively on <em>forward marginal expected value</em>, completely ignoring unrecoverable historical costs:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Irretrievable Sunk Baseline (Past Capital & Time):<br>
+          &nbsp;&nbsp;&nbsp;C_sunk = $Spent + (Hours_Spent &times; Hourly_Opportunity_Rate)<br>
+          &nbsp;&nbsp;&nbsp;&part;(Forward_Outcome) / &part;(C_sunk) &equiv; 0 (Sunk cost is mathematically invariant)<br><br>
+          2. Forward Expected Value of Continuing (Option A):<br>
+          &nbsp;&nbsp;&nbsp;EV_continue = P(Success) &times; V(Success) - [C_future + (H_future &times; Hourly_Rate)]<br><br>
+          3. Forward Expected Value of Reallocating Capital (Option B):<br>
+          &nbsp;&nbsp;&nbsp;EV_pivot = Expected_Return(Alternative_Projects) - Pivot_Friction<br><br>
+          4. Prospect Theory Loss Aversion Penalty (Kahneman & Tversky):<br>
+          &nbsp;&nbsp;&nbsp;U(Loss) = -&lambda;(-x)^&beta; where &lambda; &approx; 2.25<br>
+          &nbsp;&nbsp;&nbsp;The emotional pain of realizing a loss is 2.25&times; more potent than an equivalent gain, triggering irrational gambling behavior.
         </div>
-        <div class="faq-item">
-          <div class="faq-q">Why does walking away feel so painful?</div>
-          <div class="faq-a">
-            Psychologists call it 'loss aversion'—the pain of officially booking a loss is twice as emotionally intense as the pleasure of an equivalent gain.
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copySunkAudit()" id="copySunkBtn" class="neuro-btn-primary">📋 Copy Sunk Cost Audit Memo</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & PROSPECT THEORY PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Sunk Cost Escalation & Decision Traps</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The "Waste" Moral Projection Trap</strong>
+          Framing project termination as "wasting" past sacrifices, failing to realize that continuing an uneconomic project wastes <em>future</em> resources as well. The past resources are irretrievably gone regardless of what you do next.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Escalation of Commitment Spiral</strong>
+          Injecting progressively larger tranches of capital, overtime hours, and organizational reputation into a failing project to defend ego and previous public endorsements from being perceived as mistakes.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Invisible Opportunity Cost Blindspot</strong>
+          Measuring only direct cash outlays while ignoring what economists call alternative yield: what world-class projects could your next 250 hours and $5,000 create if deployed into a fresh high-momentum initiative?
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Prospect Theory Risk-Seeking in the Loss Domain</strong>
+          Daniel Kahneman demonstrated that humans become recklessly risk-seeking when facing a certain loss. Rather than accepting a $10,000 loss, founders gamble another $20,000 hoping for a miracle to "get back to even".
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Organizational Face-Saving Inertia</strong>
+          In corporate and government bureaucracies, continuing an obviously doomed project is frequently politically safer for middle management than admitting an error and officially writing off the investment.
         </div>
       </div>
     </div>
@@ -1192,9 +1255,115 @@
         document.getElementById('sunkAnalysisText').innerHTML = text;
       }
 
+      function copySunkAudit() {
+        var sunkH = document.getElementById('valSunkHours').textContent;
+        var sunkM = document.getElementById('valSunkMoney').textContent;
+        var futH = document.getElementById('valFutureHours').textContent;
+        var prob = document.getElementById('valProb').textContent;
+        var ev = document.getElementById('dispEV').textContent;
+        var rec = document.getElementById('dispRec').textContent;
+        var text = '=== SUNK COST & IRRETRIEVABLE LOSS DECISION AUDIT ===
+' +
+          'Irretrievable Past Investment: ' + sunkH + ' and ' + sunkM + '
+' +
+          'Future Commitment Required: ' + futH + '
+' +
+          'Estimated Probability of Success: ' + prob + '
+' +
+          'Forward Marginal EV: ' + ev + '
+' +
+          'Action Verdict: ' + rec + '
+
+' +
+          'EXECUTIVE SUMMARY:
+' +
+          'Past capital and hours are sunk and gone forever. Evaluating the continuation of this project ' +
+          'must be identical to evaluating a brand-new project requiring ' + futH + ' with a ' + prob + ' success odds.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copySunkBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Sunk Cost Memo!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', calcSunkCost);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the formal economic definition of a sunk cost?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                A sunk cost is any expenditure of financial capital, time, or emotional energy that has already been incurred and cannot be recovered under any future contingency. In rational economics, sunk costs should exert zero influence on prospective choices.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why does the human brain instinctively escalate commitment to failing projects?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Evolutionary psychology reveals that acknowledging an unforced loss induces status anxiety, ego dissonance, and social embarrassment. Human brains subconsciously rationalize that continuing the project keeps hope alive, delaying the pain of public admission.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does Daniel Kahneman and Amos Tversky's Prospect Theory model loss aversion?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Formulated in 1979, Prospect Theory demonstrated that the subjective pain of an economic loss is approximately 2.25 times greater than the subjective pleasure of an equivalent financial gain. This asymmetry causes individuals to accept reckless risks in a desperate bid to return to break-even.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the Concorde Fallacy and what can we learn from it?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The Concorde Fallacy refers to the joint British and French government development of the supersonic passenger jet. Long after it was mathematically evident that the airliner was commercially unviable, politicians continued pouring hundreds of millions into the project simply because 'too much had already been invested to stop'.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do elite venture capitalists and poker players eliminate sunk cost bias?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Top practitioners use pre-mortem commitments, portfolio diversification, and external investment committees. When evaluating an existing portfolio company, they ask: 'Knowing everything we know today, would we write a fresh check into this business right now?' If the answer is no, they immediately cut losses.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

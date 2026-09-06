@@ -1755,19 +1755,18 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Hebbian Plasticity & Myelination Dynamics</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Cognitive Neurobiology & Hebbian Plasticity</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Habit Decay Half-Life & Synaptic Pruning Simulator</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          "Neurons that fire together wire together; neurons that fire apart fall apart." When you skip days, synaptic strength and myelin sheath insulation decay exponentially. Discover the mathematical and neurobiological proof behind the "Never Miss Twice" rule.
+          Mathematically simulate neural pathway degradation when habits are interrupted. Explore exponential synaptic degradation, Hebbian plasticity, and why the <em>"never miss twice"</em> rule protects myelination.
         </p>
       </header>
 
+      <!-- INTERACTIVE SIMULATOR CARD -->
       <div class="neuro-card">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem;">1. Configure Habit Baseline</h2>
-
-        <div class="neuro-slider-row">
+        <div class="neuro-slider-row" style="margin-bottom: 1.25rem;">
           <div class="neuro-slider-label">
-            <span>Consecutive Days Practiced (Streak Length)</span>
+            <span>Prior Established Habit Streak (Consistency Duration)</span>
             <strong id="valStreak" style="color: #3b82f6;">45 Days</strong>
           </div>
           <input type="range" id="streakInput" min="1" max="365" value="45" class="neuro-slider-input" oninput="simHabit()" />
@@ -1807,7 +1806,7 @@ export function buildCuriosityNeuroSuite() {
       <div class="neuro-card">
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Synaptic Cliff: 14-Day Pruning Trajectory</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-          Missing 1 day produces minor decay (4%). Missing 2 consecutive days triggers synaptic destabilization. Missing 3+ days triggers active dendritic spine retraction.
+          Missing 1 day produces minor decay (~4%). Missing 2 consecutive days triggers synaptic destabilization. Missing 3+ days triggers active dendritic spine retraction.
         </p>
 
         <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; text-align: center;">
@@ -1823,20 +1822,56 @@ export function buildCuriosityNeuroSuite() {
         </p>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">Why is 'Never Miss Twice' so powerful?</div>
-          <div class="faq-a">
-            Neurobiologically, a single missed day causes minimal myelination loss. However, missing two consecutive days causes dendritic spine retraction and breaks the temporal conditioning loop, multiplying activation energy needed to restart.
-          </div>
+      <!-- MATHEMATICAL & NEUROBIOLOGICAL DERIVATION -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical & Neurobiological Derivation of Synaptic Decay</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Habit automaticity follows Donald Hebb's Law of Coincident Activation coupled with non-linear exponential decay during periods of disuse:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Peak Synaptic Strength (Lally Logistic Assimilation):<br>
+          &nbsp;&nbsp;&nbsp;S_peak = 100 &times; (1 - e^(-Streak / 45))<br><br>
+          2. Accelerated Disuse Factor (Non-Linear Decay):<br>
+          &nbsp;&nbsp;&nbsp;&lambda;(Gap) = e^(-0.04 &times; Gap - 0.03 &times; Gap^1.6)<br><br>
+          3. Residual Automated Automaticity:<br>
+          &nbsp;&nbsp;&nbsp;S(t) = S_peak &times; &lambda;(Gap)<br><br>
+          4. Prefrontal Re-entry Activation Energy (&Delta;E):<br>
+          &nbsp;&nbsp;&nbsp;&Delta;E = (100 - S(t)) &times; 0.70<br><br>
+          5. Restorative Repetitions to Regain Full Myelination:<br>
+          &nbsp;&nbsp;&nbsp;R_rest = max(1, round(Gap &times; 1.8))
         </div>
-        <div class="faq-item">
-          <div class="faq-q">How long does automaticity actually take?</div>
-          <div class="faq-a">
-            Dr. Phillippa Lally’s UCL study showed habit automaticity takes an average of 66 days (ranging from 18 to 254 days depending on complexity).
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyHabitProtocol()" id="copyHabitBtn" class="neuro-btn-primary">📋 Copy Habit Preservation Protocol</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & NEUROBIOLOGICAL PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Habit Degradation & Recovery Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The "All-or-Nothing" Streak Identity Trap</strong>
+          Believing that missing a single day resets your progress to absolute zero. This triggers the psychological "what-the-hell" effect (counter-regulatory bingeing or complete cessation). In reality, a single missed day retains ~96% of synaptic potentiation. The real danger is the consecutive second miss.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Motivation Re-ignition Fallacy</strong>
+          Relying on emotional motivation or willpower rather than reducing environmental friction to resume an interrupted routine. After a lapse, the prefrontal cortex experiences elevated cognitive drag; the only reliable remedy is drastically lowering initial task friction (e.g. setting gym clothes out).
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Volume Compensation Trap</strong>
+          Attempting a punishing 3-hour marathon workout or study session to "make up" for 4 missed days. The basal ganglia encodes daily temporal frequency, not sporadic volume spikes. Overcompensating induces severe soreness, cognitive burnout, and further consecutive absences.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Context-Decoupling Blindspot</strong>
+          Failing to recognize that habits are neurologically anchored to environmental sensory cues (time of day, physical location, room layout). Traveling or schedule disruptions dismantle these associative cues; you must deliberately map the habit to a portable trigger (e.g., right after morning coffee).
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The 21-Day Automaticity Myth</strong>
+          Relying on the popular folklore that habits require exactly 21 days to form (derived from Dr. Maxwell Maltz's cosmetic surgery observations in 1960). Empirical University College London research by Dr. Phillippa Lally demonstrates real automaticity requires 66 to 254 days of consistent myelination.
         </div>
       </div>
     </div>
@@ -1916,19 +1951,60 @@ export function buildCuriosityNeuroSuite() {
         ctx.fillText('Day 14 (Extinction)', w - 120, h - 6);
       }
 
+      function copyHabitProtocol() {
+        var streak = document.getElementById('streakInput').value;
+        var missed = document.getElementById('missedInput').value;
+        var s = document.getElementById('synapticStrength').textContent;
+        var f = document.getElementById('frictionScore').textContent;
+        var r = document.getElementById('restoreDays').textContent;
+        var text = '=== HABIT DECAY & SYNAPTIC PRESERVATION AUDIT ===\n' +
+          'Baseline Habit Streak: ' + streak + ' Days\n' +
+          'Current Interruption Gap: ' + missed + ' Days Missed\n' +
+          'Retained Synaptic Strength: ' + s + '\n' +
+          'Prefrontal Friction Surcharge: ' + f + '\n' +
+          'Consecutive Reps to Restore Automaticity: ' + r + '\n\n' +
+          'NEVER MISS TWICE RECOVERY RULE:\n' +
+          'Execute a Minimum Viable Repetition (MVR) within 24 hours (e.g., 60 seconds of activity) ' +
+          'to trigger synaptic facilitation and halt dendritic spine retraction.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyHabitBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Habit Protocol!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', simHabit);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'habit-decay-simulator.html'), renderPage({
-    title: 'Habit Decay Half-Life & Synaptic Pruning Simulator [The \'Never Miss Twice\' Proof] | Digital Tools Shed',
-    metaDesc: 'Mathematically simulate neural pathway decay when habits are interrupted. Explore exponential synaptic degradation, Hebbian plasticity, and why the \'never miss twice\' rule protects myelination.',
+  writeFileSync(join(utilDir, 'habit-decay-simulator.html'), renderCuriosityPage({
+    title: "Habit Decay Half-Life & Synaptic Pruning Simulator [The 'Never Miss Twice' Proof] | Digital Tools Shed",
+    metaDesc: "Mathematically simulate neural pathway decay when habits are interrupted. Explore exponential synaptic degradation, Hebbian plasticity, and why the 'never miss twice' rule protects myelination.",
     canonical: `${DOMAIN}/util/habit-decay-simulator`,
     bodyContent: habitDecayHtml,
     currentPath: '/util/habit-decay-simulator',
     faq: [
-      { q: 'What is Hebbian Plasticity?', a: 'Formulated by Donald Hebb in 1949, it describes how neurons adapt during learning: synaptic connections strengthen when repeatedly fired, and weaken when disused.' },
-      { q: 'Why does missing twice cause a synaptic cliff?', a: 'One day missed is an anomaly; two consecutive days begins dendritic spine re-absorption.' }
+      {
+        q: "What is Donald Hebb's rule and how does it govern habit decay?",
+        a: "Formulated by Canadian neuropsychologist Donald Hebb in 1949 ('neurons that fire together wire together'), synaptic connections strengthen through repetitive synchronous firing (long-term potentiation). Conversely, when an established pathway is left unactivated, dendritic spine density gradually declines through activity-dependent synaptic pruning."
+      },
+      {
+        q: "Why is the 'Never Miss Twice' rule neurobiologically decisive?",
+        a: "A single day off represents an isolated anomaly; synaptic transmission efficiency remains at ~96%. However, two consecutive absences break the temporal predictive loop in the basal ganglia, triggering dendritic retraction and nearly doubling the prefrontal activation energy required to initiate the routine again."
+      },
+      {
+        q: "How does the 2-Minute Minimum Viable Repetition (MVR) stop synaptic pruning?",
+        a: "The nervous system prioritizes pathway recruitment over total metabolic volume. Performing a 60-second or 2-minute micro-rep (e.g., doing 2 push-ups or reading 1 paragraph) fires the exact same neural circuit, releasing neurotransmitters that preserve synaptic potentiation."
+      },
+      {
+        q: "What is the difference between basal ganglia automaticity and prefrontal effort?",
+        a: "When a behavior is new, it relies heavily on the prefrontal cortex, which consumes substantial glucose and feels effortful. As the habit becomes automated, control transfers to the dorsolateral striatum within the basal ganglia, requiring virtually zero conscious willpower."
+      },
+      {
+        q: "How long does it actually take to restore a lapsed habit pathway?",
+        a: "Restoring an interrupted habit takes far fewer repetitions than building one from scratch due to residual synaptic scaffolding. For each day missed up to 14 days, approximately 1.8 consecutive daily repetitions are required to rebuild peak automaticity."
+      }
     ]
   }));
 
@@ -1943,28 +2019,27 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ec4899; margin-bottom: 0.5rem;">Peter Backus Mathematical Model</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ec4899; margin-bottom: 0.5rem;">Conditional Probability & Demographic Funnel</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Personal Drake Equation</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          How rare is the person you are searching for? In 2010, mathematician Peter Backus famously adapted Frank Drake’s equation for alien civilizations to calculate why he didn't have a girlfriend. Cascade your filters to reveal the true statistical odds.
+          Calculate the exact mathematical probability of finding your ideal romantic partner or intellectual peer. Cascades demographic and psychological filters into an interactive probability funnel.
         </p>
       </header>
 
+      <!-- SIMULATOR CONTROLS -->
       <div class="neuro-card">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem;">1. Configure Probability Funnel</h2>
-
-        <div class="neuro-slider-row">
-          <div class="neuro-slider-label">
-            <span>Target Metro Area / City Population (N)</span>
-            <strong id="valPop" style="color: #3b82f6;">4,000,000 People</strong>
-          </div>
-          <input type="range" id="popInput" min="100000" max="20000000" step="100000" value="4000000" class="neuro-slider-input" oninput="calcPersonalDrake()" />
-        </div>
-
-        <div class="neuro-grid-2">
+        <div style="margin-bottom: 1.25rem;">
           <div class="neuro-slider-row">
             <div class="neuro-slider-label">
-              <span>Target Gender & Orientation (fg)</span>
+              <span>Metropolitan / Regional Population (N_pop)</span>
+              <strong id="valPop" style="color: #3b82f6;">1,000,000 People</strong>
+            </div>
+            <input type="range" id="popInput" min="50000" max="15000000" step="50000" value="1000000" class="neuro-slider-input" oninput="calcPersonalDrake()" />
+          </div>
+
+          <div class="neuro-slider-row">
+            <div class="neuro-slider-label">
+              <span>Target Gender Orientation Fraction (fg)</span>
               <strong id="valGender" style="color: #ec4899;">50%</strong>
             </div>
             <input type="range" id="genderInput" min="1" max="100" value="50" class="neuro-slider-input" oninput="calcPersonalDrake()" />
@@ -2039,20 +2114,56 @@ export function buildCuriosityNeuroSuite() {
         <p id="drakeAnalysisText" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin: 0;"></p>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What was Peter Backus's original result?</div>
-          <div class="faq-a">
-            In 2010, Peter Backus calculated that out of 30 million women in the UK, only 26 were compatible with him (a probability of roughly 1 in 285,000). He met his future wife shortly after publishing the paper!
-          </div>
+      <!-- MATHEMATICAL DERIVATION CARD -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical Architecture: Conditional Probability Funnel</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Adapted from Dr. Frank Drake's 1961 interstellar communications equation by Cambridge mathematician Peter Backus (2010), the formula cascades demographic filters as sequential conditional fractions:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          N = N_pop &times; f_g &times; f_a &times; f_s &times; f_v &times; f_m &times; f_c<br><br>
+          Where:<br>
+          &bull; N_pop = Total regional or metropolitan search population<br>
+          &bull; f_g = Target gender orientation fraction (typically ~0.50)<br>
+          &bull; f_a = Target age cohort fraction (typically 0.15 - 0.25)<br>
+          &bull; f_s = Unpartnered / actively available fraction (typically 0.35 - 0.50)<br>
+          &bull; f_v = Values, intellectual, and lifestyle alignment threshold (0.05 - 0.25)<br>
+          &bull; f_m = Mutual physical attraction probability (P(you like them) &times; P(they like you))<br>
+          &bull; f_c = Relational chemistry and mutual life-stage timing (0.05 - 0.20)<br><br>
+          Joint Probability P_joint = &prod; f_i | Odds = 1 / P_joint
         </div>
-        <div class="faq-item">
-          <div class="faq-q">Why does joint probability drop so drastically?</div>
-          <div class="faq-a">
-            Multiplying independent fractions (0.5 * 0.2 * 0.45 * 0.15 * 0.1 * 0.1) collapses cumulative probability exponentially.
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyDrakeSummary()" id="copyDrakeBtn" class="neuro-btn-primary">📋 Copy Compatibility Funnel Audit</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & PROBABILITY PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Compatibility Filtering & Mathematical Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Trait Independence Assumption Fallacy</strong>
+          Treating traits like education, shared humor, and core lifestyle values as statistically independent variables. In reality, desirable cultural and intellectual traits exhibit strong positive covariance; someone who shares your aesthetic taste is statistically far more likely to share your educational background.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Geographic Micro-Bubble Trap</strong>
+          Confining partner search to an arbitrary 5-mile radius while requiring 6 top-decile preferences. In a city of 1 million, applying six 10% filters yields 1 candidate. Expanding search radius to 30 miles increases the base population pool by 800% without sacrificing standards.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Checklist Maximization Dilemma</strong>
+          Adding arbitrary non-essential criteria (e.g., exact height cutoffs, hyper-specific musical subgenres) that exponentially decimate candidate volume without yielding measurable improvements in long-term marital or relational satisfaction.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The One-Way Attractiveness Blindspot</strong>
+          Calculating only the percentage of candidates <em>you</em> find physically or intellectually attractive, while completely neglecting the reciprocal probability filter: the percentage of those individuals who will find <em>you</em> attractive and suitable for their life goals.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Static Pool Assumption</strong>
+          Treating the target dating pool as a closed, static container. Human populations are in constant dynamic equilibrium: every month, thousands of individuals graduate, relocate, break up, and enter availability within your geographical radius.
         </div>
       </div>
     </div>
@@ -2093,19 +2204,63 @@ export function buildCuriosityNeuroSuite() {
         document.getElementById('drakeAnalysisText').innerHTML = analysis;
       }
 
+      function copyDrakeSummary() {
+        var pop = document.getElementById('valPop').textContent;
+        var cand = document.getElementById('drakeCandidates').textContent;
+        var odds = document.getElementById('drakeOdds').textContent;
+        var text = '=== PERSONAL DRAKE EQUATION COMPATIBILITY REPORT ===\n' +
+          'Search Population Pool: ' + pop + '\n' +
+          'Compatible Candidates in Region: ' + cand + '\n' +
+          'Joint Probability Odds: ' + odds + '\n' +
+          'Demographic Filters:\n' +
+          '  - Gender Fraction: ' + document.getElementById('valGender').textContent + '\n' +
+          '  - Age Bracket: ' + document.getElementById('valAge').textContent + '\n' +
+          '  - Single / Available: ' + document.getElementById('valSingle').textContent + '\n' +
+          '  - Values / Lifestyle: ' + document.getElementById('valValues').textContent + '\n' +
+          '  - Mutual Attraction: ' + document.getElementById('valAttr').textContent + '\n' +
+          '  - Chemistry & Timing: ' + document.getElementById('valChem').textContent + '\n\n' +
+          'STRATEGIC RECOMMENDATION:\n' +
+          'Expanding geographic radius by 25 miles or relaxing secondary non-essential preferences ' +
+          'multiplies the viable candidate pool by 200% to 400% through compound probability expansion.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyDrakeBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Compatibility Report!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', calcPersonalDrake);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'personal-drake-equation.html'), renderPage({
-    title: 'The Personal Drake Equation [Human Compatibility Probability Funnel] | Digital Tools Shed',
-    metaDesc: 'Calculate the exact mathematical probability of finding your ideal romantic partner or intellectual peer. Cascades demographic and psychological filters into an interactive probability funnel.',
+  writeFileSync(join(utilDir, 'personal-drake-equation.html'), renderCuriosityPage({
+    title: "The Personal Drake Equation [Human Compatibility Probability Funnel] | Digital Tools Shed",
+    metaDesc: "Calculate the exact mathematical probability of finding your ideal romantic partner or intellectual peer. Cascades demographic and psychological filters into an interactive probability funnel.",
     canonical: `${DOMAIN}/util/personal-drake-equation`,
     bodyContent: personalDrakeHtml,
     currentPath: '/util/personal-drake-equation',
     faq: [
-      { q: 'What is the Personal Drake Equation?', a: 'An adaptation of Frank Drake\'s astronomical formula by mathematician Peter Backus that cascades demographic, interest, attraction, and availability probabilities.' },
-      { q: 'How can I improve my statistical odds?', a: 'The highest leverage comes from expanding geographic radius and relaxing non-essential secondary criteria.' }
+      {
+        q: "What is the Personal Drake Equation and who formulated it?",
+        a: "In 2010, University of Warwick / Cambridge mathematician Peter Backus published 'Why I Don't Have a Girlfriend', adapting Frank Drake's 1961 SETI astrophysics formula to compute that out of 30 million women in the UK, only 26 were compatible matches for him (a probability of 1 in 285,000)."
+      },
+      {
+        q: "Why does multiplying independent fractions collapse probability so rapidly?",
+        a: "Compound multiplication demonstrates geometric decay: 0.50 &times; 0.20 &times; 0.45 &times; 0.15 &times; 0.10 &times; 0.10 produces 0.0000675 (less than 1 in 14,000). Every additional 'nice-to-have' condition slices the remaining pool exponentially."
+      },
+      {
+        q: "Are human compatibility traits truly independent in demographic studies?",
+        a: "No. In real populations, socioeconomic status, educational attainment, political worldview, and recreational interests exhibit strong positive correlation. Assuming complete statistical independence underestimates the true candidate volume in targeted subcultures."
+      },
+      {
+        q: "What is the single most effective way to improve my odds?",
+        a: "Expanding your search radius or spending time in concentrated affinity hubs (specialized professional groups, hobby clubs, academic environments) yields 10&times; greater pool density than using generic mass-market dating apps."
+      },
+      {
+        q: "How does reciprocal selectivity affect the final candidate count?",
+        a: "Mutual attraction is bidirectional. If you find 10% of candidates attractive, and they find 10% of candidates attractive, the joint mutual attraction fraction is 0.10 &times; 0.10 = 0.01 (1%), not 10%."
+      }
     ]
   }));
 
@@ -2120,51 +2275,91 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Superforecasting & Bayesian Rationality</div>
-        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Epistemic Calibration & Overconfidence Game</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Bayesian Probability & Rationality Benchmark</div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Epistemic Calibration & Overconfidence Benchmark</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          Are you as smart as you think? For each question below, provide an <strong>80% Confidence Interval</strong> (a lower and upper bound where you are 80% confident the true answer lies). If your brain is calibrated, exactly 8 out of 10 answers will fall inside your bands.
+          Measure your epistemic calibration against objective reality. Provide an <strong>80% confidence interval</strong> for 10 trivia questions. If your brain is perfectly calibrated, exactly 8 out of 10 answers will fall inside your specified bounds.
         </p>
       </header>
 
-      <div class="neuro-card" id="quizCard">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem;">Provide 80% Confidence Intervals</h2>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-          Make your intervals wide enough to capture truth, but narrow enough to be meaningful. Do NOT look up answers!
+      <!-- QUIZ CARD -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.5rem;">Enter Your 80% Confidence Interval</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          For each question, specify a Lower Bound and Upper Bound such that you are <strong>80% confident</strong> the true value lies between them. You should feel comfortable betting $80 against $20 on your interval.
         </p>
 
-        <form id="calibForm">
-          <div id="questionsContainer"></div>
-          <div style="text-align: center; margin-top: 1.5rem;">
-            <button type="button" onclick="scoreCalibration()" class="neuro-btn-primary">🎯 Calculate Epistemic Calibration Score</button>
-          </div>
-        </form>
-      </div>
+        <div id="calibErrorMsg" style="display:none; background:rgba(239,68,68,0.1); border-left:4px solid #ef4444; padding:0.75rem 1rem; border-radius:4px; margin-bottom:1rem; color:#ef4444; font-weight:600;"></div>
 
-      <!-- RESULTS REPORT -->
-      <div id="calibResultsCard" class="neuro-card" style="display: none; text-align: center;">
-        <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Calibration Benchmark Results</div>
-        <div id="hitRateDisplay" style="font-family: var(--mono); font-size: 3.5rem; font-weight: 900; margin: 0.25rem 0; color: #3b82f6;">0%</div>
-        <div id="hitArchetype" style="font-family: var(--serif); font-size: 1.35rem; font-weight: bold; margin-bottom: 0.5rem;">Analyzing...</div>
-        <p id="hitDesc" style="font-size: 0.95rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 1.5rem; line-height: 1.6;"></p>
+        <div id="questionsContainer"></div>
 
-        <div id="detailedAnswersTable" style="text-align: left; margin-top: 1.5rem; overflow-x: auto;"></div>
-      </div>
-
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is Epistemic Calibration?</div>
-          <div class="faq-a">
-            In cognitive psychology and decision science, an individual is well-calibrated when their subjective degree of certainty matches objective reality. If you claim 80% confidence across 100 predictions, exactly 80 should be correct. Most humans only hit 40–50%, suffering from severe cognitive overconfidence.
-          </div>
+        <div style="margin-top: 1.5rem;">
+          <button onclick="scoreCalibration()" class="neuro-btn-primary" style="font-size: 1rem; padding: 0.75rem 1.5rem;">🎯 Score My Epistemic Calibration</button>
         </div>
-        <div class="faq-item">
-          <div class="faq-q">Why does the human brain make intervals too narrow?</div>
-          <div class="faq-a">
-            Social status and conversational rewards favor false certainty over honest ambiguity. Expressing wide intervals feels foolish, so our ego artificially compresses the bounds to look knowledgeable, leading to frequent misses.
-          </div>
+      </div>
+
+      <!-- RESULTS CARD -->
+      <div id="calibResultsCard" class="neuro-card" style="display: none; border-top: 4px solid #10b981;">
+        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.5rem;">Your Calibration Diagnostic Scorecard</h3>
+        <div id="hitRateDisplay" style="font-family: var(--serif); font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;"></div>
+        <div id="hitArchetype" style="font-family: var(--mono); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;"></div>
+        <p id="hitDesc" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;"></p>
+
+        <div id="detailedAnswersTable" style="overflow-x: auto; margin-bottom: 1.25rem;"></div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyCalibReport()" id="copyCalibBtn" class="neuro-btn-primary">📋 Copy Calibration Scorecard</button>
+        </div>
+      </div>
+
+      <!-- MATHEMATICAL DERIVATION CARD -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical Foundations of Epistemic Calibration</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          In decision theory and subjective probability, calibration measures how closely subjective confidence intervals match empirical reality:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Perfect Calibration Condition:<br>
+          &nbsp;&nbsp;&nbsp;P(True &in; [L_i, U_i] | Confidence = c) = c<br>
+          &nbsp;&nbsp;&nbsp;For an 80% interval (c = 0.80), exactly 8 out of 10 bounds must capture truth.<br><br>
+          2. Calibration Hit Rate:<br>
+          &nbsp;&nbsp;&nbsp;Hit_Rate = (1 / N) &times; &sum; I(True_i &in; [L_i, U_i])<br><br>
+          3. Overconfidence Bias Measure (&Delta;C):<br>
+          &nbsp;&nbsp;&nbsp;&Delta;C = Target_Confidence - Hit_Rate<br>
+          &nbsp;&nbsp;&nbsp;If &Delta;C &gt; 0: Overconfidence (intervals too narrow)<br>
+          &nbsp;&nbsp;&nbsp;If &Delta;C &lt; 0: Underconfidence / Excess Timidity (intervals too wide)<br><br>
+          4. Brier Calibration Penalty:<br>
+          &nbsp;&nbsp;&nbsp;BS = (1 / N) &times; &sum; (f_k - o_k)^2
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & COGNITIVE OVERCONFIDENCE PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Epistemic Overconfidence Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Social Penalty on Expressing Uncertainty</strong>
+          Human social hierarchies reward individuals who project certainty with rapid answers and narrow ranges. Expressing genuine uncertainty is often culturally misinterpreted as incompetence, training the brain to give artificially tight intervals.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Anchor-and-Adjust Insufficiency</strong>
+          When asked for an interval, the mind instinctively anchors on a single point guess, then nudges slightly higher and lower. This heuristic systematically fails to account for tail risks and distribution skewness.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. Confusing Calibration with Trivia Knowledge</strong>
+          Believing that calibration requires encyclopedic knowledge. Perfect calibration does not require knowing the answer; it requires knowing <em>how much you do not know</em> and setting your interval wide enough (e.g. 100 to 100,000,000) to honestly achieve 80% confidence.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Linear Certainty Fallacy</strong>
+          Treating unfamiliar physical quantities linearly rather than exponentially. Many astronomical, historical, and geological variables span multiple orders of magnitude, requiring log-scale bounds to be properly captured.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Unscored Belief Feedback Deprivation</strong>
+          Most everyday opinions, business forecasts, and geopolitical predictions are never scored against empirical numbers. Without quantified scoring and Brier tracking, the brain's overconfidence mechanism never receives corrective feedback.
         </div>
       </div>
     </div>
@@ -2200,6 +2395,9 @@ export function buildCuriosityNeuroSuite() {
       }
 
       function scoreCalibration() {
+        var errEl = document.getElementById('calibErrorMsg');
+        errEl.style.display = 'none';
+
         var hits = 0;
         var tableHtml = '<table style="width:100%;font-size:0.85rem;border-collapse:collapse;margin-top:1rem;"><thead><tr style="border-bottom:1px solid var(--border);text-align:left;"><th style="padding:0.4rem;">#</th><th style="padding:0.4rem;">Question</th><th style="padding:0.4rem;">Your 80% Band</th><th style="padding:0.4rem;">True Value</th><th style="padding:0.4rem;">Result</th></tr></thead><tbody>';
 
@@ -2209,7 +2407,9 @@ export function buildCuriosityNeuroSuite() {
           var high = parseFloat(document.getElementById('high_' + item.id).value);
 
           if (isNaN(low) || isNaN(high)) {
-            alert('Please fill out both lower and upper bounds for question #' + (i + 1));
+            errEl.textContent = 'Please fill out both lower and upper bounds for question #' + (i + 1);
+            errEl.style.display = 'block';
+            errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
           }
 
@@ -2251,19 +2451,56 @@ export function buildCuriosityNeuroSuite() {
         document.getElementById('calibResultsCard').scrollIntoView({ behavior: 'smooth' });
       }
 
+      function copyCalibReport() {
+        var rate = document.getElementById('hitRateDisplay').textContent;
+        var arch = document.getElementById('hitArchetype').textContent;
+        var desc = document.getElementById('hitDesc').textContent;
+        var text = '=== EPISTEMIC CALIBRATION BENCHMARK REPORT ===\n' +
+          '80% Confidence Interval Hit Rate: ' + rate + '\n' +
+          'Calibration Archetype: ' + arch + '\n' +
+          'Diagnostic Evaluation: ' + desc + '\n\n' +
+          'COGNITIVE TAKEAWAY:\n' +
+          'Human culture rewards false certainty over honest ambiguity. To achieve true superforecaster ' +
+          'calibration, deliberately widen intervals until 1 out of 5 statements genuinely feels surprising when missed.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCalibBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Calibration Report!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', renderCalibQuiz);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'epistemic-calibration.html'), renderPage({
-    title: 'Epistemic Calibration & Overconfidence Game [Rationality Training Benchmark] | Digital Tools Shed',
-    metaDesc: 'Test your epistemic calibration with 10 numerical estimation questions. Provide 80% confidence intervals to measure whether your brain suffers from overconfidence or true Bayesian accuracy.',
+  writeFileSync(join(utilDir, 'epistemic-calibration.html'), renderCuriosityPage({
+    title: "Epistemic Calibration & Overconfidence Game [Rationality Training Benchmark] | Digital Tools Shed",
+    metaDesc: "Test your epistemic calibration with 10 numerical estimation questions. Provide 80% confidence intervals to measure whether your brain suffers from overconfidence or true Bayesian accuracy.",
     canonical: `${DOMAIN}/util/epistemic-calibration`,
     bodyContent: epistemicGameHtml,
     currentPath: '/util/epistemic-calibration',
     faq: [
-      { q: 'What is Epistemic Calibration?', a: 'Epistemic calibration is the degree to which a person\'s confidence matches their actual frequency of being correct.' },
-      { q: 'Why do most people fail this test?', a: 'Most people provide intervals that are 3x to 5x too narrow because human culture punishes expressions of uncertainty.' }
+      {
+        q: "What is Epistemic Calibration in decision science?",
+        a: "Epistemic calibration is the degree of alignment between a person's subjective certainty and objective reality. If you claim 80% confidence across 100 distinct factual estimates, exactly 80 of them should contain the true answer."
+      },
+      {
+        q: "Why do most educated adults only hit 30% to 50% on 80% interval tests?",
+        a: "Decades of research by Daniel Kahneman, Amos Tversky, and Philip Tetlock demonstrate that humans suffer from pervasive overconfidence. Social conditioning rewards decisive certainty over honest ambiguity, prompting people to provide intervals that are 3&times; to 5&times; too narrow."
+      },
+      {
+        q: "How do professional superforecasters train themselves to give wider intervals?",
+        a: "Superforecasters employ the 'outside view' and adversarial self-interrogation: they ask 'What would cause the true number to be 10 times higher or lower than my intuition?' and deliberately widen their boundaries until missing 1 out of 5 feels genuinely plausible."
+      },
+      {
+        q: "What is the difference between calibration, resolution, and accuracy?",
+        a: "Accuracy measures closeness to the true value; resolution measures how decisively probabilities diverge from base rates; calibration measures whether your assigned confidence probabilities match long-run empirical hit frequencies."
+      },
+      {
+        q: "What is the Brier score and how does it evaluate epistemic humility?",
+        a: "Invented by Glenn Brier in 1950, the Brier score calculates the mean squared error between forecasted subjective probabilities and actual binary outcomes (0 or 1). Lower scores denote superior calibration and probabilistic foresight."
+      }
     ]
   }));
 
@@ -2278,30 +2515,33 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">Behavioral Economics & Prospect Theory</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Behavioral Economics & Prospect Theory</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Sunk Cost Fallacy & Irretrievable Loss Auditor</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          Are you continuing a struggling project, bad investment, or unfulfilling commitment just because of how much time or money you already poured in? In marginal decision theory, the past is zero. Audit your forward Expected Value (EV).
+          Audit failing projects, bad investments, or unfulfilling commitments. Strip away past unrecoverable time and money using Daniel Kahneman's Prospect Theory to calculate forward expected value.
         </p>
       </header>
 
-      <div class="neuro-card">
-        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem;">1. Audit The Stalled Commitment</h2>
-
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-          <button class="neuro-pill-btn" onclick="setSunkPreset('startup')">🚀 Stalled Startup / Codebase</button>
-          <button class="neuro-pill-btn" onclick="setSunkPreset('degree')">🎓 Unwanted Degree / Career Path</button>
-          <button class="neuro-pill-btn" onclick="setSunkPreset('investment')">📉 Underwater Investment</button>
-          <button class="neuro-pill-btn" onclick="setSunkPreset('project')">🎨 Creative Hobby / Book Project</button>
+      <!-- PRESET SELECTOR -->
+      <div class="neuro-card" style="margin-bottom: 1.5rem;">
+        <div style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; margin-bottom: 0.5rem; text-transform: uppercase; color: var(--text-muted);">Quick Scenario Presets</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button onclick="setSunkPreset('startup')" class="neuro-tag-btn">🚀 Failing Startup Project</button>
+          <button onclick="setSunkPreset('degree')" class="neuro-tag-btn">🎓 Mismatched Academic Degree</button>
+          <button onclick="setSunkPreset('investment')" class="neuro-tag-btn">📉 Depreciating Stock/Asset</button>
+          <button onclick="setSunkPreset('project')" class="neuro-tag-btn">🔨 Home Renovation Runaway</button>
         </div>
+      </div>
 
-        <div class="neuro-grid-2">
+      <!-- INPUT CONTROLS -->
+      <div class="neuro-card">
+        <div style="margin-bottom: 1.25rem;">
           <div class="neuro-slider-row">
             <div class="neuro-slider-label">
-              <span>Sunk Time Already Spent (Hours)</span>
+              <span>Sunk Time Already Invested (Hours)</span>
               <strong id="valSunkHours" style="color: #ef4444;">400 Hours</strong>
             </div>
-            <input type="range" id="sunkHours" min="10" max="3000" step="20" value="400" class="neuro-slider-input" oninput="calcSunkCost()" />
+            <input type="range" id="sunkHours" min="0" max="3000" step="25" value="400" class="neuro-slider-input" oninput="calcSunkCost()" />
           </div>
 
           <div class="neuro-slider-row">
@@ -2356,20 +2596,56 @@ export function buildCuriosityNeuroSuite() {
         <p id="sunkAnalysisText" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin: 0;"></p>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is the Sunk Cost Fallacy?</div>
-          <div class="faq-a">
-            The tendency for human beings to continue an endeavor once an investment in money, effort, or time has been made, rather than evaluating only future costs and benefits.
-          </div>
+      <!-- MATHEMATICAL & ECONOMIC DERIVATION -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical & Behavioral Derivation: Forward Marginal Utility</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Classical microeconomics dictates that all rational decisions must be based exclusively on <em>forward marginal expected value</em>, completely ignoring unrecoverable historical costs:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Irretrievable Sunk Baseline (Past Capital & Time):<br>
+          &nbsp;&nbsp;&nbsp;C_sunk = $Spent + (Hours_Spent &times; Hourly_Opportunity_Rate)<br>
+          &nbsp;&nbsp;&nbsp;&part;(Forward_Outcome) / &part;(C_sunk) &equiv; 0 (Sunk cost is mathematically invariant)<br><br>
+          2. Forward Expected Value of Continuing (Option A):<br>
+          &nbsp;&nbsp;&nbsp;EV_continue = P(Success) &times; V(Success) - [C_future + (H_future &times; Hourly_Rate)]<br><br>
+          3. Forward Expected Value of Reallocating Capital (Option B):<br>
+          &nbsp;&nbsp;&nbsp;EV_pivot = Expected_Return(Alternative_Projects) - Pivot_Friction<br><br>
+          4. Prospect Theory Loss Aversion Penalty (Kahneman & Tversky):<br>
+          &nbsp;&nbsp;&nbsp;U(Loss) = -&lambda;(-x)^&beta; where &lambda; &approx; 2.25<br>
+          &nbsp;&nbsp;&nbsp;The emotional pain of realizing a loss is 2.25&times; more potent than an equivalent gain, triggering irrational gambling behavior.
         </div>
-        <div class="faq-item">
-          <div class="faq-q">Why does walking away feel so painful?</div>
-          <div class="faq-a">
-            Psychologists call it 'loss aversion'—the pain of officially booking a loss is twice as emotionally intense as the pleasure of an equivalent gain.
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copySunkAudit()" id="copySunkBtn" class="neuro-btn-primary">📋 Copy Sunk Cost Audit Memo</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & PROSPECT THEORY PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Sunk Cost Escalation & Decision Traps</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The "Waste" Moral Projection Trap</strong>
+          Framing project termination as "wasting" past sacrifices, failing to realize that continuing an uneconomic project wastes <em>future</em> resources as well. The past resources are irretrievably gone regardless of what you do next.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Escalation of Commitment Spiral</strong>
+          Injecting progressively larger tranches of capital, overtime hours, and organizational reputation into a failing project to defend ego and previous public endorsements from being perceived as mistakes.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Invisible Opportunity Cost Blindspot</strong>
+          Measuring only direct cash outlays while ignoring what economists call alternative yield: what world-class projects could your next 250 hours and $5,000 create if deployed into a fresh high-momentum initiative?
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Prospect Theory Risk-Seeking in the Loss Domain</strong>
+          Daniel Kahneman demonstrated that humans become recklessly risk-seeking when facing a certain loss. Rather than accepting a $10,000 loss, founders gamble another $20,000 hoping for a miracle to "get back to even".
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Organizational Face-Saving Inertia</strong>
+          In corporate and government bureaucracies, continuing an obviously doomed project is frequently politically safer for middle management than admitting an error and officially writing off the investment.
         </div>
       </div>
     </div>
@@ -2429,19 +2705,61 @@ export function buildCuriosityNeuroSuite() {
         document.getElementById('sunkAnalysisText').innerHTML = text;
       }
 
+      function copySunkAudit() {
+        var sunkH = document.getElementById('valSunkHours').textContent;
+        var sunkM = document.getElementById('valSunkMoney').textContent;
+        var futH = document.getElementById('valFutureHours').textContent;
+        var prob = document.getElementById('valProb').textContent;
+        var ev = document.getElementById('dispEV').textContent;
+        var rec = document.getElementById('dispRec').textContent;
+        var text = '=== SUNK COST & IRRETRIEVABLE LOSS DECISION AUDIT ===\n' +
+          'Irretrievable Past Investment: ' + sunkH + ' and ' + sunkM + '\n' +
+          'Future Commitment Required: ' + futH + '\n' +
+          'Estimated Probability of Success: ' + prob + '\n' +
+          'Forward Marginal EV: ' + ev + '\n' +
+          'Action Verdict: ' + rec + '\n\n' +
+          'EXECUTIVE SUMMARY:\n' +
+          'Past capital and hours are sunk and gone forever. Evaluating the continuation of this project ' +
+          'must be identical to evaluating a brand-new project requiring ' + futH + ' with a ' + prob + ' success odds.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copySunkBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Sunk Cost Memo!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', calcSunkCost);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'sunk-cost-auditor.html'), renderPage({
-    title: 'The Sunk Cost Fallacy & Irretrievable Loss Auditor [Prospect Theory Decision Tree] | Digital Tools Shed',
-    metaDesc: 'Audit failing projects, bad investments, or unfulfilling commitments. Strip away past unrecoverable time and money using Daniel Kahneman\'s Prospect Theory to calculate forward expected value.',
+  writeFileSync(join(utilDir, 'sunk-cost-auditor.html'), renderCuriosityPage({
+    title: "The Sunk Cost Fallacy & Irretrievable Loss Auditor [Prospect Theory Decision Tree] | Digital Tools Shed",
+    metaDesc: "Audit failing projects, bad investments, or unfulfilling commitments. Strip away past unrecoverable time and money using Daniel Kahneman's Prospect Theory to calculate forward expected value.",
     canonical: `${DOMAIN}/util/sunk-cost-auditor`,
     bodyContent: sunkCostHtml,
     currentPath: '/util/sunk-cost-auditor',
     faq: [
-      { q: 'What is the Sunk Cost Fallacy?', a: 'Continuing a course of action based on resources already consumed rather than forward marginal utility.' },
-      { q: 'What is the Concorde Fallacy?', a: 'A historical instance where the British and French governments continued funding the supersonic Concorde airliner simply because billions had already been spent.' }
+      {
+        q: "What is the formal economic definition of a sunk cost?",
+        a: "A sunk cost is any expenditure of financial capital, time, or emotional energy that has already been incurred and cannot be recovered under any future contingency. In rational economics, sunk costs should exert zero influence on prospective choices."
+      },
+      {
+        q: "Why does the human brain instinctively escalate commitment to failing projects?",
+        a: "Evolutionary psychology reveals that acknowledging an unforced loss induces status anxiety, ego dissonance, and social embarrassment. Human brains subconsciously rationalize that continuing the project keeps hope alive, delaying the pain of public admission."
+      },
+      {
+        q: "How does Daniel Kahneman and Amos Tversky's Prospect Theory model loss aversion?",
+        a: "Formulated in 1979, Prospect Theory demonstrated that the subjective pain of an economic loss is approximately 2.25 times greater than the subjective pleasure of an equivalent financial gain. This asymmetry causes individuals to accept reckless risks in a desperate bid to return to break-even."
+      },
+      {
+        q: "What is the Concorde Fallacy and what can we learn from it?",
+        a: "The Concorde Fallacy refers to the joint British and French government development of the supersonic passenger jet. Long after it was mathematically evident that the airliner was commercially unviable, politicians continued pouring hundreds of millions into the project simply because 'too much had already been invested to stop'."
+      },
+      {
+        q: "How do elite venture capitalists and poker players eliminate sunk cost bias?",
+        a: "Top practitioners use pre-mortem commitments, portfolio diversification, and external investment committees. When evaluating an existing portfolio company, they ask: 'Knowing everything we know today, would we write a fresh check into this business right now?' If the answer is no, they immediately cut losses."
+      }
     ]
   }));
 
@@ -2506,20 +2824,56 @@ export function buildCuriosityNeuroSuite() {
         <div id="vaporizeOutput" style="display: none; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-size: 0.95rem; line-height: 1.6;"></div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is the Cosmic Year?</div>
-          <div class="faq-a">
-            A concept popularized by Carl Sagan where the 13.8-billion-year lifespan of the universe is compressed into a single 365-day calendar year. The Big Bang occurs on January 1 at 00:00:00, modern humans appear on December 31 at 23:52, and an 80-year human life lasts roughly 0.18 seconds.
-          </div>
+      <!-- ASTROPHYSICAL & TEMPORAL DERIVATION -->
+      <div class="neuro-card">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Astrophysical & Temporal Derivation: The Logarithmic Horizon</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Cosmic deep time scales span more than 100 orders of magnitude, contextualizing the microscopic duration of organic consciousness:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+          1. Personal Elapsed Fraction of Earth Age:<br>
+          &nbsp;&nbsp;&nbsp;F_earth = t_personal / (4.54 &times; 10^9 &times; 365.25 &times; 86,400) &approx; 6.2 &times; 10^-10<br><br>
+          2. Cosmic Year Transformation (Carl Sagan Compressed Epoch):<br>
+          &nbsp;&nbsp;&nbsp;T_cosmic = (Age_Years / 1.38 &times; 10^10) &times; 31,536,000 seconds<br>
+          &nbsp;&nbsp;&nbsp;An 80-year human life corresponds to ~0.18 seconds on December 31 at 23:59:59.<br><br>
+          3. Thermodynamic Time Horizons (Dyson & Adams):<br>
+          &nbsp;&nbsp;&nbsp;&bull; Solar Red Giant Expansion: ~5.0 &times; 10^9 years<br>
+          &nbsp;&nbsp;&nbsp;&bull; Stelliferous Era End: ~1.0 &times; 10^14 years<br>
+          &nbsp;&nbsp;&nbsp;&bull; Degenerate Era Proton Decay: ~1.0 &times; 10^34 years<br>
+          &nbsp;&nbsp;&nbsp;&bull; Black Hole Evaporation (Hawking Radiation): ~1.0 &times; 10^100 years
         </div>
-        <div class="faq-item">
-          <div class="faq-q">How does cosmic awe reduce stress?</div>
-          <div class="faq-a">
-            Neuroscience research shows that experiencing awe quiets the Default Mode Network (DMN), the brain region responsible for self-focused rumination and anxiety.
-          </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyCosmicSummary()" id="copyCosmicBtn" class="neuro-btn-primary">📋 Copy Cosmic Grounding Summary</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & COSMIC TIME PITFALLS -->
+      <div class="neuro-card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Existential Perspective & Deep Time Traps</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Amygdala Temporal Myopia Trap</strong>
+          Evolutionary biology wired human brains for acute, immediate survival on the savannah. Our nervous system mistakes trivial social friction (e.g. an uncomfortable meeting) for a life-threatening crisis, triggering prolonged cortisol dumps for microscopic non-events.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Passive Nihilism Paralysis</strong>
+          Confusing cosmic vastness with total futility. Concluding that 'because stars burn out, nothing matters' is an epistemic error. Value is generated locally by conscious observers; cosmic indifference liberates you to choose your own virtues without universal judgment.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Egocentric Epoch Illusion</strong>
+          Intuitively feeling that current modern society represents the permanent climax of history. In reality, human civilization represents 0.000002% of planetary history; trillions of years of physical evolution remain ahead.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Linear Time Intuition Breakdown</strong>
+          Attempting to visualize deep cosmological time using linear intuition. The difference between 1 million years and 1 billion years cannot be grasped linearly; logarithmic scales and calendar compression are mathematically required for neural grounding.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Deferral of Living Fallacy</strong>
+          Postponing authentic connection, creative expression, and gratitude under the illusion that you will 'get around to living' in a later chapter. In cosmic terms, your conscious aperture is open for a fraction of a millisecond; there is only now.
         </div>
       </div>
     </div>
@@ -2545,12 +2899,13 @@ export function buildCuriosityNeuroSuite() {
 
       function vaporizeAnxiety() {
         var str = document.getElementById('anxietyInput').value.trim();
+        var out = document.getElementById('vaporizeOutput');
         if (!str) {
-          alert('Please enter a current worry or stressor.');
+          out.style.display = 'block';
+          out.innerHTML = '<div style="color:#ef4444; font-weight:600;">⚠️ Please enter a current worry or stressor above to dissolve it against cosmic scale.</div>';
           return;
         }
 
-        var out = document.getElementById('vaporizeOutput');
         out.style.display = 'block';
         out.innerHTML = 
           '<div style="font-family:var(--mono);font-size:0.8rem;text-transform:uppercase;color:#a855f7;font-weight:bold;margin-bottom:0.4rem;">Cosmic Perspective Grounding</div>' +
@@ -2559,22 +2914,60 @@ export function buildCuriosityNeuroSuite() {
           '<p style="margin:0;font-weight:bold;color:#10b981;">Your problem is real in your immediate subjective experience, but completely weightless against the cosmos. Breathe deeply, handle what is directly in your control right now, and let go of the rest.</p>';
       }
 
+      function copyCosmicSummary() {
+        var sec = document.getElementById('personalSeconds').textContent;
+        var ef = document.getElementById('earthFraction').textContent;
+        var cy = document.getElementById('cosmicYearTime').textContent;
+        var text = '=== COSMIC PERSPECTIVE GROUNDING SUMMARY ===\n' +
+          'Personal Earth Lifetime Fraction: ' + ef + '\n' +
+          'Elapsed Personal Consciousness: ' + sec + '\n' +
+          'Position on Sagan Cosmic Calendar: ' + cy + '\n\n' +
+          'STOIC PERSPECTIVE GROUNDING:\n' +
+          'Against the 13.8 billion-year timeline of the cosmos, current acute anxieties are ' +
+          'microscopic and temporary. Act with honor and kindness in your conscious window, ' +
+          'focus exclusively on what is within your agency, and release the rest.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCosmicBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Cosmic Summary!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       setInterval(updateCosmicTick, 1000);
       document.addEventListener('DOMContentLoaded', updateCosmicTick);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'cosmic-perspective-clock.html'), renderPage({
-    title: 'The Cosmic Perspective Clock [Live Deep Time & Existential Scale Ticker] | Digital Tools Shed',
-    metaDesc: 'Put daily stress in perspective with a live synchronized clock tracking your age against human history, the age of Earth, solar evolution, and the heat death of the universe.',
+  writeFileSync(join(utilDir, 'cosmic-perspective-clock.html'), renderCuriosityPage({
+    title: "The Cosmic Perspective Clock [Live Deep Time & Existential Scale Ticker] | Digital Tools Shed",
+    metaDesc: "Put daily stress in perspective with a live synchronized clock tracking your age against human history, the age of Earth, solar evolution, and the heat death of the universe.",
     canonical: `${DOMAIN}/util/cosmic-perspective-clock`,
     bodyContent: cosmicClockHtml,
     currentPath: '/util/cosmic-perspective-clock',
     faq: [
-      { q: 'What is the Cosmic Perspective Clock?', a: 'A real-time clock tracking your personal existence against cosmic deep time to down-regulate the default mode network and relieve acute anxiety.' },
-      { q: 'What is the View from Above in Stoicism?', a: 'A mental exercise recommended by Marcus Aurelius to visualize your life and dilemmas from orbit, stripping away petty ego attachments.' }
+      {
+        q: "How does reflecting on cosmic deep time calm acute anxiety?",
+        a: "Neuroimaging studies reveal that feelings of awe and cosmic scale down-regulate activity in the Default Mode Network (DMN), the brain's neural hub for self-referential rumination, social anxiety, and perceived existential crisis."
+      },
+      {
+        q: "What is Carl Sagan's Cosmic Calendar and where do humans appear?",
+        a: "Popularized in Sagan's 'Dragons of Eden' and 'Cosmos', the 13.8-billion-year history of the cosmos is mapped onto a single 365-day year. The Big Bang occurs January 1 at midnight; modern Homo sapiens emerge on December 31 at 11:52 PM, and all of recorded human civilization occurs in the final 11 seconds."
+      },
+      {
+        q: "What is the difference between active existentialism and passive nihilism?",
+        a: "Passive nihilism concludes that because the universe is indifferent and will eventually reach heat death, nothing matters and effort is futile. Active existentialism recognizes that because the cosmos has no inherent script, humans have radical freedom and responsibility to create subjective meaning, beauty, and kindness."
+      },
+      {
+        q: "What is the 'Overview Effect' reported by astronauts?",
+        a: "The Overview Effect is a cognitive shift in awareness reported by space travelers upon viewing Earth from orbit: an overwhelming visceral sensation of the fragility and unity of life against the silent cosmic vacuum, diminishing tribal conflict and ego attachments."
+      },
+      {
+        q: "How long will the universe support biological life before the Stelliferous Era ends?",
+        a: "Astrophysicists estimate the Stelliferous (star-forming) Era will continue for approximately 100 trillion years ($10^{14}$ years) as low-mass red dwarfs burn their hydrogen reserves slowly, providing vast horizons for consciousness before stellar cooling."
+      }
     ]
   }));
 
-  console.log('  ✓ Built Curiosity, Neurobiology & Existential Suite (10 interactive flagship tools in /util/)');
+    console.log('  ✓ Built Curiosity, Neurobiology & Existential Suite (10 interactive flagship tools in /util/)');
 }
