@@ -1200,35 +1200,35 @@
     <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Tiling & Substrate Pitfalls</h2>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
         <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. Subfloor Deflection Failure (L/360 Rule)</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Ceramic and porcelain tile have zero tensile elasticity. If your plywood subfloor flexes more than the span divided by 360 under foot traffic ($L/720$ for natural stone), foot movement will crack grout lines within months and pop tiles off the mortar bed. Add a second layer of plywood or uncoupling membrane.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
         <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Swirling Trowel Ridges Instead of Parallel Lines</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Combing mortar in swirling circular motions traps pockets of air beneath the tile. When heavy objects drop on these hollow spots, the tile instantly shatters. ANSI standard mandates combing thin-set in straight, parallel ridges in one direction, then collapsing ridges by sliding the tile perpendicular.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
         <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. 50% Offset Lippage on Large-Format Tiles</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Tiles over 15 inches long (such as 12x24" porcelain) always have a slight manufacturing crown (curvature) in the center. Installing them in a 50% brick offset places the highest point of one tile directly next to the lowest point of the adjacent tile, causing severe "lippage" (tripping edges). Never exceed a 33% offset.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
         <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Cement Board Is NOT Waterproof in Showers</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           HardieBacker and Durock cement boards do not rot when wet, but they are completely porous: water passes directly through them into wall framing. A true shower installation requires applying a continuous liquid waterproofing membrane (RedGard, Hydro Ban) or sheet membrane (Schluter Kerdi) over the board.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
         <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Grouting Perimeter Expansion Joints</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Hard grout should NEVER be installed at the perimeter where tile meets baseboards, bathtubs, or vertical walls. Natural thermal expansion requires a 1/4" soft expansion gap filled with flexible color-matched silicone caulk. Grouting these changes of plane guarantees cracked, crumbling grout.
@@ -1358,6 +1358,80 @@
   </script>
 </div>
 
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How much extra tile waste percentage should I buy for a project?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                For a straight grid pattern in a rectangular room, buy 10% extra. For running bond (brick offset) or subway tile, buy 12% extra. For diagonal 45-degree layouts, buy 15% extra. For herringbone or chevron patterns, buy 20% extra to compensate for continuous angled edge trimming.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many boxes of tile do I need to buy?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Calculate your room's square footage (Length × Width), multiply by your pattern waste factor (e.g. 1.10 for 10%), and divide by the square footage packaged in each box. Always round up to the next full box. Tile manufacturers do not sell partial boxes, and having leftover tiles guarantees dye-lot matching for future repairs.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is tile lippage and how do I prevent it on large-format tiles?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Lippage occurs when the edge of one tile sits higher than an adjacent tile, creating an uneven surface and trip hazard. It is common on tiles longer than 15 inches (like 12x24" tiles). To prevent lippage, never offset tiles by more than 33% (1/3 bond) and use a mechanical tile leveling clip system.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many bags of grout do I need per square foot of tile?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                For standard 12x12 or 12x24 inch tiles with an 1/8" joint, one 25 lb bag of sanded grout covers approximately 80 to 100 square feet. For smaller tiles like 3x6" subway tiles, more linear joint lines are created, requiring one 25 lb bag per 40 to 50 square feet.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Is cement backer board (HardieBacker / Durock) waterproof on its own?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                No. Cement backer board is water-durable (meaning it will not mold, rot, or deteriorate when wet), but it is completely porous. Water penetrates cement board and rots wooden wall studs behind it. In wet shower areas, you must apply an ANSI A118.10 liquid or sheet waterproofing membrane over the board.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong, .trap-card h3 {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
