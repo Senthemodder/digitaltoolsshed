@@ -2950,6 +2950,22 @@ export function buildPsychologyTools({ DIST, DOMAIN, renderPage, writeFileSync, 
 
   // Generate each tool page
   for (const tool of ALL_115_TOOLS_CONFIG) {
+    tool.faq = [
+      ...(tool.faq || []),
+      {
+        q: `Is this ${tool.title.split('[')[0].trim()} a clinical diagnostic tool?`,
+        a: `No. This is a non-clinical cognitive and behavioral reflection framework designed to facilitate self-inquiry, reduce acute cognitive friction, and structure executive action. It is not a substitute for clinical psychiatric care or professional medical diagnosis.`
+      },
+      {
+        q: `Are my reflections, scores, and entries kept completely private?`,
+        a: `Yes, 100%. All computations, slider movements, and text entries execute strictly inside your local browser sandbox. No telemetry, responses, or personal data are ever uploaded, tracked, or transmitted to any external server.`
+      },
+      {
+        q: `What should I do if I am experiencing acute crisis or overwhelming distress?`,
+        a: `If you are in immediate danger or experiencing severe emotional distress, please step away from screen tools and reach out immediately to trained crisis professionals: in the US, dial or text 988 (Suicide & Crisis Lifeline); in the UK, call 111; or text HOME to 741741.`
+      }
+    ];
+
     const ws = renderArchetypeWorkspace(tool);
 
     const faqHtml = tool.faq.map(item => `
@@ -3016,14 +3032,49 @@ export function buildPsychologyTools({ DIST, DOMAIN, renderPage, writeFileSync, 
           </div>
         </div>
 
-        <!-- Critical Cognitive Traps & Misattribution Pitfalls -->
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Cognitive Traps & Misattributions</h3>
-          <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-            <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Rumination Trap:</strong> Treating late-night analytical thought loops as productive problem-solving. At 2 AM, the prefrontal cortex suffers reduced executive glucose metabolism, turning reflection into repetitive catastrophic loops.</li>
-            <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Somatic Misattribution:</strong> Interpreting physiological agitation (elevated heart rate, shallow breathing, caffeine half-life decay) as emotional emergency or existential catastrophe.</li>
-            <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Toxic Positivity & Forced Reappraisal:</strong> Attempting to suppress uncomfortable feelings with invalidating affirmations. Genuine cognitive flexibility requires accepting distressing affect before reframing.</li>
-          </ul>
+        <!-- 5 Fatal Cognitive Traps & Psychological Pitfalls -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Cognitive Traps & Psychological Pitfalls</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+            When emotional distress or nocturnal rumination surges, cognitive distortions hijack rational processing. Watch out for these 5 traps:
+          </p>
+
+          <div style="display: grid; gap: 1rem;">
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #ef4444; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">1. The 2 AM Rumination & Glucose Depletion Trap</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Treating late-night analytical thought loops as productive problem-solving is neurobiologically flawed. In nocturnal hours, the prefrontal cortex exhibits reduced glucose metabolism and compromised limbic inhibition. Thoughts feel intensely urgent and profound, but are almost always raw emotional distress disguised as logic. Never make irrevocable life choices before morning.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #f59e0b; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">2. Somatic Misattribution & Interoceptive False Alarm</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                The brain continuously constructs catastrophic narratives to explain baseline physiological arousal. Elevated heart rate, shallow breathing, caffeine half-life clearance, or gastric digestion discomfort are routinely mislabeled as existential dread, moral failure, or impending relationship collapse.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #10b981; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">3. Toxic Positivity & Premature Affective Suppression</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Attempting to forcibly banish distressing intrusive thoughts with shallow affirmations triggers ironic process theory (the Wegner white bear effect). Forcible thought suppression increases subcortical salience and rebounds distress. Resilient psychological flexibility requires accepting uncomfortable affect before cognitive reappraisal.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">4. All-or-Nothing Executive Paralysis (The Binary Effort Trap)</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Viewing productivity as an all-or-nothing binary ("either I complete the entire project flawlessly or I am completely useless") induces executive paralysis. The dopaminergic system freezes when activation energy appears monolithic. Sustained momentum requires 120-second mechanical micro-actions with zero motivational barrier.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">5. The Insight Illusion (Intellectualization Without Somatic Grounding)</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Believing that intellectually understanding a psychological defense mechanism or trauma response automatically heals it is a common intellectual trap. Cognitive insight without autonomic nervous system regulation (vagal breathing, progressive relaxation, somatic re-anchoring) simply produces sophisticated, self-reinforcing rumination.
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Therapeutic & Philosophical Deep Dive -->
