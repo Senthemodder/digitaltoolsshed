@@ -35187,6 +35187,2501 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (35 calculators in /calc/)');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CONTROL VALVE Cv & FLOW SIZING CALCULATOR (ISA-75.01.01 / IEC 60534)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const controlValveCvBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Control Valve Cv Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Control Valve Cv Sizing &amp; Flow Coefficient Calculator (ISA-75)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Size industrial control valves per ISA-75.01.01 and IEC 60534 standards: calculate required flow coefficient ($C_v$ &amp; $K_v$), choked flow limits, valve authority %, percent opening, and cavitation potential across liquids, steam, and gases.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 4 18 12 6 20 6 4"/><line x1="18" y1="4" x2="18" y2="20"/></svg>
+        Process Fluid &amp; Pressure Conditions
+      </h2>
+
+      <!-- Fluid Selection -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="fluidPhase">Fluid State / Phase</label>
+          <select id="fluidPhase" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="liquid" selected>Liquid (Water, Oil, Glycol)</option>
+            <option value="steam">Steam (Saturated / Superheated)</option>
+            <option value="gas">Gas (Natural Gas, Air, Nitrogen)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flowRate" id="lblFlowRate">Design Flow Rate (GPM)</label>
+          <input type="number" id="flowRate" value="120" min="1" max="50000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="lblFlowUnit">Gallons per minute at 100% load</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pressureInlet">Inlet Pressure (P1 in PSIG)</label>
+          <input type="number" id="pressureInlet" value="80" min="1" max="2500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Upstream static pressure</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pressureOutlet">Outlet Pressure (P2 in PSIG)</label>
+          <input type="number" id="pressureOutlet" value="65" min="0" max="2490" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Downstream static pressure</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="specGravity">Specific Gravity (SG)</label>
+          <input type="number" id="specGravity" value="1.0" min="0.05" max="3.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Water = 1.0, Air = 1.0 (for gas)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="valveChar">Valve Inherent Characteristic</label>
+          <select id="valveChar" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="equal_pct" selected>Equal Percentage (Recommended for pressure/temp)</option>
+            <option value="linear">Linear (Recommended for liquid level / constant dP)</option>
+            <option value="quick_open">Quick Opening (On/Off service)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flRecovery">Pressure Recovery Factor (FL)</label>
+          <select id="flRecovery" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0.90" selected>FL = 0.90 (Globe Style Single Port)</option>
+            <option value="0.80">FL = 0.80 (Cage Guided Globe)</option>
+            <option value="0.60">FL = 0.60 (High Recovery Ball / Butterfly)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="nominalValveSize">Estimated Valve Body Size</label>
+          <select id="nominalValveSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.0">1" Valve (Max Rated Cv ~ 14)</option>
+            <option value="1.5">1-1/2" Valve (Max Rated Cv ~ 30)</option>
+            <option value="2.0" selected>2" Valve (Max Rated Cv ~ 50)</option>
+            <option value="2.5">2-1/2" Valve (Max Rated Cv ~ 75)</option>
+            <option value="3.0">3" Valve (Max Rated Cv ~ 115)</option>
+            <option value="4.0">4" Valve (Max Rated Cv ~ 200)</option>
+            <option value="6.0">6" Valve (Max Rated Cv ~ 450)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Pressure Drop (&Delta;P): <strong id="lblDeltaP" style="color:var(--fg);">15.0 PSI</strong></div>
+          <div>Metric Equivalent (Kv): <strong id="lblKv" style="color:var(--fg);">26.8 m&sup3;/h</strong></div>
+          <div>Vapor Pressure (Pv): <strong style="color:var(--fg);">0.50 PSIA (Water @ 80&deg;F)</strong></div>
+          <div>Standard: <strong style="color:var(--fg);">ANSI / ISA-75.01.01</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Required Flow Coefficient (Cv)</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resCv">31.0</span> <span style="font-size:1.25rem;font-weight:500;">Cv</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              Metric Kv: <span id="resKvVal">26.8</span> m&sup3;/h &nbsp;|&nbsp; Valve Opening: <strong id="resTravelPct" style="color:var(--fg);">68% Open</strong>
+            </div>
+          </div>
+          <span id="badgeOpening" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">IDEAL 68% TRAVEL</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Choked Flow Pressure Drop</span>
+            <span id="resChokedDp" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">76.5 PSI</span>
+            <span id="resChokedStatus" style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">✓ Subcritical Non-Choked Flow</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Estimated Valve Authority (N)</span>
+            <span id="resAuthority" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--primary);">0.33</span>
+            <span style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">Target 0.25 to 0.50 (Controllable)</span>
+          </div>
+        </div>
+
+        <!-- VALVE SIZING ENVELOPE SUMMARY -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <h3 style="font-size:0.9rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Selected 2" Valve Controllability Window</h3>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.5rem;text-align:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Rated 100% Cv</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);margin-top:0.25rem;" id="resRatedCv">50.0</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Catalog Full Open</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Operating Point</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--primary);margin-top:0.25rem;" id="resOpPoint">62% Cv</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Target: 60-80%</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Turn-Down Ratio</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#10b981;margin-top:0.25rem;">50:1</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Equal Percentage</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">ISA-75 Controllability Status:</span>
+            <strong id="resStatusText" style="font-family:var(--mono);color:#10b981;">OPTIMAL VALVE SIZING</strong>
+          </div>
+          <div id="resStatusAdvice" style="color:var(--text-muted);font-size:0.75rem;">Valve operates at 68% travel under maximum design flow, avoiding near-seat wire drawing (&lt;15%) and upper travel saturation (&gt;85%).</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Control Valve Sizing Schedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CONTROL VALVE SECTIONAL CUTAWAY & TRAVEL SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 4 18 12 6 20 6 4"/><line x1="18" y1="4" x2="18" y2="20"/></svg>
+      Interactive Globe Control Valve &amp; Actuator Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live cutaway view showing pneumatic diaphragm actuator, valve stem travel indicator (0% to 100%), contoured plug, seat ring orifice, and flow streamlines.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="valveSvgContainer" style="width:100%;max-width:680px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: ISA-75 &amp; IEC 60534 Sizing Formulas</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        The flow coefficient \( C_v \) is defined as the number of US Gallons per Minute of 60&deg;F clean water that will flow through a completely open valve with a pressure drop of exactly 1.0 PSI across the body. The metric equivalent \( K_v \) (flow in m&sup3;/h with 1.0 bar pressure drop) relates by the constant: \( C_v = 1.156 \times K_v \).
+      </p>
+      <p>
+        For non-choked, incompressible liquid flow, Torricelli's law of orifice discharge yields the classic liquid sizing equation:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        C<sub>v</sub> = Q &times; &radic;( SG / &Delta;P )
+      </div>
+      <p>Where:</p>
+      <ul style="padding-left:1.5rem;margin-bottom:1rem;">
+        <li><strong>Q</strong> = Liquid volumetric flow rate in GPM.</li>
+        <li><strong>SG</strong> = Specific gravity of fluid at flowing temperature (water = 1.0).</li>
+        <li><strong>&Delta;P</strong> = Valve differential pressure: \( P_1 - P_2 \) (PSI).</li>
+      </ul>
+      <p>
+        To verify that the valve does not enter cavitation or choked flow (where localized velocity reaches the acoustic sonic limit at the vena contracta), the maximum effective pressure drop is evaluated per ISA-75.01.01:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        &Delta;P<sub>choked</sub> = F<sub>L</sub><sup>2</sup> &times; ( P<sub>1(abs)</sub> - F<sub>F</sub> &times; P<sub>v</sub> ) &nbsp;&nbsp;[PSI]
+      </div>
+      <p>
+        Where \( F_L \) is the liquid pressure recovery factor (typically 0.90 for globe valves, 0.60 for high-recovery butterfly valves), and \( F_F \) is the critical pressure ratio factor (\( F_F = 0.96 - 0.28 \sqrt{P_v / P_c} \)).
+      </p>
+      <p>
+        For compressible steam flow under subcritical conditions (\( \Delta P < 0.5 \times P_1 \)):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        C<sub>v</sub> = W / [ 2.1 &times; &radic;(&Delta;P &times; (P<sub>1</sub> + P<sub>2</sub>)) &times; (1 + 0.0007 &times; T<sub>sh</sub>) ] &nbsp;&nbsp;[W in lb/hr]
+      </div>
+      <p>
+        Valve Authority (\( N \)) describes the proportion of total circuit pressure drop controlled by the valve:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        N = &Delta;P<sub>valve</sub> / [ &Delta;P<sub>valve</sub> + &Delta;P<sub>system</sub> ]
+      </div>
+      <p>
+        Target valve authority must remain between <strong>0.25 and 0.50</strong>. Authority below 0.25 distorts an equal-percentage plug into an abrupt on/off quick-opening curve, destroying closed-loop PID control stability.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & CONTROL VALVE PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Control Valve Sizing</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: Line-Size Valve Selection (The Oversizing Disaster)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Specifying a control valve to match pipe diameter (e.g. putting a 4" control valve in a 4" line) is the #1 mistake in process engineering. Because piping is sized for low velocity (<6 ft/s) and minimal friction, a line-sized valve has massive excess Cv. The valve is forced to throttle near its seat at 5% to 10% travel, causing constant PID hunting, flow cycling, and severe seat wire-drawing erosion that ruins shutoff class in months.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Ignoring Vena Contracta Cavitation &amp; Flashing</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          When fluid accelerates through the narrow valve orifice, static pressure plunges below the liquid's vapor pressure, forming vapor bubbles. In a low-recovery valve, downstream pressure recovers above vapor pressure, causing the bubbles to collapse violently against the metal plug and seat with localized micro-jet shockwaves exceeding 100,000 PSI. Cavitation sounds like pumping gravel through the pipe and physically carves sponge-like craters through hardened Stellite trim.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Loss of Valve Authority (N &lt; 0.25)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          If a control valve is designed with too small of a pressure drop compared to the surrounding piping and heat exchanger coils (authority N < 0.20), the valve loses control of the process. As the valve travels from 0% to 50% open, almost 90% of the flow is already delivered. The remaining 50% to 100% of stem travel produces virtually zero change in flow, causing chronic loop instability and uncontrollable temperature overshoots.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Selecting Linear Trim on Variable Pressure Drop Loops</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          In systems where pump head varies with load (most closed hydronic and process networks), pressure drop across the valve increases as flow drops. Using a linear trim plug in this scenario results in an installed characteristic that is wildly non-linear, making PID tuning impossible across differing load conditions. Equal-percentage trim must be used whenever valve pressure drop fluctuates with flow rate.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Forgetting Aerodynamic Noise in High-Pressure Steam &amp; Gas</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          In high-pressure steam and compressed gas throttling where pressure ratios exceed critical choking (\( \Delta P / P_1 > 0.5 \)), gas exits the orifice at sonic velocities. The resulting turbulent shear layer and shockwave expansion generate ear-shattering aerodynamic noise exceeding 105 dBA, which can cause hearing loss and induce acoustic fatigue that fractures downstream thin-wall piping. Multi-stage pressure-reducing trim or whisper cages are mandatory.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Standard catalog Cv ratings for valve sizes
+      const VALVE_CATALOG = {
+        '1.0': { ratedCv: 14, minCv: 0.3 },
+        '1.5': { ratedCv: 30, minCv: 0.6 },
+        '2.0': { ratedCv: 50, minCv: 1.0 },
+        '2.5': { ratedCv: 75, minCv: 1.5 },
+        '3.0': { ratedCv: 115, minCv: 2.3 },
+        '4.0': { ratedCv: 200, minCv: 4.0 },
+        '6.0': { ratedCv: 450, minCv: 9.0 }
+      };
+
+      const selPhase = document.getElementById('fluidPhase');
+      const inFlow = document.getElementById('flowRate');
+      const inP1 = document.getElementById('pressureInlet');
+      const inP2 = document.getElementById('pressureOutlet');
+      const inSg = document.getElementById('specGravity');
+      const selChar = document.getElementById('valveChar');
+      const selFl = document.getElementById('flRecovery');
+      const selSize = document.getElementById('nominalValveSize');
+
+      function updatePhaseLabels() {
+        const p = selPhase.value;
+        const lbl = document.getElementById('lblFlowRate');
+        const sub = document.getElementById('lblFlowUnit');
+        if (p === 'liquid') {
+          lbl.textContent = 'Design Flow Rate (GPM)';
+          sub.textContent = 'Liquid flow in Gallons per Minute';
+          if (parseFloat(inFlow.value) > 2000) inFlow.value = '120';
+        } else if (p === 'steam') {
+          lbl.textContent = 'Steam Mass Flow (lb/hr)';
+          sub.textContent = 'Saturated steam flow rate in lb/hr';
+          if (parseFloat(inFlow.value) < 500) inFlow.value = '3500';
+        } else {
+          lbl.textContent = 'Gas Flow Rate (SCFH)';
+          sub.textContent = 'Standard Cubic Feet per Hour';
+          if (parseFloat(inFlow.value) < 1000) inFlow.value = '15000';
+        }
+      }
+
+      function calcValve() {
+        const phase = selPhase.value;
+        const flow = parseFloat(inFlow.value) || 120;
+        const p1 = parseFloat(inP1.value) || 80;
+        const p2 = parseFloat(inP2.value) || 65;
+        const sg = parseFloat(inSg.value) || 1.0;
+        const FL = parseFloat(selFl.value) || 0.90;
+        const vSize = selSize.value;
+        const cat = VALVE_CATALOG[vSize] || VALVE_CATALOG['2.0'];
+        const ratedCv = cat.ratedCv;
+
+        const deltaP = Math.max(0.5, p1 - p2);
+        document.getElementById('lblDeltaP').textContent = deltaP.toFixed(1) + ' PSI';
+
+        const p1Abs = p1 + 14.7;
+        const p2Abs = p2 + 14.7;
+
+        // Choked deltaP calculation for liquids:
+        // dP_choked = FL^2 * (P1_abs - FF * Pv)
+        // Water Pv ~ 0.5 psia at 80F, FF ~ 0.96
+        const pv = 0.50;
+        const ff = 0.96;
+        const chokedDp = Math.pow(FL, 2) * (p1Abs - ff * pv);
+        document.getElementById('resChokedDp').textContent = chokedDp.toFixed(1) + ' PSI';
+
+        const resChokedStatus = document.getElementById('resChokedStatus');
+        if (deltaP >= chokedDp) {
+          resChokedStatus.textContent = '⚠️ CHOKED FLOW / CAVITATION RISK';
+          resChokedStatus.style.color = '#ef4444';
+        } else {
+          resChokedStatus.textContent = '✓ Subcritical Non-Choked Flow';
+          resChokedStatus.style.color = '#10b981';
+        }
+
+        // Effective delta P to use in equation
+        const effDeltaP = Math.min(deltaP, chokedDp);
+
+        let cv = 0;
+        if (phase === 'liquid') {
+          // Liquid: Cv = Q * sqrt(SG / effDeltaP)
+          cv = flow * Math.sqrt(sg / effDeltaP);
+        } else if (phase === 'steam') {
+          // Steam: subcritical vs critical choked
+          if (p2Abs > 0.58 * p1Abs) {
+            // Subcritical
+            cv = flow / (2.1 * Math.sqrt(deltaP * (p1Abs + p2Abs)));
+          } else {
+            // Choked critical
+            cv = flow / (1.61 * p1Abs);
+          }
+        } else {
+          // Gas (SCFH)
+          const x = deltaP / p1Abs;
+          const xt = 0.70; // typical cage valve
+          const y = Math.max(0.667, 1 - (x / (3 * 1.0 * xt)));
+          cv = flow / (1360 * p1Abs * y * Math.sqrt(x / (sg * 520)));
+        }
+
+        const kv = cv / 1.156;
+        document.getElementById('resCv').textContent = cv.toFixed(1);
+        document.getElementById('resKvVal').textContent = kv.toFixed(1);
+        document.getElementById('lblKv').textContent = kv.toFixed(1) + ' m³/h';
+
+        // Valve opening % based on characteristic
+        const opPointRatio = Math.min(1.0, cv / ratedCv);
+        document.getElementById('resRatedCv').textContent = ratedCv.toFixed(1);
+        document.getElementById('resOpPoint').textContent = Math.round(opPointRatio * 100) + '% Cv';
+
+        const charType = selChar.value;
+        let travelPct = 0;
+        if (charType === 'equal_pct') {
+          // Cv/Cv_max = R^(h - 1), with rangeability R = 50
+          // ln(Cv / Cv_max) = (h - 1) * ln(50) -> h = 1 + ln(ratio) / ln(50)
+          const R = 50;
+          if (opPointRatio <= 1 / R) {
+            travelPct = 5;
+          } else {
+            travelPct = Math.round((1 + Math.log(opPointRatio) / Math.log(R)) * 100);
+          }
+        } else if (charType === 'linear') {
+          travelPct = Math.round(opPointRatio * 100);
+        } else {
+          // Quick opening
+          travelPct = Math.round(Math.sqrt(opPointRatio) * 100);
+        }
+
+        travelPct = Math.min(100, Math.max(5, travelPct));
+        document.getElementById('resTravelPct').textContent = travelPct + '% Open';
+
+        // Valve Authority: N = dP_valve / (dP_valve + dP_system)
+        // Assume system piping drop is roughly 2x valve drop if not specified
+        const systemDrop = 30.0;
+        const authority = deltaP / (deltaP + systemDrop);
+        document.getElementById('resAuthority').textContent = authority.toFixed(2);
+
+        // Badge & Diagnostic Text
+        const badge = document.getElementById('badgeOpening');
+        const resStat = document.getElementById('resStatusText');
+        const resAdv = document.getElementById('resStatusAdvice');
+
+        if (travelPct >= 50 && travelPct <= 80) {
+          badge.style.background = '#10b981';
+          badge.textContent = 'IDEAL ' + travelPct + '% TRAVEL';
+          resStat.textContent = 'OPTIMAL VALVE SIZING';
+          resStat.style.color = '#10b981';
+          resAdv.textContent = 'Valve operates in the 50% to 80% sweet spot at design load. Leaves ample safety margin for flow surges while preventing wire drawing.';
+        } else if (travelPct > 80) {
+          badge.style.background = '#f59e0b';
+          badge.textContent = 'NEAR CAPACITY (' + travelPct + '%)';
+          resStat.textContent = 'UNDERSIZED VALVE TRIM';
+          resStat.style.color = '#f59e0b';
+          resAdv.textContent = 'Valve is over 80% open at design flow. It will saturate during peak demands. Upsize to the next nominal valve diameter.';
+        } else {
+          badge.style.background = '#ef4444';
+          badge.textContent = 'OVERSIZED (' + travelPct + '%)';
+          resStat.textContent = 'SEVERELY OVERSIZED TRIM';
+          resStat.style.color = '#ef4444';
+          resAdv.textContent = 'Valve operates below 40% travel. Throttling near the seat causes PID hunting, poor control authority, and seat erosion.';
+        }
+
+        // Draw Interactive SVG
+        drawValveSvg(travelPct, cv, ratedCv, vSize, deltaP, p1, p2);
+      }
+
+      function drawValveSvg(travelPct, cv, ratedCv, vSize, deltaP, p1, p2) {
+        const container = document.getElementById('valveSvgContainer');
+        const w = 680;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Background
+        s += '<rect x="10" y="10" width="660" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // PNEUMATIC DIAPHRAGM ACTUATOR (Top Center)
+        const ax = 240;
+        const ay = 40;
+        const aw = 140;
+        const ah = 65;
+
+        // Actuator Dome Upper / Lower Casing
+        s += '<path d="M ' + (ax - aw / 2) + ' ' + (ay + ah / 2) + ' Q ' + ax + ' ' + ay + ' ' + (ax + aw / 2) + ' ' + (ay + ah / 2) + ' Z" fill="#334155" stroke="#64748b" stroke-width="2"/>';
+        s += '<path d="M ' + (ax - aw / 2) + ' ' + (ay + ah / 2) + ' Q ' + ax + ' ' + (ay + ah) + ' ' + (ax + aw / 2) + ' ' + (ay + ah / 2) + ' Z" fill="#1e293b" stroke="#64748b" stroke-width="2"/>';
+        s += '<text x="' + ax + '" y="' + (ay + ah / 2 + 4) + '" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="700">DIAPHRAGM ACTUATOR</text>';
+
+        // Actuator Yoke & Stem
+        s += '<line x1="' + (ax - 20) + '" y1="' + (ay + ah) + '" x2="' + (ax - 20) + '" y2="' + (ay + ah + 80) + '" stroke="#64748b" stroke-width="4"/>';
+        s += '<line x1="' + (ax + 20) + '" y1="' + (ay + ah) + '" x2="' + (ax + 20) + '" y2="' + (ay + ah + 80) + '" stroke="#64748b" stroke-width="4"/>';
+
+        // Moving Valve Stem
+        s += '<line x1="' + ax + '" y1="' + (ay + ah) + '" x2="' + ax + '" y2="280" stroke="#e2e8f0" stroke-width="6"/>';
+
+        // Stem Travel Indicator Scale on Yoke
+        s += '<rect x="' + (ax + 26) + '" y="125" width="45" height="50" rx="3" fill="#0f172a" stroke="#475569" stroke-width="1"/>';
+        s += '<text x="' + (ax + 48) + '" y="140" text-anchor="middle" fill="#94a3b8" font-size="8">TRAVEL</text>';
+        s += '<text x="' + (ax + 48) + '" y="160" text-anchor="middle" fill="#38bdf8" font-size="13" font-weight="700" font-family="monospace">' + travelPct + '%</text>';
+
+        // VALVE BODY (Globe Body at Bottom Center)
+        const vx = 240;
+        const vy = 270;
+        const vw = 260;
+        const vh = 100;
+
+        // Cast Steel Valve Body Outline
+        s += '<path d="M ' + (vx - vw / 2) + ' ' + (vy - 25) + ' L ' + (vx - 40) + ' ' + (vy - 25) + ' L ' + (vx - 35) + ' ' + (vy - 50) + ' L ' + (vx + 35) + ' ' + (vy - 50) + ' L ' + (vx + 40) + ' ' + (vy - 25) + ' L ' + (vx + vw / 2) + ' ' + (vy - 25) + ' L ' + (vx + vw / 2) + ' ' + (vy + 35) + ' L ' + (vx + 40) + ' ' + (vy + 35) + ' L ' + (vx + 35) + ' ' + (vy + 55) + ' L ' + (vx - 35) + ' ' + (vy + 55) + ' L ' + (vx - 40) + ' ' + (vy + 35) + ' L ' + (vx - vw / 2) + ' ' + (vy + 35) + ' Z" fill="#0f172a" stroke="#64748b" stroke-width="3"/>';
+
+        // Internal S-Shape Bridge & Seat Ring
+        s += '<path d="M ' + (vx - 40) + ' ' + (vy + 35) + ' Q ' + (vx - 10) + ' ' + (vy + 35) + ' ' + (vx - 15) + ' ' + (vy + 5) + ' L ' + (vx - 25) + ' ' + (vy + 5) + '" fill="none" stroke="#94a3b8" stroke-width="4"/>';
+        s += '<path d="M ' + (vx + 40) + ' ' + (vy - 25) + ' Q ' + (vx + 10) + ' ' + (vy - 25) + ' ' + (vx + 15) + ' ' + (vy + 5) + ' L ' + (vx + 25) + ' ' + (vy + 5) + '" fill="none" stroke="#94a3b8" stroke-width="4"/>';
+
+        // Valve Seat Orifice
+        s += '<rect x="' + (vx - 25) + '" y="' + (vy + 2) + '" width="10" height="8" fill="#f59e0b"/>';
+        s += '<rect x="' + (vx + 15) + '" y="' + (vy + 2) + '" width="10" height="8" fill="#f59e0b"/>';
+        s += '<text x="' + vx + '" y="' + (vy + 42) + '" text-anchor="middle" fill="#f59e0b" font-size="8">ORIFICE SEAT</text>';
+
+        // Contoured Valve Plug position based on travelPct
+        // Travel: 0% = plug resting on seat at vy+2; 100% = plug raised up to vy-28 (30px lift)
+        const liftPx = (travelPct / 100) * 28;
+        const plugY = (vy + 2) - liftPx;
+
+        // Contoured Plug
+        s += '<path d="M ' + (vx - 18) + ' ' + (plugY - 20) + ' L ' + (vx + 18) + ' ' + (plugY - 20) + ' L ' + (vx + 12) + ' ' + plugY + ' L ' + (vx - 12) + ' ' + plugY + ' Z" fill="#38bdf8" stroke="#0284c7" stroke-width="1.5"/>';
+
+        // Flow Streamlines (Blue arrows through valve)
+        s += '<path d="M ' + (vx - 110) + ' ' + (vy + 5) + ' Q ' + (vx - 20) + ' ' + (vy + 5) + ' ' + vx + ' ' + (vy - 5) + ' Q ' + (vx + 20) + ' ' + (vy - 15) + ' ' + (vx + 110) + ' ' + (vy + 5) + '" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="6,4"/>';
+        s += '<polygon points="' + (vx + 110) + ',' + (vy + 1) + ' ' + (vx + 122) + ',' + (vy + 5) + ' ' + (vx + 110) + ',' + (vy + 9) + '" fill="#38bdf8"/>';
+
+        // Inlet / Outlet Pressure Badges
+        s += '<text x="' + (vx - 90) + '" y="' + (vy - 32) + '" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">P1: ' + p1 + ' PSIG</text>';
+        s += '<text x="' + (vx + 90) + '" y="' + (vy - 32) + '" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="700">P2: ' + p2 + ' PSIG</text>';
+
+        // RIGHT PANE: Flow Characteristic & Sizing Diagnostics
+        const rx = 440;
+        const ry = 35;
+        const rw = 210;
+        const rh = 345;
+
+        s += '<g transform="translate(' + rx + ', ' + ry + ')">';
+        s += '<rect x="0" y="0" width="' + rw + '" height="' + rh + '" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="14" y="26" fill="#f8fafc" font-size="12" font-weight="700">ISA-75 Diagnostics</text>';
+
+        s += '<circle cx="22" cy="54" r="6" fill="#38bdf8"/>';
+        s += '<text x="36" y="58" fill="#cbd5e1" font-size="11">Required: <tspan fill="#38bdf8" font-weight="700">' + cv.toFixed(1) + ' Cv</tspan></text>';
+
+        s += '<circle cx="22" cy="80" r="6" fill="#10b981"/>';
+        s += '<text x="36" y="84" fill="#cbd5e1" font-size="11">Rated Cv: <tspan fill="#10b981" font-weight="700">' + ratedCv + ' Cv (' + vSize + '")</tspan></text>';
+
+        s += '<circle cx="22" cy="106" r="6" fill="#f59e0b"/>';
+        s += '<text x="36" y="110" fill="#cbd5e1" font-size="11">Stem Lift: <tspan fill="#f59e0b" font-weight="700">' + travelPct + '% Open</tspan></text>';
+
+        s += '<circle cx="22" cy="132" r="6" fill="#ef4444"/>';
+        s += '<text x="36" y="136" fill="#cbd5e1" font-size="11">Pressure Drop: <tspan fill="#f8fafc">' + deltaP.toFixed(1) + ' PSI</tspan></text>';
+
+        s += '<line x1="14" y1="156" x2="196" y2="156" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="14" y="180" fill="#94a3b8" font-size="11" font-weight="600">SIZING CRITERIA:</text>';
+        s += '<text x="14" y="200" fill="#f8fafc" font-size="10">Min Flow: &gt; 15% Travel</text>';
+        s += '<text x="14" y="218" fill="#f8fafc" font-size="10">Normal: 50% to 75% Travel</text>';
+        s += '<text x="14" y="236" fill="#f8fafc" font-size="10">Max Flow: &lt; 85% Travel</text>';
+
+        s += '<line x1="14" y1="254" x2="196" y2="254" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="14" y="278" fill="#10b981" font-size="11" font-weight="700">STATUS:</text>';
+        s += '<text x="14" y="298" fill="#cbd5e1" font-size="9">' + (travelPct >= 50 && travelPct <= 80 ? 'Ideal control band.' : 'Check valve trim size.') + '</text>';
+        s += '<text x="14" y="312" fill="#cbd5e1" font-size="9">Prevents seat wire drawing.</text>';
+
+        s += '<rect x="14" y="322" width="182" height="16" rx="3" fill="#1e293b"/>';
+        s += '<text x="105" y="334" text-anchor="middle" fill="#38bdf8" font-size="8" font-weight="700">IEC 60534 Standard Compliant</text>';
+
+        s += '</g>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const phase = selPhase.options[selPhase.selectedIndex].text;
+        const flow = inFlow.value;
+        const p1 = inP1.value;
+        const p2 = inP2.value;
+        const sg = inSg.value;
+        const charType = selChar.options[selChar.selectedIndex].text;
+        const vSize = selSize.options[selSize.selectedIndex].text;
+
+        const cv = document.getElementById('resCv').textContent;
+        const kv = document.getElementById('resKvVal').textContent;
+        const travel = document.getElementById('resTravelPct').textContent;
+        const choked = document.getElementById('resChokedDp').textContent;
+        const auth = document.getElementById('resAuthority').textContent;
+        const stat = document.getElementById('resStatusText').textContent;
+
+        const summary = [
+          '=== CONTROL VALVE Cv SIZING REPORT (ISA-75 / IEC 60534) ===',
+          'Process Fluid: ' + phase + ' (SG: ' + sg + ')',
+          'Operating Conditions: Flow = ' + flow + ' | P1 = ' + p1 + ' PSIG -> P2 = ' + p2 + ' PSIG',
+          'Valve Specification: ' + vSize + ' (' + charType + ')',
+          '',
+          '--- SIZING & FLOW COEFFICIENT RESULTS ---',
+          'Required Flow Coefficient: ' + cv + ' Cv (Metric: ' + kv + ' Kv)',
+          'Operating Stem Lift: ' + travel + ' (Ideal Target: 50% to 80%)',
+          'Choked Flow Limit: ' + choked + ' (Cavitation Boundary)',
+          'Valve Authority (N): ' + auth + ' (Controllable Target: 0.25 to 0.50)',
+          'Sizing Status: ' + stat,
+          '',
+          '--- ENGINEERING CONTROLLABILITY VERIFICATION ---',
+          'Operating within the 50-80% travel window prevents low-lift wire drawing erosion (<15%) and full-travel loss of control authority (>85%).',
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/control-valve-cv-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Control Valve Sizing Schedule';
+          }, 2500);
+        });
+      });
+
+      selPhase.addEventListener('change', function() {
+        updatePhaseLabels();
+        calcValve();
+      });
+      inFlow.addEventListener('input', calcValve);
+      inP1.addEventListener('input', calcValve);
+      inP2.addEventListener('input', calcValve);
+      inSg.addEventListener('input', calcValve);
+      selChar.addEventListener('change', calcValve);
+      selFl.addEventListener('change', calcValve);
+      selSize.addEventListener('change', calcValve);
+
+      updatePhaseLabels();
+      calcValve();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'control-valve-cv-calculator.html'), renderTradePage({
+    title: "Control Valve Cv Sizing Calculator: ISA-75 Flow Coefficient | Digital Tools Shed",
+    metaDesc: "Size control valves per ISA-75.01.01 & IEC 60534: calculate required Cv and Kv, choked flow pressure drop, valve authority %, and stem travel opening %.",
+    canonical: `${DOMAIN}/calc/control-valve-cv-calculator`,
+    bodyContent: controlValveCvBody,
+    currentPath: '/calc/control-valve-cv-calculator',
+    faq: [
+      {
+        "q": "What is valve Cv and how is it defined?",
+        "a": "Cv (Flow Coefficient) is the volume of 60°F water in US Gallons per Minute that will flow through a wide-open control valve with a 1.0 PSI pressure drop across the valve body. The metric equivalent is Kv, where Cv = 1.156 * Kv."
+      },
+      {
+        "q": "Why is it dangerous to select a line-sized control valve?",
+        "a": "Because piping is designed for low friction and low velocity, a line-sized control valve will have massive excess capacity (oversized Cv). The valve is forced to throttle near its seat at 5% to 15% travel, causing unstable PID hunting, poor control, and high-velocity wire-drawing erosion across the seat."
+      },
+      {
+        "q": "What is the recommended valve opening percentage at normal flow?",
+        "a": "Industry standard ISA-75 practice recommends that a control valve operate between 60% and 80% open at maximum design flow, and no lower than 15% to 20% open at minimum required flow to preserve control stability and prevent seat damage."
+      },
+      {
+        "q": "What is Valve Authority (N) and why does it matter?",
+        "a": "Valve authority is the ratio of valve pressure drop to total system pressure drop (including coils and piping). Authority should remain between 0.25 and 0.50. If authority drops below 0.25, the valve loses its ability to modulate flow, turning an equal-percentage valve into an abrupt on/off switch."
+      },
+      {
+        "q": "What is choked flow and cavitation in liquid control valves?",
+        "a": "Choked flow occurs when velocity at the narrowest point (vena contracta) reaches the speed of sound, capping maximum flow. If vena contracta pressure drops below the liquid's vapor pressure and then recovers, vapor bubbles collapse violently with 100,000+ PSI micro-jets (cavitation), pitting and destroying valve trim."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BEARING LIFE & L10h RATING CALCULATOR (ISO 281 & ANSI/ABMA)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const bearingLifeBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Bearing Life Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Bearing Life Calculator: ISO 281 &amp; L10h Rating Life Engine</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate rolling element bearing fatigue life per ISO 281:2007 and ANSI/ABMA Standards 9 &amp; 11: determine basic $L_{10}$ revolutions, operating hours $L_{10h}$, equivalent dynamic load $P$, ISO modified life $L_{10m}$ with lubrication ratio $\\kappa$ and contamination factor $e_c$, plus minimum load anti-skid verification.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/></svg>
+        Bearing Specifications &amp; Operating Loads
+      </h2>
+
+      <!-- Bearing Type & Exponent -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="bearingType">Bearing Geometry Type</label>
+          <select id="bearingType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="deep_groove" selected>Deep Groove Ball (p = 3)</option>
+            <option value="angular_contact">Angular Contact Ball (p = 3)</option>
+            <option value="cylindrical_roller">Cylindrical Roller (p = 10/3)</option>
+            <option value="spherical_roller">Spherical Roller (p = 10/3)</option>
+            <option value="tapered_roller">Tapered Roller (p = 10/3)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="shaftSpeed">Shaft Speed (RPM)</label>
+          <input type="number" id="shaftSpeed" value="1750" min="1" max="60000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard 4-pole motor speed = 1750 RPM</span>
+        </div>
+      </div>
+
+      <!-- Load Ratings -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dynamicRating">Dynamic Load Rating C (kN)</label>
+          <input type="number" id="dynamicRating" value="32.5" min="0.5" max="5000" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">ISO 281 basic dynamic rating</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="staticRating">Static Load Rating C0 (kN)</label>
+          <input type="number" id="staticRating" value="19.0" min="0.2" max="6000" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">For equivalent load threshold (e)</span>
+        </div>
+      </div>
+
+      <!-- Applied Loads -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="radialLoad">Applied Radial Load Fr (kN)</label>
+          <input type="number" id="radialLoad" value="4.2" min="0.1" max="2500" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Belt pull, gear tooth, or rotor weight</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="axialLoad">Applied Axial Thrust Fa (kN)</label>
+          <input type="number" id="axialLoad" value="1.5" min="0" max="2500" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Helical gear or fan impeller thrust</span>
+        </div>
+      </div>
+
+      <!-- Dimensions for dm & Viscosity -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boreDia">Bore Diameter d (mm)</label>
+          <input type="number" id="boreDia" value="40" min="5" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Shaft journal fit diameter</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="outerDia">Outer Diameter D (mm)</label>
+          <input type="number" id="outerDia" value="80" min="10" max="1500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Housing seat bore diameter</span>
+        </div>
+      </div>
+
+      <!-- Lubrication & Contamination (ISO 281 Modified Life) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="operatingViscosity">Operating Viscosity &nu; (cSt / mm&sup2;/s)</label>
+          <input type="number" id="operatingViscosity" value="28" min="1" max="1000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Base oil viscosity at operating temp (e.g. 70&deg;C)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="contaminationFactor">Contamination Factor (e_c)</label>
+          <select id="contaminationFactor" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="1.0">1.0 - Extreme Cleanliness (Laboratory)</option>
+            <option value="0.8">0.8 - High Cleanliness (Good seals, filtered)</option>
+            <option value="0.5" selected>0.5 - Normal Cleanliness (Industrial grease)</option>
+            <option value="0.3">0.3 - Slight Contamination (Standard seals)</option>
+            <option value="0.1">0.1 - Severe Contamination (Dirty/mining/quarry)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Target Reliability a1 -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="targetReliability">Target Reliability (Survival Rate %)</label>
+        <select id="targetReliability" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="1.00|90" selected>90% Survival Rate (L10 Standard, a1 = 1.00)</option>
+          <option value="0.64|95">95% Survival Rate (L5 High-Rel, a1 = 0.64)</option>
+          <option value="0.55|96">96% Survival Rate (L4 Aerospace, a1 = 0.55)</option>
+          <option value="0.47|97">97% Survival Rate (L3 Mission-Critical, a1 = 0.47)</option>
+          <option value="0.37|98">98% Survival Rate (L2 Ultra-Critical, a1 = 0.37)</option>
+          <option value="0.25|99">99% Survival Rate (L1 Nuclear / Safety, a1 = 0.25)</option>
+        </select>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Mean Pitch Diameter (dm): <strong id="lblDm" style="color:var(--fg);">60.0 mm</strong></div>
+          <div>Equiv Dynamic Load (P): <strong id="lblPHeader" style="color:var(--fg);">5.26 kN</strong></div>
+          <div>Required Ref Viscosity (&nu;1): <strong id="lblNu1Header" style="color:var(--fg);">12.4 cSt</strong></div>
+          <div>Standards: <strong style="color:var(--fg);">ISO 281 &amp; ANSI/ABMA 9/11</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN & DIAGRAM -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- RESULTS HERO CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Basic Rating Life (90% Reliability)</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:var(--mono);color:var(--accent);line-height:1.1;" id="resL10h">--</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);margin-top:0.25rem;" id="resL10Rev">-- million revolutions</div>
+          </div>
+          <div style="text-align:right;">
+            <span id="badgeServiceLife" style="display:inline-block;padding:0.4rem 0.85rem;border-radius:999px;font-size:0.8rem;font-weight:700;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid #10b981;">ADEQUATE</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Modified ISO Life (L10mh)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resL10mh">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resIsoFactor">a_ISO = -- | a1 = 1.00</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Service Years (24/7 Continuous)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resYearsContinuous">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resYearsSingleShift">Single Shift (2000h): -- yrs</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Viscosity Ratio (&kappa; = &nu; / &nu;1)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resKappa">--</div>
+            <div style="font-size:0.75rem;" id="lblKappaStatus">Full EHL Film (&kappa; &ge; 1.0)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Minimum Load Check (P / C)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resMinLoadRatio">--</div>
+            <div style="font-size:0.75rem;" id="lblMinLoadStatus">No Skidding Risk (P &ge; 0.01 C)</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnCopyReport" style="width:100%;margin-top:1.5rem;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Bearing Rating Diagnostic Report</span>
+        </button>
+      </div>
+
+      <!-- DYNAMIC SVG DIAGRAM -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>Rolling Element Contact &amp; Stress Schematic</span>
+          <span style="font-size:0.75rem;font-family:var(--mono);color:var(--text-muted);" id="svgStatusLabel">ISO 281 Model</span>
+        </div>
+        <div id="bearingSvgContainer" style="width:100%;display:flex;justify-content:center;background:var(--bg);border-radius:8px;padding:0.5rem;overflow:hidden;">
+          <!-- SVG injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKED DERIVATION BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Step-by-Step ISO 281 Engineering Derivation
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">
+      The standard basic rating life $L_{10}$ denotes the number of revolutions (or operating hours at fixed RPM) that 90% of a statistically significant population of identical bearings will complete or exceed before manifesting the first metallurgical evidence of rolling contact fatigue (flaking or spalling per ISO 281:2007).
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;font-size:0.9rem;line-height:1.6;">
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">1. Dynamic Equivalent Load (P)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          P = X &middot; Fr + Y &middot; Fa
+        </div>
+        When axial thrust is present, combined loading shifts contact stresses. For deep groove ball bearings, the limit ratio is $e = f(F_a / C_0)$.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>If $F_a / F_r \le e$: $X = 1.0$, $Y = 0$ ($P = F_r$)</li>
+          <li>If $F_a / F_r &gt; e$: $X = 0.56$, $Y = 1.2 - 2.3$</li>
+          <li>Current: <span id="mathEqLoad" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">2. Basic Rating Life (L10 &amp; L10h)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          L10 = (C / P)^p &times; 10^6 revs<br>
+          L10h = (10^6 / (60 &middot; n)) &times; (C / P)^p
+        </div>
+        The life exponent is $p = 3$ for ball bearings (point contact) and $p = 10/3 \approx 3.333$ for roller bearings (line contact).
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Load Ratio $C/P$: <span id="mathCpRatio" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Life Exponent $p$: <span id="mathExponent" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Basic Hours: <span id="mathBasicHours" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">3. Lubrication Ratio &amp; ISO Factor</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          &nu;1 = 45000 &middot; n^(-0.83) &middot; dm^(-0.5)<br>
+          &kappa; = &nu; / &nu;1 &rarr; a_ISO = f(&kappa;, e_c &middot; Cu/P)
+        </div>
+        Elastohydrodynamic lubrication (EHL) requires $\kappa \ge 1.0$ to prevent asperity contact.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Pitch $d_m = (40 + 80)/2 = 60$ mm</li>
+          <li>Ref Viscosity $\nu_1$: <span id="mathNu1" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Viscosity Ratio $\kappa$: <span id="mathKappa" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>ISO Life $L_{10mh}$: <span id="mathIsoHours" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      5 Fatal Traps in Rolling Element Bearing Life Calculations
+    </h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#ef4444;display:block;margin-bottom:0.35rem;font-size:1.05rem;">1. Light-Load Roller Skidding &amp; Smearing ($P &lt; 0.01 C$ or $0.02 C$)</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Counterintuitively, bearings can fail rapidly from being <em>underloaded</em>. At high speeds with light loads, centrifugal force and hydrodynamic oil drag overcome the traction between the raceway and the rollers. The rollers slide and skid rather than roll, stripping the lubricant film and causing severe micro-welding, adhesive wear (smearing), and premature failure within hundreds of hours despite theoretical $L_{10h} &gt; 100,000$ hours. Maintain $P / C \ge 0.01$ for ball bearings and $\ge 0.02$ for roller bearings.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#f59e0b;display:block;margin-bottom:0.35rem;font-size:1.05rem;">2. The Boundary Lubrication Trap ($\\kappa &lt; 1.0$ at High Temperature)</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Specifying oil viscosity at 40&deg;C without calculating actual operating temperature viscosity is a premier cause of unexpected gearbox failures. If housing operating temperatures reach 80&deg;C to 90&deg;C, an ISO VG 46 oil drops from 46 cSt to under 8 cSt. When $\\kappa = \\nu / \\nu_1 &lt; 1.0$, the hydrodynamic oil film collapses below surface roughness asperities, triggering metal-to-metal contact, adhesive scuffing, and reducing actual fatigue life by up to 80% ($a_{ISO} &lt; 0.3$).
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#10b981;display:block;margin-bottom:0.35rem;font-size:1.05rem;">3. Particulate Contamination Degradation ($e_c$ Collapsing to 0.1)</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          In harsh environments (mining, aggregate, paper mills), hard abrasive particles (silica, wear debris &gt; 5 &mu;m) pass through seals into raceways. Rolling elements over-roll these particles, plastically indenting the raceway. These dents create micro-stress concentrations where cyclic shear stress rises 300% to 500%, initiating surface-induced fatigue spalling. Contamination factor $e_c$ slumps from 0.8 down to 0.1, annihilating modified life $L_{10mh}$ even with premium synthetic oil.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#3b82f6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">4. Standby Vibration &amp; False Brinelling</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Bearings in standby pumps, redundant fans, or machines shipped across railways/oceans experience microscopic oscillatory micromotion while stationary. Without rotation, hydrodynamic oil films cannot form. Rolling elements repeatedly pound the stationary raceway, squeezing out lubricant and oxidizing the metal surfaces (fretting corrosion / false brinelling). When restarted, the fluted indentations create severe noise, vibration, and rapid spalling. Rotate standby shafts weekly.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#8b5cf6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">5. Unintended Axial Thrust Binding in Non-Locating Positions</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          A standard machine shaft uses one "locating" (fixed) bearing and one "non-locating" (floating) bearing to accommodate thermal axial expansion. If the non-locating bearing outer ring is fitted too tightly in its housing or corrodes in place, thermal growth of the shaft generates massive unintended axial thrust loads ($F_a$). This thermal clamping overloads both bearings, leading to rapid catastrophic cage destruction and fatigue flaking within weeks of installation.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var bType = document.getElementById('bearingType');
+  var sSpeed = document.getElementById('shaftSpeed');
+  var dynC = document.getElementById('dynamicRating');
+  var statC0 = document.getElementById('staticRating');
+  var radFr = document.getElementById('radialLoad');
+  var axFa = document.getElementById('axialLoad');
+  var bDia = document.getElementById('boreDia');
+  var oDia = document.getElementById('outerDia');
+  var opVisc = document.getElementById('operatingViscosity');
+  var contFact = document.getElementById('contaminationFactor');
+  var relFact = document.getElementById('targetReliability');
+
+  var resL10h = document.getElementById('resL10h');
+  var resL10Rev = document.getElementById('resL10Rev');
+  var resL10mh = document.getElementById('resL10mh');
+  var resIsoFactor = document.getElementById('resIsoFactor');
+  var resYearsCont = document.getElementById('resYearsContinuous');
+  var resYearsShift = document.getElementById('resYearsSingleShift');
+  var resKappa = document.getElementById('resKappa');
+  var lblKappaStatus = document.getElementById('lblKappaStatus');
+  var resMinLoadRatio = document.getElementById('resMinLoadRatio');
+  var lblMinLoadStatus = document.getElementById('lblMinLoadStatus');
+  var badgeServiceLife = document.getElementById('badgeServiceLife');
+  var lblDm = document.getElementById('lblDm');
+  var lblPHeader = document.getElementById('lblPHeader');
+  var lblNu1Header = document.getElementById('lblNu1Header');
+  var svgContainer = document.getElementById('bearingSvgContainer');
+  var btnCopy = document.getElementById('btnCopyReport');
+  var copyText = document.getElementById('copyBtnText');
+
+  var mathEqLoad = document.getElementById('mathEqLoad');
+  var mathCpRatio = document.getElementById('mathCpRatio');
+  var mathExponent = document.getElementById('mathExponent');
+  var mathBasicHours = document.getElementById('mathBasicHours');
+  var mathNu1 = document.getElementById('mathNu1');
+  var mathKappa = document.getElementById('mathKappa');
+  var mathIsoHours = document.getElementById('mathIsoHours');
+
+  function calculate() {
+    var type = bType.value;
+    var n = Math.max(1, parseFloat(sSpeed.value) || 1750);
+    var C = Math.max(0.1, parseFloat(dynC.value) || 32.5);
+    var C0 = Math.max(0.1, parseFloat(statC0.value) || 19.0);
+    var Fr = Math.max(0, parseFloat(radFr.value) || 0);
+    var Fa = Math.max(0, parseFloat(axFa.value) || 0);
+    var d = Math.max(1, parseFloat(bDia.value) || 40);
+    var D = Math.max(d + 1, parseFloat(oDia.value) || 80);
+    var nu = Math.max(0.5, parseFloat(opVisc.value) || 28);
+    var ec = parseFloat(contFact.value) || 0.5;
+    var relParts = relFact.value.split('|');
+    var a1 = parseFloat(relParts[0]) || 1.0;
+    var relPct = relParts[1] || '90';
+
+    var dm = (d + D) / 2;
+    lblDm.textContent = dm.toFixed(1) + ' mm';
+
+    var p = (type === 'cylindrical_roller' || type === 'spherical_roller' || type === 'tapered_roller') ? (10 / 3) : 3;
+
+    // Equivalent Load Calculation per ISO 281
+    var X = 1.0;
+    var Y = 0.0;
+    var e = 0.25;
+
+    if (type === 'deep_groove') {
+      var faC0 = Fa / C0;
+      if (faC0 <= 0.014) e = 0.19;
+      else if (faC0 <= 0.028) e = 0.22;
+      else if (faC0 <= 0.056) e = 0.26;
+      else if (faC0 <= 0.084) e = 0.28;
+      else if (faC0 <= 0.11) e = 0.30;
+      else if (faC0 <= 0.17) e = 0.34;
+      else if (faC0 <= 0.28) e = 0.38;
+      else if (faC0 <= 0.42) e = 0.42;
+      else e = 0.44;
+
+      if (Fr === 0 && Fa === 0) {
+        Fr = 0.001;
+      }
+      if (Fa / (Fr || 0.001) > e) {
+        X = 0.56;
+        var yInterp = 2.30 - (e - 0.19) * ((2.30 - 1.0) / (0.44 - 0.19));
+        Y = Math.max(1.0, Math.min(2.3, yInterp));
+      } else {
+        X = 1.0;
+        Y = 0.0;
+      }
+    } else if (type === 'angular_contact') {
+      e = 0.68;
+      if (Fa / (Fr || 0.001) > e) {
+        X = 0.41;
+        Y = 0.87;
+      } else {
+        X = 1.0;
+        Y = 0.0;
+      }
+    } else if (type === 'cylindrical_roller') {
+      X = 1.0;
+      Y = 0.0;
+    } else if (type === 'spherical_roller') {
+      e = 0.24;
+      if (Fa / (Fr || 0.001) > e) {
+        X = 0.67;
+        Y = 4.2;
+      } else {
+        X = 1.0;
+        Y = 2.8;
+      }
+    } else if (type === 'tapered_roller') {
+      e = 0.35;
+      if (Fa / (Fr || 0.001) > e) {
+        X = 0.4;
+        Y = 1.7;
+      } else {
+        X = 1.0;
+        Y = 0.0;
+      }
+    }
+
+    var P = Math.max(0.01, X * Fr + Y * Fa);
+    lblPHeader.textContent = P.toFixed(2) + ' kN';
+
+    var cpRatio = C / P;
+    var L10Rev = Math.pow(cpRatio, p);
+    var L10hVal = (1000000 / (60 * n)) * L10Rev;
+
+    var nu1 = 45000 * Math.pow(n, -0.83) * Math.pow(dm, -0.5);
+    lblNu1Header.textContent = nu1.toFixed(1) + ' cSt';
+
+    var kappa = nu / nu1;
+
+    var Cu = C0 / 10;
+    var contParam = ec * (Cu / P);
+    var aIso = 1.0;
+
+    if (kappa < 0.1) {
+      aIso = 0.1;
+    } else if (kappa < 0.4) {
+      aIso = 0.1 + (kappa - 0.1) * (0.3 / 0.3) * Math.min(1.0, contParam * 2);
+    } else if (kappa < 1.0) {
+      aIso = 0.4 + (kappa - 0.4) * (0.8 / 0.6) * Math.min(1.5, contParam * 3);
+    } else if (kappa <= 4.0) {
+      aIso = 1.0 + (kappa - 1.0) * (2.5 / 3.0) * Math.min(3.0, contParam * 4);
+    } else {
+      aIso = 3.5 * Math.min(3.0, contParam * 4);
+    }
+    aIso = Math.max(0.1, Math.min(25.0, aIso));
+
+    var L10mhVal = a1 * aIso * L10hVal;
+    var yearsCont = L10hVal / 8760;
+    var yearsShift = L10hVal / 2000;
+
+    var minLoadRatio = P / C;
+
+    resL10h.textContent = formatNum(L10hVal) + ' hrs';
+    resL10Rev.textContent = formatNum(L10Rev) + ' million revolutions';
+    resL10mh.textContent = formatNum(L10mhVal) + ' hrs';
+    resIsoFactor.textContent = 'a_ISO = ' + aIso.toFixed(2) + ' | a1 = ' + a1.toFixed(2) + ' (' + relPct + '%)';
+    resYearsCont.textContent = yearsCont.toFixed(1) + ' yrs';
+    resYearsShift.textContent = 'Single Shift (2000h): ' + yearsShift.toFixed(1) + ' yrs';
+    resKappa.textContent = kappa.toFixed(2);
+
+    if (kappa >= 1.0) {
+      lblKappaStatus.textContent = 'Full EHL Film (κ ≥ 1.0)';
+      lblKappaStatus.style.color = '#10b981';
+    } else if (kappa >= 0.4) {
+      lblKappaStatus.textContent = 'Mixed Lubrication (0.4 ≤ κ < 1.0)';
+      lblKappaStatus.style.color = '#f59e0b';
+    } else {
+      lblKappaStatus.textContent = 'Boundary Lubrication Danger (κ < 0.4)';
+      lblKappaStatus.style.color = '#ef4444';
+    }
+
+    resMinLoadRatio.textContent = (minLoadRatio * 100).toFixed(1) + '% of C';
+    if (minLoadRatio >= 0.02) {
+      lblMinLoadStatus.textContent = 'Adequate Traction (No Skidding)';
+      lblMinLoadStatus.style.color = '#10b981';
+    } else if (minLoadRatio >= 0.01) {
+      lblMinLoadStatus.textContent = 'Marginal (Ball ok, Roller skid risk)';
+      lblMinLoadStatus.style.color = '#f59e0b';
+    } else {
+      lblMinLoadStatus.textContent = 'Severe Skidding / Smearing Risk (P < 0.01 C)';
+      lblMinLoadStatus.style.color = '#ef4444';
+    }
+
+    if (L10hVal < 10000) {
+      badgeServiceLife.textContent = 'SHORT LIFE (<10k h)';
+      badgeServiceLife.style.color = '#ef4444';
+      badgeServiceLife.style.borderColor = '#ef4444';
+      badgeServiceLife.style.background = 'rgba(239, 68, 68, 0.1)';
+    } else if (L10hVal < 30000) {
+      badgeServiceLife.textContent = 'INTERMEDIATE (10k-30k h)';
+      badgeServiceLife.style.color = '#f59e0b';
+      badgeServiceLife.style.borderColor = '#f59e0b';
+      badgeServiceLife.style.background = 'rgba(245, 158, 11, 0.1)';
+    } else {
+      badgeServiceLife.textContent = 'EXCELLENT (>30k h)';
+      badgeServiceLife.style.color = '#10b981';
+      badgeServiceLife.style.borderColor = '#10b981';
+      badgeServiceLife.style.background = 'rgba(16, 185, 129, 0.1)';
+    }
+
+    mathEqLoad.textContent = 'P = ' + X.toFixed(2) + ' × ' + Fr.toFixed(1) + ' + ' + Y.toFixed(2) + ' × ' + Fa.toFixed(1) + ' = ' + P.toFixed(2) + ' kN';
+    mathCpRatio.textContent = cpRatio.toFixed(2) + ' (C=' + C.toFixed(1) + ', P=' + P.toFixed(2) + ')';
+    mathExponent.textContent = p === 3 ? '3.0 (Ball)' : '3.333 (Roller)';
+    mathBasicHours.textContent = formatNum(L10hVal) + ' hours @ ' + n + ' RPM';
+    mathNu1.textContent = nu1.toFixed(1) + ' cSt (dm=' + dm.toFixed(0) + ' mm)';
+    mathKappa.textContent = kappa.toFixed(2) + ' (Actual: ' + nu + ' cSt)';
+    mathIsoHours.textContent = formatNum(L10mhVal) + ' hours (a_ISO=' + aIso.toFixed(2) + ')';
+
+    updateSvg(type, Fr, Fa, P, C, n, minLoadRatio);
+  }
+
+  function formatNum(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return Math.round(num).toString();
+  }
+
+  function updateSvg(type, Fr, Fa, P, C, n, minLoadRatio) {
+    var stressColor = '#10b981';
+    if (P / C > 0.3) stressColor = '#ef4444';
+    else if (P / C > 0.15) stressColor = '#f59e0b';
+
+    var isRoller = (type.indexOf('roller') !== -1);
+
+    var svg = '';
+    svg += '<svg width="100%" height="220" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,-apple-system,sans-serif;">';
+    svg += '<defs>';
+    svg += '  <radialGradient id="stressGrad" cx="50%" cy="50%" r="50%">';
+    svg += '    <stop offset="0%" stop-color="' + stressColor + '" stop-opacity="0.85"/>';
+    svg += '    <stop offset="100%" stop-color="' + stressColor + '" stop-opacity="0.05"/>';
+    svg += '  </radialGradient>';
+    svg += '  <marker id="arrowHead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/>';
+    svg += '  </marker>';
+    svg += '  <marker id="arrowHeadRed" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>';
+    svg += '  </marker>';
+    svg += '</defs>';
+
+    svg += '<rect x="30" y="20" width="400" height="180" rx="10" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>';
+
+    var cx = 200, cy = 110;
+
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="75" fill="none" stroke="#64748b" stroke-width="14" stroke-opacity="0.4"/>';
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="82" fill="none" stroke="#475569" stroke-width="1"/>';
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="68" fill="none" stroke="#475569" stroke-width="1"/>';
+
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="38" fill="none" stroke="#64748b" stroke-width="12" stroke-opacity="0.5"/>';
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="44" fill="none" stroke="#475569" stroke-width="1"/>';
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="32" fill="none" stroke="#475569" stroke-width="1"/>';
+
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="31" fill="#334155" fill-opacity="0.2"/>';
+    svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="10" fill="var(--fg)" font-weight="700">' + n + ' RPM</text>';
+
+    svg += '<path d="M ' + (cx - 18) + ' ' + (cy - 18) + ' A 24 24 0 0 1 ' + (cx + 18) + ' ' + (cy - 18) + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="3,2" marker-end="url(#arrowHead)"/>';
+
+    var rPitch = 56;
+    var numElements = 8;
+    for (var i = 0; i < numElements; i++) {
+      var angle = (i * 2 * Math.PI) / numElements;
+      var ex = cx + rPitch * Math.cos(angle);
+      var ey = cy + rPitch * Math.sin(angle);
+
+      var isBottom = (i === 2);
+
+      if (isBottom) {
+        svg += '<ellipse cx="' + ex + '" cy="' + (ey + 4) + '" rx="22" ry="14" fill="url(#stressGrad)"/>';
+      }
+
+      if (isRoller) {
+        var deg = (angle * 180) / Math.PI;
+        svg += '<rect x="' + (ex - 8) + '" y="' + (ey - 6) + '" width="16" height="12" rx="2" fill="#94a3b8" stroke="#1e293b" stroke-width="1.5" transform="rotate(' + (deg + 90) + ' ' + ex + ' ' + ey + ')"/>';
+      } else {
+        svg += '<circle cx="' + ex + '" cy="' + ey + '" r="9" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>';
+        svg += '<circle cx="' + (ex - 2) + '" cy="' + (ey - 2) + '" r="3" fill="#ffffff" fill-opacity="0.8"/>';
+      }
+    }
+
+    svg += '<line x1="' + cx + '" y1="30" x2="' + cx + '" y2="70" stroke="#ef4444" stroke-width="3" marker-end="url(#arrowHeadRed)"/>';
+    svg += '<text x="' + (cx + 8) + '" y="45" font-size="11" fill="#ef4444" font-weight="700">Fr = ' + Fr.toFixed(1) + ' kN</text>';
+
+    if (Fa > 0) {
+      svg += '<line x1="80" y1="' + cy + '" x2="135" y2="' + cy + '" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowHead)"/>';
+      svg += '<text x="82" y="' + (cy - 8) + '" font-size="11" fill="#3b82f6" font-weight="700">Fa = ' + Fa.toFixed(1) + ' kN</text>';
+    }
+
+    svg += '<g transform="translate(310, 35)">';
+    svg += '  <rect width="115" height="150" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1"/>';
+    svg += '  <text x="10" y="20" font-size="10" font-weight="700" fill="var(--fg)">LOAD PROFILE</text>';
+    svg += '  <text x="10" y="42" font-size="9" fill="var(--text-muted)">Equiv Load (P):</text>';
+    svg += '  <text x="10" y="56" font-size="11" font-weight="700" font-family="var(--mono)" fill="var(--fg)">' + P.toFixed(2) + ' kN</text>';
+    svg += '  <text x="10" y="76" font-size="9" fill="var(--text-muted)">Capacity Ratio:</text>';
+    svg += '  <text x="10" y="90" font-size="11" font-weight="700" font-family="var(--mono)" fill="' + stressColor + '">P/C = ' + (P/C).toFixed(2) + '</text>';
+    svg += '  <text x="10" y="110" font-size="9" fill="var(--text-muted)">Stress Zone:</text>';
+    svg += '  <circle cx="15" cy="125" r="5" fill="' + stressColor + '"/>';
+    svg += '  <text x="25" y="128" font-size="9" font-weight="600" fill="var(--fg)">' + (P/C > 0.3 ? 'High Hertz' : (P/C < 0.02 ? 'Underloaded' : 'Optimum')) + '</text>';
+    svg += '  <text x="10" y="142" font-size="8" fill="var(--text-muted)">Type: ' + (isRoller ? 'Line Contact' : 'Point Contact') + '</text>';
+    svg += '</g>';
+
+    svg += '</svg>';
+
+    svgContainer.innerHTML = svg;
+  }
+
+  btnCopy.addEventListener('click', function() {
+    var type = bType.options[bType.selectedIndex].text;
+    var text = '=== BEARING FATIGUE LIFE DIAGNOSTIC REPORT (ISO 281 / ABMA) ===\n' +
+      'Bearing Type: ' + type + '\n' +
+      'Operating Speed: ' + sSpeed.value + ' RPM\n' +
+      'Dynamic Rating (C): ' + dynC.value + ' kN | Static (C0): ' + statC0.value + ' kN\n' +
+      'Applied Radial Load (Fr): ' + radFr.value + ' kN | Axial Thrust (Fa): ' + axFa.value + ' kN\n' +
+      'Bore: ' + bDia.value + ' mm | Outer Dia: ' + oDia.value + ' mm | Pitch dm: ' + lblDm.textContent + '\n' +
+      '------------------------------------------------------------\n' +
+      'Equiv Dynamic Load (P): ' + lblPHeader.textContent + '\n' +
+      'Basic Rating Life (L10h): ' + resL10h.textContent + ' (' + resL10Rev.textContent + ')\n' +
+      'Modified ISO Life (L10mh): ' + resL10mh.textContent + ' (' + resIsoFactor.textContent + ')\n' +
+      'Continuous Service: ' + resYearsCont.textContent + ' (24/7 continuous operation)\n' +
+      'Viscosity Ratio (kappa): ' + resKappa.textContent + ' (' + lblKappaStatus.textContent + ')\n' +
+      'Minimum Load Check: ' + resMinLoadRatio.textContent + ' (' + lblMinLoadStatus.textContent + ')\n' +
+      'Standard: ISO 281:2007 & ANSI/ABMA 9/11\n' +
+      'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/bearing-life-calculator.html)';
+
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = copyText.textContent;
+      copyText.textContent = '✓ Copied Diagnostic Report to Clipboard!';
+      setTimeout(function() {
+        copyText.textContent = orig;
+      }, 2500);
+    }).catch(function() {
+      copyText.textContent = 'Clipboard access denied';
+    });
+  });
+
+  [bType, sSpeed, dynC, statC0, radFr, axFa, bDia, oDia, opVisc, contFact, relFact].forEach(function(el) {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'bearing-life-calculator.html'), renderTradePage({
+    title: "Bearing Life Calculator: ISO 281 & L10h Rating Life Engine | Digital Tools Shed",
+    metaDesc: "Calculate rolling element bearing fatigue life per ISO 281:2007 and ANSI/ABMA: determine basic L10 revolutions, operating hours L10h, equivalent dynamic load P, and ISO modified life.",
+    canonical: `${DOMAIN}/calc/bearing-life-calculator`,
+    bodyContent: bearingLifeBody,
+    currentPath: '/calc/bearing-life-calculator',
+    faq: [
+      {
+        "q": "What is the physical meaning of L10h bearing life?",
+        "a": "L10h (or B10 life) represents the rating life in operating hours that 90% of an identical group of bearings will achieve or exceed under specified operating conditions before rolling contact fatigue flaking occurs per ISO 281. The average life of the population (L50) is typically 5 times higher."
+      },
+      {
+        "q": "Why is the life exponent p = 3 for balls and p = 10/3 for rollers?",
+        "a": "Ball bearings produce elliptical point contact stress distributions yielding theoretical Weibull fatigue hazard exponent p = 3. Roller bearings produce modified rectangular line contact distributions yielding empirical exponent p = 10/3 (approx 3.333)."
+      },
+      {
+        "q": "What is the difference between basic L10 and modified ISO 281 life (L10m)?",
+        "a": "Basic L10 considers only mechanical load (C/P) and RPM. Modified ISO 281 life introduces factor a_ISO accounting for modern steel fatigue limit stress Cu, elastohydrodynamic film thickness through viscosity ratio kappa = nu / nu1, and lubricant contamination level ec."
+      },
+      {
+        "q": "What is a typical design life requirement for industrial machinery?",
+        "a": "Standard electric motors and pumps typically target 20,000 to 30,000 hours, whereas continuous 24/7 process plant pumps, paper mills, and critical turbomachinery target 40,000 to 100,000 hours of L10h fatigue life (approx. 5 to 11 years continuous)."
+      },
+      {
+        "q": "How do I convert between Dynamic Load Rating C in kN and lbf?",
+        "a": "1 kN equals approximately 224.809 lbf (pounds-force). Both the Dynamic Rating C and Equivalent Load P must be expressed in identical units since the ratio C/P is dimensionless."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ORIFICE PLATE FLOW & DIFFERENTIAL PRESSURE CALCULATOR (ISO 5167)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const orificePlateBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Orifice Plate Flow Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Orifice Plate Flow &amp; Differential Pressure Calculator (ISO 5167)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate flow rate, differential pressure, and primary element sizing for square-edged concentric orifice plates per ISO 5167-1/2:2003 and ASME MFC-3M: compute discharge coefficient ($C_d$), beta ratio ($\\beta$), permanent unrecoverable head loss ($\\Delta P_{perm}$), straight-run piping requirements, and vena contracta cavitation index.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="12" cy="12" r="3"/></svg>
+        Piping &amp; Orifice Geometry
+      </h2>
+
+      <!-- Calculation Mode -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="calcMode">Calculation Objective</label>
+        <select id="calcMode" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="find_flow" selected>Calculate Flow Rate from Differential Pressure (&Delta;P)</option>
+          <option value="find_dp">Calculate Differential Pressure (&Delta;P) from Flow Rate</option>
+          <option value="find_bore">Size Orifice Bore Diameter (d) for Target &Delta;P</option>
+        </select>
+      </div>
+
+      <!-- Fluid Phase -->
+      <div style="grid-template-columns:1fr 1fr;display:grid;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="fluidType">Fluid Type</label>
+          <select id="fluidType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="water" selected>Water (62.3 lb/ft&sup3; / 1000 kg/m&sup3;)</option>
+            <option value="oil">Lubricating Oil (SG = 0.88)</option>
+            <option value="gas">Natural Gas / Air (Compressible)</option>
+            <option value="steam">Saturated Steam (100 PSIG)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tapLocation">Pressure Tap Configuration</label>
+          <select id="tapLocation" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="flange" selected>Flange Taps (1" Up / 1" Down)</option>
+            <option value="corner">Corner Taps (Directly at plate)</option>
+            <option value="d_d2">D and D/2 Radius Taps</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Diameters -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pipeDia">Pipe Internal Diameter D (in)</label>
+          <input type="number" id="pipeDia" value="4.026" min="0.5" max="48" step="0.001" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard 4" Schedule 40 ID = 4.026"</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="orificeDia" id="lblOrificeDia">Orifice Bore Diameter d (in)</label>
+          <input type="number" id="orificeDia" value="2.415" min="0.1" max="45" step="0.001" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="lblOrificeNote">Target &beta; &approx; 0.60 (2.415")</span>
+        </div>
+      </div>
+
+      <!-- Flow Rate or DP depending on mode -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="diffPressure" id="lblDiffPressure">Differential Pressure &Delta;P (inH2O)</label>
+          <input type="number" id="diffPressure" value="100" min="0.1" max="1500" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="lblDpNote">Transmitter full-scale &Delta;P</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flowInput" id="lblFlowInput">Target Flow Rate (GPM)</label>
+          <input type="number" id="flowInput" value="250" min="1" max="50000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;" disabled>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Used when sizing bore or &Delta;P</span>
+        </div>
+      </div>
+
+      <!-- Fluid Properties -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="fluidDensity">Fluid Density &rho; (lb/ft&sup3;)</label>
+          <input type="number" id="fluidDensity" value="62.3" min="0.01" max="150" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Water @ 68&deg;F = 62.3 lb/ft&sup3;</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="fluidViscosity">Dynamic Viscosity &mu; (cP)</label>
+          <input type="number" id="fluidViscosity" value="1.0" min="0.01" max="1000" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">For Reynolds number calculation</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Diameter Ratio (&beta;): <strong id="lblBetaHeader" style="color:var(--fg);">0.600</strong></div>
+          <div>Discharge Coeff (Cd): <strong id="lblCdHeader" style="color:var(--fg);">0.6035</strong></div>
+          <div>Permanent Loss (&Delta;P_perm): <strong id="lblPermLossHeader" style="color:var(--fg);">64.2 inH2O</strong></div>
+          <div>Standard: <strong style="color:var(--fg);">ISO 5167-2 / ASME MFC-3M</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN & DIAGRAM -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- RESULTS HERO CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;" id="lblHeroTitle">Calculated Flow Rate</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:var(--mono);color:var(--accent);line-height:1.1;" id="resHeroPrimary">--</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);margin-top:0.25rem;" id="resHeroSecondary">-- lb/hr mass flow</div>
+          </div>
+          <div style="text-align:right;">
+            <span id="badgeBetaStatus" style="display:inline-block;padding:0.4rem 0.85rem;border-radius:999px;font-size:0.8rem;font-weight:700;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid #10b981;">OPTIMAL &beta; (0.2-0.75)</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Discharge Coeff (Cd)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resCd">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Reader-Harris / Gallagher</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Permanent Unrecovered Loss</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resPermLoss">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resPermPct">--% of total &Delta;P lost</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Pipe Reynolds Number (ReD)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resReynolds">--</div>
+            <div style="font-size:0.75rem;" id="lblReynoldsStatus">Turbulent Flow (Re &gt; 5,000)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Upstream Straight Run</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resStraightRun">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resDownstreamRun">Downstream: -- (6D min)</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnCopyReport" style="width:100%;margin-top:1.5rem;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Orifice Flow Diagnostic Report</span>
+        </button>
+      </div>
+
+      <!-- DYNAMIC SVG DIAGRAM -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>Orifice Plate Vena Contracta &amp; Streamline Profile</span>
+          <span style="font-size:0.75rem;font-family:var(--mono);color:var(--text-muted);" id="svgStatusLabel">ISO 5167 Geometry</span>
+        </div>
+        <div id="orificeSvgContainer" style="width:100%;display:flex;justify-content:center;background:var(--bg);border-radius:8px;padding:0.5rem;overflow:hidden;">
+          <!-- SVG injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKED DERIVATION BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Step-by-Step ISO 5167 / ASME MFC-3M Mathematical Derivation
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">
+      Orifice plates operate on Bernoulli's principle of conservation of energy: fluid accelerates through the constricted orifice bore ($d$), converting static pressure head into dynamic kinetic energy, forming a minimum flow area downstream termed the <em>vena contracta</em>.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;font-size:0.9rem;line-height:1.6;">
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">1. Mass &amp; Volumetric Flow Formula</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          Qm = [Cd / &radic;(1 - &beta;^4)] &middot; &epsilon; &middot; (&pi;/4)d^2 &middot; &radic;(2&rho; &Delta;P)<br>
+          Qv = Qm / &rho;
+        </div>
+        Where $[1 / \sqrt{1 - \beta^4}]$ is the velocity of approach factor $E$.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Beta ratio $\\beta = d / D$: <span id="mathBeta" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Velocity approach $E$: <span id="mathApproach" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Current Flow: <span id="mathFlow" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">2. Reader-Harris / Gallagher Equation</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          Cd = 0.5961 + 0.0261&beta;^2 - 0.216&beta;^8<br>
+          + 0.000521(10^6 &beta; / ReD)^0.7 + Tap Terms
+        </div>
+        The empirical ISO 5167 formula accurately accounts for boundary layer shear and tap location.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Tap Type: <span id="mathTap" style="font-weight:600;color:var(--fg);">Flange Taps</span></li>
+          <li>Discharge Coeff $C_d$: <span id="mathCd" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Reynolds $Re_D$: <span id="mathReD" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">3. Permanent Pressure Loss &amp; Energy Waste</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          &Delta;P_perm = &Delta;P &middot; [(1 - &beta;^1.9) / (1 - 0.7&beta;^1.9)]<br>
+          Pumping Power Waste &prop; Q &middot; &Delta;P_perm
+        </div>
+        Due to abrupt expansion downstream of the vena contracta, intense turbulent shear dissipates pressure into heat.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Differential $\Delta P$: <span id="mathDp" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Loss Fraction: <span id="mathLossPct" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Unrecoverable Loss: <span id="mathPermLoss" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      5 Fatal Traps in Orifice Plate Flow Metering
+    </h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#ef4444;display:block;margin-bottom:0.35rem;font-size:1.05rem;">1. The Rounded / Nicked Leading Edge Disaster</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          ISO 5167 specifies an upstream orifice edge radius $r_k le 0.0004 d$ (effectively razor sharp, reflecting no visible light beam). If solids, abrasive slurry, or wire-brush cleaning round this leading edge by even 0.05 mm (0.002"), the discharge coefficient $C_d$ increases by 1% to 3%. Because the transmitter measures lower $Delta P$ for the same actual flow, the meter <strong>under-reads</strong> process volume, leading to massive unaccounted custody transfer loss.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#f59e0b;display:block;margin-bottom:0.35rem;font-size:1.05rem;">2. Operating Outside the Valid Beta Ratio Range ($0.20 le eta le 0.75$)</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Designing with $eta < 0.20$ generates extreme differential pressures, severe permanent head loss, and high risk of cavitation at the vena contracta. Conversely, specifying $eta > 0.75$ pushes the orifice edge into the pipe wall boundary layer; small pipe wall roughness variations cause erratic flow separation, destroying measurement repeatability. ISO 5167 explicitly states that empirical discharge coefficient uncertainty doubles or triples outside $0.20 le eta le 0.75$.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#10b981;display:block;margin-bottom:0.35rem;font-size:1.05rem;">3. Ignoring Permanent Pressure Loss in Pumping Energy Budgets</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Unlike Venturi tubes or flow nozzles (which recover 85% to 90% of differential pressure), concentric square-edged orifice plates permanently destroy 40% to 90% of $Delta P$ in turbulent recirculation vortices downstream of the plate. On a 100 inH2O transmitter across a 2,000 GPM pump line, a 65 inH2O permanent head loss equates to 3.5 kW of continuous electrical waste—costing over $3,500/year in parasitic energy that could justify a low-loss Venturi or magnetic meter.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#3b82f6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">4. Upstream Swirl Distortion from Insufficient Straight Pipe Runs</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Orifice plates require fully developed, axisymmetric turbulent velocity profiles. Two 90&deg; out-of-plane elbows or a partially throttled control valve upstream generate massive rotational swirl and velocity peaks. Swirl dramatically alters the angle of fluid approach to the orifice plate, skewing flow measurements by up to 10% to 15%. Always provide at least $28D$ to $44D$ of straight upstream pipe, or install an ISO 5167 compliant 19-tube bundle flow conditioner at $13D$ upstream.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#8b5cf6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">5. Wet Gas Damming &amp; Condensate Pooling</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When measuring steam or gas containing entrained liquid droplets in horizontal piping, liquid dam up against the upstream face of the orifice plate. This liquid pool distorts the circular conduit area and alters the effective beta ratio. In gas service, always specify a bottom drain hole (weep hole at 6 o'clock) flush with the pipe ID. Conversely, in liquid service with entrained gas, specify an air vent hole at 12 o'clock to prevent air entrapment.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var cMode = document.getElementById('calcMode');
+  var fType = document.getElementById('fluidType');
+  var tLoc = document.getElementById('tapLocation');
+  var pDia = document.getElementById('pipeDia');
+  var oDia = document.getElementById('orificeDia');
+  var dPress = document.getElementById('diffPressure');
+  var fInput = document.getElementById('flowInput');
+  var fDens = document.getElementById('fluidDensity');
+  var fVisc = document.getElementById('fluidViscosity');
+
+  var lblOrificeDia = document.getElementById('lblOrificeDia');
+  var lblOrificeNote = document.getElementById('lblOrificeNote');
+  var lblDiffPressure = document.getElementById('lblDiffPressure');
+  var lblDpNote = document.getElementById('lblDpNote');
+  var lblFlowInput = document.getElementById('lblFlowInput');
+
+  var lblBetaHeader = document.getElementById('lblBetaHeader');
+  var lblCdHeader = document.getElementById('lblCdHeader');
+  var lblPermLossHeader = document.getElementById('lblPermLossHeader');
+
+  var lblHeroTitle = document.getElementById('lblHeroTitle');
+  var resHeroPrimary = document.getElementById('resHeroPrimary');
+  var resHeroSecondary = document.getElementById('resHeroSecondary');
+  var badgeBetaStatus = document.getElementById('badgeBetaStatus');
+
+  var resCd = document.getElementById('resCd');
+  var resPermLoss = document.getElementById('resPermLoss');
+  var resPermPct = document.getElementById('resPermPct');
+  var resReynolds = document.getElementById('resReynolds');
+  var lblReynoldsStatus = document.getElementById('lblReynoldsStatus');
+  var resStraightRun = document.getElementById('resStraightRun');
+  var resDownstreamRun = document.getElementById('resDownstreamRun');
+
+  var mathBeta = document.getElementById('mathBeta');
+  var mathApproach = document.getElementById('mathApproach');
+  var mathFlow = document.getElementById('mathFlow');
+  var mathTap = document.getElementById('mathTap');
+  var mathCd = document.getElementById('mathCd');
+  var mathReD = document.getElementById('mathReD');
+  var mathDp = document.getElementById('mathDp');
+  var mathLossPct = document.getElementById('mathLossPct');
+  var mathPermLoss = document.getElementById('mathPermLoss');
+
+  var svgContainer = document.getElementById('orificeSvgContainer');
+  var btnCopy = document.getElementById('btnCopyReport');
+  var copyText = document.getElementById('copyBtnText');
+
+  function onModeChange() {
+    var mode = cMode.value;
+    if (mode === 'find_flow') {
+      oDia.disabled = false;
+      dPress.disabled = false;
+      fInput.disabled = true;
+      lblHeroTitle.textContent = 'Calculated Flow Rate';
+    } else if (mode === 'find_dp') {
+      oDia.disabled = false;
+      dPress.disabled = true;
+      fInput.disabled = false;
+      lblHeroTitle.textContent = 'Required Differential Pressure';
+    } else if (mode === 'find_bore') {
+      oDia.disabled = true;
+      dPress.disabled = false;
+      fInput.disabled = false;
+      lblHeroTitle.textContent = 'Required Orifice Bore Diameter';
+    }
+    calculate();
+  }
+
+  function onFluidChange() {
+    var fluid = fType.value;
+    if (fluid === 'water') {
+      fDens.value = '62.3';
+      fVisc.value = '1.0';
+    } else if (fluid === 'oil') {
+      fDens.value = '54.8';
+      fVisc.value = '25.0';
+    } else if (fluid === 'gas') {
+      fDens.value = '0.050';
+      fVisc.value = '0.012';
+    } else if (fluid === 'steam') {
+      fDens.value = '0.260';
+      fVisc.value = '0.016';
+    }
+    calculate();
+  }
+
+  function calculate() {
+    var mode = cMode.value;
+    var D = Math.max(0.5, parseFloat(pDia.value) || 4.026);
+    var rho = Math.max(0.001, parseFloat(fDens.value) || 62.3);
+    var mu = Math.max(0.001, parseFloat(fVisc.value) || 1.0);
+    var tap = tLoc.value;
+
+    var d = parseFloat(oDia.value) || (D * 0.6);
+    var dP = parseFloat(dPress.value) || 100;
+    var Q_gpm = parseFloat(fInput.value) || 250;
+
+    if (mode === 'find_bore') {
+      var targetGpm = Q_gpm;
+      d = D * 0.5;
+      for (var iter = 0; iter < 10; iter++) {
+        var betaTest = d / D;
+        var CdTest = 0.60;
+        var ETest = 1 / Math.sqrt(1 - Math.pow(betaTest, 4));
+        var SG = rho / 62.3;
+        var computedGpm = 5.666 * CdTest * ETest * Math.pow(d, 2) * Math.sqrt(dP / SG);
+        var ratio = targetGpm / (computedGpm || 1);
+        d = d * Math.sqrt(ratio);
+        if (d >= D * 0.9) d = D * 0.85;
+        if (d <= D * 0.1) d = D * 0.15;
+      }
+      oDia.value = d.toFixed(3);
+    }
+
+    var beta = d / D;
+    lblBetaHeader.textContent = beta.toFixed(3);
+    mathBeta.textContent = beta.toFixed(3) + ' (d=' + d.toFixed(3) + '", D=' + D.toFixed(3) + '")';
+
+    var E = 1 / Math.sqrt(1 - Math.pow(beta, 4));
+    mathApproach.textContent = E.toFixed(4);
+
+    var Cd = 0.5961 + 0.0261 * Math.pow(beta, 2) - 0.216 * Math.pow(beta, 8);
+    if (tap === 'flange') {
+      Cd += 0.0005 + 0.0188 * Math.pow(beta, 3.5);
+    } else if (tap === 'corner') {
+      Cd += 0.0;
+    } else if (tap === 'd_d2') {
+      Cd += 0.0433 * Math.pow(beta, 4);
+    }
+
+    var SG = rho / 62.3;
+
+    if (mode === 'find_flow') {
+      Q_gpm = 5.666 * Cd * E * Math.pow(d, 2) * Math.sqrt(dP / SG);
+    } else if (mode === 'find_dp') {
+      var denom = 5.666 * Cd * E * Math.pow(d, 2);
+      dP = SG * Math.pow(Q_gpm / (denom || 1), 2);
+      dPress.value = dP.toFixed(1);
+    }
+
+    var ReD = (3160 * Q_gpm * SG) / (D * mu);
+
+    var reTerm = 0.000521 * Math.pow((1000000 * beta) / Math.max(1000, ReD), 0.7);
+    Cd += reTerm;
+    lblCdHeader.textContent = Cd.toFixed(4);
+    resCd.textContent = Cd.toFixed(4);
+    mathCd.textContent = Cd.toFixed(4);
+
+    var massFlowLbHr = Q_gpm * 8.34 * SG * 60;
+
+    var lossFraction = (1 - Math.pow(beta, 1.9)) / (1 - 0.7 * Math.pow(beta, 1.9));
+    var permLossVal = dP * lossFraction;
+    lblPermLossHeader.textContent = permLossVal.toFixed(1) + ' inH2O';
+    resPermLoss.textContent = permLossVal.toFixed(1) + ' inH2O';
+    resPermPct.textContent = (lossFraction * 100).toFixed(1) + '% of ΔP lost permanently';
+
+    var upRunD = Math.round(10 + 34 * Math.pow(beta, 2));
+    var downRunD = 6;
+    resStraightRun.textContent = upRunD + 'D (' + (upRunD * D).toFixed(0) + '")';
+    resDownstreamRun.textContent = 'Downstream: ' + downRunD + 'D (' + (downRunD * D).toFixed(0) + '")';
+
+    if (mode === 'find_flow') {
+      resHeroPrimary.textContent = Math.round(Q_gpm) + ' GPM';
+      resHeroSecondary.textContent = Math.round(massFlowLbHr).toLocaleString() + ' lb/hr mass flow';
+    } else if (mode === 'find_dp') {
+      resHeroPrimary.textContent = dP.toFixed(1) + ' inH2O';
+      resHeroSecondary.textContent = (dP * 0.036127).toFixed(2) + ' PSI differential';
+    } else {
+      resHeroPrimary.textContent = d.toFixed(3) + ' in';
+      resHeroSecondary.textContent = (d * 25.4).toFixed(1) + ' mm metric bore';
+    }
+
+    if (beta >= 0.20 && beta <= 0.75) {
+      badgeBetaStatus.textContent = 'OPTIMAL β (' + beta.toFixed(2) + ')';
+      badgeBetaStatus.style.color = '#10b981';
+      badgeBetaStatus.style.borderColor = '#10b981';
+      badgeBetaStatus.style.background = 'rgba(16, 185, 129, 0.1)';
+    } else {
+      badgeBetaStatus.textContent = 'NON-COMPLIANT β (' + beta.toFixed(2) + ')';
+      badgeBetaStatus.style.color = '#ef4444';
+      badgeBetaStatus.style.borderColor = '#ef4444';
+      badgeBetaStatus.style.background = 'rgba(239, 68, 68, 0.1)';
+    }
+
+    resReynolds.textContent = formatRe(ReD);
+    if (ReD > 5000) {
+      lblReynoldsStatus.textContent = 'Fully Turbulent (ReD > 5,000)';
+      lblReynoldsStatus.style.color = '#10b981';
+    } else {
+      lblReynoldsStatus.textContent = 'Laminar / Transitional (Unstable Cd)';
+      lblReynoldsStatus.style.color = '#ef4444';
+    }
+
+    mathFlow.textContent = Math.round(Q_gpm) + ' GPM (' + Math.round(massFlowLbHr).toLocaleString() + ' lb/hr)';
+    mathTap.textContent = tLoc.options[tLoc.selectedIndex].text;
+    mathReD.textContent = formatRe(ReD);
+    mathDp.textContent = dP.toFixed(1) + ' inH2O';
+    mathLossPct.textContent = (lossFraction * 100).toFixed(1) + '%';
+    mathPermLoss.textContent = permLossVal.toFixed(1) + ' inH2O unrecoverable';
+
+    updateSvg(D, d, beta, dP, permLossVal, tap);
+  }
+
+  function formatRe(re) {
+    if (re >= 1000000) return (re / 1000000).toFixed(2) + 'M';
+    if (re >= 1000) return (re / 1000).toFixed(1) + 'k';
+    return Math.round(re).toString();
+  }
+
+  function updateSvg(D, d, beta, dP, permLossVal, tap) {
+    var svg = '';
+    svg += '<svg width="100%" height="220" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,-apple-system,sans-serif;">';
+    svg += '<defs>';
+    svg += '  <linearGradient id="streamGrad" x1="0%" y1="0%" x2="100%" y2="0%">';
+    svg += '    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"/>';
+    svg += '    <stop offset="48%" stop-color="#3b82f6" stop-opacity="0.6"/>';
+    svg += '    <stop offset="55%" stop-color="#06b6d4" stop-opacity="0.9"/>';
+    svg += '    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.3"/>';
+    svg += '  </linearGradient>';
+    svg += '  <marker id="flowArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#3b82f6"/>';
+    svg += '  </marker>';
+    svg += '</defs>';
+
+    var yTop = 50, yBot = 150;
+    var xPlate = 220;
+
+    svg += '<rect x="20" y="' + yTop + '" width="420" height="' + (yBot - yTop) + '" fill="var(--bg)"/>';
+
+    svg += '<rect x="20" y="38" width="420" height="12" fill="#475569"/>';
+    svg += '<rect x="20" y="150" width="420" height="12" fill="#475569"/>';
+
+    var halfBore = Math.max(10, Math.min(45, 50 * beta));
+    var yBoreTop = 100 - halfBore;
+    var yBoreBot = 100 + halfBore;
+
+    svg += '<rect x="' + (xPlate - 6) + '" y="30" width="12" height="' + (yBoreTop - 30) + '" fill="#94a3b8" stroke="#1e293b" stroke-width="1.5"/>';
+    svg += '<rect x="' + (xPlate - 6) + '" y="' + yBoreBot + '" width="12" height="' + (170 - yBoreBot) + '" fill="#94a3b8" stroke="#1e293b" stroke-width="1.5"/>';
+
+    svg += '<polygon points="' + (xPlate + 2) + ',' + yBoreTop + ' ' + (xPlate + 6) + ',' + (yBoreTop - 6) + ' ' + (xPlate + 6) + ',' + yBoreTop + '" fill="#64748b"/>';
+    svg += '<polygon points="' + (xPlate + 2) + ',' + yBoreBot + ' ' + (xPlate + 6) + ',' + (yBoreBot + 6) + ' ' + (xPlate + 6) + ',' + yBoreBot + '" fill="#64748b"/>';
+
+    var yVcTop = 100 - (halfBore * 0.85);
+    var yVcBot = 100 + (halfBore * 0.85);
+    var xVc = xPlate + 35;
+
+    var pathStream = 'M 20 60 Q 180 65 ' + (xPlate - 6) + ' ' + (yBoreTop + 2) + ' ' +
+      'Q ' + xVc + ' ' + yVcTop + ' ' + (xPlate + 100) + ' 75 ' +
+      'L 440 60 L 440 140 ' +
+      'L ' + (xPlate + 100) + ' 125 ' +
+      'Q ' + xVc + ' ' + yVcBot + ' ' + (xPlate - 6) + ' ' + (yBoreBot - 2) + ' ' +
+      'Q 180 135 20 140 Z';
+    svg += '<path d="' + pathStream + '" fill="url(#streamGrad)"/>';
+
+    svg += '<line x1="40" y1="100" x2="160" y2="100" stroke="#3b82f6" stroke-width="2" marker-end="url(#flowArrow)"/>';
+    svg += '<line x1="' + (xPlate + 50) + '" y1="100" x2="' + (xPlate + 160) + '" y2="100" stroke="#06b6d4" stroke-width="2" marker-end="url(#flowArrow)"/>';
+    svg += '<text x="90" y="93" font-size="10" font-weight="700" fill="#3b82f6">Approach Velocity</text>';
+    svg += '<text x="' + (xPlate + 65) + '" y="93" font-size="10" font-weight="700" fill="#06b6d4">Vena Contracta Jet</text>';
+
+    svg += '<path d="M ' + (xPlate + 15) + ' ' + (yBoreTop - 8) + ' Q ' + (xPlate + 45) + ' ' + (yTop + 5) + ' ' + (xPlate + 15) + ' ' + (yTop + 10) + '" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,2"/>';
+    svg += '<path d="M ' + (xPlate + 15) + ' ' + (yBoreBot + 8) + ' Q ' + (xPlate + 45) + ' ' + (yBot - 5) + ' ' + (xPlate + 15) + ' ' + (yBot - 10) + '" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,2"/>';
+    svg += '<text x="' + (xPlate + 25) + '" y="46" font-size="8" fill="#f59e0b">Eddy Zone</text>';
+
+    var xTap1 = xPlate - 25;
+    var xTap2 = xPlate + 25;
+    if (tap === 'corner') {
+      xTap1 = xPlate - 8;
+      xTap2 = xPlate + 8;
+    } else if (tap === 'd_d2') {
+      xTap1 = xPlate - 45;
+      xTap2 = xPlate + 22;
+    }
+
+    svg += '<line x1="' + xTap1 + '" y1="38" x2="' + xTap1 + '" y2="20" stroke="#ef4444" stroke-width="3"/>';
+    svg += '<circle cx="' + xTap1 + '" cy="16" r="4" fill="#ef4444"/>';
+    svg += '<text x="' + (xTap1 - 8) + '" y="12" font-size="10" font-weight="700" fill="#ef4444">P1 (High)</text>';
+
+    svg += '<line x1="' + xTap2 + '" y1="38" x2="' + xTap2 + '" y2="20" stroke="#3b82f6" stroke-width="3"/>';
+    svg += '<circle cx="' + xTap2 + '" cy="16" r="4" fill="#3b82f6"/>';
+    svg += '<text x="' + (xTap2 - 8) + '" y="12" font-size="10" font-weight="700" fill="#3b82f6">P2 (Low)</text>';
+
+    svg += '<text x="20" y="200" font-size="10" font-weight="600" fill="var(--text-muted)">Pipe ID D = ' + D.toFixed(2) + '"</text>';
+    svg += '<text x="170" y="200" font-size="10" font-weight="600" fill="var(--fg)">Bore d = ' + d.toFixed(2) + '" (&beta; = ' + beta.toFixed(2) + ')</text>';
+    svg += '<text x="310" y="200" font-size="10" font-weight="600" fill="#f59e0b">Unrecovered Loss: ' + permLossVal.toFixed(1) + ' inH2O</text>';
+
+    svg += '</svg>';
+
+    svgContainer.innerHTML = svg;
+  }
+
+  btnCopy.addEventListener('click', function() {
+    var tapName = tLoc.options[tLoc.selectedIndex].text;
+    var fluidName = fType.options[fType.selectedIndex].text;
+    var text = '=== ORIFICE PLATE FLOW & DP DIAGNOSTIC REPORT (ISO 5167) ===\n' +
+      'Mode: ' + cMode.options[cMode.selectedIndex].text + '\n' +
+      'Fluid: ' + fluidName + ' (Density: ' + fDens.value + ' lb/cu.ft, Visc: ' + fVisc.value + ' cP)\n' +
+      'Tap Geometry: ' + tapName + '\n' +
+      'Pipe Internal Diameter (D): ' + pDia.value + ' in\n' +
+      'Orifice Bore Diameter (d): ' + oDia.value + ' in\n' +
+      'Diameter Ratio (beta = d/D): ' + lblBetaHeader.textContent + ' (' + badgeBetaStatus.textContent + ')\n' +
+      '------------------------------------------------------------\n' +
+      'Discharge Coefficient (Cd): ' + resCd.textContent + ' (Reader-Harris/Gallagher)\n' +
+      'Differential Pressure (dP): ' + dPress.value + ' inH2O\n' +
+      'Calculated Flow Rate: ' + resHeroPrimary.textContent + ' (' + resHeroSecondary.textContent + ')\n' +
+      'Permanent Unrecoverable Loss: ' + resPermLoss.textContent + ' (' + resPermPct.textContent + ')\n' +
+      'Pipe Reynolds Number (ReD): ' + resReynolds.textContent + ' (' + lblReynoldsStatus.textContent + ')\n' +
+      'Recommended Straight Runs: Upstream ' + resStraightRun.textContent + ' | ' + resDownstreamRun.textContent + '\n' +
+      'Standard: ISO 5167-1/2:2003 & ASME MFC-3M\n' +
+      'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/orifice-plate-flow-calculator.html)';
+
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = copyText.textContent;
+      copyText.textContent = '✓ Copied Diagnostic Report to Clipboard!';
+      setTimeout(function() {
+        copyText.textContent = orig;
+      }, 2500);
+    }).catch(function() {
+      copyText.textContent = 'Clipboard access denied';
+    });
+  });
+
+  cMode.addEventListener('change', onModeChange);
+  fType.addEventListener('change', onFluidChange);
+  [tLoc, pDia, oDia, dPress, fInput, fDens, fVisc].forEach(function(el) {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  onModeChange();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'orifice-plate-flow-calculator.html'), renderTradePage({
+    title: "Orifice Plate Flow & Differential Pressure Calculator (ISO 5167) | Digital Tools Shed",
+    metaDesc: "Calculate flow rate, differential pressure, and orifice bore sizing per ISO 5167-2 and ASME MFC-3M: compute discharge coefficient Cd, beta ratio, permanent head loss, and piping runs.",
+    canonical: `${DOMAIN}/calc/orifice-plate-flow-calculator`,
+    bodyContent: orificePlateBody,
+    currentPath: '/calc/orifice-plate-flow-calculator',
+    faq: [
+      {
+        "q": "What is the difference between Flange Taps and Corner Taps?",
+        "a": "Flange taps are drilled exactly 1 inch upstream and 1 inch downstream from the respective faces of the orifice plate, standard in North America. Corner taps open directly at the upstream and downstream corners formed by the plate and pipe wall, common in Europe for small lines."
+      },
+      {
+        "q": "Why does permanent pressure loss occur across an orifice plate?",
+        "a": "When the fluid jet expands downstream of the vena contracta back to fill the pipe, abrupt deceleration causes severe turbulent recirculation vortices in the annular space behind the plate, converting pressure head irreversibly into heat."
+      },
+      {
+        "q": "What is the standard turndown ratio of an orifice flow meter?",
+        "a": "Because flow rate is proportional to the square root of differential pressure, standard DP transmitters offer only 3:1 to 4:1 turndown ratio before differential pressure drops below 5% to 6% of span where accuracy degrades."
+      },
+      {
+        "q": "Why is a 45-degree bevel required on the downstream side of the orifice plate?",
+        "a": "The downstream edge is beveled at 30 to 45 degrees so that the exiting fluid jet detaches cleanly from the upstream sharp edge without reattaching to the plate bore cylindrical wall."
+      },
+      {
+        "q": "How does fluid temperature and thermal expansion affect orifice plate accuracy?",
+        "a": "In high-temperature service, stainless steel orifice plates expand faster than carbon steel pipe, altering the beta ratio and flow area. Flow computers must apply continuous area thermal expansion factors to avoid 1% to 2.5% systematic drift."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EXHAUST STACK DRAFT & PLUME RISE CALCULATOR (EPA & BRIGGS)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const exhaustStackBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Exhaust Stack Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Exhaust Stack Draft &amp; Plume Rise Calculator (EPA &amp; Briggs)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate chimney natural thermal draft, flue gas exit velocity, Briggs buoyant plume rise, and aerodynamic downwash per EPA Method 2 and 40 CFR &sect; 51.100 (GEP Stack Height): size industrial stacks, combustion flues, and boiler exhausts for optimal buoyancy and dispersion.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Stack Physical Dimensions &amp; Flow
+      </h2>
+
+      <!-- Physical Geometry -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stackHeight">Stack Physical Height H (ft)</label>
+          <input type="number" id="stackHeight" value="80" min="5" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">From breeching inlet to stack tip</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stackDia">Stack Inner Diameter D (ft)</label>
+          <input type="number" id="stackDia" value="3.5" min="0.5" max="30" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Internal flue diameter (42 inches)</span>
+        </div>
+      </div>
+
+      <!-- Flow Rate & Temperature -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flueFlowAcfm">Actual Gas Flow (ACFM)</label>
+          <input type="number" id="flueFlowAcfm" value="22500" min="100" max="2000000" step="500" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Actual cubic feet per minute at Ts</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stackTempF">Flue Gas Temp Ts (&deg;F)</label>
+          <input type="number" id="stackTempF" value="380" min="60" max="2000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Typical natural gas / fuel oil boiler</span>
+        </div>
+      </div>
+
+      <!-- Ambient Conditions & Wind -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ambientTempF">Ambient Air Temp Ta (&deg;F)</label>
+          <input type="number" id="ambientTempF" value="68" min="-40" max="130" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Local atmospheric temperature</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="windSpeedMph">Ambient Wind Speed (mph)</label>
+          <input type="number" id="windSpeedMph" value="12" min="1" max="80" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Design wind at stack height</span>
+        </div>
+      </div>
+
+      <!-- Pressure & Specific Gravity -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="baroPressure">Barometric Pressure (inHg)</label>
+          <input type="number" id="baroPressure" value="29.92" min="20" max="32" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Sea level standard = 29.92 inHg</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gasSpecGrav">Flue Gas Spec. Gravity (SG)</label>
+          <input type="number" id="gasSpecGrav" value="1.04" min="0.80" max="1.50" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Air = 1.00 (Flue gas ~ 1.02 - 1.06)</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Exit Velocity (Vs): <strong id="lblVsHeader" style="color:var(--fg);">38.9 ft/s</strong></div>
+          <div>Buoyancy Flux (Fb): <strong id="lblFbHeader" style="color:var(--fg);">142 m&sup4;/s&sup3;</strong></div>
+          <div>Exit Momentum Ratio: <strong id="lblMomentumHeader" style="color:var(--fg);">2.21</strong></div>
+          <div>Standard: <strong style="color:var(--fg);">EPA Method 2 &amp; Briggs</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN & DIAGRAM -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- RESULTS HERO CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Theoretical Thermal Draft (&Delta;P_draft)</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:var(--mono);color:var(--accent);line-height:1.1;" id="resDraftInH2O">--</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);margin-top:0.25rem;" id="resDraftMetric">-- Pa natural suction</div>
+          </div>
+          <div style="text-align:right;">
+            <span id="badgeDownwashStatus" style="display:inline-block;padding:0.4rem 0.85rem;border-radius:999px;font-size:0.8rem;font-weight:700;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid #10b981;">NO DOWNWASH (Vs &gt; 1.5 U)</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Briggs Plume Rise (&Delta;h)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resPlumeRise">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resPlumeRiseM">-- meters rise</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Effective Stack Height (Heff)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resHeff">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resHeffBreakdown">H (80') + &Delta;h (--)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Stack Exit Velocity (Vs)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resExitVelocity">--</div>
+            <div style="font-size:0.75rem;" id="lblVelocityRange">Optimum: 30 - 60 ft/s</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Velocity Ratio (Vs / Uwind)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resVelocityRatio">--</div>
+            <div style="font-size:0.75rem;" id="lblRatioStatus">Safe from tip downwash (&gt; 1.50)</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnCopyReport" style="width:100%;margin-top:1.5rem;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Exhaust Stack Diagnostic Report</span>
+        </button>
+      </div>
+
+      <!-- DYNAMIC SVG DIAGRAM -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>Stack Elevation &amp; Briggs Buoyant Plume Dispersion</span>
+          <span style="font-size:0.75rem;font-family:var(--mono);color:var(--text-muted);" id="svgStatusLabel">EPA ISC3 / AERMOD Model</span>
+        </div>
+        <div id="stackSvgContainer" style="width:100%;display:flex;justify-content:center;background:var(--bg);border-radius:8px;padding:0.5rem;overflow:hidden;">
+          <!-- SVG injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKED DERIVATION BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Step-by-Step Thermal Draft &amp; Dispersion Derivation
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">
+      Chimney draft functions because hot combustion gases are less dense than the cooler surrounding ambient air column. The hydrostatic pressure difference creates continuous natural suction at the base of the flue.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;font-size:0.9rem;line-height:1.6;">
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">1. Theoretical Thermal Draft (&Delta;P_draft)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          &Delta;P = 0.03413 &middot; Patm &middot; H &middot; [1/Ta - SG/Ts]
+        </div>
+        Where absolute temperatures are in Rankine ($^circ	ext{R} = ^circ	ext{F} + 459.67$).
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Ambient $T_a$: <span id="mathTa" style="font-weight:600;color:var(--fg);">527.7 &deg;R (68&deg;F)</span></li>
+          <li>Flue Gas $T_s$: <span id="mathTs" style="font-weight:600;color:var(--fg);">839.7 &deg;R (380&deg;F)</span></li>
+          <li>Draft: <span id="mathDraft" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">2. Exit Velocity &amp; Downwash Ratio</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          Vs = Q_acfm / [( &pi;/4 ) &middot; D^2 &middot; 60]<br>
+          Downwash Criterion: Vs / Uwind &ge; 1.50
+        </div>
+        Preventing low-pressure wake detachment at the stack lip requires momentum-dominated ejection.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Stack Area: <span id="mathArea" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Exit Velocity $V_s$: <span id="mathVs" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Velocity Ratio $V_s / U$: <span id="mathRatio" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">3. Briggs Buoyant Plume Rise (&Delta;h)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          Fb = g &middot; Vs &middot; (D/2)^2 &middot; [(Ts - Ta)/Ts]<br>
+          &Delta;h = 1.60 &middot; Fb^(1/3) &middot; xf^(2/3) / Uwind
+        </div>
+        Thermal buoyancy carries emissions high into the troposphere before level dispersal.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Buoyancy Flux $F_b$: <span id="mathFb" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Plume Rise $Delta h$: <span id="mathRise" style="font-weight:600;color:var(--fg);">--</span></li>
+          <li>Effective $H_{eff}$: <span id="mathHeff" style="font-weight:600;color:var(--fg);">--</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      5 Fatal Traps in Exhaust Stack &amp; Chimney Design
+    </h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#ef4444;display:block;margin-bottom:0.35rem;font-size:1.05rem;">1. Stack-Tip Downwash Trapping ($V_s &lt; 1.5 U_{wind}$)</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When crosswinds blow across a stack with insufficient exit velocity ($V_s &lt; 1.5 U_{wind}$), a strong low-pressure separation zone forms immediately leeward of the stack rim. The exhaust plume is sucked down into the stack's own turbulent wake, bringing hot toxic gases directly down the exterior of the stack shell and onto building roof decks. Always size the stack nozzle diameter to guarantee $V_s ge 30	ext{ ft/s}$ and $V_s / U_{wind} ge 1.50$ at 95th percentile wind speed.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#f59e0b;display:block;margin-bottom:0.35rem;font-size:1.05rem;">2. The Acid Dew Point Condensation Abyss</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Flue gas from combustion contains sulfur dioxide ($	ext{SO}_2$), trioxide ($	ext{SO}_3$), and water vapor. If stack interior wall temperatures drop below the sulfuric acid dew point ($260^circ	ext{F}$ to $300^circ	ext{F}$ depending on sulfur content), concentrated liquid sulfuric acid condenses onto metal surfaces. Acidic condensation dissolves carbon steel liners and destroys stainless steel through pitting corrosion in under 12 months. Insulate stacks or maintain exit temperatures safely above $320^circ	ext{F}$ unless condensing-grade polymer/hastelloy materials are specified.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#10b981;display:block;margin-bottom:0.35rem;font-size:1.05rem;">3. Building Wake Cavitation &amp; GEP Height Deficit</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Under EPA 40 CFR &sect; 51.100, Good Engineering Practice (GEP) stack height is defined as $H_g = H_b + 1.5 L$, where $H_b$ is the height of adjacent buildings and $L$ is the lesser of height or projected building width. Terminating a stack below GEP allows building-induced recirculating eddies to draw the entire exhaust plume into HVAC fresh air intakes and neighboring windows, triggering indoor air quality emergencies and severe regulatory fines.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#3b82f6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">4. Summer Draft Inversion / Flue Backdrafting</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Thermal draft depends entirely on the temperature differential $(1/T_a - SG/T_s)$. During hot summer days ($T_a approx 95^circ	ext{F}$ to $105^circ	ext{F}$) when equipment is operating at minimum modulation or standby, flue gas buoyancy approaches zero. If building HVAC fans create negative mechanical room pressure, the thermal draft inverts completely. Ambient air rushes <em>down</em> the chimney, blowing carbon monoxide, soot, and toxic fumes into boiler rooms and basements.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#8b5cf6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">5. Breeching Friction Drag Overcoming Natural Draft</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Theoretical draft assumes static buoyancy without flow friction. In practice, long horizontal breechings, sharp 90&deg; duct elbows, draft hoods, and barometric dampers consume 0.2 to 0.6 inH2O in turbulent pressure drop. If total duct friction loss exceeds natural thermal draft $Delta P_{draft}$, the combustion chamber switches from negative draft to positive pressure, forcing combustion products through burner seals and sight-glass gaskets.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var sHeight = document.getElementById('stackHeight');
+  var sDia = document.getElementById('stackDia');
+  var fFlow = document.getElementById('flueFlowAcfm');
+  var sTemp = document.getElementById('stackTempF');
+  var aTemp = document.getElementById('ambientTempF');
+  var wSpeed = document.getElementById('windSpeedMph');
+  var bPress = document.getElementById('baroPressure');
+  var gSG = document.getElementById('gasSpecGrav');
+
+  var lblVsHeader = document.getElementById('lblVsHeader');
+  var lblFbHeader = document.getElementById('lblFbHeader');
+  var lblMomentumHeader = document.getElementById('lblMomentumHeader');
+
+  var resDraftInH2O = document.getElementById('resDraftInH2O');
+  var resDraftMetric = document.getElementById('resDraftMetric');
+  var badgeDownwashStatus = document.getElementById('badgeDownwashStatus');
+
+  var resPlumeRise = document.getElementById('resPlumeRise');
+  var resPlumeRiseM = document.getElementById('resPlumeRiseM');
+  var resHeff = document.getElementById('resHeff');
+  var resHeffBreakdown = document.getElementById('resHeffBreakdown');
+  var resExitVelocity = document.getElementById('resExitVelocity');
+  var lblVelocityRange = document.getElementById('lblVelocityRange');
+  var resVelocityRatio = document.getElementById('resVelocityRatio');
+  var lblRatioStatus = document.getElementById('lblRatioStatus');
+
+  var mathTa = document.getElementById('mathTa');
+  var mathTs = document.getElementById('mathTs');
+  var mathDraft = document.getElementById('mathDraft');
+  var mathArea = document.getElementById('mathArea');
+  var mathVs = document.getElementById('mathVs');
+  var mathRatio = document.getElementById('mathRatio');
+  var mathFb = document.getElementById('mathFb');
+  var mathRise = document.getElementById('mathRise');
+  var mathHeff = document.getElementById('mathHeff');
+
+  var svgContainer = document.getElementById('stackSvgContainer');
+  var btnCopy = document.getElementById('btnCopyReport');
+  var copyText = document.getElementById('copyBtnText');
+
+  function calculate() {
+    var H = Math.max(5, parseFloat(sHeight.value) || 80);
+    var D = Math.max(0.5, parseFloat(sDia.value) || 3.5);
+    var Q_acfm = Math.max(100, parseFloat(fFlow.value) || 22500);
+    var Ts_F = parseFloat(sTemp.value) || 380;
+    var Ta_F = parseFloat(aTemp.value) || 68;
+    var U_mph = Math.max(1, parseFloat(wSpeed.value) || 12);
+    var P_inHg = Math.max(20, parseFloat(bPress.value) || 29.92);
+    var SG = Math.max(0.8, parseFloat(gSG.value) || 1.04);
+
+    var Ts_R = Ts_F + 459.67;
+    var Ta_R = Ta_F + 459.67;
+    mathTa.textContent = Ta_R.toFixed(1) + ' °R (' + Ta_F + '°F)';
+    mathTs.textContent = Ts_R.toFixed(1) + ' °R (' + Ts_F + '°F)';
+
+    var P_atm = P_inHg * 0.491154;
+
+    var deltaP_draft = 0.03413 * P_atm * H * ((1 / Ta_R) - (SG / Ts_R));
+    deltaP_draft = Math.max(0, deltaP_draft);
+    var draftPa = deltaP_draft * 249.0889;
+
+    resDraftInH2O.textContent = deltaP_draft.toFixed(3) + ' inH2O';
+    resDraftMetric.textContent = draftPa.toFixed(1) + ' Pa static thermal draft';
+    mathDraft.textContent = deltaP_draft.toFixed(3) + ' inH2O (' + draftPa.toFixed(1) + ' Pa)';
+
+    var stackArea = (Math.PI / 4) * Math.pow(D, 2);
+    var Vs_fps = Q_acfm / (stackArea * 60);
+    var Vs_mps = Vs_fps * 0.3048;
+    lblVsHeader.textContent = Vs_fps.toFixed(1) + ' ft/s';
+    resExitVelocity.textContent = Vs_fps.toFixed(1) + ' ft/s';
+    mathArea.textContent = stackArea.toFixed(2) + ' sq.ft (D=' + D.toFixed(1) + '')';
+    mathVs.textContent = Vs_fps.toFixed(1) + ' ft/s (' + Vs_mps.toFixed(1) + ' m/s)';
+
+    if (Vs_fps >= 30 && Vs_fps <= 60) {
+      lblVelocityRange.textContent = 'Ideal Velocity (30 - 60 ft/s)';
+      lblVelocityRange.style.color = '#10b981';
+    } else if (Vs_fps < 30) {
+      lblVelocityRange.textContent = 'Low Velocity (<30 ft/s - Downwash Risk)';
+      lblVelocityRange.style.color = '#ef4444';
+    } else {
+      lblVelocityRange.textContent = 'High Velocity (>60 ft/s - High Backpressure)';
+      lblVelocityRange.style.color = '#f59e0b';
+    }
+
+    var U_fps = U_mph * 1.46667;
+    var U_mps = U_mph * 0.44704;
+
+    var velRatio = Vs_fps / U_fps;
+    lblMomentumHeader.textContent = velRatio.toFixed(2);
+    resVelocityRatio.textContent = velRatio.toFixed(2);
+    mathRatio.textContent = velRatio.toFixed(2) + ' (Vs=' + Vs_fps.toFixed(1) + ' / U=' + U_fps.toFixed(1) + ')';
+
+    if (velRatio >= 1.50) {
+      badgeDownwashStatus.textContent = 'NO DOWNWASH (Vs > 1.5 U)';
+      badgeDownwashStatus.style.color = '#10b981';
+      badgeDownwashStatus.style.borderColor = '#10b981';
+      badgeDownwashStatus.style.background = 'rgba(16, 185, 129, 0.1)';
+      lblRatioStatus.textContent = 'Safe from tip downwash (≥ 1.50)';
+      lblRatioStatus.style.color = '#10b981';
+    } else {
+      badgeDownwashStatus.textContent = 'DOWNWASH RISK (Vs < 1.5 U)';
+      badgeDownwashStatus.style.color = '#ef4444';
+      badgeDownwashStatus.style.borderColor = '#ef4444';
+      badgeDownwashStatus.style.background = 'rgba(239, 68, 68, 0.1)';
+      lblRatioStatus.textContent = 'Severe tip downwash risk (< 1.50)';
+      lblRatioStatus.style.color = '#ef4444';
+    }
+
+    var D_m = D * 0.3048;
+    var g = 9.80665;
+    var Ts_K = (Ts_F - 32) * (5 / 9) + 273.15;
+    var Ta_K = (Ta_F - 32) * (5 / 9) + 273.15;
+    var Fb = g * Vs_mps * Math.pow(D_m / 2, 2) * Math.max(0, (Ts_K - Ta_K) / Ts_K);
+    lblFbHeader.textContent = Fb.toFixed(1) + ' m⁴/s³';
+    mathFb.textContent = Fb.toFixed(1) + ' m⁴/s³';
+
+    var xf_m = 0;
+    if (Fb < 55) {
+      xf_m = 49 * Math.pow(Fb, 5 / 8);
+    } else {
+      xf_m = 119 * Math.pow(Fb, 2 / 5);
+    }
+    var deltaH_m = (1.60 * Math.pow(Fb, 1 / 3) * Math.pow(xf_m, 2 / 3)) / Math.max(1, U_mps);
+    var deltaH_ft = deltaH_m * 3.28084;
+    var Heff_ft = H + deltaH_ft;
+
+    resPlumeRise.textContent = deltaH_ft.toFixed(1) + ' ft';
+    resPlumeRiseM.textContent = deltaH_m.toFixed(1) + ' meters plume rise';
+    resHeff.textContent = Heff_ft.toFixed(1) + ' ft';
+    resHeffBreakdown.textContent = 'Physical H (' + H + '') + Δh (' + deltaH_ft.toFixed(1) + '')';
+    mathRise.textContent = deltaH_ft.toFixed(1) + ' ft (' + deltaH_m.toFixed(1) + ' m)';
+    mathHeff.textContent = Heff_ft.toFixed(1) + ' ft (' + (Heff_ft * 0.3048).toFixed(1) + ' m)';
+
+    updateSvg(H, D, Vs_fps, U_mph, deltaH_ft, Heff_ft, velRatio);
+  }
+
+  function updateSvg(H, D, Vs_fps, U_mph, deltaH_ft, Heff_ft, velRatio) {
+    var svg = '';
+    svg += '<svg width="100%" height="220" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,-apple-system,sans-serif;">';
+    svg += '<defs>';
+    svg += '  <linearGradient id="plumeGrad" x1="0%" y1="100%" x2="100%" y2="0%">';
+    svg += '    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>';
+    svg += '    <stop offset="30%" stop-color="#f59e0b" stop-opacity="0.6"/>';
+    svg += '    <stop offset="70%" stop-color="#3b82f6" stop-opacity="0.35"/>';
+    svg += '    <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.1"/>';
+    svg += '  </linearGradient>';
+    svg += '  <marker id="windArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#3b82f6"/>';
+    svg += '  </marker>';
+    svg += '  <marker id="exitArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#ef4444"/>';
+    svg += '  </marker>';
+    svg += '</defs>';
+
+    var yGround = 190;
+    svg += '<line x1="20" y1="' + yGround + '" x2="440" y2="' + yGround + '" stroke="#64748b" stroke-width="2"/>';
+    svg += '<rect x="20" y="' + yGround + '" width="420" height="25" fill="#334155" fill-opacity="0.15"/>';
+
+    var stackPixelHeight = Math.max(50, Math.min(110, (H / 150) * 100));
+    var yStackTop = yGround - stackPixelHeight;
+    var stackW = Math.max(14, Math.min(28, D * 5));
+    var xStackLeft = 80 - (stackW / 2);
+
+    svg += '<rect x="25" y="' + (yGround - 35) + '" width="45" height="35" fill="#475569" stroke="#1e293b"/>';
+    svg += '<text x="47" y="' + (yGround - 15) + '" font-size="7" fill="#f8fafc" text-anchor="middle" font-weight="700">BOILER</text>';
+
+    svg += '<rect x="68" y="' + (yGround - 25) + '" width="14" height="12" fill="#64748b"/>';
+
+    svg += '<rect x="' + xStackLeft + '" y="' + yStackTop + '" width="' + stackW + '" height="' + stackPixelHeight + '" fill="#94a3b8" stroke="#1e293b" stroke-width="1.5"/>';
+    svg += '<ellipse cx="80" cy="' + yStackTop + '" rx="' + (stackW / 2) + '" ry="3" fill="#cbd5e1" stroke="#1e293b"/>';
+
+    svg += '<line x1="80" y1="' + yStackTop + '" x2="80" y2="' + (yStackTop - 25) + '" stroke="#ef4444" stroke-width="2.5" marker-end="url(#exitArrow)"/>';
+    svg += '<text x="92" y="' + (yStackTop - 12) + '" font-size="9" fill="#ef4444" font-weight="700">Vs = ' + Vs_fps.toFixed(1) + ' fps</text>';
+
+    svg += '<line x1="20" y1="' + (yStackTop - 10) + '" x2="60" y2="' + (yStackTop - 10) + '" stroke="#3b82f6" stroke-width="2" marker-end="url(#windArrow)"/>';
+    svg += '<text x="25" y="' + (yStackTop - 16) + '" font-size="8" fill="#3b82f6" font-weight="700">Wind U = ' + U_mph + ' mph</text>';
+
+    var plumeRisePixels = Math.max(20, Math.min(65, (deltaH_ft / 100) * 50));
+    var yPlumePeak = Math.max(25, yStackTop - plumeRisePixels);
+
+    var isDownwash = (velRatio < 1.50);
+
+    if (isDownwash) {
+      var downPath = 'M 80 ' + yStackTop + ' ' +
+        'Q 120 ' + (yStackTop + 15) + ' 200 ' + (yStackTop + 5) + ' ' +
+        'Q 320 ' + yStackTop + ' 440 ' + (yGround - 15) + ' ' +
+        'L 440 ' + (yGround - 5) + ' ' +
+        'Q 300 ' + (yGround - 5) + ' 120 ' + (yStackTop + 35) + ' Z';
+      svg += '<path d="' + downPath + '" fill="#ef4444" fill-opacity="0.35" stroke="#ef4444" stroke-dasharray="2,2"/>';
+      svg += '<text x="140" y="' + (yStackTop + 25) + '" font-size="9" fill="#ef4444" font-weight="700">TIP DOWNWASH DETACHMENT</text>';
+    } else {
+      var plumePath = 'M 80 ' + yStackTop + ' ' +
+        'Q 130 ' + (yStackTop - 15) + ' 220 ' + yPlumePeak + ' ' +
+        'Q 330 ' + (yPlumePeak - 5) + ' 440 ' + yPlumePeak + ' ' +
+        'L 440 ' + (yPlumePeak + 45) + ' ' +
+        'Q 320 ' + (yPlumePeak + 40) + ' 200 ' + (yPlumePeak + 25) + ' ' +
+        'Q 120 ' + (yStackTop + 5) + ' 80 ' + yStackTop + ' Z';
+      svg += '<path d="' + plumePath + '" fill="url(#plumeGrad)"/>';
+    }
+
+    svg += '<line x1="80" y1="' + yPlumePeak + '" x2="440" y2="' + yPlumePeak + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,3"/>';
+    svg += '<text x="310" y="' + (yPlumePeak - 6) + '" font-size="9" font-weight="700" fill="#10b981">Effective Heff = ' + Heff_ft.toFixed(0) + ' ft</text>';
+
+    svg += '<line x1="72" y1="' + yGround + '" x2="72" y2="' + yStackTop + '" stroke="#64748b" stroke-width="1"/>';
+    svg += '<text x="68" y="' + (yGround - (stackPixelHeight / 2)) + '" font-size="9" fill="var(--text-muted)" text-anchor="end" font-weight="600">H=' + H + ''</text>';
+
+    svg += '<g transform="translate(300, 140)">';
+    svg += '  <rect width="135" height="42" rx="4" fill="var(--surface)" stroke="var(--border)"/>';
+    svg += '  <text x="8" y="16" font-size="9" font-weight="700" fill="var(--fg)">BRIGGS PLUME &Delta;h</text>';
+    svg += '  <text x="8" y="32" font-size="11" font-weight="700" font-family="var(--mono)" fill="var(--accent)">+' + deltaH_ft.toFixed(1) + ' ft rise</text>';
+    svg += '</g>';
+
+    svg += '</svg>';
+
+    svgContainer.innerHTML = svg;
+  }
+
+  btnCopy.addEventListener('click', function() {
+    var text = '=== EXHAUST STACK & PLUME DISPERSION REPORT (EPA/BRIGGS) ===\n' +
+      'Physical Stack Height (H): ' + sHeight.value + ' ft | Inner Dia (D): ' + sDia.value + ' ft\n' +
+      'Flue Gas Flow: ' + fFlow.value + ' ACFM @ ' + sTemp.value + ' deg F (Ta = ' + aTemp.value + ' deg F)\n' +
+      'Ambient Wind Speed: ' + wSpeed.value + ' mph | Barometric: ' + bPress.value + ' inHg\n' +
+      '------------------------------------------------------------\n' +
+      'Theoretical Thermal Draft: ' + resDraftInH2O.textContent + ' (' + resDraftMetric.textContent + ')\n' +
+      'Stack Exit Velocity (Vs): ' + resExitVelocity.textContent + ' (' + lblVelocityRange.textContent + ')\n' +
+      'Velocity Ratio (Vs / Uwind): ' + resVelocityRatio.textContent + ' (' + badgeDownwashStatus.textContent + ')\n' +
+      'Buoyancy Flux Parameter (Fb): ' + lblFbHeader.textContent + '\n' +
+      'Briggs Plume Rise (Delta h): ' + resPlumeRise.textContent + ' (' + resPlumeRiseM.textContent + ')\n' +
+      'Effective Stack Height (Heff): ' + resHeff.textContent + '\n' +
+      'Standards: EPA Method 2 & Briggs Dispersion / 40 CFR 51.100\n' +
+      'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/exhaust-stack-draft-calculator.html)';
+
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = copyText.textContent;
+      copyText.textContent = '✓ Copied Diagnostic Report to Clipboard!';
+      setTimeout(function() {
+        copyText.textContent = orig;
+      }, 2500);
+    }).catch(function() {
+      copyText.textContent = 'Clipboard access denied';
+    });
+  });
+
+  [sHeight, sDia, fFlow, sTemp, aTemp, wSpeed, bPress, gSG].forEach(function(el) {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'exhaust-stack-draft-calculator.html'), renderTradePage({
+    title: "Exhaust Stack Draft & Plume Rise Calculator (EPA & Briggs) | Digital Tools Shed",
+    metaDesc: "Calculate chimney thermal draft, flue gas exit velocity, Briggs buoyant plume rise, and aerodynamic downwash per EPA Method 2 and 40 CFR 51.100 GEP stack height.",
+    canonical: `${DOMAIN}/calc/exhaust-stack-draft-calculator`,
+    bodyContent: exhaustStackBody,
+    currentPath: '/calc/exhaust-stack-draft-calculator',
+    faq: [
+      {
+        "q": "What is the optimal exhaust stack exit velocity (Vs)?",
+        "a": "Standard design exit velocity is 30 to 60 ft/s (9 to 18 m/s). Lower speeds cause aerodynamic downwash under crosswinds, while higher speeds cause excess fan backpressure and acoustic roar."
+      },
+      {
+        "q": "How does Briggs buoyant plume rise (Delta h) benefit air dispersion?",
+        "a": "Briggs plume rise accounts for the additional vertical trajectory achieved by thermal buoyancy, increasing effective stack height Heff. Maximum ground level pollutant concentrations decrease with the square of effective height."
+      },
+      {
+        "q": "What is the difference between Natural Draft and Induced / Forced Draft?",
+        "a": "Natural draft relies solely on the stack buoyancy effect without fans. Forced draft pushes air upstream of combustion under positive pressure, while induced draft uses high-temp exhaust fans downstream to maintain safe negative draft."
+      },
+      {
+        "q": "Why are rain caps forbidden on high-velocity industrial exhaust stacks?",
+        "a": "Conical rain caps deflect exit velocity horizontally or downward, destroying vertical momentum and thermal plume rise. Modern stacks use straight vertical discharges with internal drain gutters."
+      },
+      {
+        "q": "What is GEP Stack Height per EPA 40 CFR 51.100?",
+        "a": "Good Engineering Practice stack height is the minimum physical height to prevent emissions from being caught in building downwash or eddies. The EPA GEP formula is Hg = Hb + 1.5 L, where Hb is building height and L is the lesser dimension."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (39 calculators in /calc/)');
 }
 
