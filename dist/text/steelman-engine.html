@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this The Steelman & Counter-Argument Engine free to use?",
+      "name": "What is steelmanning and how does it differ from strawmanning?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this The Steelman & Counter-Argument Engine on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Steelmanning is the practice of constructing the strongest, most intelligent version of an opponent's stance before critiquing it. In contrast, strawmanning involves exaggerating, misrepresenting, or oversimplifying an argument into a weak caricature that is effortless to knock down."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What is the Ideological Turing Test in intellectual discourse?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Proposed by economist Bryan Caplan, the Ideological Turing Test states that an analyst does not truly understand an opposing position unless they can articulate it so accurately and persuasively that an actual adherent would believe the analyst agrees with them."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this The Steelman & Counter-Argument Engine work on mobile devices?",
+      "name": "What is a falsifiability crux and why does it matter in rational debate?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "A falsifiability crux is a specific empirical observation or statistical threshold that, if discovered, would prove a hypothesis wrong. Without a falsifiability crux, an assertion is merely a dogma or unfalsifiable belief rather than an empirical hypothesis."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do de-biased search queries bypass algorithmic echo chambers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Modern search engines employ personalization algorithms that reward confirmation bias. Formulating queries that include neutral academic keywords ('meta-analysis', 'longitudinal cohort', 'empirical base rates') and explicitly search for counter-evidence forces the algorithm to retrieve peer-reviewed literature rather than tribal commentary."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can steelmanning improve real-world business decisions and negotiations?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Steelmanning uncovers hidden blindspots, operational risks, and competitor advantages that wishful thinking obscures. In negotiations, showing your counterpart that you understand their incentives better than they do establishes immediate credibility and reveals collaborative solution spaces."
       }
     }
   ]
@@ -1034,30 +1050,37 @@
 
     <div class="article-container" style="max-width: 950px;">
       <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-        <a href="/">Home</a> &gt; <a href="/text/">Writing Tools</a> &gt; Steelman & Counter-Argument Engine
+        <a href="/">Home</a> &gt; <a href="/text/">Writing Tools</a> &gt; Steelman &amp; Counter-Argument Engine
       </nav>
 
       <header style="margin-bottom: 2rem;">
         <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Anti-Echo Chamber Technology</div>
-        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Steelman & Counter-Argument Engine</h1>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Steelman &amp; Counter-Argument Engine</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          Steelmanning is the practice of formulating the strongest, most intelligent version of an opponent's argument before attempting to refute it.
+          Steelmanning is the intellectual discipline of formulating the strongest, most compelling version of an opponent's argument before attempting to evaluate it. Break confirmation bias with empirical falsification tests and de-biased research queries.
         </p>
       </header>
 
       <div class="steel-card">
-        <label style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Enter Any Claim, Opinion, or Conviction</label>
-        <textarea id="claimInput" class="code-input" style="height: 100px; resize: vertical; margin-bottom: 1rem;" placeholder="e.g. AI models will completely eliminate junior software engineering jobs within 3 years..."></textarea>
+        <label style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Enter Any Claim, Opinion, or Stance</label>
+        <textarea id="claimInput" class="code-input" style="width: 100%; height: 100px; resize: vertical; margin-bottom: 0.5rem; padding: 0.75rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" placeholder="e.g. Generative AI will eliminate junior software engineering headcount within 3 years..."></textarea>
+
+        <div id="claimError" style="display: none; color: #ef4444; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.75rem;">
+          ⚠️ Please enter a claim or select one of the curated presets below.
+        </div>
 
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center;">
           <span style="font-size: 0.75rem; font-family: var(--mono); color: var(--text-muted);">Try Presets:</span>
-          <button class="pill-btn" onclick="setClaim('ai-jobs')">🤖 AI Engineering</button>
-          <button class="pill-btn" onclick="setClaim('remote-work')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Remote Work</button>
-          <button class="pill-btn" onclick="setClaim('higher-ed')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M22 10l-10-5L2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Higher Education</button>
-          <button class="pill-btn" onclick="setClaim('social-media')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Social Media</button>
+          <button class="pill-btn" onclick="setClaim('ai-jobs')">🤖 AI Engineering Headcount</button>
+          <button class="pill-btn" onclick="setClaim('remote-work')">🏠 Remote Work Productivity</button>
+          <button class="pill-btn" onclick="setClaim('higher-ed')">🎓 Higher Education ROI</button>
+          <button class="pill-btn" onclick="setClaim('social-media')">📱 Algorithmic Social Media</button>
+          <button class="pill-btn" onclick="setClaim('nuclear-energy')">⚛️ Nuclear Energy Grid</button>
         </div>
 
-        <button onclick="generateSteelman()" class="btn-primary" style="padding: 0.65rem 1.5rem; font-family: var(--mono); font-size: 0.9rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate Steelman & Counter-Evidence</button>
+        <button onclick="generateSteelman()" class="btn-primary" style="padding: 0.65rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer;">
+          ⚡ Generate Steelman &amp; Counter-Evidence
+        </button>
       </div>
 
       <div id="steelmanOutput" style="display: none;">
@@ -1070,18 +1093,68 @@
 
         <!-- THE FALSIFIABILITY CRUX -->
         <div class="steel-card" style="border-left: 4px solid #3b82f6;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold;">2. The Falsifiability Crux (What Would Prove You Wrong?)</div>
-          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.35rem 0 0.75rem;">If you cannot define what empirical observation would change your mind, your conviction is a dogma, not an analytical claim.</p>
+          <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold;">2. The Falsifiability Crux (What Empirical Metric Proves It False?)</div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.35rem 0 0.75rem;">If an analyst cannot define what empirical observation would change their mind, their conviction is a dogma, not an analytical claim.</p>
           <div id="outCrux" class="crux-box"></div>
         </div>
 
         <!-- UNBIASED SEARCH PROMPTS -->
         <div class="steel-card" style="border-left: 4px solid #f59e0b;">
           <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold;">3. De-Biased Search Queries (Break Confirmation Bias)</div>
-          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.35rem 0 0.75rem;">Copy these queries to search academic journals, meta-analyses, and empirical datasets without triggering search engine echo chambers:</p>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.35rem 0 0.75rem;">Copy these queries to search academic repositories and empirical datasets without triggering search engine personalization bubbles:</p>
           <div id="outQueries" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
         </div>
 
+        <!-- COMPLETE DOSSIER COPY BUTTON -->
+        <button id="btnCopyDossier" onclick="copyCompleteDossier()" class="btn-primary" style="width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; margin-bottom: 2rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Complete Steelman Dossier
+        </button>
+
+      </div>
+
+      <!-- 5 FATAL TRAPS & COGNITIVE PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Traps &amp; Intellectual Blindspots in Debate</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Steelmanning requires genuine intellectual rigor. Avoid these 5 common distortions:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The Weak-Man &amp; Hollow Steelman Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Feigning generosity by defending a minor, slightly improved version of an opposing stance while still sidestepping the true apex counter-arguments formulated by domain experts.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. Ideological Turing Test Failure</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Believing you understand an opponent's worldview when you cannot explain their stance well enough that an adherent would mistake your summary for their own. If opponents say "that is not what we believe", your steelman has failed.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Motivated Search Query Formulation</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Crafting search queries that embed your predetermined conclusion (e.g. searching "why remote work damages company culture" instead of "longitudinal remote work productivity meta-analysis").
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. The Sunk-Cost Conviction Anchor</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Refusing to internalize a valid steelman because conceding error would invalidate years of public statements, career alignment, or social status.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. Asymmetric Falsifiability Standards</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Demanding rigid mathematical proof from the opposition while keeping your own thesis ambiguous, moving, and unfalsifiable.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1091,68 +1164,215 @@
           claim: 'Generative AI and coding LLMs will completely eliminate entry-level software engineering jobs within 3 years.',
           steelman: 'Historically, software tooling abstraction (compilers, high-level languages, cloud IaaS) lowered the cost of software production, drastically increasing overall demand for software and expanding engineering headcount (Jevons Paradox). LLMs shift junior engineers from syntax-writers to system-integrators and test-verifiers rather than zeroing headcount.',
           crux: 'Measure whether global job postings for software engineers decline by >40% over 24 consecutive months while software deployment volume simultaneously increases.',
-          queries: ['Jevons paradox software engineering economic empirical study', 'software developer employment census bureau trends 2023 2026', 'LLM software productivity developer headcount meta analysis']
+          queries: ['Jevons paradox software engineering economic empirical study', 'software developer employment census bureau trends longitudinal', 'LLM software productivity developer headcount meta analysis']
         },
         'remote-work': {
           claim: 'Remote work permanently damages team cohesion, innovation, and long-term company productivity.',
           steelman: 'Remote work eliminates geographic hiring constraints, allowing companies to recruit top 0.1% talent worldwide while reducing commercial real estate overhead and boosting individual contributor deep-work focus hours.',
           crux: 'Compare patent filings, code commit velocity, and revenue per employee in fully remote vs in-office tech companies over a 5-year longitudinal cohort.',
-          queries: ['Stanford Nicholas Bloom remote work productivity empirical study', 'asynchronous communication patent generation remote vs collocated teams']
+          queries: ['Stanford Nicholas Bloom remote work productivity empirical study', 'asynchronous communication patent generation remote vs collocated teams', 'hybrid work employee retention randomized trial']
         },
         'higher-ed': {
           claim: 'Four-year college university degrees are completely obsolete and a financial waste.',
           steelman: 'A 4-year degree remains the most scalable social proof signaling mechanism for conscientiousness, long-term project completion, and access to institutional alumni capital networks that are unobtainable via self-study.',
-          crux: 'Track lifetime median net earnings and default rates of non-college credential holders vs college graduates across 10-year cohorts.',
-          queries: ['college wage premium Federal Reserve longitudinal study', 'credential signaling theory Bryan Caplan empirical review']
+          crux: 'Track lifetime median net earnings and default rates of non-college credential holders vs college graduates across 10-year cohorts controlling for baseline IQ.',
+          queries: ['college wage premium Federal Reserve longitudinal study', 'credential signaling theory Bryan Caplan empirical review', 'higher education return on investment longitudinal census']
         },
         'social-media': {
           claim: 'Algorithmic social media platforms are a catastrophic net-negative for human society and psychological well-being.',
-          steelman: 'Algorithmic feeds decentralized information distribution, dismantled corporate media monopolies, enabled instant global scientific collaboration, and lowered the cost of finding niche educational subcultures to near zero.',
-          crux: 'Randomized controlled trials deactivating social media for 4+ weeks measuring longitudinal depression biomarkers and cognitive focus scores.',
-          queries: ['Allcott Gentzkow social media deactivation randomized controlled trial', 'digital media psychological well-being Nature human behaviour meta-analysis']
+          steelman: 'Algorithmic feeds decentralized information distribution, dismantled corporate media gatekeeping, enabled instant global scientific collaboration, and lowered the cost of finding niche educational subcultures to near zero.',
+          crux: 'Randomized controlled trials deactivating social media for 4+ weeks measuring longitudinal depression biomarkers and cognitive focus scores across demographic cohorts.',
+          queries: ['Allcott Gentzkow social media deactivation randomized controlled trial', 'digital media psychological well-being Nature human behaviour meta-analysis', 'algorithmic recommender systems serendipity vs polarization empirical']
+        },
+        'nuclear-energy': {
+          claim: 'Nuclear energy is too expensive, slow to build, and inherently dangerous compared to 100% renewable wind and solar.',
+          steelman: 'Nuclear provides high-energy-density, zero-carbon baseload power with the lowest land footprint per megawatt-hour and lowest lifecycle deaths per TWh of any energy source, eliminating the grid instability and immense battery mineral extraction required for 100% intermittent renewables.',
+          crux: 'Compare levelized system cost of electricity (LCOE + storage/transmission) for 80%+ renewable grids vs nuclear-supplemented grids over 40-year lifecycle accounting.',
+          queries: ['IPCC nuclear energy lifecycle greenhouse gas emissions analysis', 'Our World in Data death rates per unit of electricity produced by energy source', 'system levelized cost of electricity grid firming intermittent renewables']
         }
       };
+
+      var currentDossier = null;
 
       function setClaim(key) {
         if (PRESETS[key]) {
           document.getElementById('claimInput').value = PRESETS[key].claim;
+          document.getElementById('claimError').style.display = 'none';
           generateSteelman(PRESETS[key]);
         }
       }
 
       function generateSteelman(customData) {
         var text = document.getElementById('claimInput').value.trim();
-        if (!text) { alert('Please enter a claim first.'); return; }
+        var errEl = document.getElementById('claimError');
+        if (!text) {
+          errEl.style.display = 'block';
+          return;
+        }
+        errEl.style.display = 'none';
 
         var data = customData;
         if (!data) {
           data = {
-            steelman: 'The inverse thesis posits that systemic constraints, counter-vailing economic incentives, and unintended second-order effects often balance extreme projections. A rigorous analyst must examine the historical base rates and institutional friction of similar historical transitions.',
-            crux: 'Identify a measurable, verifiable data point that would force you to concede a >30% probability shift.',
+            claim: text,
+            steelman: 'The inverse thesis posits that systemic constraints, counter-vailing economic incentives, and unintended second-order effects frequently balance extreme projections. A rigorous analyst must examine historical base rates and institutional friction in comparable historical transitions.',
+            crux: 'Identify a measurable, verifiable data metric that would force you to concede a >30% probability shift.',
             queries: [
-              'empirical counter evidence ' + text.slice(0, 30),
-              'systematic review meta-analysis ' + text.slice(0, 30),
-              'base rate fallacy historical precedent ' + text.slice(0, 30)
+              'empirical counter evidence ' + text.slice(0, 35),
+              'systematic review meta-analysis ' + text.slice(0, 35),
+              'base rate fallacy historical precedent ' + text.slice(0, 35)
             ]
           };
         }
 
+        currentDossier = data;
         document.getElementById('outSteelman').textContent = data.steelman;
         document.getElementById('outCrux').innerHTML = '<strong>Empirical Falsification Test:</strong> ' + data.crux;
         
         var qHtml = '';
         for (var i = 0; i < data.queries.length; i++) {
+          var qText = data.queries[i].replace(/"/g, '&quot;');
           qHtml += '<div style="display: flex; gap: 0.5rem; align-items: center; background: var(--surface-alt); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border); font-family: var(--mono); font-size: 0.85rem;">' +
-            '<span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + data.queries[i] + '</span>' +
-            '<button onclick="navigator.clipboard.writeText(\'' + data.queries[i].replace(/'/g, "\\'") + '\'); alert(\'Copied query!\');" class="btn-sec" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Copy</button>' +
+            '<span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + qText + '</span>' +
+            '<button id="btnQuery' + i + '" onclick="copyQueryText(' + i + ', '' + data.queries[i].replace(/'/g, "\'") + '')" class="btn-sec" style="padding: 0.2rem 0.6rem; font-size: 0.75rem; cursor: pointer;">Copy</button>' +
           '</div>';
         }
         document.getElementById('outQueries').innerHTML = qHtml;
-
         document.getElementById('steelmanOutput').style.display = 'block';
+      }
+
+      function copyQueryText(idx, query) {
+        navigator.clipboard.writeText(query).then(function() {
+          var btn = document.getElementById('btnQuery' + idx);
+          if (btn) {
+            var orig = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = orig;
+              btn.style.color = '';
+            }, 1800);
+          }
+        });
+      }
+
+      function copyCompleteDossier() {
+        if (!currentDossier) return;
+        var d = currentDossier;
+        var text = 
+          'STEELMAN & COUNTER-ARGUMENT DOSSIER
+' +
+          '========================================
+' +
+          '• ORIGINAL CLAIM: ' + d.claim + '
+
+' +
+          '• 1. THE STEELMAN THESIS:
+' + d.steelman + '
+
+' +
+          '• 2. EMPIRICAL FALSIFIABILITY CRUX:
+' + d.crux + '
+
+' +
+          '• 3. DE-BIASED SEARCH QUERIES:
+' +
+          d.queries.map(function(q) { return '  - ' + q; }).join('
+') + '
+' +
+          '========================================
+' +
+          'Generated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopyDossier');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Complete Steelman Dossier!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
       }
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is steelmanning and how does it differ from strawmanning?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Steelmanning is the practice of constructing the strongest, most intelligent version of an opponent's stance before critiquing it. In contrast, strawmanning involves exaggerating, misrepresenting, or oversimplifying an argument into a weak caricature that is effortless to knock down.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the Ideological Turing Test in intellectual discourse?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Proposed by economist Bryan Caplan, the Ideological Turing Test states that an analyst does not truly understand an opposing position unless they can articulate it so accurately and persuasively that an actual adherent would believe the analyst agrees with them.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is a falsifiability crux and why does it matter in rational debate?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                A falsifiability crux is a specific empirical observation or statistical threshold that, if discovered, would prove a hypothesis wrong. Without a falsifiability crux, an assertion is merely a dogma or unfalsifiable belief rather than an empirical hypothesis.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do de-biased search queries bypass algorithmic echo chambers?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Modern search engines employ personalization algorithms that reward confirmation bias. Formulating queries that include neutral academic keywords ('meta-analysis', 'longitudinal cohort', 'empirical base rates') and explicitly search for counter-evidence forces the algorithm to retrieve peer-reviewed literature rather than tribal commentary.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How can steelmanning improve real-world business decisions and negotiations?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Steelmanning uncovers hidden blindspots, operational risks, and competitor advantages that wishful thinking obscures. In negotiations, showing your counterpart that you understand their incentives better than they do establishes immediate credibility and reveals collaborative solution spaces.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
