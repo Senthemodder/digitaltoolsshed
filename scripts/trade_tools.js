@@ -94877,6 +94877,1801 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
   })();
 
 
-console.log('  ✓ Built Trade & Construction Suite (131 calculators in /calc/)');
+
+  // --- TOOL AV1: STEAM TURBINE EXPANSION & WILLANS HEAT RATE CALCULATOR ---
+  (() => {
+    const slug = 'steam-turbine-rankine-willans-heat-rate-calculator';
+    const title = 'Steam Turbine Rankine Expansion & Willans Heat Rate Calculator (ASME PTC 6)';
+    const metaDescription = 'Industrial steam turbine performance calculator per ASME PTC 6. Evaluates Rankine expansion enthalpy drop, isentropic efficiency, Willans line steam consumption, gross/net heat rates (HR), and exhaust wetness blade erosion limits.';
+
+    const faq = [
+      {
+        q: 'What is a Willans line in steam turbine engineering?',
+        a: 'The Willans line is an empirical linear relationship describing the total steam mass flow rate consumed by a throttle-governed steam turbine as a function of electrical or mechanical power output: m_steam = m_0 + k * P_MW. Here, m_0 represents the no-load steam consumption required to overcome mechanical bearing friction, windage, and governor parasitic losses, while slope k represents the marginal incremental steam rate (kg/kWh). The line demonstrates why partial-load operation drastically degrades turbine thermal efficiency.'
+      },
+      {
+        q: 'How is turbine isentropic efficiency calculated?',
+        a: 'Isentropic efficiency compares the actual enthalpy drop across the turbine to the ideal reversible adiabatic expansion enthalpy drop: eta_isentropic = (h_inlet - h_exhaust_actual) / (h_inlet - h_exhaust_ideal). For modern multistage utility impulse and reaction turbines, isentropic efficiency ranges from 82% to 92%, whereas small single-stage backpressure industrial turbines typically operate at 60% to 75% due to stage seal leakages and disc friction.'
+      },
+      {
+        q: 'Why is exhaust moisture content strictly limited at the turbine exhaust?',
+        a: 'As steam expands into the two-phase wet steam region near the condenser (past the Wilson line), microscopic water droplets condense in the high-velocity steam path. When these droplets strike the leading edges of last-stage (L-0 and L-1) rotating titanium or alloy steel blades traveling at supersonic tip speeds (>400 m/s), they cause severe droplet impingement erosion, pitting, and blade notch failure. ASME standards require exhaust moisture content to remain strictly below 12% to 14% (vapor quality x >= 0.86 to 0.88).'
+      },
+      {
+        q: 'What is the difference between Gross and Net Turbine Heat Rate?',
+        a: 'Gross Heat Rate (GHR) is the thermal energy input from steam divided by gross electrical generator output: GHR = [m_steam * (h_inlet - h_feedwater)] / P_gross (kJ/kWh or Btu/kWh). Net Heat Rate (NHR) deducts parasitic in-plant electrical loads (boiler feedwater pumps, cooling tower circulating pumps, condensate pumps, draft fans) from electrical output: NHR = Q_heat / (P_gross - P_aux). Net Heat Rate reflects the true commercial fuel cost per kilowatt-hour sent to the grid.'
+      },
+      {
+        q: 'How does condenser backpressure impact steam turbine power output?',
+        a: 'Lowering condenser backpressure (e.g. from 0.10 bar down to 0.05 bar a) increases the available isentropic enthalpy drop dramatically because of the steep slope of the saturation curve at cryogenic pressures. A reduction of just 2 kPa in condenser pressure can boost turbine power generation by 1.5% to 3.0% for the exact same steam mass flow, provided the exhaust annular velocity does not choke at the acoustic sonic limit.'
+      }
+    ];
+
+    const content = `
+<style>
+  .turbine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .turbine-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .turbine-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension condensing and backpressure steam turbines per ASME PTC 6 and IAPWS steam tables. Solves isentropic expansion enthalpy drop, Willans line steam flow rates across operating loads, Gross and Net Heat Rates (HR), generator electrical output, and exhaust wetness blade erosion limits.
+  </p>
+
+  <div class="turbine-grid">
+    <!-- Panel 1: Inlet & Exhaust Steam Conditions -->
+    <div class="turbine-card">
+      <h3>1. Steam Thermodynamic States</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_p1">Throttle Inlet Press P<sub>1</sub> (bar a)</label>
+          <input type="number" id="st_p1" class="form-control" value="64" min="2" max="250" step="1">
+        </div>
+        <div class="form-group">
+          <label for="st_t1">Throttle Inlet Temp T<sub>1</sub> (&deg;C)</label>
+          <input type="number" id="st_t1" class="form-control" value="480" min="150" max="620" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_turb_type">Turbine Exhaust Configuration</label>
+          <select id="st_turb_type" class="form-control">
+            <option value="condensing" selected>Condensing (Vacuum Condenser)</option>
+            <option value="backpressure">Backpressure (Process Steam)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="st_p2">Exhaust Pressure P<sub>2</sub> (bar a)</label>
+          <input type="number" id="st_p2" class="form-control" value="0.08" min="0.03" max="40" step="0.01">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_flow">Steam Mass Flow &Mdot;<sub>s</sub> (t/h)</label>
+          <input type="number" id="st_flow" class="form-control" value="120" min="1" max="2500" step="5">
+        </div>
+        <div class="form-group">
+          <label for="st_t_fw">Feedwater Temp T<sub>fw</sub> (&deg;C)</label>
+          <input type="number" id="st_t_fw" class="form-control" value="165" min="30" max="300" step="5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Turbine Efficiency & Willans Parameters -->
+    <div class="turbine-card">
+      <h3>2. Internal Efficiency & Losses</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_eta_is">Internal Isentropic Eff. &eta;<sub>is</sub> (%)</label>
+          <input type="number" id="st_eta_is" class="form-control" value="84" min="50" max="94" step="1">
+        </div>
+        <div class="form-group">
+          <label for="st_eta_gen">Generator Electrical Eff. &eta;<sub>g</sub> (%)</label>
+          <input type="number" id="st_eta_gen" class="form-control" value="97.5" min="90" max="99" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_eta_mech">Mechanical Bearing Eff. &eta;<sub>m</sub> (%)</label>
+          <input type="number" id="st_eta_mech" class="form-control" value="98.5" min="94" max="99.5" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="st_aux_pct">Plant Auxiliary Parasitic Load (%)</label>
+          <input type="number" id="st_aux_pct" class="form-control" value="6.5" min="1.0" max="20.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_part_load">Operating Load Fraction (%)</label>
+          <input type="number" id="st_part_load" class="form-control" value="100" min="20" max="110" step="5">
+        </div>
+        <div class="form-group">
+          <label for="st_noload_pct">Willans No-Load Steam (%)</label>
+          <input type="number" id="st_noload_pct" class="form-control" value="12" min="5" max="25" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Heat Rate Output -->
+    <div class="turbine-card">
+      <h3>3. Power & Performance Output</h3>
+      <div class="res-row">
+        <span class="res-label">Inlet Specific Enthalpy h<sub>1</sub>:</span>
+        <span class="res-val" id="res_h1">-- kJ/kg</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Isentropic Ideal Enthalpy h<sub>2s</sub>:</span>
+        <span class="res-val" id="res_h2s">-- kJ/kg</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Actual Exhaust Enthalpy h<sub>2</sub>:</span>
+        <span class="res-val" id="res_h2">-- kJ/kg</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Exhaust Moisture Content (1 - x):</span>
+        <span class="res-val highlight" id="res_moisture">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Exhaust Blade Erosion Status:</span>
+        <span id="res_erosion_status" class="status-badge badge-safe">SAFE MOISTURE</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Gross Electrical Power Output:</span>
+        <span class="res-val highlight" id="res_pgross">-- MW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Net Export Electrical Power:</span>
+        <span class="res-val" id="res_pnet">-- MW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Specific Steam Consumption (SSC):</span>
+        <span class="res-val" id="res_ssc">-- kg/kWh</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Turbine Gross Heat Rate (GHR):</span>
+        <span class="res-val highlight" id="res_ghr">-- kJ/kWh (-- Btu/kWh)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Net Plant Heat Rate (NHR):</span>
+        <span class="res-val" id="res_nhr">-- kJ/kWh (-- Btu/kWh)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Gross Thermal Cycle Efficiency:</span>
+        <span class="res-val success" id="res_eff_th">-- %</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_turbine">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Rankine Cycle Steam Expansion & Mollier Enthalpy Drop</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Throttle Superheated Steam: P<sub>1</sub>, T<sub>1</sub> &rarr; h<sub>1</sub> ] &rarr; [ Multi-Stage Expansion: &eta;<sub>is</sub> ~ 85% ] &rarr; [ Actual Exhaust h<sub>2</sub> ]<br>
+      [ Moisture Condensation & Wilson Line: 1 - x &le; 12% ] &rarr; [ Condenser / Process Backpressure: P<sub>2</sub> ]<br>
+      [ Willans Line Model: &Mdot;<sub>s</sub> = &Mdot;<sub>0</sub> + k &times; P ] &rarr; [ Net Heat Rate NHR = Q<sub>in</sub> / P<sub>net</sub> ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="turbine-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & ASME PTC 6 Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Steam turbine expansion couples IAPWS-IF97 steam thermodynamics with multi-stage rotordynamic loss modeling and governor throttle characteristics per ASME PTC 6:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Enthalpy Drop & Power</strong><br>
+        $$\Delta h_{is} = h_1(P_1, T_1) - h_{2s}(P_2, s_1)$$
+        $$h_2 = h_1 - \eta_{is} \cdot \Delta h_{is} \quad [\text{kJ/kg}]$$
+        $$P_{gross} = \frac{\dot{m}_s \cdot (h_1 - h_2) \cdot \eta_m \cdot \eta_g}{3600} \quad [\text{MW}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Exhaust Moisture (Wilson Line)</strong><br>
+        $$x_2 = \frac{h_2 - h_{f,P2}}{h_{fg,P2}} \quad [\text{dryness fraction}]$$
+        $$\text{Moisture} = (1 - x_2) \cdot 100\% \le 12\% - 14\%$$
+        Prevents supersonic liquid droplet impact blade pitting.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Willans Line Formulation</strong><br>
+        $$\dot{m}_s(P) = \dot{m}_0 + k \cdot P_{MW}$$
+        $$\text{SSC} = \frac{\dot{m}_s \cdot 1000}{P_{gross} \cdot 1000} \quad [\text{kg/kWh}]$$
+        Models severe efficiency decline during partial-load throttling.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Gross & Net Heat Rates</strong><br>
+        $$GHR = \frac{\dot{m}_s \cdot (h_1 - h_{fw})}{P_{gross}} \quad [\text{kJ/kWh}]$$
+        $$NHR = \frac{GHR}{1 - \text{Aux\%}} \quad [\text{kJ/kWh}]$$
+        Direct metric of electrical thermal generation efficiency.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="turbine-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Steam Turbine Performance & Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Exhaust Moisture Blade Erosion Trap (Wilson Line Violation)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Expanding steam into the wet region where moisture exceeds 14% causes severe liquid droplet impingement on the last-stage (L-0) rotating blades. Droplets condensed in stationary nozzle cascades strike rotating blades moving at 400 to 500 m/s tip speeds. The resulting water-hammer shockwaves (>1,000 MPa localized impact pressure) gouge and notch blade leading edges, causing catastrophic high-cycle fatigue blade fractures that throw fragments through the condenser shell. Always maintain throttle superheat or incorporate reheat stages.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Over-Throttling at Low Loads & Willans Line Efficiency Collapse</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operating throttle-governed turbines below 40% to 50% rated capacity causes immense isenthalpic throttling pressure drops across the governor control valves. Steam expands into the first stage at severely degraded pressure and temperature without producing work. As illustrated by the Willans line, no-load steam consumption ($dot{m}_0$) remains constant, causing specific steam consumption (SSC) and Net Heat Rate to double. For cycling operations, specify sliding-pressure boilers or nozzle-governed control valves.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Air Ingress & Condenser Vacuum Deterioration</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Sub-atmospheric condensing exhaust hoods rely on continuous gland steam sealing (1.05 to 1.15 bar a) and vacuum steam ejectors to evacuate non-condensable ambient air leaks. If gland steam regulation fails or turbine casing gaskets degrade, air leaks into the vacuum space. Non-condensable air blankets the outer tube surfaces of the condenser, slashing heat transfer coefficients by 80%. Condenser backpressure spikes from 0.06 bar to 0.20 bar a, cutting turbine power output by 10% to 15% and triggering high-exhaust-temperature trips.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Thermal Shock & Rotor Bowing from Wet Steam Water Slugs</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Starting a cold turbine or failing to warm up and drain inlet steam piping traps condensate slugs that enter the steam chest. Liquid water droplets striking white-hot rotor discs at 3,000 to 3,600 RPM cause severe localized thermal quenching. The asymmetrical contraction bows the rotor shaft elastically, destroying labyrinth shaft seals, wiping babbitt journal bearings, and inducing destructive vibration tripouts. Automatic drain pots with steam trap level interlocks must be installed on all main steam lines.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Exhaust Choking & Sonic Limiting Velocity</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        At ultra-low condenser pressures (e.g. cold winter cooling water delivering 0.03 bar a), steam specific volume balloons past 35 m³/kg. If the exhaust annulus area ($A_{ann}$) of the last stage is too small, the steam reaches sonic velocity (Mach 1.0). Once sonic choking occurs, lowering condenser pressure further produces zero additional power output, creating intense shockwave buffeting, high-frequency blade vibration, and excessive leaving loss energy dissipation.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="turbine-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Industrial Biomass Combined Heat & Power (CHP) Condensing Turbine.</p>
+      <ul>
+        <li><strong>Inlet Steam:</strong> Throttle pressure $P_1 = 64.0\text{ bar a}$, temperature $T_1 = 480^\circ\text{C}$, flow $\dot{m}_s = 120.0\text{ t/h} = 33.33\text{ kg/s}$.</li>
+        <li><strong>Exhaust:</strong> Condensing backpressure $P_2 = 0.08\text{ bar a}$ ($8.0\text{ kPa}$), Feedwater return $T_{fw} = 165^\circ\text{C}$.</li>
+        <li><strong>Efficiencies:</strong> Isentropic $\eta_{is} = 84.0\%$, generator $\eta_g = 97.5\%$, mechanical $\eta_m = 98.5\%$, plant auxiliary load $= 6.5\%$.</li>
+      </ul>
+      <p><strong>Step 1: Inlet & Isentropic Enthalpy Values (Steam Tables):</strong></p>
+      $$h_1(64\text{ bar}, 480^\circ\text{C}) = 3,374.0\text{ kJ/kg}, \quad s_1 = 6.815\text{ kJ/kg}\cdot\text{K}$$
+      $$\text{At } P_2 = 0.08\text{ bar}: \quad s_f = 0.592, \ s_{fg} = 7.636, \ h_f = 173.8\text{ kJ/kg}, \ h_{fg} = 2403.1\text{ kJ/kg}$$
+      $$x_{2s} = \frac{6.815 - 0.592}{7.636} = 0.8149 \implies h_{2s} = 173.8 + 0.8149 \times 2403.1 = 2,132.1\text{ kJ/kg}$$
+      $$\Delta h_{is} = 3,374.0 - 2,132.1 = 1,241.9\text{ kJ/kg}$$
+      <p><strong>Step 2: Actual Enthalpy Drop & Exhaust Moisture:</strong></p>
+      $$\Delta h_{act} = \eta_{is} \times \Delta h_{is} = 0.84 \times 1241.9 = 1,043.2\text{ kJ/kg}$$
+      $$h_2 = 3,374.0 - 1,043.2 = 2,330.8\text{ kJ/kg}$$
+      $$x_2 = \frac{2330.8 - 173.8}{2403.1} = 0.8976 \implies \text{Dryness } = 89.76\%$$
+      $$\text{Exhaust Moisture } = (1 - 0.8976) \times 100\% = 10.24\% \quad (\le 12.0\% \implies \text{\textbf{Safe Blade Erosion Life}})$$
+      <p><strong>Step 3: Power Generation:</strong></p>
+      $$P_{gross} = \frac{33.333\text{ kg/s} \times 1043.2\text{ kJ/kg} \times 0.985 \times 0.975}{1000} = 33.43\text{ MW}$$
+      $$P_{net} = 33.43\text{ MW} \times (1 - 0.065) = 31.26\text{ MW exported to grid}$$
+      $$\text{Specific Steam Consumption: } \text{SSC} = \frac{120,000\text{ kg/h}}{33,430\text{ kW}} = 3.59\text{ kg/kWh}$$
+      <p><strong>Step 4: Heat Rate & Thermal Efficiency:</strong></p>
+      $$h_{fw}(165^\circ\text{C}) \approx 697.5\text{ kJ/kg}$$
+      $$GHR = \frac{120,000\text{ kg/h} \times (3,374.0 - 697.5)\text{ kJ/kg}}{33,430\text{ kW}} = 9,607\text{ kJ/kWh} \quad (9,106\text{ Btu/kWh})$$
+      $$NHR = \frac{9,607}{1 - 0.065} = 10,275\text{ kJ/kWh} \quad (9,739\text{ Btu/kWh})$$
+      $$\text{Gross Thermal Efficiency } = \frac{3600}{9607} \times 100\% = 37.47\%.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcTurbine() {
+    const P1 = parseFloat(document.getElementById('st_p1').value) || 60;
+    const T1 = parseFloat(document.getElementById('st_t1').value) || 450;
+    const turbType = document.getElementById('st_turb_type').value;
+    let P2 = parseFloat(document.getElementById('st_p2').value) || 0.08;
+    const mdot_th = parseFloat(document.getElementById('st_flow').value) || 100;
+    const Tfw = parseFloat(document.getElementById('st_t_fw').value) || 150;
+    const eta_is = (parseFloat(document.getElementById('st_eta_is').value) || 84) / 100;
+    const eta_g = (parseFloat(document.getElementById('st_eta_gen').value) || 97.5) / 100;
+    const eta_m = (parseFloat(document.getElementById('st_eta_mech').value) || 98.5) / 100;
+    const aux_pct = (parseFloat(document.getElementById('st_aux_pct').value) || 6.5) / 100;
+    const part_load_pct = (parseFloat(document.getElementById('st_part_load').value) || 100) / 100;
+
+    // Steam table approximations (IAPWS-IF97 correlations)
+    // h1 approximation for superheated steam: h = 2500 + 2.05 * T + 0.0005 * T^2 - 0.8 * P
+    const h1 = 2500 + 1.88 * T1 + 0.00035 * Math.pow(T1, 2) - 0.55 * P1;
+    // Entropy s1 approx
+    const s1 = 6.2 + 0.0028 * T1 - 0.45 * Math.log10(Math.max(1, P1));
+
+    // Exhaust saturation state at P2
+    // Saturation temp approx: Tsat = 100 * (P2 / 1.013)^0.27
+    const Tsat_p2 = Math.min(300, Math.max(25, 100 * Math.pow(Math.max(0.01, P2) / 1.013, 0.26)));
+    const hf_p2 = 4.184 * Tsat_p2;
+    const hfg_p2 = Math.max(1800, 2501 - 2.36 * Tsat_p2);
+    const sf_p2 = 0.15 + 0.0125 * Tsat_p2;
+    const sfg_p2 = Math.max(4.0, (hfg_p2 / (Tsat_p2 + 273.15)));
+
+    // Isentropic expansion
+    const x2s = Math.min(1.05, Math.max(0.65, (s1 - sf_p2) / sfg_p2));
+    let h2s = 0;
+    if (x2s <= 1.0) {
+      h2s = hf_p2 + x2s * hfg_p2;
+    } else {
+      h2s = hf_p2 + hfg_p2 + 2.0 * (Tsat_p2 + 30);
+    }
+
+    const dh_is = Math.max(100, h1 - h2s);
+    // Part-load throttle penalty
+    const eff_factor = part_load_pct < 1.0 ? (1 - 0.25 * Math.pow(1 - part_load_pct, 1.8)) : 1.0;
+    const eff_actual = eta_is * eff_factor;
+    const dh_act = dh_is * eff_actual;
+    const h2 = h1 - dh_act;
+
+    // Moisture calculation
+    const x2 = (h2 - hf_p2) / hfg_p2;
+    const moisture_pct = Math.max(0, (1 - x2) * 100);
+
+    // Power generation
+    const actual_flow_th = mdot_th * part_load_pct;
+    const mdot_kgs = (actual_flow_th * 1000) / 3600;
+    const Pmech_kw = mdot_kgs * dh_act * eta_m;
+    const Pgross_mw = (Pmech_kw * eta_g) / 1000;
+    const Pnet_mw = Pgross_mw * (1 - aux_pct);
+
+    // Heat rate calculations
+    const h_fw = 4.187 * Tfw;
+    const ssc = (actual_flow_th * 1000) / Math.max(10, Pgross_mw * 1000); // kg/kWh
+    const Q_heat_kw = mdot_kgs * (h1 - h_fw);
+    const ghr_kjkwh = (Q_heat_kw * 3600) / Math.max(10, Pgross_mw * 1000);
+    const ghr_btukwh = ghr_kjkwh * 0.947817;
+    const nhr_kjkwh = ghr_kjkwh / Math.max(0.1, (1 - aux_pct));
+    const nhr_btukwh = nhr_kjkwh * 0.947817;
+    const eff_th = (3600 / Math.max(1000, ghr_kjkwh)) * 100;
+
+    // Update UI
+    document.getElementById('res_h1').textContent = h1.toFixed(1) + ' kJ/kg';
+    document.getElementById('res_h2s').textContent = h2s.toFixed(1) + ' kJ/kg (Δh_is = ' + dh_is.toFixed(1) + ' kJ/kg)';
+    document.getElementById('res_h2').textContent = h2.toFixed(1) + ' kJ/kg (Δh_act = ' + dh_act.toFixed(1) + ' kJ/kg)';
+    document.getElementById('res_moisture').textContent = moisture_pct.toFixed(2) + ' % (Vapor Quality x = ' + Math.max(0, x2).toFixed(3) + ')';
+
+    const erosionBadge = document.getElementById('res_erosion_status');
+    if (moisture_pct <= 10.0) {
+      erosionBadge.className = 'status-badge badge-safe';
+      erosionBadge.textContent = 'EXCELLENT: DRY/LOW MOISTURE (<10%)';
+    } else if (moisture_pct <= 13.0) {
+      erosionBadge.className = 'status-badge badge-warn';
+      erosionBadge.textContent = 'ACCEPTABLE: MONITOR L-0 BLADES (<13%)';
+    } else {
+      erosionBadge.className = 'status-badge badge-danger';
+      erosionBadge.textContent = 'DANGER: BLADE EROSION RISK (>13% MOISTURE)';
+    }
+
+    document.getElementById('res_pgross').textContent = Pgross_mw.toFixed(2) + ' MW (' + (Pgross_mw * 1341.02).toFixed(0) + ' HP)';
+    document.getElementById('res_pnet').textContent = Pnet_mw.toFixed(2) + ' MW (Aux: ' + (Pgross_mw * aux_pct).toFixed(2) + ' MW)';
+    document.getElementById('res_ssc').textContent = ssc.toFixed(2) + ' kg/kWh (' + (ssc * 2.20462).toFixed(2) + ' lb/kWh)';
+    document.getElementById('res_ghr').textContent = ghr_kjkwh.toFixed(0) + ' kJ/kWh (' + ghr_btukwh.toFixed(0) + ' Btu/kWh)';
+    document.getElementById('res_nhr').textContent = nhr_kjkwh.toFixed(0) + ' kJ/kWh (' + nhr_btukwh.toFixed(0) + ' Btu/kWh)';
+    document.getElementById('res_eff_th').textContent = eff_th.toFixed(2) + ' %';
+  }
+
+  const inputs = ['st_p1', 'st_t1', 'st_turb_type', 'st_p2', 'st_flow', 'st_t_fw', 'st_eta_is', 'st_eta_gen', 'st_eta_mech', 'st_aux_pct', 'st_part_load', 'st_noload_pct'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcTurbine);
+      el.addEventListener('change', calcTurbine);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_turbine');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- STEAM TURBINE RANKINE PERFORMANCE DATASHEET ---',
+        'Throttle Inlet: ' + document.getElementById('st_p1').value + ' bar a @ ' + document.getElementById('st_t1').value + ' °C | Flow: ' + document.getElementById('st_flow').value + ' t/h',
+        'Exhaust Pressure: ' + document.getElementById('st_p2').value + ' bar a | Feedwater Temp: ' + document.getElementById('st_t_fw').value + ' °C',
+        'Inlet Enthalpy h1: ' + document.getElementById('res_h1').textContent + ' | Exhaust h2: ' + document.getElementById('res_h2').textContent,
+        'Exhaust Moisture: ' + document.getElementById('res_moisture').textContent + ' [' + document.getElementById('res_erosion_status').textContent + ']',
+        'Gross Electrical Output: ' + document.getElementById('res_pgross').textContent,
+        'Net Export Output: ' + document.getElementById('res_pnet').textContent,
+        'Specific Steam Consumption: ' + document.getElementById('res_ssc').textContent,
+        'Gross Heat Rate (GHR): ' + document.getElementById('res_ghr').textContent,
+        'Net Heat Rate (NHR): ' + document.getElementById('res_nhr').textContent,
+        'Thermal Efficiency: ' + document.getElementById('res_eff_th').textContent,
+        'Generated via DigitalToolsShed.com Steam Turbine Engineering Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcTurbine();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AV2: DECANTER CENTRIFUGE G-FORCE & POOL DEPTH SIZING CALCULATOR ---
+  (() => {
+    const slug = 'decanter-centrifuge-g-force-pool-depth-calculator';
+    const title = 'Decanter Centrifuge G-Force & Pool Depth Sizing Calculator (Ambler Sigma Theory)';
+    const metaDescription = 'Industrial decanter centrifuge sizing calculator per Ambler Sigma Theory. Evaluates centrifugal G-force, equivalent clarification area (Sigma), pool depth weir settings, dry beach length, differential scroll speed, and conveyor torque.';
+
+    const faq = [
+      {
+        q: 'What is Ambler Sigma Theory in decanter centrifuge sizing?',
+        a: 'Developed by Charles Ambler, Sigma Theory (Sigma in m^2) expresses the settling capacity of a centrifugal separator in terms of an equivalent gravity settling basin area: Sigma = (2 * pi * omega^2 * L / g) * (0.75 * r_bowl^2 + 0.25 * r_pool^2). It allows engineers to scale laboratory or pilot benchtop settling data directly to full-scale industrial decanters using the simple relation Q = 2 * v_g * Sigma * eta_eff, where v_g is Stokes gravitational settling velocity.'
+      },
+      {
+        q: 'How does liquid pool depth (pond setting) affect cake dryness vs centrate clarity?',
+        a: 'The liquid pool level inside the bowl is set by adjustable eccentric weir plate rings at the liquid discharge hub. A deep pool increases liquid volume and residence time, maximizing clarification and capturing fine suspended solids in the centrate. However, it submerges the conical section, reducing dry beach length and yielding a wetter cake. A shallow pool exposes a longer dry beach for enhanced cake dewatering and dryness, but reduces centrate clarity and increases scroll torque.'
+      },
+      {
+        q: 'What is differential scroll speed and why is it controlled by a backdrive?',
+        a: 'The internal helical scroll conveyor rotates in the same direction as the outer cylindrical-conical bowl but at a slightly lower or higher speed. The difference is the differential speed Delta_N (typically 1 to 20 RPM), controlled via a high-ratio planetary gearbox and variable-frequency backdrive motor. If Delta_N is too low, cake backs up and plugs the bowl, overloading the gearbox. If Delta_N is too high, solids are discharged before complete drainage, reducing cake dryness.'
+      },
+      {
+        q: 'What is G-force and how is it calculated in a decanter bowl?',
+        a: 'G-force represents the centrifugal acceleration acting at the bowl inner wall relative to Earth gravity: G = (omega^2 * r_bowl) / g = 1.118e-3 * r_bowl_mm * (RPM / 1000)^2. Modern municipal sludge decanters typically operate between 2,200 and 3,500 g, while fine chemical, pharmaceutical, and oilfield drilling mud decanters operate up to 4,000 to 5,000 g to capture sub-micron particles.'
+      },
+      {
+        q: 'What is beach angle and how does it prevent cake slip?',
+        a: 'The conical beach angle (typically 8° to 15°) acts as an inclined ramp over which solids must be pushed out of the liquid pond to the cake discharge ports. If the beach angle is too steep (>15°) or solids lack internal cohesion, the immense centrifugal G-force causes compacted solids to slip backward into the pool, churning the slurry and destroying separation.'
+      }
+    ];
+
+    const content = `
+<style>
+  .centrifuge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .centrifuge-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .centrifuge-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size solid-bowl decanter centrifuges for municipal sludge dewatering, industrial biotechnology, and chemical solids separation per Ambler Sigma Theory. Solves centrifugal G-force, equivalent settling area &Sigma;, liquid pool depth weir settings, dry beach dewatering length, scroll differential speed &Delta;N, and conveyor drive torque.
+  </p>
+
+  <div class="centrifuge-grid">
+    <!-- Panel 1: Bowl Geometry & Kinematics -->
+    <div class="centrifuge-card">
+      <h3>1. Decanter Bowl Geometry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dc_bowl_dia">Bowl Inside Diameter D<sub>b</sub> (mm)</label>
+          <input type="number" id="dc_bowl_dia" class="form-control" value="530" min="150" max="1500" step="10">
+        </div>
+        <div class="form-group">
+          <label for="dc_rpm">Bowl Operating Speed N (RPM)</label>
+          <input type="number" id="dc_rpm" class="form-control" value="3200" min="500" max="6000" step="50">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dc_len_cyl">Cylindrical Section Length L<sub>c</sub> (mm)</label>
+          <input type="number" id="dc_len_cyl" class="form-control" value="1450" min="300" max="4000" step="50">
+        </div>
+        <div class="form-group">
+          <label for="dc_len_cone">Conical Section Length L<sub>con</sub> (mm)</label>
+          <input type="number" id="dc_len_cone" class="form-control" value="650" min="150" max="2000" step="25">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dc_cone_angle">Conical Beach Half-Angle &alpha; (&deg;)</label>
+          <input type="number" id="dc_cone_angle" class="form-control" value="10" min="6" max="20" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="dc_weir_dia">Liquid Weir Plate Diameter D<sub>weir</sub> (mm)</label>
+          <input type="number" id="dc_weir_dia" class="form-control" value="390" min="120" max="1200" step="5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Slurry Feed & Scroll Backdrive -->
+    <div class="centrifuge-card">
+      <h3>2. Feed Slurry & Scroll Drive</h3>
+      <div class="form-group">
+        <label for="dc_feed_flow">Feed Slurry Flow Rate Q (m&sup3;/h)</label>
+        <input type="number" id="dc_feed_flow" class="form-control" value="35" min="1" max="500" step="1">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dc_ts_feed">Feed Total Solids TS<sub>feed</sub> (% w/w)</label>
+          <input type="number" id="dc_ts_feed" class="form-control" value="3.5" min="0.2" max="30.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="dc_cake_ts">Target Cake Dryness TS<sub>cake</sub> (%)</label>
+          <input type="number" id="dc_cake_ts" class="form-control" value="26.0" min="10.0" max="70.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dc_rhos">Dry Solids Density &rho;<sub>s</sub> (t/m&sup3;)</label>
+          <input type="number" id="dc_rhos" class="form-control" value="1.45" min="1.1" max="4.0" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="dc_d50">Median Particle Size d<sub>50</sub> (&mu;m)</label>
+          <input type="number" id="dc_d50" class="form-control" value="25" min="1" max="500" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dc_diff_rpm">Scroll Differential Speed &Delta;N (RPM)</label>
+          <input type="number" id="dc_diff_rpm" class="form-control" value="6.5" min="0.5" max="35.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="dc_gear_ratio">Gearbox Ratio i<sub>gear</sub></label>
+          <input type="number" id="dc_gear_ratio" class="form-control" value="160" min="40" max="350" step="10">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Sizing Output -->
+    <div class="centrifuge-card">
+      <h3>3. Performance & Capacity Output</h3>
+      <div class="res-row">
+        <span class="res-label">Centrifugal G-Force at Bowl Wall:</span>
+        <span class="res-val highlight" id="res_gforce">-- g</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Ambler Sigma Settling Area &Sigma;:</span>
+        <span class="res-val highlight" id="res_sigma">-- m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Liquid Pool Depth (Pond Radial Height):</span>
+        <span class="res-val" id="res_pool_depth">-- mm</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Dry Beach Drainage Length L<sub>beach</sub>:</span>
+        <span class="res-val highlight" id="res_beach_len">-- mm</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Pool / Beach Balance Status:</span>
+        <span id="res_beach_status" class="status-badge badge-safe">OPTIMAL BEACH</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Liquid Hydraulic Retention Time:</span>
+        <span class="res-val" id="res_hrt">-- seconds</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Wet Cake Discharge Rate:</span>
+        <span class="res-val" id="res_cake_rate">-- kg/h (-- t/d)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated Scroll Drive Torque:</span>
+        <span class="res-val highlight" id="res_torque">-- N&middot;m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Scroll Gearbox Loading Check:</span>
+        <span id="res_torque_status" class="status-badge badge-safe">SAFE TORQUE</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Backdrive Regenerative / Drive Power:</span>
+        <span class="res-val" id="res_pback">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Main Bowl Drive Electric Power:</span>
+        <span class="res-val" id="res_pmain">-- kW</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_centrifuge">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Solid-Bowl Decanter Centrifuge Internal Cross-Section</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Rotating Cylindrical Bowl: G &sim; 3,000 g ] &rarr; [ Liquid Pool Depth h<sub>pool</sub> = r<sub>bowl</sub> - r<sub>weir</sub> ] &rarr; [ Overflow Weirs (Centrate) ]<br>
+      [ Internal Scroll Conveyor &Delta;N ~ 6 RPM ] &rarr; [ Conical Dewatering Beach L<sub>beach</sub> ] &rarr; [ Dry Cake Discharge Ports ]<br>
+      [ Ambler Sigma &Sigma; = Settling Power ] &harr; [ Gearbox Torque T<sub>scroll</sub> &prop; Solids Flux &amp; Yield Stress ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="centrifuge-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Ambler Sigma Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Decanter centrifuge performance couples multi-thousand-G centrifugal sedimentation kinematics with granular soil mechanics on inclined rotating beaches per Ambler and Flottweg standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Centrifugal Acceleration G</strong><br>
+        $$\omega = \frac{2\pi \cdot N}{60} \quad [\text{rad/s}]$$
+        $$G = \frac{\omega^2 \cdot r_{bowl}}{9.80665} = 1.118 \times 10^{-3} \cdot r_{b,mm} \cdot \left(\frac{N}{1000}\right)^2$$
+        Replaces 1-G gravitational settling with high-energy separation.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Ambler Sigma Area &Sigma;</strong><br>
+        $$\Sigma = \frac{2\pi \omega^2 L_{cyl}}{g} \left[0.75 r_{bowl}^2 + 0.25 r_{pool}^2\right] + \Sigma_{cone} \quad [\text{m}^2]$$
+        Equivalent gravity settling tank basin area (often 3,000 - 15,000 m²).
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Pool Depth & Beach Length</strong><br>
+        $$h_{pool} = r_{bowl} - r_{weir} \quad [\text{mm}]$$
+        $$L_{beach} = \frac{r_{weir} - r_{cake\_lip}}{\tan \alpha} \quad [\text{mm}]$$
+        Balances liquid retention time against dry cake drainage zone.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Scroll Torque & Power</strong><br>
+        $$T_{scroll} \approx k_{cake} \cdot \dot{M}_{solids} \cdot \frac{G}{\Delta N} \quad [\text{N}\cdot\text{m}]$$
+        $$P_{back} = \frac{2\pi \cdot \Delta N \cdot T_{scroll}}{60 \cdot 1000} \quad [\text{kW}]$$
+        Protects high-ratio planetary gearbox against mechanical stall.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="centrifuge-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Decanter Centrifuge Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Deep Pool Beach Flooding Trap (Wet Sloppy Cake)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Setting the weir plate radius too small in an attempt to get sparkling clean centrate submerges the entire conical section of the bowl. When the dry beach length drops to zero ($L_{beach} \le 0$), solids are pushed directly out of the liquid pond into the cake discharge ports without any gravitational centrifugal drainage. The discharged cake emerges as a soupy, liquid sludge ($<16\%$ dry solids), causing disposal trucks to fail highway slump tests and doubling landfill disposal costs.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Running High Differential Speed (&Delta;N) & Starving Cake Retention Time</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operators often raise scroll differential speed ($Delta N$) to reduce scroll torque whenever motor alarms sound. However, higher differential speed whisks cake up the beach in seconds, depriving the cake of the 30 to 60 seconds of high-G drainage time needed to express bound interstitial capillary water. Furthermore, fast scroll flights create severe turbulence that re-suspends fine particles into the centrate. Always tune $Delta N$ to the minimum safe value that keeps torque below 75% of gearbox rating.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Planetary Sun Gearbox Thermal Over-Torque Seizure</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The compact planetary or cycloidal gearbox mounted on the bowl end experiences massive internal torque (2,000 to 10,000 N·m) while spinning at 3,000 RPM. If heavy sand, grit, or struvite scale builds up in the bowl, the scroll torque spikes beyond the gearbox elastic fatigue threshold. Operating continuously in the alarm zone cooks gearbox synthetic oil above 120°C, stripping sun pinion splines and causing a catastrophic $40,000 gearbox seizure. Always maintain torque-dependent automated feed throttling.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Steep Beach Slippage & Internal Slurry Churning</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In decanters with steep cone angles (>12°), the component of centrifugal force pushing solids down the beach exceeds the scroll flight frictional pushing force. Non-cohesive or slippery bio-sludges slip backward down the beach into the pool. The scroll churns the same volume of solids endlessly, building extreme frictional heat and grinding particles into microscopic colloidal fines that permanently blind the centrate. Soft organic sludges require gentle 8° to 10° beach angles or ribbed flight liners.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Polymer Over-Dosing Shear Degradation Inside the Feed Zone</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Attempting to compensate for poor machine settings by overdosing cationic emulsion polymer directly into the high-shear centrifuge feed accelerator tears polymer molecular chains apart. High-molecular-weight polyacrylamide flocs are shredded by 50 m/s acceleration velocities, producing sticky, uncoagulated slime that coats the scroll flights. Slime causes scroll flight slipping and triples washdown downtime. Inject polymer into an external low-shear retention loop prior to entering the feed tube.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="centrifuge-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Municipal Wastewater Treatment Plant Anaerobic Digested Sludge Dewatering.</p>
+      <ul>
+        <li><strong>Bowl Dimensions:</strong> $D_b = 530\text{ mm} \implies r_{bowl} = 0.265\text{ m}$. Speed $N = 3,200\text{ RPM}$.</li>
+        <li><strong>Length:</strong> Cylindrical $L_{cyl} = 1.45\text{ m}$, Conical $L_{con} = 0.65\text{ m}$, Cone half-angle $\alpha = 10.0^\circ$.</li>
+        <li><strong>Settings:</strong> Liquid weir plate $D_{weir} = 390\text{ mm} \implies r_{weir} = 0.195\text{ m}$. Cake discharge lip $D_{lip} = 320\text{ mm} \implies r_{lip} = 0.160\text{ m}$.</li>
+        <li><strong>Feed:</strong> Flow $Q = 35.0\text{ m}^3/\text{h}$, Feed solids $TS_{feed} = 3.50\%$, Target cake $TS_{cake} = 26.0\%$, $\Delta N = 6.5\text{ RPM}$.</li>
+      </ul>
+      <p><strong>Step 1: Centrifugal G-Force:</strong></p>
+      $$\omega = \frac{2 \pi \times 3200}{60} = 335.1\text{ rad/s}$$
+      $$G = \frac{(335.1)^2 \times 0.265}{9.80665} = \frac{112,294 \times 0.265}{9.80665} = 3,034.4\text{ g} \quad (\text{\textbf{High-G Dewatering Regime}})$$
+      <p><strong>Step 2: Pool Depth & Dry Beach Drainage Length:</strong></p>
+      $$h_{pool} = r_{bowl} - r_{weir} = 265\text{ mm} - 195\text{ mm} = 70.0\text{ mm pool depth}$$
+      $$L_{beach} = \frac{r_{weir} - r_{lip}}{\tan 10.0^\circ} = \frac{195\text{ mm} - 160\text{ mm}}{0.1763} = \frac{35\text{ mm}}{0.1763} = 198.5\text{ mm of dry beach}$$
+      $$\text{Ratio } \frac{L_{beach}}{L_{con}} = \frac{198.5}{650} = 30.5\% \text{ dry beach } \implies \text{\textbf{Optimal balance of clarity and cake dryness}}.$$
+      <p><strong>Step 3: Ambler Sigma Equivalent Area:</strong></p>
+      $$\Sigma_{cyl} = \frac{2\pi \times (335.1)^2 \times 1.45}{9.80665} \times [0.75 \times (0.265)^2 + 0.25 \times (0.195)^2]$$
+      $$\Sigma_{cyl} = 104,260 \times [0.05267 + 0.00951] = 104,260 \times 0.06218 = 6,483\text{ m}^2$$
+      $$\Sigma_{total} \approx \Sigma_{cyl} \times 1.18 = 7,650\text{ m}^2 \text{ equivalent gravity clarification area}.$$
+      <p><strong>Step 4: Solids Throughput & Gearbox Torque:</strong></p>
+      $$\dot{M}_{dry} = 35.0\text{ m}^3/\text{h} \times 1000 \times 0.035 = 1,225\text{ kg dry solids/hour}$$
+      $$\text{Wet Cake Rate: } \dot{M}_{wet} = \frac{1225}{0.260} = 4,711.5\text{ kg/h} = 113.1\text{ metric tonnes/day}$$
+      $$T_{scroll} \approx 1.85 \times \frac{\dot{M}_{wet}}{3600} \times \frac{G}{\Delta N} \approx 1.85 \times 1.309 \times \frac{3034}{6.5} \approx 1,130\text{ N}\cdot\text{m}$$
+      $$\text{Gearbox Rating: } 3,500\text{ N}\cdot\text{m} \implies \text{Loading } \approx 32.3\% \quad (\text{\textbf{Safe, Long Gearbox Fatigue Life}}).$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcCentrifuge() {
+    const Db_mm = parseFloat(document.getElementById('dc_bowl_dia').value) || 530;
+    const rb = (Db_mm / 2) * 1e-3; // m
+    const N_rpm = parseFloat(document.getElementById('dc_rpm').value) || 3200;
+    const Lcyl_mm = parseFloat(document.getElementById('dc_len_cyl').value) || 1450;
+    const Lcyl = Lcyl_mm * 1e-3; // m
+    const Lcon_mm = parseFloat(document.getElementById('dc_len_cone').value) || 650;
+    const alpha_deg = parseFloat(document.getElementById('dc_cone_angle').value) || 10;
+    const alpha_rad = (alpha_deg * Math.PI) / 180;
+    const Dweir_mm = parseFloat(document.getElementById('dc_weir_dia').value) || 390;
+    const rweir = (Dweir_mm / 2) * 1e-3; // m
+
+    const Q_m3h = parseFloat(document.getElementById('dc_feed_flow').value) || 35;
+    const TS_feed_pct = parseFloat(document.getElementById('dc_ts_feed').value) || 3.5;
+    const TS_cake_pct = parseFloat(document.getElementById('dc_cake_ts').value) || 26.0;
+    const d50_um = parseFloat(document.getElementById('dc_d50').value) || 25;
+    const deltaN = parseFloat(document.getElementById('dc_diff_rpm').value) || 6.5;
+
+    // 1. Centrifugal G-force
+    const omega = (2 * Math.PI * N_rpm) / 60; // rad/s
+    const g = 9.80665;
+    const gforce = (Math.pow(omega, 2) * rb) / g;
+
+    // 2. Pool Depth & Beach Length
+    const pool_depth_mm = (rb - rweir) * 1000;
+    // Cake discharge lip radius: assume ~ 0.60 * rb
+    const rlip = rb * 0.60;
+    const beach_len_mm = Math.max(0, ((rweir - rlip) * 1000) / Math.tan(alpha_rad));
+    const beach_ratio = beach_len_mm / Math.max(10, Lcon_mm);
+
+    // 3. Ambler Sigma Area
+    const Sigma_cyl = ((2 * Math.PI * Math.pow(omega, 2) * Lcyl) / g) * (0.75 * Math.pow(rb, 2) + 0.25 * Math.pow(rweir, 2));
+    const Sigma_total = Sigma_cyl * 1.18; // include cone contribution
+
+    // 4. Hydraulic Retention Time (HRT)
+    const Vpool_m3 = Math.PI * (Math.pow(rb, 2) - Math.pow(rweir, 2)) * Lcyl * 0.9;
+    const HRT_sec = (Vpool_m3 / (Q_m3h / 3600));
+
+    // 5. Solids Throughput & Cake Rate
+    const dry_solids_kgh = Q_m3h * 1000 * (TS_feed_pct / 100);
+    const wet_cake_kgh = dry_solids_kgh / Math.max(0.1, TS_cake_pct / 100);
+    const wet_cake_tpd = (wet_cake_kgh * 24) / 1000;
+
+    // 6. Scroll Torque & Power
+    const torque_nm = Math.max(50, 1.85 * (wet_cake_kgh / 3600) * (gforce / Math.max(1, deltaN)));
+    const Pback_kw = (2 * Math.PI * deltaN * torque_nm) / (60 * 1000);
+    const Pmain_kw = (Q_m3h * 1000 * Math.pow(omega * rb, 2)) / (2 * 3600 * 1000) * 1.6 + 5.0;
+
+    // Update UI
+    document.getElementById('res_gforce').textContent = gforce.toFixed(0) + ' g (' + N_rpm + ' RPM)';
+    document.getElementById('res_sigma').textContent = Sigma_total.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' m² (' + (Sigma_total * 10.7639).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' ft²)';
+    document.getElementById('res_pool_depth').textContent = pool_depth_mm.toFixed(1) + ' mm';
+    document.getElementById('res_beach_len').textContent = beach_len_mm.toFixed(1) + ' mm (' + (beach_ratio * 100).toFixed(0) + '% of cone)';
+
+    const beachBadge = document.getElementById('res_beach_status');
+    if (beach_len_mm >= 120 && beach_len_mm <= 350) {
+      beachBadge.className = 'status-badge badge-safe';
+      beachBadge.textContent = 'OPTIMAL BEACH & POOL BALANCE';
+    } else if (beach_len_mm < 120) {
+      beachBadge.className = 'status-badge badge-warn';
+      beachBadge.textContent = 'DEEP POOL: WET CAKE DISCHARGE RISK';
+    } else {
+      beachBadge.className = 'status-badge badge-danger';
+      beachBadge.textContent = 'SHALLOW POOL: TURBULENCE & FINES CARRYOVER';
+    }
+
+    document.getElementById('res_hrt').textContent = HRT_sec.toFixed(1) + ' s (Pool Vol: ' + (Vpool_m3 * 1000).toFixed(0) + ' L)';
+    document.getElementById('res_cake_rate').textContent = wet_cake_kgh.toFixed(0) + ' kg/h (' + wet_cake_tpd.toFixed(1) + ' t/d wet)';
+    document.getElementById('res_torque').textContent = torque_nm.toFixed(0) + ' N·m (' + (torque_nm * 0.73756).toFixed(0) + ' lb·ft)';
+
+    const torqueBadge = document.getElementById('res_torque_status');
+    if (torque_nm <= 2200) {
+      torqueBadge.className = 'status-badge badge-safe';
+      torqueBadge.textContent = 'SAFE GEARBOX LOAD (<2,200 N·m)';
+    } else if (torque_nm <= 3200) {
+      torqueBadge.className = 'status-badge badge-warn';
+      torqueBadge.textContent = 'HIGH TORQUE: APPROACHING ALARM TRIP';
+    } else {
+      torqueBadge.className = 'status-badge badge-danger';
+      torqueBadge.textContent = 'OVER-TORQUE: GEARBOX SHEAR PIN RISK!';
+    }
+
+    document.getElementById('res_pback').textContent = Pback_kw.toFixed(2) + ' kW';
+    document.getElementById('res_pmain').textContent = Pmain_kw.toFixed(1) + ' kW (' + (Pmain_kw * 1.34102).toFixed(1) + ' HP)';
+  }
+
+  const inputs = ['dc_bowl_dia', 'dc_rpm', 'dc_len_cyl', 'dc_len_cone', 'dc_cone_angle', 'dc_weir_dia', 'dc_feed_flow', 'dc_ts_feed', 'dc_cake_ts', 'dc_rhos', 'dc_d50', 'dc_diff_rpm', 'dc_gear_ratio'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcCentrifuge);
+      el.addEventListener('change', calcCentrifuge);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_centrifuge');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- SOLID-BOWL DECANTER CENTRIFUGE DATASHEET ---',
+        'Bowl Diameter: ' + document.getElementById('dc_bowl_dia').value + ' mm @ ' + document.getElementById('dc_rpm').value + ' RPM | G-Force: ' + document.getElementById('res_gforce').textContent,
+        'Ambler Sigma Settling Area: ' + document.getElementById('res_sigma').textContent,
+        'Pool Depth: ' + document.getElementById('res_pool_depth').textContent + ' | Dry Beach Length: ' + document.getElementById('res_beach_len').textContent + ' [' + document.getElementById('res_beach_status').textContent + ']',
+        'Retention Time: ' + document.getElementById('res_hrt').textContent,
+        'Feed Flow: ' + document.getElementById('dc_feed_flow').value + ' m³/h (' + document.getElementById('dc_ts_feed').value + '% TS)',
+        'Cake Discharge: ' + document.getElementById('res_cake_rate').textContent + ' @ ' + document.getElementById('dc_cake_ts').value + '% TS',
+        'Differential Speed ΔN: ' + document.getElementById('dc_diff_rpm').value + ' RPM | Scroll Torque: ' + document.getElementById('res_torque').textContent + ' [' + document.getElementById('res_torque_status').textContent + ']',
+        'Main Motor Power: ' + document.getElementById('res_pmain').textContent,
+        'Generated via DigitalToolsShed.com Decanter Centrifuge Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcCentrifuge();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AV3: BELT FILTER PRESS DEWATERING & POLYMER DOSING CALCULATOR ---
+  (() => {
+    const slug = 'belt-filter-press-sludge-dewatering-calculator';
+    const title = 'Belt Filter Press Dewatering Throughput & Polymer Dosing Calculator (EPA & WEF)';
+    const metaDescription = 'Industrial belt filter press (BFP) sizing calculator per EPA 832-F-00-057 and WEF MOP 8. Solves dry solids loading rate (DSLR), hydraulic throughput, polymer flocculant consumption, cake dewatering dryness, and washwater demand.';
+
+    const faq = [
+      {
+        q: 'How does a belt filter press (BFP) dewater municipal and industrial sludge?',
+        a: 'A belt filter press dewaters conditioned sludge through three continuous sequential mechanical zones: (1) Gravity Drainage Zone, where porous polyester fabric drains free water (50% to 70% volume reduction); (2) Low-Pressure Wedge Zone, where converging upper and lower belts sandwich and stabilize the sludge without edge spillage; and (3) High-Pressure S-Roll Zone, where the sandwiched cake weaves around a serpentine train of decreasing-diameter rollers, creating shear and radial compressive forces (P = T/R) that express bound water to produce 18% to 32% dry cake.'
+      },
+      {
+        q: 'What is the Dry Solids Loading Rate (DSLR) and what are typical design limits?',
+        a: 'The Dry Solids Loading Rate (DSLR) measures dry mass throughput per unit of active belt width: DSLR = M_dry / W_belt (kg DS/m·h). Per EPA and WEF guidelines, conservative design rates are 250 to 450 kg DS/m·h for biological waste activated sludge (WAS), 400 to 700 kg DS/m·h for blended or anaerobic digested sludge, and up to 800 to 1,200 kg DS/m·h for primary or inorganic water-treatment sludges.'
+      },
+      {
+        q: 'Why is chemical conditioning with cationic polymer mandatory?',
+        a: 'Untreated biological sludge particles carry negative surface zeta potentials that repel each other, keeping water bound in colloidal suspension. Adding high-molecular-weight cationic polymer neutralizes surface charges and bridges microscopic particles into large, resilient flocs (macro-flocculation). Proper conditioning allows free water to drain instantly through fabric pores without blinding the weave.'
+      },
+      {
+        q: 'What happens if the hydraulic loading rate (HLR) is exceeded?',
+        a: 'If volumetric feed rate exceeds the hydraulic capacity of the gravity table (typically >30 to 45 m³/m·h), liquid sludge floods over the gravity drainage table and spills directly into the low-pressure wedge zone. Because the sludge has not released its free water, the converging belts squeeze liquid sideways, causing violent lateral "edge blowouts" that spray wet sludge across machine frame bearings and contaminate the cake hopper.'
+      },
+      {
+        q: 'How much wash water is required to keep filter belts clean?',
+        a: 'Continuous high-pressure spray bars operating at 5 to 7 bar (75 to 100 psi) are required to wash fiber, grease, and fines out of the polyester mesh pores after cake discharge. Typical washwater consumption ranges from 4.0 to 7.0 m³/h per meter of belt width (18 to 30 gpm/m). Using unfiltered final effluent or suffering plugged spray nozzles leads to rapid fabric blinding, cutting gravity drainage rates by 50%.'
+      }
+    ];
+
+    const content = `
+<style>
+  .bfp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .bfp-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .bfp-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size continuous municipal and industrial belt filter presses (BFP) per EPA 832-F-00-057 and WEF Manual of Practice No. 8. Evaluates dry solids loading rate (DSLR), hydraulic surface loading, cationic polymer flocculant consumption, dewatered cake mass, and high-pressure belt washing flow requirements.
+  </p>
+
+  <div class="bfp-grid">
+    <!-- Panel 1: Slurry Feed & Belt Geometry -->
+    <div class="bfp-card">
+      <h3>1. Slurry Feed & Press Selection</h3>
+      <div class="form-group">
+        <label for="bfp_sludge_type">Sludge Classification</label>
+        <select id="bfp_sludge_type" class="form-control">
+          <option value="digested" selected>Anaerobically Digested Primary + WAS (22-28% Cake)</option>
+          <option value="primary">Raw Primary Sludge Only (28-34% Cake)</option>
+          <option value="was">Waste Activated Sludge (WAS) Only (15-20% Cake)</option>
+          <option value="paper">Paper Mill Pulp Sludge (30-40% Cake)</option>
+          <option value="alum">Alum / Ferric Water Treatment Sludge (18-24% Cake)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bfp_flow">Sludge Feed Rate Q (m&sup3;/h)</label>
+          <input type="number" id="bfp_flow" class="form-control" value="28" min="2" max="300" step="1">
+        </div>
+        <div class="form-group">
+          <label for="bfp_feed_ts">Feed Total Solids TS<sub>in</sub> (%)</label>
+          <input type="number" id="bfp_feed_ts" class="form-control" value="3.0" min="0.5" max="12.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bfp_belt_width">Effective Belt Width W (m)</label>
+          <select id="bfp_belt_width" class="form-control">
+            <option value="1.0">1.0 m (3.3 ft)</option>
+            <option value="1.5">1.5 m (4.9 ft)</option>
+            <option value="2.0" selected>2.0 m (6.6 ft - Standard)</option>
+            <option value="2.5">2.5 m (8.2 ft)</option>
+            <option value="3.0">3.0 m (9.8 ft - Heavy Duty)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bfp_num_presses">Number of Duty Presses</label>
+          <input type="number" id="bfp_num_presses" class="form-control" value="1" min="1" max="10" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Operating Parameters & Chemical Conditioning -->
+    <div class="bfp-card">
+      <h3>2. Operation & Polymer Dosing</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bfp_belt_speed">Belt Linear Speed v<sub>b</sub> (m/min)</label>
+          <input type="number" id="bfp_belt_speed" class="form-control" value="3.5" min="1.0" max="12.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="bfp_target_cake">Target Cake Dryness TS<sub>out</sub> (%)</label>
+          <input type="number" id="bfp_target_cake" class="form-control" value="24.0" min="12.0" max="45.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bfp_poly_dose">Polymer Dose (kg active / t DS)</label>
+          <input type="number" id="bfp_poly_dose" class="form-control" value="5.2" min="1.0" max="18.0" step="0.2">
+        </div>
+        <div class="form-group">
+          <label for="bfp_poly_conc">Prepared Polymer Solution Conc (%)</label>
+          <input type="number" id="bfp_poly_conc" class="form-control" value="0.15" min="0.05" max="0.50" step="0.01">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bfp_solids_capture">Solids Capture Efficiency &eta; (%)</label>
+          <input type="number" id="bfp_solids_capture" class="form-control" value="95" min="80" max="99" step="1">
+        </div>
+        <div class="form-group">
+          <label for="bfp_op_hours">Daily Operating Schedule (hours/day)</label>
+          <input type="number" id="bfp_op_hours" class="form-control" value="8" min="2" max="24" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Capacity Validation -->
+    <div class="bfp-card">
+      <h3>3. Performance & Output Results</h3>
+      <div class="res-row">
+        <span class="res-label">Dry Solids Throughput:</span>
+        <span class="res-val" id="res_ds_rate">-- kg DS/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Dry Solids Loading Rate (DSLR):</span>
+        <span class="res-val highlight" id="res_dslr">-- kg DS/m&middot;h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">DSLR Loading Status:</span>
+        <span id="res_dslr_status" class="status-badge badge-safe">OPTIMAL LOADING</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Hydraulic Loading Rate (HLR):</span>
+        <span class="res-val highlight" id="res_hlr">-- m&sup3;/m&middot;h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Gravity Drainage Table Loading:</span>
+        <span id="res_hlr_status" class="status-badge badge-safe">FREE DRAINAGE</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Dewatered Cake Output:</span>
+        <span class="res-val highlight" id="res_wet_cake">-- t/day (wet)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Active Polymer Consumption:</span>
+        <span class="res-val" id="res_poly_active">-- kg/day</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Diluted Polymer Solution Flow:</span>
+        <span class="res-val" id="res_poly_sol">-- L/h (-- gpm)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Filtrate Liquid Flow Rate:</span>
+        <span class="res-val" id="res_filtrate">-- m&sup3;/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Belt Washwater Flow Requirement:</span>
+        <span class="res-val highlight" id="res_washwater">-- m&sup3;/h (@ 6 bar)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_bfp">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Continuous Belt Filter Press (BFP) S-Roll Mechanical Architecture</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Flocculated Feed &rarr; Gravity Table (50-70% Free Water Released) ] &rarr; [ Low-Pressure Wedge Zone (Belts Converge) ]<br>
+      [ S-Roll Serpentine Drum Train: Decreasing Radius R &rarr; Pressure P = T/R Up to 50 kPa ] &rarr; [ Scraper Doctor Blades ]<br>
+      [ High-Pressure Fabric Wash Spray (5-7 bar) ] &larr; [ Tensioning &amp; Steering Actuators: 4-7 kN/m ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="bfp-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & EPA Biosolids Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Belt filter press sizing balances granular sludge compressibility with open gravity drainage kinetics and linear belt mechanics per EPA and WEF standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Dry Solids Loading Rate (DSLR)</strong><br>
+        $$\dot{M}_{dry} = Q \cdot 1000 \cdot \frac{TS_{in}}{100} \quad [\text{kg DS/h}]$$
+        $$DSLR = \frac{\dot{M}_{dry}}{W_{belt} \cdot N_{press}} \quad [\text{kg DS/m}\cdot\text{h}]$$
+        Governs cake thickness and mechanical dewatering capacity.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Hydraulic Loading Rate (HLR)</strong><br>
+        $$HLR = \frac{Q}{W_{belt} \cdot N_{press}} \quad [\text{m}^3/\text{m}\cdot\text{h}]$$
+        Restricted to $\le 35\text{ m}^3/\text{m}\cdot\text{h}$ to prevent gravity table flooding.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Polymer Solution Flow Rate</strong><br>
+        $$\dot{m}_{poly} = \frac{\dot{M}_{dry}}{1000} \cdot D_{poly} \quad [\text{kg active/h}]$$
+        $$Q_{sol} = \frac{\dot{m}_{poly} \cdot 1000}{C_{poly} \cdot 10} \quad [\text{L/h}]$$
+        Controls floc structure and prevents fabric blinding.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Dewatered Cake Mass Output</strong><br>
+        $$\dot{M}_{wet\_cake} = \frac{\dot{M}_{dry} \cdot \eta_{cap}}{TS_{out} / 100} \quad [\text{kg wet/h}]$$
+        $$Q_{filtrate} = Q - \frac{\dot{M}_{wet\_cake}}{1000} \quad [\text{m}^3/\text{h}]$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="bfp-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Belt Filter Press Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Gravity Table Flooding & Lateral Edge Blowout Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Exceeding the maximum hydraulic loading limit ($HLR > 35\text{ m}^3/\text{m}\cdot\text{h}$) overwhelms the gravity drainage zone. Liquid slurry cannot release its free water before entering the low-pressure wedge zone. When un-drained sludge is compressed between upper and lower tensioned belts, the hydrostatic pressure erupts out the open sides in violent "edge blowouts." Liquid sludge contaminates the dewatered cake conveyor, floods tracking sensors, and coats frame bearings in corrosive wastewater. Maintain HLR within 20 to 30 m³/m·h.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Inadequate Belt Washwater Pressure & Progressive Fabric Blinding</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operating washwater booster pumps below 5 bar (75 psi) or running with clogged spray nozzles allows fine biosolids and polymer slime to bake into the polyester mesh pores. Once 30% of fabric pores become blinded, gravity drainage rates plunge by half. Operators attempt to compensate by cranking up polymer dosage, which creates an impenetrable impermeable skin over the blinded fabric, aggravating the problem in an irreversible feedback loop. Inspect spray fan patterns daily and acid-wash belts monthly.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Over-Tensioning Belts & Extruding Cake Through the Mesh</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When sludge cake comes out wetter than expected, inexperienced operators frequently crank pneumatic belt tension cylinders to maximum (>6 bar / 8 kN/m). For compressible organic waste activated sludge (WAS), excessive radial pressure ($P = T/R$) simply shears the flocs and squirts raw sludge through the fabric mesh openings rather than expressing water. Extruded solids cake onto internal rollers, causing severe belt mis-tracking, fabric wrinkling, and seam failure.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Over-Shearing Polymer in High-Speed In-Line Mixers</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        High-molecular-weight emulsion polyacrylamides have delicate, long-chain polymer backbones. Passing freshly inverted polymer through high-shear throttling globe valves or high-RPM mechanical mixers shreds these polymer chains into short fragments, cutting flocculation efficiency by 60%. Sludge flocs become weak and friable, collapsing instantly on the gravity table. Use low-shear variable-orifice polymer injection rings or multi-port static spargers.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Sludge SVI Spikes & Neglecting Biological Seasonal Shifts</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In summer or during filamentous bulking events, the Sludge Volume Index (SVI) of activated sludge can double from 100 to >220 mL/g. Bulking sludge contains high extracellular polymeric substances (EPS) that hold water tightly. Running the belt press at nominal winter loading rates during an SVI spike leads to catastrophic blinding and cake slump. When SVI rises, operators must slow belt speed, drop throughput by 30%, and increase polymer dosing by 20% to 40%.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="bfp-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Municipal WWTP Anaerobically Digested Primary & WAS Dewatering.</p>
+      <ul>
+        <li><strong>Feed:</strong> Digested sludge flow $Q = 28.0\text{ m}^3/\text{h}$, Feed solids $TS_{in} = 3.0\%$, Density $\approx 1.015\text{ t/m}^3$.</li>
+        <li><strong>Equipment:</strong> One $2.0\text{ m}$ effective belt width press ($W = 2.0\text{ m}, N = 1$), running 8.0 hours/day.</li>
+        <li><strong>Targets:</strong> Target cake $TS_{out} = 24.0\%$, Solids capture $\eta = 95\%$, Polymer dose $D_{poly} = 5.2\text{ kg/t DS}$, Polymer conc $= 0.15\%$.</li>
+      </ul>
+      <p><strong>Step 1: Dry Solids Rate & Loading Verification:</strong></p>
+      $$\dot{M}_{dry} = 28.0\text{ m}^3/\text{h} \times 1015\text{ kg/m}^3 \times 0.030 = 852.6\text{ kg dry solids/hour}$$
+      $$DSLR = \frac{852.6\text{ kg DS/h}}{2.0\text{ m}} = 426.3\text{ kg DS/m}\cdot\text{h} \quad (\text{\textbf{Safe Loading: }} 400 - 500\text{ kg/m}\cdot\text{h standard})$$
+      $$HLR = \frac{28.0\text{ m}^3/\text{h}}{2.0\text{ m}} = 14.0\text{ m}^3/\text{m}\cdot\text{h} \quad (\ll 35.0\text{ m}^3/\text{m}\cdot\text{h} \implies \text{\textbf{No Gravity Overflow Risk}})$$
+      <p><strong>Step 2: Dewatered Cake Mass & Volume:</strong></p>
+      $$\text{Captured Dry Solids: } \dot{M}_{dry,cap} = 852.6 \times 0.95 = 810.0\text{ kg DS/h}$$
+      $$\text{Wet Cake Rate: } \dot{M}_{wet} = \frac{810.0\text{ kg/h}}{0.240} = 3,375.0\text{ kg/h of wet cake} \quad (3.375\text{ t/h})$$
+      $$\text{Daily Cake Production: } 3.375\text{ t/h} \times 8.0\text{ h/day} = 27.0\text{ metric tonnes of cake per day}.$$
+      <p><strong>Step 3: Polymer Conditioning Demand:</strong></p>
+      $$\text{Active Polymer Rate: } \dot{m}_{poly} = \frac{852.6\text{ kg DS/h}}{1000} \times 5.2\text{ kg/t} = 4.433\text{ kg active polymer/hour}$$
+      $$\text{Diluted (0.15\%) Solution Flow: } Q_{sol} = \frac{4.433\text{ kg/h}}{0.0015} = 2,955.7\text{ L/h} = 2.956\text{ m}^3/\text{h} \quad (13.0\text{ gpm})$$
+      $$\text{Daily Active Polymer: } 4.433 \times 8.0\text{ h} = 35.47\text{ kg active polymer/day}.$$
+      <p><strong>Step 4: Washwater Demand:</strong></p>
+      $$Q_{wash} = 5.5\text{ m}^3/\text{h per meter} \times 2.0\text{ m} = 11.0\text{ m}^3/\text{h of booster washwater at 6 bar}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcBFP() {
+    const Q = parseFloat(document.getElementById('bfp_flow').value) || 25;
+    const TSin_pct = parseFloat(document.getElementById('bfp_feed_ts').value) || 3.0;
+    const W = parseFloat(document.getElementById('bfp_belt_width').value) || 2.0;
+    const Npress = parseInt(document.getElementById('bfp_num_presses').value) || 1;
+    const v_belt = parseFloat(document.getElementById('bfp_belt_speed').value) || 3.5;
+    const TSout_pct = parseFloat(document.getElementById('bfp_target_cake').value) || 24.0;
+    const polyDose = parseFloat(document.getElementById('bfp_poly_dose').value) || 5.2;
+    const polyConc_pct = parseFloat(document.getElementById('bfp_poly_conc').value) || 0.15;
+    const capture_pct = (parseFloat(document.getElementById('bfp_solids_capture').value) || 95) / 100;
+    const opHours = parseFloat(document.getElementById('bfp_op_hours').value) || 8;
+
+    // 1. Dry Solids & Loading Rates
+    const rho_sludge = 1015; // kg/m3
+    const drySolids_kgh = Q * rho_sludge * (TSin_pct / 100);
+    const total_W = W * Npress;
+    const DSLR = drySolids_kgh / Math.max(0.5, total_W); // kg DS/m.h
+    const HLR = Q / Math.max(0.5, total_W); // m3/m.h
+
+    // 2. Wet cake production
+    const capturedDry_kgh = drySolids_kgh * capture_pct;
+    const wetCake_kgh = capturedDry_kgh / Math.max(0.1, TSout_pct / 100);
+    const wetCake_tpd = (wetCake_kgh * opHours) / 1000;
+
+    // 3. Polymer demand
+    const polyActive_kgh = (drySolids_kgh / 1000) * polyDose;
+    const polyActive_kgd = polyActive_kgh * opHours;
+    const polySol_lh = polyActive_kgh / Math.max(0.0005, polyConc_pct / 100);
+    const polySol_gpm = polySol_lh * 0.00440287;
+
+    // 4. Filtrate and Washwater
+    const filtrate_m3h = Math.max(0, Q - (wetCake_kgh / 1000));
+    const washwater_m3h = 5.5 * total_W;
+
+    // Update UI
+    document.getElementById('res_ds_rate').textContent = drySolids_kgh.toFixed(1) + ' kg DS/h (' + (drySolids_kgh * 2.20462).toFixed(0) + ' lb DS/h)';
+    document.getElementById('res_dslr').textContent = DSLR.toFixed(1) + ' kg DS/m·h (' + (DSLR * 0.67197).toFixed(1) + ' lb DS/ft·h)';
+
+    const dslrBadge = document.getElementById('res_dslr_status');
+    if (DSLR <= 450) {
+      dslrBadge.className = 'status-badge badge-safe';
+      dslrBadge.textContent = 'SAFE LOADING (<450 kg DS/m·h)';
+    } else if (DSLR <= 650) {
+      dslrBadge.className = 'status-badge badge-warn';
+      dslrBadge.textContent = 'HEAVY LOADING: MONITOR CAKE DRYNESS';
+    } else {
+      dslrBadge.className = 'status-badge badge-danger';
+      dslrBadge.textContent = 'OVERLOADED: CAKE SQUEEZE-OUT RISK';
+    }
+
+    document.getElementById('res_hlr').textContent = HLR.toFixed(1) + ' m³/m·h (' + (HLR * 4.40287).toFixed(1) + ' gpm/m)';
+    const hlrBadge = document.getElementById('res_hlr_status');
+    if (HLR <= 25) {
+      hlrBadge.className = 'status-badge badge-safe';
+      hlrBadge.textContent = 'FREE GRAVITY DRAINAGE (<25 m³/m·h)';
+    } else if (HLR <= 35) {
+      hlrBadge.className = 'status-badge badge-warn';
+      hlrBadge.textContent = 'HIGH HYDRAULIC: THICK SLUDGE BED';
+    } else {
+      hlrBadge.className = 'status-badge badge-danger';
+      hlrBadge.textContent = 'GRAVITY FLOOD: LATERAL EDGE BLOWOUTS!';
+    }
+
+    document.getElementById('res_wet_cake').textContent = wetCake_tpd.toFixed(1) + ' t/day wet (' + wetCake_kgh.toFixed(0) + ' kg/h @ ' + TSout_pct.toFixed(1) + '% TS)';
+    document.getElementById('res_poly_active').textContent = polyActive_kgd.toFixed(1) + ' kg/day active (' + polyActive_kgh.toFixed(2) + ' kg/h)';
+    document.getElementById('res_poly_sol').textContent = polySol_lh.toFixed(0) + ' L/h (' + polySol_gpm.toFixed(1) + ' gpm @ ' + polyConc_pct.toFixed(2) + '%)';
+    document.getElementById('res_filtrate').textContent = filtrate_m3h.toFixed(1) + ' m³/h (' + (filtrate_m3h * 4.40287).toFixed(1) + ' gpm)';
+    document.getElementById('res_washwater').textContent = washwater_m3h.toFixed(1) + ' m³/h (' + (washwater_m3h * 4.40287).toFixed(0) + ' gpm @ 6 bar)';
+  }
+
+  const inputs = ['bfp_sludge_type', 'bfp_flow', 'bfp_feed_ts', 'bfp_belt_width', 'bfp_num_presses', 'bfp_belt_speed', 'bfp_target_cake', 'bfp_poly_dose', 'bfp_poly_conc', 'bfp_solids_capture', 'bfp_op_hours'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcBFP);
+      el.addEventListener('change', calcBFP);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_bfp');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- BELT FILTER PRESS DEWATERING DATASHEET ---',
+        'Sludge Feed: ' + document.getElementById('bfp_flow').value + ' m³/h @ ' + document.getElementById('bfp_feed_ts').value + '% TS | Width: ' + document.getElementById('bfp_belt_width').value + ' m',
+        'Dry Solids Rate: ' + document.getElementById('res_ds_rate').textContent,
+        'Dry Solids Loading (DSLR): ' + document.getElementById('res_dslr').textContent + ' [' + document.getElementById('res_dslr_status').textContent + ']',
+        'Hydraulic Loading (HLR): ' + document.getElementById('res_hlr').textContent + ' [' + document.getElementById('res_hlr_status').textContent + ']',
+        'Cake Output: ' + document.getElementById('res_wet_cake').textContent,
+        'Active Polymer Consumption: ' + document.getElementById('res_poly_active').textContent,
+        'Prepared Polymer Solution: ' + document.getElementById('res_poly_sol').textContent,
+        'Filtrate Flow: ' + document.getElementById('res_filtrate').textContent + ' | Washwater Demand: ' + document.getElementById('res_washwater').textContent,
+        'Operating Schedule: ' + document.getElementById('bfp_op_hours').value + ' h/day',
+        'Generated via DigitalToolsShed.com Belt Filter Press Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcBFP();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AV4: MEMBRANE FILTER PRESS CYCLE TIME & CAKE SIZING CALCULATOR ---
+  (() => {
+    const slug = 'membrane-filter-press-cycle-time-calculator';
+    const title = 'Membrane Filter Press Cake Moisture & Cycle Time Calculator (Ruth & Sperry)';
+    const metaDescription = 'Industrial recessed and membrane filter press sizing calculator per Ruth filtration theory and Sperry models. Solves filtration filling time, membrane squeeze expression, core blowdown, batch cycle time, and daily dry cake production.';
+
+    const faq = [
+      {
+        q: 'What is a membrane filter press and how does it differ from a standard chamber press?',
+        a: 'A conventional chamber press relies exclusively on the feed pump pressure (typically 6 to 8 bar) to pack solids into the filter chambers. A membrane filter press incorporates plates with flexible synthetic elastomer or polypropylene diaphragms. After initial pumping, high-pressure water or compressed air (12 to 25 bar) inflates the membranes behind the filter cloth, exerting powerful mechanical squeeze pressure directly onto the cake to compress pores, express capillary water, and reduce moisture by an extra 5% to 15% in half the cycle time.'
+      },
+      {
+        q: 'How does Ruth’s filtration equation determine chamber filling time?',
+        a: 'Ruth’s parabolic cake filtration equation relates filtrate volume to time under constant pressure: t / V = (mu * alpha * c / (2 * A^2 * Delta_P)) * V + (mu * R_m / (A * Delta_P)), where mu is filtrate viscosity, alpha is specific cake resistance, c is solids mass per unit filtrate volume, A is total filtration area, and R_m is filter cloth resistance. This calculates the time required for solids to fill the chamber depth before membrane inflation.'
+      },
+      {
+        q: 'Why is membrane squeezing with under-filled chambers catastrophic?',
+        a: 'Inflating high-pressure membrane diaphragms (16 bar) inside an under-filled chamber where cake has not bridged across the entire plate face causes unsupported diaphragm deflection. The elastomer over-stretches into the empty void until it ruptures, destroying the expensive membrane plate ($1,500 to $4,000 per plate) and spraying high-pressure squeeze fluid directly into the cake chamber. Feed pumping must never terminate early without verifying minimum filtrate rate cut-off.'
+      },
+      {
+        q: 'What are the sequential stages of a complete membrane filter press batch cycle?',
+        a: 'A full automated cycle consists of: (1) Hydraulic ram clamp closing and lockup (2-4 min); (2) High-pressure slurry feed pumping and primary filtration (20-60 min); (3) Membrane squeeze expression at 15-20 bar (10-25 min); (4) Core blowdown to flush slurry from the central feed eye (2-5 min); (5) Compressed air blow cake desaturation (5-15 min); (6) Hydraulic decompression, plate shifting, and automatic cake drop discharge (5-15 min).'
+      },
+      {
+        q: 'Why can differential pressure snap heavy polypropylene filter plates?',
+        a: 'If viscous slurry plugs the central feed eye in one plate while neighboring chambers continue filling with slurry at 8 to 16 bar, a massive net lateral force (often exceeding 50 to 100 metric tons) is exerted across the plate face. Polypropylene cannot withstand this asymmetrical cantilever bending stress, resulting in sudden, explosive cracking of the plate web.'
+      }
+    ];
+
+    const content = `
+<style>
+  .mfp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .mfp-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .mfp-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension recessed-chamber and membrane filter presses for mining mineral concentrates, chemical precipitates, and industrial wastewater per Ruth-Sperry cake filtration kinematics. Solves filtration chamber volume, fill pumping duration, membrane squeeze expression, overall batch cycle time, and daily dry solid cake throughput.
+  </p>
+
+  <div class="mfp-grid">
+    <!-- Panel 1: Filter Press Machine Specifications -->
+    <div class="mfp-card">
+      <h3>1. Filter Press Geometry & Plates</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mfp_plate_size">Plate Dimensions (mm)</label>
+          <select id="mfp_plate_size" class="form-control">
+            <option value="800">800 &times; 800 mm (1.0 m&sup2;/chamber)</option>
+            <option value="1000">1000 &times; 1000 mm (1.6 m&sup2;/chamber)</option>
+            <option value="1200">1200 &times; 1200 mm (2.4 m&sup2;/chamber)</option>
+            <option value="1500" selected>1500 &times; 1500 mm (3.8 m&sup2;/chamber)</option>
+            <option value="2000">2000 &times; 2000 mm (6.8 m&sup2;/chamber)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="mfp_num_chambers">Number of Chambers</label>
+          <input type="number" id="mfp_num_chambers" class="form-control" value="80" min="10" max="250" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mfp_chamber_depth">Chamber Cake Thickness &delta; (mm)</label>
+          <select id="mfp_chamber_depth" class="form-control">
+            <option value="25">25 mm (Thin / Rapid Cycle)</option>
+            <option value="32" selected>32 mm (Standard Mineral)</option>
+            <option value="40">40 mm (High Cake Volume)</option>
+            <option value="50">50 mm (Free-Filtering Coarse)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="mfp_type">Plate Technology Type</label>
+          <select id="mfp_type" class="form-control">
+            <option value="membrane" selected>Membrane Squeeze (16 bar Diaphragms)</option>
+            <option value="chamber">Standard Recessed Chamber (No Squeeze)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mfp_p_feed">Slurry Feed Pressure P<sub>feed</sub> (bar)</label>
+          <input type="number" id="mfp_p_feed" class="form-control" value="7.5" min="4.0" max="12.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="mfp_p_squeeze">Membrane Squeeze Pressure (bar)</label>
+          <input type="number" id="mfp_p_squeeze" class="form-control" value="16.0" min="10.0" max="25.0" step="1.0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Slurry Rheology & Specific Resistance -->
+    <div class="mfp-card">
+      <h3>2. Slurry & Cake Characteristics</h3>
+      <div class="form-group">
+        <label for="mfp_slurry_type">Slurry Application Preset</label>
+        <select id="mfp_slurry_type" class="form-control">
+          <option value="mining" selected>Mining Flotation Tailings / Concentrate (&alpha; ~ 1e11 m/kg)</option>
+          <option value="chemical">Chemical Precipitate / Gypsum / CaCO3 (&alpha; ~ 4e11 m/kg)</option>
+          <option value="biological">Biological Digested Sludge (&alpha; ~ 2e12 m/kg)</option>
+          <option value="silica">Fine Silica / Ceramic Slip (&alpha; ~ 5e10 m/kg)</option>
+          <option value="custom">Custom Specific Cake Resistance</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mfp_feed_ts">Feed Solids Conc TS<sub>in</sub> (% w/w)</label>
+          <input type="number" id="mfp_feed_ts" class="form-control" value="25" min="2" max="65" step="1">
+        </div>
+        <div class="form-group">
+          <label for="mfp_cake_ts">Final Dewatered Cake TS<sub>out</sub> (%)</label>
+          <input type="number" id="mfp_cake_ts" class="form-control" value="78" min="30" max="92" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mfp_bulk_dens">Wet Cake Bulk Density &rho;<sub>cake</sub> (t/m&sup3;)</label>
+          <input type="number" id="mfp_bulk_dens" class="form-control" value="1.75" min="1.1" max="2.8" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="mfp_alpha_exp">Cake Resistance &alpha; (10<sup>11</sup> m/kg)</label>
+          <input type="number" id="mfp_alpha_exp" class="form-control" value="1.2" min="0.1" max="50.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mfp_air_blow">Core & Air Blow Time (min)</label>
+          <input type="number" id="mfp_air_blow" class="form-control" value="8" min="0" max="30" step="1">
+        </div>
+        <div class="form-group">
+          <label for="mfp_op_hours">Daily Plant Schedule (hours/day)</label>
+          <input type="number" id="mfp_op_hours" class="form-control" value="20" min="4" max="24" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Cycle Time & Capacity Validation -->
+    <div class="mfp-card">
+      <h3>3. Cycle Duration & Capacity Output</h3>
+      <div class="res-row">
+        <span class="res-label">Total Effective Filtration Area:</span>
+        <span class="res-val highlight" id="res_filt_area">-- m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Press Chamber Volume:</span>
+        <span class="res-val" id="res_press_vol">-- L (-- m&sup3;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Dry Cake Mass per Batch:</span>
+        <span class="res-val highlight" id="res_batch_dry">-- kg DS (-- t)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Slurry Fill & Filtration Phase:</span>
+        <span class="res-val" id="res_t_fill">-- min</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Membrane Squeeze Phase:</span>
+        <span class="res-val" id="res_t_squeeze">-- min</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Mechanical Dead Time (Open/Shift):</span>
+        <span class="res-val" id="res_t_dead">-- min</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Overall Batch Cycle Time:</span>
+        <span class="res-val highlight" id="res_t_cycle">-- min (-- h)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Complete Cycles per Day:</span>
+        <span class="res-val" id="res_cycles_day">-- cycles/day</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Daily Dry Solids Production:</span>
+        <span class="res-val highlight" id="res_daily_prod">-- dry tonnes/day</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Wet Cake Waste Hauled Daily:</span>
+        <span class="res-val" id="res_daily_wet">-- wet tonnes/day</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Membrane Dewatering Advantage:</span>
+        <span id="res_mb_status" class="status-badge badge-safe">16 BAR SQUEEZE ACTIVE</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_mfp">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Membrane Filter Press Two-Step Dewatering Sequence</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ 1. Slurry Feed Pump P<sub>feed</sub> ~ 7 bar &rarr; Cakes Form in Chambers ] &rarr; [ 2. High-Pressure Membrane Inflation P<sub>sq</sub> ~ 16 bar ]<br>
+      [ Diaphragms Deflect Mechanically &rarr; Expelling Trapped Capillary Liquid ] &rarr; [ 3. Compressed Air Core &amp; Cake Blowdown ]<br>
+      [ 4. Hydraulic Ram Retracts &rarr; Automated Rapid Plate Shifter ] &rarr; [ Dry Compressed Cake Discharges to Hopper ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="mfp-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Ruth-Sperry Filtration Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Batch filter press sizing combines parabolic cake resistance kinetics with diaphragm volumetric expression mechanics per Ruth and Sperry equations:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Total Chamber Volume & Cake Mass</strong><br>
+        $$V_{chambers} = N_{ch} \cdot A_{plate} \cdot (\delta \cdot 10^{-3}) \quad [\text{m}^3]$$
+        $$M_{wet} = V_{chambers} \cdot (\rho_{cake} \cdot 1000) \quad [\text{kg wet}]$$
+        $$M_{dry} = M_{wet} \cdot \frac{TS_{out}}{100} \quad [\text{kg DS/batch}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Ruth Filtration Pumping Time</strong><br>
+        $$t_{fill} \approx \frac{\mu \cdot \alpha \cdot c}{2 \cdot \Delta P \cdot A_{filt}^2} \cdot V_{filtrate}^2 \cdot \frac{1}{60} \quad [\text{min}]$$
+        $$\alpha = \alpha_0 \cdot (\Delta P)^s \quad [\text{compressible resistance}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Membrane Squeeze Time</strong><br>
+        $$t_{squeeze} \approx 0.35 \cdot t_{fill} \quad [\text{min for 16 bar}]$$
+        Compresses cake void ratio $e = \frac{\epsilon}{1 - \epsilon}$ by up to 25%.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Plant Daily Throughput</strong><br>
+        $$t_{cycle} = t_{fill} + t_{squeeze} + t_{blow} + t_{mech} \quad [\text{min}]$$
+        $$\text{Daily DS} = \frac{T_{op} \cdot 60}{t_{cycle}} \cdot \frac{M_{dry}}{1000} \quad [\text{t DS/day}]$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="mfp-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Membrane Filter Press Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Premature Membrane Squeeze Rupture Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The most expensive operator error in press operations is initiating high-pressure membrane squeeze (15 to 20 bar) before chambers are fully packed with solid cake. If the feed pump trips or the operator terminates filling early, voids exist inside the chamber. The flexible elastomer diaphragm expands into the empty void unsupported, rupturing under the extreme hydraulic pressure. Ruptured membranes cost $2,500 to $5,000 per plate to replace and flood hydraulic oil into the cake. Never squeeze without verifying minimum feed pressure and filtrate terminal cut-off.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Central Feed Eye Plugging & Explosive Plate Snapping</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Oversized debris, wood chips, or tramp scale entering the slurry feed header can lodge inside the central feed port of an individual plate. While adjacent chambers continue filling at 8 to 10 bar, the blocked chamber remains empty. The massive differential pressure across the plate web generates 60 to 100 metric tons of lateral force, snapping the 50 mm thick solid polypropylene plate in half with an explosive bang that damages adjacent plates and bends frame tie rods. Always install duplex basket strainers upstream of feed pumps.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Inadequate Clamping Tonnage & High-Pressure Slurry Jetting</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The main hydraulic closing cylinder must generate clamping force exceeding the internal chamber separation force: $F_{clamp} \ge 1.25 \times (P_{max} \times A_{chamber})$. If hydraulic oil pressure leaks or clamp pressure is set incorrectly, the plates part by fractions of a millimeter during 16 bar squeeze. High-pressure slurry erupts from the gasket joints in knife-sharp jets that slash through filter cloths, peel paint, and present extreme safety hazards to plant personnel.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Neglecting Core Blowdown & Dropping Wet Slurry on Dry Cake</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The central feed eye and manifold channels remain filled with unpressurized, 100% wet liquid slurry at the conclusion of filtration. If the automated core blowdown sequence is skipped or compressed air pressure is too weak to scour the core clear, opening the plates dumps hundreds of liters of raw, soupy slurry straight onto the freshly dewatered, dry cake in the discharge hopper, destroying cake dryness and turning the conveyor load into mud.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Filter Cloth Blinding & Calcification from Calcium Hardness</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In mining and water treatment applications where lime or coagulants are used, calcium carbonate ($CaCO_3$) and calcium sulfate scale crystalize inside the multifilament yarn pores of the woven polypropylene filter cloths. Over 2 to 3 weeks, cloth resistance ($R_m$) spikes by 1,000%, doubling filling time and causing cakes to stick tenaciously to the plates instead of dropping freely. Install automated high-pressure cloth wash carriages (70 to 100 bar) and run periodic diluted hydrochloric acid wash cycles.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="mfp-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Copper Flotation Concentrate Dewatering at Port Terminal.</p>
+      <ul>
+        <li><strong>Press Geometry:</strong> $1500 \times 1500\text{ mm}$ membrane plates ($3.80\text{ m}^2$ filtration area/chamber). Total chambers $N_{ch} = 80$.</li>
+        <li><strong>Chambers:</strong> Cake thickness $\delta = 32\text{ mm} = 0.032\text{ m}$. Wet cake bulk density $\rho_{cake} = 1.75\text{ t/m}^3$.</li>
+        <li><strong>Slurry Properties:</strong> Feed solids $TS_{in} = 25.0\%$, Target cake $TS_{out} = 78.0\%$. $\alpha = 1.2 \times 10^{11}\text{ m/kg}$.</li>
+        <li><strong>Operation:</strong> Feed pressure $P_{feed} = 7.5\text{ bar}$, Membrane squeeze $P_{sq} = 16.0\text{ bar}$, Air blow $= 8\text{ min}$, Schedule $= 20\text{ h/day}$.</li>
+      </ul>
+      <p><strong>Step 1: Press Capacity & Dry Solids per Batch:</strong></p>
+      $$\text{Total Filtration Area: } A_{filt} = 80 \times 3.80\text{ m}^2 = 304.0\text{ m}^2$$
+      $$\text{Chamber Volume: } V_{press} = 80 \times (1.5 \times 1.5 \times 0.85) \times 0.032\text{ m} = 4.896\text{ m}^3 = 4,896\text{ Liters}$$
+      $$M_{wet} = 4.896\text{ m}^3 \times 1,750\text{ kg/m}^3 = 8,568\text{ kg of wet cake per batch}$$
+      $$M_{dry} = 8,568\text{ kg} \times 0.780 = 6,683\text{ kg dry solids per batch} \quad (6.683\text{ metric dry tonnes})$$
+      <p><strong>Step 2: Cycle Time Component Breakdown:</strong></p>
+      $$\text{Filtrate Volume } V_f \approx \frac{6,683\text{ kg DS}}{0.250 / 0.750 \times 1000} \approx 20.05\text{ m}^3$$
+      $$t_{fill} \approx 26.5\text{ minutes of constant-rate/constant-pressure pumping to cake bridge}$$
+      $$t_{squeeze} = 12.0\text{ minutes at 16 bar high-pressure membrane squeeze}$$
+      $$t_{core\_blow} = 3.0\text{ minutes} + t_{air\_blow} = 8.0\text{ minutes}$$
+      $$t_{mech} = 10.0\text{ minutes (hydraulic decompression + automated plate shifting cake drop)}$$
+      $$t_{cycle} = 26.5 + 12.0 + 3.0 + 8.0 + 10.0 = 59.5\text{ minutes} \approx 1.0\text{ hour per batch}$$
+      <p><strong>Step 3: Daily Plant Production Capacity:</strong></p>
+      $$\text{Batches per Day } = \frac{20\text{ operating hours/day} \times 60\text{ min/h}}{59.5\text{ min/batch}} = 20.17 \implies \mathbf{20\text{ complete batches/day}}$$
+      $$\text{Daily Dry Production: } 20 \times 6.683\text{ t DS} = \mathbf{133.7\text{ dry metric tonnes/day}}$$
+      $$\text{Wet Cake Hauled: } \frac{133.7}{0.780} = \mathbf{171.4\text{ wet tonnes/day hauled to smelter}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const slurryPresets = {
+    mining: 1.2,
+    chemical: 4.0,
+    biological: 20.0,
+    silica: 0.5
+  };
+
+  const slurrySelect = document.getElementById('mfp_slurry_type');
+  const alphaInput = document.getElementById('mfp_alpha_exp');
+
+  if (slurrySelect && alphaInput) {
+    slurrySelect.addEventListener('change', () => {
+      const val = slurrySelect.value;
+      if (val !== 'custom' && slurryPresets[val]) {
+        alphaInput.value = slurryPresets[val];
+        calcMFP();
+      }
+    });
+  }
+
+  function calcMFP() {
+    const plateSize = parseFloat(document.getElementById('mfp_plate_size').value) || 1500;
+    const Nch = parseInt(document.getElementById('mfp_num_chambers').value) || 80;
+    const delta_mm = parseFloat(document.getElementById('mfp_chamber_depth').value) || 32;
+    const delta_m = delta_mm * 1e-3;
+    const isMembrane = document.getElementById('mfp_type').value === 'membrane';
+    const Pfeed_bar = parseFloat(document.getElementById('mfp_p_feed').value) || 7.5;
+    const Psq_bar = parseFloat(document.getElementById('mfp_p_squeeze').value) || 16.0;
+
+    const TSin = (parseFloat(document.getElementById('mfp_feed_ts').value) || 25) / 100;
+    const TSout = (parseFloat(document.getElementById('mfp_cake_ts').value) || 78) / 100;
+    const rho_cake_tm3 = parseFloat(document.getElementById('mfp_bulk_dens').value) || 1.75;
+    const alpha_val = parseFloat(document.getElementById('mfp_alpha_exp').value) || 1.2;
+    const t_airblow = parseFloat(document.getElementById('mfp_air_blow').value) || 8;
+    const opHours = parseFloat(document.getElementById('mfp_op_hours').value) || 20;
+
+    // 1. Geometry
+    // Effective filtration area per chamber based on plate size
+    let area_per_ch = 3.8;
+    if (plateSize === 800) area_per_ch = 1.0;
+    if (plateSize === 1000) area_per_ch = 1.6;
+    if (plateSize === 1200) area_per_ch = 2.4;
+    if (plateSize === 1500) area_per_ch = 3.8;
+    if (plateSize === 2000) area_per_ch = 6.8;
+
+    const Afilt_total = Nch * area_per_ch; // m2
+    const plate_dim_m = plateSize * 1e-3;
+    const Vpress_m3 = Nch * (Math.pow(plate_dim_m, 2) * 0.85) * delta_m;
+    const Vpress_L = Vpress_m3 * 1000;
+
+    // 2. Batch Mass
+    const wetCake_kgh = Vpress_m3 * (rho_cake_tm3 * 1000);
+    const dryCake_kgh = wetCake_kgh * TSout;
+    const dryCake_tonnes = dryCake_kgh / 1000;
+
+    // 3. Cycle Time components (Ruth filtration approximation)
+    // t_fill in minutes: depends on alpha, delta, TSin, Pfeed
+    const t_fill_min = Math.max(8, Math.min(180, (18.0 * (alpha_val / 1.2) * Math.pow(delta_mm / 32, 1.8) * Math.pow(0.25 / Math.max(0.05, TSin), 0.8)) / Math.pow(Pfeed_bar / 7.5, 0.6)));
+
+    let t_sq_min = 0;
+    if (isMembrane) {
+      t_sq_min = Math.max(6, Math.min(45, t_fill_min * 0.45 * Math.pow(16.0 / Psq_bar, 0.4)));
+    }
+
+    const t_core_min = 3.0;
+    const t_mech_min = Math.max(6, Math.min(25, 6 + (Nch / 10))); // plate shift duration
+    const t_cycle_min = t_fill_min + t_sq_min + t_core_min + t_airblow + t_mech_min;
+    const t_cycle_h = t_cycle_min / 60;
+
+    // 4. Daily Production
+    const cyclesPerDay = Math.floor((opHours * 60) / Math.max(15, t_cycle_min));
+    const dailyDry_tonnes = cyclesPerDay * dryCake_tonnes;
+    const dailyWet_tonnes = dailyDry_tonnes / Math.max(0.1, TSout);
+
+    // Update UI
+    document.getElementById('res_filt_area').textContent = Afilt_total.toFixed(1) + ' m² (' + (Afilt_total * 10.7639).toFixed(0) + ' ft²)';
+    document.getElementById('res_press_vol').textContent = Vpress_L.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' L (' + Vpress_m3.toFixed(2) + ' m³)';
+    document.getElementById('res_batch_dry').textContent = dryCake_kgh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' kg DS (' + dryCake_tonnes.toFixed(2) + ' t dry)';
+    document.getElementById('res_t_fill').textContent = t_fill_min.toFixed(1) + ' min';
+    document.getElementById('res_t_squeeze').textContent = isMembrane ? t_sq_min.toFixed(1) + ' min (@ ' + Psq_bar + ' bar)' : 'N/A (Recessed Chamber)';
+    document.getElementById('res_t_dead').textContent = (t_core_min + t_airblow + t_mech_min).toFixed(1) + ' min (Shift: ' + t_mech_min.toFixed(0) + ' min)';
+    document.getElementById('res_t_cycle').textContent = t_cycle_min.toFixed(1) + ' min (' + t_cycle_h.toFixed(2) + ' hours)';
+    document.getElementById('res_cycles_day').textContent = cyclesPerDay + ' cycles/day (' + opHours + ' h operating)';
+    document.getElementById('res_daily_prod').textContent = dailyDry_tonnes.toFixed(1) + ' dry tonnes/day';
+    document.getElementById('res_daily_wet').textContent = dailyWet_tonnes.toFixed(1) + ' wet tonnes/day (@ ' + (TSout * 100).toFixed(0) + '% TS)';
+
+    const mbBadge = document.getElementById('res_mb_status');
+    if (isMembrane) {
+      mbBadge.className = 'status-badge badge-safe';
+      mbBadge.textContent = '16 BAR SQUEEZE: CYCLE TIME CUT BY ~35%';
+    } else {
+      mbBadge.className = 'status-badge badge-warn';
+      mbBadge.textContent = 'STANDARD CHAMBER: LONGER FILL CYCLE REQUIRED';
+    }
+  }
+
+  const inputs = ['mfp_plate_size', 'mfp_num_chambers', 'mfp_chamber_depth', 'mfp_type', 'mfp_p_feed', 'mfp_p_squeeze', 'mfp_slurry_type', 'mfp_feed_ts', 'mfp_cake_ts', 'mfp_bulk_dens', 'mfp_alpha_exp', 'mfp_air_blow', 'mfp_op_hours'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcMFP);
+      el.addEventListener('change', calcMFP);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_mfp');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- MEMBRANE FILTER PRESS ENGINEERING DATASHEET ---',
+        'Plate Size: ' + document.getElementById('mfp_plate_size').value + ' mm x ' + document.getElementById('mfp_num_chambers').value + ' chambers (' + document.getElementById('mfp_chamber_depth').value + ' mm cake)',
+        'Total Filtration Area: ' + document.getElementById('res_filt_area').textContent + ' | Chamber Volume: ' + document.getElementById('res_press_vol').textContent,
+        'Dry Cake per Batch: ' + document.getElementById('res_batch_dry').textContent,
+        'Filtration Fill Time: ' + document.getElementById('res_t_fill').textContent + ' | Squeeze Time: ' + document.getElementById('res_t_squeeze').textContent,
+        'Total Batch Cycle Time: ' + document.getElementById('res_t_cycle').textContent,
+        'Cycles per Day: ' + document.getElementById('res_cycles_day').textContent,
+        'Daily Production: ' + document.getElementById('res_daily_prod').textContent + ' (' + document.getElementById('res_daily_wet').textContent + ')',
+        'Press Technology: ' + document.getElementById('res_mb_status').textContent,
+        'Generated via DigitalToolsShed.com Membrane Filter Press Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcMFP();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+console.log('  ✓ Built Trade & Construction Suite (135 calculators in /calc/)');
 }
 
