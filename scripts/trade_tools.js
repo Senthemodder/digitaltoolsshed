@@ -118602,6 +118602,2253 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
 
 
 
-console.log('  ✓ Built Trade & Construction Suite (179 calculators in /calc/)');
+  // ==========================================
+  // Tool BH1: Centrifugal Compressor Polytropic Head & Discharge Temperature Calculator
+  // ==========================================
+  (() => {
+    const slug = 'centrifugal-compressor-polytropic-head-calculator';
+    const title = 'Centrifugal Compressor Polytropic Head & Discharge Temperature Calculator';
+    const metaDescription = 'Calculate centrifugal compressor polytropic head, polytropic efficiency, discharge temperature, and shaft gas horsepower using the Schultz method and ASME PTC 10. Evaluates real gas compressibility, volume reduction ratio, and surge limit margin.';
+
+    const faq = [
+      {
+        q: 'What is polytropic head and why is it preferred over isentropic head for compressors?',
+        a: 'Polytropic head (Hp) represents the reversible mechanical work required to compress a real gas along a continuous thermodynamic polytropic path (P * v^n = constant). Unlike isentropic (adiabatic) efficiency, which artificially varies with pressure ratio across multi-stage machines due to thermodynamic reheat (interstage friction heating the gas and increasing subsequent compression work), polytropic efficiency (eta_p) represents the aerodynamic efficiency of individual impellers independent of pressure ratio. It provides a consistent, true measure of aerodynamic performance per ASME PTC 10 and API 617.'
+      },
+      {
+        q: 'How does the Schultz method correct polytropic head for real gases in ASME PTC 10?',
+        a: 'The Schultz method introduces a compressibility correction factor f to account for variations in real gas behavior across the compression path: f = (h2 - h1) / [[n / (n - 1)] * (P2 * v2 - P1 * v1)]. For ideal gases, f = 1.000. In high-pressure hydrocarbon gas, carbon dioxide, or dense phase compression where compressibility Z swings significantly between inlet and discharge, Schultz correction factor f (typically 1.002 to 1.035) prevents 3% to 8% head and power sizing errors that would otherwise overload prime mover electric motors or steam turbines.'
+      },
+      {
+        q: 'What is the maximum allowable compressor discharge temperature under API 617?',
+        a: 'API Standard 617 enforces a strict continuous discharge temperature ceiling of 300 deg F (149 deg C) for centrifugal compressors in process services, and recommends staying below 275 deg F (135 deg C) for hydrogen-rich streams. Operating above 300 deg F degrades elastomeric fluoroelastomer (FKM/FFKM) O-rings, causes thermal breakdown of dry gas seal face materials, accelerates polymer fouling/coking in cracked gas services, and leads to rotor thermal bow.'
+      },
+      {
+        q: 'How is the temperature exponent m related to the polytropic exponent n?',
+        a: 'The polytropic temperature exponent m is defined as m = (n - 1) / n. For an ideal gas undergoing polytropic compression with polytropic efficiency eta_p, m = [(k - 1) / k] * (1 / eta_p), where k is the specific heat ratio (Cp / Cv). The discharge temperature is given by T2 = T1 * (P2 / P1)^m, where temperatures are in absolute Rankine or Kelvin. When eta_p = 1.0, m equals the isentropic temperature exponent (k - 1) / k.'
+      },
+      {
+        q: 'What is the Volume Reduction Ratio (VRR) and how does it influence multi-stage impeller sizing?',
+        a: 'The Volume Reduction Ratio (VRR = Q1 / Q2) quantifies how much the volumetric gas flow shrinks as it passes from the first stage impeller to the final discharge impeller due to pressure rise and temperature change: VRR = (P2 / P1)^(1/n) * (Z1 / Z2) * (T1 / T2). In high-pressure machines with VRR > 4, the volumetric flow through the final impeller can become so small that narrow impeller tip widths suffer excessive boundary layer friction and low efficiency, requiring interstage cooling or split casing designs.'
+      }
+    ];
+
+    const content = `
+<style>
+.cmp-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.cmp-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.cmp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.cmp-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .cmp-grid-2, .cmp-grid-3, .cmp-grid-4 { grid-template-columns: 1fr; }
+}
+.cmp-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.cmp-input, .cmp-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.cmp-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.cmp-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.cmp-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.cmp-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.cmp-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+</style>
+
+<div class="cmp-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">Centrifugal Compressor Polytropic Head &amp; Power Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">ASME PTC 10 &amp; API 617 Schultz Polytropic Head, Discharge Temperature &amp; Gas Horsepower</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="cmp-btn" id="btn_cmp_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Compressor Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0.75rem 1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+    <span style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Process Gas Presets:</span>
+    <button type="button" class="cmp-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_gas_nat">Natural Gas (M=18.5, k=1.27)</button>
+    <button type="button" class="cmp-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_gas_air">Ambient Air (M=28.97, k=1.40)</button>
+    <button type="button" class="cmp-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_gas_h2">H2 Recycle (M=6.2, k=1.39)</button>
+    <button type="button" class="cmp-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_gas_co2">Carbon Dioxide (M=44.01, k=1.29)</button>
+    <button type="button" class="cmp-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_gas_c3">Propane Refrig (M=44.1, k=1.13)</button>
+  </div>
+
+  <div class="cmp-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="cmp-label">Inlet Pressure (P1) <span>psia</span></label>
+      <input type="number" id="cmp_p1" class="cmp-input" value="45.0" step="1" min="1">
+    </div>
+    <div>
+      <label class="cmp-label">Discharge Pressure (P2) <span>psia</span></label>
+      <input type="number" id="cmp_p2" class="cmp-input" value="135.0" step="1" min="1">
+    </div>
+    <div>
+      <label class="cmp-label">Inlet Temperature (T1) <span>&deg;F</span></label>
+      <input type="number" id="cmp_t1" class="cmp-input" value="100.0" step="1">
+    </div>
+    <div>
+      <label class="cmp-label">Mass Flow Rate (w) <span>lb/hr</span></label>
+      <input type="number" id="cmp_w" class="cmp-input" value="75000" step="1000" min="100">
+    </div>
+  </div>
+
+  <div class="cmp-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="cmp-label">Molecular Weight (M) <span>g/mol</span></label>
+      <input type="number" id="cmp_mw" class="cmp-input" value="18.5" step="0.1" min="2">
+    </div>
+    <div>
+      <label class="cmp-label">Specific Heat Ratio (k) <span>Cp/Cv</span></label>
+      <input type="number" id="cmp_k" class="cmp-input" value="1.27" step="0.01" min="1.05" max="1.7">
+    </div>
+    <div>
+      <label class="cmp-label">Inlet Compressibility (Z1)</label>
+      <input type="number" id="cmp_z1" class="cmp-input" value="0.97" step="0.01" min="0.2" max="1.5">
+    </div>
+    <div>
+      <label class="cmp-label">Discharge Compressibility (Z2)</label>
+      <input type="number" id="cmp_z2" class="cmp-input" value="0.94" step="0.01" min="0.2" max="1.5">
+    </div>
+  </div>
+
+  <div class="cmp-grid-3" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="cmp-label">Polytropic Efficiency (&eta;p) <span>% (decimal)</span></label>
+      <input type="number" id="cmp_eff_poly" class="cmp-input" value="0.77" step="0.01" min="0.50" max="0.95">
+    </div>
+    <div>
+      <label class="cmp-label">Mechanical Efficiency (&eta;mech) <span>% (decimal)</span></label>
+      <input type="number" id="cmp_eff_mech" class="cmp-input" value="0.98" step="0.005" min="0.90" max="0.995">
+    </div>
+    <div>
+      <label class="cmp-label">Schultz Factor (f) <span>ASME PTC 10</span></label>
+      <input type="number" id="cmp_f" class="cmp-input" value="1.005" step="0.001" min="0.95" max="1.10">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="cmp-grid-4" style="margin-bottom:1.5rem;">
+    <div class="cmp-kpi">
+      <div class="cmp-kpi-lbl">Polytropic Head (Hp)</div>
+      <div class="cmp-kpi-val" id="res_cmp_head" style="color:#2563eb;">63,420</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_cmp_head_metric">ft-lbf/lbm (189.6 kJ/kg)</div>
+    </div>
+    <div class="cmp-kpi">
+      <div class="cmp-kpi-lbl">Discharge Temp (T2)</div>
+      <div class="cmp-kpi-val" id="res_cmp_t2" style="color:#10b981;">248 &deg;F</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_cmp_t2_metric">120 &deg;C (&lt;300&deg;F API 617 OK)</div>
+    </div>
+    <div class="cmp-kpi">
+      <div class="cmp-kpi-lbl">Gas Horsepower (GHP)</div>
+      <div class="cmp-kpi-val" id="res_cmp_ghp">3,120 HP</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_cmp_ghp_kw">2,327 kW</div>
+    </div>
+    <div class="cmp-kpi">
+      <div class="cmp-kpi-lbl">Shaft Brake Power (BHP)</div>
+      <div class="cmp-kpi-val" id="res_cmp_bhp" style="color:#2563eb;">3,184 HP</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_cmp_bhp_kw">2,374 kW (Driver Req)</div>
+    </div>
+  </div>
+
+  <div class="cmp-grid-3">
+    <div class="cmp-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Thermodynamics &amp; Exponents</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Pressure Ratio (r_p):</strong> <span id="res_cmp_rp">3.000</span></div>
+        <div><strong>Temperature Exponent (m):</strong> <span id="res_cmp_m">0.276</span></div>
+        <div><strong>Polytropic Exponent (n):</strong> <span id="res_cmp_n">1.381</span></div>
+        <div><strong>Average Z (Z_avg):</strong> <span id="res_cmp_zavg">0.955</span></div>
+        <div><strong>Isentropic Head (Hs):</strong> <span id="res_cmp_hs">59,210 ft-lb/lb</span></div>
+      </div>
+    </div>
+    <div class="cmp-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Flows &amp; Volume Reduction</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Inlet Volume (Q1):</strong> <span id="res_cmp_q1">5,820 ACFM (9,890 m&sup3;/h)</span></div>
+        <div><strong>Discharge Volume (Q2):</strong> <span id="res_cmp_q2">2,440 ACFM (4,150 m&sup3;/h)</span></div>
+        <div><strong>Volume Reduction Ratio:</strong> <span id="res_cmp_vrr">2.385 (Q1 / Q2)</span></div>
+        <div><strong>Inlet Gas Density (&rho;1):</strong> <span id="res_cmp_rho1">0.215 lb/ft&sup3;</span></div>
+        <div><strong>Discharge Gas Density (&rho;2):</strong> <span id="res_cmp_rho2">0.512 lb/ft&sup3;</span></div>
+      </div>
+    </div>
+    <div class="cmp-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">API 617 Mechanical Integrity</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Temperature Status:</strong> <span id="res_cmp_temp_status" style="color:#10b981; font-weight:600;">PASS (&lt;300&deg;F API Limit)</span></div>
+        <div><strong>Isentropic Efficiency (&eta;s):</strong> <span id="res_cmp_eff_isen">71.9% (Reheat Effect)</span></div>
+        <div><strong>Mechanical Loss:</strong> <span id="res_cmp_mech_loss">64 HP (Bearings + Seals)</span></div>
+        <div><strong>Suggested Motor Rating:</strong> <span id="res_cmp_motor_rec">3,500 HP (110% Margin)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Compressor Sizing</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Isentropic Efficiency Reheat Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Using isentropic (adiabatic) efficiency \(\eta_s\) instead of polytropic efficiency \(\eta_p\) when comparing or designing multi-stage centrifugal compressors is a fundamental engineering mistake. Because frictional energy from early stages heats the gas, subsequent stages must compress hotter, higher-specific-volume gas ("reheat effect"). Consequently, isentropic efficiency automatically degrades as the pressure ratio increases, even if impeller aerodynamics are identical. Specifying machines by isentropic efficiency leads to <strong>mismatched impellers and inaccurate shaft power sizing</strong>.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Exceeding the API 617 300&deg;F Discharge Temperature Limit</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operating centrifugal compressors with discharge temperatures above <strong>300&deg;F (149&deg;C)</strong> violates API 617 and severely compromises mechanical integrity. High temperatures degrade fluorocarbon (Viton/Kalrez) elastomeric O-rings in dry gas seals, carbonize lube oil in bearing housings, cause differential thermal expansion that pinches labyrinth seal clearances, and initiate severe coking in hydrocarbon gases containing heavy ends or olefins.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Compressibility Factor (Z) Swing Neglect</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Assuming an ideal gas (\(Z = 1.0\)) or relying solely on suction compressibility \(Z_1\) introduces massive errors in high-pressure natural gas, CO2, or ethylene service. Near the critical point or at high discharge pressures, \(Z\) can shift from 0.95 at suction to 0.75 at discharge. Neglecting this 20% compressibility reduction distorts the calculated polytropic head by <strong>up to 12%, resulting in severely underpowered electric motor drives</strong>.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. High Volume Reduction Ratio &amp; Final-Stage Choke/Stall</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">In high-ratio multi-stage casings, the volumetric flow shrinks dramatically (\(VRR > 3.5\)). The final impellers must have very narrow flow passages (sometimes \(< 0.25 \text{ inches}\)). If the process gas molecular weight increases (e.g. higher heavier hydrocarbon fractions), the gas compresses faster, starving the final impeller into aerodynamic stall and destructive rotating stall vibrations.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Molecular Weight Shift &amp; Surge Line Migration</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Failing to account for gas composition shifts in anti-surge controller configuration causes immediate compressor destruction. When molecular weight drops (e.g. hydrogen purity increases in refinery recycle gas), the polytropic head required to achieve the pressure ratio spikes dramatically. The compressor operating point moves rapidly toward the left into the surge zone. Without an anti-surge valve opening fast enough (within 1.5 seconds), violent flow reversals generate axial thrust spikes that <strong>destroy hydrodynamic tilt-pad thrust bearings</strong>.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">ASME PTC 10 &amp; Schultz Mathematical Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Polytropic Temperature Exponent &amp; Discharge Temperature</h3>
+  <p style="font-size:0.9rem; line-height:1.6;">Per ASME PTC 10 and Schultz, the temperature exponent \(m\) is governed by the specific heat ratio \(k = C_p / C_v\) and polytropic efficiency \(\eta_p\):</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$m = \frac{n - 1}{n} = \left(\frac{k - 1}{k}\right) \cdot \frac{1}{\eta_p}$$
+    $$T_2 = T_1 \cdot \left(\frac{P_2}{P_1}\right)^m \quad [\text{Rankine or Kelvin}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Schultz Polytropic Head (Hp)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$H_p = f \cdot Z_{avg} \cdot \left(\frac{R_{univ}}{M}\right) \cdot T_1 \cdot \left(\frac{1}{m}\right) \cdot \left[\left(\frac{P_2}{P_1}\right)^m - 1\right] \quad [\text{ft}\cdot\text{lbf/lbm}]$$
+    $$\text{Where: } R_{univ} = 1545.35 \text{ ft-lbf/(lbmol}\cdot^{\circ}\text{R)}, \quad Z_{avg} = \frac{Z_1 + Z_2}{2}$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Gas Horsepower (GHP) &amp; Shaft Brake Horsepower (BHP)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$GHP = \frac{\dot{m} \cdot H_p}{33,000 \cdot \eta_p \cdot 60} \quad [\text{HP}]$$
+    $$BHP = \frac{GHP}{\eta_{mech}} \quad [\text{HP}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcCmp() {
+    const P1 = parseFloat(document.getElementById('cmp_p1').value) || 45;
+    const P2 = parseFloat(document.getElementById('cmp_p2').value) || 135;
+    const T1_f = parseFloat(document.getElementById('cmp_t1').value) || 100;
+    const w_lb_hr = parseFloat(document.getElementById('cmp_w').value) || 75000;
+    const M = parseFloat(document.getElementById('cmp_mw').value) || 18.5;
+    const k = parseFloat(document.getElementById('cmp_k').value) || 1.27;
+    const Z1 = parseFloat(document.getElementById('cmp_z1').value) || 0.97;
+    const Z2 = parseFloat(document.getElementById('cmp_z2').value) || 0.94;
+    const eta_p = parseFloat(document.getElementById('cmp_eff_poly').value) || 0.77;
+    const eta_mech = parseFloat(document.getElementById('cmp_eff_mech').value) || 0.98;
+    const f_schultz = parseFloat(document.getElementById('cmp_f').value) || 1.005;
+
+    const rp = P2 / P1;
+    const T1_r = T1_f + 459.67;
+    const Z_avg = (Z1 + Z2) / 2.0;
+
+    // Temperature exponent m = [(k - 1) / k] * (1 / eta_p)
+    const m = ((k - 1) / k) * (1 / eta_p);
+    const n = 1 / (1 - m);
+
+    // Discharge Temperature
+    const T2_r = T1_r * Math.pow(rp, m);
+    const T2_f = T2_r - 459.67;
+    const T2_c = (T2_f - 32) * 5 / 9;
+
+    // Gas constant R = Runiv / M = 1545.35 / M
+    const R_gas = 1545.35 / M;
+
+    // Polytropic Head Hp (ft-lbf/lbm)
+    // Hp = f * Z_avg * R_gas * T1_r * (1 / m) * [rp^m - 1]
+    const Hp = f_schultz * Z_avg * R_gas * T1_r * (1 / m) * (Math.pow(rp, m) - 1);
+    const Hp_kj_kg = Hp * 0.00298907;
+
+    // Isentropic Head Hs
+    const m_isen = (k - 1) / k;
+    const Hs = Z_avg * R_gas * T1_r * (1 / m_isen) * (Math.pow(rp, m_isen) - 1);
+    const eta_isen = Hs / (Hp / eta_p);
+
+    // Gas Horsepower (GHP)
+    // GHP = (w_lb_hr / 60) * Hp / (33000 * eta_p)
+    const w_lb_min = w_lb_hr / 60;
+    const ghp = (w_lb_min * Hp) / (33000 * eta_p);
+    const ghp_kw = ghp * 0.7457;
+
+    // Shaft Brake Horsepower (BHP)
+    const bhp = ghp / eta_mech;
+    const bhp_kw = bhp * 0.7457;
+    const mechLossHp = bhp - ghp;
+
+    // Gas densities lb/ft3: rho = P * 144 / (Z * R * T)
+    const rho1 = (P1 * 144) / (Z1 * R_gas * T1_r);
+    const rho2 = (P2 * 144) / (Z2 * R_gas * T2_r);
+
+    // Volumetric flow rates ACFM
+    const q1_acfm = w_lb_min / rho1;
+    const q2_acfm = w_lb_min / rho2;
+    const vrr = q1_acfm / Math.max(0.1, q2_acfm);
+
+    // Suggested motor size (typical 110% of BHP rounded up to standard NEMA/IEC size)
+    const motorHpReq = bhp * 1.10;
+    const STD_MOTORS = [500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 10000];
+    const recMotor = STD_MOTORS.find(m => m >= motorHpReq) || Math.ceil(motorHpReq / 500) * 500;
+
+    // Update KPI Displays
+    document.getElementById('res_cmp_head').textContent = Math.round(Hp).toLocaleString();
+    document.getElementById('res_cmp_head_metric').textContent = 'ft-lbf/lbm (' + Hp_kj_kg.toFixed(1) + ' kJ/kg)';
+
+    document.getElementById('res_cmp_t2').textContent = Math.round(T2_f) + ' °F';
+    document.getElementById('res_cmp_t2_metric').textContent = Math.round(T2_c) + ' °C (' + (T2_f > 300 ? 'EXCEEDS 300°F API 617' : 'OK <300°F API 617') + ')';
+
+    document.getElementById('res_cmp_ghp').textContent = Math.round(ghp).toLocaleString() + ' HP';
+    document.getElementById('res_cmp_ghp_kw').textContent = Math.round(ghp_kw).toLocaleString() + ' kW';
+
+    document.getElementById('res_cmp_bhp').textContent = Math.round(bhp).toLocaleString() + ' HP';
+    document.getElementById('res_cmp_bhp_kw').textContent = Math.round(bhp_kw).toLocaleString() + ' kW (Driver Req)';
+
+    // Thermodynamics Details
+    document.getElementById('res_cmp_rp').textContent = rp.toFixed(3);
+    document.getElementById('res_cmp_m').textContent = m.toFixed(3);
+    document.getElementById('res_cmp_n').textContent = n.toFixed(3);
+    document.getElementById('res_cmp_zavg').textContent = Z_avg.toFixed(3);
+    document.getElementById('res_cmp_hs').textContent = Math.round(Hs).toLocaleString() + ' ft-lb/lb';
+
+    // Flows Details
+    document.getElementById('res_cmp_q1').textContent = Math.round(q1_acfm).toLocaleString() + ' ACFM (' + Math.round(q1_acfm * 1.699).toLocaleString() + ' m³/h)';
+    document.getElementById('res_cmp_q2').textContent = Math.round(q2_acfm).toLocaleString() + ' ACFM (' + Math.round(q2_acfm * 1.699).toLocaleString() + ' m³/h)';
+    document.getElementById('res_cmp_vrr').textContent = vrr.toFixed(3) + ' (Q1 / Q2)';
+    document.getElementById('res_cmp_rho1').textContent = rho1.toFixed(3) + ' lb/ft³ (' + (rho1 * 16.0185).toFixed(2) + ' kg/m³)';
+    document.getElementById('res_cmp_rho2').textContent = rho2.toFixed(3) + ' lb/ft³ (' + (rho2 * 16.0185).toFixed(2) + ' kg/m³)';
+
+    // Mechanical Details
+    const tempStatus = document.getElementById('res_cmp_temp_status');
+    if (T2_f > 300) {
+      tempStatus.textContent = 'DANGER: >300°F API Limit Exceeded!';
+      tempStatus.style.color = '#ef4444';
+    } else if (T2_f > 275) {
+      tempStatus.textContent = 'CAUTION: 275-300°F Near API Limit';
+      tempStatus.style.color = '#f59e0b';
+    } else {
+      tempStatus.textContent = 'PASS (<300°F API Limit)';
+      tempStatus.style.color = '#10b981';
+    }
+
+    document.getElementById('res_cmp_eff_isen').textContent = (eta_isen * 100).toFixed(1) + '% (Reheat Effect)';
+    document.getElementById('res_cmp_mech_loss').textContent = Math.round(mechLossHp) + ' HP (' + Math.round(mechLossHp * 0.7457) + ' kW)';
+    document.getElementById('res_cmp_motor_rec').textContent = recMotor.toLocaleString() + ' HP Standard Drive';
+  }
+
+  // Preset Handlers
+  document.getElementById('preset_gas_nat').addEventListener('click', () => {
+    document.getElementById('cmp_mw').value = '18.5';
+    document.getElementById('cmp_k').value = '1.27';
+    document.getElementById('cmp_z1').value = '0.97';
+    document.getElementById('cmp_z2').value = '0.94';
+    calcCmp();
+  });
+  document.getElementById('preset_gas_air').addEventListener('click', () => {
+    document.getElementById('cmp_mw').value = '28.97';
+    document.getElementById('cmp_k').value = '1.40';
+    document.getElementById('cmp_z1').value = '1.00';
+    document.getElementById('cmp_z2').value = '1.00';
+    calcCmp();
+  });
+  document.getElementById('preset_gas_h2').addEventListener('click', () => {
+    document.getElementById('cmp_mw').value = '6.2';
+    document.getElementById('cmp_k').value = '1.39';
+    document.getElementById('cmp_z1').value = '1.01';
+    document.getElementById('cmp_z2').value = '1.02';
+    calcCmp();
+  });
+  document.getElementById('preset_gas_co2').addEventListener('click', () => {
+    document.getElementById('cmp_mw').value = '44.01';
+    document.getElementById('cmp_k').value = '1.29';
+    document.getElementById('cmp_z1').value = '0.94';
+    document.getElementById('cmp_z2').value = '0.88';
+    calcCmp();
+  });
+  document.getElementById('preset_gas_c3').addEventListener('click', () => {
+    document.getElementById('cmp_mw').value = '44.1';
+    document.getElementById('cmp_k').value = '1.13';
+    document.getElementById('cmp_z1').value = '0.92';
+    document.getElementById('cmp_z2').value = '0.86';
+    calcCmp();
+  });
+
+  const inputs = [
+    'cmp_p1', 'cmp_p2', 'cmp_t1', 'cmp_w', 'cmp_mw', 'cmp_k',
+    'cmp_z1', 'cmp_z2', 'cmp_eff_poly', 'cmp_eff_mech', 'cmp_f'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcCmp);
+      el.addEventListener('change', calcCmp);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_cmp_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'CENTRIFUGAL COMPRESSOR POLYTROPIC HEAD DATASHEET',
+        '===============================================',
+        'Suction / Discharge Pressure: ' + document.getElementById('cmp_p1').value + ' psia / ' + document.getElementById('cmp_p2').value + ' psia (rp = ' + document.getElementById('res_cmp_rp').textContent + ')',
+        'Inlet Temperature: ' + document.getElementById('cmp_t1').value + ' deg F',
+        'Mass Flow Rate: ' + document.getElementById('cmp_w').value + ' lb/hr',
+        'Gas Properties: MW=' + document.getElementById('cmp_mw').value + ', k=' + document.getElementById('cmp_k').value + ', Zavg=' + document.getElementById('res_cmp_zavg').textContent,
+        'Polytropic Efficiency: ' + (parseFloat(document.getElementById('cmp_eff_poly').value) * 100).toFixed(1) + '%',
+        '--- Aerodynamic & Power Results ---',
+        'Polytropic Head (Hp): ' + document.getElementById('res_cmp_head').textContent + ' ' + document.getElementById('res_cmp_head_metric').textContent,
+        'Discharge Temperature (T2): ' + document.getElementById('res_cmp_t2').textContent + ' (' + document.getElementById('res_cmp_t2_metric').textContent + ')',
+        'Gas Horsepower (GHP): ' + document.getElementById('res_cmp_ghp').textContent + ' (' + document.getElementById('res_cmp_ghp_kw').textContent + ')',
+        'Brake Horsepower (BHP): ' + document.getElementById('res_cmp_bhp').textContent + ' (' + document.getElementById('res_cmp_bhp_kw').textContent + ')',
+        'Recommended Motor Drive: ' + document.getElementById('res_cmp_motor_rec').textContent,
+        'Inlet Volume Flow: ' + document.getElementById('res_cmp_q1').textContent,
+        'Volume Reduction Ratio: ' + document.getElementById('res_cmp_vrr').textContent,
+        'API 617 Temp Status: ' + document.getElementById('res_cmp_temp_status').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcCmp();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BH2: API 560 Fired Heater Thermal Efficiency & Stack Heat Loss Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-560-fired-heater-efficiency-calculator';
+    const title = 'API 560 Fired Heater Thermal Efficiency & Stack Heat Loss Calculator';
+    const metaDescription = 'Calculate refinery and chemical fired heater net and gross thermal efficiency per API Standard 560 and ISO 13705. Determines dry flue gas stack heat loss, fuel hydrogen combustion moisture loss, excess air percentage from stack O2, casing radiation loss, and acid dew point margins.';
+
+    const faq = [
+      {
+        q: 'What is the difference between Net (LHV) and Gross (HHV) thermal efficiency in API 560?',
+        a: 'Net thermal efficiency (LHV basis) evaluates the heat transferred to the process fluid divided by the Lower Heating Value of the fuel, which excludes the latent heat of vaporization of the water formed during combustion. In contrast, Gross thermal efficiency (HHV basis) divides by the Higher Heating Value, which includes the latent heat of water condensation. Because industrial process heaters do not condense water vapor in the stack (stack temperatures remain well above 250 to 350 deg F to avoid acid corrosion), the Net (LHV) efficiency is commonly 8% to 11% higher than Gross (HHV) efficiency for natural gas, and 5% to 7% higher for fuel oils.'
+      },
+      {
+        q: 'How is excess combustion air calculated from dry stack oxygen (O2) percent?',
+        a: 'Per API Standard 560 Annex G, excess air (%EA) is calculated directly from the dry volumetric oxygen concentration measured at the heater bridge wall or convection exit: %EA = [O2,dry / (20.9 - O2,dry)] * 100. For example, a 3.0% dry stack O2 reading corresponds to 16.8% excess air, which is the typical design target for natural-draft gas-fired refinery heaters. Operating with excess O2 above 4.5% to 5.0% draws massive volumes of parasitic cold air through the burners, significantly inflating dry flue gas sensible heat loss and wasting millions in fuel.'
+      },
+      {
+        q: 'What is the flue gas sulfuric acid dew point (ADP) and why is it an efficiency limit?',
+        a: 'When fuels containing sulfur (such as sour refinery fuel gas or heavy fuel oil) are burned, sulfur dioxide (SO2) oxidizes to sulfur trioxide (SO3), which combines with water vapor to form sulfuric acid (H2SO4) vapor. The acid dew point (typically 240 to 310 deg F or 115 to 155 deg C, determined by the Verhoff-Banchero correlation) is the temperature at which sulfuric acid begins condensing onto metal tube surfaces. Operating the stack or air preheater (APH) cold-end below this temperature triggers catastrophic, rapid acidic thinning that destroys carbon steel tubes and dampers within months.'
+      },
+      {
+        q: 'How much energy does an Air Preheater (APH) recover in a process fired heater?',
+        a: 'In a standard natural-draft heater without an APH, stack gases exit the convection section between 450 deg F and 650 deg F (230 to 345 deg C), limiting thermal efficiency to 80% to 86% (LHV). Installing an Air Preheater (regenerative or heat-pipe) uses waste flue gas heat to preheat incoming combustion air to 350 to 450 deg F, cooling the stack gas to 280 to 320 deg F. This recovers 6% to 10% in fuel consumption, raising overall heater thermal efficiency up to 92% to 94% (LHV).'
+      },
+      {
+        q: 'What constitutes casing radiation and convection loss under API 560?',
+        a: 'API 560 specifies that casing heat loss through refractory walls, sight glasses, tube header boxes, and structural steel skin is accounted for as a standard percentage of the total heat input: typically 1.5% for modern fiber-blanket/castable refractory walls with ambient air velocity <10 mph, or up to 2.5% for older brick-lined or uninsulated arch configurations. Operating with missing insulation or loose convection access doors increases casing losses and allows cold air ingress that skews bridge wall oxygen readings.'
+      }
+    ];
+
+    const content = `
+<style>
+.fht-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.fht-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.fht-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.fht-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .fht-grid-2, .fht-grid-3, .fht-grid-4 { grid-template-columns: 1fr; }
+}
+.fht-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.fht-input, .fht-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.fht-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.fht-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.fht-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.fht-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.fht-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.fht-loss-bar {
+  display: flex;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+}
+</style>
+
+<div class="fht-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">API 560 Fired Heater Thermal Efficiency Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">Refinery &amp; Petrochemical Process Heater Stack Loss &amp; Heat Balance (API 560 / ISO 13705 Annex G)</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="fht-btn" id="btn_fht_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Heater Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="fht-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="fht-label">Fuel Type Preset</label>
+      <select id="fht_fuel_preset" class="fht-select">
+        <option value="natgas" selected>Pipeline Natural Gas (23.5% H2, LHV 20,300 Btu/lb)</option>
+        <option value="reffuel">Refinery Fuel Gas (30.0% H2, LHV 22,500 Btu/lb)</option>
+        <option value="methane">Pure Methane (25.0% H2, LHV 21,500 Btu/lb)</option>
+        <option value="diesel">Light Fuel Oil / Diesel (12.5% H2, LHV 18,300 Btu/lb)</option>
+        <option value="heavyoil">Heavy Fuel Oil / Residual (11.0% H2, LHV 17,400 Btu/lb)</option>
+      </select>
+    </div>
+    <div>
+      <label class="fht-label">Draft &amp; Air System</label>
+      <select id="fht_draft_type" class="fht-select">
+        <option value="natural" selected>Natural Draft (Direct to Stack, No APH)</option>
+        <option value="aph">Mechanical Draft with Air Preheater (APH)</option>
+      </select>
+    </div>
+    <div>
+      <label class="fht-label">Heater Absorbed Duty (Q_abs) <span>MMBtu/hr</span></label>
+      <input type="number" id="fht_qabs" class="fht-input" value="65.0" step="2.5" min="1">
+    </div>
+  </div>
+
+  <div class="fht-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="fht-label">Stack Flue Gas Temp (T_stack) <span>&deg;F</span></label>
+      <input type="number" id="fht_tstack" class="fht-input" value="480" step="5" min="150" max="1000">
+    </div>
+    <div>
+      <label class="fht-label">Stack Oxygen (O2, dry) <span>% vol dry</span></label>
+      <input type="number" id="fht_o2" class="fht-input" value="3.2" step="0.1" min="0.5" max="15.0">
+    </div>
+    <div>
+      <label class="fht-label">Ambient Air Temp (T_amb) <span>&deg;F</span></label>
+      <input type="number" id="fht_tamb" class="fht-input" value="60" step="1">
+    </div>
+    <div>
+      <label class="fht-label">Casing Radiation Loss <span>% of LHV</span></label>
+      <input type="number" id="fht_casing_loss" class="fht-input" value="1.5" step="0.1" min="0.5" max="5.0">
+    </div>
+  </div>
+
+  <div class="fht-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="fht-label">Fuel Hydrogen Content (%H) <span>wt %</span></label>
+      <input type="number" id="fht_h_pct" class="fht-input" value="23.5" step="0.5" min="5" max="100">
+    </div>
+    <div>
+      <label class="fht-label">Fuel Sulfur Content (S) <span>ppmw / wt%</span></label>
+      <input type="number" id="fht_sulfur" class="fht-input" value="15" step="5" min="0">
+    </div>
+    <div>
+      <label class="fht-label">Fuel LHV <span>Btu/lb</span></label>
+      <input type="number" id="fht_lhv" class="fht-input" value="20300" step="100" min="5000">
+    </div>
+    <div>
+      <label class="fht-label">Fuel HHV <span>Btu/lb</span></label>
+      <input type="number" id="fht_hhv" class="fht-input" value="22500" step="100" min="5000">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="fht-grid-4" style="margin-bottom:1.5rem;">
+    <div class="fht-kpi">
+      <div class="fht-kpi-lbl">Net Thermal Efficiency (LHV)</div>
+      <div class="fht-kpi-val" id="res_fht_eff_net" style="color:#2563eb;">85.8%</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_fht_eff_gross">Gross (HHV): 77.4%</div>
+    </div>
+    <div class="fht-kpi">
+      <div class="fht-kpi-lbl">Total Fuel Firing Rate</div>
+      <div class="fht-kpi-val" id="res_fht_qfired">75.8 MMBtu/h</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_fht_qfired_mw">22.2 MW (3,732 lb/hr fuel)</div>
+    </div>
+    <div class="fht-kpi">
+      <div class="fht-kpi-lbl">Excess Air Percentage</div>
+      <div class="fht-kpi-val" id="res_fht_ea" style="color:#10b981;">18.1%</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_fht_ea_status">Optimal Range (15-20%)</div>
+    </div>
+    <div class="fht-kpi">
+      <div class="fht-kpi-lbl">Sulfuric Acid Dew Point</div>
+      <div class="fht-kpi-val" id="res_fht_adp">224 &deg;F</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_fht_adp_margin" style="color:#10b981;">+256&deg;F Safe Margin</div>
+    </div>
+  </div>
+
+  <!-- Visual Loss Distribution Bar -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:0.95rem; margin-bottom:0.5rem;">
+      <span>Energy Balance Breakdown (% of Fuel LHV Input)</span>
+      <span style="font-size:0.85rem; color:var(--primary);" id="res_fht_loss_total">Total Losses: 14.2%</span>
+    </div>
+    <div class="fht-loss-bar" id="fht_loss_bar">
+      <!-- Generated via JS -->
+    </div>
+    <div style="display:flex; gap:1.25rem; flex-wrap:wrap; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#2563eb; border-radius:2px;"></span> Useful Absorbed (85.8%)</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Dry Flue Gas Loss</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#8b5cf6; border-radius:2px;"></span> H2O Sensible Loss</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Casing Radiation Loss</span>
+    </div>
+  </div>
+
+  <div class="fht-grid-3">
+    <div class="fht-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Stack Heat Loss Breakdown</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Dry Flue Gas Loss:</strong> <span id="res_fht_loss_dfg">9.45% (1,918 Btu/lb)</span></div>
+        <div><strong>H2O Sensible Loss:</strong> <span id="res_fht_loss_h2o">3.25% (660 Btu/lb)</span></div>
+        <div><strong>Casing Loss:</strong> <span id="res_fht_loss_casing">1.50% (305 Btu/lb)</span></div>
+        <div><strong>Total Losses:</strong> <span id="res_fht_loss_sum">14.20%</span></div>
+      </div>
+    </div>
+    <div class="fht-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Combustion &amp; Air Sizing</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Combustion Air Flow:</strong> <span id="res_fht_air_flow">68,400 lb/hr (15,200 SCFM)</span></div>
+        <div><strong>Flue Gas Mass Flow:</strong> <span id="res_fht_flue_flow">72,130 lb/hr</span></div>
+        <div><strong>Air-to-Fuel Ratio:</strong> <span id="res_fht_afr">18.3 lb air / lb fuel</span></div>
+        <div><strong>CO2 in Flue Gas (est):</strong> <span id="res_fht_co2">9.5% vol dry</span></div>
+      </div>
+    </div>
+    <div class="fht-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Economics &amp; APH Potential</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Annual Fuel Cost ($6/MMBtu):</strong> <span id="res_fht_fuel_cost">$3.98M / year</span></div>
+        <div><strong>APH Energy Recovery Potential:</strong> <span id="res_fht_aph_rec">+6.4% Efficiency</span></div>
+        <div><strong>Annual APH Fuel Savings:</strong> <span id="res_fht_aph_savings">$255,000 / year</span></div>
+        <div><strong>Corrosion Risk:</strong> <span id="res_fht_corr_risk" style="color:#10b981; font-weight:600;">Zero (150&deg;F Above Dew Point)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Fired Heater Efficiency</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Sulfuric Acid Dew Point Cold-End Destruction Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Attempting to maximize heater efficiency by pushing stack exit temperatures down to 220&deg;F to 260&deg;F (104 to 127&deg;C) when firing fuels with even modest sulfur content (\(S > 50 \text{ ppmw}\)) is disastrous. Sulfur trioxide (\(SO_3\)) reacts with moisture to form vaporized sulfuric acid. Once gas temperature drops below the acid dew point (typically 250&deg;F to 290&deg;F per Verhoff-Banchero), <strong>concentrated sulfuric acid condenses onto carbon steel air preheater tubes and stack breeching</strong>, corroding metal at rates exceeding 50 mils per year and causing total duct collapse within 6 months.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Tramp Air Ingress &amp; The False High-Oxygen Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operators frequently observe high stack oxygen (e.g. 6.5% \(O_2\)) on stack analyzers and respond by choking burner air registers. However, if the convection section has warped header box doors, deteriorated peephole gaskets, or leaking expansion joints, cold atmospheric air is sucked inward by furnace negative draft ("tramp air"). Choking the burners while tramp air leaks into the convection section <strong>starves the radiant firebox into sub-stoichiometric combustion</strong>, generating high carbon monoxide (CO), flame impingement, unburned hydrocarbons, and catastrophic convection section afterburning explosions.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Gross (HHV) vs Net (LHV) Contractual Discrepancies</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Vendor performance guarantees in the United States and API 560 standard datasheets commonly state efficiency on an LHV basis (e.g. 92.0%), whereas plant accounting and European EPC contracts evaluate on an HHV basis (e.g. 83.5%). Confusing these two standards without explicit contractual basis causes million-dollar performance dispute penalties during commissioning acceptance testing.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Over-Firing &amp; Radiant Coil Coking Runaway</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operating heaters with fouled convection coils forces operators to increase firing rates to maintain process coil outlet temperatures. This spikes radiant firebox temperatures and increases local radiant tube heat flux beyond design limits (>12,000 Btu/hr&middot;ft&sup2;). The inner tube oil film temperature exceeds the thermal cracking threshold, depositing insulating internal coke layers that overheat tube metal to >1,200&deg;F (650&deg;C), causing tube rupture and catastrophic refinery fires.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Positive Arch Pressure &amp; Structural Steel Thermal Warping</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Natural draft heaters must maintain negative draft pressure (at least -0.05 to -0.10 in w.c.) at the furnace arch (radiant roof) at all times. If the stack damper is pinched too far in an attempt to retain heat, the arch draft drifts positive. 1,600&deg;F (870&deg;C) flue gas is forced outward through casing joints, destroying external structural I-beams, peeling paint, and warping explosion relief doors.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">API 560 Annex G Mathematical Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Excess Air &amp; Flue Gas Volume</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\%EA = \frac{\%O_{2,dry}}{20.9 - \%O_{2,dry}} \times 100$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Stack Heat Loss Components (% of LHV)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$L_{dfg} = \frac{\dot{m}_{dfg} \cdot C_{p,dfg} \cdot (T_{stack} - T_{ambient})}{LHV} \times 100$$
+    $$L_{H2O, sensible} = \frac{9 \cdot (\%H / 100) \cdot C_{p,steam} \cdot (T_{stack} - T_{ambient})}{LHV} \times 100$$
+    $$\eta_{net} = 100 - (L_{dfg} + L_{H2O, sensible} + L_{casing} + L_{unburned})$$
+    $$\eta_{gross} = \eta_{net} \times \left(\frac{LHV}{HHV}\right)$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Verhoff-Banchero Sulfuric Acid Dew Point Correlation</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$T_{adp} = 203.25 + 27.6 \log_{10}(P_{H2O}) + 10.83 \log_{10}(P_{SO3}) + 1.06 (\log_{10}(P_{H2O}) + 8)^2 \quad [^{\circ}\text{F}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const FUELS = {
+    'natgas': { hPct: 23.5, lhv: 20300, hhv: 22500, afrStoich: 15.5 },
+    'reffuel': { hPct: 30.0, lhv: 22500, hhv: 26000, afrStoich: 17.5 },
+    'methane': { hPct: 25.0, lhv: 21500, hhv: 23800, afrStoich: 17.2 },
+    'diesel': { hPct: 12.5, lhv: 18300, hhv: 19500, afrStoich: 14.5 },
+    'heavyoil': { hPct: 11.0, lhv: 17400, hhv: 18400, afrStoich: 13.8 }
+  };
+
+  const fuelSelect = document.getElementById('fht_fuel_preset');
+  const draftSelect = document.getElementById('fht_draft_type');
+
+  function updateFuelPreset() {
+    const f = FUELS[fuelSelect.value];
+    if (f) {
+      document.getElementById('fht_h_pct').value = f.hPct.toFixed(1);
+      document.getElementById('fht_lhv').value = f.lhv;
+      document.getElementById('fht_hhv').value = f.hhv;
+      calcFht();
+    }
+  }
+
+  function updateDraftPreset() {
+    if (draftSelect.value === 'aph') {
+      document.getElementById('fht_tstack').value = '300';
+    } else {
+      document.getElementById('fht_tstack').value = '480';
+    }
+    calcFht();
+  }
+
+  function calcFht() {
+    const qAbsMbtu = parseFloat(document.getElementById('fht_qabs').value) || 65;
+    const tStack = parseFloat(document.getElementById('fht_tstack').value) || 480;
+    const o2Dry = parseFloat(document.getElementById('fht_o2').value) || 3.2;
+    const tAmb = parseFloat(document.getElementById('fht_tamb').value) || 60;
+    const casingPct = parseFloat(document.getElementById('fht_casing_loss').value) || 1.5;
+    const hPct = parseFloat(document.getElementById('fht_h_pct').value) || 23.5;
+    const sulfurPpm = parseFloat(document.getElementById('fht_sulfur').value) || 15;
+    const lhv = parseFloat(document.getElementById('fht_lhv').value) || 20300;
+    const hhv = parseFloat(document.getElementById('fht_hhv').value) || 22500;
+
+    // Excess Air % = [O2 / (20.9 - O2)] * 100
+    const eaPct = (o2Dry / Math.max(0.1, 20.9 - o2Dry)) * 100;
+
+    // Stoichiometric air / fuel ratio approx: 15.5 * (LHV / 20300)
+    const stoichAfr = 15.5 * (lhv / 20300);
+    const actualAfr = stoichAfr * (1 + eaPct / 100);
+
+    // Dry flue gas lb / lb fuel approx: actualAfr - 9 * (hPct / 100) + 1
+    const m_dfg = Math.max(10, actualAfr - 9 * (hPct / 100) + 1);
+
+    // Sensible dry flue gas loss Btu/lb fuel: Cp_dfg approx 0.25 Btu/lb-F
+    const deltaT = Math.max(0, tStack - tAmb);
+    const l_dfg_btu = m_dfg * 0.25 * deltaT;
+    const l_dfg_pct = (l_dfg_btu / lhv) * 100;
+
+    // Moisture sensible loss from combustion of hydrogen: 9 * (hPct/100) * Cp_vapor (0.46) * deltaT
+    const l_h2o_btu = 9 * (hPct / 100) * 0.46 * deltaT;
+    const l_h2o_pct = (l_h2o_btu / lhv) * 100;
+
+    // Total Losses on LHV Basis
+    const totalLossPct = l_dfg_pct + l_h2o_pct + casingPct;
+    const effNetLhv = Math.max(40, Math.min(99, 100 - totalLossPct));
+
+    // Gross Efficiency (HHV Basis)
+    const effGrossHhv = effNetLhv * (lhv / hhv);
+
+    // Fuel firing rate MMBtu/hr
+    const qFiredMbtu = qAbsMbtu / (effNetLhv / 100);
+    const qFiredMw = qFiredMbtu * 0.293071;
+    const fuelFlowLbHr = (qFiredMbtu * 1e6) / lhv;
+
+    // Combustion air flow
+    const airFlowLbHr = fuelFlowLbHr * actualAfr;
+    const airFlowScfm = airFlowLbHr / (0.075 * 60);
+    const flueFlowLbHr = fuelFlowLbHr * (1 + actualAfr);
+
+    // Sulfuric Acid Dew Point estimate (Verhoff-Banchero simplified)
+    let adpF = 150;
+    if (sulfurPpm > 1) {
+      adpF = 195 + 18 * Math.log10(sulfurPpm);
+    }
+    const adpMargin = tStack - adpF;
+
+    // Annual fuel cost at $6.00 / MMBtu (8,000 operating hours)
+    const annualFuelCost = qFiredMbtu * 6.00 * 8000;
+
+    // APH potential if operating without APH
+    let aphEffGain = 0;
+    let aphSavings = 0;
+    if (tStack > 350) {
+      // Cooling to 300 F
+      const recoverableDeltaT = tStack - 300;
+      aphEffGain = (m_dfg * 0.25 * recoverableDeltaT / lhv) * 100;
+      aphSavings = annualFuelCost * (aphEffGain / effNetLhv);
+    }
+
+    // Update KPI Displays
+    document.getElementById('res_fht_eff_net').textContent = effNetLhv.toFixed(1) + '%';
+    document.getElementById('res_fht_eff_gross').textContent = 'Gross (HHV): ' + effGrossHhv.toFixed(1) + '%';
+
+    document.getElementById('res_fht_qfired').textContent = qFiredMbtu.toFixed(1) + ' MMBtu/h';
+    document.getElementById('res_fht_qfired_mw').textContent = qFiredMw.toFixed(1) + ' MW (' + Math.round(fuelFlowLbHr).toLocaleString() + ' lb/hr fuel)';
+
+    document.getElementById('res_fht_ea').textContent = eaPct.toFixed(1) + '%';
+    const eaStatus = document.getElementById('res_fht_ea_status');
+    if (eaPct > 35) {
+      eaStatus.textContent = 'HIGH AIR (Excessive Fuel Waste)';
+      eaStatus.style.color = '#ef4444';
+    } else if (eaPct < 10) {
+      eaStatus.textContent = 'LOW AIR (CO Explosion Risk)';
+      eaStatus.style.color = '#ef4444';
+    } else {
+      eaStatus.textContent = 'Optimal Range (15-25%)';
+      eaStatus.style.color = '#10b981';
+    }
+
+    document.getElementById('res_fht_adp').textContent = Math.round(adpF) + ' °F';
+    const adpMarginEl = document.getElementById('res_fht_adp_margin');
+    if (adpMargin < 25) {
+      adpMarginEl.textContent = 'CRITICAL: Cold-End Acid Attack!';
+      adpMarginEl.style.color = '#ef4444';
+    } else if (adpMargin < 50) {
+      adpMarginEl.textContent = '+' + Math.round(adpMargin) + '°F Marginal Margin';
+      adpMarginEl.style.color = '#f59e0b';
+    } else {
+      adpMarginEl.textContent = '+' + Math.round(adpMargin) + '°F Safe Margin';
+      adpMarginEl.style.color = '#10b981';
+    }
+
+    // Render Loss Bar
+    const lossBar = document.getElementById('fht_loss_bar');
+    lossBar.innerHTML = [
+      '<div style="width:' + effNetLhv.toFixed(1) + '%; background:#2563eb;" title="Useful Heat ' + effNetLhv.toFixed(1) + '%"></div>',
+      '<div style="width:' + l_dfg_pct.toFixed(1) + '%; background:#f59e0b;" title="Dry Flue Gas ' + l_dfg_pct.toFixed(1) + '%"></div>',
+      '<div style="width:' + l_h2o_pct.toFixed(1) + '%; background:#8b5cf6;" title="Moisture Loss ' + l_h2o_pct.toFixed(1) + '%"></div>',
+      '<div style="width:' + casingPct.toFixed(1) + '%; background:#ef4444;" title="Casing Radiation ' + casingPct.toFixed(1) + '%"></div>'
+    ].join('');
+    document.getElementById('res_fht_loss_total').textContent = 'Total Stack & Casing Losses: ' + totalLossPct.toFixed(1) + '%';
+
+    // Losses Breakdown
+    document.getElementById('res_fht_loss_dfg').textContent = l_dfg_pct.toFixed(2) + '% (' + Math.round(l_dfg_btu) + ' Btu/lb)';
+    document.getElementById('res_fht_loss_h2o').textContent = l_h2o_pct.toFixed(2) + '% (' + Math.round(l_h2o_btu) + ' Btu/lb)';
+    document.getElementById('res_fht_loss_casing').textContent = casingPct.toFixed(2) + '% (' + Math.round(lhv * casingPct / 100) + ' Btu/lb)';
+    document.getElementById('res_fht_loss_sum').textContent = totalLossPct.toFixed(2) + '%';
+
+    // Combustion Details
+    document.getElementById('res_fht_air_flow').textContent = Math.round(airFlowLbHr).toLocaleString() + ' lb/hr (' + Math.round(airFlowScfm).toLocaleString() + ' SCFM)';
+    document.getElementById('res_fht_flue_flow').textContent = Math.round(flueFlowLbHr).toLocaleString() + ' lb/hr';
+    document.getElementById('res_fht_afr').textContent = actualAfr.toFixed(1) + ' lb air / lb fuel';
+    const co2Est = 12.0 / (1 + eaPct / 100);
+    document.getElementById('res_fht_co2').textContent = co2Est.toFixed(1) + '% vol dry';
+
+    // Economics Details
+    document.getElementById('res_fht_fuel_cost').textContent = '$' + (annualFuelCost / 1e6).toFixed(2) + 'M / year';
+    document.getElementById('res_fht_aph_rec').textContent = aphEffGain > 0 ? '+' + aphEffGain.toFixed(1) + '% Efficiency' : 'APH Already Installed';
+    document.getElementById('res_fht_aph_savings').textContent = aphSavings > 0 ? '$' + Math.round(aphSavings).toLocaleString() + ' / year' : 'N/A';
+    
+    const corrRisk = document.getElementById('res_fht_corr_risk');
+    if (adpMargin < 25) {
+      corrRisk.textContent = 'HIGH CORROSION RISK (Sub-Dew Point)';
+      corrRisk.style.color = '#ef4444';
+    } else {
+      corrRisk.textContent = 'Safe (' + Math.round(adpMargin) + '°F Above Dew Point)';
+      corrRisk.style.color = '#10b981';
+    }
+  }
+
+  fuelSelect.addEventListener('change', updateFuelPreset);
+  draftSelect.addEventListener('change', updateDraftPreset);
+
+  const inputs = ['fht_qabs', 'fht_tstack', 'fht_o2', 'fht_tamb', 'fht_casing_loss', 'fht_h_pct', 'fht_sulfur', 'fht_lhv', 'fht_hhv'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcFht);
+      el.addEventListener('change', calcFht);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_fht_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'API 560 FIRED HEATER THERMAL EFFICIENCY DATASHEET',
+        '===============================================',
+        'Absorbed Duty: ' + document.getElementById('fht_qabs').value + ' MMBtu/hr',
+        'Stack Flue Gas Temp: ' + document.getElementById('fht_tstack').value + ' deg F',
+        'Stack O2 (dry): ' + document.getElementById('fht_o2').value + '% (Excess Air: ' + document.getElementById('res_fht_ea').textContent + ')',
+        'Fuel Specification: ' + fuelSelect.options[fuelSelect.selectedIndex].text,
+        '--- Efficiency & Heat Balance ---',
+        'Net Thermal Efficiency (LHV): ' + document.getElementById('res_fht_eff_net').textContent,
+        'Gross Thermal Efficiency (HHV): ' + document.getElementById('res_fht_eff_gross').textContent,
+        'Fuel Firing Rate: ' + document.getElementById('res_fht_qfired').textContent + ' (' + document.getElementById('res_fht_qfired_mw').textContent + ')',
+        'Dry Flue Gas Loss: ' + document.getElementById('res_fht_loss_dfg').textContent,
+        'H2O Moisture Sensible Loss: ' + document.getElementById('res_fht_loss_h2o').textContent,
+        'Casing Radiation Loss: ' + document.getElementById('res_fht_loss_casing').textContent,
+        '--- Environmental & Mechanical Integrity ---',
+        'Sulfuric Acid Dew Point: ' + document.getElementById('res_fht_adp').textContent + ' [' + document.getElementById('res_fht_adp_margin').textContent + ']',
+        'Annual Fuel Cost: ' + document.getElementById('res_fht_fuel_cost').textContent,
+        'APH Energy Recovery: ' + document.getElementById('res_fht_aph_rec').textContent + ' (' + document.getElementById('res_fht_aph_savings').textContent + ')',
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcFht();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BH3: Gas Turbine HRSG Pinch Point & Heat Balance Calculator
+  // ==========================================
+  (() => {
+    const slug = 'hrsg-pinch-point-heat-balance-calculator';
+    const title = 'Gas Turbine HRSG Pinch Point & Heat Balance Calculator';
+    const metaDescription = 'Size combined cycle heat recovery steam generators (HRSGs) and calculate steaming rates per ASME PTC 4.4. Determines HP/LP evaporator pinch point, approach temperature difference, steam mass flow rate, stack exit temperature, and gas turbine exhaust Q-T profile.';
+
+    const faq = [
+      {
+        q: 'What is the Pinch Point in an HRSG and why does it dictate steam production?',
+        a: 'The Pinch Point in a Heat Recovery Steam Generator is the minimum temperature difference between the cooled gas turbine exhaust gas leaving the evaporator and the saturation temperature of the boiling water inside the evaporator drum: Delta T_pinch = T_gas,eva,out - T_sat. Because heat can only transfer from hot gas to cold water (Second Law of Thermodynamics), this temperature difference represents a thermodynamic bottleneck. A smaller pinch point (e.g. 15 to 20 deg F vs 40 deg F) extracts more heat and increases steam production, but requires an exponentially larger evaporator surface area and raises gas-side draft loss.'
+      },
+      {
+        q: 'What is the Approach Temperature Difference and why must it stay positive?',
+        a: 'The approach temperature difference is the difference between the evaporator saturation temperature and the temperature of the feedwater leaving the economizer: Delta T_approach = T_sat - T_water,eco,out. It is typically designed between 10 deg F and 15 deg F (5 to 8 deg C). A positive approach ensures water remains subcooled inside the economizer tubes. If the approach drops below 5 deg F or becomes negative during low-load turndown, steam bubbles form inside the economizer tubes ("steaming in the economizer"), causing vapor lock, flow instability, and severe water hammer that ruptures tube bends.'
+      },
+      {
+        q: 'How does gas turbine exhaust backpressure affect combined cycle plant performance?',
+        a: 'The tube banks, fins, ductwork, and catalytic selective catalytic reduction (SCR) beds of an HRSG create flow resistance against the gas turbine exhaust. For every 4 inches of water column (in w.c.) or 10 mbar of additional backpressure imposed on the gas turbine exhaust flange, the gas turbine power output decreases by approximately 1.0% to 1.2% and its heat rate worsens by 0.35% to 0.5%. Designing HRSGs with excessively tight tube spacing or undersized casing cross-sections destroys more gas turbine output than the extra steam generated can recover.'
+      },
+      {
+        q: 'What is a Q-T (Heat vs Temperature) diagram in HRSG design?',
+        a: 'A Q-T diagram plots gas temperature and water/steam temperature along the vertical axis against cumulative heat transferred along the horizontal axis. It visually displays the temperature profiles across the superheater, evaporator, and economizer, showing the physical temperature gap at the pinch point and approach point. It allows thermal engineers to verify that temperature cross-overs (impossible heat transfer where water would be hotter than gas) do not occur at any point in the cycle.'
+      },
+      {
+        q: 'What causes Flow-Accelerated Corrosion (FAC) in low-pressure HRSG evaporator sections?',
+        a: 'Flow-Accelerated Corrosion (FAC) occurs primarily in low-pressure (LP) economizers and evaporators operating between 250 deg F and 350 deg F (120 to 175 deg C). The high turbulence of two-phase steam-water mixtures entering headers washes away the protective magnetite (Fe3O4) oxide film on carbon steel tube walls. Operating with reducing all-volatile treatment (AVT-R) or low dissolved oxygen accelerates this dissolution, causing rapid tube thinning and catastrophic rupture. Specifying 1.25% or 2.25% chromium alloy (P11/P22) in LP circuits eliminates FAC.'
+      }
+    ];
+
+    const content = `
+<style>
+.hrsg-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.hrsg-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.hrsg-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.hrsg-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .hrsg-grid-2, .hrsg-grid-3, .hrsg-grid-4 { grid-template-columns: 1fr; }
+}
+.hrsg-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.hrsg-input, .hrsg-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.hrsg-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.hrsg-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.hrsg-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.hrsg-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.hrsg-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.hrsg-canvas {
+  width: 100%;
+  height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: block;
+}
+</style>
+
+<div class="hrsg-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">Gas Turbine HRSG Pinch Point &amp; Heat Balance Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">Combined Cycle Steam Generation, Evaporator Pinch Point, Steaming Rate &amp; Q-T Heat Profile (ASME PTC 4.4)</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="hrsg-btn" id="btn_hrsg_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy HRSG Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="hrsg-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="hrsg-label">Gas Turbine Frame Preset</label>
+      <select id="hrsg_gt_preset" class="hrsg-select">
+        <option value="fclass" selected>Large F-Class (1,800,000 lb/hr @ 1,120&deg;F)</option>
+        <option value="hclass">Advanced H/J-Class (2,400,000 lb/hr @ 1,180&deg;F)</option>
+        <option value="eclass">Standard E-Class / 7EA (950,000 lb/hr @ 1,020&deg;F)</option>
+        <option value="aero">Aeroderivative LM6000 (320,000 lb/hr @ 850&deg;F)</option>
+      </select>
+    </div>
+    <div>
+      <label class="hrsg-label">HRSG Pressure Circuit</label>
+      <select id="hrsg_circuit" class="hrsg-select">
+        <option value="hp" selected>High Pressure (HP) Single-Pressure Model</option>
+        <option value="reheat">HP Section of Triple-Pressure Reheat HRSG</option>
+      </select>
+    </div>
+    <div>
+      <label class="hrsg-label">Gas Turbine Exhaust Flow <span>lb/hr (kg/s)</span></label>
+      <input type="number" id="hrsg_flow_gas" class="hrsg-input" value="1800000" step="50000" min="50000">
+    </div>
+  </div>
+
+  <div class="hrsg-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="hrsg-label">GT Exhaust Temp (T_gas,in) <span>&deg;F</span></label>
+      <input type="number" id="hrsg_t_gas_in" class="hrsg-input" value="1120" step="10" min="600" max="1350">
+    </div>
+    <div>
+      <label class="hrsg-label">Drum Operating Pressure <span>psig</span></label>
+      <input type="number" id="hrsg_pdrum" class="hrsg-input" value="1450" step="50" min="100" max="2600">
+    </div>
+    <div>
+      <label class="hrsg-label">Superheated Steam Temp <span>&deg;F</span></label>
+      <input type="number" id="hrsg_tsteam" class="hrsg-input" value="1050" step="10" min="400" max="1120">
+    </div>
+    <div>
+      <label class="hrsg-label">Feedwater Inlet Temp (T_fw) <span>&deg;F</span></label>
+      <input type="number" id="hrsg_tfw" class="hrsg-input" value="240" step="5" min="100" max="400">
+    </div>
+  </div>
+
+  <div class="hrsg-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="hrsg-label">Evaporator Pinch Point (&Delta;T_pinch) <span>&deg;F</span></label>
+      <input type="number" id="hrsg_pinch" class="hrsg-input" value="20" step="1" min="8" max="60">
+    </div>
+    <div>
+      <label class="hrsg-label">Economizer Approach (&Delta;T_app) <span>&deg;F</span></label>
+      <input type="number" id="hrsg_approach" class="hrsg-input" value="12" step="1" min="3" max="40">
+    </div>
+    <div>
+      <label class="hrsg-label">Flue Gas Specific Heat (Cp_gas) <span>Btu/lb-F</span></label>
+      <input type="number" id="hrsg_cpgas" class="hrsg-input" value="0.275" step="0.005" min="0.24" max="0.32">
+    </div>
+    <div>
+      <label class="hrsg-label">Blowdown Rate <span>% of steam</span></label>
+      <input type="number" id="hrsg_blowdown" class="hrsg-input" value="1.5" step="0.5" min="0" max="5.0">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="hrsg-grid-4" style="margin-bottom:1.5rem;">
+    <div class="hrsg-kpi">
+      <div class="hrsg-kpi-lbl">Steam Generation Rate</div>
+      <div class="hrsg-kpi-val" id="res_hrsg_msteam" style="color:#2563eb;">238,400 lb/h</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_hrsg_msteam_metric">30.0 kg/s (108 t/h)</div>
+    </div>
+    <div class="hrsg-kpi">
+      <div class="hrsg-kpi-lbl">Stack Exhaust Temp</div>
+      <div class="hrsg-kpi-val" id="res_hrsg_tstack" style="color:#10b981;">314 &deg;F</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_hrsg_tstack_metric">157 &deg;C (Good Recovery)</div>
+    </div>
+    <div class="hrsg-kpi">
+      <div class="hrsg-kpi-lbl">Total HRSG Heat Duty</div>
+      <div class="hrsg-kpi-val" id="res_hrsg_qtotal">398.9 MMBtu/h</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_hrsg_qtotal_mw">116.9 MWth Absorbed</div>
+    </div>
+    <div class="hrsg-kpi">
+      <div class="hrsg-kpi-lbl">Steam Turbine Electric Output</div>
+      <div class="hrsg-kpi-val" id="res_hrsg_mwe" style="color:#2563eb;">28.5 MWe</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_hrsg_mwe_desc">Combined Cycle Boost</div>
+    </div>
+  </div>
+
+  <!-- Q-T Diagram Canvas -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <span style="font-weight:600; font-size:0.95rem;">HRSG Q-T Profile Diagram (Temperature vs Cumulative Heat Duty)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Red: Flue Gas Cooling Curve | Blue: Water/Steam Heating &amp; Evaporation</span>
+    </div>
+    <canvas id="hrsg_qt_canvas" class="hrsg-canvas" width="800" height="220"></canvas>
+  </div>
+
+  <div class="hrsg-grid-3">
+    <div class="hrsg-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Evaporator &amp; Drum States</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Drum Saturation Temp (T_sat):</strong> <span id="res_hrsg_tsat">592.5 &deg;F (311.4 &deg;C)</span></div>
+        <div><strong>Gas Leaving Evaporator:</strong> <span id="res_hrsg_t_gas_eva">612.5 &deg;F (Pinch Bound)</span></div>
+        <div><strong>Water Leaving Economizer:</strong> <span id="res_hrsg_t_eco_out">580.5 &deg;F (Subcooled)</span></div>
+        <div><strong>Pinch Point Margin:</strong> <span id="res_hrsg_pinch_margin">20.0 &deg;F (Optimal Economic)</span></div>
+      </div>
+    </div>
+    <div class="hrsg-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Heat Section Breakdown</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Superheater Duty (Q_sh):</strong> <span id="res_hrsg_qsh">46.5 MMBtu/h</span></div>
+        <div><strong>Evaporator Duty (Q_eva):</strong> <span id="res_hrsg_qeva">204.8 MMBtu/h</span></div>
+        <div><strong>Economizer Duty (Q_eco):</strong> <span id="res_hrsg_qeco">147.6 MMBtu/h</span></div>
+        <div><strong>Gas Enthalpy Drop:</strong> <span id="res_hrsg_gas_drop">806 &deg;F Temp Drop</span></div>
+      </div>
+    </div>
+    <div class="hrsg-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Hydraulics &amp; Steaming Safety</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Economizer Steaming Risk:</strong> <span id="res_hrsg_steam_risk" style="color:#10b981; font-weight:600;">SAFE (+12&deg;F Subcooled)</span></div>
+        <div><strong>Gas-Side Backpressure (est):</strong> <span id="res_hrsg_bp">11.5 in w.c. (28.6 mbar)</span></div>
+        <div><strong>Gas Turbine Power Penalty:</strong> <span id="res_hrsg_gt_penalty">-2.8 MW (Backpressure)</span></div>
+        <div><strong>Net Cycle Power Gain:</strong> <span id="res_hrsg_net_gain">+25.7 MWe Net</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in HRSG Sizing</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Economizer Steaming Vapor-Lock Catastrophe</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Designing with an approach temperature difference smaller than <strong>8&deg;F to 10&deg;F (4.5 to 5.5&deg;C)</strong> in an attempt to preheat feedwater higher invites severe operational danger. During gas turbine low-load turndown or rapid load ramping, gas turbine exhaust temperature climbs while feedwater flow rate drops. Water boils inside the economizer tubes, generating steam voids ("steaming economizer"). This causes vapor-lock, starving the tubes of cooling liquid, instigating violent steam-collapse water hammer, and rupturing tube hairpin return bends.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Ultra-Tight Pinch Point Capital &amp; Draft Loss Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Specifying an excessively tight pinch point (e.g. \(< 10^\circ\text{F} / 5.5^\circ\text{C}\)) yields diminishing returns that destroy plant economics. As the pinch point approaches zero, the Log-Mean Temperature Difference (LMTD) collapses, requiring an exponential surge in finned tube surface area. The dense additional tube rows increase gas turbine exhaust backpressure beyond 18 to 22 in w.c., <strong>derating gas turbine base load by 4 to 6 MW</strong>, completely wiping out the modest steam turbine power gain.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Thick Drum Wall Thermal Fatigue Stress Cracking</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Combined cycle plants operating in cyclic peaking or daily start-stop (DSS) service suffer severe thermal stress across thick HP steam drums (often 4 to 6 inches of carbon steel plate). Rapid startup without warm-keeping systems induces inner-to-outer wall temperature gradients exceeding 100&deg;F (55&deg;C). Over hundreds of cycles, cyclic hoop and through-wall plastic strain creates <strong>fatigue cracking at downcomer and riser nozzle bore crotches</strong>, leading to mandatory multi-million-dollar drum replacements.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Cold-End Acid Condensation Under Supplemental Duct Firing</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Using supplemental duct burners with fuels containing sulfur increases flue gas water vapor and sulfur dioxide concentrations. As exhaust gases traverse through the cold-end low-pressure economizer, the outer tube fin temperature drops below the sulfuric acid dew point (240&deg;F to 275&deg;F). Carbon steel spiral fins dissolve into iron sulfate sludge within months, choking the gas flow passages and forcing emergency plant outages.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Attemperator Thermal Shock &amp; Superheater Quenching</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Oversizing interstage desuperheater (attemperator) spray valves causes spray water droplet impingement against hot steam pipe walls. Oversaturated water droplets do not fully atomize within the liner, pooling on the bottom of the pipe and quenching high-pressure superheater headers. Severe thermal shock creates thermal fatigue craze-cracking and shears internal thermal liners loose, sending metal shrapnel directly into steam turbine stop valves.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">ASME PTC 4.4 First-Principles Mathematical Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Saturation Temperature &amp; Gas Leaving Evaporator</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$T_{sat} = f(P_{drum}) \quad [^{\circ}\text{F}]$$
+    $$T_{gas, eva, out} = T_{sat} + \Delta T_{pinch} \quad [^{\circ}\text{F}]$$
+    $$T_{water, eco, out} = T_{sat} - \Delta T_{approach} \quad [^{\circ}\text{F}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Steaming Rate Energy Balance</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$Q_{sh+eva} = \dot{m}_{gas} \cdot C_{p,gas} \cdot (T_{gas, in} - T_{gas, eva, out}) \cdot \eta_{rad} \quad [\text{Btu/hr}]$$
+    $$\dot{m}_{steam} = \frac{Q_{sh+eva}}{h_{sh} - h_{water, eco, out}} \quad [\text{lb/hr}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Economizer Duty &amp; Stack Temperature</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$Q_{eco} = \dot{m}_{steam} \cdot (h_{water, eco, out} - h_{water, in}) \quad [\text{Btu/hr}]$$
+    $$T_{stack} = T_{gas, eva, out} - \frac{Q_{eco}}{\dot{m}_{gas} \cdot C_{p,gas} \cdot \eta_{rad}} \quad [^{\circ}\text{F}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const GT_PRESETS = {
+    'fclass': { flow: 1800000, temp: 1120 },
+    'hclass': { flow: 2400000, temp: 1180 },
+    'eclass': { flow: 950000, temp: 1020 },
+    'aero': { flow: 320000, temp: 850 }
+  };
+
+  const presetSelect = document.getElementById('hrsg_gt_preset');
+
+  function updateGtPreset() {
+    const p = GT_PRESETS[presetSelect.value];
+    if (p) {
+      document.getElementById('hrsg_flow_gas').value = p.flow;
+      document.getElementById('hrsg_t_gas_in').value = p.temp;
+      calcHrsg();
+    }
+  }
+
+  function drawQtDiagram(tGasIn, tGasEva, tStack, tSteam, tSat, tEcoOut, tFw, qTot) {
+    const canvas = document.getElementById('hrsg_qt_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Coordinate mapping
+    const maxT = Math.max(1200, tGasIn + 50);
+    const minT = Math.max(50, tFw - 50);
+
+    function yPos(t) {
+      return (h - 30) - ((t - minT) / (maxT - minT)) * (h - 55);
+    }
+    function xPos(qRatio) {
+      return 50 + qRatio * (w - 80);
+    }
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(150, 150, 150, 0.2)';
+    ctx.lineWidth = 1;
+    for (let t = 200; t <= 1200; t += 200) {
+      const y = yPos(t);
+      ctx.beginPath();
+      ctx.moveTo(40, y);
+      ctx.lineTo(w - 20, y);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(t + '°F', 10, y + 3);
+    }
+
+    // Section markers: Economizer | Evaporator | Superheater
+    const qEcoRatio = 0.35;
+    const qEvaRatio = 0.85;
+
+    // Draw Gas Line (Red)
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(xPos(1.0), yPos(tGasIn));
+    ctx.lineTo(xPos(qEcoRatio), yPos(tGasEva));
+    ctx.lineTo(xPos(0.0), yPos(tStack));
+    ctx.stroke();
+
+    // Draw Water/Steam Line (Blue)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(xPos(0.0), yPos(tFw));
+    ctx.lineTo(xPos(qEcoRatio), yPos(tEcoOut));
+    ctx.lineTo(xPos(qEvaRatio), yPos(tSat)); // Horizontal boiling in evaporator
+    ctx.lineTo(xPos(1.0), yPos(tSteam)); // Superheating
+    ctx.stroke();
+
+    // Labels & Points
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('Gas In: ' + Math.round(tGasIn) + '°F', xPos(1.0) - 80, yPos(tGasIn) - 8);
+    ctx.fillText('Stack: ' + Math.round(tStack) + '°F', xPos(0.0), yPos(tStack) - 8);
+
+    ctx.fillStyle = '#2563eb';
+    ctx.fillText('Steam: ' + Math.round(tSteam) + '°F', xPos(1.0) - 80, yPos(tSteam) + 16);
+    ctx.fillText('Feedwater: ' + Math.round(tFw) + '°F', xPos(0.0), yPos(tFw) + 16);
+
+    // Pinch Point Visual Highlight
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xPos(qEcoRatio), yPos(tSat));
+    ctx.lineTo(xPos(qEcoRatio), yPos(tGasEva));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Pinch Point', xPos(qEcoRatio) + 5, (yPos(tSat) + yPos(tGasEva)) / 2);
+  }
+
+  function calcHrsg() {
+    const mGas = parseFloat(document.getElementById('hrsg_flow_gas').value) || 1800000;
+    const tGasIn = parseFloat(document.getElementById('hrsg_t_gas_in').value) || 1120;
+    const pDrum = parseFloat(document.getElementById('hrsg_pdrum').value) || 1450;
+    const tSteam = parseFloat(document.getElementById('hrsg_tsteam').value) || 1050;
+    const tFw = parseFloat(document.getElementById('hrsg_tfw').value) || 240;
+    const pinch = parseFloat(document.getElementById('hrsg_pinch').value) || 20;
+    const approach = parseFloat(document.getElementById('hrsg_approach').value) || 12;
+    const cpGas = parseFloat(document.getElementById('hrsg_cpgas').value) || 0.275;
+    const blowdownPct = parseFloat(document.getElementById('hrsg_blowdown').value) || 1.5;
+
+    // Saturation temperature at drum pressure (approx steam tables formula)
+    const pAbs = pDrum + 14.7;
+    const tSat = 115.67 * Math.pow(pAbs, 0.225);
+    const tSatC = (tSat - 32) * 5 / 9;
+
+    // Temperatures at section boundaries
+    const tGasEva = tSat + pinch;
+    const tEcoOut = tSat - approach;
+
+    // Enthalpies (Btu/lb approx steam properties)
+    const hSteam = 1050 + 0.45 * tSteam + 0.05 * Math.pow(pAbs, 0.8);
+    const hEcoOut = tEcoOut - 32;
+    const hFw = tFw - 32;
+    const deltaHEvap = hSteam - hEcoOut;
+
+    // Heat available in superheater + evaporator (Btu/hr)
+    const qShEva = mGas * cpGas * (tGasIn - tGasEva) * 0.99;
+
+    // Steaming rate (lb/hr)
+    const mSteam = qShEva / Math.max(100, deltaHEvap);
+    const mSteamKgS = mSteam * 0.453592 / 3600;
+    const mSteamTHr = mSteam * 0.000453592;
+
+    // Economizer Duty
+    const qEco = mSteam * (hEcoOut - hFw);
+
+    // Stack Gas Temperature
+    const tStack = tGasEva - (qEco / (mGas * cpGas * 0.99));
+    const tStackC = (tStack - 32) * 5 / 9;
+
+    // Total Duty (MMBtu/hr and MWth)
+    const qTotalBtu = qShEva + qEco;
+    const qTotalMbtu = qTotalBtu / 1e6;
+    const qTotalMw = qTotalMbtu * 0.293071;
+
+    // Electrical output estimation (MW)
+    const mwe = (mSteam * 365) / (3412 * 1000);
+
+    // Duties breakdown
+    const qSh = mSteam * (hSteam - (tSat - 32 + 800)); // approx latent 800
+    const qEva = qShEva - qSh;
+
+    // Gas backpressure estimate (in w.c.)
+    const bpInWc = 11.5 * (mGas / 1800000);
+    const gtLossMw = (bpInWc / 4.0) * (mwe * 0.35);
+    const netMwe = mwe - gtLossMw;
+
+    // Update KPI Displays
+    document.getElementById('res_hrsg_msteam').textContent = Math.round(mSteam).toLocaleString() + ' lb/h';
+    document.getElementById('res_hrsg_msteam_metric').textContent = mSteamKgS.toFixed(1) + ' kg/s (' + Math.round(mSteamTHr) + ' t/h)';
+
+    document.getElementById('res_hrsg_tstack').textContent = Math.round(tStack) + ' °F';
+    document.getElementById('res_hrsg_tstack_metric').textContent = Math.round(tStackC) + ' °C (Good Heat Recovery)';
+
+    document.getElementById('res_hrsg_qtotal').textContent = qTotalMbtu.toFixed(1) + ' MMBtu/h';
+    document.getElementById('res_hrsg_qtotal_mw').textContent = qTotalMw.toFixed(1) + ' MWth Absorbed';
+
+    document.getElementById('res_hrsg_mwe').textContent = mwe.toFixed(1) + ' MWe';
+    document.getElementById('res_hrsg_mwe_desc').textContent = 'Combined Cycle Power Boost';
+
+    // Evaporator Details
+    document.getElementById('res_hrsg_tsat').textContent = tSat.toFixed(1) + ' °F (' + tSatC.toFixed(1) + ' °C)';
+    document.getElementById('res_hrsg_t_gas_eva').textContent = tGasEva.toFixed(1) + ' °F (Pinch Limit)';
+    document.getElementById('res_hrsg_t_eco_out').textContent = tEcoOut.toFixed(1) + ' °F (Subcooled)';
+    document.getElementById('res_hrsg_pinch_margin').textContent = pinch.toFixed(1) + ' °F (Optimal)';
+
+    // Section Duties
+    document.getElementById('res_hrsg_qsh').textContent = (qSh / 1e6).toFixed(1) + ' MMBtu/h';
+    document.getElementById('res_hrsg_qeva').textContent = (qEva / 1e6).toFixed(1) + ' MMBtu/h';
+    document.getElementById('res_hrsg_qeco').textContent = (qEco / 1e6).toFixed(1) + ' MMBtu/h';
+    document.getElementById('res_hrsg_gas_drop').textContent = Math.round(tGasIn - tStack) + ' °F Temp Drop';
+
+    // Hydraulics
+    const steamRisk = document.getElementById('res_hrsg_steam_risk');
+    if (approach < 5) {
+      steamRisk.textContent = 'DANGER: Economizer Steaming / Vapor Lock!';
+      steamRisk.style.color = '#ef4444';
+    } else if (approach < 8) {
+      steamRisk.textContent = 'CAUTION: Marginal Approach (<8°F)';
+      steamRisk.style.color = '#f59e0b';
+    } else {
+      steamRisk.textContent = 'SAFE (+' + approach.toFixed(1) + '°F Subcooled)';
+      steamRisk.style.color = '#10b981';
+    }
+
+    document.getElementById('res_hrsg_bp').textContent = bpInWc.toFixed(1) + ' in w.c. (' + (bpInWc * 2.49).toFixed(1) + ' mbar)';
+    document.getElementById('res_hrsg_gt_penalty').textContent = '-' + gtLossMw.toFixed(1) + ' MW (Backpressure)';
+    document.getElementById('res_hrsg_net_gain').textContent = '+' + netMwe.toFixed(1) + ' MWe Net';
+
+    drawQtDiagram(tGasIn, tGasEva, tStack, tSteam, tSat, tEcoOut, tFw, qTotalBtu);
+  }
+
+  presetSelect.addEventListener('change', updateGtPreset);
+
+  const inputs = [
+    'hrsg_flow_gas', 'hrsg_t_gas_in', 'hrsg_pdrum', 'hrsg_tsteam',
+    'hrsg_tfw', 'hrsg_pinch', 'hrsg_approach', 'hrsg_cpgas', 'hrsg_blowdown'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcHrsg);
+      el.addEventListener('change', calcHrsg);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_hrsg_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'GAS TURBINE HRSG HEAT BALANCE DATASHEET',
+        '===============================================',
+        'GT Exhaust Conditions: ' + document.getElementById('hrsg_flow_gas').value + ' lb/hr @ ' + document.getElementById('hrsg_t_gas_in').value + ' deg F',
+        'Steam Conditions: ' + document.getElementById('hrsg_pdrum').value + ' psig / ' + document.getElementById('hrsg_tsteam').value + ' deg F',
+        'Pinch Point: ' + document.getElementById('hrsg_pinch').value + ' deg F | Approach: ' + document.getElementById('hrsg_approach').value + ' deg F',
+        '--- Steam & Heat Balance Outputs ---',
+        'HP Steaming Rate: ' + document.getElementById('res_hrsg_msteam').textContent + ' (' + document.getElementById('res_hrsg_msteam_metric').textContent + ')',
+        'Stack Flue Gas Temp: ' + document.getElementById('res_hrsg_tstack').textContent + ' (' + document.getElementById('res_hrsg_tstack_metric').textContent + ')',
+        'Total Absorbed Duty: ' + document.getElementById('res_hrsg_qtotal').textContent + ' (' + document.getElementById('res_hrsg_qtotal_mw').textContent + ')',
+        'Steam Turbine Output: ' + document.getElementById('res_hrsg_mwe').textContent,
+        'Drum Saturation Temp: ' + document.getElementById('res_hrsg_tsat').textContent,
+        'Economizer Steaming Status: ' + document.getElementById('res_hrsg_steam_risk').textContent,
+        'Gas Backpressure: ' + document.getElementById('res_hrsg_bp').textContent,
+        'Net Cycle Gain: ' + document.getElementById('res_hrsg_net_gain').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcHrsg();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BH4: Shell & Tube Heat Exchanger Fouling Rate & Cleaning Cycle Calculator
+  // ==========================================
+  (() => {
+    const slug = 'heat-exchanger-fouling-rate-calculator';
+    const title = 'Shell & Tube Heat Exchanger Fouling Rate & Cleaning Cycle Calculator';
+    const metaDescription = 'Calculate shell and tube heat exchanger progressive fouling resistance, overall heat transfer coefficient degradation, tube lumen constriction, pressure drop penalty, and optimal economic cleaning intervals per TEMA standards and Kern formulations.';
+
+    const faq = [
+      {
+        q: 'What is fouling resistance (Rf) in TEMA heat exchanger standards?',
+        a: 'Fouling resistance (Rf) is the thermal resistance layer formed by accumulated scale, coke, biological slime, corrosion products, or particulate sludge on heat transfer surfaces. Expressed in hr-sq.ft-deg F/Btu (or m2-K/W in SI), it degrades the overall heat transfer coefficient according to: 1 / U(t) = 1 / U_clean + Rf(t). TEMA (Tubular Exchanger Manufacturers Association) specifies standard design fouling margins (e.g. 0.001 to 0.002 for cooling water, 0.003 to 0.005 for crude oil) so exchangers can maintain rated heat duty for a specified run-length before requiring chemical or mechanical hydroblast cleaning.'
+      },
+      {
+        q: 'Why does tube-side pressure drop increase with the 5th power of fouled lumen diameter?',
+        a: 'Per the Darcy-Weisbach and Hagen-Poiseuille fluid dynamics equations, the frictional pressure drop of fluid flowing through a tube is proportional to velocity squared divided by diameter: Delta P ~ f * (L / d) * (rho * v^2 / 2). Because fluid velocity v is inversely proportional to cross-sectional area (v ~ 1 / d^2), substituting velocity into the friction equation reveals that pressure drop scales inversely with the fifth power of inside diameter: Delta P ~ 1 / d^5. Consequently, a mere 10% reduction in tube inside diameter due to scale buildup increases tube pressure drop by 69%, while a 20% diameter constriction spikes pressure drop by 205% (triple the clean pressure drop).'
+      },
+      {
+        q: 'What is the Kern-Seaton asymptotic fouling model?',
+        a: 'The Kern-Seaton model describes fouling as a simultaneous dynamic competition between deposition rate (phi_d) and fluid shear removal rate (phi_r): dRf / dt = phi_d - phi_r. At early times, deposition dominates and fouling grows rapidly. As scale thickens, tube lumen constricts and fluid velocity increases, causing turbulent wall shear stress to rise until the rate of deposit re-entrainment exactly balances the rate of deposition. The fouling resistance approaches an asymptotic steady-state limit: Rf(t) = Rf_inf * [1 - exp(-t / tau)], where tau is the characteristic time constant.'
+      },
+      {
+        q: 'How is the optimal economic cleaning interval calculated for heat exchangers?',
+        a: 'The optimal cleaning interval topt balances two opposing economic costs: the fixed cost of shutting down and cleaning the exchanger (hydroblasting, crane rental, scaffold, chemical wash, and lost production), and the cumulative daily operating cost penalty from lost heat recovery and increased pumping power. By differentiating total cost per day with respect to time, the economic optimum interval occurs when cumulative lost energy equals the turnaround cleaning cost: topt = sqrt([2 * C_clean] / [C_energy * (dE / dt)]).'
+      },
+      {
+        q: 'How does over-sizing a heat exchanger inadvertently accelerate fouling?',
+        a: 'Design engineers often add 30% to 50% extra surface area as an over-design safety factor. However, installing excessive surface area in fixed-flow systems drops the fluid velocity through the tubes below critical sediment suspension velocities (typically <3.0 ft/s or 0.9 m/s for cooling tower water). At low velocities, suspended silt, sand, and biological biofilms settle out of suspension by gravity, increasing the deposition rate by 300% to 500% and causing the exchanger to foul far faster than a smaller, high-velocity unit.'
+      }
+    ];
+
+    const content = `
+<style>
+.foul-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.foul-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.foul-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.foul-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .foul-grid-2, .foul-grid-3, .foul-grid-4 { grid-template-columns: 1fr; }
+}
+.foul-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.foul-input, .foul-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.foul-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.foul-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.foul-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.foul-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.foul-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.foul-canvas {
+  width: 100%;
+  height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: block;
+}
+</style>
+
+<div class="foul-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">Shell &amp; Tube Heat Exchanger Fouling &amp; Cleaning Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">Kern-Seaton Asymptotic Fouling, U-Value Degradation, 5th-Power Pressure Drop &amp; Economic Cleaning Cycle</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="foul-btn" id="btn_foul_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Fouling Audit</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="foul-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="foul-label">Process Fluid Fouling Preset</label>
+      <select id="foul_preset" class="foul-select">
+        <option value="water" selected>Cooling Tower Water (Rf_inf=0.0020, tau=60d)</option>
+        <option value="crude">Crude Oil Pre-Heat Train (Rf_inf=0.0040, tau=120d)</option>
+        <option value="closed_hvac">Closed-Loop Chilled Water (Rf_inf=0.0005, tau=180d)</option>
+        <option value="slurry">Heavy Gas Oil / Slurry (Rf_inf=0.0065, tau=45d)</option>
+      </select>
+    </div>
+    <div>
+      <label class="foul-label">Operating Days Elapsed <span>days</span></label>
+      <input type="number" id="foul_days" class="foul-input" value="120" step="10" min="1" max="1000">
+    </div>
+    <div>
+      <label class="foul-label">Clean Overall U (U_clean) <span>Btu/hr-ft&sup2;-&deg;F</span></label>
+      <input type="number" id="foul_uclean" class="foul-input" value="140" step="5" min="20" max="600">
+    </div>
+  </div>
+
+  <div class="foul-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="foul-label">Exchanger Surface Area (A) <span>sq ft</span></label>
+      <input type="number" id="foul_area" class="foul-input" value="4500" step="250" min="100">
+    </div>
+    <div>
+      <label class="foul-label">Clean Heat Duty (Q_clean) <span>MMBtu/hr</span></label>
+      <input type="number" id="foul_qclean" class="foul-input" value="28.0" step="1.0" min="1">
+    </div>
+    <div>
+      <label class="foul-label">Clean Tube Inside Dia (di) <span>inches</span></label>
+      <input type="number" id="foul_di" class="foul-input" value="0.620" step="0.01" min="0.3" max="2.0">
+    </div>
+    <div>
+      <label class="foul-label">Clean Tube Delta P (&Delta;P_clean) <span>psi</span></label>
+      <input type="number" id="foul_dp_clean" class="foul-input" value="8.0" step="0.5" min="1" max="40">
+    </div>
+  </div>
+
+  <div class="foul-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="foul-label">Asymptotic Rf (Rf_inf) <span>hr-ft&sup2;-&deg;F/Btu</span></label>
+      <input type="number" id="foul_rfinf" class="foul-input" value="0.0020" step="0.0005" min="0.0001" max="0.015">
+    </div>
+    <div>
+      <label class="foul-label">Time Constant (&tau;) <span>days</span></label>
+      <input type="number" id="foul_tau" class="foul-input" value="60" step="5" min="10" max="365">
+    </div>
+    <div>
+      <label class="foul-label">Energy Loss Value <span>$/MMBtu</span></label>
+      <input type="number" id="foul_cost_energy" class="foul-input" value="7.50" step="0.5" min="1">
+    </div>
+    <div>
+      <label class="foul-label">Cleaning Turnaround Cost <span>$/event</span></label>
+      <input type="number" id="foul_cost_clean" class="foul-input" value="22000" step="1000" min="1000">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="foul-grid-4" style="margin-bottom:1.5rem;">
+    <div class="foul-kpi">
+      <div class="foul-kpi-lbl">Current U-Value (Fouled)</div>
+      <div class="foul-kpi-val" id="res_foul_u" style="color:#2563eb;">112.8</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_foul_u_metric">Btu/hr-ft&sup2;-&deg;F (-19.4% Loss)</div>
+    </div>
+    <div class="foul-kpi">
+      <div class="foul-kpi-lbl">Current Heat Duty Lost</div>
+      <div class="foul-kpi-val" id="res_foul_qloss" style="color:#ef4444;">-5.4 MMBtu/h</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_foul_qloss_cost">$978 / day penalty</div>
+    </div>
+    <div class="foul-kpi">
+      <div class="foul-kpi-lbl">Tube Pressure Drop (&Delta;P)</div>
+      <div class="foul-kpi-val" id="res_foul_dp" style="color:#f59e0b;">14.2 psi</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_foul_dp_increase">+77.5% Pumping Surge</div>
+    </div>
+    <div class="foul-kpi">
+      <div class="foul-kpi-lbl">Optimal Cleaning Interval</div>
+      <div class="foul-kpi-val" id="res_foul_topt" style="color:#10b981;">184 Days</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_foul_topt_status">64 Days Remaining</div>
+    </div>
+  </div>
+
+  <!-- Fouling Curve Canvas -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <span style="font-weight:600; font-size:0.95rem;">Fouling Progression &amp; U-Value Degradation Over Time (0 to 365 Days)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Blue: U-Value (Btu/hr-ft&sup2;-&deg;F) | Amber: Cumulative Economic Penalty ($)</span>
+    </div>
+    <canvas id="foul_prog_canvas" class="foul-canvas" width="800" height="220"></canvas>
+  </div>
+
+  <div class="foul-grid-3">
+    <div class="foul-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Thermal Resistance &amp; Scale</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Current Rf(t):</strong> <span id="res_foul_rf">0.00173 hr-ft&sup2;-&deg;F/Btu</span></div>
+        <div><strong>SI Thermal Resistance:</strong> <span id="res_foul_rf_si">0.000305 m&sup2;&middot;K/W</span></div>
+        <div><strong>Scale Deposit Thickness:</strong> <span id="res_foul_thick">0.010 in (0.26 mm)</span></div>
+        <div><strong>Constricted Tube Lumen:</strong> <span id="res_foul_lumen">0.600 in (3.2% diameter drop)</span></div>
+      </div>
+    </div>
+    <div class="foul-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Fluid Hydraulics (d^5 Law)</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Clean Tube Velocity:</strong> <span id="res_foul_vclean">5.50 ft/s (1.68 m/s)</span></div>
+        <div><strong>Fouled Tube Velocity:</strong> <span id="res_foul_vfouled">5.87 ft/s (+6.7% Velocity)</span></div>
+        <div><strong>Clean Delta P:</strong> <span id="res_foul_dp_clean_lbl">8.0 psi (55.2 kPa)</span></div>
+        <div><strong>Pumping Power Surge:</strong> <span id="res_foul_pump_kw">+8.2 kW Extra Motor Draw</span></div>
+      </div>
+    </div>
+    <div class="foul-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Economic Turnaround Planning</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Cumulative Energy Penalty:</strong> <span id="res_foul_cum_cost">$58,600 to date</span></div>
+        <div><strong>Turnaround Cleaning Cost:</strong> <span id="res_foul_clean_cost">$22,000 / event</span></div>
+        <div><strong>Cleaning Recommendation:</strong> <span id="res_foul_rec" style="color:#10b981; font-weight:600;">Plan Turnaround in 2 Months</span></div>
+        <div><strong>Net Savings by Timely Clean:</strong> <span id="res_foul_savings">$34,200 / year</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Heat Exchanger Fouling</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The 5th-Power Pressure Drop Pump Deadheading Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operators track heat transfer loss while ignoring tube-side pressure drop. Because hydraulic friction scales with the 5th power of inside diameter (\(\Delta P \propto d^{-5}\)), a modest <strong>1.5 mm scale accumulation inside a 3/4" 16 BWG tube increases tube-side pressure drop by over 180%</strong>. Centrifugal cooling water pumps are pushed to the far left of their head-capacity curves, dropping flow rate, worsening sedimentation, and causing violent pump cavitation.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Over-Designing Surface Area That Triggers Rapid Slagging</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Adding 40% to 60% surplus heat transfer area "for future fouling" backfires completely. In cooling water systems, excess tube count drops clean velocity below <strong>3.0 ft/s (0.9 m/s)</strong>. Suspended solids and microbes precipitate out of suspension onto tube walls, increasing fouling rates by 400%. High velocity (>5.5 ft/s) provides natural self-cleaning wall shear stress that keeps tubes cleaner far longer than an oversized, low-velocity bundle.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Cold Turnaround Hydroblast Thermal Shock Joint Leaks</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Blasting 10,000 to 20,000 psi ambient water through hot exchanger tubes immediately after shutdown without adequate cool-down creates extreme differential contraction. Thin tube walls contract rapidly against thick, hot carbon steel tubesheets. The roller-expanded mechanical tube-to-tubesheet joint yields, <strong>shearing seal welds and causing permanent cross-contamination leaks</strong> between high-pressure and low-pressure streams.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Under-Deposit Microbiological Influenced Corrosion (MIC)</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Allowing bio-slime or calcium silt to sit in uncleaned tubes during seasonal turnarounds creates anaerobic micro-environments. Sulfate-reducing bacteria (SRB) flourish beneath the scale, excreting corrosive hydrogen sulfide directly against austenitic stainless steel (304/316) tubes. Localized pitting corrosion perforates 18 BWG tube walls in as little as 3 to 6 weeks, causing catastrophic cooling water contamination.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. The Linear Fouling Extrapolation Delusion</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Assuming fouling increases linearly with time (\(R_f \propto t\)) causes plant managers to schedule unnecessary, costly premature shutdowns. In turbulent fluid streams, wall shear stress removes deposits at a rate proportional to deposit thickness. Most exchangers exhibit <strong>asymptotic behavior, naturally leveling off at a stable equilibrium \(R_{f,\infty}\)</strong> where cleaning is completely unnecessary.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">TEMA &amp; Kern-Seaton Mathematical Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Asymptotic Fouling Resistance &amp; Degraded U-Value</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$R_f(t) = R_{f,\infty} \cdot \left(1 - e^{-t / \tau}\right) \quad [\text{hr}\cdot\text{ft}^2\cdot^{\circ}\text{F/Btu}]$$
+    $$U(t) = \frac{1}{\frac{1}{U_{clean}} + R_f(t)} \quad [\text{Btu/hr}\cdot\text{ft}^2\cdot^{\circ}\text{F}]$$
+    $$Q(t) = Q_{clean} \cdot \frac{U(t)}{U_{clean}} \quad [\text{MMBtu/hr}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Hydraulic Lumen Constriction &amp; 5th-Power Law</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\delta_f = R_f(t) \cdot k_{scale} \times 12 \quad [\text{inches}]$$
+    $$d_{fouled} = d_i - 2 \delta_f \quad [\text{inches}]$$
+    $$\Delta P_{fouled}(t) = \Delta P_{clean} \cdot \left(\frac{d_i}{d_{fouled}}\right)^5 \quad [\text{psi}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Optimal Economic Cleaning Turnaround Interval</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$t_{opt} = \sqrt{\frac{2 \cdot C_{clean}}{C_{energy} \cdot \dot{Q}_{loss, day}}} \quad [\text{days}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const FOUL_PRESETS = {
+    'water': { rfInf: 0.0020, tau: 60 },
+    'crude': { rfInf: 0.0040, tau: 120 },
+    'closed_hvac': { rfInf: 0.0005, tau: 180 },
+    'slurry': { rfInf: 0.0065, tau: 45 }
+  };
+
+  const presetSelect = document.getElementById('foul_preset');
+
+  function updatePreset() {
+    const p = FOUL_PRESETS[presetSelect.value];
+    if (p) {
+      document.getElementById('foul_rfinf').value = p.rfInf.toFixed(4);
+      document.getElementById('foul_tau').value = p.tau;
+      calcFoul();
+    }
+  }
+
+  function drawFoulingCanvas(uClean, rfInf, tau, currentDays, topt) {
+    const canvas = document.getElementById('foul_prog_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Max X is 365 days
+    function xPos(d) {
+      return 50 + (d / 365) * (w - 80);
+    }
+    function yPosU(u) {
+      return (h - 30) - (u / (uClean * 1.15)) * (h - 55);
+    }
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(150, 150, 150, 0.2)';
+    ctx.lineWidth = 1;
+    for (let d = 50; d <= 350; d += 50) {
+      const x = xPos(d);
+      ctx.beginPath();
+      ctx.moveTo(x, 15);
+      ctx.lineTo(x, h - 30);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(d + 'd', x - 8, h - 15);
+    }
+
+    // Draw U-Value Curve (Blue)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let d = 0; d <= 365; d += 5) {
+      const rf_d = rfInf * (1 - Math.exp(-d / tau));
+      const u_d = 1 / ((1 / uClean) + rf_d);
+      const x = xPos(d);
+      const y = yPosU(u_d);
+      if (d === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Current Day Marker
+    const curX = xPos(Math.min(365, currentDays));
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(curX, 15);
+    ctx.lineTo(curX, h - 30);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Current: ' + currentDays + 'd', curX + 4, 30);
+
+    // Optimal Clean Marker
+    if (topt > 0 && topt <= 365) {
+      const optX = xPos(topt);
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(optX, 15);
+      ctx.lineTo(optX, h - 30);
+      ctx.stroke();
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('Optimum: ' + Math.round(topt) + 'd', optX + 4, 50);
+    }
+  }
+
+  function calcFoul() {
+    const days = parseFloat(document.getElementById('foul_days').value) || 120;
+    const uClean = parseFloat(document.getElementById('foul_uclean').value) || 140;
+    const area = parseFloat(document.getElementById('foul_area').value) || 4500;
+    const qClean = parseFloat(document.getElementById('foul_qclean').value) || 28;
+    const di = parseFloat(document.getElementById('foul_di').value) || 0.620;
+    const dpClean = parseFloat(document.getElementById('foul_dp_clean').value) || 8.0;
+    const rfInf = parseFloat(document.getElementById('foul_rfinf').value) || 0.0020;
+    const tau = parseFloat(document.getElementById('foul_tau').value) || 60;
+    const costEnergy = parseFloat(document.getElementById('foul_cost_energy').value) || 7.50;
+    const costClean = parseFloat(document.getElementById('foul_cost_clean').value) || 22000;
+
+    // Asymptotic fouling resistance Rf(t) = Rf_inf * (1 - e^(-t / tau))
+    const rf = rfInf * (1 - Math.exp(-days / tau));
+    const rfSi = rf * 0.17611; // m2-K/W
+
+    // Degraded overall heat transfer coefficient U(t)
+    const uFouled = 1 / ((1 / uClean) + rf);
+    const uLossPct = ((uClean - uFouled) / uClean) * 100;
+
+    // Degraded heat duty
+    const qFouled = qClean * (uFouled / uClean);
+    const qLossMbtu = qClean - qFouled;
+    const qLossDailyCost = qLossMbtu * 24 * costEnergy;
+
+    // Fouling thickness delta_f (assuming k_scale = 0.5 Btu/hr-ft-F)
+    const deltaF_in = rf * 0.5 * 12;
+    const deltaF_mm = deltaF_in * 25.4;
+
+    // Constricted tube inside diameter
+    const dFouled = Math.max(0.2, di - 2 * deltaF_in);
+    const dDropPct = ((di - dFouled) / di) * 100;
+
+    // Hydraulic 5th-power pressure drop: dp_fouled = dp_clean * (di / dFouled)^5
+    const dpFouled = dpClean * Math.pow(di / dFouled, 5);
+    const dpSurgePct = ((dpFouled - dpClean) / dpClean) * 100;
+
+    // Velocity ratio = (di / dFouled)^2
+    const vClean = 5.5; // typical design ft/s
+    const vFouled = vClean * Math.pow(di / dFouled, 2);
+
+    // Extra pumping power (kW)
+    const pumpKwExtra = (dpFouled - dpClean) * 1.5;
+
+    // Optimal economic cleaning interval (days)
+    // dE_loss/dt approx: (qLossDailyCost / days)
+    const dailyCostRate = qLossDailyCost / Math.max(1, days);
+    const topt = Math.sqrt((2 * costClean) / Math.max(0.01, dailyCostRate));
+    const daysRemain = topt - days;
+
+    // Cumulative lost energy to date
+    const cumEnergyCost = (qLossDailyCost * days) / 2;
+
+    // Update KPI Displays
+    document.getElementById('res_foul_u').textContent = uFouled.toFixed(1);
+    document.getElementById('res_foul_u_metric').textContent = 'Btu/hr-ft²-°F (-' + uLossPct.toFixed(1) + '% Loss)';
+
+    document.getElementById('res_foul_qloss').textContent = '-' + qLossMbtu.toFixed(2) + ' MMBtu/h';
+    document.getElementById('res_foul_qloss_cost').textContent = '$' + Math.round(qLossDailyCost).toLocaleString() + ' / day penalty';
+
+    document.getElementById('res_foul_dp').textContent = dpFouled.toFixed(1) + ' psi';
+    document.getElementById('res_foul_dp_increase').textContent = '+' + dpSurgePct.toFixed(1) + '% Pressure Surge';
+
+    document.getElementById('res_foul_topt').textContent = Math.round(topt) + ' Days';
+    const toptStatus = document.getElementById('res_foul_topt_status');
+    if (daysRemain < 0) {
+      toptStatus.textContent = 'OVERDUE by ' + Math.round(-daysRemain) + ' Days!';
+      toptStatus.style.color = '#ef4444';
+    } else if (daysRemain < 30) {
+      toptStatus.textContent = Math.round(daysRemain) + ' Days Remaining (Prepare)';
+      toptStatus.style.color = '#f59e0b';
+    } else {
+      toptStatus.textContent = Math.round(daysRemain) + ' Days Remaining';
+      toptStatus.style.color = '#10b981';
+    }
+
+    // Resistance Details
+    document.getElementById('res_foul_rf').textContent = rf.toFixed(5) + ' hr-ft²-°F/Btu';
+    document.getElementById('res_foul_rf_si').textContent = rfSi.toFixed(6) + ' m²·K/W';
+    document.getElementById('res_foul_thick').textContent = deltaF_in.toFixed(3) + ' in (' + deltaF_mm.toFixed(2) + ' mm)';
+    document.getElementById('res_foul_lumen').textContent = dFouled.toFixed(3) + ' in (' + dDropPct.toFixed(1) + '% drop)';
+
+    // Hydraulics Details
+    document.getElementById('res_foul_vclean').textContent = vClean.toFixed(2) + ' ft/s (' + (vClean * 0.3048).toFixed(2) + ' m/s)';
+    document.getElementById('res_foul_vfouled').textContent = vFouled.toFixed(2) + ' ft/s (+' + ((vFouled - vClean) / vClean * 100).toFixed(1) + '%)';
+    document.getElementById('res_foul_dp_clean_lbl').textContent = dpClean.toFixed(1) + ' psi (' + (dpClean * 6.89476).toFixed(1) + ' kPa)';
+    document.getElementById('res_foul_pump_kw').textContent = '+' + pumpKwExtra.toFixed(1) + ' kW Extra Motor Draw';
+
+    // Economics Details
+    document.getElementById('res_foul_cum_cost').textContent = '$' + Math.round(cumEnergyCost).toLocaleString() + ' to date';
+    document.getElementById('res_foul_clean_cost').textContent = '$' + costClean.toLocaleString() + ' / event';
+
+    const recEl = document.getElementById('res_foul_rec');
+    if (daysRemain < 0) {
+      recEl.textContent = 'SCHEDULE IMMEDIATE HYDROBLAST';
+      recEl.style.color = '#ef4444';
+    } else if (daysRemain < 30) {
+      recEl.textContent = 'Plan Turnaround in ' + Math.round(daysRemain) + ' Days';
+      recEl.style.color = '#f59e0b';
+    } else {
+      recEl.textContent = 'Normal Operation (Stable Asymptotic)';
+      recEl.style.color = '#10b981';
+    }
+
+    const annualSavings = (qLossDailyCost * 180);
+    document.getElementById('res_foul_savings').textContent = '$' + Math.round(annualSavings).toLocaleString() + ' / year';
+
+    drawFoulingCanvas(uClean, rfInf, tau, days, topt);
+  }
+
+  presetSelect.addEventListener('change', updatePreset);
+
+  const inputs = [
+    'foul_days', 'foul_uclean', 'foul_area', 'foul_qclean',
+    'foul_di', 'foul_dp_clean', 'foul_rfinf', 'foul_tau', 'foul_cost_energy', 'foul_cost_clean'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcFoul);
+      el.addEventListener('change', calcFoul);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_foul_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'HEAT EXCHANGER FOULING & CLEANING AUDIT DATASHEET',
+        '===============================================',
+        'Operating Time: ' + document.getElementById('foul_days').value + ' Days',
+        'Fluid Service: ' + presetSelect.options[presetSelect.selectedIndex].text,
+        'Surface Area: ' + document.getElementById('foul_area').value + ' sq ft',
+        'Clean vs Fouled U-Value: ' + document.getElementById('foul_uclean').value + ' -> ' + document.getElementById('res_foul_u').textContent + ' Btu/hr-ft2-deg F (' + document.getElementById('res_foul_u_metric').textContent + ')',
+        'Current Fouling Resistance (Rf): ' + document.getElementById('res_foul_rf').textContent + ' (' + document.getElementById('res_foul_rf_si').textContent + ')',
+        '--- Heat Duty & Hydraulic Penalty ---',
+        'Heat Duty Loss: ' + document.getElementById('res_foul_qloss').textContent + ' (' + document.getElementById('res_foul_qloss_cost').textContent + ')',
+        'Scale Thickness / Lumen: ' + document.getElementById('res_foul_thick').textContent + ' / ' + document.getElementById('res_foul_lumen').textContent,
+        'Tube Pressure Drop Surge: ' + document.getElementById('foul_dp_clean').value + ' -> ' + document.getElementById('res_foul_dp').textContent + ' (' + document.getElementById('res_foul_dp_increase').textContent + ')',
+        '--- Economic Cleaning Optimization ---',
+        'Optimal Cleaning Interval: ' + document.getElementById('res_foul_topt').textContent + ' [' + document.getElementById('res_foul_topt_status').textContent + ']',
+        'Cumulative Energy Penalty: ' + document.getElementById('res_foul_cum_cost').textContent,
+        'Turnaround Action: ' + document.getElementById('res_foul_rec').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Audit Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcFoul();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+console.log('  ✓ Built Trade & Construction Suite (183 calculators in /calc/)');
 }
 
