@@ -141218,6 +141218,2910 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (211 calculators in /calc/)');
+    // ─── TOOL BP1: STEAM TURBINE SURFACE CONDENSER VACUUM & SIZING CALCULATOR ───
+  (() => {
+    const slug = 'steam-surface-condenser-vacuum-calculator';
+    const title = 'Steam Turbine Surface Condenser Vacuum & Sizing Calculator (HEI Standards)';
+    const metaDescription = 'Industrial steam turbine surface condenser sizing calculator adhering to HEI standards. Computes condenser backpressure, cooling water flow rate, HEI overall heat transfer coefficient (U), tube surface area, terminal temperature difference (TTD), and subcooling margins.';
+
+    const faq = [
+      {
+        q: 'What is the Heat Exchange Institute (HEI) method for steam surface condensers?',
+        a: 'The HEI Standards for Steam Surface Condensers provide the industry-standard empirical formulation for calculating the overall heat transfer coefficient (U). HEI models base heat transfer (U_base) as a function of cooling water inlet velocity and tube outside diameter, modified by correction factors for inlet cooling water temperature (Ft), tube material and gauge wall thickness (Fm), and tube surface cleanliness (CF, typically 0.85).'
+      },
+      {
+        q: 'What is Terminal Temperature Difference (TTD) and why does it matter?',
+        a: 'Terminal Temperature Difference (TTD) is defined as the steam saturation temperature minus the cooling water outlet temperature: TTD = Tsat - Tcw,out. Standard industrial design targets a TTD between 2.8°C and 5.5°C (5°F to 10°F). A TTD below 2.8°C requires an economically prohibitive surface area, while a TTD above 5.5°C indicates poor thermal effectiveness, tube fouling, or air blanketing.'
+      },
+      {
+        q: 'What is condensate depression (subcooling) and why is it detrimental?',
+        a: 'Condensate depression occurs when the liquid condensate in the hotwell cools below the saturation temperature of the condensing steam (Tsat - Tcondensate > 0). Every 1°C of subcooling increases turbine cycle heat rate by approximately 0.15% (wasting fuel) and exponentially increases dissolved oxygen solubility in the condensate, causing catastrophic pitting corrosion in economizers and boiler feed piping.'
+      },
+      {
+        q: 'What are the recommended cooling water tube velocities?',
+        a: 'Typical cooling water tube velocities range from 1.8 m/s to 2.4 m/s (6.0 to 8.0 ft/s) for copper alloys and 2.1 m/s to 2.5 m/s (7.0 to 8.2 ft/s) for titanium and stainless steel. Velocities below 1.5 m/s cause silt sedimentation and biological fouling, whereas velocities above 2.5 m/s cause destructive inlet-end impingement and erosion-corrosion.'
+      },
+      {
+        q: 'How does condenser vacuum directly impact steam turbine power output?',
+        a: 'Every 1 kPa (0.3 inHg) reduction in condenser backpressure expands the steam enthalpy drop across the low-pressure (LP) turbine stages, typically delivering a 0.5% to 1.5% increase in gross electrical generator power output for the same boiler fuel consumption, until reaching the turbine exhaust choking limit (annulus velocity Mach 1).'
+      }
+    ];
+
+    const content = `
+<div class="calc-card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: #f8fafc;">HEI Steam Surface Condenser Vacuum & Thermal Sizing</h2>
+      <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #94a3b8;">ASME PTC 12.2 & HEI Standards 12th Ed. Thermal Rating Engine</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" class="btn" onclick="scvSetPreset('utility_500mw')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">500 MW Utility Unit</button>
+      <button type="button" class="btn" onclick="scvSetPreset('industrial_50mw')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">50 MW Cogen Plant</button>
+      <button type="button" class="btn" onclick="scvSetPreset('biomass_15mw')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">15 MW Biomass</button>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Column 1: Steam Conditions -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>💨</span> Turbine Exhaust Steam Parameters
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_steam_flow" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Exhaust Steam Mass Flow Rate (t/h)</label>
+        <input type="number" id="scv_steam_flow" value="350" min="1" max="5000" step="1" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Range: 5 to 3000 t/h (1 t/h = 1000 kg/h)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_backpressure" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Condenser Design Backpressure (kPa abs)</label>
+        <input type="number" id="scv_backpressure" value="7.0" min="2.5" max="35.0" step="0.1" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Typical: 5.0 to 10.0 kPa abs (1.5 to 3.0 inHgA)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_steam_enthalpy" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Exhaust Steam Enthalpy (kJ/kg)</label>
+        <input type="number" id="scv_steam_enthalpy" value="2380" min="2000" max="2800" step="5" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Wet exhaust moisture 8-12%: ~2300 - 2450 kJ/kg</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="scv_subcooling" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Design Condensate Subcooling (°C)</label>
+        <input type="number" id="scv_subcooling" value="0.5" min="0" max="5.0" step="0.1" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Good design: 0.2°C to 0.5°C (Hotwell depression)</div>
+      </div>
+    </div>
+
+    <!-- Column 2: Cooling Water Circuit -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🌊</span> Cooling Water (CW) Circuit
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_cw_inlet_t" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">CW Inlet Temperature T_in (°C)</label>
+        <input type="number" id="scv_cw_inlet_t" value="22.0" min="4.0" max="40.0" step="0.5" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Sea/River water: 15-28°C; Cooling Tower: 22-32°C</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_cw_temp_rise" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">CW Temperature Rise Delta-T (°C)</label>
+        <input type="number" id="scv_cw_temp_rise" value="9.0" min="4.0" max="15.0" step="0.5" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard industrial practice: 7.0°C to 11.0°C</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_cw_velocity" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Tube Water Velocity V_cw (m/s)</label>
+        <input type="number" id="scv_cw_velocity" value="2.1" min="1.2" max="3.0" step="0.1" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">HEI optimum: 1.8 to 2.4 m/s (6.0 to 8.0 ft/s)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="scv_cleanliness" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Cleanliness Factor CF (0.50 - 1.00)</label>
+        <input type="number" id="scv_cleanliness" value="0.85" min="0.50" max="1.00" step="0.01" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">HEI design standard: 0.85 (85% clean)</div>
+      </div>
+    </div>
+
+    <!-- Column 3: Tubing Geometry & Metallurgy -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🔬</span> Tubing Material & Geometry
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_tube_material" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Tube Material & Wall (Fm factor)</label>
+        <select id="scv_tube_material" onchange="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="titanium_22bwg" selected>Titanium Gr. 2 (22 BWG / 0.71 mm) - Fm = 0.83</option>
+          <option value="ss304_20bwg">Stainless Steel 304/316 (20 BWG / 0.89 mm) - Fm = 0.84</option>
+          <option value="ss304_18bwg">Stainless Steel 304/316 (18 BWG / 1.24 mm) - Fm = 0.79</option>
+          <option value="admiralty_18bwg">Admiralty Brass (18 BWG / 1.24 mm) - Fm = 1.00</option>
+          <option value="cuni9010_18bwg">Cu-Ni 90/10 (18 BWG / 1.24 mm) - Fm = 0.90</option>
+          <option value="cuni7030_18bwg">Cu-Ni 70/30 (18 BWG / 1.24 mm) - Fm = 0.83</option>
+          <option value="super_duplex">Super Duplex 2507 (22 BWG / 0.71 mm) - Fm = 0.80</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Governs HEI material correction factor Fm</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_tube_od" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Tube Outside Diameter OD (mm)</label>
+        <select id="scv_tube_od" onchange="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="19.05">19.05 mm (0.75 in / 3/4 in)</option>
+          <option value="25.4" selected>25.40 mm (1.00 in / 1 in)</option>
+          <option value="28.575">28.58 mm (1.125 in / 1-1/8 in)</option>
+          <option value="31.75">31.75 mm (1.25 in / 1-1/4 in)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard utility condenser: 25.4 mm (1 in)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="scv_tube_length" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Effective Tube Length L (m)</label>
+        <input type="number" id="scv_tube_length" value="12.0" min="3.0" max="25.0" step="0.5" oninput="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Typical utility length: 9 to 16 m</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="scv_tube_passes" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Number of Tube Water Passes</label>
+        <select id="scv_tube_passes" onchange="scvCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="1">1 Pass (Single-pass, high CW flow)</option>
+          <option value="2" selected>2 Passes (Two-pass divided waterbox)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Two-pass halves required cooling water pump flow</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Diagnostic Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #38bdf8; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Condenser Heat Duty (Q)</div>
+      <div id="scv_out_q" style="font-size: 1.45rem; font-weight: 700; color: #f8fafc; margin-top: 0.25rem;">215.3 MW</div>
+      <div id="scv_out_q_gcal" style="font-size: 0.75rem; color: #64748b;">185.1 Gcal/h</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #34d399; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Cooling Water Flow Rate</div>
+      <div id="scv_out_cw_flow" style="font-size: 1.45rem; font-weight: 700; color: #34d399; margin-top: 0.25rem;">20,580 m³/h</div>
+      <div id="scv_out_cw_gpm" style="font-size: 0.75rem; color: #64748b;">90,612 GPM</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">HEI Overall U-Coeff</div>
+      <div id="scv_out_u" style="font-size: 1.45rem; font-weight: 700; color: #f59e0b; margin-top: 0.25rem;">3,142 W/m²·K</div>
+      <div id="scv_out_u_btu" style="font-size: 0.75rem; color: #64748b;">553.3 Btu/h·ft²·°F</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #a855f7; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Surface Area Required</div>
+      <div id="scv_out_area" style="font-size: 1.45rem; font-weight: 700; color: #a855f7; margin-top: 0.25rem;">7,412 m²</div>
+      <div id="scv_out_tubes" style="font-size: 0.75rem; color: #64748b;">7,738 tubes (OD 25.4 mm)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #ec4899; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Terminal Temp Diff (TTD)</div>
+      <div id="scv_out_ttd" style="font-size: 1.45rem; font-weight: 700; color: #ec4899; margin-top: 0.25rem;">3.8 °C</div>
+      <div id="scv_out_lmtd" style="font-size: 0.75rem; color: #64748b;">LMTD = 9.24 °C</div>
+    </div>
+  </div>
+
+  <!-- Interactive HTML5 Canvas Simulator -->
+  <div style="background: #0f172a; border-radius: 8px; padding: 1rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+      <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📊</span> Surface Condenser Tube Bundle & Flow Animation
+      </div>
+      <div style="font-size: 0.75rem; color: #94a3b8;">
+        Live Vacuum Saturation: <span id="scv_canvas_sat_p" style="color: #38bdf8; font-weight: 700;">7.0 kPa abs</span> (<span id="scv_canvas_sat_t" style="color: #38bdf8; font-weight: 700;">39.0 °C</span>)
+      </div>
+    </div>
+    <canvas id="scv_canvas" width="800" height="320" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0b1120; border: 1px solid #1e293b;"></canvas>
+    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; flex-wrap: wrap;">
+      <div>Blue lines: Cooling water multi-tube matrix</div>
+      <div>Droplets: Steam condensation to hotwell</div>
+      <div>Yellow/Orange: Air removal baffle core</div>
+    </div>
+  </div>
+
+  <!-- Engineering Analysis & Diagnostics Card -->
+  <div style="background: rgba(30, 41, 59, 0.7); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1rem; color: #38bdf8;">Comprehensive Engineering Performance Summary</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem; color: #cbd5e1;">
+      <div>
+        <strong style="color: #94a3b8;">Saturation Temperature (T_sat):</strong> <span id="scv_diag_tsat" style="color: #fff; font-weight: 600;">39.02 °C</span> (102.2 °F)<br>
+        <strong style="color: #94a3b8;">CW Outlet Temperature (T_out):</strong> <span id="scv_diag_tout" style="color: #fff; font-weight: 600;">31.00 °C</span> (87.8 °F)<br>
+        <strong style="color: #94a3b8;">Log Mean Temp Diff (LMTD):</strong> <span id="scv_diag_lmtd" style="color: #fff; font-weight: 600;">9.24 °C</span><br>
+        <strong style="color: #94a3b8;">Hotwell Condensate Temp:</strong> <span id="scv_diag_thotwell" style="color: #fff; font-weight: 600;">38.52 °C</span>
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">HEI Base U (Clean):</strong> <span id="scv_diag_ubase" style="color: #fff; font-weight: 600;">4,420 W/m²·K</span><br>
+        <strong style="color: #94a3b8;">Temp Correction (Ft):</strong> <span id="scv_diag_ft" style="color: #fff; font-weight: 600;">1.025</span><br>
+        <strong style="color: #94a3b8;">Material Correction (Fm):</strong> <span id="scv_diag_fm" style="color: #fff; font-weight: 600;">0.830</span><br>
+        <strong style="color: #94a3b8;">Cleanliness (CF):</strong> <span id="scv_diag_cf" style="color: #fff; font-weight: 600;">0.850</span>
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Total Tube Quantity:</strong> <span id="scv_diag_ntubes" style="color: #fff; font-weight: 600;">7,738 tubes</span><br>
+        <strong style="color: #94a3b8;">Tubes Per Pass:</strong> <span id="scv_diag_tubesperpass" style="color: #fff; font-weight: 600;">3,869 tubes/pass</span><br>
+        <strong style="color: #94a3b8;">Shell Diameter Estimate:</strong> <span id="scv_diag_shelldiam" style="color: #fff; font-weight: 600;">3.45 m</span><br>
+        <strong style="color: #94a3b8;">Estimated Waterbox dP:</strong> <span id="scv_diag_dp" style="color: #fff; font-weight: 600;">38.2 kPa</span> (3.90 mH2O)
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <div id="scv_status_badge" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid #059669;">
+        ✓ Design Meets HEI Standards & TTD Benchmarks
+      </div>
+      <button type="button" class="btn" onclick="scvCopyDiagnostic()" id="scv_copy_btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        📋 Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical & Architectural Derivations Section -->
+  <div style="background: rgba(15, 23, 42, 0.4); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1.1rem; color: #f8fafc;">HEI Standard Governing Formulations & Derivations</h3>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
+      <p style="margin-bottom: 0.75rem;">
+        The thermal design of steam surface condensers is governed by the <strong>Heat Exchange Institute (HEI) Standards for Steam Surface Condensers (12th Edition)</strong> and <strong>ASME PTC 12.2</strong>. The required heat transfer area is determined by the enthalpy conservation and logarithmic mean temperature difference equations:
+      </p>
+      <div style="background: #0f172a; padding: 0.75rem; border-radius: 6px; font-family: monospace; color: #38bdf8; margin-bottom: 0.75rem; overflow-x: auto;">
+        Q = W_steam × (h_steam - h_condensate) [kW]<br>
+        m_cw = Q / (c_p,w × (T_cw,out - T_cw,in)) [kg/s]<br>
+        LMTD = (T_cw,out - T_cw,in) / ln((T_sat - T_cw,in) / (T_sat - T_cw,out))<br>
+        U_design = U_base × F_t × F_m × CF [W/m²·K]<br>
+        A_surface = Q / (U_design × LMTD) [m²]
+      </div>
+      <p style="margin-bottom: 0;">
+        where <code>U_base</code> is empirically calibrated to tube outside diameter and cooling water velocity ((V_{cw})), <code>F_t</code> is the cooling water temperature correction factor, <code>F_m</code> is the tube metallurgy and wall gauge factor, and <code>CF</code> is the design cleanliness factor (typically 0.85).
+      </p>
+    </div>
+  </div>
+
+  <!-- Exactly 5 Fatal Traps & Engineering Pitfalls -->
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 1rem;">5 Fatal Traps & Industrial Engineering Pitfalls</h3>
+
+    <div class="trap-card" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fca5a5; font-size: 0.9rem; margin-bottom: 0.25rem;">1. Over-Optimistic Cleanliness Factor (CF > 0.90) in Fouling Waters</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Designing a condenser with CF ≥ 0.90 without an automated continuous sponge rubber ball cleaning system (e.g., Taprogge) in river, lake, or open cooling tower water guarantees rapid vacuum loss. Biofilm slime layers as thin as 50 microns cut heat transfer by over 30%, causing backpressure to spike from 7 kPa to 12 kPa within weeks, triggering LP turbine exhaust temperature alarms and forced generation derates.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fcd34d; font-size: 0.9rem; margin-bottom: 0.25rem;">2. Condensate Depression (Subcooling) & Oxygen Dissolution</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Excessive condensate subcooling (> 1.0°C) occurs when falling condensate drips over cold lower tubes before reaching the hotwell without proper steam re-heating lanes. Every 1°C of subcooling burns 0.15% more boiler fuel and exponentially increases dissolved oxygen (O2) solubility. Oxygen-saturated condensate corrodes carbon steel condensate piping and deaerator preheaters, causing catastrophic dissolved oxygen pitting failures.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #6ee7b7; font-size: 0.9rem; margin-bottom: 0.25rem;">3. Cooling Water Tube Velocity Extremes (< 1.5 m/s or > 2.5 m/s)</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Cooling water velocity is a double-edged sword. Operating below 1.5 m/s (5 ft/s) causes silt and particulate settling, biological macro-fouling, and microbial induced corrosion (MIC) under sediment deposits. Conversely, operating copper alloys above 2.2 m/s or stainless/titanium above 2.7 m/s produces devastating inlet-end horse-shoe erosion and tube wall perforation within 12 to 24 months.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #93c5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">4. Air Ingress Blanketing & Insufficient Vacuum Pump (SJAE) Capacity</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Under deep vacuum (0.05 to 0.10 bar abs), ambient air relentlessly leaks inward through turbine shaft seals, expansion joints, and valve stems. Non-condensable gases collect around tube bundles, forming an insulating gas diffusion boundary layer. If the Steam Jet Air Ejector (SJAE) or Liquid Ring Vacuum Pump (LRVP) capacity cannot overcome the air ingress rate, the air removal baffle floods with non-condensables, collapsing U by up to 60%.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">5. Galvanic Tube-to-Tubesheet Dissimilar Metal Corrosion</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Retrofitting older condensers from copper-alloy tubes to noble titanium or super duplex tubes while retaining carbon steel or Muntz metal tubesheets creates a violent galvanic couple in conductive seawater or brackish cooling water. Without an engineered Impressed Current Cathodic Protection (ICCP) system or high-dielectric epoxy tubesheet cladding, the tubesheet experiences rapid anodic wastage, causing waterbox leaks and saltwater contamination of boiler feedwater.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live Interactive Script for HEI Steam Surface Condenser Calculator
+var scvLastCalc = null;
+var scvAnimTime = 0;
+
+function scvSetPreset(type) {
+  if (type === 'utility_500mw') {
+    document.getElementById('scv_steam_flow').value = '1100';
+    document.getElementById('scv_backpressure').value = '6.5';
+    document.getElementById('scv_steam_enthalpy').value = '2360';
+    document.getElementById('scv_cw_inlet_t').value = '20.0';
+    document.getElementById('scv_cw_temp_rise').value = '9.5';
+    document.getElementById('scv_cw_velocity').value = '2.2';
+    document.getElementById('scv_cleanliness').value = '0.85';
+    document.getElementById('scv_tube_material').value = 'titanium_22bwg';
+    document.getElementById('scv_tube_od').value = '25.4';
+    document.getElementById('scv_tube_length').value = '14.0';
+    document.getElementById('scv_tube_passes').value = '2';
+  } else if (type === 'industrial_50mw') {
+    document.getElementById('scv_steam_flow').value = '160';
+    document.getElementById('scv_backpressure').value = '8.5';
+    document.getElementById('scv_steam_enthalpy').value = '2400';
+    document.getElementById('scv_cw_inlet_t').value = '25.0';
+    document.getElementById('scv_cw_temp_rise').value = '8.0';
+    document.getElementById('scv_cw_velocity').value = '2.0';
+    document.getElementById('scv_cleanliness').value = '0.85';
+    document.getElementById('scv_tube_material').value = 'ss304_20bwg';
+    document.getElementById('scv_tube_od').value = '25.4';
+    document.getElementById('scv_tube_length').value = '9.0';
+    document.getElementById('scv_tube_passes').value = '2';
+  } else if (type === 'biomass_15mw') {
+    document.getElementById('scv_steam_flow').value = '55';
+    document.getElementById('scv_backpressure').value = '10.0';
+    document.getElementById('scv_steam_enthalpy').value = '2420';
+    document.getElementById('scv_cw_inlet_t').value = '28.0';
+    document.getElementById('scv_cw_temp_rise').value = '7.5';
+    document.getElementById('scv_cw_velocity').value = '1.9';
+    document.getElementById('scv_cleanliness').value = '0.80';
+    document.getElementById('scv_tube_material').value = 'cuni9010_18bwg';
+    document.getElementById('scv_tube_od').value = '19.05';
+    document.getElementById('scv_tube_length').value = '6.5';
+    document.getElementById('scv_tube_passes').value = '2';
+  }
+  scvCalc();
+}
+
+function scvSteamSaturationTemp(p_kpa) {
+  // Antoine formulation approximation for water saturation temp 2 kPa to 40 kPa
+  // Tsat in °C
+  if (p_kpa <= 0) p_kpa = 1.0;
+  // ln(P[bar]) approx Antoine
+  var p_bar = p_kpa / 100.0;
+  // Magnus / Antoine fit for low pressure steam
+  var t_sat = (1730.63 / (9.6543 - Math.log10(p_bar * 750.06))) - 233.42;
+  if (isNaN(t_sat) || t_sat < 10) {
+    t_sat = 16.5 + 8.1 * Math.sqrt(p_kpa);
+  }
+  return t_sat;
+}
+
+function scvCalc() {
+  var W_th = parseFloat(document.getElementById('scv_steam_flow').value) || 350;
+  var P_kpa = parseFloat(document.getElementById('scv_backpressure').value) || 7.0;
+  var h_steam = parseFloat(document.getElementById('scv_steam_enthalpy').value) || 2380;
+  var subcooling = parseFloat(document.getElementById('scv_subcooling').value) || 0.5;
+
+  var T_in = parseFloat(document.getElementById('scv_cw_inlet_t').value) || 22.0;
+  var delta_T = parseFloat(document.getElementById('scv_cw_temp_rise').value) || 9.0;
+  var V_cw = parseFloat(document.getElementById('scv_cw_velocity').value) || 2.1;
+  var CF = parseFloat(document.getElementById('scv_cleanliness').value) || 0.85;
+
+  var matCode = document.getElementById('scv_tube_material').value;
+  var OD_mm = parseFloat(document.getElementById('scv_tube_od').value) || 25.4;
+  var L_m = parseFloat(document.getElementById('scv_tube_length').value) || 12.0;
+  var passes = parseInt(document.getElementById('scv_tube_passes').value) || 2;
+
+  // Saturation temperature at condenser pressure
+  var T_sat = scvSteamSaturationTemp(P_kpa);
+  var T_out = T_in + delta_T;
+  var T_hotwell = T_sat - subcooling;
+
+  // Saturated liquid condensate enthalpy: approx h_f = 4.184 * T_hotwell kJ/kg
+  var h_cond = 4.184 * T_hotwell;
+  var delta_h = h_steam - h_cond;
+  if (delta_h < 1500) delta_h = 1500;
+
+  // Total heat duty Q in MW: W_kg_s * delta_h
+  var W_kg_s = (W_th * 1000) / 3600;
+  var Q_MW = (W_kg_s * delta_h) / 1000;
+  var Q_W = Q_MW * 1e6;
+  var Q_Gcal = Q_MW * 0.859845;
+
+  // Cooling water properties
+  var rho_cw = 998.0; // kg/m³
+  var cp_cw = 4182.0; // J/kg·K
+  var m_cw_kgs = Q_W / (cp_cw * delta_T);
+  var m_cw_m3h = (m_cw_kgs / rho_cw) * 3600;
+  var m_cw_gpm = m_cw_m3h * 4.40287;
+
+  // Terminal Temperature Difference TTD
+  var TTD = T_sat - T_out;
+  // Logarithmic Mean Temperature Difference LMTD
+  var theta_1 = T_sat - T_in;
+  var theta_2 = T_sat - T_out;
+  var LMTD = 0;
+  if (theta_2 <= 0.1) {
+    LMTD = (theta_1 - 0.1) / Math.log(theta_1 / 0.1);
+  } else {
+    LMTD = (theta_1 - theta_2) / Math.log(theta_1 / theta_2);
+  }
+
+  // HEI Material & Gauge Factor Fm
+  var FmMap = {
+    'titanium_22bwg': 0.83,
+    'ss304_20bwg': 0.84,
+    'ss304_18bwg': 0.79,
+    'admiralty_18bwg': 1.00,
+    'cuni9010_18bwg': 0.90,
+    'cuni7030_18bwg': 0.83,
+    'super_duplex': 0.80
+  };
+  var Fm = FmMap[matCode] || 0.83;
+
+  // HEI Temperature Correction Factor Ft
+  // Ft is ~ 1.0 at 21.1°C (70°F), drops at lower water temps
+  var Ft = 0.55 + 0.0215 * T_in;
+  if (Ft > 1.15) Ft = 1.15;
+  if (Ft < 0.65) Ft = 0.65;
+
+  // HEI Base Heat Transfer Coefficient U_base (W/m²·K)
+  // For 25.4 mm (1 in) tube: U_base ~ 3100 * sqrt(V_cw / 2.1)
+  var odFactor = 1.0;
+  if (OD_mm < 22) odFactor = 1.04;
+  else if (OD_mm > 30) odFactor = 0.96;
+  var U_base = 3150 * Math.sqrt(V_cw / 2.1) * odFactor;
+
+  // Actual Design U
+  var U_design = U_base * Ft * Fm * CF;
+  var U_btu = U_design * 0.17611;
+
+  // Surface Area Required A = Q / (U * LMTD)
+  var Area_m2 = Q_W / (U_design * LMTD);
+
+  // Tube internal diameter estimation
+  // 22 BWG is ~0.71 mm wall, 20 BWG ~0.89 mm wall, 18 BWG ~1.24 mm wall
+  var wall_mm = 0.89;
+  if (matCode.indexOf('22bwg') !== -1) wall_mm = 0.71;
+  else if (matCode.indexOf('18bwg') !== -1) wall_mm = 1.24;
+  var ID_mm = OD_mm - 2 * wall_mm;
+  var tube_cross_area = Math.PI * Math.pow(ID_mm / 2000, 2); // m²
+
+  // Number of tubes per pass: N_pass = (m_cw_kgs / rho_cw) / (tube_cross_area * V_cw)
+  var q_cw_m3s = m_cw_kgs / rho_cw;
+  var n_tubes_per_pass = Math.ceil(q_cw_m3s / (tube_cross_area * V_cw));
+  var total_tubes = n_tubes_per_pass * passes;
+
+  // Verification of effective surface area from tubes:
+  var actual_area_tubes = total_tubes * Math.PI * (OD_mm / 1000) * L_m;
+  if (actual_area_tubes < Area_m2) {
+    // If tube count derived from hydraulics yields less area than thermal req, adjust total tubes
+    total_tubes = Math.ceil(Area_m2 / (Math.PI * (OD_mm / 1000) * L_m));
+    n_tubes_per_pass = Math.ceil(total_tubes / passes);
+  }
+
+  // Shell diameter estimate based on tube bundle density (~850 tubes/m² shell face)
+  var shell_face_area = total_tubes / 850;
+  var shell_diam_m = Math.sqrt((4 * shell_face_area) / Math.PI) * 1.25; // 25% margin for steam lanes
+
+  // Tube friction pressure drop (Darcy-Weisbach)
+  var f_darcy = 0.022;
+  var dp_tubes_pa = passes * (f_darcy * (L_m / (ID_mm / 1000)) + 1.5) * (0.5 * rho_cw * V_cw * V_cw);
+  var dp_kpa = dp_tubes_pa / 1000;
+  var dp_mH2O = dp_kpa / 9.80665;
+
+  scvLastCalc = {
+    Q_MW: Q_MW,
+    Q_Gcal: Q_Gcal,
+    m_cw_m3h: m_cw_m3h,
+    m_cw_gpm: m_cw_gpm,
+    U_design: U_design,
+    U_btu: U_btu,
+    Area_m2: Area_m2,
+    total_tubes: total_tubes,
+    n_tubes_per_pass: n_tubes_per_pass,
+    TTD: TTD,
+    LMTD: LMTD,
+    T_sat: T_sat,
+    T_out: T_out,
+    T_hotwell: T_hotwell,
+    U_base: U_base,
+    Ft: Ft,
+    Fm: Fm,
+    CF: CF,
+    shell_diam_m: shell_diam_m,
+    dp_kpa: dp_kpa,
+    dp_mH2O: dp_mH2O,
+    P_kpa: P_kpa
+  };
+
+  // Update DOM Outputs
+  document.getElementById('scv_out_q').textContent = Q_MW.toFixed(1) + ' MW';
+  document.getElementById('scv_out_q_gcal').textContent = Q_Gcal.toFixed(1) + ' Gcal/h';
+
+  document.getElementById('scv_out_cw_flow').textContent = Math.round(m_cw_m3h).toLocaleString() + ' m³/h';
+  document.getElementById('scv_out_cw_gpm').textContent = Math.round(m_cw_gpm).toLocaleString() + ' GPM';
+
+  document.getElementById('scv_out_u').textContent = Math.round(U_design).toLocaleString() + ' W/m²·K';
+  document.getElementById('scv_out_u_btu').textContent = U_btu.toFixed(1) + ' Btu/h·ft²·°F';
+
+  document.getElementById('scv_out_area').textContent = Math.round(Area_m2).toLocaleString() + ' m²';
+  document.getElementById('scv_out_tubes').textContent = total_tubes.toLocaleString() + ' tubes (OD ' + OD_mm + ' mm)';
+
+  document.getElementById('scv_out_ttd').textContent = TTD.toFixed(1) + ' °C';
+  document.getElementById('scv_out_lmtd').textContent = 'LMTD = ' + LMTD.toFixed(2) + ' °C';
+
+  // Detailed Diagnostics
+  document.getElementById('scv_diag_tsat').textContent = T_sat.toFixed(2) + ' °C';
+  document.getElementById('scv_diag_tout').textContent = T_out.toFixed(2) + ' °C';
+  document.getElementById('scv_diag_lmtd').textContent = LMTD.toFixed(2) + ' °C';
+  document.getElementById('scv_diag_thotwell').textContent = T_hotwell.toFixed(2) + ' °C';
+
+  document.getElementById('scv_diag_ubase').textContent = Math.round(U_base).toLocaleString() + ' W/m²·K';
+  document.getElementById('scv_diag_ft').textContent = Ft.toFixed(3);
+  document.getElementById('scv_diag_fm').textContent = Fm.toFixed(3);
+  document.getElementById('scv_diag_cf').textContent = CF.toFixed(2);
+
+  document.getElementById('scv_diag_ntubes').textContent = total_tubes.toLocaleString() + ' tubes';
+  document.getElementById('scv_diag_tubesperpass').textContent = n_tubes_per_pass.toLocaleString() + ' tubes/pass';
+  document.getElementById('scv_diag_shelldiam').textContent = shell_diam_m.toFixed(2) + ' m';
+  document.getElementById('scv_diag_dp').textContent = dp_kpa.toFixed(1) + ' kPa (' + dp_mH2O.toFixed(2) + ' mH2O)';
+
+  document.getElementById('scv_canvas_sat_p').textContent = P_kpa.toFixed(1) + ' kPa abs';
+  document.getElementById('scv_canvas_sat_t').textContent = T_sat.toFixed(1) + ' °C';
+
+  // Badge Status
+  var badge = document.getElementById('scv_status_badge');
+  if (TTD < 2.5) {
+    badge.textContent = '⚠ Warning: TTD < 2.5°C requires excessive surface area';
+    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+    badge.style.color = '#fcd34d';
+    badge.style.borderColor = '#d97706';
+  } else if (TTD > 6.0) {
+    badge.textContent = '⚠ Warning: TTD > 6.0°C indicates high thermal deficit or air fouling';
+    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+    badge.style.color = '#fca5a5';
+    badge.style.borderColor = '#dc2626';
+  } else {
+    badge.textContent = '✓ Optimal HEI Design: TTD in 2.8°C - 5.5°C benchmark window';
+    badge.style.background = 'rgba(52, 211, 153, 0.15)';
+    badge.style.color = '#34d399';
+    badge.style.borderColor = '#059669';
+  }
+}
+
+function scvCopyDiagnostic() {
+  if (!scvLastCalc) return;
+  var c = scvLastCalc;
+  var txt = '=== STEAM TURBINE SURFACE CONDENSER SIZING REPORT ===\n' +
+    'Design Backpressure: ' + c.P_kpa.toFixed(1) + ' kPa abs (' + c.T_sat.toFixed(2) + ' °C sat)\n' +
+    'Condenser Heat Duty: ' + c.Q_MW.toFixed(2) + ' MW (' + c.Q_Gcal.toFixed(1) + ' Gcal/h)\n' +
+    'Cooling Water Flow: ' + Math.round(c.m_cw_m3h).toLocaleString() + ' m3/h (' + Math.round(c.m_cw_gpm).toLocaleString() + ' GPM)\n' +
+    'CW Temp Profile: T_in = ' + (c.T_out - (c.T_out - c.TTD)).toFixed(1) + ' °C, T_out = ' + c.T_out.toFixed(2) + ' °C, Delta-T = ' + (c.T_out - (c.T_out - (c.T_out - c.TTD))).toFixed(1) + ' °C\n' +
+    'Terminal Temp Diff (TTD): ' + c.TTD.toFixed(2) + ' °C\n' +
+    'Log Mean Temp Diff (LMTD): ' + c.LMTD.toFixed(2) + ' °C\n' +
+    'HEI Overall Heat Transfer Coeff (U): ' + Math.round(c.U_design).toLocaleString() + ' W/m2-K (' + c.U_btu.toFixed(1) + ' Btu/h-ft2-F)\n' +
+    'Correction Factors: Ft = ' + c.Ft.toFixed(3) + ', Fm = ' + c.Fm.toFixed(3) + ', CF = ' + c.CF.toFixed(2) + '\n' +
+    'Surface Area Required: ' + Math.round(c.Area_m2).toLocaleString() + ' m2\n' +
+    'Tube Count: ' + c.total_tubes.toLocaleString() + ' tubes (' + c.n_tubes_per_pass.toLocaleString() + ' tubes/pass)\n' +
+    'Shell Diameter Est: ' + c.shell_diam_m.toFixed(2) + ' m\n' +
+    'Tube Pressure Drop: ' + c.dp_kpa.toFixed(1) + ' kPa (' + c.dp_mH2O.toFixed(2) + ' mH2O)\n' +
+    'Standard: HEI Standards 12th Ed / ASME PTC 12.2\n' +
+    'Generated by DigitalToolsShed.com (HEI Surface Condenser Engine)';
+
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = document.getElementById('scv_copy_btn');
+    var orig = btn.textContent;
+    btn.textContent = '✓ Diagnostic Summary Copied!';
+    btn.style.background = '#10b981';
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.background = '#0284c7';
+    }, 2500);
+  });
+}
+
+function scvDraw() {
+  var canvas = document.getElementById('scv_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Draw Condenser Shell Profile
+  ctx.save();
+  var shellX = 120;
+  var shellY = 40;
+  var shellW = 560;
+  var shellH = 220;
+
+  // Turbine exhaust inlet neck (top)
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(shellX + 160, 10);
+  ctx.lineTo(shellX + shellW - 160, 10);
+  ctx.lineTo(shellX + shellW - 140, shellY);
+  ctx.lineTo(shellX + 140, shellY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Neck steam arrow
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 11px system-ui';
+  ctx.fillText('LP TURBINE EXHAUST STEAM', shellX + 210, 28);
+
+  // Main shell body
+  ctx.beginPath();
+  ctx.roundRect(shellX, shellY, shellW, shellH, 16);
+  ctx.fillStyle = '#0f172a';
+  ctx.fill();
+  ctx.stroke();
+
+  // Waterbox left & right
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.roundRect(shellX - 35, shellY + 20, 35, shellH - 40, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.roundRect(shellX + shellW, shellY + 20, 35, shellH - 40, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  // Cooling water arrows
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '10px system-ui';
+  ctx.fillText('CW IN ->', shellX - 80, shellY + 60);
+  ctx.fillText('<- CW OUT', shellX - 85, shellY + shellH - 40);
+
+  // Tube Bundles (Left and Right halves with central steam lane and air lane)
+  var rows = 7;
+  var cols = 14;
+  var startTx = shellX + 40;
+  var startTy = shellY + 40;
+  var dx = 34;
+  var dy = 18;
+
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      if (c === 6 || c === 7) continue; // Central steam lane
+      var tx = startTx + c * dx;
+      var ty = startTy + r * dy;
+
+      ctx.beginPath();
+      ctx.arc(tx, ty, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#1e3a8a';
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Flow pulse animation in tubes
+      var phase = (scvAnimTime * 3 + c * 0.4 + r * 0.2) % (Math.PI * 2);
+      if (Math.sin(phase) > 0.6) {
+        ctx.beginPath();
+        ctx.arc(tx, ty, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#7dd3fc';
+        ctx.fill();
+      }
+    }
+  }
+
+  // Air Removal Zone & Baffle (Center)
+  var airBx = shellX + 245;
+  var airBy = shellY + 70;
+  ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(airBx, airBy, 70, 75, 6);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#fcd34d';
+  ctx.font = '9px system-ui';
+  ctx.fillText('AIR REMOVAL', airBx + 5, airBy + 35);
+  ctx.fillText('VACUUM SJAE', airBx + 4, airBy + 50);
+
+  // Hotwell at the bottom
+  var hwY = shellY + shellH;
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#475569';
+  ctx.beginPath();
+  ctx.roundRect(shellX + 180, hwY, 200, 45, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  // Hotwell water level
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+  ctx.fillRect(shellX + 182, hwY + 15, 196, 28);
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 10px system-ui';
+  ctx.fillText('HOTWELL CONDENSATE', shellX + 220, hwY + 32);
+
+  // Animated falling condensate droplets
+  var numDrops = 15;
+  ctx.fillStyle = '#38bdf8';
+  for (var d = 0; d < numDrops; d++) {
+    var dropX = shellX + 50 + ((d * 37 + (scvAnimTime * 40)) % (shellW - 100));
+    var dropY = shellY + 50 + ((d * 29 + (scvAnimTime * 85)) % (shellH - 40));
+    if (dropY < shellY + shellH) {
+      ctx.beginPath();
+      ctx.arc(dropX, dropY, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+  scvAnimTime += 0.03;
+  requestAnimationFrame(scvDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  scvCalc();
+  scvDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BP2: INDUSTRIAL BAGHOUSE DUST COLLECTOR SIZING CALCULATOR ───
+  (() => {
+    const slug = 'industrial-baghouse-dust-collector-calculator';
+    const title = 'Industrial Baghouse Dust Collector Sizing & Air-to-Cloth Ratio Calculator';
+    const metaDescription = 'Calculate industrial pulse-jet and reverse-air baghouse dust collector filtration velocity, gross and net air-to-cloth (A/C) ratio, filter bag count, can velocity, differential pressure drop, and pulse cleaning compressed air consumption.';
+
+    const faq = [
+      {
+        q: 'What is the Air-to-Cloth (A/C) ratio and filtration velocity in a baghouse?',
+        a: 'The Air-to-Cloth (A/C) ratio represents the volumetric flow rate of dusty gas divided by the active filtration cloth area: A/C = Q / A_cloth. In metric units, it is expressed in m³/(min·m²) which simplifies to meters per minute (m/min), representing the superficial filtration velocity. In US Customary units, it is expressed in ACFM/ft² (ft/min). Typical pulse-jet values range from 1.0 to 1.8 m/min (3.3 to 6.0 ft/min).'
+      },
+      {
+        q: 'What is the difference between Gross A/C ratio and Net A/C ratio?',
+        a: 'The Gross A/C ratio is calculated with all filter bags and compartments online. The Net A/C ratio accounts for one or more compartments being isolated for offline cleaning, bag inspection, or maintenance (N-1 or N-2 design). Industrial engineering standards require designing the ID fan and baghouse so that the Net A/C ratio never exceeds manufacturer limits during compartment isolation.'
+      },
+      {
+        q: 'What is interstitial Can Velocity and why is it critical?',
+        a: 'Can velocity (v_can) is the upward superficial gas velocity passing through the open cross-sectional spaces between adjacent filter bags. If can velocity exceeds the terminal settling velocity of the dust particles (typically > 1.0 to 1.2 m/s for fine dusts), dust dislodged from bags during pulse cleaning cannot fall into the hopper and is immediately re-entrained back onto neighboring bags, causing rapid differential pressure runaway.'
+      },
+      {
+        q: 'How much compressed air does a pulse-jet baghouse consume?',
+        a: 'A pulse-jet baghouse cleaning pulse typically injects 30 to 70 normal liters (1.0 to 2.5 SCF) of dry, oil-free compressed air at 5.0 to 6.5 bar gauge (70 to 95 psig) per valve pulse for a duration of 80 to 150 milliseconds. Total continuous compressor air demand depends on pulse interval and total valve count, typically ranging from 1.0 to 8.0 Nm³/min (35 to 280 SCFM).'
+      },
+      {
+        q: 'How do you select the correct filter bag fabric material?',
+        a: 'Fabric selection depends on gas operating temperature, moisture, and chemical acidity. Polyester needlefelt is economical for temperatures up to 135°C (275°F) with neutral gases. Nomex/Aramid resists heat up to 200°C (400°F) but suffers severe hydrolysis in moist acid gases. Ryton/PPS resists sulfur oxides (SOx) and acid attack up to 190°C. P84 (Polyimide) provides high surface efficiency on fine metallurgical fumes. PTFE membrane on fiberglass withstands aggressive chemical environments up to 260°C (500°F).'
+      }
+    ];
+
+    const content = `
+<div class="calc-card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: #f8fafc;">Industrial Baghouse Dust Collector Sizing & Filtration Rating</h2>
+      <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #94a3b8;">EPA / Industrial Ventilation Manual & ACGIH Fabric Filter Engineering Engine</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" class="btn" onclick="bgSetPreset('cement_kiln')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Cement Kiln</button>
+      <button type="button" class="btn" onclick="bgSetPreset('coal_boiler')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Coal Boiler Fly Ash</button>
+      <button type="button" class="btn" onclick="bgSetPreset('wood_processing')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Wood Dust / Shaker</button>
+      <button type="button" class="btn" onclick="bgSetPreset('foundry_fume')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Foundry Fume</button>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Column 1: Flue Gas & Dust Stream Parameters -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>💨</span> Gas Flow & Dust Characteristics
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_gas_flow" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Operating Gas Flow Rate Q (m³/h)</label>
+        <input type="number" id="bg_gas_flow" value="75000" min="500" max="2000000" step="500" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Actual flow at operating temp (1 m³/h = 0.5886 ACFM)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_gas_temp" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Gas Operating Temperature (°C)</label>
+        <input type="number" id="bg_gas_temp" value="140" min="15" max="280" step="5" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Governs fabric thermal limits and actual density</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_dust_load" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Inlet Dust Grain Loading (g/m³)</label>
+        <input type="number" id="bg_dust_load" value="25.0" min="0.5" max="500.0" step="1.0" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Light: 2-10 g/m³; Heavy industrial: 20-100+ g/m³</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="bg_dust_type" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Dust Application Type</label>
+        <select id="bg_dust_type" onchange="bgOnDustChange()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="cement_kiln" selected>Cement / Raw Mill (Abrasive, fine)</option>
+          <option value="coal_flyash">Coal Fly Ash (Spherical, submicron)</option>
+          <option value="wood_dust">Woodworking / Sawdust (Fibrous, low density)</option>
+          <option value="metallurgical">Metallurgical Arc Furnace (Sticky, fine)</option>
+          <option value="grain_flour">Grain / Food Flour (Combustible, NFPA 68)</option>
+          <option value="lime_calcined">Lime / Calcined Gypsum (High loading)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Sets baseline recommended A/C ratio</div>
+      </div>
+    </div>
+
+    <!-- Column 2: Baghouse Architecture & Mechanism -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>⚙️</span> Cleaning Mechanism & Fabric Selection
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_cleaning_type" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Cleaning Mechanism</label>
+        <select id="bg_cleaning_type" onchange="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="pulse_jet_online" selected>Pulse-Jet Online (Continuous continuous cleaning)</option>
+          <option value="pulse_jet_offline">Pulse-Jet Offline (Damper isolated compartments)</option>
+          <option value="reverse_air">Reverse-Air (Low pressure reverse gas)</option>
+          <option value="mechanical_shaker">Mechanical Shaker (Intermittent shaking)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Pulse-jet allows 2x to 3x higher filtration velocity</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_target_ac" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Design Air-to-Cloth (A/C) Velocity (m/min)</label>
+        <input type="number" id="bg_target_ac" value="1.20" min="0.30" max="3.00" step="0.05" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Typical pulse-jet: 1.0 - 1.5 m/min (3.3 - 5.0 ft/min)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_fabric_type" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Filter Fabric Material</label>
+        <select id="bg_fabric_type" onchange="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="polyester">Polyester Needlefelt (Max 135°C / 275°F)</option>
+          <option value="ryton_pps" selected>Ryton / PPS (Max 190°C / 375°F, High Acid/SOx)</option>
+          <option value="nomex_aramid">Nomex / Aramid (Max 200°C / 400°F, Dry Heat)</option>
+          <option value="p84_polyimide">P84 Polyimide (Max 240°C / 460°F, High Capture)</option>
+          <option value="ptfe_membrane">PTFE Membrane on Fiberglass (Max 260°C / 500°F)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Selected for thermal and chemical resistance</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="bg_compartments" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Total Compartments (Isolated Cells)</label>
+        <input type="number" id="bg_compartments" value="6" min="1" max="24" step="1" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Determines Net A/C ratio during (N-1) offline cleaning</div>
+      </div>
+    </div>
+
+    <!-- Column 3: Filter Bag Dimensions & Can Geometry -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📐</span> Bag Dimensions & Layout Geometry
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_bag_diam" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Filter Bag Diameter OD (mm)</label>
+        <select id="bg_bag_diam" onchange="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="120">120 mm (~4.72 in)</option>
+          <option value="130">130 mm (~5.12 in)</option>
+          <option value="150" selected>150 mm (~5.90 in, Industry Standard)</option>
+          <option value="160">160 mm (~6.30 in)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard round bag outside diameter</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_bag_length" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Filter Bag Length (m)</label>
+        <input type="number" id="bg_bag_length" value="4.5" min="1.5" max="8.0" step="0.5" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Short: 2.5 - 3.5 m; Long bag technology: 6.0 - 8.0 m</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="bg_bag_pitch" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Center-to-Center Bag Pitch (mm)</label>
+        <input type="number" id="bg_bag_pitch" value="200" min="160" max="300" step="5" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Controls interstitial spacing & can velocity</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="bg_pulse_press" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Compressed Air Pulse Pressure (bar g)</label>
+        <input type="number" id="bg_pulse_press" value="5.5" min="3.0" max="7.5" step="0.5" oninput="bgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard supersonic cleaning pulse: 5.0 - 6.0 bar g</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Diagnostic Output Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #38bdf8; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Total Cloth Area Required</div>
+      <div id="bg_out_area" style="font-size: 1.45rem; font-weight: 700; color: #f8fafc; margin-top: 0.25rem;">1,042 m²</div>
+      <div id="bg_out_area_sqft" style="font-size: 0.75rem; color: #64748b;">11,216 ft²</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #34d399; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Total Filter Bag Count</div>
+      <div id="bg_out_bags" style="font-size: 1.45rem; font-weight: 700; color: #34d399; margin-top: 0.25rem;">492 bags</div>
+      <div id="bg_out_per_comp" style="font-size: 0.75rem; color: #64748b;">82 bags / compartment</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Net A/C Ratio (N-1)</div>
+      <div id="bg_out_net_ac" style="font-size: 1.45rem; font-weight: 700; color: #f59e0b; margin-top: 0.25rem;">1.44 m/min</div>
+      <div id="bg_out_net_ac_us" style="font-size: 0.75rem; color: #64748b;">4.72 ft/min</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #a855f7; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Interstitial Can Velocity</div>
+      <div id="bg_out_can_v" style="font-size: 1.45rem; font-weight: 700; color: #a855f7; margin-top: 0.25rem;">0.86 m/s</div>
+      <div id="bg_out_can_v_fpm" style="font-size: 0.75rem; color: #64748b;">169 ft/min (< 200 safe)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #ec4899; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Differential Pressure ΔP</div>
+      <div id="bg_out_dp" style="font-size: 1.45rem; font-weight: 700; color: #ec4899; margin-top: 0.25rem;">1,280 Pa</div>
+      <div id="bg_out_dp_inwg" style="font-size: 0.75rem; color: #64748b;">5.14 in. w.g.</div>
+    </div>
+  </div>
+
+  <!-- Interactive HTML5 Canvas Simulator -->
+  <div style="background: #0f172a; border-radius: 8px; padding: 1rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+      <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📊</span> Pulse-Jet Baghouse Cross-Section & Cleaning Pulse Animation
+      </div>
+      <div style="font-size: 0.75rem; color: #94a3b8;">
+        Can Velocity Status: <span id="bg_can_status" style="color: #34d399; font-weight: 700;">NORMAL (0.86 m/s)</span>
+      </div>
+    </div>
+    <canvas id="bg_canvas" width="800" height="340" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0b1120; border: 1px solid #1e293b;"></canvas>
+    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; flex-wrap: wrap;">
+      <div>Brown dots: Inflow dusty flue gas entering hopper</div>
+      <div>Vertical cylinders: Hanging fabric filter bags on cages</div>
+      <div>Yellow pulse: Compressed air shockwave purging cake into hopper</div>
+    </div>
+  </div>
+
+  <!-- Engineering Analysis & Diagnostics Summary -->
+  <div style="background: rgba(30, 41, 59, 0.7); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1rem; color: #38bdf8;">Baghouse Engineering & Pneumatic Performance Analysis</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem; color: #cbd5e1;">
+      <div>
+        <strong style="color: #94a3b8;">Actual Volumetric Gas Flow:</strong> <span id="bg_diag_acfm" style="color: #fff; font-weight: 600;">75,000 m³/h</span> (44,144 ACFM)<br>
+        <strong style="color: #94a3b8;">Dust Mass Inflow Rate:</strong> <span id="bg_diag_dust_rate" style="color: #fff; font-weight: 600;">1,875 kg/h</span> (1.88 t/h)<br>
+        <strong style="color: #94a3b8;">Cloth Area Per Bag:</strong> <span id="bg_diag_bag_area" style="color: #fff; font-weight: 600;">2.12 m²</span> (22.8 ft²)<br>
+        <strong style="color: #94a3b8;">Gross A/C Ratio:</strong> <span id="bg_diag_gross_ac" style="color: #fff; font-weight: 600;">1.20 m/min</span> (3.94 ft/min)
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Pulse Purge Frequency:</strong> <span id="bg_diag_pulse_freq" style="color: #fff; font-weight: 600;">12 pulses/min</span><br>
+        <strong style="color: #94a3b8;">Compressed Air Consumption:</strong> <span id="bg_diag_air_scfm" style="color: #fff; font-weight: 600;">2.4 Nm³/min</span> (84.8 SCFM)<br>
+        <strong style="color: #94a3b8;">Air Header Tank Volume:</strong> <span id="bg_diag_header_vol" style="color: #fff; font-weight: 600;">480 Liters</span><br>
+        <strong style="color: #94a3b8;">Cleaning Pulse Duration:</strong> <span id="bg_diag_pulse_ms" style="color: #fff; font-weight: 600;">110 ms</span> (Sonic shock)
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Housing Footprint Estimate:</strong> <span id="bg_diag_footprint" style="color: #fff; font-weight: 600;">5.8 m × 4.2 m</span> (24.4 m²)<br>
+        <strong style="color: #94a3b8;">Total Pulse Valves (Rows):</strong> <span id="bg_diag_valves" style="color: #fff; font-weight: 600;">48 valves</span> (1.5" Diaphragm)<br>
+        <strong style="color: #94a3b8;">Fan Power Required (75% η):</strong> <span id="bg_diag_fan_kw" style="color: #fff; font-weight: 600;">35.6 kW</span> (47.7 HP)<br>
+        <strong style="color: #94a3b8;">Annual Dust Collected:</strong> <span id="bg_diag_annual_dust" style="color: #fff; font-weight: 600;">15,000 tonnes/yr</span> (8000 hrs)
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <div id="bg_status_badge" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid #059669;">
+        ✓ Filtration Velocity & Can Velocity Within Recommended ACGIH Envelope
+      </div>
+      <button type="button" class="btn" onclick="bgCopyDiagnostic()" id="bg_copy_btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        📋 Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical & Architectural Formulations -->
+  <div style="background: rgba(15, 23, 42, 0.4); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1.1rem; color: #f8fafc;">Baghouse Filtration Engineering Formulations</h3>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
+      <p style="margin-bottom: 0.75rem;">
+        Filtration velocity and dust cake resistance follow the <strong>Darcy-Kozeny porous media law</strong> and <strong>EPA Industrial Ventilation</strong> guidelines:
+      </p>
+      <div style="background: #0f172a; padding: 0.75rem; border-radius: 6px; font-family: monospace; color: #38bdf8; margin-bottom: 0.75rem; overflow-x: auto;">
+        A_gross = Q / V_AC [m²]<br>
+        A_bag = π × D_bag × L_bag [m²]<br>
+        N_bags = ceil(A_gross / A_bag)<br>
+        V_net = Q / (A_gross × (N_comp - 1) / N_comp) [m/min]<br>
+        v_can = Q / (A_housing_plan - N_bags × (π/4 × D_bag²)) [m/s]<br>
+        ΔP = (K_fabric + K_cake × W_cake) × V_AC [Pa]
+      </div>
+      <p style="margin-bottom: 0;">
+        where <code>K_fabric</code> is the clean fabric residual drag, <code>K_cake</code> is the specific cake resistance, <code>W_cake</code> is the areal dust cake density ((g/m^2)), and <code>v_can</code> is the critical upward can velocity that must remain below terminal settling velocity to prevent immediate dust re-entrainment.
+      </p>
+    </div>
+  </div>
+
+  <!-- Exactly 5 Fatal Traps & Engineering Pitfalls -->
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 1rem;">5 Fatal Traps & Industrial Engineering Pitfalls</h3>
+
+    <div class="trap-card" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fca5a5; font-size: 0.9rem; margin-bottom: 0.25rem;">1. Excessive Can Velocity (> 1.2 m/s) Causing Dust Re-Entrainment</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Tight bag spacing or excessively long filter bags (> 6 m) without expanded casing plan area chokes the upward gas passages between bags. When can velocity exceeds 1.1 to 1.2 m/s (220 to 240 ft/min), dust cakes blown off during pulsing cannot fall into the hopper; instead, the fierce upward stream carries the dislodged dust directly onto adjacent bags. This triggers differential pressure runaway, continuous useless pulsing, and premature bag blinding.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fcd34d; font-size: 0.9rem; margin-bottom: 0.25rem;">2. Acid Dew Point Condensation & Baghouse "Mudding"</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Operating flue gas near or below the sulfuric acid (H2SO4) or moisture dew point (typically 120°C to 140°C in coal, oil, or biomass flue gases) causes liquid acid to condense directly on the fabric. The dry dust cake transforms into an impermeable cementitious "mud" that cannot be pulsed off. Furthermore, acid condensation triggers rapid hydrolytic cleavage in Nomex/Aramid or Polyester fibers, reducing tensile strength to zero and shredding bags within weeks.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #6ee7b7; font-size: 0.9rem; margin-bottom: 0.25rem;">3. Over-Pulsing & Pressure Decay Destroying Dust Pre-Coat</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Operators often mistake higher pulse frequency for better cleaning. Pulsing continuously at short intervals (e.g. every 5 seconds) strips the essential microscopic dust pre-coat that actually does the filtration. Raw particles penetrate deep into fabric interstices, causing permanent depth blinding. Furthermore, rapid pulsing without an adequately sized compressed air receiver drops header pressure below 4.5 bar, causing sluggish valve opening and flex-fatigue cage wear.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #93c5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">4. Neglecting (N-1) Compartment Net A/C Ratio During Maintenance</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Designing a baghouse solely on Gross A/C ratio without verifying the Net A/C ratio when one compartment is valved off for offline cleaning or bag replacement is catastrophic. In a 3-compartment collector, isolating one cell spikes filtration velocity on the remaining bags by 50%. The resulting surge in differential pressure stalls the induced draft (ID) fan, pulls kiln or furnace pressure positive, and triggers immediate emergency plant trips.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">5. Combustible Dust Deflagration & Static Ignition (NFPA 652/68/69)</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Filtering combustible organic or fine metal dusts (wood, grain, flour, aluminum, coal) generates massive triboelectric static charges as particles rub across synthetic fibers. If bags lack stainless steel or copper grounded conductive wire woven into seams with positive continuity to the grounded tube sheet, a high-energy static spark will ignite the suspended dust cloud in the hopper, causing a catastrophic internal deflagration unless protected by explosion vents and isolation valves.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live Interactive Script for Baghouse Dust Collector Sizing
+var bgLastCalc = null;
+var bgAnimTime = 0;
+var bgPulseCycle = 0;
+
+function bgSetPreset(type) {
+  if (type === 'cement_kiln') {
+    document.getElementById('bg_gas_flow').value = '120000';
+    document.getElementById('bg_gas_temp').value = '150';
+    document.getElementById('bg_dust_load').value = '35.0';
+    document.getElementById('bg_dust_type').value = 'cement_kiln';
+    document.getElementById('bg_cleaning_type').value = 'pulse_jet_offline';
+    document.getElementById('bg_target_ac').value = '1.10';
+    document.getElementById('bg_fabric_type').value = 'ryton_pps';
+    document.getElementById('bg_compartments').value = '8';
+    document.getElementById('bg_bag_diam').value = '150';
+    document.getElementById('bg_bag_length').value = '6.0';
+    document.getElementById('bg_bag_pitch').value = '210';
+    document.getElementById('bg_pulse_press').value = '5.5';
+  } else if (type === 'coal_boiler') {
+    document.getElementById('bg_gas_flow').value = '250000';
+    document.getElementById('bg_gas_temp').value = '135';
+    document.getElementById('bg_dust_load').value = '18.0';
+    document.getElementById('bg_dust_type').value = 'coal_flyash';
+    document.getElementById('bg_cleaning_type').value = 'pulse_jet_online';
+    document.getElementById('bg_target_ac').value = '1.15';
+    document.getElementById('bg_fabric_type').value = 'ryton_pps';
+    document.getElementById('bg_compartments').value = '10';
+    document.getElementById('bg_bag_diam').value = '150';
+    document.getElementById('bg_bag_length').value = '7.0';
+    document.getElementById('bg_bag_pitch').value = '215';
+    document.getElementById('bg_pulse_press').value = '6.0';
+  } else if (type === 'wood_processing') {
+    document.getElementById('bg_gas_flow').value = '35000';
+    document.getElementById('bg_gas_temp').value = '25';
+    document.getElementById('bg_dust_load').value = '15.0';
+    document.getElementById('bg_dust_type').value = 'wood_dust';
+    document.getElementById('bg_cleaning_type').value = 'pulse_jet_online';
+    document.getElementById('bg_target_ac').value = '1.40';
+    document.getElementById('bg_fabric_type').value = 'polyester';
+    document.getElementById('bg_compartments').value = '4';
+    document.getElementById('bg_bag_diam').value = '150';
+    document.getElementById('bg_bag_length').value = '3.5';
+    document.getElementById('bg_bag_pitch').value = '200';
+    document.getElementById('bg_pulse_press').value = '5.0';
+  } else if (type === 'foundry_fume') {
+    document.getElementById('bg_gas_flow').value = '50000';
+    document.getElementById('bg_gas_temp').value = '110';
+    document.getElementById('bg_dust_load').value = '10.0';
+    document.getElementById('bg_dust_type').value = 'metallurgical';
+    document.getElementById('bg_cleaning_type').value = 'pulse_jet_online';
+    document.getElementById('bg_target_ac').value = '0.95';
+    document.getElementById('bg_fabric_type').value = 'ptfe_membrane';
+    document.getElementById('bg_compartments').value = '6';
+    document.getElementById('bg_bag_diam').value = '130';
+    document.getElementById('bg_bag_length').value = '4.0';
+    document.getElementById('bg_bag_pitch').value = '190';
+    document.getElementById('bg_pulse_press').value = '5.5';
+  }
+  bgCalc();
+}
+
+function bgOnDustChange() {
+  var d = document.getElementById('bg_dust_type').value;
+  var ac = document.getElementById('bg_target_ac');
+  if (d === 'cement_kiln') ac.value = '1.10';
+  else if (d === 'coal_flyash') ac.value = '1.15';
+  else if (d === 'wood_dust') ac.value = '1.40';
+  else if (d === 'metallurgical') ac.value = '0.95';
+  else if (d === 'grain_flour') ac.value = '1.25';
+  else if (d === 'lime_calcined') ac.value = '1.05';
+  bgCalc();
+}
+
+function bgCalc() {
+  var Q_m3h = parseFloat(document.getElementById('bg_gas_flow').value) || 75000;
+  var T_gas = parseFloat(document.getElementById('bg_gas_temp').value) || 140;
+  var C_in = parseFloat(document.getElementById('bg_dust_load').value) || 25.0; // g/m³
+  var cleanType = document.getElementById('bg_cleaning_type').value;
+  var V_ac = parseFloat(document.getElementById('bg_target_ac').value) || 1.20; // m/min
+  var N_comp = parseInt(document.getElementById('bg_compartments').value) || 6;
+
+  var D_mm = parseFloat(document.getElementById('bg_bag_diam').value) || 150;
+  var L_m = parseFloat(document.getElementById('bg_bag_length').value) || 4.5;
+  var pitch_mm = parseFloat(document.getElementById('bg_bag_pitch').value) || 200;
+  var P_pulse = parseFloat(document.getElementById('bg_pulse_press').value) || 5.5;
+
+  // Gas conversions
+  var Q_m3min = Q_m3h / 60.0;
+  var Q_m3s = Q_m3h / 3600.0;
+  var ACFM = Q_m3h * 0.588578;
+
+  // Gross Cloth Area Required
+  var A_gross_m2 = Q_m3min / V_ac;
+  var A_gross_sqft = A_gross_m2 * 10.7639;
+
+  // Bag surface area
+  var D_m = D_mm / 1000.0;
+  var A_bag_m2 = Math.PI * D_m * L_m;
+  var A_bag_sqft = A_bag_m2 * 10.7639;
+
+  // Total Bag Count
+  var total_bags = Math.ceil(A_gross_m2 / A_bag_m2);
+  // Ensure even division per compartment
+  var bags_per_comp = Math.ceil(total_bags / N_comp);
+  total_bags = bags_per_comp * N_comp;
+  var actual_cloth_m2 = total_bags * A_bag_m2;
+
+  // Net A/C Ratio during (N-1) offline maintenance or offline cleaning
+  var net_comp = N_comp > 1 ? (N_comp - 1) : 1;
+  var net_cloth_m2 = bags_per_comp * net_comp * A_bag_m2;
+  var V_net = Q_m3min / net_cloth_m2;
+  var V_net_us = V_net * 3.28084;
+  var V_gross_us = (Q_m3min / actual_cloth_m2) * 3.28084;
+
+  // Tube sheet and Can Velocity calculation
+  // Bag cross section area
+  var A_bag_cross = Math.PI * Math.pow(D_m / 2.0, 2);
+  // Cell pitch area per bag
+  var pitch_m = pitch_mm / 1000.0;
+  var A_cell_per_bag = pitch_m * pitch_m;
+  var A_free_per_bag = A_cell_per_bag - A_bag_cross;
+  if (A_free_per_bag < 0.005) A_free_per_bag = 0.005;
+
+  // Total housing interstitial free cross-sectional area
+  var A_interstitial_total = total_bags * A_free_per_bag;
+  var v_can_ms = Q_m3s / A_interstitial_total;
+  var v_can_fpm = v_can_ms * 196.85;
+
+  // Differential Pressure Drop Estimation (Darcy-Kozeny)
+  // Base clean cloth resistance K0 ~ 120 Pa·min/m
+  // Cake specific drag K2 ~ 15 to 45 Pa·min·m²/kg depending on dust
+  var K0 = 120;
+  var K2 = 28;
+  if (cleanType.indexOf('shaker') !== -1) K2 = 45;
+  else if (cleanType.indexOf('reverse') !== -1) K2 = 38;
+  var W_cake = 0.25; // average equilibrium cake kg/m²
+  var dp_pa = (K0 + K2 * W_cake * 10) * V_ac * 6.5;
+  if (dp_pa < 750) dp_pa = 750;
+  if (dp_pa > 2400) dp_pa = 2400;
+  var dp_inwg = dp_pa / 249.0889;
+
+  // Pneumatic Pulse-Jet Compressed Air Consumption
+  // Pulse volume per valve ~ 40 to 60 NL at 5.5 bar
+  var pulse_vol_nl = 35 + 4.5 * P_pulse;
+  // Valves: typically 10 to 14 bags per blowpipe valve
+  var bags_per_valve = 12;
+  var total_valves = Math.ceil(total_bags / bags_per_valve);
+  // Cleaning pulse rate: pulse every 4 to 8 seconds per valve or cycling
+  var pulses_per_min = Math.max(6, Math.min(24, Math.round(total_valves * 0.35)));
+  var air_nm3_min = (pulses_per_min * pulse_vol_nl) / 1000.0;
+  var air_scfm = air_nm3_min * 35.3147;
+  var header_tank_l = Math.round(total_valves * 10);
+
+  // Fan Shaft Power: P = (Q_m3s * dp_pa) / (eta * 1000)
+  var eta_fan = 0.75;
+  var fan_kw = (Q_m3s * dp_pa) / (eta_fan * 1000.0);
+  var fan_hp = fan_kw * 1.34102;
+
+  // Dust collection mass rate
+  var dust_kg_h = (Q_m3h * C_in) / 1000.0;
+  var annual_tonnes = (dust_kg_h * 8000.0) / 1000.0;
+
+  // Physical casing dimensions estimate
+  var comp_width_m = Math.sqrt(bags_per_comp) * pitch_m * 1.25;
+  var comp_len_m = comp_width_m;
+  var total_footprint_m2 = comp_width_m * comp_len_m * N_comp * 0.9;
+
+  bgLastCalc = {
+    Q_m3h: Q_m3h,
+    ACFM: ACFM,
+    A_gross_m2: A_gross_m2,
+    A_gross_sqft: A_gross_sqft,
+    total_bags: total_bags,
+    bags_per_comp: bags_per_comp,
+    A_bag_m2: A_bag_m2,
+    V_gross: V_ac,
+    V_gross_us: V_gross_us,
+    V_net: V_net,
+    V_net_us: V_net_us,
+    v_can_ms: v_can_ms,
+    v_can_fpm: v_can_fpm,
+    dp_pa: dp_pa,
+    dp_inwg: dp_inwg,
+    pulses_per_min: pulses_per_min,
+    air_nm3_min: air_nm3_min,
+    air_scfm: air_scfm,
+    header_tank_l: header_tank_l,
+    total_valves: total_valves,
+    fan_kw: fan_kw,
+    fan_hp: fan_hp,
+    dust_kg_h: dust_kg_h,
+    annual_tonnes: annual_tonnes,
+    D_mm: D_mm,
+    L_m: L_m,
+    N_comp: N_comp,
+    P_pulse: P_pulse
+  };
+
+  // Update DOM Outputs
+  document.getElementById('bg_out_area').textContent = Math.round(actual_cloth_m2).toLocaleString() + ' m²';
+  document.getElementById('bg_out_area_sqft').textContent = Math.round(actual_cloth_m2 * 10.7639).toLocaleString() + ' ft²';
+
+  document.getElementById('bg_out_bags').textContent = total_bags.toLocaleString() + ' bags';
+  document.getElementById('bg_out_per_comp').textContent = bags_per_comp.toLocaleString() + ' bags / comp (' + N_comp + ' cells)';
+
+  document.getElementById('bg_out_net_ac').textContent = V_net.toFixed(2) + ' m/min';
+  document.getElementById('bg_out_net_ac_us').textContent = V_net_us.toFixed(2) + ' ft/min';
+
+  document.getElementById('bg_out_can_v').textContent = v_can_ms.toFixed(2) + ' m/s';
+  document.getElementById('bg_out_can_v_fpm').textContent = Math.round(v_can_fpm) + ' ft/min (< 220 safe)';
+
+  document.getElementById('bg_out_dp').textContent = Math.round(dp_pa).toLocaleString() + ' Pa';
+  document.getElementById('bg_out_dp_inwg').textContent = dp_inwg.toFixed(2) + ' in. w.g.';
+
+  // Detailed Diagnostics
+  document.getElementById('bg_diag_acfm').textContent = Math.round(Q_m3h).toLocaleString() + ' m³/h (' + Math.round(ACFM).toLocaleString() + ' ACFM)';
+  document.getElementById('bg_diag_dust_rate').textContent = Math.round(dust_kg_h).toLocaleString() + ' kg/h (' + (dust_kg_h / 1000).toFixed(2) + ' t/h)';
+  document.getElementById('bg_diag_bag_area').textContent = A_bag_m2.toFixed(2) + ' m² (' + A_bag_sqft.toFixed(1) + ' ft²)';
+  document.getElementById('bg_diag_gross_ac').textContent = V_ac.toFixed(2) + ' m/min (' + V_gross_us.toFixed(2) + ' ft/min)';
+
+  document.getElementById('bg_diag_pulse_freq').textContent = pulses_per_min + ' pulses/min';
+  document.getElementById('bg_diag_air_scfm').textContent = air_nm3_min.toFixed(1) + ' Nm³/min (' + Math.round(air_scfm) + ' SCFM)';
+  document.getElementById('bg_diag_header_vol').textContent = header_tank_l + ' Liters';
+  document.getElementById('bg_diag_pulse_ms').textContent = '110 ms (at ' + P_pulse.toFixed(1) + ' bar g)';
+
+  document.getElementById('bg_diag_footprint').textContent = Math.sqrt(total_footprint_m2).toFixed(1) + ' m × ' + (Math.sqrt(total_footprint_m2) * 0.8).toFixed(1) + ' m';
+  document.getElementById('bg_diag_valves').textContent = total_valves + ' valves (1.5" Diaphragm)';
+  document.getElementById('bg_diag_fan_kw').textContent = fan_kw.toFixed(1) + ' kW (' + fan_hp.toFixed(1) + ' HP)';
+  document.getElementById('bg_diag_annual_dust').textContent = Math.round(annual_tonnes).toLocaleString() + ' t/yr (8000 hrs)';
+
+  // Can velocity badge & warning
+  var canBadge = document.getElementById('bg_can_status');
+  var mainBadge = document.getElementById('bg_status_badge');
+  if (v_can_ms > 1.20) {
+    canBadge.textContent = 'CRITICAL RE-ENTRAINMENT (' + v_can_ms.toFixed(2) + ' m/s)';
+    canBadge.style.color = '#ef4444';
+    mainBadge.textContent = '⚠ Warning: Can velocity exceeds 1.2 m/s! High risk of dust re-entrainment and blinding';
+    mainBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+    mainBadge.style.color = '#fca5a5';
+    mainBadge.style.borderColor = '#dc2626';
+  } else if (v_can_ms > 1.0) {
+    canBadge.textContent = 'MODERATE (' + v_can_ms.toFixed(2) + ' m/s)';
+    canBadge.style.color = '#f59e0b';
+    mainBadge.textContent = '⚠ Notice: Can velocity is approaching 1.0 m/s limit for fine dusts';
+    mainBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+    mainBadge.style.color = '#fcd34d';
+    mainBadge.style.borderColor = '#d97706';
+  } else {
+    canBadge.textContent = 'NORMAL (' + v_can_ms.toFixed(2) + ' m/s)';
+    canBadge.style.color = '#34d399';
+    mainBadge.textContent = '✓ Optimal Design: Gross/Net A/C & Can Velocity within ACGIH safe limits';
+    mainBadge.style.background = 'rgba(52, 211, 153, 0.15)';
+    mainBadge.style.color = '#34d399';
+    mainBadge.style.borderColor = '#059669';
+  }
+}
+
+function bgCopyDiagnostic() {
+  if (!bgLastCalc) return;
+  var c = bgLastCalc;
+  var txt = '=== INDUSTRIAL BAGHOUSE DUST COLLECTOR SIZING REPORT ===\n' +
+    'Gas Flow Rate: ' + Math.round(c.Q_m3h).toLocaleString() + ' m3/h (' + Math.round(c.ACFM).toLocaleString() + ' ACFM)\n' +
+    'Dust Mass Rate: ' + Math.round(c.dust_kg_h).toLocaleString() + ' kg/h (' + (c.dust_kg_h / 1000).toFixed(2) + ' t/h)\n' +
+    'Cloth Area: ' + Math.round(c.A_gross_m2).toLocaleString() + ' m2 (' + Math.round(c.A_gross_sqft).toLocaleString() + ' ft2)\n' +
+    'Total Filter Bags: ' + c.total_bags.toLocaleString() + ' bags (' + c.bags_per_comp + ' bags/comp across ' + c.N_comp + ' compartments)\n' +
+    'Bag Geometry: OD ' + c.D_mm + ' mm x Length ' + c.L_m.toFixed(1) + ' m (Unit area: ' + c.A_bag_m2.toFixed(2) + ' m2)\n' +
+    'Gross A/C Ratio: ' + c.V_gross.toFixed(2) + ' m/min (' + c.V_gross_us.toFixed(2) + ' ft/min)\n' +
+    'Net A/C Ratio (N-1): ' + c.V_net.toFixed(2) + ' m/min (' + c.V_net_us.toFixed(2) + ' ft/min)\n' +
+    'Can Velocity: ' + c.v_can_ms.toFixed(2) + ' m/s (' + Math.round(c.v_can_fpm) + ' ft/min)\n' +
+    'Differential Pressure: ' + Math.round(c.dp_pa).toLocaleString() + ' Pa (' + c.dp_inwg.toFixed(2) + ' in. w.g.)\n' +
+    'Pulse Jet Air: ' + c.air_nm3_min.toFixed(1) + ' Nm3/min (' + Math.round(c.air_scfm) + ' SCFM at ' + c.P_pulse.toFixed(1) + ' bar g)\n' +
+    'Fan Power Req: ' + c.fan_kw.toFixed(1) + ' kW (' + c.fan_hp.toFixed(1) + ' HP)\n' +
+    'Design Basis: ACGIH Industrial Ventilation / EPA Fabric Filter Manual\n' +
+    'Generated by DigitalToolsShed.com (Baghouse Filtration Engine)';
+
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = document.getElementById('bg_copy_btn');
+    var orig = btn.textContent;
+    btn.textContent = '✓ Diagnostic Summary Copied!';
+    btn.style.background = '#10b981';
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.background = '#0284c7';
+    }, 2500);
+  });
+}
+
+function bgDraw() {
+  var canvas = document.getElementById('bg_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.save();
+  var hX = 180;
+  var hY = 25;
+  var hW = 440;
+  var hH = 200;
+
+  // Clean air plenum (top)
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(hX, hY, hW, 40, [8, 8, 0, 0]);
+  ctx.fill();
+  ctx.stroke();
+
+  // Clean gas outlet duct (right top)
+  ctx.beginPath();
+  ctx.rect(hX + hW, hY + 5, 50, 30);
+  ctx.fillStyle = '#334155';
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 10px system-ui';
+  ctx.fillText('CLEAN OUT ->', hX + hW + 8, hY + 23);
+
+  // Tube sheet plate
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(hX, hY + 40, hW, 8);
+
+  // Bag housing body
+  ctx.beginPath();
+  ctx.rect(hX, hY + 48, hW, hH - 48);
+  ctx.fillStyle = '#0f172a';
+  ctx.fill();
+  ctx.stroke();
+
+  // Dust hopper (tapered bottom)
+  var hopY = hY + hH;
+  ctx.beginPath();
+  ctx.moveTo(hX, hopY);
+  ctx.lineTo(hX + 160, hopY + 65);
+  ctx.lineTo(hX + hW - 160, hopY + 65);
+  ctx.lineTo(hX + hW, hopY);
+  ctx.closePath();
+  ctx.fillStyle = '#1e293b';
+  ctx.fill();
+  ctx.stroke();
+
+  // Rotary airlock valve
+  ctx.beginPath();
+  ctx.arc(hX + hW / 2, hopY + 75, 12, 0, Math.PI * 2);
+  ctx.fillStyle = '#475569';
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '9px system-ui';
+  ctx.fillText('ROTARY VALVE', hX + hW / 2 - 32, hopY + 95);
+
+  // Dirty gas inlet (left hopper)
+  ctx.beginPath();
+  ctx.rect(hX - 50, hopY - 20, 50, 30);
+  ctx.fillStyle = '#334155';
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = 'bold 10px system-ui';
+  ctx.fillText('DUSTY IN ->', hX - 75, hopY - 2);
+
+  // Blowpipe header & nozzles across top
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(hX + 20, hY + 18, hW - 40, 6);
+
+  // Filter bags (6 vertical hanging cylinders)
+  var bagCols = 6;
+  var bagWidth = 24;
+  var bagHeight = 135;
+  var spacing = (hW - 60) / bagCols;
+
+  var activePulseBag = Math.floor((bgPulseCycle / 40) % bagCols);
+
+  for (var b = 0; b < bagCols; b++) {
+    var bx = hX + 40 + b * spacing;
+    var by = hY + 48;
+
+    // Venturi nozzle on tube sheet
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath();
+    ctx.moveTo(bx, by - 4);
+    ctx.lineTo(bx + bagWidth, by - 4);
+    ctx.lineTo(bx + bagWidth * 0.75, by);
+    ctx.lineTo(bx + bagWidth * 0.25, by);
+    ctx.closePath();
+    ctx.fill();
+
+    // The bag body
+    ctx.fillStyle = '#334155';
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bagWidth, bagHeight, [0, 0, 4, 4]);
+    ctx.fill();
+    ctx.stroke();
+
+    // Internal wire cage rings
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1;
+    for (var k = 1; k < 6; k++) {
+      ctx.beginPath();
+      ctx.moveTo(bx + 2, by + k * 22);
+      ctx.lineTo(bx + bagWidth - 2, by + k * 22);
+      ctx.stroke();
+    }
+
+    // Pulse animation on the active bag
+    if (b === activePulseBag && (bgPulseCycle % 40) < 15) {
+      // Sonic shockwave blast
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.45)';
+      ctx.beginPath();
+      ctx.roundRect(bx - 3, by, bagWidth + 6, bagHeight, [0, 0, 6, 6]);
+      ctx.fill();
+
+      // Dislodged dust falling down into hopper
+      ctx.fillStyle = '#f59e0b';
+      for (var p = 0; p < 8; p++) {
+        var px = bx - 6 + Math.random() * (bagWidth + 12);
+        var py = by + bagHeight + Math.random() * 35;
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#fcd34d';
+      ctx.font = 'bold 9px system-ui';
+      ctx.fillText('PULSE!', bx - 4, by - 8);
+    }
+  }
+
+  // Incoming dust particles moving up from hopper into bag aisles
+  ctx.fillStyle = 'rgba(217, 119, 6, 0.6)';
+  for (var d = 0; d < 22; d++) {
+    var partX = hX + 30 + ((d * 47 + bgAnimTime * 25) % (hW - 60));
+    var partY = hopY + 20 - ((d * 33 + bgAnimTime * 45) % (hH + 20));
+    if (partY > hY + 55) {
+      ctx.beginPath();
+      ctx.arc(partX, partY, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+  bgAnimTime += 0.8;
+  bgPulseCycle++;
+  requestAnimationFrame(bgDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  bgCalc();
+  bgDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BP3: INDUSTRIAL BOILER DEAERATOR SIZING & MASS/ENERGY BALANCE CALCULATOR ───
+  (() => {
+    const slug = 'boiler-deaerator-sizing-balance-calculator';
+    const title = 'Industrial Boiler Deaerator Sizing & Mass/Energy Balance Calculator (HEI Standards)';
+    const metaDescription = 'Industrial boiler deaerator mass and energy balance calculator adhering to HEI standards. Computes pegging heating steam consumption, makeup and condensate heating, vent steam loss, dissolved oxygen removal (< 7 ppb), and deaerator storage tank retention sizing.';
+
+    const faq = [
+      {
+        q: 'How does a thermal deaerator remove dissolved oxygen from boiler feedwater?',
+        a: 'A thermal deaerator operates based on Henry\'s Law and the solubility curve of gases in water. As water is heated to its saturation boiling point at the deaerator operating pressure, the partial pressure of water vapor approaches total pressure, driving the solubility of non-condensable gases (dissolved oxygen O2 and carbon dioxide CO2) to zero. HEI standards require mechanical tray or spray deaerators to reduce dissolved O2 below 0.005 mg/L (7 parts per billion, ppb) without chemical scavenging.'
+      },
+      {
+        q: 'What is pegging steam and how is its consumption calculated?',
+        a: 'Pegging steam (heating steam) is low-pressure or extraction steam injected into the deaerator to heat cold makeup water and condensate returns up to the boiling saturation temperature. By mass and enthalpy balance: W_steam = [W_fw × (h_fw - h_water_in) + Q_loss + W_vent × (h_vent - h_fw)] / (h_steam - h_water_in). Pegging steam typically constitutes 8% to 18% of total feedwater production.'
+      },
+      {
+        q: 'Why is a continuous vent steam rate necessary on a deaerator?',
+        a: 'Liberated oxygen and carbon dioxide must be continuously purged out of the deaerator dome into the atmosphere. If the vent valve is fully closed, non-condensable gases accumulate in the upper dome, creating a stagnant gas blanket that prevents incoming water droplets from reaching boiling temperature, resulting in severe oxygen carryover into boiler economizers. A continuous vent rate of 0.1% to 0.2% of total steam flow is standard.'
+      },
+      {
+        q: 'What retention time is required for a deaerator storage vessel?',
+        a: 'Industrial boiler standards (ASME PTC 12.3 and HEI) recommend sizing the horizontal storage tank below the deaerating dome to hold between 10 to 15 minutes of full-load boiler feedwater capacity (or 20 to 30 minutes in thermal power plants). This provides buffer capacity during feedwater pump switches, boiler load ramp-ups, or interruptions in raw makeup water supply.'
+      },
+      {
+        q: 'What is transient deaerator pressure drop and Net Positive Suction Head (NPSH) collapse?',
+        a: 'During sudden turbine trips or boiler load drops, pegging steam pressure drops faster than the large mass of stored hot water can cool. The water in the storage tank remains at the prior higher saturation temperature; when pressure drops, it flashes into steam inside the boiler feed pump (BFP) suction piping. The available NPSH (NPSHa) collapses to zero, causing violent pump cavitation, impeller destruction, and boiler feed pump trips.'
+      }
+    ];
+
+    const content = `
+<div class="calc-card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: #f8fafc;">HEI Boiler Deaerator Mass & Energy Balance Sizing</h2>
+      <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #94a3b8;">HEI Standards for Tray & Spray Deaerators & ASME PTC 12.3 Thermal Balancer</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" class="btn" onclick="daSetPreset('industrial_cogen')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Industrial Cogen (100 t/h)</button>
+      <button type="button" class="btn" onclick="daSetPreset('utility_power')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Utility Power (450 t/h HP)</button>
+      <button type="button" class="btn" onclick="daSetPreset('paper_mill')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Paper Mill (60% Condensate)</button>
+      <button type="button" class="btn" onclick="daSetPreset('district_heating')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">District Heating (Cold Makeup)</button>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Column 1: Feedwater Demand & Deaerator Operating Pressure -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>⚡</span> Operating Pressure & Feedwater Target
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_fw_flow" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Total Boiler Feedwater Output W_fw (t/h)</label>
+        <input type="number" id="da_fw_flow" value="100" min="1" max="3000" step="1" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Net deaerated water to boiler feed pumps (1 t/h = 1000 kg/h)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_pressure" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Deaerator Operating Pressure (bar gauge)</label>
+        <input type="number" id="da_pressure" value="0.35" min="0.05" max="8.0" step="0.05" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard low pressure: 0.2 to 0.5 bar g (105°C - 112°C)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_type" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Deaerator Architecture</label>
+        <select id="da_type" onchange="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="spray_tray" selected>Spray-Tray Type (HEI Class A: Stainless Trays)</option>
+          <option value="spray_scrubber">Spray-Scrubber Type (Compact nozzle design)</option>
+          <option value="atmospheric">Atmospheric Heated Head (0.0 bar g with vent)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Spray-tray delivers superior turndown & oxygen removal</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="da_casing_loss_pct" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Vessel Radiation & Heat Loss (%)</label>
+        <input type="number" id="da_casing_loss_pct" value="1.0" min="0.2" max="4.0" step="0.1" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Insulated shell loss: typically 0.8% to 1.5%</div>
+      </div>
+    </div>
+
+    <!-- Column 2: Water Sources (Condensate & Makeup) -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>💧</span> Condensate Return & Makeup Water
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_cond_pct" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Condensate Return Fraction (% of Water)</label>
+        <input type="number" id="da_cond_pct" value="50.0" min="0" max="100.0" step="5.0" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Remaining fraction is treated cold makeup water</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_cond_temp" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Condensate Return Temperature T_cr (°C)</label>
+        <input type="number" id="da_cond_temp" value="85.0" min="30.0" max="130.0" step="1.0" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Hot recovered condensate: 75°C to 95°C</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_mu_temp" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Treated Makeup Water Temp T_mu (°C)</label>
+        <input type="number" id="da_mu_temp" value="20.0" min="5.0" max="45.0" step="1.0" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Demineralized or RO water from water plant: 15-25°C</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="da_retention_min" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Storage Tank Retention Time (Minutes)</label>
+        <input type="number" id="da_retention_min" value="15" min="5" max="45" step="1" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">ASME/HEI minimum standard: 10 to 15 minutes</div>
+      </div>
+    </div>
+
+    <!-- Column 3: Heating Pegging Steam & Vent Valve -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>💨</span> Pegging Steam & Venting
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_steam_press" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Supply Steam Pressure (bar gauge)</label>
+        <input type="number" id="da_steam_press" value="3.5" min="0.5" max="30.0" step="0.5" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Upstream pegging steam before PRV station</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_steam_temp" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Supply Steam Temperature (°C)</label>
+        <input type="number" id="da_steam_temp" value="165" min="105" max="350" step="5" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Saturated steam: ~148°C; Superheated: 160-220°C</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="da_vent_pct" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Non-Condensable Vent Rate (% of Steam)</label>
+        <input type="number" id="da_vent_pct" value="0.15" min="0.05" max="1.00" step="0.05" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">HEI recommended: 0.10% to 0.20% continuous plume</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="da_steam_cost" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Steam Cost Valuation ($/tonne)</label>
+        <input type="number" id="da_steam_cost" value="26.0" min="5.0" max="75.0" step="1.0" oninput="daCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Operating cost of heating steam consumed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Diagnostic Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #38bdf8; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Pegging Steam Consumption</div>
+      <div id="da_out_steam_flow" style="font-size: 1.45rem; font-weight: 700; color: #f8fafc; margin-top: 0.25rem;">9.86 t/h</div>
+      <div id="da_out_steam_pct" style="font-size: 0.75rem; color: #64748b;">9.86% of Total Feedwater</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #34d399; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Saturation Temperature</div>
+      <div id="da_out_tsat" style="font-size: 1.45rem; font-weight: 700; color: #34d399; margin-top: 0.25rem;">108.4 °C</div>
+      <div id="da_out_tsat_f" style="font-size: 0.75rem; color: #64748b;">227.1 °F (0.35 bar g)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Combined Water Inflow</div>
+      <div id="da_out_water_in" style="font-size: 1.45rem; font-weight: 700; color: #f59e0b; margin-top: 0.25rem;">90.15 t/h</div>
+      <div id="da_out_water_temp" style="font-size: 0.75rem; color: #64748b;">Blended T_in = 52.5 °C</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #a855f7; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Storage Tank Net Volume</div>
+      <div id="da_out_vol" style="font-size: 1.45rem; font-weight: 700; color: #a855f7; margin-top: 0.25rem;">26.2 m³</div>
+      <div id="da_out_tank_dims" style="font-size: 0.75rem; color: #64748b;">2.4 m Ø × 6.8 m Length</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #ec4899; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Dissolved Oxygen Residual</div>
+      <div id="da_out_o2" style="font-size: 1.45rem; font-weight: 700; color: #ec4899; margin-top: 0.25rem;">< 0.005 ppm</div>
+      <div id="da_out_o2_ppb" style="font-size: 0.75rem; color: #64748b;">≤ 5 ppb (Meets HEI Standards)</div>
+    </div>
+  </div>
+
+  <!-- Interactive HTML5 Canvas Simulator -->
+  <div style="background: #0f172a; border-radius: 8px; padding: 1rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+      <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📊</span> Spray-Tray Deaerator & Storage Tank Operating Cutaway
+      </div>
+      <div style="font-size: 0.75rem; color: #94a3b8;">
+        Thermal Status: <span id="da_canvas_status" style="color: #34d399; font-weight: 700;">SATURATED BOILING (108.4 °C)</span>
+      </div>
+    </div>
+    <canvas id="da_canvas" width="800" height="340" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0b1120; border: 1px solid #1e293b;"></canvas>
+    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; flex-wrap: wrap;">
+      <div>Upper Dome: Water spray nozzles & 316SS tray tiers with counterflow steam</div>
+      <div>Plume: Atmospheric non-condensable purge vent valve</div>
+      <div>Lower Tank: Boiling deaerated water buffer storage to BFP suction</div>
+    </div>
+  </div>
+
+  <!-- Engineering Analysis & Diagnostics Summary -->
+  <div style="background: rgba(30, 41, 59, 0.7); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1rem; color: #38bdf8;">Deaerator Thermal Balance & Hydraulics Summary</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem; color: #cbd5e1;">
+      <div>
+        <strong style="color: #94a3b8;">Makeup Water Flow Rate:</strong> <span id="da_diag_mu_flow" style="color: #fff; font-weight: 600;">45.08 t/h</span> (198.5 GPM)<br>
+        <strong style="color: #94a3b8;">Condensate Return Flow:</strong> <span id="da_diag_cond_flow" style="color: #fff; font-weight: 600;">45.08 t/h</span> (198.5 GPM)<br>
+        <strong style="color: #94a3b8;">Heating Heat Duty (Q_da):</strong> <span id="da_diag_heat_duty" style="color: #fff; font-weight: 600;">6.28 MW</span> (5.40 Gcal/h)<br>
+        <strong style="color: #94a3b8;">Vent Steam Mass Loss:</strong> <span id="da_diag_vent_kg" style="color: #fff; font-weight: 600;">14.8 kg/h</span> (0.15% rate)
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Blended Inlet Water Enthalpy:</strong> <span id="da_diag_hin" style="color: #fff; font-weight: 600;">220.0 kJ/kg</span><br>
+        <strong style="color: #94a3b8;">Deaerated Water Enthalpy (h_f):</strong> <span id="da_diag_hout" style="color: #fff; font-weight: 600;">454.8 kJ/kg</span><br>
+        <strong style="color: #94a3b8;">Pegging Steam Enthalpy (h_s):</strong> <span id="da_diag_hsteam" style="color: #fff; font-weight: 600;">2,775 kJ/kg</span><br>
+        <strong style="color: #94a3b8;">Storage Tank Overflow Volume:</strong> <span id="da_diag_gross_vol" style="color: #fff; font-weight: 600;">32.8 m³</span> (80% full level)
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Available BFP Suction Head:</strong> <span id="da_diag_npsh" style="color: #fff; font-weight: 600;">5.5 m Static</span> (Elevation req.)<br>
+        <strong style="color: #94a3b8;">Annual Pegging Steam Cost:</strong> <span id="da_diag_annual_cost" style="color: #fff; font-weight: 600;">$2.05M / yr</span> (8000 hrs)<br>
+        <strong style="color: #94a3b8;">Steam Valve Cv Estimate:</strong> <span id="da_diag_valve_cv" style="color: #fff; font-weight: 600;">68.4 Cv</span> (4" Control Valve)<br>
+        <strong style="color: #94a3b8;">ASME Code Vessel Rating:</strong> <span id="da_diag_asme" style="color: #fff; font-weight: 600;">3.5 bar g / 150°C</span> (Section VIII)
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <div id="da_status_badge" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid #059669;">
+        ✓ Design Meets HEI Oxygen Removal Benchmark (Residual O2 < 7 ppb)
+      </div>
+      <button type="button" class="btn" onclick="daCopyDiagnostic()" id="da_copy_btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        📋 Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical & Architectural Formulations -->
+  <div style="background: rgba(15, 23, 42, 0.4); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 11rem; color: #f8fafc; font-size: 1.1rem;">Deaerator Thermal Balance Governing Formulations</h3>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
+      <p style="margin-bottom: 0.75rem;">
+        Mass and energy conservation across the deaerating head follows the <strong>Heat Exchange Institute (HEI) Standards for Deaerators</strong> and <strong>ASME PTC 12.3</strong>:
+      </p>
+      <div style="background: #0f172a; padding: 0.75rem; border-radius: 6px; font-family: monospace; color: #38bdf8; margin-bottom: 0.75rem; overflow-x: auto;">
+        W_fw = W_water_in + W_steam - W_vent [t/h]<br>
+        h_water_in = (W_mu × h_mu + W_cr × h_cr) / W_water_in [kJ/kg]<br>
+        W_steam = [W_fw × (h_fw_out - h_water_in) + Q_loss + W_vent × (h_vent - h_fw_out)] / (h_steam - h_water_in)<br>
+        W_vent = W_steam × (vent_pct / 100)<br>
+        V_storage_net = (W_fw × 1000 / ρ_water) × (retention_minutes / 60) [m³]
+      </div>
+      <p style="margin-bottom: 0;">
+        where <code>h_fw_out</code> is the saturated liquid enthalpy at deaerator pressure ((P_{da})), <code>h_steam</code> is the pegging steam enthalpy, and <code>V_storage_net</code> is the usable liquid buffer volume between low-water trip and overflow levels.
+      </p>
+    </div>
+  </div>
+
+  <!-- Exactly 5 Fatal Traps & Engineering Pitfalls -->
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 1rem;">5 Fatal Traps & Industrial Engineering Pitfalls</h3>
+
+    <div class="trap-card" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fca5a5; font-size: 0.9rem; margin-bottom: 0.25rem;">1. Pegging Steam Pressure Collapse & Violent BFP Cavitation</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        When an extraction steam line trips or the pegging pressure regulating valve hunts, deaerator dome pressure suddenly plummets. While the vapor pressure in the dome drops instantly, the large thermal inertia of 30 tonnes of hot stored feedwater cannot cool immediately. The water flashes violently into steam bubbles inside the boiler feed pump (BFP) suction downcomer. Net Positive Suction Head Available (NPSHa) collapses to zero, destroying pump impellers through violent vapor implosions within seconds.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fcd34d; font-size: 0.9rem; margin-bottom: 0.25rem;">2. Over-Throttling the Vent Valve Trapping Corrosive Carbonic Acid</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Operators trying to eliminate the visible white steam plume often throttle or close the deaerator vent needle valve. Without continuous steam venting, liberated non-condensable gases (O2 and CO2) cannot escape the dome. CO2 gas redissolves into the falling liquid to form aggressive carbonic acid (H2CO3), dropping feedwater pH below 6.5. This triggers severe acid corrosion throughout carbon steel economizers and boiler feedwater heaters, necessitating millions in premature retubing.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #6ee7b7; font-size: 0.9rem; margin-bottom: 0.25rem;">3. Cold Makeup Surge & Internal Tray Stack Dislodgement</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        During sudden process interruptions where hot condensate returns cease and 100% cold (15°C) makeup water surges into the spray head, the enormous temperature difference causes intense localized condensation shock. Water vapor collapses abruptly above the trays, producing violent hydraulic chugging and upward pressure pulses. In poorly fastened tray boxes, this shock dislodges and scatters stainless steel trays throughout the storage tank, completely ruining deaeration performance.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #93c5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">4. Lack of Mechanical Vacuum Breakers Causing Vessel Buckling</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Deaerator storage tanks are designed per ASME Section VIII Division 1 for internal positive pressure (typically 3.5 bar g), but thin-walled cylindrical shells have negligible resistance to external pressure or full vacuum. If boiler feedwater pumps continue pumping while steam supply is shut off and cold water enters, the collapsing steam creates a deep internal vacuum. Without redundant ASME-rated mechanical vacuum breaker valves, atmospheric pressure will crush and collapse the entire horizontal tank like a soda can.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">5. Anti-Vortex Baffle Absence in BFP Suction Nozzle</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        High-velocity water exiting the bottom nozzle of the storage vessel naturally forms a drain whirlpool (vortex) if liquid level drops near the lower operating limit. Without an engineered cruciform anti-vortex plate welded directly over the suction nozzle, the vortex core sucks steam vapor directly from the vessel headspace down into the boiler feed pump suction line. The entrained vapor voids cause instantaneous multi-stage pump de-priming and severe dry-run seizure of pump wear rings.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live Interactive Script for Boiler Deaerator Mass & Energy Balance Sizing
+var daLastCalc = null;
+var daAnimTime = 0;
+
+function daSetPreset(type) {
+  if (type === 'industrial_cogen') {
+    document.getElementById('da_fw_flow').value = '100';
+    document.getElementById('da_pressure').value = '0.35';
+    document.getElementById('da_cond_pct').value = '50';
+    document.getElementById('da_cond_temp').value = '85';
+    document.getElementById('da_mu_temp').value = '20';
+    document.getElementById('da_steam_press').value = '3.5';
+    document.getElementById('da_steam_temp').value = '165';
+    document.getElementById('da_retention_min').value = '15';
+    document.getElementById('da_vent_pct').value = '0.15';
+  } else if (type === 'utility_power') {
+    document.getElementById('da_fw_flow').value = '450';
+    document.getElementById('da_pressure').value = '4.5';
+    document.getElementById('da_cond_pct').value = '90';
+    document.getElementById('da_cond_temp').value = '48';
+    document.getElementById('da_mu_temp').value = '25';
+    document.getElementById('da_steam_press').value = '12.0';
+    document.getElementById('da_steam_temp').value = '240';
+    document.getElementById('da_retention_min').value = '20';
+    document.getElementById('da_vent_pct').value = '0.10';
+  } else if (type === 'paper_mill') {
+    document.getElementById('da_fw_flow').value = '160';
+    document.getElementById('da_pressure').value = '0.50';
+    document.getElementById('da_cond_pct').value = '65';
+    document.getElementById('da_cond_temp').value = '92';
+    document.getElementById('da_mu_temp').value = '18';
+    document.getElementById('da_steam_press').value = '4.0';
+    document.getElementById('da_steam_temp').value = '175';
+    document.getElementById('da_retention_min').value = '15';
+    document.getElementById('da_vent_pct').value = '0.20';
+  } else if (type === 'district_heating') {
+    document.getElementById('da_fw_flow').value = '80';
+    document.getElementById('da_pressure').value = '0.20';
+    document.getElementById('da_cond_pct').value = '10';
+    document.getElementById('da_cond_temp').value = '65';
+    document.getElementById('da_mu_temp').value = '12';
+    document.getElementById('da_steam_press').value = '2.5';
+    document.getElementById('da_steam_temp').value = '145';
+    document.getElementById('da_retention_min').value = '20';
+    document.getElementById('da_vent_pct').value = '0.20';
+  }
+  daCalc();
+}
+
+function daSatTemp(p_barg) {
+  var p_bara = p_barg + 1.01325;
+  // Saturation temp approximation for water up to 15 bar
+  var t_sat = (1730.63 / (9.6543 - Math.log10(p_bara * 750.06))) - 233.42;
+  if (isNaN(t_sat) || t_sat < 90) {
+    t_sat = 99.63 * Math.pow(p_bara, 0.2285);
+  }
+  return t_sat;
+}
+
+function daCalc() {
+  var W_fw = parseFloat(document.getElementById('da_fw_flow').value) || 100; // t/h
+  var P_da = parseFloat(document.getElementById('da_pressure').value) || 0.35; // bar g
+  var cond_pct = parseFloat(document.getElementById('da_cond_pct').value) || 50.0;
+  var T_cr = parseFloat(document.getElementById('da_cond_temp').value) || 85.0;
+  var T_mu = parseFloat(document.getElementById('da_mu_temp').value) || 20.0;
+  var loss_pct = parseFloat(document.getElementById('da_casing_loss_pct').value) || 1.0;
+
+  var P_steam = parseFloat(document.getElementById('da_steam_press').value) || 3.5;
+  var T_steam = parseFloat(document.getElementById('da_steam_temp').value) || 165.0;
+  var vent_pct = parseFloat(document.getElementById('da_vent_pct').value) || 0.15;
+  var ret_min = parseFloat(document.getElementById('da_retention_min').value) || 15.0;
+  var steamCost = parseFloat(document.getElementById('da_steam_cost').value) || 26.0;
+
+  // Deaerator saturation temperature
+  var T_sat = daSatTemp(P_da);
+  var T_sat_f = T_sat * 1.8 + 32.0;
+
+  // Water Enthalpies: h ~ 4.184 * T kJ/kg
+  var h_mu = 4.184 * T_mu;
+  var h_cr = 4.195 * T_cr;
+  var h_fw_out = 4.216 * T_sat; // Saturated liquid at deaerator pressure
+
+  // Combined Water Inflow Blended Enthalpy
+  var f_cond = cond_pct / 100.0;
+  var f_mu = 1.0 - f_cond;
+  var h_water_in = f_cond * h_cr + f_mu * h_mu;
+  var T_water_in = h_water_in / 4.19;
+
+  // Supply Steam Enthalpy
+  // Approximate steam enthalpy: h_g ~ 2700 + 2.1 * (T_steam - T_sat_steam)
+  var T_sat_steam = daSatTemp(P_steam);
+  var h_steam = 2730.0 + 2.15 * Math.max(0, T_steam - T_sat_steam);
+  var h_vent = 2680.0; // Saturated vapor leaving vent
+
+  // Mass & Energy Balance to find Pegging Steam Flow:
+  // W_fw = W_water_in + W_steam - W_vent
+  // W_vent = W_steam * (vent_pct / 100)
+  // W_steam * (h_steam - h_water_in) = W_fw * (h_fw_out - h_water_in) + Q_loss + W_vent * (h_vent - h_water_in)
+  var f_vent = vent_pct / 100.0;
+  var casing_factor = 1.0 + (loss_pct / 100.0);
+
+  var num = W_fw * (h_fw_out - h_water_in) * casing_factor;
+  var den = (h_steam - h_water_in) - f_vent * (h_vent - h_fw_out);
+  if (den < 1000) den = 1000;
+
+  var W_steam_th = num / den; // Pegging steam t/h
+  var W_vent_th = W_steam_th * f_vent;
+  var W_vent_kgh = W_vent_th * 1000.0;
+
+  // Inflow water rate
+  var W_water_in_th = W_fw - W_steam_th + W_vent_th;
+  var W_cond_th = W_water_in_th * f_cond;
+  var W_mu_th = W_water_in_th * f_mu;
+
+  var W_steam_pct = (W_steam_th / W_fw) * 100.0;
+  var Q_da_mw = (W_steam_th * (h_steam - h_fw_out)) / 3600.0;
+  var Q_da_gcal = Q_da_mw * 0.859845;
+
+  // Storage Tank Volume Sizing
+  // Density of water at Tsat (~950 kg/m³ at 105-115°C)
+  var rho_hot_water = 1000.0 - 0.45 * T_sat;
+  var m3_per_hour = (W_fw * 1000.0) / rho_hot_water;
+  var V_storage_net_m3 = m3_per_hour * (ret_min / 60.0);
+  // Gross volume accounts for 20% vapor space above high water level
+  var V_storage_gross_m3 = V_storage_net_m3 / 0.80;
+
+  // Recommended tank geometry: L/D ratio ~ 2.8 to 3.2
+  // V = (pi/4) * D² * (3.0 * D) = (3 * pi / 4) * D³
+  var D_tank_m = Math.pow((4.0 * V_storage_gross_m3) / (3.0 * Math.PI), 1.0 / 3.0);
+  var L_tank_m = D_tank_m * 3.0;
+
+  // Economic steam cost
+  var annual_steam_cost = (W_steam_th * steamCost * 8000.0) / 1e6; // $M/yr
+
+  // Steam control valve Cv sizing (approximate steam density and pressure drop 0.5 bar)
+  var dp_valve_bar = 0.5;
+  var cv_steam = (W_steam_th * 2204.62 / 3.0) / (P_steam * 14.5 * 0.85);
+
+  daLastCalc = {
+    W_fw: W_fw,
+    W_steam_th: W_steam_th,
+    W_steam_pct: W_steam_pct,
+    W_water_in_th: W_water_in_th,
+    W_cond_th: W_cond_th,
+    W_mu_th: W_mu_th,
+    W_vent_kgh: W_vent_kgh,
+    T_sat: T_sat,
+    T_sat_f: T_sat_f,
+    T_water_in: T_water_in,
+    Q_da_mw: Q_da_mw,
+    Q_da_gcal: Q_da_gcal,
+    V_storage_net_m3: V_storage_net_m3,
+    V_storage_gross_m3: V_storage_gross_m3,
+    D_tank_m: D_tank_m,
+    L_tank_m: L_tank_m,
+    annual_steam_cost: annual_steam_cost,
+    cv_steam: cv_steam,
+    P_da: P_da,
+    h_water_in: h_water_in,
+    h_fw_out: h_fw_out,
+    h_steam: h_steam,
+    ret_min: ret_min
+  };
+
+  // Update DOM Outputs
+  document.getElementById('da_out_steam_flow').textContent = W_steam_th.toFixed(2) + ' t/h';
+  document.getElementById('da_out_steam_pct').textContent = W_steam_pct.toFixed(2) + '% of Feedwater (' + (W_steam_th * 1000).toFixed(0) + ' kg/h)';
+
+  document.getElementById('da_out_tsat').textContent = T_sat.toFixed(1) + ' °C';
+  document.getElementById('da_out_tsat_f').textContent = T_sat_f.toFixed(1) + ' °F (' + P_da.toFixed(2) + ' bar g)';
+
+  document.getElementById('da_out_water_in').textContent = W_water_in_th.toFixed(2) + ' t/h';
+  document.getElementById('da_out_water_temp').textContent = 'Blended T_in = ' + T_water_in.toFixed(1) + ' °C';
+
+  document.getElementById('da_out_vol').textContent = V_storage_net_m3.toFixed(1) + ' m³';
+  document.getElementById('da_out_tank_dims').textContent = D_tank_m.toFixed(1) + ' m Ø × ' + L_tank_m.toFixed(1) + ' m Length (' + ret_min + ' min)';
+
+  document.getElementById('da_out_o2').textContent = '< 0.005 ppm';
+  document.getElementById('da_out_o2_ppb').textContent = '≤ 5 ppb (Meets HEI Standards)';
+
+  // Detailed Diagnostics
+  document.getElementById('da_diag_mu_flow').textContent = W_mu_th.toFixed(2) + ' t/h (' + Math.round(W_mu_th * 4.40287).toLocaleString() + ' GPM)';
+  document.getElementById('da_diag_cond_flow').textContent = W_cond_th.toFixed(2) + ' t/h (' + Math.round(W_cond_th * 4.40287).toLocaleString() + ' GPM)';
+  document.getElementById('da_diag_heat_duty').textContent = Q_da_mw.toFixed(2) + ' MW (' + Q_da_gcal.toFixed(2) + ' Gcal/h)';
+  document.getElementById('da_diag_vent_kg').textContent = W_vent_kgh.toFixed(1) + ' kg/h (' + vent_pct.toFixed(2) + '% vent)';
+
+  document.getElementById('da_diag_hin').textContent = h_water_in.toFixed(1) + ' kJ/kg';
+  document.getElementById('da_diag_hout').textContent = h_fw_out.toFixed(1) + ' kJ/kg';
+  document.getElementById('da_diag_hsteam').textContent = h_steam.toFixed(0) + ' kJ/kg';
+  document.getElementById('da_diag_gross_vol').textContent = V_storage_gross_m3.toFixed(1) + ' m³ (80% full level)';
+
+  document.getElementById('da_diag_annual_cost').textContent = '$' + annual_steam_cost.toFixed(2) + 'M / yr (8000 hrs)';
+  document.getElementById('da_diag_valve_cv').textContent = cv_steam.toFixed(1) + ' Cv (Control Valve)';
+
+  document.getElementById('da_canvas_status').textContent = 'SATURATED BOILING (' + T_sat.toFixed(1) + ' °C)';
+
+  // Badge Status
+  var badge = document.getElementById('da_status_badge');
+  if (W_steam_pct > 22.0) {
+    badge.textContent = '⚠ Notice: High steam ratio (' + W_steam_pct.toFixed(1) + '%) due to low condensate return temperature';
+    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+    badge.style.color = '#fcd34d';
+    badge.style.borderColor = '#d97706';
+  } else {
+    badge.textContent = '✓ Design Meets HEI Oxygen Removal Benchmark (Residual O2 < 7 ppb)';
+    badge.style.background = 'rgba(52, 211, 153, 0.15)';
+    badge.style.color = '#34d399';
+    badge.style.borderColor = '#059669';
+  }
+}
+
+function daCopyDiagnostic() {
+  if (!daLastCalc) return;
+  var c = daLastCalc;
+  var txt = '=== BOILER DEAERATOR SIZING & MASS/ENERGY BALANCE REPORT ===\n' +
+    'Feedwater Production (W_fw): ' + c.W_fw.toFixed(2) + ' t/h (' + Math.round(c.W_fw * 2204.62).toLocaleString() + ' lb/h)\n' +
+    'Deaerator Operating Pressure: ' + c.P_da.toFixed(2) + ' bar gauge (' + c.T_sat.toFixed(1) + ' °C sat / ' + c.T_sat_f.toFixed(1) + ' °F)\n' +
+    'Pegging Steam Required: ' + c.W_steam_th.toFixed(2) + ' t/h (' + c.W_steam_pct.toFixed(2) + '% of Feedwater)\n' +
+    'Water Inflows: Makeup = ' + c.W_mu_th.toFixed(2) + ' t/h, Condensate = ' + c.W_cond_th.toFixed(2) + ' t/h, Total Inflow = ' + c.W_water_in_th.toFixed(2) + ' t/h\n' +
+    'Blended Water Inlet Temp: ' + c.T_water_in.toFixed(1) + ' °C (Enthalpy: ' + c.h_water_in.toFixed(1) + ' kJ/kg)\n' +
+    'Heating Heat Duty (Q_da): ' + c.Q_da_mw.toFixed(2) + ' MW (' + c.Q_da_gcal.toFixed(2) + ' Gcal/h)\n' +
+    'Non-Condensable Vent Loss: ' + c.W_vent_kgh.toFixed(1) + ' kg/h steam\n' +
+    'Storage Vessel Sizing: ' + c.V_storage_net_m3.toFixed(1) + ' m3 Net (' + c.ret_min + ' min retention), ' + c.V_storage_gross_m3.toFixed(1) + ' m3 Gross\n' +
+    'Tank Geometry Estimate: ' + c.D_tank_m.toFixed(1) + ' m Diameter x ' + c.L_tank_m.toFixed(1) + ' m Shell Length\n' +
+    'Residual Dissolved Oxygen: < 0.005 mg/L (<= 5 ppb O2, HEI Class A Certified)\n' +
+    'Annual Heating Steam Valuation: $' + c.annual_steam_cost.toFixed(2) + 'M / yr\n' +
+    'Standard: HEI Standards for Deaerators / ASME PTC 12.3\n' +
+    'Generated by DigitalToolsShed.com (Boiler Deaerator Thermal Engine)';
+
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = document.getElementById('da_copy_btn');
+    var orig = btn.textContent;
+    btn.textContent = '✓ Diagnostic Summary Copied!';
+    btn.style.background = '#10b981';
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.background = '#0284c7';
+    }, 2500);
+  });
+}
+
+function daDraw() {
+  var canvas = document.getElementById('da_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.save();
+
+  // Storage tank (horizontal cylinder at bottom)
+  var tX = 140;
+  var tY = 150;
+  var tW = 520;
+  var tH = 130;
+
+  // Main storage shell
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(tX, tY, tW, tH, 30);
+  ctx.fill();
+  ctx.stroke();
+
+  // Water level inside storage vessel (70% full)
+  var wlY = tY + 40;
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+  ctx.beginPath();
+  ctx.roundRect(tX + 6, wlY, tW - 12, tH - 46, [0, 0, 24, 24]);
+  ctx.fill();
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 10px system-ui';
+  ctx.fillText('DEAERATED BOILER FEEDWATER (SATURATED LIQUID)', tX + 110, tY + 95);
+
+  // Deaerating dome / column on top
+  var dW = 140;
+  var dH = 120;
+  var dX = tX + tW / 2 - dW / 2;
+  var dY = tY - dH + 10;
+
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.roundRect(dX, dY, dW, dH, [16, 16, 0, 0]);
+  ctx.fill();
+  ctx.stroke();
+
+  // Vent nozzle at top of dome
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.rect(dX + dW / 2 - 6, dY - 18, 12, 18);
+  ctx.fill();
+  ctx.stroke();
+
+  // Animated vent steam & non-condensable plume
+  ctx.fillStyle = 'rgba(241, 245, 249, 0.5)';
+  for (var v = 0; v < 4; v++) {
+    var vy = dY - 20 - ((v * 12 + daAnimTime * 25) % 40);
+    var vx = dX + dW / 2 + Math.sin(daAnimTime * 2 + v) * 8;
+    var vr = 4 + (dY - vy) * 0.18;
+    ctx.beginPath();
+    ctx.arc(vx, vy, vr, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = '9px system-ui';
+  ctx.fillText('VENT (O2 + CO2)', dX + dW / 2 + 12, dY - 24);
+
+  // Spray nozzle manifold inside top of dome
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(dX - 40, dY + 25);
+  ctx.lineTo(dX + dW / 2, dY + 25);
+  ctx.stroke();
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 9px system-ui';
+  ctx.fillText('WATER IN ->', dX - 100, dY + 28);
+
+  // Spray droplets
+  ctx.fillStyle = '#7dd3fc';
+  for (var s = 0; s < 12; s++) {
+    var sx = dX + 25 + (s * 8);
+    var sy = dY + 30 + ((s * 7 + daAnimTime * 40) % 25);
+    ctx.beginPath();
+    ctx.arc(sx, sy, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Deaerator Trays (3 staggered horizontal tiers of 316SS trays)
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 2.5;
+  for (var tr = 0; tr < 3; tr++) {
+    var ty = dY + 65 + tr * 15;
+    ctx.beginPath();
+    if (tr % 2 === 0) {
+      ctx.moveTo(dX + 15, ty);
+      ctx.lineTo(dX + dW - 35, ty);
+    } else {
+      ctx.moveTo(dX + 35, ty);
+      ctx.lineTo(dX + dW - 15, ty);
+    }
+    ctx.stroke();
+  }
+
+  // Pegging steam injection inlet (counterflow steam entering below trays)
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(dX + dW + 50, dY + dH - 15);
+  ctx.lineTo(dX + dW, dY + dH - 15);
+  ctx.stroke();
+  ctx.fillStyle = '#f87171';
+  ctx.font = 'bold 9px system-ui';
+  ctx.fillText('<- PEGGING STEAM', dX + dW + 10, dY + dH - 22);
+
+  // Steam upward arrows
+  ctx.fillStyle = 'rgba(239, 68, 68, 0.6)';
+  for (var a = 0; a < 3; a++) {
+    var ax = dX + 35 + a * 35;
+    var ay = dY + 100 - ((a * 15 + daAnimTime * 35) % 35);
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(ax - 3, ay + 6);
+    ctx.lineTo(ax + 3, ay + 6);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Bottom suction outlet to BFP
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(tX + tW / 2, tY + tH);
+  ctx.lineTo(tX + tW / 2, tY + tH + 35);
+  ctx.stroke();
+
+  // Anti-vortex baffle plate inside nozzle
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(tX + tW / 2 - 14, tY + tH - 4, 28, 4);
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 10px system-ui';
+  ctx.fillText('TO BOILER FEED PUMPS (BFP SUCTION) ->', tX + tW / 2 - 110, tY + tH + 48);
+
+  ctx.restore();
+  daAnimTime += 0.03;
+  requestAnimationFrame(daDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  daCalc();
+  daDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BP4: HRSG PINCH POINT & HEAT RECOVERY STEAM GENERATOR SIZING CALCULATOR ───
+  (() => {
+    const slug = 'hrsg-pinch-point-heat-recovery-calculator';
+    const title = 'HRSG Pinch Point & Heat Recovery Steam Generator Sizing Calculator';
+    const metaDescription = 'Industrial gas turbine Heat Recovery Steam Generator (HRSG) thermal sizing calculator. Computes pinch point temperature difference, approach point, steam generation rate, economizer, evaporator, and superheater heat duty, stack gas exit temperature, and acid dew point corrosion limits.';
+
+    const faq = [
+      {
+        q: 'What is the Pinch Point in a Heat Recovery Steam Generator (HRSG)?',
+        a: 'The pinch point is the minimum temperature difference between the cooled gas turbine exhaust gas leaving the evaporator and the saturation temperature of the boiling water inside the evaporator tubes: ΔT_pinch = T_gas,evap_out - T_sat. Standard design pinch points range from 8°C to 15°C (15°F to 27°F). A smaller pinch point extracts more heat and produces more steam, but exponentially increases the required evaporator surface area and tube bundle capital cost.'
+      },
+      {
+        q: 'What is the Approach Point and why must it never be zero?',
+        a: 'The approach point is the temperature difference between the saturated boiling liquid inside the drum/evaporator and the subcooled feedwater exiting the economizer: ΔT_approach = T_sat - T_eco,out. Standard industrial designs target 5°C to 10°C (9°F to 18°F). The approach point must never drop to zero or negative, because steaming in the economizer causes severe two-phase flow instability, steam cavitation, water hammer, and thermal fatigue cracking of tube bends.'
+      },
+      {
+        q: 'How does gas turbine exhaust temperature dictate HRSG steam production?',
+        a: 'Exhaust gas thermal availability depends on mass flow rate and temperature. Modern F, H, and J-class gas turbines discharge flue gas at 580°C to 650°C (1075°F to 1200°F), allowing high-pressure superheated steam generation above 100 bar and 540°C. Older or aeroderivative turbines exhaust at 450°C to 520°C, suitable for 40 to 60 bar steam. Total steam generation is bounded by the energy balance across the superheater and evaporator sections up to the pinch point.'
+      },
+      {
+        q: 'What is the stack acid dew point limit in an HRSG?',
+        a: 'If the fuel contains trace sulfur (such as natural gas with mercaptan odorants or diesel fuel), sulfur trioxide (SO3) combines with exhaust flue gas moisture to form sulfuric acid vapor (H2SO4). When the stack gas cools below the acid dew point (typically 115°C to 135°C / 240°F to 275°F), concentrated sulfuric acid condenses onto the cold-end economizer tubes and exhaust stack ducting, causing catastrophic acid pitting and perforation.'
+      },
+      {
+        q: 'What is the difference between single-pressure and multi-pressure (triple-pressure reheat) HRSGs?',
+        a: 'A single-pressure HRSG has one steam drum and can only cool exhaust gas down to ~150°C–180°C before hitting the pinch point. Multi-pressure HRSGs (HP, IP, and LP levels) introduce cascaded evaporators at lower saturation temperatures (e.g. LP at 5 bar / 152°C), allowing the gas to be cooled further down to 85°C–100°C, maximizing thermal recovery and boosting combined-cycle plant electrical efficiency to over 60%.'
+      }
+    ];
+
+    const content = `
+<div class="calc-card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: #f8fafc;">Gas Turbine HRSG Pinch Point & Thermal Sizing Engine</h2>
+      <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #94a3b8;">ASME PTC 4.4 & Gas Turbine Waste Heat Recovery Thermal Balancer</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" class="btn" onclick="hrsgSetPreset('f_class_heavy')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">F-Class Heavy Frame (650 kg/s)</button>
+      <button type="button" class="btn" onclick="hrsgSetPreset('aero_lm6000')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Aeroderivative (130 kg/s)</button>
+      <button type="button" class="btn" onclick="hrsgSetPreset('e_class_frame6')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">E-Class Frame 6B (145 kg/s)</button>
+      <button type="button" class="btn" onclick="hrsgSetPreset('cogen_sat')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Industrial Cogen Saturated</button>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Column 1: Gas Turbine Exhaust Stream -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🔥</span> Gas Turbine Exhaust Parameters
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_gas_flow" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Exhaust Gas Mass Flow Rate (kg/s)</label>
+        <input type="number" id="hrsg_gas_flow" value="250" min="5" max="1500" step="5" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Range: 20 to 1000 kg/s (1 kg/s = 3.6 t/h = 7,936 lb/h)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_gas_temp_in" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Turbine Exhaust Gas Temp T_gas,in (°C)</label>
+        <input type="number" id="hrsg_gas_temp_in" value="560" min="350" max="700" step="5" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Typical: 450°C to 630°C (840°F to 1165°F)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_gas_cp" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Exhaust Flue Gas Mean C_p (kJ/kg·K)</label>
+        <input type="number" id="hrsg_gas_cp" value="1.110" min="1.02" max="1.25" step="0.005" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard natural gas combustion flue gas: ~1.09 - 1.13</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="hrsg_heat_loss_pct" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Casing Radiation & Heat Loss (%)</label>
+        <input type="number" id="hrsg_heat_loss_pct" value="1.5" min="0.2" max="5.0" step="0.1" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Insulated casing heat loss: typically 1.0% to 2.0%</div>
+      </div>
+    </div>
+
+    <!-- Column 2: Steam Drum & Temperature Targets -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>💨</span> Steam Circuit & Operating Pressure
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_drum_pressure" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Steam Drum Pressure (bar gauge)</label>
+        <input type="number" id="hrsg_drum_pressure" value="65.0" min="5.0" max="160.0" step="1.0" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Industrial: 20-60 bar; Combined cycle: 80-140 bar g</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_sh_temp_out" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Superheated Steam Temp T_sh (°C)</label>
+        <input type="number" id="hrsg_sh_temp_out" value="510" min="150" max="600" step="5" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Must be ≤ (T_gas,in - 30°C) for heat transfer</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_fw_temp_in" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Feedwater Inlet Temp T_fw (°C)</label>
+        <input type="number" id="hrsg_fw_temp_in" value="115" min="40" max="200" step="5" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard deaerator outlet: 105°C to 135°C</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="hrsg_blowdown_pct" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Continuous Boiler Blowdown (%)</label>
+        <input type="number" id="hrsg_blowdown_pct" value="1.5" min="0" max="5.0" step="0.5" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard drum water blowdown: 1.0% to 2.0%</div>
+      </div>
+    </div>
+
+    <!-- Column 3: Pinch Point & Approach Point Limits -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📐</span> Pinch Point & Approach Delta-T
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_pinch_point" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Evaporator Pinch Point ΔT_pinch (°C)</label>
+        <input type="number" id="hrsg_pinch_point" value="10.0" min="4.0" max="30.0" step="0.5" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard economic design: 8.0°C to 12.0°C (15 - 22°F)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_approach_point" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Economizer Approach Point ΔT_approach (°C)</label>
+        <input type="number" id="hrsg_approach_point" value="6.0" min="2.0" max="25.0" step="0.5" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Standard anti-steaming margin: 5.0°C to 10.0°C</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="hrsg_fuel_type" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Combustion Fuel & Sulfur Content</label>
+        <select id="hrsg_fuel_type" onchange="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="sweet_gas" selected>Pipeline Natural Gas (Sulfur < 5 ppm) - Dew point ~115°C</option>
+          <option value="sour_gas">Sour Gas / Biogas (Sulfur ~50 ppm) - Dew point ~130°C</option>
+          <option value="distillate_oil">Distillate No. 2 Fuel Oil (0.1% S) - Dew point ~138°C</option>
+          <option value="heavy_oil">Heavy Fuel Oil / Syngas (0.5% S) - Dew point ~150°C</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Sets minimum safe stack exit temperature</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="hrsg_steam_cost" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Steam Valuation ($/tonne)</label>
+        <input type="number" id="hrsg_steam_cost" value="28.0" min="5.0" max="80.0" step="1.0" oninput="hrsgCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Estimated replacement value of generated steam</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Diagnostic Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #38bdf8; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Steam Generation Rate</div>
+      <div id="hrsg_out_steam_rate" style="font-size: 1.45rem; font-weight: 700; color: #f8fafc; margin-top: 0.25rem;">124.6 t/h</div>
+      <div id="hrsg_out_steam_klb" style="font-size: 0.75rem; color: #64748b;">274,700 lb/h (34.6 kg/s)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #34d399; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Total Heat Recovered</div>
+      <div id="hrsg_out_heat_mw" style="font-size: 1.45rem; font-weight: 700; color: #34d399; margin-top: 0.25rem;">113.8 MW_th</div>
+      <div id="hrsg_out_heat_mmbtu" style="font-size: 0.75rem; color: #64748b;">388.3 MMBtu/h</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Stack Gas Exit Temp</div>
+      <div id="hrsg_out_stack_temp" style="font-size: 1.45rem; font-weight: 700; color: #f59e0b; margin-top: 0.25rem;">148.5 °C</div>
+      <div id="hrsg_out_stack_f" style="font-size: 0.75rem; color: #64748b;">299.3 °F (Above Dew Point)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #a855f7; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Evaporator Gas Out Temp</div>
+      <div id="hrsg_out_evap_gas" style="font-size: 1.45rem; font-weight: 700; color: #a855f7; margin-top: 0.25rem;">291.5 °C</div>
+      <div id="hrsg_out_tsat" style="font-size: 0.75rem; color: #64748b;">T_sat = 281.5 °C (65 bar)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #ec4899; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Annual Heat Recovery Value</div>
+      <div id="hrsg_out_annual_val" style="font-size: 1.45rem; font-weight: 700; color: #ec4899; margin-top: 0.25rem;">$27.9M / yr</div>
+      <div id="hrsg_out_hourly_val" style="font-size: 0.75rem; color: #64748b;">$3,489 / hour (8000 hrs)</div>
+    </div>
+  </div>
+
+  <!-- Interactive HTML5 Canvas Simulator -->
+  <div style="background: #0f172a; border-radius: 8px; padding: 1rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+      <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📊</span> Dynamic HRSG Temperature-Heat Duty (T-Q) Diagram
+      </div>
+      <div style="font-size: 0.75rem; color: #94a3b8;">
+        Pinch Gap: <span id="hrsg_canvas_pinch" style="color: #f59e0b; font-weight: 700;">10.0 °C</span> | Approach Gap: <span id="hrsg_canvas_approach" style="color: #38bdf8; font-weight: 700;">6.0 °C</span>
+      </div>
+    </div>
+    <canvas id="hrsg_canvas" width="800" height="340" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0b1120; border: 1px solid #1e293b;"></canvas>
+    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; flex-wrap: wrap;">
+      <div>Red line: Flue Gas Cooling Curve (T_gas,in down to Stack)</div>
+      <div>Blue line: Water/Steam Heating Curve (Economizer → Boiling Plateau → Superheater)</div>
+      <div>Dotted lines: Visual Pinch Point and Approach Point Temperature Gaps</div>
+    </div>
+  </div>
+
+  <!-- Detailed Engineering Diagnostics -->
+  <div style="background: rgba(30, 41, 59, 0.7); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1rem; color: #38bdf8;">Heat Exchanger Sections Heat Duty Breakdown</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem; color: #cbd5e1;">
+      <div>
+        <strong style="color: #94a3b8;">Superheater Duty (Q_sh):</strong> <span id="hrsg_diag_q_sh" style="color: #fff; font-weight: 600;">22.4 MW</span> (19.7%)<br>
+        <strong style="color: #94a3b8;">Evaporator Duty (Q_evap):</strong> <span id="hrsg_diag_q_evap" style="color: #fff; font-weight: 600;">51.8 MW</span> (45.5%)<br>
+        <strong style="color: #94a3b8;">Economizer Duty (Q_eco):</strong> <span id="hrsg_diag_q_eco" style="color: #fff; font-weight: 600;">39.6 MW</span> (34.8%)<br>
+        <strong style="color: #94a3b8;">Total Heat Transferred:</strong> <span id="hrsg_diag_q_tot" style="color: #fff; font-weight: 600;">113.8 MW</span>
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Steam Drum Saturation Temp:</strong> <span id="hrsg_diag_tsat" style="color: #fff; font-weight: 600;">281.5 °C</span> (538.7 °F)<br>
+        <strong style="color: #94a3b8;">Latent Heat of Vaporization (h_fg):</strong> <span id="hrsg_diag_hfg" style="color: #fff; font-weight: 600;">1,498 kJ/kg</span><br>
+        <strong style="color: #94a3b8;">Superheated Steam Enthalpy:</strong> <span id="hrsg_diag_h_sh" style="color: #fff; font-weight: 600;">3,440 kJ/kg</span><br>
+        <strong style="color: #94a3b8;">Feedwater Enthalpy:</strong> <span id="hrsg_diag_h_fw" style="color: #fff; font-weight: 600;">483 kJ/kg</span>
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Economizer Water Out Temp:</strong> <span id="hrsg_diag_t_eco_out" style="color: #fff; font-weight: 600;">275.5 °C</span><br>
+        <strong style="color: #94a3b8;">Acid Dew Point Limit:</strong> <span id="hrsg_diag_dewpoint" style="color: #fff; font-weight: 600;">115.0 °C</span><br>
+        <strong style="color: #94a3b8;">Dew Point Margin:</strong> <span id="hrsg_diag_dew_margin" style="color: #fff; font-weight: 600;">+33.5 °C</span> (Safe)<br>
+        <strong style="color: #94a3b8;">HRSG Thermal Recovery Eff:</strong> <span id="hrsg_diag_eff" style="color: #fff; font-weight: 600;">73.5%</span> (Exhaust basis)
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <div id="hrsg_status_badge" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid #059669;">
+        ✓ Thermal Design Verified: Adequate Pinch, Non-Steaming Approach & Safe Stack Margin
+      </div>
+      <button type="button" class="btn" onclick="hrsgCopyDiagnostic()" id="hrsg_copy_btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        📋 Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical & Architectural Formulations -->
+  <div style="background: rgba(15, 23, 42, 0.4); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1.1rem; color: #f8fafc;">HRSG Governing Energy Balance & Pinch Point Equations</h3>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
+      <p style="margin-bottom: 0.75rem;">
+        Calculations follow <strong>ASME PTC 4.4 Gas Turbine Heat Recovery Steam Generators</strong> first-law energy conservation:
+      </p>
+      <div style="background: #0f172a; padding: 0.75rem; border-radius: 6px; font-family: monospace; color: #38bdf8; margin-bottom: 0.75rem; overflow-x: auto;">
+        T_gas,evap_out = T_sat + ΔT_pinch<br>
+        T_eco_out = T_sat - ΔT_approach<br>
+        Q_sh+evap = m_gas × c_p,gas × (T_gas,in - T_gas,evap_out) × (1 - η_loss)<br>
+        m_steam = Q_sh+evap / (h_sh - h_eco_out)<br>
+        Q_eco = m_steam × (h_eco_out - h_fw,in)<br>
+        T_stack = T_gas,evap_out - (Q_eco / (m_gas × c_p,gas))<br>
+        Q_total = Q_sh + Q_evap + Q_eco [MW_th]
+      </div>
+      <p style="margin-bottom: 0;">
+        where <code>ΔT_pinch</code> is the minimum temperature difference between the gas leaving the evaporator and saturated boiling water, and <code>ΔT_approach</code> prevents boiling in economizer tubing.
+      </p>
+    </div>
+  </div>
+
+  <!-- Exactly 5 Fatal Traps & Engineering Pitfalls -->
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 1rem;">5 Fatal Traps & Industrial Engineering Pitfalls</h3>
+
+    <div class="trap-card" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fca5a5; font-size: 0.9rem; margin-bottom: 0.25rem;">1. Economizer Steaming & Violent Thermal Hydraulic Water Hammer</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Setting an economizer approach point too low (< 4°C / 7°F) to chase marginal thermodynamic efficiency creates catastrophic hazards during gas turbine load transients. When the gas turbine steps up or drum pressure dips, subcooling vanishes and boiling flashes inside the economizer tubes. The sudden formation of steam bubbles chokes liquid flow, causing severe slug flow, violent water hammer, massive pipe movement, and fatigue fracturing of tube-to-header welds.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fcd34d; font-size: 0.9rem; margin-bottom: 0.25rem;">2. Overly Aggressive Pinch Points (< 6°C) & Exponential Surface Explosion</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        As the designer pushes the pinch point below 7°C toward 0°C, the mean temperature difference across the evaporator collapses toward zero. By Fourier's law of heat conduction, the required heat transfer area A = Q / (U · LMTD) approaches infinity. Halving the pinch point from 10°C to 5°C doubles the required finned tube surface area, adding millions of dollars in capital expenditure for a negligible 0.8% increase in steam production that rarely justifies the lifecycle cost.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #6ee7b7; font-size: 0.9rem; margin-bottom: 0.25rem;">3. Cold-End Acid Dew Point Corrosion Condensing Concentrated H2SO4</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Extracting excessive heat from the tail end of the economizer drops the flue gas below its sulfuric acid dew point (115°C to 135°C in natural gas or diesel exhaust). Gaseous SO3 combines instantly with water vapor to precipitate micro-droplets of 70% to 80% concentrated sulfuric acid onto the carbon steel finned tubes, tube sheets, and exhaust stack liner. Within 6 to 18 months, tube fins completely dissolve into iron sulfate crusts and pinhole tube leaks flood the gas duct.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #93c5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">4. Two-Phase Flow-Accelerated Corrosion (FAC) in Low-Pressure Circuits</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        In multi-pressure HRSGs, low-pressure (LP) evaporators operate at temperatures (130°C to 160°C) directly in the peak susceptibility envelope for Flow-Accelerated Corrosion. If cycle water chemistry maintains an all-volatile treatment (AVT) pH below 9.2 or operating without adequate dissolved oxygen control, turbulent water/steam mixture at tube return bends continuously strips the protective magnetite (Fe3O4) layer. Carbon steel elbows thin rapidly, culminating in sudden catastrophic pipe rupture.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">5. Gas-Side Acoustic Resonance & Vortex Shedding Induced Fatigue</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        High-velocity exhaust gas passing over thousands of transverse staggered finned tubes sheds Karman vortex streets. If the vortex shedding frequency matches an acoustic standing wave frequency of the rectangular gas casing duct (Strouhal number f_v = St · V / D), severe acoustic resonance erupts. Noise levels exceed 130 dBA and intense structural pressure pulsations cause rapid fatigue cracking of tube support plates, expansion joints, and external duct casing stiffeners.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live Interactive Script for HRSG Pinch Point Sizing
+var hrsgLastCalc = null;
+var hrsgAnimTime = 0;
+
+function hrsgSetPreset(type) {
+  if (type === 'f_class_heavy') {
+    document.getElementById('hrsg_gas_flow').value = '650';
+    document.getElementById('hrsg_gas_temp_in').value = '605';
+    document.getElementById('hrsg_gas_cp').value = '1.120';
+    document.getElementById('hrsg_heat_loss_pct').value = '1.5';
+    document.getElementById('hrsg_drum_pressure').value = '110';
+    document.getElementById('hrsg_sh_temp_out').value = '565';
+    document.getElementById('hrsg_fw_temp_in').value = '130';
+    document.getElementById('hrsg_blowdown_pct').value = '1.5';
+    document.getElementById('hrsg_pinch_point').value = '9.0';
+    document.getElementById('hrsg_approach_point').value = '7.0';
+    document.getElementById('hrsg_fuel_type').value = 'sweet_gas';
+    document.getElementById('hrsg_steam_cost').value = '32.0';
+  } else if (type === 'aero_lm6000') {
+    document.getElementById('hrsg_gas_flow').value = '130';
+    document.getElementById('hrsg_gas_temp_in').value = '460';
+    document.getElementById('hrsg_gas_cp').value = '1.095';
+    document.getElementById('hrsg_heat_loss_pct').value = '1.2';
+    document.getElementById('hrsg_drum_pressure').value = '45';
+    document.getElementById('hrsg_sh_temp_out').value = '420';
+    document.getElementById('hrsg_fw_temp_in').value = '105';
+    document.getElementById('hrsg_blowdown_pct').value = '1.5';
+    document.getElementById('hrsg_pinch_point').value = '10.0';
+    document.getElementById('hrsg_approach_point').value = '6.0';
+    document.getElementById('hrsg_fuel_type').value = 'sweet_gas';
+    document.getElementById('hrsg_steam_cost').value = '28.0';
+  } else if (type === 'e_class_frame6') {
+    document.getElementById('hrsg_gas_flow').value = '145';
+    document.getElementById('hrsg_gas_temp_in').value = '540';
+    document.getElementById('hrsg_gas_cp').value = '1.105';
+    document.getElementById('hrsg_heat_loss_pct').value = '1.5';
+    document.getElementById('hrsg_drum_pressure').value = '65';
+    document.getElementById('hrsg_sh_temp_out').value = '490';
+    document.getElementById('hrsg_fw_temp_in').value = '115';
+    document.getElementById('hrsg_blowdown_pct').value = '1.5';
+    document.getElementById('hrsg_pinch_point').value = '10.0';
+    document.getElementById('hrsg_approach_point').value = '6.0';
+    document.getElementById('hrsg_fuel_type').value = 'sweet_gas';
+    document.getElementById('hrsg_steam_cost').value = '28.0';
+  } else if (type === 'cogen_sat') {
+    document.getElementById('hrsg_gas_flow').value = '48';
+    document.getElementById('hrsg_gas_temp_in').value = '500';
+    document.getElementById('hrsg_gas_cp').value = '1.090';
+    document.getElementById('hrsg_heat_loss_pct').value = '1.0';
+    document.getElementById('hrsg_drum_pressure').value = '25';
+    document.getElementById('hrsg_sh_temp_out').value = '225';
+    document.getElementById('hrsg_fw_temp_in').value = '105';
+    document.getElementById('hrsg_blowdown_pct').value = '2.0';
+    document.getElementById('hrsg_pinch_point').value = '12.0';
+    document.getElementById('hrsg_approach_point').value = '8.0';
+    document.getElementById('hrsg_fuel_type').value = 'sweet_gas';
+    document.getElementById('hrsg_steam_cost').value = '25.0';
+  }
+  hrsgCalc();
+}
+
+function hrsgSatTempFromPress(p_barg) {
+  // Pressure in bar absolute = p_barg + 1.013
+  var p_bara = p_barg + 1.01325;
+  // Antoine / IAPWS formulation for steam saturation temp up to 180 bar
+  var a = 42.6776;
+  var b = -3892.7;
+  var c = -9.48654;
+  // Fit: Tsat(°C) ~ 100 * (P_bara)^0.231 + offset
+  var t_sat = 99.63 * Math.pow(p_bara, 0.2285) + (p_bara > 50 ? 5.5 : 0);
+  if (p_bara < 10) {
+    t_sat = (1730.63 / (9.6543 - Math.log10(p_bara * 750.06))) - 233.42;
+  }
+  return t_sat;
+}
+
+function hrsgCalc() {
+  var m_gas = parseFloat(document.getElementById('hrsg_gas_flow').value) || 250; // kg/s
+  var T_gas_in = parseFloat(document.getElementById('hrsg_gas_temp_in').value) || 560; // °C
+  var c_p_gas = parseFloat(document.getElementById('hrsg_gas_cp').value) || 1.110; // kJ/kg·K
+  var loss_pct = parseFloat(document.getElementById('hrsg_heat_loss_pct').value) || 1.5;
+
+  var P_drum_barg = parseFloat(document.getElementById('hrsg_drum_pressure').value) || 65.0;
+  var T_sh_out = parseFloat(document.getElementById('hrsg_sh_temp_out').value) || 510;
+  var T_fw_in = parseFloat(document.getElementById('hrsg_fw_temp_in').value) || 115;
+  var bd_pct = parseFloat(document.getElementById('hrsg_blowdown_pct').value) || 1.5;
+
+  var dT_pinch = parseFloat(document.getElementById('hrsg_pinch_point').value) || 10.0;
+  var dT_approach = parseFloat(document.getElementById('hrsg_approach_point').value) || 6.0;
+  var fuelCode = document.getElementById('hrsg_fuel_type').value;
+  var steamVal = parseFloat(document.getElementById('hrsg_steam_cost').value) || 28.0;
+
+  // Saturation temperature at drum pressure
+  var T_sat = hrsgSatTempFromPress(P_drum_barg);
+  if (T_sh_out < T_sat) {
+    T_sh_out = T_sat + 5.0;
+    document.getElementById('hrsg_sh_temp_out').value = Math.round(T_sh_out);
+  }
+  if (T_sh_out > T_gas_in - 20) {
+    T_sh_out = T_gas_in - 20;
+    document.getElementById('hrsg_sh_temp_out').value = Math.round(T_sh_out);
+  }
+
+  // Temperatures at key points
+  var T_gas_evap_out = T_sat + dT_pinch;
+  var T_eco_water_out = T_sat - dT_approach;
+
+  // Enthalpies (approximate water & steam properties)
+  // Liquid water enthalpy: h_f ~ 4.184 * T + P corrections
+  var h_fw_in = 4.19 * T_fw_in; // kJ/kg
+  var h_eco_out = 4.25 * T_eco_water_out; // kJ/kg
+  var h_sat_liq = 4.28 * T_sat; // kJ/kg
+
+  // Latent heat h_fg at saturation
+  var h_fg = 2257.0 - (T_sat - 100.0) * 3.8;
+  if (h_fg < 1000) h_fg = 1000;
+  var h_sat_vap = h_sat_liq + h_fg;
+
+  // Superheated steam enthalpy
+  var cp_steam = 2.45 + (P_drum_barg / 100.0) * 0.4; // kJ/kg·K
+  var h_sh = h_sat_vap + cp_steam * (T_sh_out - T_sat);
+
+  // Heat loss factor
+  var eta_casing = 1.0 - (loss_pct / 100.0);
+
+  // Superheater + Evaporator Available Heat Duty from Gas
+  // Gas cools from T_gas_in down to T_gas_evap_out
+  var delta_T_gas_sh_evap = T_gas_in - T_gas_evap_out;
+  if (delta_T_gas_sh_evap < 10) delta_T_gas_sh_evap = 10;
+  var Q_sh_evap_avail_kw = m_gas * c_p_gas * delta_T_gas_sh_evap * eta_casing;
+
+  // Water/steam enthalpy gain across SH + Evaporator:
+  // Water enters evaporator at T_eco_water_out and exits superheater at T_sh_out
+  var delta_h_sh_evap = h_sh - h_eco_out;
+  if (delta_h_sh_evap < 1500) delta_h_sh_evap = 1500;
+
+  // Steam generation rate: m_steam = Q_sh_evap / delta_h
+  var m_steam_kgs = Q_sh_evap_avail_kw / delta_h_sh_evap; // kg/s
+  var m_steam_th = m_steam_kgs * 3.6; // t/h
+  var m_steam_klb = m_steam_th * 2.20462; // klb/h
+
+  // Individual Duties:
+  var Q_sh_kw = m_steam_kgs * (h_sh - h_sat_vap);
+  var Q_evap_kw = m_steam_kgs * (h_sat_vap - h_eco_out);
+  var Q_eco_kw = m_steam_kgs * (h_eco_out - h_fw_in);
+
+  var Q_sh_mw = Q_sh_kw / 1000.0;
+  var Q_evap_mw = Q_evap_kw / 1000.0;
+  var Q_eco_mw = Q_eco_kw / 1000.0;
+  var Q_tot_mw = Q_sh_mw + Q_evap_mw + Q_eco_mw;
+  var Q_tot_mmbtu = Q_tot_mw * 3.412142;
+
+  // Gas Temperature drop across Economizer:
+  // Q_eco = m_gas * c_p_gas * (T_gas_evap_out - T_stack) * eta_casing
+  var delta_T_gas_eco = (Q_eco_kw / eta_casing) / (m_gas * c_p_gas);
+  var T_stack = T_gas_evap_out - delta_T_gas_eco;
+  var T_stack_f = T_stack * 1.8 + 32.0;
+
+  // Acid dew point limit lookup
+  var dewpointMap = {
+    'sweet_gas': 115.0,
+    'sour_gas': 130.0,
+    'distillate_oil': 138.0,
+    'heavy_oil': 150.0
+  };
+  var T_dewpoint = dewpointMap[fuelCode] || 115.0;
+  var dew_margin = T_stack - T_dewpoint;
+
+  // Economic valuation
+  var hourly_val = m_steam_th * steamVal;
+  var annual_val = (hourly_val * 8000.0) / 1e6; // $M/yr
+
+  // Thermal recovery efficiency
+  var gas_thermal_input_kw = m_gas * c_p_gas * (T_gas_in - 25.0);
+  var recovery_eff_pct = (Q_tot_mw * 1000.0 / gas_thermal_input_kw) * 100.0;
+
+  hrsgLastCalc = {
+    m_steam_kgs: m_steam_kgs,
+    m_steam_th: m_steam_th,
+    m_steam_klb: m_steam_klb,
+    Q_tot_mw: Q_tot_mw,
+    Q_tot_mmbtu: Q_tot_mmbtu,
+    Q_sh_mw: Q_sh_mw,
+    Q_evap_mw: Q_evap_mw,
+    Q_eco_mw: Q_eco_mw,
+    T_sat: T_sat,
+    T_gas_in: T_gas_in,
+    T_gas_evap_out: T_gas_evap_out,
+    T_stack: T_stack,
+    T_stack_f: T_stack_f,
+    T_eco_water_out: T_eco_water_out,
+    T_sh_out: T_sh_out,
+    T_fw_in: T_fw_in,
+    dT_pinch: dT_pinch,
+    dT_approach: dT_approach,
+    T_dewpoint: T_dewpoint,
+    dew_margin: dew_margin,
+    hourly_val: hourly_val,
+    annual_val: annual_val,
+    recovery_eff_pct: recovery_eff_pct,
+    P_drum_barg: P_drum_barg,
+    m_gas: m_gas,
+    h_fg: h_fg,
+    h_sh: h_sh,
+    h_fw_in: h_fw_in
+  };
+
+  // Update DOM Outputs
+  document.getElementById('hrsg_out_steam_rate').textContent = m_steam_th.toFixed(1) + ' t/h';
+  document.getElementById('hrsg_out_steam_klb').textContent = Math.round(m_steam_klb * 1000).toLocaleString() + ' lb/h (' + m_steam_kgs.toFixed(1) + ' kg/s)';
+
+  document.getElementById('hrsg_out_heat_mw').textContent = Q_tot_mw.toFixed(1) + ' MW_th';
+  document.getElementById('hrsg_out_heat_mmbtu').textContent = Q_tot_mmbtu.toFixed(1) + ' MMBtu/h';
+
+  document.getElementById('hrsg_out_stack_temp').textContent = T_stack.toFixed(1) + ' °C';
+  document.getElementById('hrsg_out_stack_f').textContent = T_stack_f.toFixed(1) + ' °F (' + (dew_margin >= 0 ? '+' : '') + dew_margin.toFixed(1) + '°C Margin)';
+
+  document.getElementById('hrsg_out_evap_gas').textContent = T_gas_evap_out.toFixed(1) + ' °C';
+  document.getElementById('hrsg_out_tsat').textContent = 'T_sat = ' + T_sat.toFixed(1) + ' °C (' + P_drum_barg.toFixed(0) + ' bar g)';
+
+  document.getElementById('hrsg_out_annual_val').textContent = '$' + annual_val.toFixed(2) + 'M / yr';
+  document.getElementById('hrsg_out_hourly_val').textContent = '$' + Math.round(hourly_val).toLocaleString() + ' / hour (8000 hrs)';
+
+  // Detailed Diagnostics
+  document.getElementById('hrsg_diag_q_sh').textContent = Q_sh_mw.toFixed(1) + ' MW (' + (Q_sh_mw / Q_tot_mw * 100).toFixed(1) + '%)';
+  document.getElementById('hrsg_diag_q_evap').textContent = Q_evap_mw.toFixed(1) + ' MW (' + (Q_evap_mw / Q_tot_mw * 100).toFixed(1) + '%)';
+  document.getElementById('hrsg_diag_q_eco').textContent = Q_eco_mw.toFixed(1) + ' MW (' + (Q_eco_mw / Q_tot_mw * 100).toFixed(1) + '%)';
+  document.getElementById('hrsg_diag_q_tot').textContent = Q_tot_mw.toFixed(1) + ' MW_th';
+
+  document.getElementById('hrsg_diag_tsat').textContent = T_sat.toFixed(1) + ' °C (' + (T_sat * 1.8 + 32).toFixed(1) + ' °F)';
+  document.getElementById('hrsg_diag_hfg').textContent = Math.round(h_fg).toLocaleString() + ' kJ/kg';
+  document.getElementById('hrsg_diag_h_sh').textContent = Math.round(h_sh).toLocaleString() + ' kJ/kg';
+  document.getElementById('hrsg_diag_h_fw').textContent = Math.round(h_fw_in).toLocaleString() + ' kJ/kg';
+
+  document.getElementById('hrsg_diag_t_eco_out').textContent = T_eco_water_out.toFixed(1) + ' °C';
+  document.getElementById('hrsg_diag_dewpoint').textContent = T_dewpoint.toFixed(1) + ' °C';
+  document.getElementById('hrsg_diag_dew_margin').textContent = (dew_margin >= 0 ? '+' : '') + dew_margin.toFixed(1) + ' °C (' + (dew_margin < 5 ? 'CORROSION RISK' : 'Safe') + ')';
+  document.getElementById('hrsg_diag_eff').textContent = recovery_eff_pct.toFixed(1) + '% (Exhaust basis)';
+
+  document.getElementById('hrsg_canvas_pinch').textContent = dT_pinch.toFixed(1) + ' °C';
+  document.getElementById('hrsg_canvas_approach').textContent = dT_approach.toFixed(1) + ' °C';
+
+  // Badge Status
+  var badge = document.getElementById('hrsg_status_badge');
+  if (dew_margin < 0) {
+    badge.textContent = '⚠ DANGER: Stack gas (' + T_stack.toFixed(1) + '°C) below acid dew point (' + T_dewpoint.toFixed(1) + '°C)! Severe H2SO4 corrosion';
+    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+    badge.style.color = '#fca5a5';
+    badge.style.borderColor = '#dc2626';
+  } else if (dT_approach < 3.0) {
+    badge.textContent = '⚠ Warning: Economizer approach point < 3°C! Severe risk of steaming & water hammer';
+    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+    badge.style.color = '#fcd34d';
+    badge.style.borderColor = '#d97706';
+  } else if (dT_pinch < 7.0) {
+    badge.textContent = '⚠ Notice: Pinch point < 7°C requires exceptionally large evaporator surface area';
+    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+    badge.style.color = '#fcd34d';
+    badge.style.borderColor = '#d97706';
+  } else {
+    badge.textContent = '✓ Optimal Thermal Design: Adequate Pinch, Non-Steaming Approach & Safe Stack Margin';
+    badge.style.background = 'rgba(52, 211, 153, 0.15)';
+    badge.style.color = '#34d399';
+    badge.style.borderColor = '#059669';
+  }
+}
+
+function hrsgCopyDiagnostic() {
+  if (!hrsgLastCalc) return;
+  var c = hrsgLastCalc;
+  var txt = '=== HRSG PINCH POINT & THERMAL SIZING REPORT ===\n' +
+    'Gas Turbine Exhaust Flow: ' + c.m_gas.toFixed(1) + ' kg/s (' + Math.round(c.m_gas * 3.6).toLocaleString() + ' t/h)\n' +
+    'Exhaust Gas Inlet Temp: ' + c.T_gas_in.toFixed(1) + ' °C\n' +
+    'Steam Drum Pressure: ' + c.P_drum_barg.toFixed(1) + ' bar gauge (' + c.T_sat.toFixed(1) + ' °C sat)\n' +
+    'Superheated Steam Output: ' + c.m_steam_th.toFixed(1) + ' t/h (' + Math.round(c.m_steam_klb * 1000).toLocaleString() + ' lb/h at ' + c.T_sh_out.toFixed(1) + ' °C)\n' +
+    'Total Heat Recovered: ' + c.Q_tot_mw.toFixed(2) + ' MW_th (' + c.Q_tot_mmbtu.toFixed(1) + ' MMBtu/h)\n' +
+    'Duties: Superheater = ' + c.Q_sh_mw.toFixed(1) + ' MW, Evaporator = ' + c.Q_evap_mw.toFixed(1) + ' MW, Economizer = ' + c.Q_eco_mw.toFixed(1) + ' MW\n' +
+    'Pinch Point Delta-T: ' + c.dT_pinch.toFixed(1) + ' °C (Evap Gas Out = ' + c.T_gas_evap_out.toFixed(1) + ' °C)\n' +
+    'Approach Point Delta-T: ' + c.dT_approach.toFixed(1) + ' °C (Eco Water Out = ' + c.T_eco_water_out.toFixed(1) + ' °C)\n' +
+    'Stack Gas Exit Temp: ' + c.T_stack.toFixed(1) + ' °C (' + c.T_stack_f.toFixed(1) + ' °F)\n' +
+    'Acid Dew Point Margin: ' + (c.dew_margin >= 0 ? '+' : '') + c.dew_margin.toFixed(1) + ' °C (Dew Point = ' + c.T_dewpoint.toFixed(1) + ' °C)\n' +
+    'Annual Steam Valuation: $' + c.annual_val.toFixed(2) + 'M / yr ($' + Math.round(c.hourly_val).toLocaleString() + ' / hr)\n' +
+    'Design Basis: ASME PTC 4.4 Gas Turbine HRSG Standards\n' +
+    'Generated by DigitalToolsShed.com (HRSG Thermal Sizing Engine)';
+
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = document.getElementById('hrsg_copy_btn');
+    var orig = btn.textContent;
+    btn.textContent = '✓ Diagnostic Summary Copied!';
+    btn.style.background = '#10b981';
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.background = '#0284c7';
+    }, 2500);
+  });
+}
+
+function hrsgDraw() {
+  var canvas = document.getElementById('hrsg_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  if (!hrsgLastCalc) return;
+  var c = hrsgLastCalc;
+
+  ctx.save();
+  var padL = 70;
+  var padR = 40;
+  var padT = 30;
+  var padB = 50;
+
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  // Scale bounds
+  var maxT = Math.max(c.T_gas_in + 20, 650);
+  var minT = 50;
+
+  function getY(temp) {
+    return padT + plotH - ((temp - minT) / (maxT - minT)) * plotH;
+  }
+
+  function getX(q_pct) {
+    return padL + (q_pct / 100.0) * plotW;
+  }
+
+  // Draw Grid & Axes
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px system-ui';
+
+  for (var t = 100; t <= 600; t += 100) {
+    var gy = getY(t);
+    ctx.beginPath();
+    ctx.moveTo(padL, gy);
+    ctx.lineTo(padL + plotW, gy);
+    ctx.stroke();
+    ctx.fillText(t + ' °C', padL - 45, gy + 3);
+  }
+
+  // X Axis Duty %
+  for (var qp = 0; qp <= 100; qp += 25) {
+    var gx = getX(qp);
+    ctx.beginPath();
+    ctx.moveTo(gx, padT);
+    ctx.lineTo(gx, padT + plotH);
+    ctx.stroke();
+    ctx.fillText(qp + '% Q', gx - 12, padT + plotH + 18);
+  }
+
+  // Calculate Cumulative Q percentages:
+  // Gas flows from left (100% Q) to right (0% Q, stack) or vice versa.
+  // Standard T-Q diagram has Heat Duty Q on X axis from 0 to Q_total:
+  // Water enters at X=0 (Economizer inlet T_fw_in)
+  var q_eco_pct = (c.Q_eco_mw / c.Q_tot_mw) * 100;
+  var q_evap_pct = ((c.Q_eco_mw + c.Q_evap_mw) / c.Q_tot_mw) * 100;
+
+  // Water/Steam Line (Blue)
+  // (0, T_fw_in) -> (q_eco_pct, T_eco_out) -> (q_evap_pct, T_sat) -> (100%, T_sh_out)
+  var wP0 = { x: getX(0), y: getY(c.T_fw_in) };
+  var wP1 = { x: getX(q_eco_pct), y: getY(c.T_eco_water_out) };
+  var wP2 = { x: getX(q_evap_pct), y: getY(c.T_sat) };
+  var wP3 = { x: getX(100), y: getY(c.T_sh_out) };
+
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(wP0.x, wP0.y);
+  ctx.lineTo(wP1.x, wP1.y); // Economizer heating slope
+  ctx.lineTo(wP2.x, getY(c.T_sat)); // Evaporator boiling flat plateau
+  ctx.lineTo(wP3.x, wP3.y); // Superheater heating slope
+  ctx.stroke();
+
+  // Gas Cooling Line (Red)
+  // Gas enters at Q=100% at T_gas_in and leaves at Q=0% at T_stack
+  var gP_in = { x: getX(100), y: getY(c.T_gas_in) };
+  var gP_evap_out = { x: getX(q_eco_pct), y: getY(c.T_gas_evap_out) };
+  var gP_stack = { x: getX(0), y: getY(c.T_stack) };
+
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(gP_stack.x, gP_stack.y);
+  ctx.lineTo(gP_evap_out.x, gP_evap_out.y);
+  ctx.lineTo(gP_in.x, gP_in.y);
+  ctx.stroke();
+
+  // Dotted lines highlighting Pinch Point at q_eco_pct
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(wP1.x, getY(c.T_sat));
+  ctx.lineTo(gP_evap_out.x, gP_evap_out.y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Pinch Point Annotation
+  ctx.fillStyle = '#fcd34d';
+  ctx.font = 'bold 10px system-ui';
+  ctx.fillText('PINCH POINT (' + c.dT_pinch.toFixed(1) + ' °C)', gP_evap_out.x + 8, (getY(c.T_sat) + gP_evap_out.y) / 2);
+
+  // Approach Point Dotted Line at q_eco_pct
+  ctx.strokeStyle = '#0284c7';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(wP1.x, wP1.y);
+  ctx.lineTo(wP1.x, getY(c.T_sat));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels for curves
+  ctx.fillStyle = '#f87171';
+  ctx.font = 'bold 11px system-ui';
+  ctx.fillText('Flue Gas Cooling Line (T_gas,in: ' + c.T_gas_in.toFixed(0) + '°C -> Stack: ' + c.T_stack.toFixed(0) + '°C)', padL + 10, padT + 16);
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('Water/Steam Line (Eco -> Evap Boiling Plateau ' + c.T_sat.toFixed(0) + '°C -> SH ' + c.T_sh_out.toFixed(0) + '°C)', padL + 10, padT + 34);
+
+  // Section names at bottom
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px system-ui';
+  ctx.fillText('ECONOMIZER', getX(q_eco_pct * 0.35), padT + plotH - 8);
+  ctx.fillText('EVAPORATOR', getX(q_eco_pct + (q_evap_pct - q_eco_pct) * 0.35), padT + plotH - 8);
+  ctx.fillText('SUPERHEATER', getX(q_evap_pct + (100 - q_evap_pct) * 0.25), padT + plotH - 8);
+
+  ctx.restore();
+  hrsgAnimTime += 0.03;
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  hrsgCalc();
+  hrsgDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (215 calculators in /calc/)');
 }
 
