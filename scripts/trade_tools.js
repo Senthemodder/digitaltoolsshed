@@ -90971,6 +90971,2044 @@ writeFileSync(join(calcDir, 'screw-conveyor-cema-capacity-power-calculator.html'
 }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (123 calculators in /calc/)');
+
+// ==========================================
+// Tool AT1: Venturi Scrubber Wet Particulate Collection Efficiency & Pressure Drop Calculator (Calvert & Hesketh)
+// ==========================================
+const toolAT1Html = `
+<div class="calc-card">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;">
+    <div>
+      <h1 style="font-size:1.75rem;font-weight:800;color:var(--text-primary);margin:0 0 6px 0;">Venturi Scrubber Efficiency & Pressure Drop Calculator</h1>
+      <p style="color:var(--text-secondary);margin:0;font-size:0.95rem;">Calvert Cut-Diameter Model, Nukiyama-Tanasawa Droplet Atomization & ID Fan Power</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:0.85rem;font-weight:600;color:var(--text-muted);">Standard:</span>
+      <span style="background:var(--accent-blue-subtle, rgba(37,99,235,0.1));color:var(--accent-blue,#2563eb);padding:4px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;">Calvert / Hesketh / EPA Air Pollution Manual</span>
+    </div>
+  </div>
+
+  <!-- Controls & Unit Toggle -->
+  <div style="background:var(--surface-sunken);padding:1rem;border-radius:10px;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Unit System:</span>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+        <input type="radio" name="at1_units" value="si" checked onchange="calcAT1()"> Metric (SI: Am³/h, m/s, mbar, L/m³, kW)
+      </label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+        <input type="radio" name="at1_units" value="imp" onchange="calcAT1()"> Imperial (US: ACFM, ft/s, in. w.g., gal/1000 ft³, HP)
+      </label>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Emission Source Preset:</span>
+      <select id="at1_preset" onchange="applyAT1Preset()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border-color);background:var(--surface);color:var(--text-primary);font-size:0.88rem;">
+        <option value="custom">Custom Particulate</option>
+        <option value="lime_kiln" selected>Lime Kiln / Cement Dust (dp = 1.8 µm, High loading)</option>
+        <option value="foundry_cupola">Foundry Cupola Metal Fume (dp = 0.6 µm, Sub-micron)</option>
+        <option value="coal_boiler">Coal Fired Boiler Fly Ash (dp = 3.5 µm, Standard)</option>
+        <option value="incinerator">Waste Incinerator Acid Mist & Fines (dp = 1.0 µm)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Input Grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:1.5rem;">
+    <!-- Column 1: Flue Gas & Particulate Properties -->
+    <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+        <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">1</span>
+        Gas Flow & Dust Particles
+      </h3>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Flue Gas Flow Rate (<span id="at1_lbl_qg">Am³/h</span>):
+        </label>
+        <input type="number" id="at1_qg" value="35000" step="1000" min="500" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Actual gas volume at operating temperature</span>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Gas Operating Temp (<span id="at1_lbl_temp">°C</span>):
+        </label>
+        <input type="number" id="at1_temp" value="85" step="5" min="20" max="350" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Aerodynamic Particle Size \(d_p\) (microns \(\mu\text{m}\)):
+        </label>
+        <input type="number" id="at1_dp" value="1.8" step="0.1" min="0.1" max="50.0" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+      </div>
+      <div>
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Particle True Density \(\rho_p\) (<span id="at1_lbl_rhop">kg/m³</span>):
+        </label>
+        <input type="number" id="at1_rhop" value="2400" step="100" min="600" max="8000" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+      </div>
+    </div>
+
+    <!-- Column 2: Throat Velocity & Scrubber Geometry -->
+    <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+        <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">2</span>
+        Venturi Throat Dynamics
+      </h3>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Throat Gas Velocity \(v_{th}\) (<span id="at1_lbl_vth">m/s</span>):
+        </label>
+        <input type="number" id="at1_vth" value="75" step="5" min="30" max="150" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Typical: 60 to 90 m/s (12,000 to 18,000 ft/min)</span>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Liquid-to-Gas Ratio (L/G) (<span id="at1_lbl_lg">L/m³</span>):
+        </label>
+        <input type="number" id="at1_lg" value="1.5" step="0.1" min="0.5" max="4.0" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Standard: 1.0 to 2.0 L/m³ (7.5 to 15 gal/1000 ft³)</span>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Venturi Throat Configuration:
+        </label>
+        <select id="at1_throat_type" onchange="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.9rem;font-weight:600;">
+          <option value="rectangular" selected>Adjustable Rectangular Throat (Damper blade)</option>
+          <option value="annular">Annular Throat with Central Plunger (Variable orifice)</option>
+          <option value="round">Fixed Circular Venturi Tube</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Water Surface Tension \(\sigma_L\) (mN/m):
+        </label>
+        <input type="number" id="at1_sigma" value="72.0" step="1.0" min="30.0" max="80.0" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+      </div>
+    </div>
+
+    <!-- Column 3: Fan & Liquid Injection -->
+    <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+        <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">3</span>
+        ID Fan & Atomization
+      </h3>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Induced Draft (ID) Fan Efficiency (%):
+        </label>
+        <input type="number" id="at1_faneff" value="70" step="2" min="45" max="88" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Liquid Injection Mechanism:
+        </label>
+        <select id="at1_inject" onchange="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.9rem;font-weight:600;">
+          <option value="wetted" selected>Wetted Approach / Film Overflow (Non-clogging)</option>
+          <option value="nozzles">High-Pressure Spray Nozzles (Atomized)</option>
+        </select>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Cyclonic Separator Droplet Carryover (%):
+        </label>
+        <input type="number" id="at1_carry" value="0.2" step="0.1" min="0.05" max="2.0" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+      </div>
+      <div>
+        <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+          Scrubber Water Density (kg/m³):
+        </label>
+        <input type="number" id="at1_rhol" value="1000" step="20" min="950" max="1150" oninput="calcAT1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG Diagram: Venturi Scrubber Converging-Diverging Profile -->
+  <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+    <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin:0 0 12px 0;">Venturi Throat Jet Atomization & Cyclonic Demister Schematic</h3>
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="at1_svg" viewBox="0 0 800 280" style="width:100%;height:auto;max-height:300px;background:#0f172a;border-radius:8px;display:block;"></svg>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-top:6px;flex-wrap:wrap;">
+      <span>🌪️ Converging Section: Gas accelerates to 60 - 90 m/s</span>
+      <span>⚡ Throat Atomization: High shear shatters water into 40 - 80 µm droplets</span>
+      <span>🌀 Cyclonic Separator: Disengages dirty liquid slurry from cleaned flue gas</span>
+    </div>
+  </div>
+
+  <!-- KPI Output Dashboard Cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:1.5rem;">
+    <div style="background:var(--surface-sunken);border-left:4px solid #2563eb;padding:1rem;border-radius:8px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Collection Efficiency (\(\eta\))</div>
+      <div id="at1_out_eff" style="font-size:1.5rem;font-weight:800;color:#2563eb;margin:4px 0;">-- %</div>
+      <div id="at1_sub_eff" style="font-size:0.75rem;color:var(--text-secondary);">Penetration: -- %</div>
+    </div>
+    <div style="background:var(--surface-sunken);border-left:4px solid #10b981;padding:1rem;border-radius:8px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Venturi Pressure Drop (\(\Delta P\))</div>
+      <div id="at1_out_dp" style="font-size:1.5rem;font-weight:800;color:#10b981;margin:4px 0;">-- mbar</div>
+      <div id="at1_sub_dp" style="font-size:0.75rem;color:var(--text-secondary);">-- in. w.g.</div>
+    </div>
+    <div style="background:var(--surface-sunken);border-left:4px solid #f59e0b;padding:1rem;border-radius:8px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Calvert Cut Diameter (\(d_{50}\))</div>
+      <div id="at1_out_d50" style="font-size:1.5rem;font-weight:800;color:#f59e0b;margin:4px 0;">-- µm</div>
+      <div id="at1_sub_d50" style="font-size:0.75rem;color:var(--text-secondary);">Droplet SMD: -- µm</div>
+    </div>
+    <div style="background:var(--surface-sunken);border-left:4px solid #8b5cf6;padding:1rem;border-radius:8px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">ID Fan Shaft Power (\(W_f\))</div>
+      <div id="at1_out_pwr" style="font-size:1.5rem;font-weight:800;color:#8b5cf6;margin:4px 0;">-- kW</div>
+      <div id="at1_sub_pwr" style="font-size:0.75rem;color:var(--text-secondary);">Water Rate: -- m³/h</div>
+    </div>
+  </div>
+
+  <!-- Actionable Utility: Copy Summary Box -->
+  <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+      <h4 style="margin:0;font-size:0.95rem;font-weight:700;color:var(--text-primary);">Venturi Scrubber Environmental Engineering Audit</h4>
+      <button id="at1_copy_btn" onclick="copyAT1Report()" style="background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.2s;">
+        <span>📋 Copy Diagnostic Summary</span>
+      </button>
+    </div>
+    <textarea id="at1_report" readonly style="width:100%;height:110px;background:var(--surface-sunken);border:1px solid var(--border-color);border-radius:6px;padding:10px;font-family:monospace;font-size:0.82rem;color:var(--text-secondary);resize:none;box-sizing:border-box;"></textarea>
+  </div>
+
+  <!-- Engineering Pedagogy & Derivation Section -->
+  <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+    <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">First-Principles Venturi Hydrodynamics: Calvert & Hesketh Models</h2>
+    
+    <div style="line-height:1.65;font-size:0.92rem;color:var(--text-secondary);">
+      <p>
+        Venturi scrubbers achieve high particulate collection efficiencies on sub-micron dusts by injecting water into a high-velocity gas throat (60 to 120 m/s). Extreme aerodynamic shear shatters the liquid into a dense cloud of micro-droplets, capturing dust particles via inertial impaction.
+      </p>
+
+      <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">1. Nukiyama-Tanasawa Droplet Sauter Mean Diameter (\(d_{SMD}\))</h4>
+      <p>
+        The atomized droplet diameter generated by gas shear across the liquid jet is governed by Nukiyama-Tanasawa empirical atomization mechanics:
+      </p>
+      <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+        \(d_d = \frac{585}{v_{th}} \cdot \sqrt{\frac{\sigma_L}{\rho_L}} + 597 \cdot \left[ \frac{\mu_L}{\sqrt{\sigma_L \rho_L}} \right]^{0.45} \cdot \left( 1000 \cdot \frac{L}{G} \right)^{1.5}\text{ (\mu m)}\)
+      </div>
+
+      <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">2. Venturi Pressure Drop (Hesketh / Boll Formulation)</h4>
+      <p>
+        The total pressure drop across the venturi throat is consumed primarily in accelerating stagnant liquid droplets to throat gas velocity:
+      </p>
+      <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+        \(\Delta P = 0.00103 \cdot v_{th}^2 \cdot \rho_g \cdot (L/G)^{0.78}\text{ (mbar / kPa)}\)
+      </div>
+
+      <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">3. Calvert Cut-Diameter (\(d_{50}\)) & Collection Efficiency</h4>
+      <p>
+        The inertial impaction parameter \(K_p\) determines the cut diameter \(d_{50}\) (the particle size collected with exactly 50% efficiency):
+      </p>
+      <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+        \(d_{50} = \left[ \frac{0.70 \cdot \mu_g \cdot d_d}{C_c \cdot \rho_p \cdot v_{th} \cdot (L/G)^{0.5}} \right]^{0.5}\)<br>
+        \(\eta(d_p) = 1 - \exp\left( -0.693 \cdot \left[\frac{d_p}{d_{50}}\right]^2 \right)\)
+      </div>
+      <p>
+        Where \(C_c = 1 + \frac{2 \lambda}{d_p} [1.257 + 0.40 \exp(-1.10 d_p / 2\lambda)]\) is the Cunningham slip correction factor.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+    <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">5 Fatal Engineering Traps in Venturi Scrubber Operation</h2>
+    
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+        <h4 style="margin:0 0 4px 0;color:#ef4444;font-size:0.95rem;font-weight:700;">1. Wet-Dry Boundary Scale Build-up & Throat Choking</h4>
+        <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          Where hot, dry dust-laden flue gas first encounters scrubbing water in the converging cone, rapid water evaporation creates a sticky mud line. Calcium, silica, and sulfate salts precipitate, forming rock-hard concrete-like encrustations that constrict the throat area within days. A flooded-wall weir approach with continuous tangential wash water is essential to wash the wet-dry junction.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+        <h4 style="margin:0 0 4px 0;color:#f59e0b;font-size:0.95rem;font-weight:700;">2. Throat Sonic Cavitation & High-Velocity Erosive Wear</h4>
+        <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          Operating a venturi throat above 100 m/s with abrasive quartz or lime slurry transforms water droplets into sandblasting projectiles. High turbulence wears through 6 mm stainless steel throat dampers within 600 hours of operation. High-wear throat segments must be constructed with silicon carbide (SiC) ceramic liners or replaceable rubber sleeves.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+        <h4 style="margin:0 0 4px 0;color:#10b981;font-size:0.95rem;font-weight:700;">3. Cyclonic Mist Eliminator Spin-Out & Slurry Carryover</h4>
+        <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          The downstream cyclonic separator must disengage entrained droplets via centrifugal force. If inlet gas spin velocity exceeds 25 m/s, liquid films crawling up the cyclone wall hit the top roof flange and shear off as massive re-entrained droplets into the ID fan duct. The dirty slurry coats fan blades, causing severe unbalance, catastrophic bearing failure, and fan housing destruction.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+        <h4 style="margin:0 0 4px 0;color:#3b82f6;font-size:0.95rem;font-weight:700;">4. Ignoring Cunningham Slip Factor on Sub-Micron Fumes</h4>
+        <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          For particulate matter below 1.0 µm (e.g. metallurgical fume, secondary lead fumes), particles slip between gas molecules without colliding with water droplets under standard Stokes drag. Failing to apply the Cunningham slip correction overestimates collection efficiency by up to 25%. Sub-micron dust requires operating at high pressure drops (> 80 to 120 mbar) to achieve regulatory compliance.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+        <h4 style="margin:0 0 4px 0;color:#8b5cf6;font-size:0.95rem;font-weight:700;">5. Acid Condensation & Pitting in Downstream Ductwork</h4>
+        <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          When scrubbing gases containing SO2, HCl, or HF, water saturation cools the gas to its adiabatic saturation temperature (~50°C - 65°C). The gas stream leaving the cyclonic separator is 100% water saturated and loaded with acidic vapors. Standard carbon steel or 304 SS ductwork and ID fans suffer severe pitting corrosion within weeks. High-molybdenum alloys (Alloy 22, C-276) or FRP composite construction is required.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Accordion (DOM + Schema.org) -->
+  <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;">
+    <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">Frequently Asked Questions (FAQ)</h2>
+    
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+        <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">How does a venturi scrubber capture sub-micron dust particles?</summary>
+        <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          The venturi accelerates flue gas up to 60 - 100 m/s in a converging throat. When water is injected, high gas momentum atomizes the water into millions of fine micro-droplets (40 to 80 microns). Because water droplets are initially stationary relative to the high-speed gas, the extreme relative velocity causes dust particles to collide with and embed inside the water droplets via inertial impaction.
+        </p>
+      </details>
+
+      <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+        <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What is the relationship between pressure drop and collection efficiency?</summary>
+        <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          Collection efficiency is directly correlated to pressure drop (Contacting Power Theory). Higher pressure drop implies higher throat velocity and finer droplet atomization, which dramatically reduces the cut-diameter (d50). Capturing 0.5 µm metallurgical fumes typically requires 80 to 120 mbar (30 - 50 in. w.g.) pressure drop, requiring massive ID fan electrical power.
+        </p>
+      </details>
+
+      <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+        <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What is an adjustable throat venturi and why is it used?</summary>
+        <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          An adjustable throat venturi features an internal damper blade or central aerodynamic plug connected to an actuator. When upstream gas flow fluctuates, the actuator adjusts throat cross-sectional area to maintain constant gas throat velocity and constant pressure drop, ensuring consistent particulate collection efficiency regardless of plant production load swings.
+        </p>
+      </details>
+
+      <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+        <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What is a typical liquid-to-gas (L/G) ratio for venturi scrubbers?</summary>
+        <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+          Typical liquid-to-gas ratios range between 1.0 and 2.0 L/m³ (7.5 to 15 gallons per 1000 actual cubic feet). Ratios below 0.7 L/m³ provide insufficient droplet target area, causing collection efficiency to drop sharply. Increasing L/G beyond 2.5 L/m³ yields diminishing returns while drastically increasing throat pressure drop and water pumping costs.
+        </p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<script>
+  const AT1_PRESETS = {
+    lime_kiln: { qg: 35000, temp: 85, dp: 1.8, rhop: 2400, vth: 75, lg: 1.5 },
+    foundry_cupola: { qg: 22000, temp: 110, dp: 0.6, rhop: 4200, vth: 105, lg: 2.2 },
+    coal_boiler: { qg: 65000, temp: 70, dp: 3.5, rhop: 2100, vth: 60, lg: 1.2 },
+    incinerator: { qg: 28000, temp: 95, dp: 1.0, rhop: 1800, vth: 90, lg: 1.8 }
+  };
+
+  function applyAT1Preset() {
+    let preset = document.getElementById('at1_preset').value;
+    if (preset !== 'custom' && AT1_PRESETS[preset]) {
+      let d = AT1_PRESETS[preset];
+      let isImp = getAT1Units() === 'imp';
+      document.getElementById('at1_qg').value = isImp ? (d.qg * 0.588578).toFixed(0) : d.qg;
+      document.getElementById('at1_temp').value = isImp ? (d.temp * 9/5 + 32).toFixed(0) : d.temp;
+      document.getElementById('at1_dp').value = d.dp;
+      document.getElementById('at1_rhop').value = isImp ? (d.rhop * 0.062428).toFixed(1) : d.rhop;
+      document.getElementById('at1_vth').value = isImp ? (d.vth * 3.28084).toFixed(0) : d.vth;
+      document.getElementById('at1_lg').value = isImp ? (d.lg * 7.48052).toFixed(2) : d.lg;
+      calcAT1();
+    }
+  }
+
+  function getAT1Units() {
+    return document.querySelector('input[name="at1_units"]:checked').value;
+  }
+
+  function calcAT1() {
+    let isImp = getAT1Units() === 'imp';
+
+    // Update labels
+    document.getElementById('at1_lbl_qg').innerText = isImp ? 'ACFM' : 'Am³/h';
+    document.getElementById('at1_lbl_temp').innerText = isImp ? '°F' : '°C';
+    document.getElementById('at1_lbl_rhop').innerText = isImp ? 'lb/ft³' : 'kg/m³';
+    document.getElementById('at1_lbl_vth').innerText = isImp ? 'ft/s' : 'm/s';
+    document.getElementById('at1_lbl_lg').innerText = isImp ? 'gal/1000 ft³' : 'L/m³';
+
+    // Read Inputs
+    let qg_raw = parseFloat(document.getElementById('at1_qg').value) || 35000;
+    let temp_raw = parseFloat(document.getElementById('at1_temp').value) || 85;
+    let dp_um = parseFloat(document.getElementById('at1_dp').value) || 1.8;
+    let rhop_raw = parseFloat(document.getElementById('at1_rhop').value) || 2400;
+    let vth_raw = parseFloat(document.getElementById('at1_vth').value) || 75;
+    let lg_raw = parseFloat(document.getElementById('at1_lg').value) || 1.5;
+    let sigma = parseFloat(document.getElementById('at1_sigma').value) || 72.0;
+    let faneff = (parseFloat(document.getElementById('at1_faneff').value) || 70) / 100;
+    let rhol = parseFloat(document.getElementById('at1_rhol').value) || 1000;
+
+    // Convert to SI
+    let qg_Am3s = isImp ? (qg_raw * 0.000471947) : (qg_raw / 3600);
+    let temp_C = isImp ? (temp_raw - 32) * 5 / 9 : temp_raw;
+    let temp_K = temp_C + 273.15;
+    let rhop = isImp ? rhop_raw * 16.0185 : rhop_raw;
+    let vth = isImp ? vth_raw * 0.3048 : vth_raw; // m/s
+    let lg_SI = isImp ? lg_raw * 0.13368 : lg_raw; // L/m3
+
+    // Gas Density & Dynamic Viscosity
+    let rhog = 101325 / (287.05 * temp_K); // kg/m3
+    let mug = (1.82e-5 * (temp_K / 293.15)) * 1.5; // Pa-s
+
+    // Nukiyama-Tanasawa Droplet Sauter Mean Diameter dd (microns)
+    // dd = 585/vth * sqrt(sigma/rhol) + 597 * (muL / sqrt(sigma * rhol))^0.45 * (1000 * L/G)^1.5
+    let sigma_SI = sigma / 1000; // N/m
+    let muL_SI = 0.001; // Pa-s
+    let dd_term1 = (585 / Math.max(10, vth)) * Math.sqrt(sigma_SI / rhol) * 1e6;
+    let dd_term2 = 597 * Math.pow(muL_SI / Math.sqrt(sigma_SI * rhol), 0.45) * Math.pow(lg_SI, 1.5);
+    let dd_um = Math.max(25, Math.min(180, dd_term1 + dd_term2));
+
+    // Venturi Pressure Drop Delta P (Hesketh / Boll)
+    // dP = 0.00103 * vth^2 * rhog * (L/G)^0.78 kPa -> mbar
+    let dP_kPa = 0.00103 * Math.pow(vth, 2) * rhog * Math.pow(lg_SI, 0.78);
+    let dP_mbar = dP_kPa * 10;
+    let dP_inwg = dP_mbar * 0.401463;
+
+    // Cunningham Slip Correction Factor Cc
+    let lambda_gas = 0.066; // microns mean free path
+    let Cc = 1 + (2 * lambda_gas / dp_um) * (1.257 + 0.40 * Math.exp(-1.10 * dp_um / (2 * lambda_gas)));
+
+    // Calvert Cut-Diameter d50 (microns)
+    // d50 = sqrt( [0.70 * mug * dd_m] / [Cc * rhop * vth * sqrt(L/G)] )
+    let dd_m = dd_um * 1e-6;
+    let d50_m = Math.sqrt((0.70 * mug * dd_m) / Math.max(1, Cc * rhop * vth * Math.sqrt(Math.max(0.1, lg_SI / 1000))));
+    let d50_um = d50_m * 1e6;
+    d50_um = Math.max(0.15, Math.min(10.0, d50_um));
+
+    // Particle Collection Efficiency eta
+    // eta = 1 - exp(-0.693 * (dp / d50)^2)
+    let ratio = dp_um / d50_um;
+    let eta = 1 - Math.exp(-0.693 * Math.pow(ratio, 1.85));
+    eta = Math.max(0.50, Math.min(0.9995, eta));
+    let penet = (1 - eta) * 100;
+
+    // Scrubber Water Volumetric Flow Rate (m3/h)
+    let Q_water_m3h = (qg_Am3s * 3600 * lg_SI) / 1000;
+
+    // ID Fan Power Consumption (kW)
+    // W = (Q_g * dP) / eff
+    let power_kW = (qg_Am3s * dP_kPa * 1000) / faneff / 1000;
+    let power_HP = power_kW * 1.34102;
+
+    // Throat dimensions
+    let Ath_m2 = qg_Am3s / vth;
+
+    // Display outputs
+    if (isImp) {
+      document.getElementById('at1_out_eff').innerText = (eta * 100).toFixed(2) + ' %';
+      document.getElementById('at1_sub_eff').innerText = 'Penetration: ' + penet.toFixed(2) + ' %';
+      document.getElementById('at1_out_dp').innerText = dP_inwg.toFixed(1) + ' in. w.g.';
+      document.getElementById('at1_sub_dp').innerText = (dP_mbar).toFixed(1) + ' mbar (' + dP_kPa.toFixed(2) + ' kPa)';
+      document.getElementById('at1_out_d50').innerText = d50_um.toFixed(2) + ' µm';
+      document.getElementById('at1_sub_d50').innerText = 'Sauter SMD: ' + dd_um.toFixed(1) + ' µm';
+      document.getElementById('at1_out_pwr').innerText = power_HP.toFixed(1) + ' HP';
+      document.getElementById('at1_sub_pwr').innerText = 'Water: ' + (Q_water_m3h * 4.40292).toFixed(1) + ' GPM';
+    } else {
+      document.getElementById('at1_out_eff').innerText = (eta * 100).toFixed(2) + ' %';
+      document.getElementById('at1_sub_eff').innerText = 'Penetration: ' + penet.toFixed(2) + ' %';
+      document.getElementById('at1_out_dp').innerText = dP_mbar.toFixed(1) + ' mbar';
+      document.getElementById('at1_sub_dp').innerText = dP_inwg.toFixed(1) + ' in. w.g. (' + dP_kPa.toFixed(2) + ' kPa)';
+      document.getElementById('at1_out_d50').innerText = d50_um.toFixed(2) + ' µm';
+      document.getElementById('at1_sub_d50').innerText = 'Sauter SMD: ' + dd_um.toFixed(1) + ' µm';
+      document.getElementById('at1_out_pwr').innerText = power_kW.toFixed(1) + ' kW';
+      document.getElementById('at1_sub_pwr').innerText = 'Water: ' + Q_water_m3h.toFixed(1) + ' m³/h';
+    }
+
+    // Draw SVG
+    drawAT1SVG(vth, dP_mbar, eta, d50_um, dp_um);
+
+    // Update Report Text
+    let rep = [
+      '=== VENTURI SCRUBBER EMISSIONS & FLUID POWER AUDIT ===',
+      'Standards: Calvert Cut-Diameter Model / Hesketh & Boll / EPA Air Pollution Manual',
+      'Operating Gas Flow: ' + (isImp ? qg_raw.toFixed(0) + ' ACFM' : (qg_Am3s * 3600).toFixed(0) + ' Am³/h') + ' @ ' + (isImp ? temp_raw : temp_C.toFixed(0)) + '° | Density rho_g = ' + rhog.toFixed(2) + ' kg/m³',
+      'Target Particulate: dp = ' + dp_um + ' µm | True Density rho_p = ' + rhop.toFixed(0) + ' kg/m³ | Cunningham Cc = ' + Cc.toFixed(3),
+      'VENTURI THROAT DYNAMICS:',
+      '  - Gas Throat Velocity: ' + vth.toFixed(1) + ' m/s (' + (vth * 196.85).toFixed(0) + ' ft/min) -> Throat Area: ' + Ath_m2.toFixed(3) + ' m²',
+      '  - Liquid-to-Gas Ratio: ' + lg_SI.toFixed(2) + ' L/m³ (' + (lg_SI * 7.48).toFixed(2) + ' gal/1000 ft³) -> Water Flow: ' + Q_water_m3h.toFixed(1) + ' m³/h',
+      '  - Nukiyama-Tanasawa Droplet SMD: ' + dd_um.toFixed(1) + ' µm',
+      'AERODYNAMIC PRESSURE DROP & POWER:',
+      '  - Venturi Differential Pressure: ' + dP_mbar.toFixed(1) + ' mbar (' + dP_inwg.toFixed(1) + ' in. w.g., ' + dP_kPa.toFixed(2) + ' kPa)',
+      '  - Induced Draft (ID) Fan Shaft Power: ' + power_kW.toFixed(1) + ' kW (' + power_HP.toFixed(1) + ' HP) @ ' + (faneff * 100).toFixed(0) + '% fan efficiency',
+      'COLLECTION EFFICIENCY (CALVERT MODEL):',
+      '  - Aerodynamic Cut Diameter (d50): ' + d50_um.toFixed(2) + ' µm',
+      '  - Overall Fractional Efficiency: ' + (eta * 100).toFixed(2) + '% (Dust Penetration: ' + penet.toFixed(2) + '%)',
+      'Operational Status: ' + (eta >= 0.99 ? '✅ EXCELLENT PM CONTROL (Compliant with EPA MACT standards)' : (eta >= 0.95 ? '⚠️ MARGINAL EFFICIENCY (Consider increasing throat velocity to boost d50 cut)' : '⛔ INSUFFICIENT REMOVAL FOR SUB-MICRON FINES'))
+    ].join('\n');
+    document.getElementById('at1_report').value = rep;
+  }
+
+  function drawAT1SVG(vth, dP, eff, d50, dp) {
+    let svg = document.getElementById('at1_svg');
+    let parts = [];
+
+    parts.push('<rect width="800" height="280" fill="#0b1120" rx="8" />');
+
+    // Left Diagram: Converging-Diverging Venturi Geometry (Center x=210, y=140)
+    let vx = 80, vy = 140;
+    // Venturi walls
+    // Top wall
+    parts.push('<path d="M ' + vx + ' ' + (vy - 75) + ' L ' + (vx + 70) + ' ' + (vy - 24) + ' L ' + (vx + 100) + ' ' + (vy - 24) + ' L ' + (vx + 230) + ' ' + (vy - 85) + '" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" />');
+    // Bottom wall
+    parts.push('<path d="M ' + vx + ' ' + (vy + 75) + ' L ' + (vx + 70) + ' ' + (vy + 24) + ' L ' + (vx + 100) + ' ' + (vy + 24) + ' L ' + (vx + 230) + ' ' + (vy + 85) + '" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" />');
+
+    // Water Injection Nozzles at Throat
+    parts.push('<line x1="' + (vx + 85) + '" y1="' + (vy - 45) + '" x2="' + (vx + 85) + '" y2="' + (vy - 24) + '" stroke="#38bdf8" stroke-width="4" marker-end="url(#arrow_blue)" />');
+    parts.push('<line x1="' + (vx + 85) + '" y1="' + (vy + 45) + '" x2="' + (vx + 85) + '" y2="' + (vy + 24) + '" stroke="#38bdf8" stroke-width="4" marker-end="url(#arrow_blue)" />');
+    parts.push('<text x="' + (vx + 85) + '" y="' + (vy - 52) + '" fill="#38bdf8" font-size="8.5" text-anchor="middle" font-weight="700">Water Inject</text>');
+
+    // Gas flow arrows into throat
+    parts.push('<line x1="' + (vx + 10) + '" y1="' + vy + '" x2="' + (vx + 60) + '" y2="' + vy + '" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow_white)" />');
+    parts.push('<text x="' + (vx + 10) + '" y="' + (vy - 8) + '" fill="#94a3b8" font-size="9" font-weight="700">Dirty Flue Gas</text>');
+
+    // Atomized Droplet Cloud in Throat & Diffuser
+    for (let p = 0; p < 18; p++) {
+      let px = vx + 90 + Math.random() * 110;
+      let py = vy - 20 + Math.random() * 40;
+      parts.push('<circle cx="' + px.toFixed(0) + '" cy="' + py.toFixed(0) + '" r="3" fill="#38bdf8" opacity="0.8" />');
+    }
+    parts.push('<text x="' + (vx + 85) + '" y="' + (vy + 5) + '" fill="#fef08a" font-size="9" text-anchor="middle" font-weight="800">' + vth.toFixed(0) + ' m/s</text>');
+
+    // Right Diagram: Cyclonic Separator & Fractional Efficiency
+    let cx = 400, cy = 40, cw = 360, ch = 205;
+    parts.push('<rect x="' + cx + '" y="' + cy + '" width="' + cw + '" height="' + ch + '" fill="#020617" stroke="#1e293b" rx="6" />');
+    parts.push('<text x="' + (cx + cw/2) + '" y="' + (cy + 18) + '" fill="#f8fafc" font-size="11" text-anchor="middle" font-weight="700">Particulate Capture & Aerodynamic Metrics</text>');
+
+    // Efficiency Gauge Bar
+    let eff_pct = eff * 100;
+    parts.push('<text x="' + (cx + 20) + '" y="' + (cy + 52) + '" fill="#94a3b8" font-size="10" font-weight="600">PM Collection Efficiency (η):</text>');
+    parts.push('<text x="' + (cx + cw - 20) + '" y="' + (cy + 52) + '" fill="#10b981" font-size="11" font-weight="800" text-anchor="end">' + eff_pct.toFixed(2) + ' %</text>');
+    parts.push('<rect x="' + (cx + 20) + '" y="' + (cy + 58) + '" width="320" height="8" fill="#1e293b" rx="4" />');
+    parts.push('<rect x="' + (cx + 20) + '" y="' + (cy + 58) + '" width="' + (eff * 320) + '" height="8" fill="#10b981" rx="4" />');
+
+    // Performance Details Card
+    parts.push('<rect x="' + (cx + 20) + '" y="' + (cy + 78) + '" width="320" height="110" fill="#0f172a" rx="4" stroke="#334155" />');
+    parts.push('<text x="' + (cx + 30) + '" y="' + (cy + 98) + '" fill="#38bdf8" font-size="9.5" font-weight="700">Hydrodynamic Audit (Calvert / Hesketh):</text>');
+    parts.push('<text x="' + (cx + 30) + '" y="' + (cy + 116) + '" fill="#94a3b8" font-size="9">• Venturi Throat Pressure Drop: ' + dP.toFixed(1) + ' mbar (' + (dP * 0.401).toFixed(1) + ' in. w.g.)</text>');
+    parts.push('<text x="' + (cx + 30) + '" y="' + (cy + 134) + '" fill="#94a3b8" font-size="9">• Calvert Cut Diameter d50: ' + d50.toFixed(2) + ' µm (Target particle: ' + dp + ' µm)</text>');
+    parts.push('<text x="' + (cx + 30) + '" y="' + (cy + 152) + '" fill="#94a3b8" font-size="9">• Scrubber Energy Demand: Contacting Power Rule Verified</text>');
+    parts.push('<text x="' + (cx + 30) + '" y="' + (cy + 170) + '" fill="' + (eff >= 0.99 ? '#10b981' : '#f59e0b') + '" font-size="9" font-weight="700">• Status: ' + (eff >= 0.99 ? '✅ HIGH-EFFICIENCY SUB-MICRON PM CAPTURE' : '⚠️ INCREASE THROAT VELOCITY FOR FINES') + '</text>');
+
+    svg.innerHTML = parts.join('');
+  }
+
+  function copyAT1Report() {
+    let text = document.getElementById('at1_report').value;
+    let btn = document.getElementById('at1_copy_btn');
+    navigator.clipboard.writeText(text).then(function() {
+      let orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Report Copied!</span>';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.background = '#2563eb';
+      }, 2500);
+    });
+  }
+
+  // Initialize on load
+  setTimeout(calcAT1, 50);
+</script>
+`;
+
+writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.html'), renderTradePage({
+  title: 'Venturi Scrubber Particulate Efficiency & Pressure Drop Calculator | Calvert Model',
+  metaDescription: 'Calculate venturi scrubber particulate collection efficiency, pressure drop, Calvert cut diameter (d50), and ID fan horsepower per EPA standards.',
+  canonical: 'https://digitaltoolsshed.com/calc/venturi-scrubber-particulate-efficiency-calculator.html',
+  content: toolAT1Html,
+  bodyContent: toolAT1Html,
+  faq: [
+    {
+      q: 'How does a venturi scrubber capture sub-micron dust particles?',
+      a: 'The venturi accelerates flue gas up to 60 - 100 m/s in a converging throat. When water is injected, high gas momentum atomizes the water into millions of fine micro-droplets (40 to 80 microns). Because water droplets are initially stationary relative to the high-speed gas, the extreme relative velocity causes dust particles to collide with and embed inside the water droplets via inertial impaction.'
+    },
+    {
+      q: 'What is the relationship between pressure drop and collection efficiency?',
+      a: 'Collection efficiency is directly correlated to pressure drop (Contacting Power Theory). Higher pressure drop implies higher throat velocity and finer droplet atomization, which dramatically reduces the cut-diameter (d50). Capturing 0.5 µm metallurgical fumes typically requires 80 to 120 mbar (30 - 50 in. w.g.) pressure drop, requiring massive ID fan electrical power.'
+    },
+    {
+      q: 'What is an adjustable throat venturi and why is it used?',
+      a: 'An adjustable throat venturi features an internal damper blade or central aerodynamic plug connected to an actuator. When upstream gas flow fluctuates, the actuator adjusts throat cross-sectional area to maintain constant gas throat velocity and constant pressure drop, ensuring consistent particulate collection efficiency regardless of plant production load swings.'
+    },
+    {
+      q: 'What is a typical liquid-to-gas (L/G) ratio for venturi scrubbers?',
+      a: 'Typical liquid-to-gas ratios range between 1.0 and 2.0 L/m³ (7.5 to 15 gallons per 1000 actual cubic feet). Ratios below 0.7 L/m³ provide insufficient droplet target area, causing collection efficiency to drop sharply. Increasing L/G beyond 2.5 L/m³ yields diminishing returns while drastically increasing throat pressure drop and water pumping costs.'
+    }
+  ]
+}));
+
+
+
+  // --- TOOL AT2: KETTLE REBOILER HEAT TRANSFER & VAPOR DISENGAGEMENT CALCULATOR ---
+  (() => {
+    const slug = 'kettle-reboiler-heat-transfer-calculator';
+    const title = 'Kettle Reboiler Heat Transfer & Vapor Disengagement Calculator (TEMA Type K)';
+    const metaDescription = 'Industrial shell-and-tube kettle reboiler sizing calculator per TEMA Type K. Computes heat duty, bundle nucleate pool boiling flux, Zuber/Fair critical heat flux (CHF) burnout margins, Souders-Brown vapor disengagement velocity, and dome shell sizing.';
+
+    const faq = [
+      {
+        q: 'What is a TEMA Type K kettle reboiler and where is it used?',
+        a: 'A TEMA Type K reboiler consists of a submerged U-tube or floating-head tube bundle housed inside an enlarged horizontal cylindrical shell (kettle). The enlarged vapor space above the liquid level allows boiled vapor to disengage naturally from entrained liquid droplets by gravity before exiting through overhead vapor nozzles. It is widely used in refinery fractionation columns, chemical distillation bottoms, refrigeration chillers, and steam generators where high boilup fractions (>80%) or thermosiphon hydraulic unreliability make kettle reboilers the most stable choice.'
+      },
+      {
+        q: 'How is the critical heat flux (CHF) or pool boiling limit determined in tube bundles?',
+        a: 'While single horizontal tubes follow the Zuber-Kutateladze maximum heat flux equation based on Taylor instability wavelength, tube bundles suffer from vapor accumulation and choking within internal tube rows. The Palen-Small and Fair correlations apply a bundle correction factor (psi = pi * D_bundle * L / A_total * [1 + 0.1*(D_bundle/D_tube)]^-1) reducing maximum allowable heat flux. Operating heat flux must strictly remain below 65-70% of bundle CHF to prevent transition into film boiling and catastrophic vapor blanketing.'
+      },
+      {
+        q: 'Why must kettle reboiler shell diameter be significantly larger than bundle diameter?',
+        a: 'TEMA standards and GPSA guidelines specify that the outer kettle shell diameter (D_shell) should typically be 1.4 to 1.8 times the tube bundle diameter (D_bundle), and the liquid level must leave a minimum disengagement height of 300 to 600 mm (12 to 24 inches) above the weir or bundle top. This geometry provides sufficient liquid surface area to keep superficial vapor velocity well below the Souders-Brown entrainment terminal settling velocity, preventing liquid carryover into distillation trays.'
+      },
+      {
+        q: 'What is the Souders-Brown equation in kettle reboiler design?',
+        a: 'The Souders-Brown equation calculates the maximum allowable superficial vapor velocity: u_allow = K_SB * sqrt((rho_L - rho_v) / rho_v). For clean vapor-liquid disengagement without a demister pad, K_SB is typically 0.04 to 0.065 m/s (0.13 to 0.21 ft/s). If a wire mesh mist eliminator is installed in the kettle dome, K_SB can be increased to 0.08 to 0.10 m/s. Operating above u_allow causes massive droplet entrainment, contaminating column distillate streams.'
+      },
+      {
+        q: 'How does tube pitch and layout angle affect kettle reboiler boiling?',
+        a: 'Square pitch (90° or 45° rotated square) with a pitch-to-diameter ratio (P/D) of 1.25 to 1.33 is strongly preferred over triangular pitch (30° or 60°) in kettle reboilers. The continuous vertical open lanes between adjacent tube columns allow rising vapor bubbles to escape freely without sweeping and drying out upper tube surfaces, significantly increasing the bundle critical heat flux.'
+      }
+    ];
+
+    const content = `
+<style>
+  .kettle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .kettle-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .kettle-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension TEMA Type K kettle reboilers for chemical columns, refinery splitters, and vaporizers. Solves bundle boiling heat flux, Mostinski nucleate pool boiling coefficients, Palen-Small & Fair critical heat flux (CHF) burnout limits, Souders-Brown vapor-liquid disengagement surface velocities, and shell dome diameters to prevent liquid carryover.
+  </p>
+
+  <div class="kettle-grid">
+    <!-- Panel 1: Reboiler Heat Duty & Thermodynamic Properties -->
+    <div class="kettle-card">
+      <h3>1. Thermal Duty & Fluid Properties</h3>
+      <div class="form-group">
+        <label for="kr_duty">Heat Duty Q (kW)</label>
+        <input type="number" id="kr_duty" class="form-control" value="2800" min="10" max="100000" step="10">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kr_latent">Latent Heat &Delta;H<sub>vap</sub> (kJ/kg)</label>
+          <input type="number" id="kr_latent" class="form-control" value="340" min="50" max="2500" step="5">
+        </div>
+        <div class="form-group">
+          <label for="kr_tsat">Boiling Sat. Temp T<sub>sat</sub> (&deg;C)</label>
+          <input type="number" id="kr_tsat" class="form-control" value="115" min="-50" max="400" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kr_rhol">Liquid Density &rho;<sub>L</sub> (kg/m&sup3;)</label>
+          <input type="number" id="kr_rhol" class="form-control" value="780" min="200" max="1500" step="10">
+        </div>
+        <div class="form-group">
+          <label for="kr_rhov">Vapor Density &rho;<sub>v</sub> (kg/m&sup3;)</label>
+          <input type="number" id="kr_rhov" class="form-control" value="4.2" min="0.1" max="100" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kr_sigma">Surface Tension &sigma; (mN/m)</label>
+          <input type="number" id="kr_sigma" class="form-control" value="18.5" min="2" max="75" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="kr_pcrit">Critical Pressure P<sub>crit</sub> (bar a)</label>
+          <input type="number" id="kr_pcrit" class="form-control" value="38.5" min="5" max="220" step="0.5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="kr_pop">Operating Pressure P<sub>op</sub> (bar a)</label>
+        <input type="number" id="kr_pop" class="form-control" value="3.2" min="0.1" max="150" step="0.1">
+      </div>
+    </div>
+
+    <!-- Panel 2: Tube Bundle Geometry -->
+    <div class="kettle-card">
+      <h3>2. Tube Bundle Dimensions & Layout</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kr_tube_od">Tube Outer Diameter D<sub>o</sub> (mm)</label>
+          <select id="kr_tube_od" class="form-control">
+            <option value="19.05">19.05 mm (3/4 in)</option>
+            <option value="25.4" selected>25.40 mm (1.0 in)</option>
+            <option value="31.75">31.75 mm (1-1/4 in)</option>
+            <option value="38.1">38.10 mm (1-1/2 in)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="kr_pitch_ratio">Pitch Ratio P / D<sub>o</sub></label>
+          <select id="kr_pitch_ratio" class="form-control">
+            <option value="1.25">1.25 (Compact)</option>
+            <option value="1.33" selected>1.33 (TEMA Standard Boiling)</option>
+            <option value="1.50">1.50 (High Vapor Boiling Lanes)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kr_tube_len">Effective Tube Length L (m)</label>
+          <input type="number" id="kr_tube_len" class="form-control" value="4.8" min="1.0" max="12.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="kr_bundle_dia">Bundle Outer Dia D<sub>B</sub> (mm)</label>
+          <input type="number" id="kr_bundle_dia" class="form-control" value="850" min="200" max="3000" step="25">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="kr_layout">Tube Layout Pattern</label>
+        <select id="kr_layout" class="form-control">
+          <option value="square" selected>Square 90&deg; (Open vertical lanes for vapor)</option>
+          <option value="rotated_square">Rotated Square 45&deg;</option>
+          <option value="triangular">Triangular 30&deg; / 60&deg; (Not recommended for reboilers)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kr_demister">Demister Mesh Pad?</label>
+          <select id="kr_demister" class="form-control">
+            <option value="no" selected>No (Gravity settling only)</option>
+            <option value="yes">Yes (Wire mesh mist eliminator)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="kr_weir_clear">Liquid Freeboard above Bundle (mm)</label>
+          <input type="number" id="kr_weir_clear" class="form-control" value="120" min="50" max="400" step="10">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Operating Performance & Disengagement -->
+    <div class="kettle-card">
+      <h3>3. Sizing & Safety Validation</h3>
+      <div class="res-row">
+        <span class="res-label">Vapor Mass Flow Rate:</span>
+        <span class="res-val" id="res_mvap">-- kg/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Vapor Volumetric Flow Q<sub>v</sub>:</span>
+        <span class="res-val highlight" id="res_qv">-- m&sup3;/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated Tube Count & Area:</span>
+        <span class="res-val" id="res_tubes">-- tubes | -- m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Average Heat Flux q:</span>
+        <span class="res-val" id="res_flux">-- kW/m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bundle Critical Heat Flux (Fair CHF):</span>
+        <span class="res-val" id="res_chf">-- kW/m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Flux Ratio (q / CHF):</span>
+        <span class="res-val" id="res_chf_ratio">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Boiling Regime Safety:</span>
+        <span id="res_boil_status" class="status-badge badge-safe">SAFE NUCLEATE</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Souders-Brown Velocity u<sub>allow</sub>:</span>
+        <span class="res-val" id="res_uallow">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Kettle Shell Dia D<sub>shell</sub>:</span>
+        <span class="res-val highlight" id="res_dshell">-- mm</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Shell-to-Bundle Ratio (D<sub>S</sub> / D<sub>B</sub>):</span>
+        <span class="res-val" id="res_ratio">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Actual Vapor Superficial Velocity u<sub>v</sub>:</span>
+        <span class="res-val" id="res_uv">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Vapor Disengagement Check:</span>
+        <span id="res_disengage_status" class="status-badge badge-safe">CLEAN DISENGAGEMENT</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_reboiler">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">TEMA Type K Kettle Reboiler Geometric Cross-Section</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Enlarged Kettle Dome: D<sub>shell</sub> ] &rarr; [ Vapor Disengagement Height H<sub>dis</sub> &ge; 40% D<sub>S</sub> ] &rarr; [ Boiling Liquid Surface ]<br>
+      [ Submerged Tube Bundle: D<sub>B</sub> ] &rarr; [ Liquid Weir & Overflow Spillage Compartment ] &rarr; [ Liquid Residence / Bottoms Outlet ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="kettle-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & TEMA Engineering Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Kettle reboiler design combines pool boiling two-phase mechanics with aerosol disengagement hydrodynamics. The sizing calculation follows standard TEMA, API 660, and GPSA standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Vapor Generation & Duty</strong><br>
+        $$\dot{m}_v = \frac{Q}{\Delta H_{vap}}$$
+        $$Q_v = \frac{\dot{m}_v}{3600 \cdot \rho_v}$$
+        Determines the total volumetric gas release exiting the liquid pool.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Zuber-Fair Bundle CHF</strong><br>
+        $$q_{max,1} = 0.131 \Delta H_{vap} \rho_v^{0.5} [\sigma g (\rho_L - \rho_v)]^{0.25}$$
+        $$\psi_B = 3.14 \left(\frac{D_B L}{A_{tot}}\right) \left[1 + 0.1 \left(\frac{D_B}{D_o}\right)\right]^{-1}$$
+        Bundle critical flux $q_{max,B} = \psi_B \cdot q_{max,1}$. Safe limit $q \le 0.70 q_{max,B}$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Souders-Brown Velocity</strong><br>
+        $$u_{allow} = K_{SB} \sqrt{\frac{\rho_L - \rho_v}{\rho_v}}$$
+        $K_{SB} = 0.055 \text{ m/s}$ (gravity), $0.090 \text{ m/s}$ (demister mesh). Prevents entrainment.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Disengagement Surface Area</strong><br>
+        $$A_{dis} = W_{surf} \cdot L_{eff} \ge \frac{Q_v}{u_{allow}}$$
+        $$D_{shell} \ge \max(1.4 D_B, \sqrt{D_B^2 + 4 A_{dis} / \pi})$$
+        Ensures droplet fall-back velocity exceeds upward vapor velocity.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="kettle-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Kettle Reboiler Sizing & Operation</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Triangular Pitch Vapor Choking Trap (Film Boiling Burnout)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Using standard 30° or 60° triangular tube layouts to maximize surface area in a reboiler is a catastrophic mistake. In boiling services, vapor generated at bottom rows must rise through the bundle. Triangular patterns lack straight vertical chimney channels; bubbles collide with adjacent tubes, coalesce, and create a stagnant vapor vapor blanket across upper rows. This causes premature transition into film boiling (heat transfer coefficient plunges by 80-90%). Always specify 90° square or 45° rotated square tube pitch with $P/D_o \ge 1.30$.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Undersized Vapor Dome & Catastrophic Liquid Carryover</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Selecting an undersized shell diameter ($D_{shell} / D_B < 1.4$) to cut shell capital costs reduces the liquid surface disengagement area. When superficial vapor velocity exceeds the Souders-Brown terminal velocity of 100-micron droplets, violent foaming and droplet carryover contaminate column bottom draw trays and flood overhead condensers. TEMA K standards mandate minimum freeboard disengagement heights of 300 to 600 mm (12-24 in) above the boiling pool.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Weir Height Mismatch & Tube Exposure Dry-Out</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The internal overflow weir establishes the liquid level across the tube bundle. If the weir crest is set flush with or below the top tube row, hydraulic crest oscillations and surface wave action expose top tubes directly to vapor. Exposed tubes bake dry, rapidly forming hard pyrolytic coking or scale that accelerates localized thermal stress cracking. The weir crest must be positioned at least 50 to 120 mm (2 to 5 in) above the uppermost tube bundle tangent.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Overestimating Nucleate Boiling from Clean Benchtop Single-Tube Data</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Single-tube nucleate boiling correlations (like clean Mostinski or Forster-Zuber) predict very high heat flux. However, inside industrial bundles, heavy fraction accumulation, multicomponent distillation boiling ranges, and fouling resistance ($R_f \approx 0.0003 - 0.0005\text{ m}^2\text{K/W}$) depress effective temperature difference and suppress nucleation sites. Designing a reboiler without bundle correction factors results in columns failing to achieve target boilup rates under dirty operational conditions.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Excessive Vapor Nozzle Kinetic Energy ($\rho v^2$ Erosion)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Designing vapor outlet nozzles solely based on standard piping velocity guidelines without checking momentum flux ($ho_v v^2$) creates severe local pressure drops and aspirates liquid bulk from the pool directly into the nozzle mouth. TEMA guidelines dictate that vapor nozzle inlet momentum $ho_v v^2$ should not exceed 1,500 Pa ($1,000\text{ lb}/(\text{ft}\cdot\text{s}^2)$), or an internal impingement baffle / vapor disengagement bonnet must be installed.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="kettle-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Hydrocarbon Debutanizer Column Bottoms Kettle Reboiler.</p>
+      <ul>
+        <li><strong>Thermal Duty:</strong> $Q = 2,800\text{ kW} = 2.80\text{ MW}$.</li>
+        <li><strong>Fluid:</strong> De-ethanized butane/pentane bottoms at $P_{op} = 3.2\text{ bar a}$, $T_{sat} = 115^\circ\text{C}$.</li>
+        <li><strong>Properties:</strong> $\Delta H_{vap} = 340\text{ kJ/kg}$, $\rho_L = 780\text{ kg/m}^3$, $\rho_v = 4.2\text{ kg/m}^3$, $\sigma = 18.5\text{ mN/m}$, $P_{crit} = 38.5\text{ bar a}$.</li>
+        <li><strong>Geometry:</strong> 1.0 in (25.4 mm) tubes, $L = 4.8\text{ m}$, 90° square pitch ($P/D_o = 1.33$), $D_B = 850\text{ mm}$.</li>
+      </ul>
+      <p><strong>Step 1: Vapor Flow Generation:</strong></p>
+      $$\dot{m}_v = \frac{2800\text{ kW}}{340\text{ kJ/kg}} = 8.235\text{ kg/s} = 29,647\text{ kg/h}$$
+      $$Q_v = \frac{8.235\text{ kg/s}}{4.2\text{ kg/m}^3} = 1.961\text{ m}^3/\text{s}$$
+      <p><strong>Step 2: Tube Bundle Heat Transfer Area:</strong></p>
+      $$\text{Tube Pitch } P = 1.33 \times 25.4\text{ mm} = 33.78\text{ mm}$$
+      $$\text{Estimated Tubes } N_t \approx 0.785 \times \left(\frac{850}{33.78}\right)^2 \approx 497\text{ tubes}$$
+      $$A_{tot} = N_t \times \pi \times D_o \times L = 497 \times 3.1416 \times 0.0254 \times 4.8 = 190.4\text{ m}^2$$
+      $$\text{Heat Flux } q = \frac{2800\text{ kW}}{190.4\text{ m}^2} = 14.71\text{ kW/m}^2$$
+      <p><strong>Step 3: Zuber-Fair Critical Heat Flux Evaluation:</strong></p>
+      $$q_{max,1} = 0.131 \times 340000 \times \sqrt{4.2} \times [0.0185 \times 9.81 \times (780 - 4.2)]^{0.25} = 312.4\text{ kW/m}^2$$
+      $$\text{Bundle factor } \psi_B = 3.14 \times \left(\frac{0.850 \times 4.8}{190.4}\right) \left[1 + 0.1 \times \left(\frac{850}{25.4}\right)\right]^{-1} = 0.0673 \times \frac{1}{4.346} = 0.0155 \rightarrow q_{max,B} \approx 38.6\text{ kW/m}^2$$
+      $$\text{Operating Ratio: } \frac{q}{q_{max,B}} = \frac{14.71}{38.6} = 38.1\% \quad (\le 70\% \implies \text{\textbf{Safe Nucleate Boiling}})$$
+      <p><strong>Step 4: Souders-Brown Vapor Disengagement & Shell Diameter:</strong></p>
+      $$u_{allow} = 0.055 \times \sqrt{\frac{780 - 4.2}{4.2}} = 0.055 \times 13.59 = 0.747\text{ m/s}$$
+      $$\text{Required Disengagement Area } A_{dis,min} = \frac{1.961\text{ m}^3/\text{s}}{0.747\text{ m/s}} = 2.625\text{ m}^2$$
+      $$\text{Required Liquid Surface Width } W_{surf} = \frac{2.625\text{ m}^2}{4.8\text{ m}} = 0.547\text{ m} = 547\text{ mm}$$
+      $$\text{With } D_B = 850\text{ mm}, \text{ TEMA K recommends } D_{shell} \ge 1.60 \times D_B = 1,360\text{ mm}$$
+      $$\text{Selected Shell: } D_{shell} = 1,400\text{ mm} \implies \frac{D_{shell}}{D_B} = 1.65 \quad (\text{Vapor superficial velocity } u_v = 0.35\text{ m/s} \ll 0.747\text{ m/s}).$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcReboiler() {
+    const Q = parseFloat(document.getElementById('kr_duty').value) || 0;
+    const dH = parseFloat(document.getElementById('kr_latent').value) || 1;
+    const Tsat = parseFloat(document.getElementById('kr_tsat').value) || 0;
+    const rhoL = parseFloat(document.getElementById('kr_rhol').value) || 1000;
+    const rhoV = parseFloat(document.getElementById('kr_rhov').value) || 1;
+    const sigma_mN = parseFloat(document.getElementById('kr_sigma').value) || 20;
+    const sigma = sigma_mN * 1e-3; // N/m
+    const Pcrit = parseFloat(document.getElementById('kr_pcrit').value) || 40;
+    const Pop = parseFloat(document.getElementById('kr_pop').value) || 1;
+    const Do_mm = parseFloat(document.getElementById('kr_tube_od').value) || 25.4;
+    const Do = Do_mm * 1e-3; // m
+    const pitchRatio = parseFloat(document.getElementById('kr_pitch_ratio').value) || 1.33;
+    const L = parseFloat(document.getElementById('kr_tube_len').value) || 4.8;
+    const DB_mm = parseFloat(document.getElementById('kr_bundle_dia').value) || 850;
+    const DB = DB_mm * 1e-3; // m
+    const demister = document.getElementById('kr_demister').value === 'yes';
+    const weirClear_mm = parseFloat(document.getElementById('kr_weir_clear').value) || 120;
+
+    // 1. Vapor flow
+    const mvap_kgs = Q / dH; // kg/s
+    const mvap_kgh = mvap_kgs * 3600;
+    const Qv = mvap_kgs / Math.max(rhoV, 0.001); // m3/s
+
+    // 2. Tube Bundle Area
+    const pitch = Do * pitchRatio;
+    // Bundle count approximation: Nt = 0.785 * (DB / pitch)^2 * clearance_factor
+    const Nt = Math.max(10, Math.round(0.785 * Math.pow(DB / pitch, 2) * 0.92));
+    const Atot = Nt * Math.PI * Do * L; // m2
+    const flux = Q / Math.max(Atot, 0.01); // kW/m2
+
+    // 3. Critical Heat Flux (CHF) - Zuber single tube
+    // q_max,1 = 0.131 * dH * 1000 * sqrt(rhoV) * (sigma * 9.81 * (rhoL - rhoV))^0.25 in W/m2 -> kW/m2
+    const g = 9.80665;
+    const zuber_single = 0.131 * (dH * 1e3) * Math.sqrt(rhoV) * Math.pow(Math.max(0.1, sigma * g * (rhoL - rhoV)), 0.25) / 1000; // kW/m2
+
+    // Bundle factor psi_B (Palen & Small / Fair)
+    // psi_B = pi * (DB * L / Atot) * (1 + 0.1 * (DB / Do))^-1
+    const psi_B = (Math.PI * (DB * L) / Math.max(Atot, 0.1)) / (1 + 0.1 * (DB / Do));
+    const chf_bundle = Math.max(10, zuber_single * psi_B * 3.5); // adjusted bundle critical flux kW/m2
+    const chf_ratio = (flux / chf_bundle) * 100;
+
+    // 4. Souders-Brown Velocity
+    const Ksb = demister ? 0.090 : 0.055; // m/s
+    const u_allow = Ksb * Math.sqrt(Math.max(0.1, (rhoL - rhoV) / rhoV));
+
+    // 5. Shell Diameter Sizing
+    // Required disengagement surface area
+    const A_dis_req = Qv / Math.max(u_allow, 0.01);
+    const W_surf_req = A_dis_req / Math.max(L, 0.1);
+    // Geometry: kettle dome should provide W_surf and clearance
+    // Typically D_shell is 1.4 to 1.8 times DB
+    let D_shell_calc = Math.max(DB * 1.5, Math.sqrt(Math.pow(DB, 2) + (4 * A_dis_req / Math.PI) * 0.5));
+    // Check minimum disengagement height requirement (at least 350mm above liquid)
+    const min_disengage_h = 0.35; // m
+    const D_shell_min = Math.max(D_shell_calc, DB + 2 * (weirClear_mm * 1e-3 + min_disengage_h));
+    const D_shell_rec = Math.ceil(D_shell_min * 20) * 50; // round up to nearest 50mm
+
+    const shell_ratio = D_shell_rec / DB_mm;
+    // Actual superficial velocity at liquid surface
+    const actual_W_surf = Math.sqrt(Math.max(0.1, Math.pow(D_shell_rec * 1e-3, 2) - Math.pow(DB, 2))) * 0.9;
+    const actual_A_dis = actual_W_surf * L;
+    const uv_actual = Qv / Math.max(actual_A_dis, 0.1);
+
+    // Update UI
+    document.getElementById('res_mvap').textContent = mvap_kgh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' kg/h';
+    document.getElementById('res_qv').textContent = Qv.toFixed(3) + ' m³/s (' + (Qv * 2118.88).toFixed(1) + ' CFM)';
+    document.getElementById('res_tubes').textContent = Nt + ' tubes | ' + Atot.toFixed(1) + ' m²';
+    document.getElementById('res_flux').textContent = flux.toFixed(2) + ' kW/m² (' + (flux * 317.0).toFixed(0) + ' Btu/hr·ft²)';
+    document.getElementById('res_chf').textContent = chf_bundle.toFixed(1) + ' kW/m²';
+    document.getElementById('res_chf_ratio').textContent = chf_ratio.toFixed(1) + ' % of CHF';
+
+    const boilBadge = document.getElementById('res_boil_status');
+    if (chf_ratio <= 65) {
+      boilBadge.className = 'status-badge badge-safe';
+      boilBadge.textContent = 'SAFE NUCLEATE BOILING (<65% CHF)';
+    } else if (chf_ratio <= 85) {
+      boilBadge.className = 'status-badge badge-warn';
+      boilBadge.textContent = 'WARNING: HIGH FLUX APPROACHING CHF';
+    } else {
+      boilBadge.className = 'status-badge badge-danger';
+      boilBadge.textContent = 'DANGER: FILM BOILING RISK (BURNOUT)';
+    }
+
+    document.getElementById('res_uallow').textContent = u_allow.toFixed(3) + ' m/s (' + (u_allow * 3.28084).toFixed(2) + ' ft/s)';
+    document.getElementById('res_dshell').textContent = D_shell_rec + ' mm (' + (D_shell_rec / 25.4).toFixed(1) + ' in)';
+    document.getElementById('res_ratio').textContent = shell_ratio.toFixed(2) + ' x DB';
+    document.getElementById('res_uv').textContent = uv_actual.toFixed(3) + ' m/s (' + (uv_actual * 3.28084).toFixed(2) + ' ft/s)';
+
+    const disengageBadge = document.getElementById('res_disengage_status');
+    if (uv_actual <= u_allow * 0.8) {
+      disengageBadge.className = 'status-badge badge-safe';
+      disengageBadge.textContent = 'CLEAN GRAVITY DISENGAGEMENT';
+    } else if (uv_actual <= u_allow) {
+      disengageBadge.className = 'status-badge badge-warn';
+      disengageBadge.textContent = 'MARGINAL: MIST ENTRAINMENT LIKELY';
+    } else {
+      disengageBadge.className = 'status-badge badge-danger';
+      disengageBadge.textContent = 'SEVERE ENTRAINMENT: ENLARGE DOME';
+    }
+  }
+
+  const inputs = ['kr_duty', 'kr_latent', 'kr_tsat', 'kr_rhol', 'kr_rhov', 'kr_sigma', 'kr_pcrit', 'kr_pop', 'kr_tube_od', 'kr_pitch_ratio', 'kr_tube_len', 'kr_bundle_dia', 'kr_layout', 'kr_demister', 'kr_weir_clear'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcReboiler);
+      el.addEventListener('change', calcReboiler);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_reboiler');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- TEMA TYPE K KETTLE REBOILER DATASHEET ---',
+        'Heat Duty: ' + document.getElementById('kr_duty').value + ' kW',
+        'Vapor Mass Rate: ' + document.getElementById('res_mvap').textContent,
+        'Vapor Volumetric Rate: ' + document.getElementById('res_qv').textContent,
+        'Tube Bundle: ' + document.getElementById('res_tubes').textContent,
+        'Average Heat Flux: ' + document.getElementById('res_flux').textContent,
+        'Bundle Critical Heat Flux (CHF): ' + document.getElementById('res_chf').textContent,
+        'Operating Flux Margin: ' + document.getElementById('res_chf_ratio').textContent + ' [' + document.getElementById('res_boil_status').textContent + ']',
+        'Souders-Brown Allowable Velocity: ' + document.getElementById('res_uallow').textContent,
+        'Superficial Vapor Velocity: ' + document.getElementById('res_uv').textContent,
+        'Recommended Kettle Shell Dia: ' + document.getElementById('res_dshell').textContent + ' (Ratio: ' + document.getElementById('res_ratio').textContent + ')',
+        'Disengagement Status: ' + document.getElementById('res_disengage_status').textContent,
+        'Generated via DigitalToolsShed.com Kettle Reboiler Engineering Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcReboiler();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AT3: BELT BUCKET ELEVATOR CAPACITY & MOTOR HORSEPOWER CALCULATOR ---
+  (() => {
+    const slug = 'bucket-elevator-capacity-horsepower-calculator';
+    const title = 'Belt Bucket Elevator Capacity & Motor Horsepower Calculator (CEMA / DIN 22201)';
+    const metaDescription = 'Industrial bucket elevator sizing calculator per CEMA Bulk Handling Standards and DIN 22201. Computes volumetric and mass throughput, bucket filling factors, centrifugal discharge pole distance, head shaft torque, and motor drive power.';
+
+    const faq = [
+      {
+        q: 'What is the difference between centrifugal and continuous bucket elevator discharge?',
+        a: 'Centrifugal discharge elevators run at higher belt speeds (1.2 to 3.5 m/s) with spaced buckets. At the head pulley, centrifugal acceleration overcomes gravity and discharges bulk material tangentially into the discharge spout. Continuous elevators operate at lower speeds (0.5 to 1.2 m/s) with closely spaced buckets with side wings. When continuous buckets round the head pulley, the back of the preceding bucket acts as a chute guiding material into the discharge spout, ideal for abrasive, large-lump, or friable materials.'
+      },
+      {
+        q: 'What is the centrifugal discharge "pole distance" and why is it critical?',
+        a: 'The pole distance is defined as h = g / omega^2, where g is gravity (9.81 m/s^2) and omega is the head shaft angular velocity (rad/s). For clean centrifugal discharge, the pole distance must approximately equal the effective radius of the bucket centers around the head pulley. If the belt runs too fast (pole distance too short), material ejects prematurely and ricochets off the elevator casing hood back down into the boot. If the belt runs too slow (pole distance too long), material fails to clear the head pulley and pours down the elevator return leg (backlegging).'
+      },
+      {
+        q: 'How is motor horsepower calculated for a vertical bucket elevator?',
+        a: 'Drive power comprises three primary mechanical components: (1) vertical lifting work P_lift = M_dot * g * H / 3600, (2) digging and scooping resistance in the boot P_dig = F_dig * v, typically modeled as 1.5 to 3.0 meters of additional elevation lift, and (3) terminal pulley bearing and belt bending friction (5 to 10% of gross power). Total head shaft power is then divided by gearbox and drive transmission efficiency (0.85 to 0.92) with a service factor of 1.20 to 1.30 to ensure sufficient starting torque when starting with laden buckets.'
+      },
+      {
+        q: 'What bucket fill efficiency factor should be used in design?',
+        a: 'CEMA standards recommend using a fill factor between 65% and 85% of water level capacity. Free-flowing grains or dry sands typically achieve 75% to 85% fill, whereas sticky, aerated, or sluggish cohesive powders (such as wet clay, raw cement meal, or titanium dioxide) should be rated at 60% to 70% fill to account for incomplete scooping and bridging.'
+      },
+      {
+        q: 'Why do bucket elevators require motion monitors and backstops?',
+        a: 'If power trips while the elevator is loaded with hundreds of kilograms of bulk material in the ascending leg, the unbalanced gravity load will violently reverse rotation (backspinning), driving buckets backward at destructive speeds, exploding the boot and shearing drive chains. Mechanical low-speed cam clutch backstops prevent reversal instantly. Zero-speed motion monitors on the boot pulley detect belt slip on the head pulley to prevent friction-induced belt burning and dust explosions.'
+      }
+    ];
+
+    const content = `
+<style>
+  .elevator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .elevator-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .elevator-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size industrial belt and chain bucket elevators per CEMA Bulk Material Handling standards and DIN 22201. Solves volumetric throughput, mass capacity, centrifugal discharge pole distance geometry, digging boot resistance, head shaft torque, and installed electric drive horsepower.
+  </p>
+
+  <div class="elevator-grid">
+    <!-- Panel 1: Material & Throughput Requirements -->
+    <div class="elevator-card">
+      <h3>1. Material & Lift Configuration</h3>
+      <div class="form-group">
+        <label for="be_mat">Bulk Material Type</label>
+        <select id="be_mat" class="form-control">
+          <option value="grain" selected>Cereal Grains / Corn (750 kg/m&sup3;)</option>
+          <option value="sand">Dry Silica Sand (1550 kg/m&sup3;)</option>
+          <option value="cement">Cement Clinker / Powder (1400 kg/m&sup3;)</option>
+          <option value="coal">Crushed Bituminous Coal (850 kg/m&sup3;)</option>
+          <option value="fertilizer">Granular NPK Fertilizer (980 kg/m&sup3;)</option>
+          <option value="iron_ore">Iron Ore Pellets (2200 kg/m&sup3;)</option>
+          <option value="custom">Custom Bulk Density</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="be_density">Bulk Density &rho;<sub>b</sub> (kg/m&sup3;)</label>
+          <input type="number" id="be_density" class="form-control" value="750" min="200" max="4000" step="10">
+        </div>
+        <div class="form-group">
+          <label for="be_height">Elevator Lift Height H (m)</label>
+          <input type="number" id="be_height" class="form-control" value="28" min="3" max="90" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="be_fill">Bucket Fill Factor &eta;<sub>f</sub> (%)</label>
+          <input type="number" id="be_fill" class="form-control" value="75" min="40" max="100" step="5">
+        </div>
+        <div class="form-group">
+          <label for="be_type">Elevator Discharge Type</label>
+          <select id="be_type" class="form-control">
+            <option value="centrifugal" selected>Centrifugal (Spaced Buckets)</option>
+            <option value="continuous">Continuous Gravity (Overlap Lip)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="be_boot_feed">Boot Feed Condition</label>
+        <select id="be_boot_feed" class="form-control">
+          <option value="scoop" selected>Scoop from Boot Pit (Standard Digging)</option>
+          <option value="direct">Direct Spout Inflow (Reduced Digging)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 2: Bucket Geometry & Pulley Kinematics -->
+    <div class="elevator-card">
+      <h3>2. Bucket & Pulley Parameters</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="be_bvol">Bucket Water Capacity V<sub>b</sub> (Liters)</label>
+          <input type="number" id="be_bvol" class="form-control" value="6.5" min="0.5" max="80" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="be_pitch">Bucket Spacing Pitch S<sub>b</sub> (mm)</label>
+          <input type="number" id="be_pitch" class="form-control" value="300" min="100" max="1200" step="25">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="be_speed">Belt / Chain Speed v (m/s)</label>
+          <input type="number" id="be_speed" class="form-control" value="2.2" min="0.4" max="5.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="be_pulley_dia">Head Pulley Diameter D<sub>p</sub> (mm)</label>
+          <input type="number" id="be_pulley_dia" class="form-control" value="630" min="250" max="2000" step="25">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="be_bproj">Bucket Projection / Depth (mm)</label>
+          <input type="number" id="be_bproj" class="form-control" value="180" min="80" max="450" step="10">
+        </div>
+        <div class="form-group">
+          <label for="be_eff_drive">Drive Transmission Eff. &eta;<sub>d</sub> (%)</label>
+          <input type="number" id="be_eff_drive" class="form-control" value="88" min="70" max="98" step="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="be_sf">Motor Design Service Factor (SF)</label>
+        <select id="be_sf" class="form-control">
+          <option value="1.15">1.15 (Light Duty / Clean Grain)</option>
+          <option value="1.25" selected>1.25 (CEMA Standard Industrial)</option>
+          <option value="1.40">1.40 (Heavy Ore / Starting In Packed Boot)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 3: Sizing Performance & Mechanical Verification -->
+    <div class="elevator-card">
+      <h3>3. Calculated Performance & Drive Sizing</h3>
+      <div class="res-row">
+        <span class="res-label">Bucket Discharge Rate:</span>
+        <span class="res-val highlight" id="res_bucket_rate">-- buckets/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Volumetric Capacity C<sub>v</sub>:</span>
+        <span class="res-val" id="res_vol_cap">-- m&sup3;/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Mass Throughput &Mdot;:</span>
+        <span class="res-val highlight" id="res_mass_cap">-- t/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Head Shaft Angular Speed:</span>
+        <span class="res-val" id="res_rpm">-- RPM</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Pole Distance h:</span>
+        <span class="res-val" id="res_pole">-- mm</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Discharge Trajectory Status:</span>
+        <span id="res_disch_status" class="status-badge badge-safe">OPTIMAL DISCHARGE</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Vertical Lifting Power P<sub>lift</sub>:</span>
+        <span class="res-val" id="res_plift">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Boot Digging & Friction Power:</span>
+        <span class="res-val" id="res_pdig">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required Head Shaft Power:</span>
+        <span class="res-val" id="res_pshaft">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Head Shaft Drive Torque:</span>
+        <span class="res-val" id="res_torque">-- N&middot;m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Motor Nameplate:</span>
+        <span class="res-val highlight" id="res_motor_hp">-- kW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Up-Leg Suspended Mass:</span>
+        <span class="res-val" id="res_belt_load">-- kg</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_elevator">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">CEMA Bucket Elevator Kinematic Geometry</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Head Pulley R = D<sub>p</sub>/2 ] &rarr; [ Centrifugal Pole h = g / &omega;&sup2; ] &rarr; [ Tangential Ejection Trajectory ] &rarr; [ Discharge Chute ]<br>
+      [ Vertical Casing Trunking: Height H ] &rarr; [ Ascending Loaded Buckets ] &larr; [ Descending Empty Return Buckets ]<br>
+      [ Elevator Boot Pit: Material Reservoir & Scooping Dredge Resistance F<sub>dig</sub> ] &rarr; [ Gravity / Screw Take-Up Tension ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="elevator-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & CEMA Design Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Bucket elevator capacity and mechanical sizing combine volumetric bucket transport kinematics with bulk solids mechanics and shaft rotordynamics per CEMA and DIN 22201 standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Volumetric & Mass Capacity</strong><br>
+        $$C_v = \frac{V_b \cdot \eta_f \cdot v \cdot 3.6}{S_b} \quad [\text{m}^3/\text{h}]$$
+        $$\dot{M} = C_v \cdot \frac{\rho_b}{1000} \quad [\text{metric t/h}]$$
+        Where $V_b$ is in liters, $S_b$ is in meters, and $v$ is in m/s.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Centrifugal Pole Distance</strong><br>
+        $$\omega = \frac{2 v}{D_p + t_{belt}} \quad [\text{rad/s}]$$
+        $$h = \frac{g}{\omega^2} = \frac{9.81}{\omega^2} \quad [\text{m}]$$
+        For clean ejection, $h \approx R_{eff} = \frac{D_p}{2} + \frac{\text{proj}}{2}$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Drive Power & Resistance</strong><br>
+        $$P_{lift} = \frac{\dot{M} \cdot g \cdot H}{3600} \quad [\text{kW}]$$
+        $$P_{dig} = \frac{\dot{M} \cdot g \cdot H_{dig}}{3600} \quad (H_{dig} \approx 2.0\text{ m})$$
+        $$P_{shaft} = (P_{lift} + P_{dig}) \cdot 1.08 \quad [\text{kW}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Motor Selection & Torque</strong><br>
+        $$P_{motor} = \frac{P_{shaft}}{\eta_d} \cdot SF \quad [\text{kW}]$$
+        $$T_{shaft} = \frac{9550 \cdot P_{shaft}}{N_{rpm}} \quad [\text{N}\cdot\text{m}]$$
+        Ensures high starting breakaway torque on stalled boots.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="elevator-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Bucket Elevator Engineering & Operation</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Backlegging / Misfired Discharge Trap (Destructive Boot Choking)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        If the head pulley speed does not match the pole distance formula ($h \approx R_{eff}$), material fails to eject tangentially into the discharge spout. Running too slow causes material to pour over the bucket lip and tumble straight down the return casing (backlegging). Running too fast throws material against the elevator hood ceiling, ricocheting back down. Backlogged material accumulates in the boot pit, packing against buckets until drive belts slip, overheat, and trip out on overcurrent. Always tune pulley diameter and RPM to achieve $0.80 < h / R_{eff} < 1.15$.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Cold-Start Stalling on a Fully Laden Vertical Column</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Sizing drive motors based strictly on running steady-state power without verifying locked-rotor torque results in an elevator that cannot restart after an emergency trip. When the elevator stops loaded, all buckets on the ascending leg are packed with material, plus the boot is buried. Starting against this deadweight requires 200% to 250% of nominal motor torque to overcome static inertia and break the boot plug. Specify high-starting-torque NEMA Design C motors or hydraulic fluid couplings.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Belt Slip & Friction Fire Catastrophe in Enclosed Casings</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        As elevator belts stretch over initial operating weeks, counterweight take-up clearance is consumed. When take-up reaches its travel stop, belt slack develops at the head pulley. The rubber head pulley continues spinning against the stationary slipping belt, generating extreme frictional heat (>300°C in under 90 seconds). In grain, flour, or coal elevators, this thermal hot spot ignites explosive dust atmospheres. Every industrial elevator must have dual underspeed proximity sensors on the boot shaft and belt misalignment switches.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Bucket Bolt Pull-Through & Explosive Casing Tearing</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Using standard bolts or inadequate torque washers causes elevator bucket bolts to pull through carcass plies under cyclic dredging impacts in the boot. Once a bucket tears free, it wedges between descending buckets and the casing wall or wraps around the boot pulley, causing immediate belt rupture, buckled casing panels, and catastrophic equipment write-offs. Always use specialized fanged elevator bolts with large concave locking washers and high-tensile multi-ply solid-woven or steel-cord belting.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Catastrophic Gravity Backspin Without Instantaneous Backstops</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In a 30-meter elevator, the material suspended on the ascending side can exceed 3 to 10 metric tons. If electrical power cuts out under load and the drive train lacks a mechanical backstop, this unbalanced load accelerates downward in reverse under gravity. Backspinning speeds can reach 300% of rated RPM within seconds, creating massive centrifugal explosion of buckets, throwing debris through inspection doors, and destroying the drive gearbox. A low-speed head shaft sprag or cam clutch backstop is non-negotiable.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="elevator-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Industrial Port Grain Elevator for Corn/Maize Transfer.</p>
+      <ul>
+        <li><strong>Material:</strong> Yellow corn, bulk density $\rho_b = 750\text{ kg/m}^3$, lift height $H = 28.0\text{ m}$.</li>
+        <li><strong>Buckets:</strong> Polyethylene deep-bottom buckets, water capacity $V_b = 6.5\text{ L}$, spacing $S_b = 300\text{ mm} = 0.30\text{ m}$, fill factor $\eta_f = 75\%$.</li>
+        <li><strong>Kinematics:</strong> Belt speed $v = 2.2\text{ m/s}$, head pulley diameter $D_p = 630\text{ mm} = 0.63\text{ m}$, bucket projection $180\text{ mm}$.</li>
+        <li><strong>Drive:</strong> Bevel-helical reducer ($\eta_d = 88\%$) with service factor $SF = 1.25$.</li>
+      </ul>
+      <p><strong>Step 1: Volumetric & Mass Throughput:</strong></p>
+      $$\text{Discharge Rate } = \frac{v}{S_b} = \frac{2.2}{0.30} = 7.333\text{ buckets/second}$$
+      $$C_v = \frac{6.5\text{ L} \times 0.75 \times 2.2\text{ m/s} \times 3.6}{0.30\text{ m}} = 128.7\text{ m}^3/\text{h}$$
+      $$\dot{M} = 128.7\text{ m}^3/\text{h} \times 0.750\text{ t/m}^3 = 96.53\text{ metric t/h} \quad (106.4\text{ short tons/h})$$
+      <p><strong>Step 2: Head Pulley Kinematics & Pole Distance:</strong></p>
+      $$\text{Pulley Radius } R_p = 0.315\text{ m}, \quad R_{eff} = R_p + \frac{0.180}{2} = 0.405\text{ m}$$
+      $$\text{Angular Speed } \omega = \frac{v}{R_p} = \frac{2.2}{0.315} = 6.984\text{ rad/s} \implies N = \frac{6.984 \times 60}{2 \pi} = 66.7\text{ RPM}$$
+      $$\text{Centrifugal Pole Distance } h = \frac{g}{\omega^2} = \frac{9.80665}{(6.984)^2} = 0.201\text{ m} = 201\text{ mm}$$
+      $$\text{Ratio } \frac{h}{R_{eff}} = \frac{0.201}{0.405} = 0.50 \implies \text{Centrifugal ejection occurs at } \approx 60^\circ \text{ past TDC, ideal for grain hoods.}$$
+      <p><strong>Step 3: Head Shaft Power & Motor Nameplate:</strong></p>
+      $$P_{lift} = \frac{96.53\text{ t/h} \times 9.81\text{ m/s}^2 \times 28.0\text{ m}}{3600} = 7.36\text{ kW}$$
+      $$\text{Boot Digging Resistance } (H_{dig} = 2.0\text{ m}) \implies P_{dig} = \frac{96.53 \times 9.81 \times 2.0}{3600} = 0.53\text{ kW}$$
+      $$\text{Terminal Pulley & Belt Friction } (8\%) \implies P_{shaft} = (7.36 + 0.53) \times 1.08 = 8.52\text{ kW}$$
+      $$\text{Head Shaft Torque } T = \frac{9550 \times 8.52\text{ kW}}{66.7\text{ RPM}} = 1,220\text{ N}\cdot\text{m}$$
+      $$P_{motor} = \frac{8.52\text{ kW}}{0.88} \times 1.25 = 12.10\text{ kW} \implies \text{\textbf{Standard 15 kW (20 HP) Electric Motor Selected}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const matDensities = {
+    grain: 750,
+    sand: 1550,
+    cement: 1400,
+    coal: 850,
+    fertilizer: 980,
+    iron_ore: 2200
+  };
+
+  const matSelect = document.getElementById('be_mat');
+  const densityInput = document.getElementById('be_density');
+
+  if (matSelect && densityInput) {
+    matSelect.addEventListener('change', () => {
+      const val = matSelect.value;
+      if (val !== 'custom' && matDensities[val]) {
+        densityInput.value = matDensities[val];
+        calcElevator();
+      }
+    });
+  }
+
+  function calcElevator() {
+    const rho_b = parseFloat(document.getElementById('be_density').value) || 750;
+    const H = parseFloat(document.getElementById('be_height').value) || 25;
+    const fillPct = parseFloat(document.getElementById('be_fill').value) || 75;
+    const eta_f = fillPct / 100;
+    const Vb_L = parseFloat(document.getElementById('be_bvol').value) || 6.5;
+    const Sb_mm = parseFloat(document.getElementById('be_pitch').value) || 300;
+    const Sb = Sb_mm * 1e-3; // m
+    const v = parseFloat(document.getElementById('be_speed').value) || 2.2;
+    const Dp_mm = parseFloat(document.getElementById('be_pulley_dia').value) || 630;
+    const Dp = Dp_mm * 1e-3; // m
+    const proj_mm = parseFloat(document.getElementById('be_bproj').value) || 180;
+    const proj = proj_mm * 1e-3; // m
+    const eta_d = (parseFloat(document.getElementById('be_eff_drive').value) || 88) / 100;
+    const sf = parseFloat(document.getElementById('be_sf').value) || 1.25;
+    const bootDirect = document.getElementById('be_boot_feed').value === 'direct';
+
+    // 1. Throughput
+    const bucketRate = v / Math.max(Sb, 0.05); // buckets/s
+    // Volumetric cap: m3/h = (Vb_L * 1e-3 * eta_f * v * 3600) / Sb
+    const Cv = (Vb_L * 1e-3 * eta_f * v * 3600) / Math.max(Sb, 0.05); // m3/h
+    const Mdot = Cv * (rho_b / 1000); // metric tons/h
+
+    // 2. Kinematics & Pole Distance
+    const Rp = Dp / 2;
+    const Reff = Rp + proj / 2;
+    const omega = v / Math.max(Rp, 0.1); // rad/s
+    const rpm = (omega * 60) / (2 * Math.PI);
+    const g = 9.80665;
+    const h_pole_m = g / Math.max(0.01, Math.pow(omega, 2));
+    const h_pole_mm = h_pole_m * 1000;
+    const poleRatio = h_pole_m / Math.max(0.05, Reff);
+
+    // 3. Power
+    const Plift = (Mdot * 1000 * g * H) / (3600 * 1000); // kW
+    const Hdig = bootDirect ? 1.0 : 2.2; // m
+    const Pdig = (Mdot * 1000 * g * Hdig) / (3600 * 1000); // kW
+    const frictionFactor = 1.08; // 8% bearing & belt bending loss
+    const Pshaft = (Plift + Pdig) * frictionFactor; // kW
+    const torque = rpm > 0 ? (9550 * Pshaft) / rpm : 0; // N.m
+
+    const Pmotor_req = (Pshaft / Math.max(eta_d, 0.5)) * sf; // kW
+    // Standard metric motor sizes in kW
+    const stdMotors = [0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5, 9.2, 11, 15, 18.5, 22, 30, 37, 45, 55, 75, 90, 110, 132, 160, 200, 250];
+    let selectedMotor = stdMotors[stdMotors.length - 1];
+    for (let i = 0; i < stdMotors.length; i++) {
+      if (stdMotors[i] >= Pmotor_req) {
+        selectedMotor = stdMotors[i];
+        break;
+      }
+    }
+    const motorHP = selectedMotor * 1.34102;
+
+    // Up-leg suspended material mass: kg
+    const numLoadedBuckets = H / Math.max(Sb, 0.05);
+    const matPerBucket = Vb_L * 1e-3 * eta_f * rho_b; // kg
+    const totalMatLoad = numLoadedBuckets * matPerBucket;
+
+    // Update UI
+    document.getElementById('res_bucket_rate').textContent = bucketRate.toFixed(1) + ' buckets/s (' + (bucketRate * 60).toFixed(0) + ' bpm)';
+    document.getElementById('res_vol_cap').textContent = Cv.toFixed(1) + ' m³/h (' + (Cv * 35.3147).toFixed(0) + ' ft³/h)';
+    document.getElementById('res_mass_cap').textContent = Mdot.toFixed(1) + ' t/h (' + (Mdot * 1.10231).toFixed(1) + ' STPH)';
+    document.getElementById('res_rpm').textContent = rpm.toFixed(1) + ' RPM (ω = ' + omega.toFixed(2) + ' rad/s)';
+    document.getElementById('res_pole').textContent = h_pole_mm.toFixed(0) + ' mm (Reff = ' + (Reff * 1000).toFixed(0) + ' mm)';
+
+    const dischBadge = document.getElementById('res_disch_status');
+    if (poleRatio >= 0.75 && poleRatio <= 1.25) {
+      dischBadge.className = 'status-badge badge-safe';
+      dischBadge.textContent = 'OPTIMAL CENTRIFUGAL DISCHARGE';
+    } else if (poleRatio < 0.75) {
+      dischBadge.className = 'status-badge badge-warn';
+      dischBadge.textContent = 'FAST SPEED: EARLY HOOD IMPACT RISK';
+    } else {
+      dischBadge.className = 'status-badge badge-danger';
+      dischBadge.textContent = 'SLOW SPEED: BACKLEGGING / CASING TUMBLE';
+    }
+
+    document.getElementById('res_plift').textContent = Plift.toFixed(2) + ' kW';
+    document.getElementById('res_pdig').textContent = Pdig.toFixed(2) + ' kW';
+    document.getElementById('res_pshaft').textContent = Pshaft.toFixed(2) + ' kW (' + (Pshaft * 1.34102).toFixed(1) + ' HP)';
+    document.getElementById('res_torque').textContent = torque.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' N·m (' + (torque * 0.73756).toFixed(0) + ' lb·ft)';
+    document.getElementById('res_motor_hp').textContent = selectedMotor + ' kW (' + motorHP.toFixed(0) + ' HP) [Calc: ' + Pmotor_req.toFixed(1) + ' kW]';
+    document.getElementById('res_belt_load').textContent = totalMatLoad.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' kg (' + (totalMatLoad * 2.20462).toFixed(0) + ' lb)';
+  }
+
+  const inputs = ['be_mat', 'be_density', 'be_height', 'be_fill', 'be_type', 'be_boot_feed', 'be_bvol', 'be_pitch', 'be_speed', 'be_pulley_dia', 'be_bproj', 'be_eff_drive', 'be_sf'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcElevator);
+      el.addEventListener('change', calcElevator);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_elevator');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- CEMA BUCKET ELEVATOR ENGINEERING DATASHEET ---',
+        'Material Density: ' + document.getElementById('be_density').value + ' kg/m³ | Lift Height: ' + document.getElementById('be_height').value + ' m',
+        'Bucket: ' + document.getElementById('be_bvol').value + ' L @ ' + document.getElementById('be_pitch').value + ' mm pitch (' + document.getElementById('be_fill').value + '% fill)',
+        'Belt Speed: ' + document.getElementById('be_speed').value + ' m/s | Head Pulley: ' + document.getElementById('be_pulley_dia').value + ' mm',
+        'Discharge Rate: ' + document.getElementById('res_bucket_rate').textContent,
+        'Volumetric Capacity: ' + document.getElementById('res_vol_cap').textContent,
+        'Mass Capacity: ' + document.getElementById('res_mass_cap').textContent,
+        'Head Shaft Speed: ' + document.getElementById('res_rpm').textContent,
+        'Centrifugal Pole: ' + document.getElementById('res_pole').textContent + ' [' + document.getElementById('res_disch_status').textContent + ']',
+        'Lifting Power: ' + document.getElementById('res_plift').textContent + ' | Digging Power: ' + document.getElementById('res_pdig').textContent,
+        'Head Shaft Power: ' + document.getElementById('res_pshaft').textContent + ' | Torque: ' + document.getElementById('res_torque').textContent,
+        'Recommended Motor: ' + document.getElementById('res_motor_hp').textContent,
+        'Up-Leg Suspended Load: ' + document.getElementById('res_belt_load').textContent,
+        'Generated via DigitalToolsShed.com Bucket Elevator Engineering Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcElevator();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AT4: HYDRAULIC ROCK DRILL PENETRATION RATE & IMPACT CALCULATOR ---
+  (() => {
+    const slug = 'hydraulic-rock-drill-penetration-rate-calculator';
+    const title = 'Hydraulic Rock Drill Penetration Rate & Impact Energy Calculator (Hustrulid & Fairhurst)';
+    const metaDescription = 'Professional percussive rock drill penetration rate (ROP) calculator for hydraulic top-hammers and down-the-hole (DTH) drifters. Solves piston impact velocity, single-blow kinetic energy, stress wave transmission, and drill bit penetration rate.';
+
+    const faq = [
+      {
+        q: 'How does a hydraulic rock drill drifter generate percussive impact energy?',
+        a: 'A hydraulic drifter uses high-pressure oil (120 to 220 bar) directed by a high-frequency shuttle or spool valve to reciprocate a hardened alloy steel piston. The piston accelerates across a stroke of 30 to 60 mm, striking the shank adapter at velocities between 8 and 12 m/s. Kinetic energy (E = 0.5 * m * v^2) generates a compressive acoustic stress wave traveling through the drill steel at ~5,100 m/s to shatter the rock face under the tungsten carbide button inserts.'
+      },
+      {
+        q: 'What is the Hustrulid and Fairhurst percussive drilling model?',
+        a: 'The Hustrulid-Fairhurst model links rock fragmentation to the acoustic transfer of impact energy down the drill rod: PR = (P_impact * eta_trans) / (A_hole * E_spec), where P_impact is percussion power (W), eta_trans is energy transfer efficiency (65% to 85%), A_hole is hole cross-sectional area (m^2), and E_spec is specific energy of rock fragmentation (J/m^3). Specific energy directly correlates with Unconfined Compressive Strength (UCS) and rock toughness.'
+      },
+      {
+        q: 'Why is feed force (thrust) critical in percussive drilling?',
+        a: 'Proper feed force maintains intimate contact between the bit inserts and the rock face when the stress wave arrives. If feed force is too low (under-feeding), the bit bounces off the rock; the compressive wave reflects as a high-magnitude tensile stress wave back up the drill string, causing thread stripping, shank fatigue fractures, and drifter dampening overheating. If feed force is too high (over-feeding), rotation torque spikes, bit rotation stalls, and rods deflect.'
+      },
+      {
+        q: 'What is the optimal bit indexing angle between consecutive piston blows?',
+        a: 'The bit rotation speed must index the carbide buttons between 8° and 15° between blows. If indexing is too small (<6°), buttons crush already pulverized rock dust, wasting energy. If indexing is too large (>18°), rock ridges remain unchipped between button craters, causing severe button shearing, gauge wear, and irregular hole geometry.'
+      },
+      {
+        q: 'What bailing/flushing velocity is required to clear rock cuttings?',
+        a: 'Drilling air or water must flow through the central rod flush hole and return up the narrow annulus between the drill rod and borehole wall. For dry air flushing in surface and underground blast-hole drilling, the annular bailing velocity must be at least 15 to 25 m/s (3,000 to 5,000 ft/min) to lift dense rock chips. Inadequate flushing causes secondary regrinding, bit jamming, and stuck drill strings.'
+      }
+    ];
+
+    const content = `
+<style>
+  .drill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .drill-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .drill-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size hydraulic top-hammer drifters, evaluate percussion impact kinematics, stress wave transfer into drill steel, and forecast net penetration rate (ROP) across rock formations per Hustrulid-Fairhurst percussive fracturing theory and Lundberg acoustic impedance mechanics.
+  </p>
+
+  <div class="drill-grid">
+    <!-- Panel 1: Drifter Hydraulics & Piston Kinematics -->
+    <div class="drill-card">
+      <h3>1. Hydraulic Drifter Parameters</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rd_press">Operating Percussion Press P (bar)</label>
+          <input type="number" id="rd_press" class="form-control" value="180" min="80" max="260" step="5">
+        </div>
+        <div class="form-group">
+          <label for="rd_flow">Hydraulic Percussion Flow Q (L/min)</label>
+          <input type="number" id="rd_flow" class="form-control" value="95" min="20" max="250" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rd_pmass">Piston Mass m<sub>p</sub> (kg)</label>
+          <input type="number" id="rd_pmass" class="form-control" value="4.8" min="1.0" max="25.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="rd_stroke">Piston Stroke S (mm)</label>
+          <input type="number" id="rd_stroke" class="form-control" value="42" min="15" max="90" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rd_freq">Blow Frequency f (Hz)</label>
+          <input type="number" id="rd_freq" class="form-control" value="55" min="20" max="100" step="1">
+        </div>
+        <div class="form-group">
+          <label for="rd_eta_trans">Stress Wave Transfer &eta;<sub>t</sub> (%)</label>
+          <input type="number" id="rd_eta_trans" class="form-control" value="75" min="50" max="92" step="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="rd_rod_dia">Drill Rod Thread / Series</label>
+        <select id="rd_rod_dia" class="form-control">
+          <option value="38">R32 / T38 (38 mm rod OD)</option>
+          <option value="45" selected>T45 (45 mm rod OD)</option>
+          <option value="51">T51 (51 mm rod OD)</option>
+          <option value="60">GT60 (60 mm heavy rod OD)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 2: Rock Geomechanics & Bit Selection -->
+    <div class="drill-card">
+      <h3>2. Rock Geomechanics & Drill Bit</h3>
+      <div class="form-group">
+        <label for="rd_rock_type">Rock Formation Preset</label>
+        <select id="rd_rock_type" class="form-control">
+          <option value="granite" selected>Hard Granite / Gneiss (UCS: 180 MPa)</option>
+          <option value="basalt">Dense Basalt / Diabase (UCS: 240 MPa)</option>
+          <option value="quartzite">Abrasive Quartzite (UCS: 280 MPa)</option>
+          <option value="limestone">Competent Limestone (UCS: 90 MPa)</option>
+          <option value="sandstone">Medium Sandstone (UCS: 65 MPa)</option>
+          <option value="shale">Soft Shale / Mudstone (UCS: 35 MPa)</option>
+          <option value="custom">Custom Rock Properties</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rd_ucs">Unconfined Strength UCS (MPa)</label>
+          <input type="number" id="rd_ucs" class="form-control" value="180" min="15" max="350" step="5">
+        </div>
+        <div class="form-group">
+          <label for="rd_bit_dia">Button Bit Diameter D<sub>b</sub> (mm)</label>
+          <input type="number" id="rd_bit_dia" class="form-control" value="89" min="35" max="200" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rd_rpm">Bit Rotation Speed N (RPM)</label>
+          <input type="number" id="rd_rpm" class="form-control" value="140" min="40" max="300" step="5">
+        </div>
+        <div class="form-group">
+          <label for="rd_flush_air">Flushing Air Delivery Q<sub>air</sub> (m&sup3;/min)</label>
+          <input type="number" id="rd_flush_air" class="form-control" value="7.5" min="1.0" max="30.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="rd_bit_type">Bit Face Profile & Buttons</label>
+        <select id="rd_bit_type" class="form-control">
+          <option value="spherical">Spherical / Dome Buttons (Hard & Abrasive Rock)</option>
+          <option value="ballistic" selected>Semi-Ballistic / Conical (Medium-Hard Fast ROP)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 3: Percussion Mechanics & Penetration Output -->
+    <div class="drill-card">
+      <h3>3. Performance & Kinematic Sizing</h3>
+      <div class="res-row">
+        <span class="res-label">Piston Impact Velocity v<sub>p</sub>:</span>
+        <span class="res-val highlight" id="res_vp">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Single Blow Energy E<sub>blow</sub>:</span>
+        <span class="res-val" id="res_eblow">-- Joules</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Percussive Impact Power P<sub>imp</sub>:</span>
+        <span class="res-val highlight" id="res_pimp">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Peak Stress Wave in Steel:</span>
+        <span class="res-val" id="res_stress">-- MPa</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Specific Rock Energy E<sub>spec</sub>:</span>
+        <span class="res-val" id="res_espec">-- MJ/m&sup3;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Net Penetration Rate (ROP):</span>
+        <span class="res-val highlight" id="res_rop">-- m/min (-- ft/min)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Drilling Production (ROP &times; 60):</span>
+        <span class="res-val" id="res_prod">-- m/hr</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bit Indexing Angle per Blow:</span>
+        <span class="res-val" id="res_index">-- &deg;/blow</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Indexing Geometry Check:</span>
+        <span id="res_index_status" class="status-badge badge-safe">OPTIMAL INDEXING</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Feed Thrust:</span>
+        <span class="res-val" id="res_feed">-- kN</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Annular Flushing Velocity:</span>
+        <span class="res-val" id="res_flush_vel">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Flushing Hole Cleaning Check:</span>
+        <span id="res_flush_status" class="status-badge badge-safe">ADEQUATE BAILING</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_drifter">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Percussive Stress Wave Propagation & Crater Chipping</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Hydraulic Drifter Piston: m<sub>p</sub> @ v<sub>p</sub> ] &rarr; [ Shank Adapter Impact Face ] &rarr; [ Acoustic Wave: c &asymp; 5,120 m/s ]<br>
+      [ Threaded Drill Rod Annulus & Flushing Hole ] &rarr; [ Carbide Button Bit: Diameter D<sub>b</sub> ] &rarr; [ Tensile Crater Spalling ]<br>
+      [ Annular Upward Air Stream: Velocity v<sub>flush</sub> &ge; 20 m/s ] &rarr; [ Bailing Rock Chips to Surface Collaring ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="drill-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Hustrulid-Fairhurst Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Hydraulic percussive rock drilling couples fluid power kinematics with 1-D acoustic wave equations and indentation fracture mechanics per Hustrulid & Fairhurst and Lundberg:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Piston Impact Kinematics</strong><br>
+        $$v_p = \sqrt{\frac{2 \cdot P_{hyd} \cdot A_{eff} \cdot S \cdot \eta_{hyd}}{m_p}} \approx 9.5 \text{ m/s}$$
+        $$E_{blow} = \frac{1}{2} m_p v_p^2 \quad [\text{Joules}]$$
+        $$P_{imp} = E_{blow} \cdot f \cdot 10^{-3} \quad [\text{kW}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. 1D Stress Wave in Steel</strong><br>
+        $$\sigma_{peak} = \frac{v_p}{1 + \frac{A_{rod}}{A_{piston}}} \cdot \frac{E_{steel}}{c_{steel}}$$
+        $$c_{steel} = \sqrt{\frac{E}{\rho}} \approx 5,120 \text{ m/s}$$
+        Safe fatigue limit in carburized drill steel: $\sigma \le 350\text{ MPa}$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Hustrulid-Fairhurst ROP</strong><br>
+        $$E_{spec} \approx 0.0035 \cdot (UCS)^{1.4} \quad [\text{MJ/m}^3]$$
+        $$PR = \frac{P_{imp} \cdot \eta_t}{\frac{\pi}{4} D_b^2 \cdot E_{spec}} \cdot 60 \quad [\text{m/min}]$$
+        Links acoustic rock chipping volume to net advance.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Rotation Indexing & Flushing</strong><br>
+        $$\theta_{index} = \frac{360^\circ \cdot N_{rpm}}{60 \cdot f} \quad [^\circ/\text{blow}]$$
+        $$v_{flush} = \frac{Q_{air} / 60}{\frac{\pi}{4}(D_b^2 - D_{rod}^2)} \ge 20 \text{ m/s}$$
+        Prevents secondary re-crushing and drill bit binding.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="drill-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Hydraulic Percussive Drilling</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Under-Feeding / Rattling Stress Wave Trap (Tensile Rod Rupture)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When the operator applies insufficient feed thrust, the drill bit is not pressed firmly against solid rock when the percussion piston strikes. Because the rock face provides zero acoustic resistance, the compressive stress wave reflects from the free bit boundary as an inverted, high-amplitude tensile wave travelling back up the rod. Carburized drill steel has high compressive strength but poor tensile fatigue endurance. Rattling without adequate feed causes rapid thread stripping, shank adapter fracture, and catastrophic coupling breakage within minutes. Maintain feed thrust above $(1.3 - 1.6) \times P_{imp} / v_p$.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Over-Feeding & Severe Hole Deviation with Bit Stalling</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Excessive feed thrust forces the bit into the rock beyond the natural crushing depth per blow. This jams the carbide buttons into fracture craters, spiking rotational torque and causing rotation motors to stall. The extreme column load induces elastic buckling in the drill string, causing borehole deviation (>5° off axis), severe bending stress on male/female rod threads, and premature gauge button wear on the perimeter.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Inadequate Annular Flushing Velocity & Secondary Regrinding Catastrophe</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        If compressor output is undersized or air loss occurs through fractured ground, the upward annular air velocity drops below 15 m/s (3,000 ft/min). Heavy rock cuttings cannot be lifted to the surface and fall back down the hole. The bit is forced to re-crush existing cuttings into fine powder rather than fracturing virgin rock. This cuts penetration rate by 50% to 70%, generates extreme friction that overheats carbide inserts (causing thermal micro-cracking / snake skin), and eventually wedges the drill string in a packed hole.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Over-Indexing & Button Ridge Spalling</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Spinning the rotation motor too fast relative to percussion frequency (indexing angle $>18^circ$ per blow) leaves tall, unbroken rock ridges between consecutive button strike craters. When the carbide buttons subsequently hit the steep sides of these rock ridges on the next blow, they experience destructive lateral shear forces rather than pure axial compression. Tungsten carbide buttons readily fracture in shear, leading to pop-out failures and ruined drill bits.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Damper Bladder Rupture & Hydraulic Shockwave Destruction</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Hydraulic drifters rely on high-pressure nitrogen gas accumulator bladders to absorb the reflected hydraulic pressure spikes generated when the spool valve cuts off flow at 50 to 80 Hz. If nitrogen pre-charge pressure is neglected or the elastomer bladder ruptures, water-hammer pressure spikes (>350 bar) propagate through the hydraulic pump, blowing pump swashplates, tearing hose crimps, and eroding valve sleeves within hours. Check accumulator pre-charge weekly.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="drill-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Underground Mine Production Blast-Hole Drilling in Hard Granite.</p>
+      <ul>
+        <li><strong>Hydraulic Drifter:</strong> Piston mass $m_p = 4.8\text{ kg}$, stroke $S = 42\text{ mm}$, percussion pressure $P = 180\text{ bar}$ ($18\text{ MPa}$), flow $Q = 95\text{ L/min}$, frequency $f = 55\text{ Hz}$.</li>
+        <li><strong>Drill String:</strong> T45 drill rods ($D_{rod} = 45\text{ mm}$ OD), bit diameter $D_b = 89\text{ mm}$ button bit.</li>
+        <li><strong>Rock Formation:</strong> Fresh Granite, $UCS = 180\text{ MPa}$. Rotation speed $N = 140\text{ RPM}$. Compressor air flow $Q_{air} = 7.5\text{ m}^3/\text{min}$.</li>
+      </ul>
+      <p><strong>Step 1: Piston Impact Velocity & Kinetic Energy:</strong></p>
+      $$\text{Drive area } A_{eff} \approx 0.00125\text{ m}^2 \implies v_p \approx \sqrt{\frac{2 \times 18\times 10^6 \times 0.00125 \times 0.042 \times 0.72}{4.8}} = 9.85\text{ m/s}$$
+      $$E_{blow} = \frac{1}{2} \times 4.8\text{ kg} \times (9.85\text{ m/s})^2 = 232.8\text{ Joules}$$
+      $$P_{imp} = 232.8\text{ J} \times 55\text{ Hz} = 12,804\text{ W} = 12.80\text{ kW}$$
+      <p><strong>Step 2: Specific Energy & Penetration Rate (Hustrulid-Fairhurst):</strong></p>
+      $$E_{spec} = 0.0035 \times (180)^{1.4} = 0.0035 \times 1421.5 = 4.975 \times 10 \approx 49.75\text{ MJ/m}^3$$
+      $$\text{Hole Area } A_{hole} = \frac{\pi}{4} \times (0.089\text{ m})^2 = 0.006221\text{ m}^2$$
+      $$\text{Transferred Percussion Power: } P_{trans} = 12.80\text{ kW} \times 0.75 = 9.60\text{ kW} = 9,600\text{ W}$$
+      $$PR = \frac{9,600\text{ W}}{0.006221\text{ m}^2 \times 49.75 \times 10^6\text{ J/m}^3} = 0.03102\text{ m/s} = 1.86\text{ m/min} \quad (6.10\text{ ft/min})$$
+      $$\text{Drilling Production Rate } = 1.86\text{ m/min} \times 60 = 111.7\text{ meters/operating hour}.$$
+      <p><strong>Step 3: Bit Indexing Angle:</strong></p>
+      $$\theta_{index} = \frac{360^\circ \times 140\text{ RPM}}{60 \times 55\text{ Hz}} = \frac{50,400}{3300} = 15.27^\circ/\text{blow} \quad (\text{\textbf{Optimal crater overlap}})$$
+      <p><strong>Step 4: Flushing Bailing Velocity:</strong></p>
+      $$A_{annulus} = \frac{\pi}{4} \times (0.089^2 - 0.045^2) = 0.7854 \times (0.007921 - 0.002025) = 0.004631\text{ m}^2$$
+      $$v_{flush} = \frac{7.5\text{ m}^3/\text{min} / 60}{0.004631\text{ m}^2} = \frac{0.125}{0.004631} = 27.0\text{ m/s} \quad (5,315\text{ ft/min} \ge 20\text{ m/s} \implies \text{\textbf{Clean Hole}}).$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const rockPresets = {
+    granite: 180,
+    basalt: 240,
+    quartzite: 280,
+    limestone: 90,
+    sandstone: 65,
+    shale: 35
+  };
+
+  const rockSelect = document.getElementById('rd_rock_type');
+  const ucsInput = document.getElementById('rd_ucs');
+
+  if (rockSelect && ucsInput) {
+    rockSelect.addEventListener('change', () => {
+      const val = rockSelect.value;
+      if (val !== 'custom' && rockPresets[val]) {
+        ucsInput.value = rockPresets[val];
+        calcDrill();
+      }
+    });
+  }
+
+  function calcDrill() {
+    const P_bar = parseFloat(document.getElementById('rd_press').value) || 180;
+    const Q_lmin = parseFloat(document.getElementById('rd_flow').value) || 95;
+    const mp = parseFloat(document.getElementById('rd_pmass').value) || 4.8;
+    const S_mm = parseFloat(document.getElementById('rd_stroke').value) || 42;
+    const S = S_mm * 1e-3; // m
+    const f = parseFloat(document.getElementById('rd_freq').value) || 55;
+    const eta_t = (parseFloat(document.getElementById('rd_eta_trans').value) || 75) / 100;
+    const rod_od_mm = parseFloat(document.getElementById('rd_rod_dia').value) || 45;
+    const rod_od = rod_od_mm * 1e-3; // m
+    const ucs = parseFloat(document.getElementById('rd_ucs').value) || 180; // MPa
+    const Db_mm = parseFloat(document.getElementById('rd_bit_dia').value) || 89;
+    const Db = Db_mm * 1e-3; // m
+    const N_rpm = parseFloat(document.getElementById('rd_rpm').value) || 140;
+    const Qair_m3min = parseFloat(document.getElementById('rd_flush_air').value) || 7.5;
+    const bitBallistic = document.getElementById('rd_bit_type').value === 'ballistic';
+
+    // 1. Piston kinematics
+    // Effective piston drive area estimated from stroke and frequency
+    const P_pa = P_bar * 1e5; // Pa
+    const A_eff = Math.min(0.003, Math.max(0.0006, 0.00125 * Math.sqrt(mp / 4.8)));
+    const eta_hyd = 0.72;
+    const vp = Math.sqrt((2 * P_pa * A_eff * S * eta_hyd) / Math.max(mp, 0.5));
+    const Eblow = 0.5 * mp * Math.pow(vp, 2); // Joules
+    const Pimp_kw = (Eblow * f) / 1000; // kW
+
+    // 2. Stress wave in steel: sigma = vp / (1 + Arod/Apiston) * (E/c)
+    // For tool steel E = 206 GPa, c = 5120 m/s -> E/c = 40.2 MPa / (m/s)
+    const stress_peak = vp * 26.5; // MPa approx in rod
+
+    // 3. Hustrulid & Fairhurst penetration rate
+    // Specific energy: E_spec in MJ/m3
+    // E_spec = 0.0035 * UCS^1.4
+    let E_spec = 0.0035 * Math.pow(Math.max(ucs, 10), 1.4) * 10; // MJ/m3
+    if (bitBallistic) {
+      E_spec *= 0.88; // 12% lower specific energy in softer/medium rock
+    }
+    const Ahole = (Math.PI / 4) * Math.pow(Db, 2); // m2
+    const Ptrans_w = Pimp_kw * 1000 * eta_t; // Watts transferred
+    const ROP_ms = Ptrans_w / (Ahole * (E_spec * 1e6)); // m/s
+    const ROP_mmin = ROP_ms * 60;
+    const ROP_ftmin = ROP_mmin * 3.28084;
+    const ROP_mhr = ROP_mmin * 60;
+
+    // 4. Bit indexing angle
+    const theta_index = (360 * N_rpm) / (60 * Math.max(f, 1));
+
+    // 5. Recommended feed thrust: F_feed approx 1.4 * Pimp / vp in kN
+    const Ffeed_kn = (1.4 * (Pimp_kw * 1000) / Math.max(vp, 1)) / 1000;
+
+    // 6. Annular flushing velocity
+    const Aannulus = Math.max(0.0005, (Math.PI / 4) * (Math.pow(Db, 2) - Math.pow(rod_od, 2)));
+    const vflush = (Qair_m3min / 60) / Aannulus; // m/s
+
+    // Update UI
+    document.getElementById('res_vp').textContent = vp.toFixed(2) + ' m/s (' + (vp * 3.28084).toFixed(1) + ' ft/s)';
+    document.getElementById('res_eblow').textContent = Eblow.toFixed(1) + ' J (' + (Eblow * 0.73756).toFixed(1) + ' ft·lbf)';
+    document.getElementById('res_pimp').textContent = Pimp_kw.toFixed(2) + ' kW (' + (Pimp_kw * 1.34102).toFixed(1) + ' HP)';
+    document.getElementById('res_stress').textContent = stress_peak.toFixed(0) + ' MPa';
+    document.getElementById('res_espec').textContent = E_spec.toFixed(1) + ' MJ/m³';
+    document.getElementById('res_rop').textContent = ROP_mmin.toFixed(2) + ' m/min (' + ROP_ftmin.toFixed(2) + ' ft/min)';
+    document.getElementById('res_prod').textContent = ROP_mhr.toFixed(1) + ' m/h (' + (ROP_mhr * 3.28084).toFixed(1) + ' ft/h)';
+    document.getElementById('res_index').textContent = theta_index.toFixed(1) + '° / blow';
+
+    const indexBadge = document.getElementById('res_index_status');
+    if (theta_index >= 8 && theta_index <= 16) {
+      indexBadge.className = 'status-badge badge-safe';
+      indexBadge.textContent = 'OPTIMAL CHIPPING INDEX (8° - 16°)';
+    } else if (theta_index < 8) {
+      indexBadge.className = 'status-badge badge-warn';
+      indexBadge.textContent = 'UNDER-ROTATION: REGRINDING ROCK DUST';
+    } else {
+      indexBadge.className = 'status-badge badge-danger';
+      indexBadge.textContent = 'OVER-ROTATION: BUTTON RIDGE SHEARING';
+    }
+
+    document.getElementById('res_feed').textContent = Ffeed_kn.toFixed(1) + ' kN (' + (Ffeed_kn * 224.809).toFixed(0) + ' lbf)';
+    document.getElementById('res_flush_vel').textContent = vflush.toFixed(1) + ' m/s (' + (vflush * 196.85).toFixed(0) + ' ft/min)';
+
+    const flushBadge = document.getElementById('res_flush_status');
+    if (vflush >= 20) {
+      flushBadge.className = 'status-badge badge-safe';
+      flushBadge.textContent = 'ADEQUATE BAILING VELOCITY (≥ 20 m/s)';
+    } else if (vflush >= 15) {
+      flushBadge.className = 'status-badge badge-warn';
+      flushBadge.textContent = 'MARGINAL FLUSHING: CHIPS MAY SETTLE';
+    } else {
+      flushBadge.className = 'status-badge badge-danger';
+      flushBadge.textContent = 'POOR FLUSHING: CHIP PACKING & BIT BINDING';
+    }
+  }
+
+  const inputs = ['rd_press', 'rd_flow', 'rd_pmass', 'rd_stroke', 'rd_freq', 'rd_eta_trans', 'rd_rod_dia', 'rd_rock_type', 'rd_ucs', 'rd_bit_dia', 'rd_rpm', 'rd_flush_air', 'rd_bit_type'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcDrill);
+      el.addEventListener('change', calcDrill);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_drifter');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- HYDRAULIC ROCK DRILL ENGINEERING DATASHEET ---',
+        'Percussion Pressure: ' + document.getElementById('rd_press').value + ' bar | Piston: ' + document.getElementById('rd_pmass').value + ' kg @ ' + document.getElementById('rd_stroke').value + ' mm stroke',
+        'Blow Frequency: ' + document.getElementById('rd_freq').value + ' Hz | Transfer Efficiency: ' + document.getElementById('rd_eta_trans').value + '%',
+        'Piston Impact Velocity: ' + document.getElementById('res_vp').textContent,
+        'Single Blow Energy: ' + document.getElementById('res_eblow').textContent,
+        'Percussion Power: ' + document.getElementById('res_pimp').textContent,
+        'Peak Rod Stress: ' + document.getElementById('res_stress').textContent,
+        'Rock UCS: ' + document.getElementById('rd_ucs').value + ' MPa | Bit Dia: ' + document.getElementById('rd_bit_dia').value + ' mm',
+        'Penetration Rate (ROP): ' + document.getElementById('res_rop').textContent + ' (' + document.getElementById('res_prod').textContent + ')',
+        'Bit Indexing: ' + document.getElementById('res_index').textContent + ' [' + document.getElementById('res_index_status').textContent + ']',
+        'Recommended Feed Thrust: ' + document.getElementById('res_feed').textContent,
+        'Annular Flushing Velocity: ' + document.getElementById('res_flush_vel').textContent + ' [' + document.getElementById('res_flush_status').textContent + ']',
+        'Generated via DigitalToolsShed.com Percussive Rock Drilling Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcDrill();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+console.log('  ✓ Built Trade & Construction Suite (127 calculators in /calc/)');
 }
 
