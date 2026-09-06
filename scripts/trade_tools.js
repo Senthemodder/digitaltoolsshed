@@ -45240,6 +45240,2330 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (51 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 52: Hydraulic Accumulator Sizing Calculator (ASME & ISO 5598)
+  // ==========================================
+  const hydraulicAccumulatorBody = `
+<style>
+  .ha-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .ha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .ha-grid { grid-template-columns: 1fr; } }
+  .ha-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .ha-header { margin-bottom: 20px; }
+  .ha-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .ha-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .ha-form-group { margin-bottom: 16px; }
+  .ha-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .ha-input-row { display: flex; gap: 10px; align-items: center; }
+  .ha-input-row input, .ha-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .ha-input-row input:focus, .ha-input-row select:focus { outline: none; border-color: #2563eb; }
+  .ha-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .ha-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .ha-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .ha-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .ha-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .ha-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .ha-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .ha-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .ha-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .ha-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .ha-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .ha-btn:hover { background: #1d4ed8; }
+  .ha-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="ha-container">
+  <div class="ha-grid">
+    <!-- Inputs Column -->
+    <div class="ha-card">
+      <div class="ha-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Hydraulic System Parameters</h2>
+        <p>ASME Section VIII Div 1 &amp; ISO 5598 gas-charged accumulator engine</p>
+      </div>
+
+      <div class="ha-form-group">
+        <label for="haAppType">Accumulator Function &amp; Thermal Process</label>
+        <div class="ha-input-row">
+          <select id="haAppType">
+            <option value="1.4" selected>Fast Emergency Actuation / Discharge (Adiabatic, n = 1.40, t &lt; 60s)</option>
+            <option value="1.25">Intermediate Cycling / Duty Cycle (Semi-Adiabatic, n = 1.25, 1-3 min)</option>
+            <option value="1.0">Slow Holding / Thermal Expansion (Isothermal, n = 1.00, t &gt; 3 min)</option>
+            <option value="pulsation">Triplex/Piston Pump Pulsation Dampener (ISO 5598)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ha-form-group">
+        <label for="haFluidVol">Required Usable Fluid Volume (&Delta;V / V<sub>w</sub>)</label>
+        <div class="ha-input-row">
+          <input type="number" id="haFluidVol" value="8.5" min="0.1" step="0.1">
+          <select id="haVolUnit" class="ha-unit-badge" style="width:auto;">
+            <option value="liters" selected>Liters</option>
+            <option value="gallons">Gallons</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ha-form-group">
+        <label for="haP2">Maximum Working System Pressure (P<sub>2</sub>)</label>
+        <div class="ha-input-row">
+          <input type="number" id="haP2" value="210" min="10" step="5">
+          <select id="haPressUnit" class="ha-unit-badge" style="width:auto;">
+            <option value="bar" selected>bar</option>
+            <option value="psi">psi</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ha-form-group">
+        <label for="haP1">Minimum Working System Pressure (P<sub>1</sub>)</label>
+        <div class="ha-input-row">
+          <input type="number" id="haP1" value="140" min="5" step="5">
+          <div class="ha-unit-badge" id="haP1UnitBadge">bar</div>
+        </div>
+      </div>
+
+      <div class="ha-form-group">
+        <label for="haP0Ratio">Nitrogen Precharge Strategy (P<sub>0</sub> relative to P<sub>1</sub>)</label>
+        <div class="ha-input-row">
+          <select id="haP0Ratio">
+            <option value="0.90" selected>Standard Energy Storage (P₀ = 0.90 &times; P₁)</option>
+            <option value="0.85">Conservative Margin (P₀ = 0.85 &times; P₁)</option>
+            <option value="0.75">Pulsation / High-Frequency (P₀ = 0.75 &times; P₁)</option>
+            <option value="0.60">Low-Frequency Dampening (P₀ = 0.60 &times; P₁)</option>
+            <option value="custom">Manual Precharge Pressure</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ha-form-group" id="haCustomP0Group" style="display:none;">
+        <label for="haCustomP0">Manual Nitrogen Precharge Pressure (P<sub>0</sub>)</label>
+        <div class="ha-input-row">
+          <input type="number" id="haCustomP0" value="126" min="1" step="1">
+          <div class="ha-unit-badge" id="haP0UnitBadge">bar</div>
+        </div>
+      </div>
+
+      <div class="ha-form-group">
+        <label>Temperature Compensation (Precharge vs Operating)</label>
+        <div class="ha-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Ambient Filling Temp</span>
+            <input type="number" id="haT0" value="20" step="1">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Max Operating Temp</span>
+            <input type="number" id="haTop" value="60" step="1">
+          </div>
+          <select id="haTempUnit" class="ha-unit-badge" style="width:auto; align-self:flex-end; height:42px;">
+            <option value="C" selected>&deg;C</option>
+            <option value="F">&deg;F</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ha-form-group">
+        <label for="haBladderType">Accumulator Construction Style</label>
+        <div class="ha-input-row">
+          <select id="haBladderType">
+            <option value="bladder" selected>Elastomer Bladder (ASME VIII / ISO 5598 - Rapid response, Max 4:1 ratio)</option>
+            <option value="piston">Piston Type (Heavy Industrial - High volume, Max 8:1 ratio, higher seal friction)</option>
+            <option value="diaphragm">Diaphragm Type (Compact Mobile - Max 6:1 ratio, 0.5 to 4 Liters)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="ha-card">
+      <div class="ha-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Sizing Results &amp; Bladder Mechanics</h2>
+        <p>Live polytropic gas expansion and shell size recommendation</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="haSvg" width="340" height="230" viewBox="0 0 340 230" style="max-width:100%;">
+          <defs>
+            <linearGradient id="haShellGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="50%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="haGasGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#0284c7"/>
+            </linearGradient>
+            <linearGradient id="haOilGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+          </defs>
+          
+          <!-- Top Gas Valve -->
+          <rect x="164" y="8" width="12" height="16" fill="#64748b" rx="2"/>
+          <circle cx="170" cy="6" r="5" fill="#0284c7"/>
+          <text x="170" y="3" font-size="8" font-weight="bold" fill="#0369a1" text-anchor="middle">N₂ Valve</text>
+
+          <!-- Steel Vessel Shell Outer Body -->
+          <path d="M 120 40 C 120 20, 220 20, 220 40 L 220 180 C 220 200, 120 200, 120 180 Z" fill="url(#haShellGrad)" stroke="#1e293b" stroke-width="2"/>
+          
+          <!-- Inner Bore Chamber -->
+          <path d="M 126 42 C 126 26, 214 26, 214 42 L 214 178 C 214 194, 126 194, 126 178 Z" fill="#f8fafc"/>
+
+          <!-- Oil Region (Lower) -->
+          <path id="svgOilPath" d="M 126 130 L 214 130 L 214 178 C 214 194, 126 194, 126 178 Z" fill="url(#haOilGrad)" opacity="0.85"/>
+
+          <!-- Gas / Bladder Region (Upper) -->
+          <path id="svgGasPath" d="M 126 42 C 126 26, 214 26, 214 42 L 214 130 C 190 145, 150 145, 126 130 Z" fill="url(#haGasGrad)" opacity="0.85"/>
+          
+          <!-- Bladder Membrane Contour -->
+          <path id="svgBladderEdge" d="M 126 42 C 126 26, 214 26, 214 42 L 214 130 C 190 145, 150 145, 126 130 Z" fill="none" stroke="#0f172a" stroke-width="3" stroke-dasharray="3,3"/>
+
+          <!-- Anti-Extrusion Poppet at Bottom Port -->
+          <polygon points="162,186 178,186 174,196 166,196" fill="#475569"/>
+          <rect x="165" y="196" width="10" height="20" fill="#334155"/>
+          <text x="170" y="226" font-size="8" font-weight="bold" fill="#475569" text-anchor="middle">Hydraulic Port</text>
+
+          <!-- Annotations & Labels -->
+          <text x="170" y="85" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" id="svgGasLabel">N₂ Gas (V₂)</text>
+          <text x="170" y="165" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" id="svgOilLabel">Oil (&Delta;V)</text>
+
+          <!-- Pressure Ratio Callout -->
+          <rect x="235" y="60" width="95" height="44" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+          <text x="240" y="75" font-size="9" fill="#64748b">Pressure Ratio P₂/P₀</text>
+          <text x="240" y="94" font-size="14" font-weight="bold" fill="#0f172a" id="svgRatioVal">1.67 : 1</text>
+
+          <!-- Precharge Callout -->
+          <rect x="10" y="60" width="100" height="44" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+          <text x="15" y="75" font-size="9" fill="#64748b">In-Service P₀ @ Temp</text>
+          <text x="15" y="94" font-size="14" font-weight="bold" fill="#0284c7" id="svgCompP0Val">143.2 bar</text>
+        </svg>
+      </div>
+
+      <div class="ha-stat-grid">
+        <div class="ha-stat-box highlight">
+          <div class="ha-stat-label">Required Gas Vol (V₀)</div>
+          <div class="ha-stat-val" id="haV0Result">24.8 L</div>
+          <div class="ha-stat-sub" id="haV0Sub">6.55 US gal</div>
+        </div>
+        <div class="ha-stat-box highlight">
+          <div class="ha-stat-label">Recommended Shell Size</div>
+          <div class="ha-stat-val" id="haShellResult">32.0 L</div>
+          <div class="ha-stat-sub" id="haShellSub">Std ASME / ISO Shell</div>
+        </div>
+        <div class="ha-stat-box">
+          <div class="ha-stat-label">Operating Precharge (P₀)</div>
+          <div class="ha-stat-val" id="haP0Result">126.0 bar</div>
+          <div class="ha-stat-sub" id="haP0Sub">1,827 psi</div>
+        </div>
+        <div class="ha-stat-box" id="haRatioBox">
+          <div class="ha-stat-label">Expansion Ratio (P₂/P₀)</div>
+          <div class="ha-stat-val" id="haRatioResult">1.67 : 1</div>
+          <div class="ha-stat-sub"><span class="ha-status-badge badge-pass" id="haRatioBadge">Optimal (&le; 3.5:1)</span></div>
+        </div>
+      </div>
+
+      <div class="ha-stat-grid">
+        <div class="ha-stat-box">
+          <div class="ha-stat-label">Cold Filling P₀ @ Ambient</div>
+          <div class="ha-stat-val" id="haColdP0Result">110.8 bar</div>
+          <div class="ha-stat-sub" id="haColdP0Sub">Fill at shop ambient</div>
+        </div>
+        <div class="ha-stat-box">
+          <div class="ha-stat-label">Volume Utilization</div>
+          <div class="ha-stat-val" id="haUtilResult">26.6%</div>
+          <div class="ha-stat-sub" id="haUtilSub">&Delta;V / V_shell</div>
+        </div>
+      </div>
+
+      <button type="button" class="ha-btn" id="copyHaAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy ASME/ISO Sizing Report</span>
+      </button>
+
+      <textarea id="haAuditReport" class="ha-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Engineering Rigor -->
+  <div class="ha-card" style="margin-bottom: 24px;">
+    <div class="ha-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Mathematical &amp; Polytropic Derivations</h2>
+      <p>Step-by-step gas expansion formulas evaluated live with current inputs</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>ASME Section VIII Division 1</strong> and <strong>ISO 5598:2020</strong> (Fluid power systems and components &mdash; Accumulators), the thermodynamic behavior of dry Nitrogen (N₂) obeys the polytropic gas expansion equation:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        P₀ &middot; V₀<sup>n</sup> = P₁ &middot; V₁<sup>n</sup> = P₂ &middot; V₂<sup>n</sup> = Constant
+      </div>
+      <p>1. <strong>Gas Volume at Maximum Pressure (V₂):</strong> When the hydraulic power unit (HPU) charges the accumulator to maximum system pressure <span id="derivP2" style="font-weight:600;">210 bar</span>, the nitrogen gas is compressed to its smallest volume:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        V₂ = V₀ &middot; (P₀ / P₂)<sup>1/n</sup>
+      </div>
+      <p>2. <strong>Gas Volume at Minimum Pressure (V₁):</strong> When the system discharges fluid to perform work down to minimum operating pressure <span id="derivP1" style="font-weight:600;">140 bar</span>, the nitrogen expands:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        V₁ = V₀ &middot; (P₀ / P₁)<sup>1/n</sup>
+      </div>
+      <p>3. <strong>Discharged Fluid Volume (&Delta;V = V₁ - V₂):</strong> Solving for nominal accumulator gas volume V₀ required to deliver <span id="derivDeltaV" style="font-weight:600;">8.50 L</span> of fluid:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        V₀ = &Delta;V / [ (P₀ / P₁)<sup>1/n</sup> - (P₀ / P₂)<sup>1/n</sup> ] = <span id="derivCalcV0" style="font-weight:700; color:#2563eb;">24.81 L</span>
+      </div>
+      <p>4. <strong>Ambient Temperature Charging Correction:</strong> Charles's Law governs gas pressure variations with temperature. If the accumulator operates at <span id="derivTop" style="font-weight:600;">60&deg;C</span> (333.15 K) but is precharged in a maintenance bay at <span id="derivT0" style="font-weight:600;">20&deg;C</span> (293.15 K):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        P₀(ambient) = P₀(operating) &middot; (T_ambient + 273.15) / (T_operating + 273.15) = <span id="derivCalcColdP0" style="font-weight:700; color:#0284c7;">110.8 bar</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="ha-card" style="margin-bottom: 24px;">
+    <div class="ha-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Hydraulic Accumulator Engineering</h2>
+      <p>ASME BPVC, OSHA 1910.169, and ISO 5598 safety guidelines</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Precharge Extrusion &amp; Poppet Valve Destruction (P₀ &ge; P₁)</strong><br>
+      Setting nitrogen precharge P₀ higher than minimum system pressure P₁ forces the rubber bladder to expand to its maximum physical envelope while fluid is still being demanded. The high gas pressure extrudes the synthetic elastomer through the fluid port or repeatedly hammers the anti-extrusion poppet valve, slicing the bladder in half within days of operation. Always enforce P₀ &le; 0.90 &middot; P₁.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. The Isothermal vs. Adiabatic Sizing Blunder (n = 1.0 vs n = 1.4)</strong><br>
+      Using isothermal expansion (n = 1.0) for high-speed emergency shutdowns, punch press strokes, or flight controls (&lt; 60 seconds) underestimates required accumulator shell volume by <strong>30% to 45%</strong>! Rapid nitrogen expansion cannot absorb ambient heat through the thick forged vessel wall, causing internal gas temperature to plummet. As the gas freezes, its delivered pressure collapses prematurely.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Ambient Precharging Temperature Drift Trap</strong><br>
+      Charging an accumulator to target P₀ in an unheated maintenance shop at 10&deg;C (50&deg;F) without temperature compensation causes catastrophic over-pressurization when the machine warms up to continuous 65&deg;C (150&deg;F) hydraulic oil. The +19% thermal pressure rise boosts P₀ above P₁, triggering severe bladder extrusion. Always use Charles's Law to calculate cold fill pressure.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. The Lethal Compressed Air / Oxygen Precharge Trap</strong><br>
+      <strong>NEVER, under any circumstances, use compressed air or pure oxygen to precharge a hydraulic accumulator.</strong> Under rapid compression during pump loading, high-pressure oxygen intimately mixed with atomized petroleum hydraulic oil mist creates a diesel engine compression-ignition event, detonating the forged steel pressure vessel. Only dry industrial Nitrogen (N₂ &ge; 99.8%) is permitted.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Pressure Ratio Exceedance (P₂ / P₀ &gt; 4:1) &amp; Bladder Fatigue</strong><br>
+      In standard bladder accumulators, operating at a maximum pressure ratio P₂ / P₀ greater than 4.0:1 forces the flexible elastomer into severe microscopic creasing, star-folding, and tensile stress. Continuous cycling across a 5:1 or 6:1 pressure delta causes rapid rubber flex cracking along the longitudinal fold lines. For high-ratio systems, transition to a honed-bore piston accumulator.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const appTypeSelect = document.getElementById('haAppType');
+  const fluidVolInput = document.getElementById('haFluidVol');
+  const volUnitSelect = document.getElementById('haVolUnit');
+  const p2Input = document.getElementById('haP2');
+  const pressUnitSelect = document.getElementById('haPressUnit');
+  const p1Input = document.getElementById('haP1');
+  const p1UnitBadge = document.getElementById('haP1UnitBadge');
+  const p0RatioSelect = document.getElementById('haP0Ratio');
+  const customP0Group = document.getElementById('haCustomP0Group');
+  const customP0Input = document.getElementById('haCustomP0');
+  const p0UnitBadge = document.getElementById('haP0UnitBadge');
+  const t0Input = document.getElementById('haT0');
+  const topInput = document.getElementById('haTop');
+  const tempUnitSelect = document.getElementById('haTempUnit');
+  const bladderTypeSelect = document.getElementById('haBladderType');
+
+  // Outputs
+  const v0Result = document.getElementById('haV0Result');
+  const v0Sub = document.getElementById('haV0Sub');
+  const shellResult = document.getElementById('haShellResult');
+  const shellSub = document.getElementById('haShellSub');
+  const p0Result = document.getElementById('haP0Result');
+  const p0Sub = document.getElementById('haP0Sub');
+  const ratioResult = document.getElementById('haRatioResult');
+  const ratioBadge = document.getElementById('haRatioBadge');
+  const ratioBox = document.getElementById('haRatioBox');
+  const coldP0Result = document.getElementById('haColdP0Result');
+  const coldP0Sub = document.getElementById('haColdP0Sub');
+  const utilResult = document.getElementById('haUtilResult');
+  const utilSub = document.getElementById('haUtilSub');
+  const auditBox = document.getElementById('haAuditReport');
+
+  // SVG Elements
+  const svgGasPath = document.getElementById('svgGasPath');
+  const svgOilPath = document.getElementById('svgOilPath');
+  const svgBladderEdge = document.getElementById('svgBladderEdge');
+  const svgRatioVal = document.getElementById('svgRatioVal');
+  const svgCompP0Val = document.getElementById('svgCompP0Val');
+  const svgGasLabel = document.getElementById('svgGasLabel');
+  const svgOilLabel = document.getElementById('svgOilLabel');
+
+  // Derivations
+  const derivP2 = document.getElementById('derivP2');
+  const derivP1 = document.getElementById('derivP1');
+  const derivDeltaV = document.getElementById('derivDeltaV');
+  const derivCalcV0 = document.getElementById('derivCalcV0');
+  const derivTop = document.getElementById('derivTop');
+  const derivT0 = document.getElementById('derivT0');
+  const derivCalcColdP0 = document.getElementById('derivCalcColdP0');
+
+  const stdShellSizesLiters = [1, 2.5, 4, 10, 20, 24, 32, 50, 60, 80, 100, 150, 200];
+
+  function calculate() {
+    const isPsi = pressUnitSelect.value === 'psi';
+    const isGallons = volUnitSelect.value === 'gallons';
+    const isFahrenheit = tempUnitSelect.value === 'F';
+
+    p1UnitBadge.textContent = isPsi ? 'psi' : 'bar';
+    p0UnitBadge.textContent = isPsi ? 'psi' : 'bar';
+
+    let P2 = parseFloat(p2Input.value) || 210;
+    let P1 = parseFloat(p1Input.value) || 140;
+    let deltaV = parseFloat(fluidVolInput.value) || 8.5;
+
+    // Convert pressures to absolute bar for thermodynamic consistency
+    const P2_bar = isPsi ? (P2 + 14.7) * 0.0689476 : P2 + 1.01325;
+    const P1_bar = isPsi ? (P1 + 14.7) * 0.0689476 : P1 + 1.01325;
+
+    // Convert volume to Liters for calculation
+    const deltaV_liters = isGallons ? deltaV * 3.78541 : deltaV;
+
+    // Precharge P0
+    let P0_gauge = 0;
+    if (p0RatioSelect.value === 'custom') {
+      customP0Group.style.display = 'block';
+      P0_gauge = parseFloat(customP0Input.value) || (P1 * 0.9);
+    } else {
+      customP0Group.style.display = 'none';
+      const ratio = parseFloat(p0RatioSelect.value);
+      P0_gauge = P1 * ratio;
+      customP0Input.value = P0_gauge.toFixed(1);
+    }
+
+    const P0_bar = isPsi ? (P0_gauge + 14.7) * 0.0689476 : P0_gauge + 1.01325;
+
+    // Polytropic exponent n
+    let n = 1.4;
+    if (appTypeSelect.value === 'pulsation') {
+      n = 1.35;
+    } else {
+      n = parseFloat(appTypeSelect.value) || 1.4;
+    }
+
+    // Safety checks
+    let validP0 = true;
+    if (P0_gauge >= P1) {
+      validP0 = false;
+    }
+
+    // V0 calculation: V0 = deltaV / [ (P0/P1)^(1/n) - (P0/P2)^(1/n) ]
+    let term1 = Math.pow(P0_bar / P1_bar, 1 / n);
+    let term2 = Math.pow(P0_bar / P2_bar, 1 / n);
+    let denom = term1 - term2;
+    if (denom <= 0.0001) denom = 0.0001;
+
+    let V0_liters = deltaV_liters / denom;
+    if (V0_liters < deltaV_liters) V0_liters = deltaV_liters * 1.5;
+
+    // Recommended Shell Size
+    let grossMargin = bladderTypeSelect.value === 'piston' ? 1.10 : 1.20;
+    let requiredShellLiters = V0_liters * grossMargin;
+
+    // Find nearest standard shell size
+    let stdShell = stdShellSizesLiters[stdShellSizesLiters.length - 1];
+    for (let i = 0; i < stdShellSizesLiters.length; i++) {
+      if (stdShellSizesLiters[i] >= requiredShellLiters) {
+        stdShell = stdShellSizesLiters[i];
+        break;
+      }
+    }
+    if (requiredShellLiters > stdShell) {
+      stdShell = Math.ceil(requiredShellLiters / 10) * 10;
+    }
+
+    // Expansion ratio P2 / P0
+    const ratioVal = P2_bar / P0_bar;
+
+    // Temperature Compensation
+    let T0 = parseFloat(t0Input.value) || 20;
+    let Top = parseFloat(topInput.value) || 60;
+    let T0_K = isFahrenheit ? (T0 - 32) * 5/9 + 273.15 : T0 + 273.15;
+    let Top_K = isFahrenheit ? (Top - 32) * 5/9 + 273.15 : Top + 273.15;
+
+    const P0_cold_gauge = P0_gauge * (T0_K / Top_K);
+
+    // Units formatting
+    const pressUnitStr = isPsi ? 'psi' : 'bar';
+    const volUnitStr = isGallons ? 'gal' : 'L';
+    const V0_disp = isGallons ? V0_liters / 3.78541 : V0_liters;
+    const shell_disp = isGallons ? stdShell / 3.78541 : stdShell;
+
+    // Update Result UI
+    v0Result.textContent = V0_disp.toFixed(1) + ' ' + volUnitStr;
+    v0Sub.textContent = isGallons ? (V0_liters.toFixed(1) + ' Liters') : ((V0_liters / 3.78541).toFixed(2) + ' US gal');
+
+    shellResult.textContent = shell_disp.toFixed(1) + ' ' + volUnitStr;
+    shellSub.textContent = 'Nominal Shell: ' + stdShell + ' L (' + (stdShell / 3.78541).toFixed(1) + ' gal)';
+
+    p0Result.textContent = P0_gauge.toFixed(1) + ' ' + pressUnitStr;
+    p0Sub.textContent = isPsi ? ((P0_gauge * 0.0689476).toFixed(1) + ' bar') : ((P0_gauge * 14.5038).toFixed(0) + ' psi');
+
+    ratioResult.textContent = ratioVal.toFixed(2) + ' : 1';
+    svgRatioVal.textContent = ratioVal.toFixed(2) + ' : 1';
+
+    const maxAllowableRatio = bladderTypeSelect.value === 'piston' ? 8.0 : (bladderTypeSelect.value === 'diaphragm' ? 6.0 : 4.0);
+    if (!validP0) {
+      ratioBadge.className = 'ha-status-badge badge-fail';
+      ratioBadge.textContent = 'FATAL: P₀ ≥ P₁ (Extrusion)';
+      ratioBox.className = 'ha-stat-box danger';
+    } else if (ratioVal > maxAllowableRatio) {
+      ratioBadge.className = 'ha-status-badge badge-fail';
+      ratioBadge.textContent = 'CRITICAL: Exceeds ' + maxAllowableRatio + ':1 Limit';
+      ratioBox.className = 'ha-stat-box danger';
+    } else if (ratioVal > 3.5 && bladderTypeSelect.value === 'bladder') {
+      ratioBadge.className = 'ha-status-badge badge-warn';
+      ratioBadge.textContent = 'Elevated Fatigue (> 3.5:1)';
+      ratioBox.className = 'ha-stat-box warning';
+    } else {
+      ratioBadge.className = 'ha-status-badge badge-pass';
+      ratioBadge.textContent = 'Optimal (≤ ' + maxAllowableRatio + ':1)';
+      ratioBox.className = 'ha-stat-box';
+    }
+
+    coldP0Result.textContent = P0_cold_gauge.toFixed(1) + ' ' + pressUnitStr;
+    coldP0Sub.textContent = 'Fill at ' + T0 + '°' + (isFahrenheit ? 'F' : 'C');
+    svgCompP0Val.textContent = P0_gauge.toFixed(1) + ' ' + pressUnitStr;
+
+    const utilPct = (deltaV_liters / stdShell) * 100;
+    utilResult.textContent = utilPct.toFixed(1) + '%';
+    utilSub.textContent = 'ΔV / Shell Vol';
+
+    // SVG Graphics Update
+    const compFraction = Math.min(Math.max(term2, 0.25), 0.85);
+    const gasBottomY = 42 + (178 - 42) * compFraction;
+
+    svgGasPath.setAttribute('d', 'M 126 42 C 126 26, 214 26, 214 42 L 214 ' + gasBottomY + ' C 190 ' + (gasBottomY + 15) + ', 150 ' + (gasBottomY + 15) + ', 126 ' + gasBottomY + ' Z');
+    svgBladderEdge.setAttribute('d', 'M 126 42 C 126 26, 214 26, 214 42 L 214 ' + gasBottomY + ' C 190 ' + (gasBottomY + 15) + ', 150 ' + (gasBottomY + 15) + ', 126 ' + gasBottomY + ' Z');
+    svgOilPath.setAttribute('d', 'M 126 ' + gasBottomY + ' L 214 ' + gasBottomY + ' L 214 178 C 214 194, 126 194, 126 178 Z');
+
+    svgGasLabel.setAttribute('y', (42 + gasBottomY) / 2);
+    svgOilLabel.setAttribute('y', Math.min(gasBottomY + 35, 175));
+
+    // Derivations Update
+    derivP2.textContent = P2.toFixed(1) + ' ' + pressUnitStr;
+    derivP1.textContent = P1.toFixed(1) + ' ' + pressUnitStr;
+    derivDeltaV.textContent = deltaV.toFixed(2) + ' ' + volUnitStr;
+    derivCalcV0.textContent = V0_disp.toFixed(2) + ' ' + volUnitStr;
+    derivTop.textContent = Top + '°' + (isFahrenheit ? 'F' : 'C');
+    derivT0.textContent = T0 + '°' + (isFahrenheit ? 'F' : 'C');
+    derivCalcColdP0.textContent = P0_cold_gauge.toFixed(1) + ' ' + pressUnitStr;
+
+    // Audit Report Update
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME SECTION VIII & ISO 5598 ACCUMULATOR AUDIT      \n' +
+      '=======================================================\n' +
+      'Application Process:       ' + appTypeSelect.options[appTypeSelect.selectedIndex].text + '\n' +
+      'Accumulator Type:          ' + bladderTypeSelect.options[bladderTypeSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+      'Working Pressure Range:    P1 = ' + P1.toFixed(1) + ' ' + pressUnitStr + ' | P2 = ' + P2.toFixed(1) + ' ' + pressUnitStr + '\n' +
+      'Discharge Fluid Volume:    ' + deltaV.toFixed(2) + ' ' + volUnitStr + ' (' + deltaV_liters.toFixed(2) + ' L)\n' +
+      '-------------------------------------------------------\n' +
+      'Nitrogen Precharge (P0):   ' + P0_gauge.toFixed(1) + ' ' + pressUnitStr + ' @ ' + Top + '°' + (isFahrenheit ? 'F' : 'C') + '\n' +
+      'Shop Filling Precharge:    ' + P0_cold_gauge.toFixed(1) + ' ' + pressUnitStr + ' @ ' + T0 + '°' + (isFahrenheit ? 'F' : 'C') + '\n' +
+      'Pressure Ratio (P2 / P0):  ' + ratioVal.toFixed(2) + ':1 (' + ratioBadge.textContent + ')\n' +
+      'Polytropic Exponent (n):   ' + n.toFixed(2) + '\n' +
+      'Calculated Gas Volume V0:  ' + V0_disp.toFixed(2) + ' ' + volUnitStr + ' (' + V0_liters.toFixed(2) + ' L)\n' +
+      'Recommended Shell Size:   ' + shell_disp.toFixed(1) + ' ' + volUnitStr + ' (Std: ' + stdShell + ' Liters)\n' +
+      'Fluid Utilization (ΔV/Vs): ' + utilPct.toFixed(1) + '%\n' +
+      'Safety Specification:     ASME Section VIII Div 1 / Dry N2 Only\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyHaAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyHaAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied ASME/ISO Sizing Report!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [appTypeSelect, fluidVolInput, volUnitSelect, p2Input, pressUnitSelect, p1Input, p0RatioSelect, customP0Input, t0Input, topInput, tempUnitSelect, bladderTypeSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'hydraulic-accumulator-sizing-calculator.html'), renderTradePage({
+    title: "Hydraulic Accumulator Sizing Calculator | ASME & ISO 5598",
+    metaDesc: "Calculate gas-charged hydraulic accumulator volume, nitrogen precharge pressure, isothermal vs adiabatic polytropic expansion, and discharge volume per ASME & ISO 5598.",
+    canonical: `${DOMAIN}/calc/hydraulic-accumulator-sizing-calculator`,
+    bodyContent: hydraulicAccumulatorBody,
+    currentPath: '/calc/hydraulic-accumulator-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the correct nitrogen precharge pressure (P₀) for a hydraulic accumulator?",
+        "a": "For energy storage and emergency actuator discharge, standard practice per ISO 5598 and ASME Section VIII is to set the precharge pressure P₀ to 90% of the minimum operating pressure P₁ (P₀ = 0.90 · P₁). For pulsation dampening on positive displacement pumps, P₀ is typically set to 60% to 75% of average line pressure."
+      },
+      {
+        "q": "Why is the adiabatic exponent n = 1.4 used instead of isothermal n = 1.0?",
+        "a": "When hydraulic fluid is expelled rapidly (in less than 60 seconds, such as during machine cycling or emergency trip actuation), nitrogen gas expands faster than heat can conduct through the thick steel shell. The expanding gas cools drastically, requiring a larger nominal accumulator volume (n = 1.4) to guarantee delivered pressure than slow isothermal holding (n = 1.0)."
+      },
+      {
+        "q": "What happens if nitrogen precharge pressure P₀ exceeds minimum system pressure P₁?",
+        "a": "If P₀ ≥ P₁, the elastomer bladder expands completely before all required fluid is discharged, causing the bladder rubber to be extruded through the fluid port or violently hammered against the anti-extrusion poppet valve. This destroys the bladder and creates sudden hydraulic system failure."
+      },
+      {
+        "q": "Why can compressed air or oxygen never be used in a hydraulic accumulator?",
+        "a": "Compressed air or oxygen combined with petroleum-based hydraulic oil under high pressure creates an explosive air-fuel mixture that will diesel (compression-ignite) during rapid pump pressure surges. This detonation can shatter forged steel vessels. Only dry industrial nitrogen (N₂ ≥ 99.8%) must ever be used."
+      },
+      {
+        "q": "What is the maximum allowable pressure ratio (P₂ / P₀) for a bladder accumulator?",
+        "a": "Per manufacturer standards and ISO 5598, the maximum pressure ratio P₂ / P₀ for bladder accumulators is 4:1 (ideally ≤ 3.5:1). Operating at higher ratios causes severe elastomer wrinkling and star-folding along longitudinal creases, inducing rapid fatigue failure. For higher ratios, piston accumulators (rated up to 8:1) are required."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 53: Plate Heat Exchanger (PHE) Sizing & LMTD Calculator (Alfa Laval & ASME)
+  // ==========================================
+  const plateHeatExchangerBody = `
+<style>
+  .phe-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .phe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .phe-grid { grid-template-columns: 1fr; } }
+  .phe-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .phe-header { margin-bottom: 20px; }
+  .phe-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .phe-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .phe-form-group { margin-bottom: 16px; }
+  .phe-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .phe-input-row { display: flex; gap: 10px; align-items: center; }
+  .phe-input-row input, .phe-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .phe-input-row input:focus, .phe-input-row select:focus { outline: none; border-color: #2563eb; }
+  .phe-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .phe-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .phe-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .phe-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .phe-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .phe-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .phe-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .phe-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .phe-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .phe-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .phe-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .phe-btn:hover { background: #1d4ed8; }
+  .phe-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="phe-container">
+  <div class="phe-grid">
+    <!-- Inputs Column -->
+    <div class="phe-card">
+      <div class="phe-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Thermal &amp; Hydraulic Duty</h2>
+        <p>Alfa Laval &amp; ASME gasketed plate-and-frame exchanger sizing</p>
+      </div>
+
+      <div class="phe-form-group">
+        <label>Hot Fluid Stream Temperatures (T<sub>h,in</sub> &rarr; T<sub>h,out</sub>)</label>
+        <div class="phe-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Hot Inlet (T<sub>h,in</sub>)</span>
+            <input type="number" id="pheThIn" value="85" step="0.5">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Hot Outlet (T<sub>h,out</sub>)</span>
+            <input type="number" id="pheThOut" value="55" step="0.5">
+          </div>
+          <select id="pheTempUnit" class="phe-unit-badge" style="width:auto; align-self:flex-end; height:42px;">
+            <option value="C" selected>&deg;C</option>
+            <option value="F">&deg;F</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="phe-form-group">
+        <label>Cold Fluid Stream Temperatures (T<sub>c,in</sub> &rarr; T<sub>c,out</sub>)</label>
+        <div class="phe-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Cold Inlet (T<sub>c,in</sub>)</span>
+            <input type="number" id="pheTcIn" value="25" step="0.5">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Cold Outlet (T<sub>c,out</sub>)</span>
+            <input type="number" id="pheTcOut" value="50" step="0.5">
+          </div>
+          <div class="phe-unit-badge" id="pheTcBadge" style="align-self:flex-end; height:42px; display:flex; align-items:center; justify-content:center;">&deg;C</div>
+        </div>
+      </div>
+
+      <div class="phe-form-group">
+        <label for="pheHotFlow">Hot Side Mass / Volumetric Flow Rate</label>
+        <div class="phe-input-row">
+          <input type="number" id="pheHotFlow" value="12.0" min="0.1" step="0.5">
+          <select id="pheFlowUnit" class="phe-unit-badge" style="width:auto;">
+            <option value="kg_s" selected>kg/s</option>
+            <option value="m3_h">m&sup3;/h</option>
+            <option value="gpm">US GPM</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="phe-form-group">
+        <label for="pheChevron">Plate Corrugation Chevron Angle (&beta; / Theta)</label>
+        <div class="phe-input-row">
+          <select id="pheChevron">
+            <option value="high" selected>High Theta (&beta; = 60&deg; Chevron: Max U ~5,200 W/m&sup2;&middot;K, High &Delta;P)</option>
+            <option value="mixed">Mixed Theta (30&deg; / 60&deg; Paired: Balanced U ~4,200 W/m&sup2;&middot;K, Medium &Delta;P)</option>
+            <option value="low">Low Theta (&beta; = 30&deg; Chevron: Low &Delta;P, Moderate U ~3,100 W/m&sup2;&middot;K)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="phe-form-group">
+        <label for="pheFouling">Service Fouling Factor (R<sub>f</sub>)</label>
+        <div class="phe-input-row">
+          <select id="pheFouling">
+            <option value="0.00005" selected>Treated Closed Loop Water (0.00005 m&sup2;&middot;K/W)</option>
+            <option value="0.00015">Cooling Tower Water / Clean River (0.00015 m&sup2;&middot;K/W)</option>
+            <option value="0.00030">Process Brine / Glycol Mixture (0.00030 m&sup2;&middot;K/W)</option>
+            <option value="0.00050">Severe Industrial / Heavy Hydrocarbon (0.00050 m&sup2;&middot;K/W)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="phe-form-group">
+        <label>Plate Geometry &amp; Port Connection</label>
+        <div class="phe-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Single Plate Area</span>
+            <select id="phePlateArea">
+              <option value="0.10">0.10 m&sup2; (Compact)</option>
+              <option value="0.25" selected>0.25 m&sup2; (Medium DN50)</option>
+              <option value="0.50">0.50 m&sup2; (Large DN100)</option>
+              <option value="1.00">1.00 m&sup2; (Industrial DN150)</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Port Nozzle Size</span>
+            <select id="phePortSize">
+              <option value="50" selected>DN50 (2" - 50 mm)</option>
+              <option value="80">DN80 (3" - 80 mm)</option>
+              <option value="100">DN100 (4" - 100 mm)</option>
+              <option value="150">DN150 (6" - 150 mm)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Diagram Column -->
+    <div class="phe-card">
+      <div class="phe-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Sizing Results &amp; Plate Pack Sizing</h2>
+        <p>Alfa Laval LMTD, plate count, and hydraulic port velocity</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="pheSvg" width="340" height="210" viewBox="0 0 340 210" style="max-width:100%;">
+          <defs>
+            <linearGradient id="headGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="50%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+            <pattern id="chevronPattern" width="16" height="16" patternUnits="userSpaceOnUse">
+              <path d="M 0 8 L 8 0 L 16 8 L 8 16 Z" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+            </pattern>
+          </defs>
+
+          <!-- Top Carrying Bar -->
+          <rect x="30" y="24" width="280" height="8" fill="#475569" rx="2"/>
+          <!-- Bottom Guide Rail -->
+          <rect x="30" y="174" width="280" height="8" fill="#475569" rx="2"/>
+
+          <!-- Fixed Head Plate (Left) -->
+          <rect x="40" y="32" width="22" height="142" fill="url(#headGrad)" rx="3" stroke="#0f172a" stroke-width="1.5"/>
+          
+          <!-- Hot Inlet Port (Top Left) -->
+          <rect x="18" y="44" width="22" height="16" fill="#ef4444" rx="2"/>
+          <path d="M 10 52 L 20 52" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow)"/>
+          <text x="8" y="40" font-size="8" font-weight="bold" fill="#b91c1c">Hot In</text>
+
+          <!-- Cold Outlet Port (Bottom Left) -->
+          <rect x="18" y="146" width="22" height="16" fill="#3b82f6" rx="2"/>
+          <text x="8" y="172" font-size="8" font-weight="bold" fill="#1d4ed8">Cold Out</text>
+
+          <!-- Corrugated Plate Pack (Middle) -->
+          <g id="svgPlatePack">
+            <!-- Alternating hot and cold channels -->
+            <rect x="64" y="36" width="170" height="134" fill="#f8fafc" stroke="#cbd5e1"/>
+            <rect x="64" y="36" width="170" height="134" fill="url(#chevronPattern)" opacity="0.65"/>
+            <!-- Alternating channel stripes -->
+            <line x1="84" y1="36" x2="84" y2="170" stroke="#ef4444" stroke-width="3" stroke-dasharray="4,4"/>
+            <line x1="104" y1="36" x2="104" y2="170" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4,4"/>
+            <line x1="124" y1="36" x2="124" y2="170" stroke="#ef4444" stroke-width="3" stroke-dasharray="4,4"/>
+            <line x1="144" y1="36" x2="144" y2="170" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4,4"/>
+            <line x1="164" y1="36" x2="164" y2="170" stroke="#ef4444" stroke-width="3" stroke-dasharray="4,4"/>
+            <line x1="184" y1="36" x2="184" y2="170" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4,4"/>
+            <line x1="204" y1="36" x2="204" y2="170" stroke="#ef4444" stroke-width="3" stroke-dasharray="4,4"/>
+            <line x1="224" y1="36" x2="224" y2="170" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4,4"/>
+          </g>
+
+          <!-- Movable Pressure Follower Plate (Right) -->
+          <rect id="svgFollower" x="234" y="32" width="20" height="142" fill="url(#headGrad)" rx="3" stroke="#0f172a" stroke-width="1.5"/>
+
+          <!-- Compression Tie Bolts -->
+          <line x1="40" y1="40" x2="295" y2="40" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="2,2"/>
+          <line x1="40" y1="166" x2="295" y2="166" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="2,2"/>
+          <rect x="256" y="37" width="8" height="6" fill="#0f172a"/>
+          <rect x="256" y="163" width="8" height="6" fill="#0f172a"/>
+
+          <!-- End Support Column -->
+          <rect x="295" y="20" width="10" height="166" fill="#475569" rx="2"/>
+
+          <!-- Hot Outlet Port (Bottom of follower/pack) -->
+          <rect x="254" y="146" width="18" height="16" fill="#f87171" rx="2"/>
+          <text x="276" y="158" font-size="8" font-weight="bold" fill="#b91c1c">Hot Out</text>
+
+          <!-- Cold Inlet Port (Top of follower/pack) -->
+          <rect x="254" y="44" width="18" height="16" fill="#60a5fa" rx="2"/>
+          <text x="276" y="56" font-size="8" font-weight="bold" fill="#1d4ed8">Cold In</text>
+
+          <!-- Annotations inside pack -->
+          <rect x="95" y="80" width="110" height="42" rx="6" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="150" y="96" font-size="10" font-weight="bold" fill="#0f172a" text-anchor="middle" id="svgPlateLabel">64 Plates</text>
+          <text x="150" y="112" font-size="8" fill="#64748b" text-anchor="middle" id="svgDimALabel">Pack Depth: 192 mm</text>
+        </svg>
+      </div>
+
+      <div class="phe-stat-grid">
+        <div class="phe-stat-box highlight">
+          <div class="phe-stat-label">Heat Duty (Q)</div>
+          <div class="phe-stat-val" id="pheDutyResult">1,507 kW</div>
+          <div class="phe-stat-sub" id="pheDutySub">5.14 MMBtu/hr</div>
+        </div>
+        <div class="phe-stat-box highlight">
+          <div class="phe-stat-label">Total Thermal Plates</div>
+          <div class="phe-stat-val" id="phePlateResult">62 Plates</div>
+          <div class="phe-stat-sub" id="phePlateSub">64 Total Incl. Frame</div>
+        </div>
+        <div class="phe-stat-box">
+          <div class="phe-stat-label">Counterflow LMTD</div>
+          <div class="phe-stat-val" id="pheLmtdResult">32.7 &deg;C</div>
+          <div class="phe-stat-sub" id="pheLmtdSub">F-factor: 0.98</div>
+        </div>
+        <div class="phe-stat-box">
+          <div class="phe-stat-label">Overall U-Value</div>
+          <div class="phe-stat-val" id="pheUResult">3,120 W/m&sup2;&middot;K</div>
+          <div class="phe-stat-sub" id="pheUSub">549 BTU/hr&middot;ft&sup2;&middot;&deg;F</div>
+        </div>
+      </div>
+
+      <div class="phe-stat-grid">
+        <div class="phe-stat-box">
+          <div class="phe-stat-label">Required Surface Area</div>
+          <div class="phe-stat-val" id="pheAreaResult">15.2 m&sup2;</div>
+          <div class="phe-stat-sub" id="pheAreaSub">163.6 sq ft</div>
+        </div>
+        <div class="phe-stat-box" id="phePortBox">
+          <div class="phe-stat-label">Port Velocity</div>
+          <div class="phe-stat-val" id="phePortResult">2.44 m/s</div>
+          <div class="phe-stat-sub"><span class="phe-status-badge badge-pass" id="phePortBadge">Safe (&le; 3.5 m/s)</span></div>
+        </div>
+      </div>
+
+      <button type="button" class="phe-btn" id="copyPheAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Alfa Laval Sizing Audit</span>
+      </button>
+
+      <textarea id="pheAuditReport" class="phe-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Heat Transfer Math -->
+  <div class="phe-card" style="margin-bottom: 24px;">
+    <div class="phe-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Heat Transfer &amp; LMTD Derivations</h2>
+      <p>Log Mean Temperature Difference and plate pack calculation evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>1. <strong>Thermal Heat Duty (Q):</strong> Based on hot side fluid mass flow rate <span id="derivHotFlow" style="font-weight:600;">12.00 kg/s</span> and specific heat capacity c_p = 4.186 kJ/kg&middot;K:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Q = m&#775; &middot; c_p &middot; (T_h,in - T_h,out) = <span id="derivCalcDuty" style="font-weight:700; color:#2563eb;">1,507 kW</span>
+      </div>
+      <p>2. <strong>Counterflow Terminal Temperature Differences:</strong></p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;T₁ = T_h,in - T_c,out = <span id="derivDt1" style="font-weight:600;">35.0&deg;C</span><br>
+        &Delta;T₂ = T_h,out - T_c,in = <span id="derivDt2" style="font-weight:600;">30.0&deg;C</span>
+      </div>
+      <p>3. <strong>Log Mean Temperature Difference (LMTD):</strong></p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        LMTD = (&Delta;T₁ - &Delta;T₂) / ln(&Delta;T₁ / &Delta;T₂) = <span id="derivCalcLmtd" style="font-weight:700; color:#0284c7;">32.41&deg;C</span>
+      </div>
+      <p>4. <strong>Required Heat Transfer Surface Area (A_req):</strong> Incorporating overall heat transfer coefficient U = <span id="derivU" style="font-weight:600;">3,120 W/m&sup2;&middot;K</span> and cross-counterflow correction factor F = 0.98:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        A_req = Q / (U &middot; LMTD &middot; F) = <span id="derivCalcArea" style="font-weight:700; color:#15803d;">15.22 m&sup2;</span>
+      </div>
+      <p>5. <strong>Plate Pack Sizing &amp; Dimension 'A' Depth:</strong> With individual plate heat area A_plate = <span id="derivPlArea" style="font-weight:600;">0.25 m&sup2;</span> and plate pitch 3.0 mm:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        N_plates = ceil(A_req / A_plate) = <span id="derivPlates" style="font-weight:700; color:#b45309;">62 active thermal plates</span> (64 total)<br>
+        Nominal Pack Depth (Dimension A) = 64 &middot; 3.0 mm = <span id="derivDimA" style="font-weight:700; color:#475569;">192 mm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="phe-card" style="margin-bottom: 24px;">
+    <div class="phe-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Plate Heat Exchanger Operation</h2>
+      <p>Alfa Laval, Kelvion, and ASME PCC-1 bolted joint engineering rules</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Plate Pack Over-Tightening &amp; Dimension 'A' Crushing</strong><br>
+      When an assembled PHE leaks during hydrostatic testing, technicians frequently reach for pneumatic impact wrenches to crank down the tie-bolts. <strong>Never tighten beyond the minimum Dimension 'A' stamped on the frame nameplate.</strong> Over-tightening crushes corrugation contact peaks, permanently indenting the titanium/stainless sheets, creating metal fatigue pinholes, and causing irreversible inter-stream cross-contamination.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Port Jet Impingement &amp; Gasket Erosion Blowout (v &gt; 4.5 m/s)</strong><br>
+      Forcing high fluid throughput through undersized port connections creates severe jetting impingement at the first plate entry. Port velocities exceeding 4.5 m/s (15 ft/s) cause high turbulent shear stress that erodes the elastomer gasket neck, causing sudden catastrophic external gasket blowouts. Always size port nozzles for velocities between 2.0 and 3.5 m/s.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Low-Reynolds Laminar Fouling &amp; Loss of Self-Cleaning Shear</strong><br>
+      Unlike tubular shell-and-tube exchangers, PHEs rely on corrugation micro-vortices to produce high wall shear stress (&tau;_w &ge; 20 Pa) that scours away particulate settling. Throttling flow rates below critical Reynolds number (Re &lt; 100) causes biological slime, silt, and scaling to settle rapidly in plate troughs, collapsing thermal performance by 70% within weeks.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Hydraulic Water Hammer &amp; Gasket Dislodgement</strong><br>
+      Fast-acting quarter-turn valves or solenoid valves upstream of a plate exchanger generate sonic acoustic shockwaves (Joukowsky pressure spikes exceeding 50 bar). Because PHE plates are thin (0.5 to 0.6 mm) and flexible, pressure transients bow the plates outward, popping the elastomeric gaskets out of their retention grooves and causing immediate flooding.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Chevron Angle Thermal-Hydraulic Mismatch</strong><br>
+      Using 100% high-theta (60&deg;) plates when available pump head is limited chokes fluid flow and starves the process. Conversely, using 100% low-theta (30&deg;) plates to minimize pressure drop requires 2.5&times; more heat transfer surface area, tripling frame length, titanium cost, and footprint. Optimal design requires paired mixed-theta plates (30&deg;/60&deg; channels) to tailor pressure drop to available pump head.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const thInInput = document.getElementById('pheThIn');
+  const thOutInput = document.getElementById('pheThOut');
+  const tempUnitSelect = document.getElementById('pheTempUnit');
+  const tcInInput = document.getElementById('pheTcIn');
+  const tcOutInput = document.getElementById('pheTcOut');
+  const tcBadge = document.getElementById('pheTcBadge');
+  const hotFlowInput = document.getElementById('pheHotFlow');
+  const flowUnitSelect = document.getElementById('pheFlowUnit');
+  const chevronSelect = document.getElementById('pheChevron');
+  const foulingSelect = document.getElementById('pheFouling');
+  const plateAreaSelect = document.getElementById('phePlateArea');
+  const portSizeSelect = document.getElementById('phePortSize');
+
+  // Outputs
+  const dutyResult = document.getElementById('pheDutyResult');
+  const dutySub = document.getElementById('pheDutySub');
+  const plateResult = document.getElementById('phePlateResult');
+  const plateSub = document.getElementById('phePlateSub');
+  const lmtdResult = document.getElementById('pheLmtdResult');
+  const lmtdSub = document.getElementById('pheLmtdSub');
+  const uResult = document.getElementById('pheUResult');
+  const uSub = document.getElementById('pheUSub');
+  const areaResult = document.getElementById('pheAreaResult');
+  const areaSub = document.getElementById('pheAreaSub');
+  const portResult = document.getElementById('phePortResult');
+  const portBadge = document.getElementById('phePortBadge');
+  const portBox = document.getElementById('phePortBox');
+  const auditBox = document.getElementById('pheAuditReport');
+
+  // SVG Elements
+  const svgPlateLabel = document.getElementById('svgPlateLabel');
+  const svgDimALabel = document.getElementById('svgDimALabel');
+  const svgFollower = document.getElementById('svgFollower');
+
+  // Derivations
+  const derivHotFlow = document.getElementById('derivHotFlow');
+  const derivCalcDuty = document.getElementById('derivCalcDuty');
+  const derivDt1 = document.getElementById('derivDt1');
+  const derivDt2 = document.getElementById('derivDt2');
+  const derivCalcLmtd = document.getElementById('derivCalcLmtd');
+  const derivU = document.getElementById('derivU');
+  const derivCalcArea = document.getElementById('derivCalcArea');
+  const derivPlArea = document.getElementById('derivPlArea');
+  const derivPlates = document.getElementById('derivPlates');
+  const derivDimA = document.getElementById('derivDimA');
+
+  function calculate() {
+    const isFahrenheit = tempUnitSelect.value === 'F';
+    tcBadge.textContent = isFahrenheit ? '°F' : '°C';
+
+    let ThIn = parseFloat(thInInput.value) || 85;
+    let ThOut = parseFloat(thOutInput.value) || 55;
+    let TcIn = parseFloat(tcInInput.value) || 25;
+    let TcOut = parseFloat(tcOutInput.value) || 50;
+
+    // Convert temps to Celsius for thermal calculations
+    let ThIn_C = isFahrenheit ? (ThIn - 32) * 5/9 : ThIn;
+    let ThOut_C = isFahrenheit ? (ThOut - 32) * 5/9 : ThOut;
+    let TcIn_C = isFahrenheit ? (TcIn - 32) * 5/9 : TcIn;
+    let TcOut_C = isFahrenheit ? (TcOut - 32) * 5/9 : TcOut;
+
+    // Flow Rate to kg/s
+    let flowVal = parseFloat(hotFlowInput.value) || 12.0;
+    let flowKgS = flowVal;
+    if (flowUnitSelect.value === 'm3_h') {
+      flowKgS = (flowVal * 1000) / 3600; // m3/h of water
+    } else if (flowUnitSelect.value === 'gpm') {
+      flowKgS = flowVal * 0.06309; // GPM of water to kg/s
+    }
+
+    // Heat Duty Q = m * cp * deltaT (kW)
+    const cpWater = 4.186; // kJ/kg*K
+    const deltaTh = Math.abs(ThIn_C - ThOut_C);
+    const Q_kW = flowKgS * cpWater * deltaTh;
+    const Q_mmbtu = Q_kW * 0.003412142;
+
+    // LMTD calculation
+    let dt1 = ThIn_C - TcOut_C;
+    let dt2 = ThOut_C - TcIn_C;
+    if (dt1 <= 0.1) dt1 = 0.1;
+    if (dt2 <= 0.1) dt2 = 0.1;
+
+    let lmtd_C = 0;
+    if (Math.abs(dt1 - dt2) < 0.01) {
+      lmtd_C = dt1;
+    } else {
+      lmtd_C = (dt1 - dt2) / Math.log(dt1 / dt2);
+    }
+    const lmtd_F = lmtd_C * 1.8;
+    const F_factor = 0.98; // High-efficiency multi-plate counterflow
+
+    // Overall Heat Transfer Coefficient U
+    let baseU = 4800; // W/m2K
+    if (chevronSelect.value === 'high') {
+      baseU = 5600;
+    } else if (chevronSelect.value === 'low') {
+      baseU = 3400;
+    } else {
+      baseU = 4400;
+    }
+
+    const Rf = parseFloat(foulingSelect.value) || 0.00005;
+    // 1 / U_fouled = 1 / baseU + Rf
+    const U_fouled = 1 / ( (1 / baseU) + Rf );
+    const U_imperial = U_fouled * 0.17611; // BTU / (hr ft2 °F)
+
+    // Required Surface Area A_req = Q / (U * LMTD * F)
+    // Q in Watts = Q_kW * 1000
+    const A_req_m2 = (Q_kW * 1000) / (U_fouled * lmtd_C * F_factor);
+    const A_req_ft2 = A_req_m2 * 10.7639;
+
+    // Plate Count
+    const singlePlateArea = parseFloat(plateAreaSelect.value) || 0.25;
+    const activePlates = Math.ceil(A_req_m2 / singlePlateArea);
+    const totalPlates = activePlates + 2; // End plates are blind/non-heat transfer
+
+    // Nominal Dimension A (pack depth in mm: ~3mm per plate + 40mm endplates)
+    const dimA_mm = totalPlates * 3.0 + 40;
+
+    // Port Velocity
+    const portDia_mm = parseFloat(portSizeSelect.value) || 50;
+    const portArea_m2 = Math.PI * Math.pow((portDia_mm / 1000) / 2, 2);
+    const volumetricFlow_m3s = flowKgS / 1000;
+    const portVelocity = volumetricFlow_m3s / portArea_m2;
+
+    // Update Result UI
+    dutyResult.textContent = Math.round(Q_kW).toLocaleString() + ' kW';
+    dutySub.textContent = Q_mmbtu.toFixed(2) + ' MMBtu/hr';
+
+    plateResult.textContent = activePlates + ' Plates';
+    plateSub.textContent = totalPlates + ' Total Incl. Frame (Dim A: ' + Math.round(dimA_mm) + ' mm)';
+
+    lmtdResult.textContent = isFahrenheit ? (lmtd_F.toFixed(1) + ' °F') : (lmtd_C.toFixed(1) + ' °C');
+    lmtdSub.textContent = 'F-factor: ' + F_factor + ' (Pure Counterflow)';
+
+    uResult.textContent = Math.round(U_fouled).toLocaleString() + ' W/m²·K';
+    uSub.textContent = Math.round(U_imperial) + ' BTU/hr·ft²·°F';
+
+    areaResult.textContent = A_req_m2.toFixed(1) + ' m²';
+    areaSub.textContent = A_req_ft2.toFixed(1) + ' sq ft';
+
+    portResult.textContent = portVelocity.toFixed(2) + ' m/s';
+    if (portVelocity > 4.5) {
+      portBadge.className = 'phe-status-badge badge-fail';
+      portBadge.textContent = 'EROSION RISK (> 4.5 m/s)';
+      portBox.className = 'phe-stat-box danger';
+    } else if (portVelocity > 3.5) {
+      portBadge.className = 'phe-status-badge badge-warn';
+      portBadge.textContent = 'High Velocity (> 3.5 m/s)';
+      portBox.className = 'phe-stat-box warning';
+    } else {
+      portBadge.className = 'phe-status-badge badge-pass';
+      portBadge.textContent = 'Optimal (≤ 3.5 m/s)';
+      portBox.className = 'phe-stat-box';
+    }
+
+    // Update SVG
+    svgPlateLabel.textContent = totalPlates + ' Plates (' + singlePlateArea + ' m²)';
+    svgDimALabel.textContent = 'Pack Depth: ' + Math.round(dimA_mm) + ' mm';
+    // Visual follower shift based on plate count (scale 20 to 150 plates -> x: 140 to 260)
+    const followerX = Math.min(Math.max(100 + (totalPlates / 150) * 140, 140), 260);
+    svgFollower.setAttribute('x', followerX);
+
+    // Update Derivations
+    derivHotFlow.textContent = flowKgS.toFixed(2) + ' kg/s (' + flowVal + ' ' + flowUnitSelect.value + ')';
+    derivCalcDuty.textContent = Math.round(Q_kW).toLocaleString() + ' kW';
+    derivDt1.textContent = dt1.toFixed(1) + '°' + (isFahrenheit ? 'F' : 'C');
+    derivDt2.textContent = dt2.toFixed(1) + '°' + (isFahrenheit ? 'F' : 'C');
+    derivCalcLmtd.textContent = (isFahrenheit ? lmtd_F : lmtd_C).toFixed(2) + '°' + (isFahrenheit ? 'F' : 'C');
+    derivU.textContent = Math.round(U_fouled).toLocaleString() + ' W/m²·K';
+    derivCalcArea.textContent = A_req_m2.toFixed(2) + ' m² (' + A_req_ft2.toFixed(1) + ' sq ft)';
+    derivPlArea.textContent = singlePlateArea + ' m²';
+    derivPlates.textContent = activePlates + ' active thermal plates';
+    derivDimA.textContent = Math.round(dimA_mm) + ' mm';
+
+    // Update Audit Box
+    const auditText = 
+      '=======================================================\n' +
+      '   ALFA LAVAL & ASME GASKETED PHE SIZING REPORT       \n' +
+      '=======================================================\n' +
+      'Thermal Heat Duty (Q):     ' + Math.round(Q_kW).toLocaleString() + ' kW (' + Q_mmbtu.toFixed(2) + ' MMBtu/hr)\n' +
+      'Hot Fluid Stream:          ' + ThIn.toFixed(1) + '° → ' + ThOut.toFixed(1) + '°' + (isFahrenheit ? 'F' : 'C') + ' @ ' + flowKgS.toFixed(2) + ' kg/s\n' +
+      'Cold Fluid Stream:         ' + TcIn.toFixed(1) + '° → ' + TcOut.toFixed(1) + '°' + (isFahrenheit ? 'F' : 'C') + '\n' +
+      'Counterflow LMTD:          ' + lmtd_C.toFixed(2) + ' °C (' + lmtd_F.toFixed(2) + ' °F) [F = ' + F_factor + ']\n' +
+      'Chevron Corrugation:       ' + chevronSelect.options[chevronSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+      'Service Fouling Factor Rf: ' + Rf + ' m²·K/W\n' +
+      'Overall Heat Coeff (U):    ' + Math.round(U_fouled).toLocaleString() + ' W/m²·K (' + Math.round(U_imperial) + ' BTU/hr·ft²·°F)\n' +
+      'Required Heat Area:        ' + A_req_m2.toFixed(2) + ' m² (' + A_req_ft2.toFixed(1) + ' sq ft)\n' +
+      '-------------------------------------------------------\n' +
+      'Single Plate Model:        ' + singlePlateArea + ' m² per plate\n' +
+      'Active Thermal Plates:     ' + activePlates + ' Plates\n' +
+      'Total Pack Frame Plates:   ' + totalPlates + ' Plates\n' +
+      'Nominal Pack Depth (Dim A): ' + Math.round(dimA_mm) + ' mm\n' +
+      'Port Connection:           DN' + portDia_mm + ' (' + (portDia_mm/25.4).toFixed(0) + '")\n' +
+      'Port Fluid Velocity:       ' + portVelocity.toFixed(2) + ' m/s (' + portBadge.textContent + ')\n' +
+      'Standard Specification:    ASME Section VIII Div 1 / Alfa Laval PHE\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyPheAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyPheAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Alfa Laval Sizing Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [thInInput, thOutInput, tempUnitSelect, tcInInput, tcOutInput, hotFlowInput, flowUnitSelect, chevronSelect, foulingSelect, plateAreaSelect, portSizeSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'plate-heat-exchanger-lmtd-calculator.html'), renderTradePage({
+    title: "Plate Heat Exchanger (PHE) Sizing & LMTD Calculator | Alfa Laval",
+    metaDesc: "Size gasketed plate and frame heat exchangers (PHE), calculate Log Mean Temperature Difference (LMTD), chevron angle effects (high vs low theta), heat transfer area, and port pressure drops.",
+    canonical: `${DOMAIN}/calc/plate-heat-exchanger-lmtd-calculator`,
+    bodyContent: plateHeatExchangerBody,
+    currentPath: '/calc/plate-heat-exchanger-lmtd-calculator',
+    faq: [
+      {
+        "q": "What is the difference between high theta and low theta chevron plates in a PHE?",
+        "a": "High-theta plates have obtuse chevron corrugation angles (typically β = 60°), which force intense micro-vortices across plate contact points. This yields very high heat transfer coefficients (U ~ 5,000–6,500 W/m²·K) but incurs high pressure drops. Low-theta plates (β = 30°) offer lower flow resistance and lower pressure drop, but lower heat transfer (U ~ 2,500–4,000 W/m²·K)."
+      },
+      {
+        "q": "What is Dimension 'A' on a plate heat exchanger and why is it critical?",
+        "a": "Dimension 'A' is the prescribed distance between the inside faces of the fixed head plate and movable follower plate when the pack is properly compressed. Over-tightening beyond minimum Dimension 'A' permanently crushes corrugation contact peaks and deforms plates, leading to internal cross-stream leaks."
+      },
+      {
+        "q": "What is the maximum recommended port velocity in a PHE?",
+        "a": "Standard engineering practice per Alfa Laval and ASME limits port fluid velocity to 3.5 m/s (approx. 11.5 ft/s) for continuous duty, and never exceeds 4.5 m/s. Excessive port velocity produces aggressive jetting impingement that erodes elastomer port ring gaskets, causing external leaks or gasket blowout."
+      },
+      {
+        "q": "Why is LMTD correction factor F close to 1.0 in plate heat exchangers?",
+        "a": "Because plate heat exchangers use pure counterflow channel arrangements with alternating thin fluid channels (unlike multi-pass shell and tube exchangers that have crossflow components), the flow configuration is almost pure counterflow. Consequently, the LMTD correction factor F typically ranges from 0.96 to 0.99 for packs with more than 10 to 20 plates."
+      },
+      {
+        "q": "How does wall shear stress prevent fouling in plate heat exchangers?",
+        "a": "The corrugated chevron pattern creates intense turbulence even at low Reynolds numbers (Re as low as 50 to 100). This turbulence generates high wall shear stress (typically τ_w ≥ 20–30 Pa), which continuously scours the plate surface and inhibits particulate deposition, biological slime, and scale formation."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 54: Compressed Air Receiver Tank Sizing Calculator (ASME Section VIII & CAGI)
+  // ==========================================
+  const airReceiverTankBody = `
+<style>
+  .ar-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .ar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .ar-grid { grid-template-columns: 1fr; } }
+  .ar-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .ar-header { margin-bottom: 20px; }
+  .ar-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .ar-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .ar-form-group { margin-bottom: 16px; }
+  .ar-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .ar-input-row { display: flex; gap: 10px; align-items: center; }
+  .ar-input-row input, .ar-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .ar-input-row input:focus, .ar-input-row select:focus { outline: none; border-color: #2563eb; }
+  .ar-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .ar-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .ar-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .ar-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .ar-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .ar-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .ar-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .ar-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .ar-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .ar-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .ar-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .ar-btn:hover { background: #1d4ed8; }
+  .ar-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="ar-container">
+  <div class="ar-grid">
+    <!-- Inputs Column -->
+    <div class="ar-card">
+      <div class="ar-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Compressed Air System Parameters</h2>
+        <p>ASME Section VIII Div 1 &amp; CAGI (Compressed Air &amp; Gas Institute)</p>
+      </div>
+
+      <div class="ar-form-group">
+        <label for="arCompCap">Compressor Continuous Delivered Capacity (C<sub>comp</sub>)</label>
+        <div class="ar-input-row">
+          <input type="number" id="arCompCap" value="100" min="5" step="5">
+          <select id="arFlowUnit" class="ar-unit-badge" style="width:auto;">
+            <option value="scfm" selected>SCFM</option>
+            <option value="m3_min">m&sup3;/min</option>
+            <option value="l_min">L/min</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ar-form-group">
+        <label for="arPeakDemand">Peak Transient Demand (C<sub>demand</sub>)</label>
+        <div class="ar-input-row">
+          <input type="number" id="arPeakDemand" value="175" min="5" step="5">
+          <div class="ar-unit-badge" id="arDemandUnitBadge">SCFM</div>
+        </div>
+      </div>
+
+      <div class="ar-form-group">
+        <label for="arPeakTime">Peak Event Duration (t<sub>peak</sub>)</label>
+        <div class="ar-input-row">
+          <input type="number" id="arPeakTime" value="45" min="1" step="1">
+          <select id="arTimeUnit" class="ar-unit-badge" style="width:auto;">
+            <option value="sec" selected>Seconds</option>
+            <option value="min">Minutes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ar-form-group">
+        <label>Pressure Regulation Envelope (P<sub>cut-out</sub> &rarr; P<sub>min</sub>)</label>
+        <div class="ar-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Cut-Out / Upper (P₁)</span>
+            <input type="number" id="arP1" value="125" step="1">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Min Header / Lower (P₂)</span>
+            <input type="number" id="arP2" value="100" step="1">
+          </div>
+          <select id="arPressUnit" class="ar-unit-badge" style="width:auto; align-self:flex-end; height:42px;">
+            <option value="psig" selected>psig</option>
+            <option value="barg">barg</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ar-form-group">
+        <label for="arStartsHr">Max Allowable Motor Starts / Hour (Z)</label>
+        <div class="ar-input-row">
+          <select id="arStartsHr">
+            <option value="6">6 Starts / Hour (Heavy Industrial &gt; 50 HP - NEMA MG-1)</option>
+            <option value="8" selected>8 Starts / Hour (Standard Rotary Screw 20-50 HP)</option>
+            <option value="12">12 Starts / Hour (Light Rotary Screw &lt; 20 HP)</option>
+            <option value="15">15 Starts / Hour (Reciprocating Piston Compressor)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ar-form-group">
+        <label for="arTankPos">Vessel Configuration &amp; Moisture Baffle</label>
+        <div class="ar-input-row">
+          <select id="arTankPos">
+            <option value="wet" selected>Wet Receiver (Pre-Dryer: Pulsation Damping &amp; Bulk Water Dropout)</option>
+            <option value="dry">Dry Receiver (Post-Dryer: Precision Clean Air Peak Storage)</option>
+            <option value="dual">Dual Receiver Setup (Wet Buffer + Dry Distribution Header)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="ar-card">
+      <div class="ar-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Sizing Results &amp; Vessel Sizing</h2>
+        <p>ASME Section VIII tank size, pump-up duration, and cycle damping</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="arSvg" width="340" height="230" viewBox="0 0 340 230" style="max-width:100%;">
+          <defs>
+            <linearGradient id="arVesselGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="40%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="arAirGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#e0f2fe"/>
+              <stop offset="100%" stop-color="#bae6fd"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Top Air Discharge Nozzle -->
+          <rect x="162" y="8" width="16" height="18" fill="#475569" rx="2"/>
+          <path d="M 170 12 L 230 12" stroke="#0284c7" stroke-width="3" stroke-dasharray="3,3"/>
+          <polygon points="235,12 227,8 227,16" fill="#0284c7"/>
+          <text x="240" y="16" font-size="9" font-weight="bold" fill="#0284c7">Air To Plant</text>
+
+          <!-- ASME Safety Valve on Top Head -->
+          <rect x="125" y="12" width="10" height="14" fill="#d97706" rx="1"/>
+          <circle cx="130" cy="10" r="4" fill="#b45309"/>
+          <text x="130" y="6" font-size="7" font-weight="bold" fill="#b45309" text-anchor="middle">ASME PRV</text>
+
+          <!-- Pressure Gauge on Head -->
+          <circle cx="205" cy="18" r="10" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+          <line id="arSvgGaugeNeedle" x1="205" y1="18" x2="212" y2="12" stroke="#dc2626" stroke-width="1.5"/>
+          <text x="205" y="34" font-size="7" font-weight="bold" fill="#334155" text-anchor="middle">125 psi</text>
+
+          <!-- ASME Dished Head Top & Vertical Cylindrical Body -->
+          <!-- Dished elliptical top cap -->
+          <path d="M 110 50 C 110 24, 230 24, 230 50 L 230 180 C 230 206, 110 206, 110 180 Z" fill="url(#arVesselGrad)" stroke="#1e293b" stroke-width="2"/>
+          <!-- Internal Chamber Air Fill -->
+          <path d="M 116 52 C 116 30, 224 30, 224 52 L 224 178 C 224 200, 116 200, 116 178 Z" fill="url(#arAirGrad)"/>
+
+          <!-- Air Inlet Tube with Deflector Baffle -->
+          <rect x="90" y="70" width="30" height="12" fill="#475569"/>
+          <line x1="80" y1="76" x2="115" y2="76" stroke="#0284c7" stroke-width="2.5"/>
+          <polygon points="120,76 112,72 112,80" fill="#0284c7"/>
+          <line x1="126" y1="62" x2="126" y2="90" stroke="#334155" stroke-width="3"/>
+          <text x="50" y="79" font-size="8" font-weight="bold" fill="#475569">From Comp</text>
+
+          <!-- Internal Swirl & Dropout Zone -->
+          <circle cx="170" cy="115" r="30" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+
+          <!-- Bottom Condensate Water Puddle -->
+          <path d="M 130 185 C 145 194, 195 194, 210 185 L 214 178 C 214 195, 126 195, 126 178 Z" fill="#2563eb" opacity="0.8"/>
+
+          <!-- Bottom Automatic Condensate Drain -->
+          <rect x="164" y="200" width="12" height="14" fill="#475569"/>
+          <circle cx="170" cy="218" r="3" fill="#2563eb"/>
+          <circle cx="170" cy="225" r="2.5" fill="#3b82f6"/>
+          <text x="170" y="228" font-size="7" font-weight="bold" fill="#1e40af" text-anchor="middle" dx="28">Auto Drain</text>
+
+          <!-- Vessel Callout Text -->
+          <rect x="135" y="100" width="70" height="34" rx="4" fill="#ffffff" fill-opacity="0.9" stroke="#94a3b8"/>
+          <text x="170" y="114" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle" id="svgTankGalLabel">240 Gallons</text>
+          <text x="170" y="126" font-size="8" fill="#64748b" text-anchor="middle" id="svgTankLitLabel">908 Liters</text>
+        </svg>
+      </div>
+
+      <div class="ar-stat-grid">
+        <div class="ar-stat-box highlight">
+          <div class="ar-stat-label">Recommended ASME Tank</div>
+          <div class="ar-stat-val" id="arTankResult">240 Gallons</div>
+          <div class="ar-stat-sub" id="arTankSub">908 Liters (Std ASME)</div>
+        </div>
+        <div class="ar-stat-box highlight">
+          <div class="ar-stat-label">Peak Event Storage</div>
+          <div class="ar-stat-val" id="arPeakResult">165 Gallons</div>
+          <div class="ar-stat-sub" id="arPeakSub">For 45 sec event</div>
+        </div>
+        <div class="ar-stat-box">
+          <div class="ar-stat-label">Cycle Damping Min Vol</div>
+          <div class="ar-stat-val" id="arCycleResult">165 Gallons</div>
+          <div class="ar-stat-sub" id="arCycleSub">Limits starts &le; 8 / hr</div>
+        </div>
+        <div class="ar-stat-box">
+          <div class="ar-stat-label">Cold Pump-Up Time</div>
+          <div class="ar-stat-val" id="arPumpResult">2.7 Min</div>
+          <div class="ar-stat-sub" id="arPumpSub">0 to 125 psig</div>
+        </div>
+      </div>
+
+      <div class="ar-stat-grid">
+        <div class="ar-stat-box">
+          <div class="ar-stat-label">Storage Ratio (Gal/CFM)</div>
+          <div class="ar-stat-val" id="arRatioResult">2.40 Gal/CFM</div>
+          <div class="ar-stat-sub"><span class="ar-status-badge badge-pass" id="arRatioBadge">Adequate (&ge; 2.0)</span></div>
+        </div>
+        <div class="ar-stat-box">
+          <div class="ar-stat-label">Pressure Decay Rate</div>
+          <div class="ar-stat-val" id="arDecayResult">0.55 psi/s</div>
+          <div class="ar-stat-sub" id="arDecaySub">During max demand</div>
+        </div>
+      </div>
+
+      <button type="button" class="ar-btn" id="copyArAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy ASME/CAGI Sizing Audit</span>
+      </button>
+
+      <textarea id="arAuditReport" class="ar-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & CAGI Engineering Formulas -->
+  <div class="ar-card" style="margin-bottom: 24px;">
+    <div class="ar-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Mathematical &amp; CAGI Sizing Derivations</h2>
+      <p>Peak drawdown volume and motor anti-cycling criteria evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>CAGI Section 4</strong> and <strong>ASME Section VIII Division 1</strong>, compressed air receiver volume must satisfy two independent criteria: peak event bridging and compressor load/unload cycle damping.</p>
+      <p>1. <strong>Peak Event Demand Deficit (&Delta;C):</strong> The deficit between peak consumer airflow <span id="derivDemand" style="font-weight:600;">175 SCFM</span> and compressor output <span id="derivSupply" style="font-weight:600;">100 SCFM</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;C = C_demand - C_supply = <span id="derivDeltaC" style="font-weight:700; color:#2563eb;">75 SCFM</span>
+      </div>
+      <p>2. <strong>Allowable Pressure Envelope (&Delta;P = P₁ - P₂):</strong> Operating between cut-out <span id="derivP1Val" style="font-weight:600;">125 psig</span> and minimum header <span id="derivP2Val" style="font-weight:600;">100 psig</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;P = P₁ - P₂ = <span id="derivDeltaP" style="font-weight:700; color:#0284c7;">25.0 psi</span>
+      </div>
+      <p>3. <strong>Required Vessel Storage for Peak Duration (V_peak):</strong> Applying Boyle's Law with atmospheric pressure P_a = 14.7 psia over duration t = <span id="derivT" style="font-weight:600;">0.75 min</span> (45 s):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        V_cu.ft = (t &middot; &Delta;C &middot; P_a) / &Delta;P = <span id="derivCuFt" style="font-weight:700; color:#15803d;">33.08 cu ft</span><br>
+        V_peak (Gallons) = V_cu.ft &middot; 7.4805 = <span id="derivGalPeak" style="font-weight:700; color:#15803d;">247.4 US Gallons</span> (936 Liters)
+      </div>
+      <p>4. <strong>Motor Anti-Cycling Damping Volume (V_cycle):</strong> To limit motor load/unload cycles to &le; <span id="derivZ" style="font-weight:600;">8 starts/hr</span> (T_cycle = 7.5 min):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        V_cycle = (T_cycle &middot; C_supply &middot; P_a) / (4 &middot; &Delta;P) = <span id="derivGalCycle" style="font-weight:700; color:#b45309;">220.5 US Gallons</span> (835 Liters)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="ar-card" style="margin-bottom: 24px;">
+    <div class="ha-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Air Receiver Tank Sizing</h2>
+      <p>ASME BPVC Section VIII, OSHA 1910.169, and CAGI engineering standards</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Compressor Short-Cycling &amp; Motor Stator Thermal Burnout</strong><br>
+      Installing an undersized tank (&lt; 2 Gallons per CFM) on a rotary screw compressor causes load/unload cycling every 10 to 15 seconds. Large 3-phase induction motors draw 6&times; locked-rotor current on every start; rapid load switching causes severe thermal cycling that degrades stator winding varnish, welded contactor contacts, and catastrophic motor failure.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Sizing for Hourly Average Flow Instead of Peak Inrush Demand</strong><br>
+      A plant averaging 80 CFM might experience sudden 15-second CNC tool changer or pulse-jet dust collector blasts drawing 220 CFM. Sizing the receiver tank based on the 80 CFM average results in immediate header pressure collapse down to 60 psig during pulses, triggering automatic safety shutdowns on downstream automated equipment.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. The Undrained "Waterlogged Tank" Syndrome</strong><br>
+      A 100 HP compressor operating in humid summer conditions generates over 40 gallons of condensate per day. Without a reliable, zero-air-loss electronic auto-drain, liquid water accumulates inside the receiver shell. When 60% of the internal volume is filled with stagnant water, effective pneumatic storage collapses, causing the compressor to rapid-cycle as if the tank did not exist.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Wet Receiver vs. Dry Receiver Placement Blunder</strong><br>
+      Placing the sole receiver tank downstream of the refrigerated air dryer (dry tank only) forces the dryer to handle hot, pulsating slugs of saturated 100% RH air directly from the compressor aftercooler. The thermal shock overwhelms the dryer heat exchanger, carrying liquid water droplets downstream. Best practice requires a wet receiver upstream of the dryer to drop 70% of bulk moisture.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Relief Valve MAWP Mismatch &amp; Internal Acidic Corrosion</strong><br>
+      OSHA 1910.169 strictly mandates that every air receiver be equipped with an ASME UV-stamped safety valve set at or below vessel Maximum Allowable Working Pressure (MAWP). Furthermore, atmospheric air contains acidic combustion gases that dissolve into warm condensate, corroding raw carbon steel tank bottoms. Always specify internal epoxy lining or zero-loss condensate drains.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const compCapInput = document.getElementById('arCompCap');
+  const flowUnitSelect = document.getElementById('arFlowUnit');
+  const peakDemandInput = document.getElementById('arPeakDemand');
+  const demandUnitBadge = document.getElementById('arDemandUnitBadge');
+  const peakTimeInput = document.getElementById('arPeakTime');
+  const timeUnitSelect = document.getElementById('arTimeUnit');
+  const p1Input = document.getElementById('arP1');
+  const p2Input = document.getElementById('arP2');
+  const pressUnitSelect = document.getElementById('arPressUnit');
+  const startsHrSelect = document.getElementById('arStartsHr');
+  const tankPosSelect = document.getElementById('arTankPos');
+
+  // Outputs
+  const tankResult = document.getElementById('arTankResult');
+  const tankSub = document.getElementById('arTankSub');
+  const peakResult = document.getElementById('arPeakResult');
+  const peakSub = document.getElementById('arPeakSub');
+  const cycleResult = document.getElementById('arCycleResult');
+  const cycleSub = document.getElementById('arCycleSub');
+  const pumpResult = document.getElementById('arPumpResult');
+  const pumpSub = document.getElementById('arPumpSub');
+  const ratioResult = document.getElementById('arRatioResult');
+  const ratioBadge = document.getElementById('arRatioBadge');
+  const decayResult = document.getElementById('arDecayResult');
+  const decaySub = document.getElementById('arDecaySub');
+  const auditBox = document.getElementById('arAuditReport');
+
+  // SVG Elements
+  const svgTankGalLabel = document.getElementById('svgTankGalLabel');
+  const svgTankLitLabel = document.getElementById('svgTankLitLabel');
+
+  // Derivations
+  const derivDemand = document.getElementById('derivDemand');
+  const derivSupply = document.getElementById('derivSupply');
+  const derivDeltaC = document.getElementById('derivDeltaC');
+  const derivP1Val = document.getElementById('derivP1Val');
+  const derivP2Val = document.getElementById('derivP2Val');
+  const derivDeltaP = document.getElementById('derivDeltaP');
+  const derivT = document.getElementById('derivT');
+  const derivCuFt = document.getElementById('derivCuFt');
+  const derivGalPeak = document.getElementById('derivGalPeak');
+  const derivZ = document.getElementById('derivZ');
+  const derivGalCycle = document.getElementById('derivGalCycle');
+
+  const stdAsmeTanksGal = [30, 60, 80, 120, 200, 240, 400, 500, 660, 1060, 1500, 2000, 3000];
+
+  function calculate() {
+    const isBarg = pressUnitSelect.value === 'barg';
+    demandUnitBadge.textContent = flowUnitSelect.value === 'm3_min' ? 'm³/min' : (flowUnitSelect.value === 'l_min' ? 'L/min' : 'SCFM');
+
+    // Convert flow inputs to SCFM
+    let compRaw = parseFloat(compCapInput.value) || 100;
+    let demandRaw = parseFloat(peakDemandInput.value) || 175;
+
+    let C_supply_scfm = compRaw;
+    let C_demand_scfm = demandRaw;
+    if (flowUnitSelect.value === 'm3_min') {
+      C_supply_scfm = compRaw * 35.3147;
+      C_demand_scfm = demandRaw * 35.3147;
+    } else if (flowUnitSelect.value === 'l_min') {
+      C_supply_scfm = compRaw * 0.0353147;
+      C_demand_scfm = demandRaw * 0.0353147;
+    }
+
+    // Peak time in minutes
+    let timeRaw = parseFloat(peakTimeInput.value) || 45;
+    let t_min = timeUnitSelect.value === 'sec' ? timeRaw / 60 : timeRaw;
+
+    // Pressures in psig and deltaP in psi
+    let P1_val = parseFloat(p1Input.value) || 125;
+    let P2_val = parseFloat(p2Input.value) || 100;
+    let P1_psig = isBarg ? P1_val * 14.5038 : P1_val;
+    let P2_psig = isBarg ? P2_val * 14.5038 : P2_val;
+    let deltaP_psi = Math.max(P1_psig - P2_psig, 2.0);
+
+    const Pa_psia = 14.7;
+
+    // 1. Peak Event Damping Volume
+    let deltaC_scfm = Math.max(C_demand_scfm - C_supply_scfm, 0);
+    let V_peak_cuft = (t_min * deltaC_scfm * Pa_psia) / deltaP_psi;
+    let V_peak_gal = V_peak_cuft * 7.48052;
+
+    // 2. Anti-Short-Cycling Damping Volume
+    let Z_starts = parseFloat(startsHrSelect.value) || 8;
+    let T_cycle_min = 60 / Z_starts;
+    let V_cycle_cuft = (T_cycle_min * C_supply_scfm * Pa_psia) / (4 * deltaP_psi);
+    let V_cycle_gal = V_cycle_cuft * 7.48052;
+
+    // Rule of thumb minimum (3 gal / CFM)
+    let V_thumb_gal = C_supply_scfm * 3.0;
+
+    // Governing requirement
+    let V_required_gal = Math.max(V_peak_gal, V_cycle_gal, V_thumb_gal);
+
+    // Pick standard ASME tank
+    let stdTank = stdAsmeTanksGal[stdAsmeTanksGal.length - 1];
+    for (let i = 0; i < stdAsmeTanksGal.length; i++) {
+      if (stdAsmeTanksGal[i] >= V_required_gal) {
+        stdTank = stdAsmeTanksGal[i];
+        break;
+      }
+    }
+    if (V_required_gal > stdTank) {
+      stdTank = Math.ceil(V_required_gal / 500) * 500;
+    }
+    let stdTankLit = Math.round(stdTank * 3.78541);
+
+    // Pump-up duration (from 0 psig to P1)
+    // t_pump = (V_cuft * P1) / (C_supply * Pa)
+    let tank_cuft = stdTank / 7.48052;
+    let pumpUp_min = (tank_cuft * P1_psig) / (C_supply_scfm * Pa_psia);
+
+    // Pressure Decay Rate
+    let decay_psi_sec = deltaC_scfm > 0 ? (deltaC_scfm * Pa_psia) / (tank_cuft * 60) : 0;
+
+    // Gal per CFM ratio
+    let galPerCfm = stdTank / C_supply_scfm;
+
+    // Update UI
+    tankResult.textContent = stdTank + ' Gallons';
+    tankSub.textContent = stdTankLit.toLocaleString() + ' Liters (Std ASME)';
+
+    peakResult.textContent = Math.round(V_peak_gal) + ' Gallons';
+    peakSub.textContent = 'For ' + timeRaw + ' ' + timeUnitSelect.value + ' event';
+
+    cycleResult.textContent = Math.round(V_cycle_gal) + ' Gallons';
+    cycleSub.textContent = 'Limits starts ≤ ' + Z_starts + '/hr';
+
+    pumpResult.textContent = pumpUp_min.toFixed(1) + ' Min';
+    pumpSub.textContent = '0 to ' + P1_val + ' ' + (isBarg ? 'barg' : 'psig');
+
+    ratioResult.textContent = galPerCfm.toFixed(2) + ' Gal/CFM';
+    if (galPerCfm < 2.0) {
+      ratioBadge.className = 'ar-status-badge badge-fail';
+      ratioBadge.textContent = 'Short-Cycle Risk (< 2.0)';
+    } else if (galPerCfm < 3.0) {
+      ratioBadge.className = 'ar-status-badge badge-warn';
+      ratioBadge.textContent = 'Marginal (2.0 - 3.0)';
+    } else {
+      ratioBadge.className = 'ar-status-badge badge-pass';
+      ratioBadge.textContent = 'Optimal (≥ 3.0 Gal/CFM)';
+    }
+
+    decayResult.textContent = decay_psi_sec.toFixed(2) + ' psi/s';
+    decaySub.textContent = 'During max peak event';
+
+    // SVG update
+    svgTankGalLabel.textContent = stdTank + ' Gallons';
+    svgTankLitLabel.textContent = stdTankLit.toLocaleString() + ' Liters';
+
+    // Derivations update
+    derivDemand.textContent = Math.round(C_demand_scfm) + ' SCFM';
+    derivSupply.textContent = Math.round(C_supply_scfm) + ' SCFM';
+    derivDeltaC.textContent = Math.round(deltaC_scfm) + ' SCFM';
+    derivP1Val.textContent = P1_val + ' ' + (isBarg ? 'barg' : 'psig');
+    derivP2Val.textContent = P2_val + ' ' + (isBarg ? 'barg' : 'psig');
+    derivDeltaP.textContent = deltaP_psi.toFixed(1) + ' psi';
+    derivT.textContent = t_min.toFixed(2) + ' min (' + timeRaw + ' ' + timeUnitSelect.value + ')';
+    derivCuFt.textContent = V_peak_cuft.toFixed(1) + ' cu ft';
+    derivGalPeak.textContent = Math.round(V_peak_gal) + ' US Gal (' + Math.round(V_peak_gal * 3.78541) + ' L)';
+    derivZ.textContent = Z_starts + ' starts/hr';
+    derivGalCycle.textContent = Math.round(V_cycle_gal) + ' US Gal (' + Math.round(V_cycle_gal * 3.78541) + ' L)';
+
+    // Audit box update
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME SECTION VIII & CAGI AIR RECEIVER AUDIT         \n' +
+      '=======================================================\n' +
+      'Compressor Capacity:       ' + Math.round(C_supply_scfm) + ' SCFM (' + compRaw + ' ' + flowUnitSelect.value + ')\n' +
+      'Peak Transient Demand:     ' + Math.round(C_demand_scfm) + ' SCFM (Deficit: ' + Math.round(deltaC_scfm) + ' SCFM)\n' +
+      'Peak Event Duration:       ' + timeRaw + ' ' + timeUnitSelect.value + ' (' + t_min.toFixed(2) + ' min)\n' +
+      'Pressure Operating Band:   ' + P2_val + ' → ' + P1_val + ' ' + (isBarg ? 'barg' : 'psig') + ' (ΔP: ' + deltaP_psi.toFixed(1) + ' psi)\n' +
+      'Motor Starts Limit:        ' + Z_starts + ' starts/hour (T_cycle: ' + T_cycle_min.toFixed(1) + ' min)\n' +
+      'Vessel Orientation/Role:   ' + tankPosSelect.options[tankPosSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+      '-------------------------------------------------------\n' +
+      'Required Peak Storage:     ' + Math.round(V_peak_gal) + ' US Gallons (' + Math.round(V_peak_gal*3.78541) + ' L)\n' +
+      'Anti-Cycling Min Volume:   ' + Math.round(V_cycle_gal) + ' US Gallons (' + Math.round(V_cycle_gal*3.78541) + ' L)\n' +
+      'RECOMMENDED ASME TANK:     ' + stdTank + ' US Gallons (' + stdTankLit + ' Liters)\n' +
+      'Specific Storage Ratio:    ' + galPerCfm.toFixed(2) + ' Gal/CFM (' + ratioBadge.textContent + ')\n' +
+      'Cold Pump-Up Duration:     ' + pumpUp_min.toFixed(1) + ' Minutes (0 to cut-out)\n' +
+      'Peak Pressure Decay Rate:  ' + decay_psi_sec.toFixed(2) + ' psi/sec\n' +
+      'Vessel Safety Standard:    ASME Section VIII Div 1 / OSHA 1910.169\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyArAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyArAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied ASME/CAGI Sizing Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [compCapInput, flowUnitSelect, peakDemandInput, peakTimeInput, timeUnitSelect, p1Input, p2Input, pressUnitSelect, startsHrSelect, tankPosSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'air-receiver-tank-sizing-calculator.html'), renderTradePage({
+    title: "Compressed Air Receiver Tank Sizing Calculator | ASME Section VIII",
+    metaDesc: "Calculate compressed air receiver tank volume (gallons & liters), pump-up time, compressor cycling frequency, and peak event damping per ASME Section VIII and CAGI.",
+    canonical: `${DOMAIN}/calc/air-receiver-tank-sizing-calculator`,
+    bodyContent: airReceiverTankBody,
+    currentPath: '/calc/air-receiver-tank-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the standard rule of thumb for sizing compressed air receiver tanks?",
+        "a": "Per CAGI guidelines, the standard rule of thumb is 3 to 5 gallons of receiver capacity per CFM of continuous trim compressor capacity (or 10 to 15 liters per liter/second). For severe intermittent peak draws (such as pulse-jet dust baghouses or abrasive blasting), tanks should be sized up to 6 to 10 gallons per CFM."
+      },
+      {
+        "q": "What is the difference between a wet receiver tank and a dry receiver tank?",
+        "a": "A wet receiver is installed directly between the compressor aftercooler and the refrigerated air dryer. It serves to damp pressure pulses, cool air, and drop out up to 70% of liquid condensate before entering the dryer. A dry receiver is installed downstream of the air dryer to provide clean, dry air buffer storage for sudden factory demand spikes."
+      },
+      {
+        "q": "How does receiver volume prevent compressor short-cycling and motor burnout?",
+        "a": "Electric motors on rotary screw and reciprocating compressors experience severe inductive heating during starts. NEMA MG-1 limits motor starts to 6 to 10 per hour. An adequately sized receiver provides sufficient compressed air storage buffer so that the compressor runs in continuous loaded or unloaded modes rather than cycling on and off every few seconds."
+      },
+      {
+        "q": "What is the formula for calculating air receiver volume for a peak demand spike?",
+        "a": "The formula derived from Boyle's Law is: V = (t · (C_demand - C_supply) · P_a) / ΔP, where V is receiver volume in cubic feet, t is event time in minutes, C_demand is peak air demand in SCFM, C_supply is compressor delivered capacity in SCFM, P_a is atmospheric pressure (14.7 psia), and ΔP is the allowable system pressure drop in psi."
+      },
+      {
+        "q": "What ASME Section VIII safety requirements apply to air receiver tanks?",
+        "a": "Under OSHA 1910.169 and ASME BPVC Section VIII Division 1, all compressed air receivers must be constructed to ASME pressure vessel code, bear an official code stamp (UV/U), and be equipped with a certified spring-loaded safety relief valve set at or below the tank's Maximum Allowable Working Pressure (MAWP)."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 55: Rotary Airlock Feeder Sizing & Air Leakage Calculator (CEMA & NFPA 69)
+  // ==========================================
+  const rotaryAirlockBody = `
+<style>
+  .ra-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .ra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .ra-grid { grid-template-columns: 1fr; } }
+  .ra-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .ra-header { margin-bottom: 20px; }
+  .ra-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .ra-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .ra-form-group { margin-bottom: 16px; }
+  .ra-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .ra-input-row { display: flex; gap: 10px; align-items: center; }
+  .ra-input-row input, .ra-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .ra-input-row input:focus, .ra-input-row select:focus { outline: none; border-color: #2563eb; }
+  .ra-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .ra-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .ra-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .ra-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .ra-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .ra-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .ra-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .ra-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .ra-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .ra-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .ra-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .ra-btn:hover { background: #1d4ed8; }
+  .ra-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="ra-container">
+  <div class="ra-grid">
+    <!-- Inputs Column -->
+    <div class="ra-card">
+      <div class="ra-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Material &amp; Feeder Parameters</h2>
+        <p>CEMA Standard 575 &amp; NFPA 69 explosion isolation criteria</p>
+      </div>
+
+      <div class="ra-form-group">
+        <label for="raMaterialPreset">Bulk Material &amp; Density</label>
+        <div class="ra-input-row">
+          <select id="raMaterialPreset">
+            <option value="35" selected>Wheat Flour / Starch (35 lb/ft³ - Fluidizable)</option>
+            <option value="94">Portland Cement (94 lb/ft³ - Dense Powder)</option>
+            <option value="50">Fly Ash / Coal Dust (50 lb/ft³ - Combustible Dust)</option>
+            <option value="35_pellet">Plastic Polymer Pellets (35 lb/ft³ - Free-Flowing)</option>
+            <option value="48">Grain / Corn / Wheat (48 lb/ft³ - Granular)</option>
+            <option value="60">Hydrated Lime (60 lb/ft³ - Fine Cohesive)</option>
+            <option value="custom">Custom Material Bulk Density</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ra-form-group" id="raCustomDensityGroup" style="display:none;">
+        <label for="raCustomDensity">Custom Material Bulk Density</label>
+        <div class="ra-input-row">
+          <input type="number" id="raCustomDensity" value="45" min="5" step="1">
+          <select id="raDensityUnit" class="ra-unit-badge" style="width:auto;">
+            <option value="lb_cuft" selected>lb/ft&sup3;</option>
+            <option value="kg_m3">kg/m&sup3;</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ra-form-group">
+        <label for="raThroughput">Target Material Throughput Rate</label>
+        <div class="ra-input-row">
+          <input type="number" id="raThroughput" value="15000" min="100" step="500">
+          <select id="raRateUnit" class="ra-unit-badge" style="width:auto;">
+            <option value="lb_hr" selected>lbs/hr</option>
+            <option value="ton_hr">Tons/hr</option>
+            <option value="kg_hr">kg/hr</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ra-form-group">
+        <label for="raValveSize">Nominal Valve Size (CFR: Displ. / Rev)</label>
+        <div class="ra-input-row">
+          <select id="raValveSize">
+            <option value="0.10">6" Airlock (0.10 CFR / 2.8 L/rev)</option>
+            <option value="0.27">8" Airlock (0.27 CFR / 7.6 L/rev)</option>
+            <option value="0.55">10" Airlock (0.55 CFR / 15.6 L/rev)</option>
+            <option value="0.95" selected>12" Airlock (0.95 CFR / 26.9 L/rev)</option>
+            <option value="1.60">14" Airlock (1.60 CFR / 45.3 L/rev)</option>
+            <option value="2.50">16" Airlock (2.50 CFR / 70.8 L/rev)</option>
+            <option value="3.80">18" Airlock (3.80 CFR / 107.6 L/rev)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ra-form-group">
+        <label for="raRpm">Operating Rotor Speed (RPM)</label>
+        <div class="ra-input-row">
+          <input type="number" id="raRpm" value="18" min="3" max="45" step="1">
+          <div class="ra-unit-badge">RPM</div>
+        </div>
+      </div>
+
+      <div class="ra-form-group">
+        <label for="raDeltaP">Differential Pressure Across Valve (&Delta;P)</label>
+        <div class="ra-input-row">
+          <input type="number" id="raDeltaP" value="6.0" min="0" step="0.5">
+          <select id="raPressUnit" class="ra-unit-badge" style="width:auto;">
+            <option value="psig" selected>psig</option>
+            <option value="barg">barg</option>
+            <option value="in_wg">in. w.g.</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ra-form-group">
+        <label>Rotor Design &amp; Clearance Gap</label>
+        <div class="ra-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Rotor Configuration</span>
+            <select id="raVaneConfig">
+              <option value="8_nfpa" selected>8-Vane Closed End (NFPA 69 Deflagration Barrier)</option>
+              <option value="8_open">8-Vane Open End (Standard Conveying)</option>
+              <option value="6_std">6-Vane Open End (Gravity Dump Only - Non-NFPA)</option>
+              <option value="10_hd">10-Vane Closed End (High Diff Pressure)</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Radial Tip Gap</span>
+            <select id="raClearance">
+              <option value="0.003">0.003" (Precision)</option>
+              <option value="0.005" selected>0.005" (Standard)</option>
+              <option value="0.008">0.008" (Max NFPA)</option>
+              <option value="0.015">0.015" (Worn Rotor)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="ra-card">
+      <div class="ra-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Capacity &amp; Blow-By Leakage</h2>
+        <p>CEMA volumetric throughput and air blow-by leakage engine</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="raSvg" width="340" height="230" viewBox="0 0 340 230" style="max-width:100%;">
+          <defs>
+            <linearGradient id="housingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="50%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="materialGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#d97706"/>
+              <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Top Inlet Throat Flange -->
+          <polygon points="120,8 220,8 205,42 135,42" fill="url(#housingGrad)" stroke="#1e293b"/>
+          <text x="170" y="24" font-size="9" font-weight="bold" fill="#f8fafc" text-anchor="middle">Feed Inlet</text>
+
+          <!-- Material Feed Arrows (Brown) -->
+          <line x1="155" y1="12" x2="155" y2="38" stroke="#f59e0b" stroke-width="2.5"/>
+          <polygon points="155,42 152,36 158,36" fill="#f59e0b"/>
+          <line x1="170" y1="10" x2="170" y2="38" stroke="#f59e0b" stroke-width="2.5"/>
+          <polygon points="170,42 167,36 173,36" fill="#f59e0b"/>
+          <line x1="185" y1="12" x2="185" y2="38" stroke="#f59e0b" stroke-width="2.5"/>
+          <polygon points="185,42 182,36 188,36" fill="#f59e0b"/>
+
+          <!-- Main Cylindrical Valve Body -->
+          <circle cx="170" cy="115" r="74" fill="url(#housingGrad)" stroke="#1e293b" stroke-width="2"/>
+          <circle cx="170" cy="115" r="66" fill="#f1f5f9"/>
+
+          <!-- Material Inside Pockets (Left to Bottom) -->
+          <path id="svgMaterialPocket" d="M 170 115 L 140 60 A 66 66 0 0 0 110 145 Z" fill="url(#materialGrad)" opacity="0.85"/>
+
+          <!-- Rotating 8-Vane Rotor (Central Hub + 8 Vanes) -->
+          <g id="svgRotorVanes">
+            <line x1="170" y1="49" x2="170" y2="181" stroke="#0f172a" stroke-width="3"/>
+            <line x1="104" y1="115" x2="236" y2="115" stroke="#0f172a" stroke-width="3"/>
+            <line x1="123" y1="68" x2="217" y2="162" stroke="#0f172a" stroke-width="3"/>
+            <line x1="123" y1="162" x2="217" y2="68" stroke="#0f172a" stroke-width="3"/>
+            <circle cx="170" cy="115" r="20" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+            <circle cx="170" cy="115" r="8" fill="#94a3b8"/>
+          </g>
+
+          <!-- Rotation Direction Indicator -->
+          <path d="M 152 95 A 25 25 0 0 0 145 125" fill="none" stroke="#2563eb" stroke-width="2"/>
+          <polygon points="144,128 141,120 148,122" fill="#2563eb"/>
+
+          <!-- Blow-By Air Streams (Right Side Upward Blue Dash Arrows) -->
+          <g id="svgBlowBy">
+            <path d="M 228 170 C 238 140, 238 90, 228 60" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="3,3"/>
+            <polygon points="228,55 224,62 232,62" fill="#0284c7"/>
+            <text x="245" y="118" font-size="8" font-weight="bold" fill="#0284c7" id="svgLeakLabel">Blow-By: 48 SCFM</text>
+          </g>
+
+          <!-- Bottom Discharge Throat Flange -->
+          <polygon points="135,188 205,188 220,222 120,222" fill="url(#housingGrad)" stroke="#1e293b"/>
+          <text x="170" y="212" font-size="9" font-weight="bold" fill="#f8fafc" text-anchor="middle">Discharge</text>
+
+          <!-- Status Indicator Callout -->
+          <rect x="10" y="80" width="85" height="40" rx="4" fill="#ffffff" fill-opacity="0.9" stroke="#cbd5e1"/>
+          <text x="52" y="95" font-size="8" fill="#64748b" text-anchor="middle">Rotor Tip Speed</text>
+          <text x="52" y="112" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle" id="svgTipSpeedVal">56 ft/min</text>
+        </svg>
+      </div>
+
+      <div class="ra-stat-grid">
+        <div class="ra-stat-box highlight">
+          <div class="ra-stat-label">Actual Material Output</div>
+          <div class="ra-stat-val" id="raCapResult">25,137 lbs/hr</div>
+          <div class="ra-stat-sub" id="raCapSub">12.57 Tons/hr (11.4 t/h)</div>
+        </div>
+        <div class="ra-stat-box highlight">
+          <div class="ra-stat-label">Total Air Blow-By Leakage</div>
+          <div class="ra-stat-val" id="raLeakResult">48.2 SCFM</div>
+          <div class="ra-stat-sub" id="raLeakSub">81.9 m&sup3;/h (&Delta;P: 6.0 psi)</div>
+        </div>
+        <div class="ra-stat-box">
+          <div class="ra-stat-label">Pocket Fill Efficiency</div>
+          <div class="ra-stat-val" id="raFillResult">70.0%</div>
+          <div class="ra-stat-sub" id="raFillSub">Derated for 18 RPM</div>
+        </div>
+        <div class="ra-stat-box" id="raTipBox">
+          <div class="ra-stat-label">Rotor Tip Speed</div>
+          <div class="ra-stat-val" id="raTipResult">56.5 ft/min</div>
+          <div class="ra-stat-sub"><span class="ra-status-badge badge-pass" id="raTipBadge">Optimal (&le; 100 ft/min)</span></div>
+        </div>
+      </div>
+
+      <div class="ra-stat-grid">
+        <div class="ra-stat-box">
+          <div class="ra-stat-label">Blower Power Loss</div>
+          <div class="ra-stat-val" id="raPowerResult">1.85 HP</div>
+          <div class="ra-stat-sub" id="raPowerSub">Parasitic compression work</div>
+        </div>
+        <div class="ra-stat-box" id="raNfpaBox">
+          <div class="ra-stat-label">NFPA 69 Explosion Seal</div>
+          <div class="ra-stat-val" id="raNfpaResult">COMPLIANT</div>
+          <div class="ra-stat-sub"><span class="ra-status-badge badge-pass" id="raNfpaBadge">&ge; 8 Vanes / &le; 0.0079"</span></div>
+        </div>
+      </div>
+
+      <button type="button" class="ra-btn" id="copyRaAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy CEMA/NFPA Sizing Audit</span>
+      </button>
+
+      <textarea id="raAuditReport" class="ra-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Engineering Rigor -->
+  <div class="ra-card" style="margin-bottom: 24px;">
+    <div class="ra-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Mathematical &amp; Air Leakage Derivations</h2>
+      <p>CEMA volumetric transport and clearance blow-by equations evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>1. <strong>Theoretical Volumetric Displacement:</strong> For a <span id="derivValveCfr" style="font-weight:600;">0.95 CFR</span> valve rotating at <span id="derivRpm" style="font-weight:600;">18 RPM</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        V_theor = CFR &middot; RPM &middot; 60 = 0.95 &middot; 18 &middot; 60 = <span id="derivTheorCuFt" style="font-weight:700; color:#2563eb;">1,026 cu ft/hr</span>
+      </div>
+      <p>2. <strong>Delivered Mass Throughput (&dot;M):</strong> Applying bulk density <span id="derivDensity" style="font-weight:600;">35.0 lb/ft&sup3;</span> and pocket fill efficiency &eta;_fill = <span id="derivFillEff" style="font-weight:600;">70.0%</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &dot;M = V_theor &middot; &eta;_fill &middot; &rho;_bulk = 1,026 &middot; 0.70 &middot; 35.0 = <span id="derivMassCalc" style="font-weight:700; color:#15803d;">25,137 lbs/hr</span> (12.57 Tons/hr)
+      </div>
+      <p>3. <strong>Clearance Orifice Blow-By Leakage (Q_clear):</strong> Across radial/axial gap &delta; = <span id="derivGap" style="font-weight:600;">0.0050 in</span> and &Delta;P = <span id="derivDeltaPVal" style="font-weight:600;">6.00 psig</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Q_clear = C_d &middot; A_gap &middot; sqrt(2 &middot; &Delta;P / &rho;_air) = <span id="derivClearCalc" style="font-weight:700; color:#0284c7;">38.7 SCFM</span>
+      </div>
+      <p>4. <strong>Pocket Displacement Gas Carryover (Q_disp):</strong> Compressed gas trapped in returning pockets expanding to atmosphere:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Q_disp = CFR &middot; RPM &middot; (&Delta;P / P_atm) = 0.95 &middot; 18 &middot; (6.0 / 14.7) = <span id="derivDispCalc" style="font-weight:700; color:#b45309;">6.98 SCFM</span><br>
+        Total Gas Blow-By = Q_clear + Q_disp = <span id="derivTotalLeak" style="font-weight:700; color:#0f172a;">45.68 SCFM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="ra-card" style="margin-bottom: 24px;">
+    <div class="ha-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Rotary Airlock Feeder Engineering</h2>
+      <p>CEMA, NFPA 69 Chapter 12, and OSHA 1910 combustible dust standards</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. High-Speed Rotor Aeration &amp; Choking (RPM &gt; 25)</strong><br>
+      Attempting to squeeze more throughput from an undersized valve by cranking rotor speed above 25–30 RPM backfires catastrophically. As pocket entry transit time drops below 0.1 seconds, centrifugal forces fling incoming powder outwards, while compressed air escaping from returning pockets fluidizes the feed throat. Pocket fill efficiency collapses from 75% down to 35%, cutting net throughput.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Unvented Blow-By Air Geysering in the Feed Hopper</strong><br>
+      When feeding into a positive pressure pneumatic line (4 to 12 psig), pressurized air leaks through rotor tip clearances directly upward into the feed hopper. In cohesive powders like flour or starch, this escaping air creates a violent upward "geyser" that aerates the material column, creating persistent ratholing, bridging, and complete flow starvation. Always install a vented throat adapter or blow-by relief box.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Thermal Differential Expansion &amp; Rotor Seizure</strong><br>
+      When handling hot bulk materials (&gt; 100&deg;C / 212&deg;F), the rotor vanes expand radially much faster than the thick outer cast iron housing dissipates heat. In a standard ambient-clearance valve (0.003"–0.005" gap), the thermal expansion closes the clearance to zero, galling the cast bore and instantly locking up the drive motor or snapping the drive chain. Always specify elevated-temperature clearances.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. NFPA 69 Deflagration Isolation Non-Compliance</strong><br>
+      Using a standard 6-vane open-end airlock as an explosion isolation barrier between a dust collector and silo violates <strong>NFPA 69 Section 12.2</strong>. To serve as a certified deflagration flame barrier, an airlock MUST have at least <strong>8 radial vanes</strong> (ensuring at least 2 vanes per side are in seal contact with the housing at all times), a maximum radial/axial clearance &le; 0.0079" (0.20 mm), and a housing rated for 10 barg explosion shock pressure.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Abrasive Wear Gap Blowout &amp; Blower Overload</strong><br>
+      Conveying abrasive materials (fly ash, quartz sand, alumina) quickly wears rotor tips, widening clearances from 0.005" to 0.020". Because leakage area scales linearly with clearance and gas flow scales with the orifice equation, air leakage increases by <strong>400% to 500%</strong>. This massive air loss robs the conveying line of transport velocity, dropping solids out of suspension and causing catastrophic line blockages.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const materialPresetSelect = document.getElementById('raMaterialPreset');
+  const customDensityGroup = document.getElementById('raCustomDensityGroup');
+  const customDensityInput = document.getElementById('raCustomDensity');
+  const densityUnitSelect = document.getElementById('raDensityUnit');
+  const throughputInput = document.getElementById('raThroughput');
+  const rateUnitSelect = document.getElementById('raRateUnit');
+  const valveSizeSelect = document.getElementById('raValveSize');
+  const rpmInput = document.getElementById('raRpm');
+  const deltaPInput = document.getElementById('raDeltaP');
+  const pressUnitSelect = document.getElementById('raPressUnit');
+  const vaneConfigSelect = document.getElementById('raVaneConfig');
+  const clearanceSelect = document.getElementById('raClearance');
+
+  // Outputs
+  const capResult = document.getElementById('raCapResult');
+  const capSub = document.getElementById('raCapSub');
+  const leakResult = document.getElementById('raLeakResult');
+  const leakSub = document.getElementById('raLeakSub');
+  const fillResult = document.getElementById('raFillResult');
+  const fillSub = document.getElementById('raFillSub');
+  const tipResult = document.getElementById('raTipResult');
+  const tipBadge = document.getElementById('raTipBadge');
+  const tipBox = document.getElementById('raTipBox');
+  const powerResult = document.getElementById('raPowerResult');
+  const powerSub = document.getElementById('raPowerSub');
+  const nfpaResult = document.getElementById('raNfpaResult');
+  const nfpaBadge = document.getElementById('raNfpaBadge');
+  const nfpaBox = document.getElementById('raNfpaBox');
+  const auditBox = document.getElementById('raAuditReport');
+
+  // SVG Elements
+  const svgTipSpeedVal = document.getElementById('svgTipSpeedVal');
+  const svgLeakLabel = document.getElementById('svgLeakLabel');
+
+  // Derivations
+  const derivValveCfr = document.getElementById('derivValveCfr');
+  const derivRpm = document.getElementById('derivRpm');
+  const derivTheorCuFt = document.getElementById('derivTheorCuFt');
+  const derivDensity = document.getElementById('derivDensity');
+  const derivFillEff = document.getElementById('derivFillEff');
+  const derivMassCalc = document.getElementById('derivMassCalc');
+  const derivGap = document.getElementById('derivGap');
+  const derivDeltaPVal = document.getElementById('derivDeltaPVal');
+  const derivClearCalc = document.getElementById('derivClearCalc');
+  const derivDispCalc = document.getElementById('derivDispCalc');
+  const derivTotalLeak = document.getElementById('derivTotalLeak');
+
+  function calculate() {
+    let bulkDensity_lb_cuft = 35;
+    if (materialPresetSelect.value === 'custom') {
+      customDensityGroup.style.display = 'block';
+      let rawDen = parseFloat(customDensityInput.value) || 45;
+      bulkDensity_lb_cuft = densityUnitSelect.value === 'kg_m3' ? rawDen * 0.062428 : rawDen;
+    } else {
+      customDensityGroup.style.display = 'none';
+      if (materialPresetSelect.value === '35_pellet') bulkDensity_lb_cuft = 35;
+      else bulkDensity_lb_cuft = parseFloat(materialPresetSelect.value) || 35;
+    }
+
+    // Target Throughput in lbs/hr
+    let rawThroughput = parseFloat(throughputInput.value) || 15000;
+    let targetLbsHr = rawThroughput;
+    if (rateUnitSelect.value === 'ton_hr') targetLbsHr = rawThroughput * 2000;
+    else if (rateUnitSelect.value === 'kg_hr') targetLbsHr = rawThroughput * 2.20462;
+
+    // Valve CFR & Diameter (inches)
+    let cfr = parseFloat(valveSizeSelect.value) || 0.95;
+    // Map CFR to rotor diameter (approximate standard CEMA)
+    let rotorDiaInches = 12;
+    if (cfr <= 0.15) rotorDiaInches = 6;
+    else if (cfr <= 0.35) rotorDiaInches = 8;
+    else if (cfr <= 0.65) rotorDiaInches = 10;
+    else if (cfr <= 1.10) rotorDiaInches = 12;
+    else if (cfr <= 1.80) rotorDiaInches = 14;
+    else if (cfr <= 2.80) rotorDiaInches = 16;
+    else rotorDiaInches = 18;
+
+    let rpm = parseFloat(rpmInput.value) || 18;
+
+    // Rotor Tip Speed: v_tip = pi * D * RPM / 12 (ft/min)
+    let v_tip_ft_min = (Math.PI * rotorDiaInches * rpm) / 12;
+
+    // Pocket Fill Efficiency derating based on tip speed & RPM
+    // Standard rule: 85% at 5 RPM, dropping linearly to ~55% at 30 RPM
+    let fillEff = 0.85 - (rpm - 5) * 0.012;
+    if (v_tip_ft_min > 100) fillEff -= 0.08;
+    if (fillEff < 0.35) fillEff = 0.35;
+    if (fillEff > 0.90) fillEff = 0.90;
+
+    // Actual Material Delivery
+    let theorCuFtHr = cfr * rpm * 60;
+    let actualLbsHr = theorCuFtHr * fillEff * bulkDensity_lb_cuft;
+    let actualTonsHr = actualLbsHr / 2000;
+    let actualTonnesHr = actualLbsHr * 0.000453592;
+
+    // Differential Pressure to psig
+    let rawDeltaP = parseFloat(deltaPInput.value) || 6.0;
+    let deltaP_psig = rawDeltaP;
+    if (pressUnitSelect.value === 'barg') deltaP_psig = rawDeltaP * 14.5038;
+    else if (pressUnitSelect.value === 'in_wg') deltaP_psig = rawDeltaP * 0.036127;
+
+    const clearanceInches = parseFloat(clearanceSelect.value) || 0.005;
+
+    // Blow-by Leakage Calculation
+    // 1. Orifice Clearance Leakage across rotor tips & endplates
+    // Gap Area: A_gap = 2 * (L * delta) + 2 * (pi * D * delta) [sq inches]
+    let rotorLengthInches = rotorDiaInches * 1.0;
+    let gapAreaSqIn = (2 * rotorLengthInches * clearanceInches) + (2 * Math.PI * rotorDiaInches * clearanceInches);
+    let gapAreaSqFt = gapAreaSqIn / 144;
+
+    // Orifice flow: Q_clear = Cd * A * sqrt(2 * deltaP / rho)
+    // In standard empirical CFM formula for air at 70°F:
+    let Q_clear_scfm = 0.60 * gapAreaSqIn * Math.sqrt(Math.max(deltaP_psig, 0.01)) * 48;
+
+    // 2. Pocket Carryover Gas Displacement: Q_disp = CFR * RPM * (deltaP / 14.7)
+    let Q_disp_scfm = cfr * rpm * (Math.max(deltaP_psig, 0) / 14.7);
+
+    let totalLeakScfm = Q_clear_scfm + Q_disp_scfm;
+    let totalLeakM3h = totalLeakScfm * 1.69901;
+
+    // Blower Power Penalty (adiabatic air compression work of leaked air)
+    // HP = (SCFM * deltaP_psi * 144) / (33000 * eta_blower ~ 0.70)
+    let blowerHpLoss = (totalLeakScfm * deltaP_psig * 144) / (33000 * 0.65);
+
+    // NFPA 69 Compliance Check
+    let isNfpa = false;
+    let nfpaReason = '';
+    const is8Vane = vaneConfigSelect.value.startsWith('8_') || vaneConfigSelect.value.startsWith('10_');
+    if (!is8Vane) {
+      isNfpa = false;
+      nfpaReason = 'FAIL: Requires ≥ 8 Vanes (NFPA 69 Sec 12.2)';
+    } else if (clearanceInches > 0.0079) {
+      isNfpa = false;
+      nfpaReason = 'FAIL: Gap > 0.0079" (0.20 mm)';
+    } else {
+      isNfpa = true;
+      nfpaReason = 'COMPLIANT: ≥ 8 Vanes / Gap ≤ 0.0079"';
+    }
+
+    // Update Result UI
+    capResult.textContent = Math.round(actualLbsHr).toLocaleString() + ' lbs/hr';
+    capSub.textContent = actualTonsHr.toFixed(2) + ' Tons/hr (' + actualTonnesHr.toFixed(2) + ' t/h)';
+
+    leakResult.textContent = totalLeakScfm.toFixed(1) + ' SCFM';
+    leakSub.textContent = totalLeakM3h.toFixed(1) + ' m³/h (Clearance + Pocket)';
+
+    fillResult.textContent = (fillEff * 100).toFixed(1) + '%';
+    fillSub.textContent = 'At ' + rpm + ' RPM with ' + bulkDensity_lb_cuft.toFixed(0) + ' lb/ft³';
+
+    tipResult.textContent = v_tip_ft_min.toFixed(1) + ' ft/min';
+    svgTipSpeedVal.textContent = v_tip_ft_min.toFixed(0) + ' ft/min';
+    svgLeakLabel.textContent = 'Blow-By: ' + Math.round(totalLeakScfm) + ' SCFM';
+
+    if (v_tip_ft_min > 120) {
+      tipBadge.className = 'ra-status-badge badge-fail';
+      tipBadge.textContent = 'Pocket Choking (> 120 ft/min)';
+      tipBox.className = 'ra-stat-box danger';
+    } else if (v_tip_ft_min > 90) {
+      tipBadge.className = 'ra-status-badge badge-warn';
+      tipBadge.textContent = 'Moderate Aeration (> 90 ft/min)';
+      tipBox.className = 'ra-stat-box warning';
+    } else {
+      tipBadge.className = 'ra-status-badge badge-pass';
+      tipBadge.textContent = 'Optimal (≤ 90 ft/min)';
+      tipBox.className = 'ra-stat-box';
+    }
+
+    powerResult.textContent = blowerHpLoss.toFixed(2) + ' HP';
+    powerSub.textContent = 'Parasitic blower energy loss';
+
+    if (isNfpa) {
+      nfpaResult.textContent = 'COMPLIANT';
+      nfpaBadge.className = 'ra-status-badge badge-pass';
+      nfpaBadge.textContent = 'Certified Deflagration Barrier';
+      nfpaBox.className = 'ra-stat-box highlight';
+    } else {
+      nfpaResult.textContent = 'NON-COMPLIANT';
+      nfpaBadge.className = 'ra-status-badge badge-fail';
+      nfpaBadge.textContent = nfpaReason;
+      nfpaBox.className = 'ra-stat-box danger';
+    }
+
+    // Derivations update
+    derivValveCfr.textContent = cfr + ' CFR (' + rotorDiaInches + '")';
+    derivRpm.textContent = rpm + ' RPM';
+    derivTheorCuFt.textContent = Math.round(theorCuFtHr).toLocaleString() + ' cu ft/hr';
+    derivDensity.textContent = bulkDensity_lb_cuft.toFixed(1) + ' lb/ft³';
+    derivFillEff.textContent = (fillEff * 100).toFixed(1) + '%';
+    derivMassCalc.textContent = Math.round(actualLbsHr).toLocaleString() + ' lbs/hr';
+    derivGap.textContent = clearanceInches.toFixed(4) + ' in';
+    derivDeltaPVal.textContent = deltaP_psig.toFixed(2) + ' psig';
+    derivClearCalc.textContent = Q_clear_scfm.toFixed(1) + ' SCFM';
+    derivDispCalc.textContent = Q_disp_scfm.toFixed(2) + ' SCFM';
+    derivTotalLeak.textContent = totalLeakScfm.toFixed(1) + ' SCFM (' + totalLeakM3h.toFixed(1) + ' m³/h)';
+
+    // Update Audit Box
+    const auditText = 
+      '=======================================================\n' +
+      '   CEMA 575 & NFPA 69 ROTARY AIRLOCK FEEDER AUDIT    \n' +
+      '=======================================================\n' +
+      'Material Handled:          ' + materialPresetSelect.options[materialPresetSelect.selectedIndex].text.split('(')[0].trim() + ' (' + bulkDensity_lb_cuft.toFixed(1) + ' lb/ft³)\n' +
+      'Airlock Size:              ' + rotorDiaInches + '" Valve (' + cfr + ' CFR / ' + Math.round(cfr * 28.3168) + ' L/rev)\n' +
+      'Operating Rotor Speed:     ' + rpm + ' RPM (Tip Speed: ' + v_tip_ft_min.toFixed(1) + ' ft/min [' + tipBadge.textContent + '])\n' +
+      'Pocket Fill Efficiency:    ' + (fillEff * 100).toFixed(1) + '%\n' +
+      'Delivered Capacity:        ' + Math.round(actualLbsHr).toLocaleString() + ' lbs/hr (' + actualTonsHr.toFixed(2) + ' Tons/hr)\n' +
+      'Differential Pressure:     ' + deltaP_psig.toFixed(1) + ' psig (' + (deltaP_psig * 0.0689476).toFixed(2) + ' bar)\n' +
+      'Radial Tip Clearance:      ' + clearanceInches.toFixed(4) + '" (' + (clearanceInches * 25.4).toFixed(3) + ' mm)\n' +
+      '-------------------------------------------------------\n' +
+      'Clearance Orifice Blow-By: ' + Q_clear_scfm.toFixed(1) + ' SCFM\n' +
+      'Pocket Gas Carryover:      ' + Q_disp_scfm.toFixed(1) + ' SCFM\n' +
+      'TOTAL GAS BLOW-BY LEAKAGE: ' + totalLeakScfm.toFixed(1) + ' SCFM (' + totalLeakM3h.toFixed(1) + ' m³/h)\n' +
+      'Parasitic Blower Power:    ' + blowerHpLoss.toFixed(2) + ' HP\n' +
+      'NFPA 69 Explosion Rating:  ' + nfpaResult.textContent + ' (' + nfpaBadge.textContent + ')\n' +
+      'Safety Standard:           CEMA Standard 575 / NFPA 69 Chapter 12\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyRaAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyRaAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied CEMA/NFPA Sizing Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [materialPresetSelect, customDensityInput, densityUnitSelect, throughputInput, rateUnitSelect, valveSizeSelect, rpmInput, deltaPInput, pressUnitSelect, vaneConfigSelect, clearanceSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'rotary-airlock-feeder-calculator.html'), renderTradePage({
+    title: "Rotary Airlock Feeder Sizing & Air Leakage Calculator | CEMA & NFPA",
+    metaDesc: "Calculate rotary airlock valve capacity (lbs/hr & kg/hr), rotor RPM, pocket fill efficiency, differential pressure blow-by gas leakage, and NFPA 69 deflagration limits.",
+    canonical: `${DOMAIN}/calc/rotary-airlock-feeder-calculator`,
+    bodyContent: rotaryAirlockBody,
+    currentPath: '/calc/rotary-airlock-feeder-calculator',
+    faq: [
+      {
+        "q": "What is pocket fill efficiency in a rotary airlock valve?",
+        "a": "Pocket fill efficiency (typically 60% to 85%) is the percentage of a rotor pocket's theoretical volume that actually fills with bulk material during its brief transit across the feed throat. Fill efficiency degrades rapidly at speeds above 20–25 RPM or when handling fine, cohesive, or aerated powders."
+      },
+      {
+        "q": "Why does blow-by air leak through a rotary airlock in pneumatic conveying?",
+        "a": "Airlocks feeding into positive pressure conveying lines (typically 2 to 12 psig) experience blow-by leakage from two sources: (1) high-velocity air jetting through radial and axial clearances between rotor tips and housing walls, and (2) compressed air trapped inside returning empty pockets expanding into the lower-pressure inlet hopper."
+      },
+      {
+        "q": "What are the NFPA 69 requirements for a rotary valve used as an explosion barrier?",
+        "a": "Per NFPA 69 Section 12.2, a rotary airlock serving as a deflagration flame and pressure isolation barrier must have at least 8 radial vanes (ensuring at least 2 vanes per side are in seal contact with the housing at all times), a maximum clearance of 0.0079 inches (0.20 mm), and a housing designed to withstand 10 barg explosion shock pressure."
+      },
+      {
+        "q": "What happens if a rotary valve runs at excessive RPM (> 25-30 RPM)?",
+        "a": "Running a rotary valve too fast produces centrifugal throw-out that flings powders against the inlet throat walls, while compressed blow-by air rushing out of returning empty pockets fluidizes incoming material. This reduces pocket fill efficiency to less than 40%, increasing wear, air leakage, and energy loss without increasing throughput."
+      },
+      {
+        "q": "Why is a blow-by vent adapter needed on the airlock inlet throat?",
+        "a": "A blow-by vent adapter captures air leaking upward from returning pressurized pockets and directs it into a dust collector or venting filter before it enters the feed hopper. Without venting, the escaping air bubbles through cohesive powders in the hopper, causing severe bridging, ratholing, and flow choking."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (55 calculators in /calc/)');
 }
 
