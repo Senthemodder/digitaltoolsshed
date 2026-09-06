@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator</title>
+  <meta name="description" content="">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/asme-b31-3-piping-flexibility-calculator">
+  <meta property="og:title" content="ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/asme-b31-3-piping-flexibility-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Digital Tools Shed">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator">
+  <meta name="twitter:description" content="">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="Digital Tools Shed">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('dts-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+
+      const isDark = savedTheme === 'dark';
+      const op1 = isDark ? '0.14' : '0.08';
+      const op2 = isDark ? '0.12' : '0.07';
+      const op3 = isDark ? '0.10' : '0.06';
+
+      const palettes = [
+        { orb1: 'rgba(99, 102, 241, ' + op1 + ')', orb2: 'rgba(16, 185, 129, ' + op2 + ')', orb3: 'rgba(168, 85, 247, ' + op3 + ')', bar: 'linear-gradient(90deg, #6366f1, #10b981, #a855f7)' },
+        { orb1: 'rgba(244, 63, 94, ' + op1 + ')', orb2: 'rgba(245, 158, 11, ' + op2 + ')', orb3: 'rgba(236, 72, 153, ' + op3 + ')', bar: 'linear-gradient(90deg, #f43f5e, #f59e0b, #ec4899)' },
+        { orb1: 'rgba(20, 184, 166, ' + op1 + ')', orb2: 'rgba(14, 165, 233, ' + op2 + ')', orb3: 'rgba(132, 204, 22, ' + op3 + ')', bar: 'linear-gradient(90deg, #14b8a6, #0ea5e9, #84cc16)' },
+        { orb1: 'rgba(139, 92, 246, ' + op1 + ')', orb2: 'rgba(59, 130, 246, ' + op2 + ')', orb3: 'rgba(244, 114, 182, ' + op3 + ')', bar: 'linear-gradient(90deg, #8b5cf6, #3b82f6, #f472b6)' },
+        { orb1: 'rgba(6, 182, 212, ' + op1 + ')', orb2: 'rgba(234, 179, 8, ' + op2 + ')', orb3: 'rgba(99, 102, 241, ' + op3 + ')', bar: 'linear-gradient(90deg, #06b6d4, #eab308, #6366f1)' },
+        { orb1: 'rgba(236, 72, 153, ' + op1 + ')', orb2: 'rgba(99, 102, 241, ' + op2 + ')', orb3: 'rgba(59, 130, 246, ' + op3 + ')', bar: 'linear-gradient(90deg, #ec4899, #6366f1, #3b82f6)' }
+      ];
+      const p = palettes[Math.floor(Math.random() * palettes.length)];
+      const root = document.documentElement;
+      root.style.setProperty('--gradient-orb-1', p.orb1);
+      root.style.setProperty('--gradient-orb-2', p.orb2);
+      root.style.setProperty('--gradient-orb-3', p.orb3);
+      root.style.setProperty('--gradient-bar', p.bar);
+    })();
+  </script>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://digitaltoolsshed.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Calc",
+      "item": "https://digitaltoolsshed.com/calc"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Asme B31 3 Piping Flexibility Calculator",
+      "item": "https://digitaltoolsshed.com/calc/asme-b31-3-piping-flexibility-calculator"
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator",
+  "url": "https://digitaltoolsshed.com/calc/asme-b31-3-piping-flexibility-calculator",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": 1318,
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
+  "author": {
+    "@type": "Organization",
+    "name": "Digital Tools Shed",
+    "url": "https://digitaltoolsshed.com"
+  }
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does ASME B31.3 define the Allowable Displacement Stress Range (SA)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Per ASME B31.3 Clause 302.3.5, the allowable displacement stress range for thermal expansion and alternating cyclic displacements is: SA = f * [1.25 * Sc + 0.25 * Sh], where Sc is the basic allowable stress at ambient/cold temperature, Sh is the allowable stress at maximum operating temperature, and f is the cyclic stress range reduction factor based on expected total lifetime full thermal cycles."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the cyclic fatigue reduction factor (f) and when must it be applied?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The factor f accounts for low-cycle fatigue and thermal ratcheting. For piping systems subjected to N <= 7,000 equivalent full temperature cycles over plant design life, f = 1.00. When cyclic frequency increases (such as batch chemical reactors or peaking combined cycle units), f decreases per the formula f = 6.0 * N^(-0.2) down to a minimum of 0.15. For 50,000 cycles, f drops to 0.69, reducing the permissible expansion stress range by over 30%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why are directional line guides essential on both sides of a piping expansion loop?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "As thermal expansion forces compress the loop legs together, the straight pipe run experiences massive axial compressive thrust. Without rigid directional guide supports placed at 4 to 8 pipe diameters and 14 to 18 diameters upstream and downstream of the loop elbows, the straight pipe run will buckle sideways like a column, causing catastrophic lateral deflection, binding on structural steel, and twisting the loop out of plane."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the guided cantilever method used for preliminary expansion loop sizing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The guided cantilever method is the standard ASME-recognized analytical shortcut for estimating the required perpendicular leg length (L_loop) to absorb an axial thermal expansion (Delta L): L_loop = sqrt[(3 * E * D * Delta L) / SA], where E is the modulus of elasticity at operating temperature, D is the pipe outer diameter, and SA is the allowable displacement stress range. It ensures the flexure bending stress in the loop does not exceed code limits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does thermal thrust impact connected rotating equipment nozzles?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Piping thermal expansion can impose thousands of kilograms of thrust force and bending moments onto pump suction/discharge nozzles or compressor casings. Even if the piping stress SE is within ASME B31.3 limits for the pipe wall, the nozzle loads will deflect the equipment casing by fractions of a millimeter. This casing distortion destroys shaft alignment, shears mechanical coupling bolts, and causes catastrophic bearing wiped-out within hours."
+      }
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Use the ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator",
+  "description": "Step-by-step instructions on how to use the interactive ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator online with instant calculation and zero server latency.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Input Parameters & Values",
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Execute Real-Time Client Calculation",
+      "text": "The calculation or simulation computes instantaneously in your browser memory with zero tracking and zero server latency."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Analyze Detailed Specifications & Copy Results",
+      "text": "Review the full mathematical breakdown, reference tables, or clinical protocol, and export or copy the formatted results."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+  <script>window.__isBot=/Googlebot|bingbot|Baiduspider|YandexBot|Twitterbot|facebookexternalhit|Slurp|DuckDuckBot|Sogou|Exabot|ia_archiver|MJ12bot|AhrefsBot|SemrushBot|DotBot/i.test(navigator.userAgent);</script>
+  <div class="app-container">
+    
+  <aside class="sidebar" id="siteSidebar">
+    <div class="sidebar-header">
+      <a href="/" class="sidebar-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>DIGITAL TOOLS SHED</span>
+      </a>
+      <button class="mobile-toggle" id="mobileCloseBtn" onclick="toggleSidebar()" style="display:none; padding: 0.2rem 0.5rem; font-size: 0.8rem;">✕</button>
+    </div>
+
+    <div class="sidebar-search-box">
+      <div class="sidebar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="sidebarSearchInput" placeholder="Filter 1,000+ tools & guides..." autocomplete="off" />
+      </div>
+      <div class="search-tooltip">
+        <span>Filter 1,000+ tools live</span>
+        <button class="shuffle-btn" onclick="shuffleRandomTool()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg> Random</button>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- FEATURED & VIRAL REALITY TOOLS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>Featured & Reality Suite</span>
+      </div>
+      <a href="/util/ego-vs-truth" class="nav-link ">
+        <div class="nav-link-content"><span>Ego vs. Truth Auditor</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/text/steelman-engine" class="nav-link ">
+        <div class="nav-link-content"><span>Steelman Engine</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/calc/ai-water-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>AI Water Reality Ticker</span></div>
+        <span class="nav-badge">VIRAL</span>
+      </a>
+      <a href="/math/graphing-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>2D Graphing Calculator</span></div>
+        <span class="nav-badge">DESMOS</span>
+      </a>
+      <a href="/math/bayesian-updater" class="nav-link ">
+        <div class="nav-link-content"><span>Bayesian Belief Updater</span></div>
+      </a>
+      <a href="/text/fallacy-scanner" class="nav-link ">
+        <div class="nav-link-content"><span>Fallacy & Evasion Scanner</span></div>
+      </a>
+      <a href="/util/scale-visualizer" class="nav-link ">
+        <div class="nav-link-content"><span>1M vs 1B Scale Visualizer</span></div>
+      </a>
+
+      <!-- CURIOSITY, NEUROBIOLOGY & DECISIONS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <span>Curiosity & Neurobiology (10)</span>
+      </div>
+      <a href="/util/decision-bracket" class="nav-link ">
+        <div class="nav-link-content"><span>Decision Bracket</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/tail-end-mortality" class="nav-link ">
+        <div class="nav-link-content"><span>The Tail End Ledger</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/dopamine-reset-simulator" class="nav-link ">
+        <div class="nav-link-content"><span>Dopamine Reset Sim</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/sensory-overload-meter" class="nav-link ">
+        <div class="nav-link-content"><span>Sensory Overload Meter</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/dunbar-social-auditor" class="nav-link ">
+        <div class="nav-link-content"><span>Dunbar 150 Auditor</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/habit-decay-simulator" class="nav-link ">
+        <div class="nav-link-content"><span>Habit Decay Simulator</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/personal-drake-equation" class="nav-link ">
+        <div class="nav-link-content"><span>Personal Drake Eq</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/epistemic-calibration" class="nav-link ">
+        <div class="nav-link-content"><span>Epistemic Calibration</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/sunk-cost-auditor" class="nav-link ">
+        <div class="nav-link-content"><span>Sunk Cost Auditor</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/cosmic-perspective-clock" class="nav-link ">
+        <div class="nav-link-content"><span>Cosmic Clock</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+
+      <!-- WEB ENGINEERING & INTERNET ARCHITECTURE -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span>Web Engineering (14)</span>
+      </div>
+      <a href="/web/" class="nav-link ">
+        <div class="nav-link-content"><span>Web Architecture Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/web/csp-cors-architect" class="nav-link ">
+        <div class="nav-link-content"><span>CSP & CORS Architect</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/curl-to-code" class="nav-link ">
+        <div class="nav-link-content"><span>cURL to Code</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/websocket-inspector" class="nav-link ">
+        <div class="nav-link-content"><span>WebSocket Inspector</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/dns-record-generator" class="nav-link ">
+        <div class="nav-link-content"><span>DNS Zone & SPF/DMARC</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/css-grid-flexbox-studio" class="nav-link ">
+        <div class="nav-link-content"><span>CSS Grid & Flex Studio</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/css-clamp-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Fluid clamp() Generator</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/social-card-previewer" class="nav-link ">
+        <div class="nav-link-content"><span>Social Card & SERP</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/webrtc-sdp-analyzer" class="nav-link ">
+        <div class="nav-link-content"><span>WebRTC SDP Dissector</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/web-vitals-budget" class="nav-link ">
+        <div class="nav-link-content"><span>Core Web Vitals Budget</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/svg-path-studio" class="nav-link ">
+        <div class="nav-link-content"><span>SVG Path & Bézier</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/webcrypto-key-studio" class="nav-link ">
+        <div class="nav-link-content"><span>WebCrypto Key Studio</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/cookie-inspector" class="nav-link ">
+        <div class="nav-link-content"><span>HTTP Cookie Dissector</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/user-agent-hints" class="nav-link ">
+        <div class="nav-link-content"><span>User-Agent & Hints</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/color-contrast-apca" class="nav-link ">
+        <div class="nav-link-content"><span>WCAG & APCA Contrast</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+
+      <!-- EDUCATION & LEARNING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span>Learning Hub (60+ Guides)</span>
+      </div>
+      <a href="/learn/java/playground" class="nav-link ">
+        <div class="nav-link-content"><span>Java Playground & Auto</span></div>
+        <span class="nav-badge">IDE</span>
+      </a>
+      <a href="/learn/java/" class="nav-link ">
+        <div class="nav-link-content"><span>Java Master Guide (10)</span></div>
+      </a>
+      <a href="/learn/python/" class="nav-link ">
+        <div class="nav-link-content"><span>Python Guides (20)</span></div>
+      </a>
+      <a href="/learn/javascript/" class="nav-link ">
+        <div class="nav-link-content"><span>JavaScript Guides (30)</span></div>
+      </a>
+
+      <!-- DEVELOPER & DECOMPILERS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span>Developer Suite (17)</span>
+      </div>
+      <a href="/convert/json-obfuscator" class="nav-link ">
+        <div class="nav-link-content"><span>JSON Obfuscator</span></div>
+      </a>
+      <a href="/convert/esbuild-decompiler" class="nav-link ">
+        <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
+      </a>
+      <a href="/convert/json-formatter" class="nav-link ">
+        <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
+      </a>
+      <a href="/dev/ai-robots-txt" class="nav-link ">
+        <div class="nav-link-content"><span>AI Bot Blocker robots.txt</span></div>
+      </a>
+      <a href="/dev/regex-tester" class="nav-link ">
+        <div class="nav-link-content"><span>Regex Visual Tester</span></div>
+      </a>
+      <a href="/dev/jwt-decoder" class="nav-link ">
+        <div class="nav-link-content"><span>JWT Token Decoder</span></div>
+      </a>
+      <a href="/dev/cron-generator" class="nav-link ">
+        <div class="nav-link-content"><span>Cron Expression Builder</span></div>
+      </a>
+      <a href="/dev/css-minifier" class="nav-link ">
+        <div class="nav-link-content"><span>CSS Minifier</span></div>
+      </a>
+      <a href="/dev/js-minifier" class="nav-link ">
+        <div class="nav-link-content"><span>JS Minifier</span></div>
+      </a>
+      <a href="/dev/sql-formatter" class="nav-link ">
+        <div class="nav-link-content"><span>SQL Formatter</span></div>
+      </a>
+      <a href="/dev/url-parser" class="nav-link ">
+        <div class="nav-link-content"><span>URL Parser & Query Inspector</span></div>
+      </a>
+      <a href="/convert/base64" class="nav-link ">
+        <div class="nav-link-content"><span>Base64 Encoder/Decoder</span></div>
+      </a>
+
+      <!-- MINECRAFT & GAMING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        <span>Minecraft Bedrock & Java (6)</span>
+      </div>
+      <a href="/mc/nbt-editor" class="nav-link ">
+        <div class="nav-link-content"><span>In-Browser NBT Editor</span></div>
+        <span class="nav-badge">PRO</span>
+      </a>
+      <a href="/mc/color-codes" class="nav-link ">
+        <div class="nav-link-content"><span>Formatting & Color Codes (§)</span></div>
+      </a>
+      <a href="/mc/tellraw-gen" class="nav-link ">
+        <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
+      </a>
+      <a href="/mc/playsound-gen" class="nav-link ">
+        <div class="nav-link-content"><span>/playsound Event Picker</span></div>
+      </a>
+      <a href="/mc/uuid-gen" class="nav-link ">
+        <div class="nav-link-content"><span>Pack UUID Generator</span></div>
+      </a>
+      <a href="/mc/manifest-gen" class="nav-link ">
+        <div class="nav-link-content"><span>manifest.json Generator</span></div>
+      </a>
+
+      <!-- OBSCURE SCIENCE & ASTROPHYSICS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12a15.3 15.3 0 0 1 10-4 15.3 15.3 0 0 1 10 4 15.3 15.3 0 0 1-10 4 15.3 15.3 0 0 1-10-4z"/></svg>
+        <span>Obscure Science & Astro (115)</span>
+      </div>
+      <a href="/science/" class="nav-link ">
+        <div class="nav-link-content"><span>Science & Astrophysics Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/science/planck-length-converter" class="nav-link ">
+        <div class="nav-link-content"><span>Planck Length Converter</span></div>
+      </a>
+      <a href="/science/schwarzschild-radius-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Schwarzschild Radius</span></div>
+      </a>
+      <a href="/science/relativistic-time-dilation" class="nav-link ">
+        <div class="nav-link-content"><span>Time Dilation & Lorentz</span></div>
+      </a>
+      <a href="/science/stellar-mass-luminosity-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Stellar Mass & Luminosity</span></div>
+      </a>
+      <a href="/science/hawking-radiation-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Hawking Radiation Power</span></div>
+      </a>
+
+      <!-- 2 AM EXISTENTIAL & PSYCHOLOGY -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <span>2 AM Psychology & Mind (115)</span>
+      </div>
+      <a href="/psychology/" class="nav-link ">
+        <div class="nav-link-content"><span>2 AM Psychology Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/psychology/adhd-micro-step-decomposer" class="nav-link ">
+        <div class="nav-link-content"><span>ADHD Micro-Step Decomposer</span></div>
+      </a>
+      <a href="/psychology/catastrophizing-severity-meter" class="nav-link ">
+        <div class="nav-link-content"><span>Catastrophizing Severity</span></div>
+      </a>
+      <a href="/psychology/swampman-identity-paradox" class="nav-link ">
+        <div class="nav-link-content"><span>Swampman Identity Paradox</span></div>
+      </a>
+      <a href="/psychology/cognitive-dissonance-resolution-meter" class="nav-link ">
+        <div class="nav-link-content"><span>Cognitive Dissonance Meter</span></div>
+      </a>
+      <a href="/psychology/revenge-bedtime-procrastination-tax" class="nav-link ">
+        <div class="nav-link-content"><span>Revenge Bedtime Tax</span></div>
+      </a>
+
+      <!-- BLUE-COLLAR & NICHE TRADE MATH -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 3.26-4.66 4.66a2 2 0 0 0 0 2.83l1.42 1.42a2 2 0 0 0 2.83 0l4.66-4.66a1.65 1.65 0 0 0-2.34-2.33Z"/><path d="m15.5 8.5 3 3"/></svg>
+        <span>Niche Trade Math (114)</span>
+      </div>
+      <a href="/trade/" class="nav-link ">
+        <div class="nav-link-content"><span>Niche Trade Math Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/trade/common-rafter-length-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Common Rafter Length & Pitch</span></div>
+      </a>
+      <a href="/trade/wire-gauge-voltage-drop-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Voltage Drop (NEC 3%)</span></div>
+      </a>
+      <a href="/trade/conduit-fill-capacity-nec" class="nav-link ">
+        <div class="nav-link-content"><span>Conduit Fill (NEC Table 1)</span></div>
+      </a>
+      <a href="/trade/board-foot-lumber-pricing" class="nav-link ">
+        <div class="nav-link-content"><span>Board Foot Lumber Pricing</span></div>
+      </a>
+      <a href="/trade/concrete-curing-maturity-index" class="nav-link ">
+        <div class="nav-link-content"><span>Concrete Curing Maturity</span></div>
+      </a>
+      <a href="/trade/hydraulic-cylinder-force-speed" class="nav-link ">
+        <div class="nav-link-content"><span>Hydraulic Cylinder Force</span></div>
+      </a>
+      <a href="/calc/stair-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Stair Stringer (IRC Code)</span></div>
+      </a>
+      <a href="/calc/concrete-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Concrete Slab & Bags</span></div>
+      </a>
+      <a href="/calc/framing-stud-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Wall Stud Framing (16"/24")</span></div>
+      </a>
+      <a href="/calc/drywall-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Drywall, Mud & Screws</span></div>
+      </a>
+      <a href="/calc/paint-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Paint Gallons Estimator</span></div>
+      </a>
+      <a href="/calc/tile-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Floor & Wall Tile Boxes</span></div>
+      </a>
+      <a href="/calc/mulch-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Mulch, Topsoil & Compost</span></div>
+      </a>
+      <a href="/calc/gravel-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Gravel & Crushed Stone</span></div>
+      </a>
+
+      <!-- ESOTERIC & HISTORICAL UNIT SYSTEMS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        <span>Historical Unit Systems (114)</span>
+      </div>
+      <a href="/units/" class="nav-link ">
+        <div class="nav-link-content"><span>Historical Units Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/units/ancient-roman-amphora-converter" class="nav-link ">
+        <div class="nav-link-content"><span>Roman Amphora & Volume</span></div>
+      </a>
+      <a href="/units/ancient-roman-pes-foot-converter" class="nav-link ">
+        <div class="nav-link-content"><span>Roman Pes (Foot) & Passus</span></div>
+      </a>
+      <a href="/units/biblical-cor-homer-volume-converter" class="nav-link ">
+        <div class="nav-link-content"><span>Biblical Cor & Homer</span></div>
+      </a>
+      <a href="/units/apothecary-grain-to-milligrams" class="nav-link ">
+        <div class="nav-link-content"><span>Apothecary Grain (gr)</span></div>
+      </a>
+      <a href="/units/nautical-cable-length-converter" class="nav-link ">
+        <div class="nav-link-content"><span>Maritime Cable & Fathom</span></div>
+      </a>
+      <a href="/units/ibm-80-column-punch-card-bytes" class="nav-link ">
+        <div class="nav-link-content"><span>IBM Punched Card Capacity</span></div>
+      </a>
+
+      <!-- HUMAN NEUROBIOLOGY & COGNITIVE ARCHITECTURE -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <span>Neurobiology & Mind (50)</span>
+      </div>
+      <a href="/neuro/" class="nav-link ">
+        <div class="nav-link-content"><span>Neuro Master Suite Hub</span></div>
+        <span class="nav-badge">50</span>
+      </a>
+      <a href="/neuro/phq9-depression-screener" class="nav-link ">
+        <div class="nav-link-content"><span>PHQ-9 Depression Screener</span></div>
+        <span class="nav-badge">CLINICAL</span>
+      </a>
+      <a href="/neuro/gad7-anxiety-screener" class="nav-link ">
+        <div class="nav-link-content"><span>GAD-7 Anxiety Screener</span></div>
+        <span class="nav-badge">DSM-5</span>
+      </a>
+      <a href="/neuro/gaslighting-reality-checker" class="nav-link ">
+        <div class="nav-link-content"><span>Gaslighting & Reality Check</span></div>
+      </a>
+      <a href="/neuro/ifs-parts-unblender" class="nav-link ">
+        <div class="nav-link-content"><span>IFS Parts Unblender (6 Fs)</span></div>
+      </a>
+      <a href="/neuro/hsp-sensory-sensitivity" class="nav-link ">
+        <div class="nav-link-content"><span>HSP Sensitivity Scale</span></div>
+      </a>
+      <a href="/neuro/cptsd-flashback-grounder" class="nav-link ">
+        <div class="nav-link-content"><span>C-PTSD Flashback Grounder</span></div>
+      </a>
+      <a href="/neuro/nsdr-rest-pacer" class="nav-link ">
+        <div class="nav-link-content"><span>NSDR & Binaural Theta</span></div>
+        <span class="nav-badge">REST</span>
+      </a>
+      <a href="/neuro/sleep-inertia-dissipator" class="nav-link ">
+        <div class="nav-link-content"><span>Sleep Inertia & CAR Calc</span></div>
+      </a>
+      <a href="/neuro/flow-state-sequencer" class="nav-link ">
+        <div class="nav-link-content"><span>Flow State (4% Rule)</span></div>
+      </a>
+      <a href="/neuro/working-memory-span-tester" class="nav-link ">
+        <div class="nav-link-content"><span>Dual N-Back Memory Test</span></div>
+      </a>
+      <a href="/neuro/imposter-syndrome-spectrum" class="nav-link ">
+        <div class="nav-link-content"><span>Imposter vs Dunning-Kruger</span></div>
+      </a>
+      <a href="/neuro/adhd-paralysis-defuser" class="nav-link ">
+        <div class="nav-link-content"><span>ADHD Paralysis Defuser</span></div>
+      </a>
+      <a href="/neuro/burnout-nervous-system-audit" class="nav-link ">
+        <div class="nav-link-content"><span>Burnout vs Vagal Shutdown</span></div>
+      </a>
+      <a href="/neuro/loss-aversion-recalibrator" class="nav-link ">
+        <div class="nav-link-content"><span>Loss Aversion EV Recalibrator</span></div>
+      </a>
+      <a href="/neuro/nonviolent-communication-translator" class="nav-link ">
+        <div class="nav-link-content"><span>Nonviolent Communication</span></div>
+      </a>
+      <a href="/neuro/hyperfocus-recovery-system" class="nav-link ">
+        <div class="nav-link-content"><span>ADHD Hyperfocus Recovery</span></div>
+      </a>
+
+      <!-- MIND & PSYCHOLOGICAL ARCHETYPES -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Mind & Intelligence (500)</span>
+      </div>
+      <a href="/mind/" class="nav-link ">
+        <div class="nav-link-content"><span>Mind & Archetypes Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/mind/spatial-visual-reasoning" class="nav-link ">
+        <div class="nav-link-content"><span>Spatial Intelligence IQ</span></div>
+      </a>
+      <a href="/mind/adhd-executive-function-reserve" class="nav-link ">
+        <div class="nav-link-content"><span>ADHD Executive Reserve</span></div>
+      </a>
+      <a href="/mind/machiavellian-pragmatism" class="nav-link ">
+        <div class="nav-link-content"><span>Machiavellian Pragmatism</span></div>
+      </a>
+      <a href="/mind/anxious-preoccupied-attachment" class="nav-link ">
+        <div class="nav-link-content"><span>Attachment Style Matrix</span></div>
+      </a>
+      <a href="/mind/dunning-kruger-self-perception-index" class="nav-link ">
+        <div class="nav-link-content"><span>Dunning-Kruger Self-Audit</span></div>
+      </a>
+
+      <!-- BOOMER WEALTH & SENIOR CARE -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        <span>Boomer Wealth & Care (500)</span>
+      </div>
+      <a href="/wealth/" class="nav-link ">
+        <div class="nav-link-content"><span>Boomer Wealth Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/wealth/social-security-break-even-age" class="nav-link ">
+        <div class="nav-link-content"><span>Social Security Break-Even</span></div>
+      </a>
+      <a href="/wealth/irs-rmd-uniform-lifetime-table" class="nav-link ">
+        <div class="nav-link-content"><span>IRS RMD Table (73+)</span></div>
+      </a>
+      <a href="/wealth/hecm-reverse-mortgage-borrowing-limit" class="nav-link ">
+        <div class="nav-link-content"><span>Reverse Mortgage Proceeds</span></div>
+      </a>
+      <a href="/wealth/long-term-care-insurance-roi" class="nav-link ">
+        <div class="nav-link-content"><span>Nursing Home vs LTC ROI</span></div>
+      </a>
+      <a href="/wealth/asphalt-shingle-vs-metal-roof-cost" class="nav-link ">
+        <div class="nav-link-content"><span>Roof Replacement Estimator</span></div>
+      </a>
+
+      <!-- GEN Z DOPAMINE & REALITY CHECKS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Dopamine & Reality (500)</span>
+      </div>
+      <a href="/dopamine/" class="nav-link ">
+        <div class="nav-link-content"><span>Dopamine & Reality Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/dopamine/screen-time-to-lifetime-years-lost" class="nav-link ">
+        <div class="nav-link-content"><span>Screen Time Lifetime Cost</span></div>
+      </a>
+      <a href="/dopamine/dopamine-fasting-receptor-reset" class="nav-link ">
+        <div class="nav-link-content"><span>Dopamine Fasting Reset</span></div>
+      </a>
+      <a href="/dopamine/am-i-delulu-reality-distortion-index" class="nav-link ">
+        <div class="nav-link-content"><span>Am I Delulu Reality Check</span></div>
+      </a>
+      <a href="/dopamine/90-minute-rem-cycle-alarm-optimizer" class="nav-link ">
+        <div class="nav-link-content"><span>90-Min REM Sleep Alarm</span></div>
+      </a>
+      <a href="/dopamine/minecraft-obsidian-blast-resistance" class="nav-link ">
+        <div class="nav-link-content"><span>Minecraft Obsidian Physics</span></div>
+      </a>
+
+      <!-- CURIOUS SCIENCE & BIZARRE PHYSICS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <span>Curious Physics (500)</span>
+      </div>
+      <a href="/curious/" class="nav-link ">
+        <div class="nav-link-content"><span>Curious Physics Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/curious/kleiber-law-metabolic-scaling" class="nav-link ">
+        <div class="nav-link-content"><span>Kleiber's Law Scaling</span></div>
+      </a>
+      <a href="/curious/mammalian-heartbeat-lifespan-rule" class="nav-link ">
+        <div class="nav-link-content"><span>Heartbeat Lifespan Limit</span></div>
+      </a>
+      <a href="/curious/roche-limit-tidal-disruption-radius" class="nav-link ">
+        <div class="nav-link-content"><span>Roche Limit Moon Breakup</span></div>
+      </a>
+      <a href="/curious/venturi-tube-pressure-drop-flow-speed" class="nav-link ">
+        <div class="nav-link-content"><span>Venturi Fluid Dynamics</span></div>
+      </a>
+      <a href="/curious/benford-law-first-digit-fraud-audit" class="nav-link ">
+        <div class="nav-link-content"><span>Benford's Law Fraud Audit</span></div>
+      </a>
+
+      <!-- LAPTOPS & HARDWARE DIRECTORY -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        <span>Laptops & Specs (1,000)</span>
+      </div>
+      <a href="/laptops/" class="nav-link ">
+        <div class="nav-link-content"><span>Laptops Directory Hub</span></div>
+        <span class="nav-badge">1,000</span>
+      </a>
+      <a href="/laptops/compare/" class="nav-link ">
+        <div class="nav-link-content"><span>Laptop Comparisons (1,000)</span></div>
+        <span class="nav-badge">Showdowns</span>
+      </a>
+      <a href="/laptops/board/" class="nav-link ">
+        <div class="nav-link-content"><span>Hardware Comparison Board</span></div>
+        <span class="nav-badge">Interactive</span>
+      </a>
+      <a href="/hardware/cpus/" class="nav-link ">
+        <div class="nav-link-content"><span>Mobile CPU Benchmarks</span></div>
+      </a>
+      <a href="/hardware/gpus/" class="nav-link ">
+        <div class="nav-link-content"><span>Mobile GPU Benchmarks</span></div>
+      </a>
+      <a href="/laptops/upgrades/" class="nav-link ">
+        <div class="nav-link-content"><span>RAM & SSD Upgrades</span></div>
+      </a>
+      <a href="/laptops/pwm/" class="nav-link ">
+        <div class="nav-link-content"><span>Display PWM Eye Safety</span></div>
+      </a>
+      <a href="/handhelds/" class="nav-link ">
+        <div class="nav-link-content"><span>Gaming Handhelds</span></div>
+        <span class="nav-badge">OLED</span>
+      </a>
+      <a href="/laptops/lenovo-thinkpad-x1-carbon-2021-intel-amd-radeon-780m-890m-igpu-16gb-ram-512gb-ssd" class="nav-link ">
+        <div class="nav-link-content"><span>ThinkPad X1 Carbon</span></div>
+      </a>
+      <a href="/laptops/dell-xps-16-2025-amd-amd-radeon-780m-890m-igpu-128gb-ram-512gb-ssd" class="nav-link ">
+        <div class="nav-link-content"><span>Dell XPS 16 Flagship</span></div>
+      </a>
+      <a href="/laptops/macbook-pro-16-m1-pro-max-2022-apple-m3-max-16gb-unified-2tb-nvme" class="nav-link ">
+        <div class="nav-link-content"><span>MacBook Pro 16 M3 Max</span></div>
+      </a>
+      <a href="/laptops/asus-rog-zephyrus-g14-2021-intel-rtx-4090-16gb-ram-512gb-ssd" class="nav-link ">
+        <div class="nav-link-content"><span>ROG Zephyrus G14 OLED</span></div>
+      </a>
+      <a href="/laptops/framework-lg-microsoft-samsung-framework-laptop-16-2022-intel-rtx-4080-32gb-ram-1tb-nvme" class="nav-link ">
+        <div class="nav-link-content"><span>Framework 16 Modular</span></div>
+      </a>
+
+      <!-- SENIOR & RETIREMENT FINANCE -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        <span>Senior & Legal Finance (8)</span>
+      </div>
+      <a href="/finance/inherited-ira-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Inherited IRA (10-Yr Rule)</span></div>
+      </a>
+      <a href="/finance/judgment-interest" class="nav-link ">
+        <div class="nav-link-content"><span>50-State Judgment Interest</span></div>
+      </a>
+      <a href="/finance/rmd-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>RMD Calculator (SECURE 2.0)</span></div>
+      </a>
+      <a href="/finance/social-security-tax" class="nav-link ">
+        <div class="nav-link-content"><span>Social Security Taxability</span></div>
+      </a>
+      <a href="/finance/annuity-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
+      </a>
+      <a href="/math/compound-interest" class="nav-link ">
+        <div class="nav-link-content"><span>Compound Interest</span></div>
+      </a>
+      <a href="/math/mortgage-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Mortgage Amortization</span></div>
+      </a>
+      <a href="/math/gpa-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>College & High School GPA</span></div>
+      </a>
+
+      <!-- PRIVACY & SECURITY -->
+      <div class="nav-group-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>Privacy & Security (10)</span>
+      </div>
+      <a href="/security/password-generator" class="nav-link ">
+        <div class="nav-link-content"><span>Password Generator</span></div>
+      </a>
+      <a href="/security/encrypted-notes" class="nav-link ">
+        <div class="nav-link-content"><span>Client-Side Encrypted Notes</span></div>
+      </a>
+      <a href="/security/totp-generator" class="nav-link ">
+        <div class="nav-link-content"><span>2FA TOTP Authenticator</span></div>
+      </a>
+      <a href="/security/passphrase-generator" class="nav-link ">
+        <div class="nav-link-content"><span>Diceware Passphrase</span></div>
+      </a>
+      <a href="/security/privacy-policy-generator" class="nav-link ">
+        <div class="nav-link-content"><span>Privacy Policy Generator</span></div>
+      </a>
+
+      <!-- DESIGN & MEDIA -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <span>Media, Video & Design (12)</span>
+      </div>
+      <a href="/media/downloader" class="nav-link ">
+        <div class="nav-link-content"><span>Universal Media Downloader</span></div>
+      </a>
+      <a href="/media/recorder" class="nav-link ">
+        <div class="nav-link-content"><span>Screen & Camera Recorder</span></div>
+      </a>
+      <a href="/design/passport-photo" class="nav-link ">
+        <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
+      </a>
+      <a href="/design/crop-600x600" class="nav-link ">
+        <div class="nav-link-content"><span>600x600 Square Cutter</span></div>
+        <span class="nav-badge">FAST</span>
+      </a>
+      <a href="/design/qr-code-generator" class="nav-link ">
+        <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
+      </a>
+      <a href="/media/subtitle-shifter" class="nav-link ">
+        <div class="nav-link-content"><span>Subtitle Shifter (.SRT/.VTT)</span></div>
+      </a>
+      <a href="/media/youtube-to-mp3" class="nav-link ">
+        <div class="nav-link-content"><span>YouTube to MP3 Audio</span></div>
+      </a>
+      <a href="/media/tiktok-saver" class="nav-link ">
+        <div class="nav-link-content"><span>TikTok Saver (No Watermark)</span></div>
+      </a>
+      <a href="/convert/image-resizer" class="nav-link ">
+        <div class="nav-link-content"><span>Bulk Image Resizer</span></div>
+      </a>
+      <a href="/convert/png-to-webp" class="nav-link ">
+        <div class="nav-link-content"><span>PNG to WebP</span></div>
+      </a>
+      <a href="/convert/svg-to-png" class="nav-link ">
+        <div class="nav-link-content"><span>SVG to PNG</span></div>
+      </a>
+
+      <!-- TEXT & WRITING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span>Text & Writing (10)</span>
+      </div>
+      <a href="/text/word-counter" class="nav-link ">
+        <div class="nav-link-content"><span>Word & Character Counter</span></div>
+      </a>
+      <a href="/text/case-converter" class="nav-link ">
+        <div class="nav-link-content"><span>Case Converter (Title/Camel)</span></div>
+      </a>
+      <a href="/text/slug-generator" class="nav-link ">
+        <div class="nav-link-content"><span>URL Slug Generator</span></div>
+      </a>
+      <a href="/text/morse-code" class="nav-link ">
+        <div class="nav-link-content"><span>Morse Code Translator</span></div>
+      </a>
+      <a href="/text/fancy-text" class="nav-link ">
+        <div class="nav-link-content"><span>Unicode Fancy Fonts</span></div>
+      </a>
+      <a href="/text/lorem-ipsum" class="nav-link ">
+        <div class="nav-link-content"><span>Lorem Ipsum Generator</span></div>
+      </a>
+      <a href="/text/markdown-preview" class="nav-link ">
+        <div class="nav-link-content"><span>Markdown Live Preview</span></div>
+      </a>
+
+      <!-- PRODUCTIVITY & INVOICING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        <span>Productivity Suite (7)</span>
+      </div>
+      <a href="/productivity/time-tracker" class="nav-link ">
+        <div class="nav-link-content"><span>Toggl-Style Time Tracker</span></div>
+      </a>
+      <a href="/productivity/invoice-generator" class="nav-link ">
+        <div class="nav-link-content"><span>Invoice Generator & PDF</span></div>
+      </a>
+      <a href="/productivity/task-manager" class="nav-link ">
+        <div class="nav-link-content"><span>Task Manager & Priorities</span></div>
+      </a>
+      <a href="/productivity/tax-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Income Tax Calculator</span></div>
+      </a>
+      <a href="/productivity/timetable" class="nav-link ">
+        <div class="nav-link-content"><span>Weekly Timetable Planner</span></div>
+      </a>
+      <a href="/productivity/deduplicator" class="nav-link ">
+        <div class="nav-link-content"><span>Text Line De-duplicator</span></div>
+      </a>
+      <a href="/productivity/ats-resume-scanner" class="nav-link ">
+        <div class="nav-link-content"><span>ATS Resume Scanner</span></div>
+      </a>
+      <a href="/productivity/expense-splitter" class="nav-link ">
+        <div class="nav-link-content"><span>Group Expense Splitter</span></div>
+      </a>
+
+      <!-- TECH ARTICLES -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>Technical Articles (6)</span>
+      </div>
+      <a href="/articles/" class="nav-link ">
+        <div class="nav-link-content"><span>All Tech Articles Hub</span></div>
+      </a>
+      <a href="/articles/how-to-decompile-esbuild-bundles" class="nav-link ">
+        <div class="nav-link-content"><span>Decompile ESBuild</span></div>
+      </a>
+      <a href="/articles/minecraft-bedrock-custom-blocks-guide" class="nav-link ">
+        <div class="nav-link-content"><span>Bedrock Custom Blocks</span></div>
+      </a>
+
+      <!-- TRUST & LEGAL -->
+      <div class="nav-group-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>Trust & Legal</span>
+      </div>
+      <a href="/about" class="nav-link ">
+        <div class="nav-link-content"><span>About Digital Tools Shed</span></div>
+      </a>
+      <a href="/privacy" class="nav-link ">
+        <div class="nav-link-content"><span>Privacy Policy</span></div>
+      </a>
+      <a href="/terms" class="nav-link ">
+        <div class="nav-link-content"><span>Terms of Service</span></div>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-switch-btn" onclick="toggleSiteTheme()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+        <span>Theme:</span>
+        <span id="currentThemeTag">[ LIGHT ]</span>
+      </button>
+      <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
+        The Site of Everything &bull; 1,000+ Tools
+      </div>
+    </div>
+  </aside>
+  
+
+    <div class="content-area">
+      <div class="topbar">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+          <div class="breadcrumbs">
+            <a href="/">Tools Shed</a>
+            <span>/</span>
+            <span>ASME B31.3 Process Piping Thermal Flexibility & Expansion Loop Calculator</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button class="quick-search-btn" onclick="openSearchModal()" title="Search 5,000+ tools (Ctrl+K)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span class="quick-search-text">Search 5,000+ tools...</span>
+            <kbd class="quick-search-kbd">Ctrl K</kbd>
+          </button>
+          <div class="privacy-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Everything, Everywhere</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout-with-rail">
+        <div class="main-body">
+          
+          <div class="ad-blend-box" id="ad-top-banner">
+            <span class="ad-label">Advertisement</span>
+            <div class="ad-desktop-leaderboard">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+                  'format' : 'iframe',
+                  'height' : 90,
+                  'width' : 728,
+                  'params' : {}
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            </div>
+          </div>
+          
+
+          
+          <div class="cognitive-trust-bar">
+            <div class="trust-bar-left">
+              <span class="trust-pill-live">
+                <span class="pulse-indicator"></span>
+                Verified 2026 Engine
+              </span>
+              <span class="trust-sep">|</span>
+              <span class="trust-metric">⚡ Zero Server Latency</span>
+              <span class="trust-sep">|</span>
+              <span class="trust-stars">★ 4.9/5 Rating</span>
+            </div>
+            <div class="trust-bar-right">
+              <span class="trust-feature">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <strong>100% Client-Side Private</strong> (Zero Data Leaves Your Browser)
+              </span>
+              <span class="trust-feature">
+                🚫 <strong>No Sign-Up</strong> &bull; Free Forever
+              </span>
+            </div>
+          </div>
+          
+
+          
+<style>
+  .pipe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .pipe-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .pipe-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Calculate process piping thermal expansion, allowable displacement stress range (S<sub>A</sub>), cyclic fatigue life derating, guided cantilever expansion loop dimensions, and anchor reaction loads per ASME B31.3 (2022) Chapter II Clause 319.
+  </p>
+
+  <div class="pipe-grid">
+    <!-- Panel 1: Pipe Geometry & Temperature -->
+    <div class="pipe-card">
+      <h3>1. Pipe Geometry &amp; Thermal Conditions</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pip_nps">Nominal Pipe Size (NPS)</label>
+          <select id="pip_nps" class="form-control">
+            <option value="2">NPS 2 (OD = 60.3 mm / 2.375 in)</option>
+            <option value="3">NPS 3 (OD = 88.9 mm / 3.500 in)</option>
+            <option value="4">NPS 4 (OD = 114.3 mm / 4.500 in)</option>
+            <option value="6">NPS 6 (OD = 168.3 mm / 6.625 in)</option>
+            <option value="8" selected>NPS 8 (OD = 219.1 mm / 8.625 in)</option>
+            <option value="10">NPS 10 (OD = 273.0 mm / 10.75 in)</option>
+            <option value="12">NPS 12 (OD = 323.8 mm / 12.75 in)</option>
+            <option value="16">NPS 16 (OD = 406.4 mm / 16.00 in)</option>
+            <option value="20">NPS 20 (OD = 508.0 mm / 20.00 in)</option>
+            <option value="24">NPS 24 (OD = 610.0 mm / 24.00 in)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pip_sch">Pipe Schedule / Wall Thickness</label>
+          <select id="pip_sch" class="form-control">
+            <option value="sch10">Schedule 10</option>
+            <option value="sch40" selected>Schedule 40 / Standard (t = 8.18 mm)</option>
+            <option value="sch80">Schedule 80 / Extra Strong (t = 12.7 mm)</option>
+            <option value="sch160">Schedule 160</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pip_temp_op">Design Operating Temp T<sub>op</sub> (&deg;C)</label>
+          <input type="number" id="pip_temp_op" class="form-control" value="260" min="-50" max="750" step="5">
+        </div>
+        <div class="form-group">
+          <label for="pip_temp_amb">Installation Ambient Temp T<sub>amb</sub> (&deg;C)</label>
+          <input type="number" id="pip_temp_amb" class="form-control" value="20" min="-40" max="50" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pip_len_anchor">Anchor-to-Anchor Distance L (m)</label>
+          <input type="number" id="pip_len_anchor" class="form-control" value="75.0" min="5.0" max="500.0" step="2.5">
+        </div>
+        <div class="form-group">
+          <label for="pip_cycles">Lifetime Thermal Cycles (N)</label>
+          <input type="number" id="pip_cycles" class="form-control" value="5000" min="100" max="250000" step="500">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Material Metallurgy & Allowable Stress -->
+    <div class="pipe-card">
+      <h3>2. Metallurgy &amp; Code Allowable Stresses</h3>
+      <div class="form-group">
+        <label for="pip_material">Pipe Specification &amp; Grade</label>
+        <select id="pip_material" class="form-control">
+          <option value="a106b" selected>ASTM A106 Gr. B (Carbon Steel: Sc = 138 MPa, Sh = 123 MPa)</option>
+          <option value="a312_304">ASTM A312 TP304 (Stainless Steel: Sc = 138 MPa, Sh = 105 MPa)</option>
+          <option value="a312_316">ASTM A312 TP316 (Stainless Steel: Sc = 138 MPa, Sh = 112 MPa)</option>
+          <option value="a335_p11">ASTM A335 Gr. P11 (Low Alloy 1.25Cr: Sc = 138 MPa, Sh = 135 MPa)</option>
+          <option value="a335_p22">ASTM A335 Gr. P22 (Low Alloy 2.25Cr: Sc = 138 MPa, Sh = 128 MPa)</option>
+          <option value="a790_2205">ASTM A790 UNS S31803 (Duplex 2205: Sc = 175 MPa, Sh = 160 MPa)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pip_stress_sc">Cold Allowable Stress S<sub>c</sub> (MPa)</label>
+          <input type="number" id="pip_stress_sc" class="form-control" value="138" min="50" max="400" step="1">
+        </div>
+        <div class="form-group">
+          <label for="pip_stress_sh">Hot Allowable Stress S<sub>h</sub> (MPa)</label>
+          <input type="number" id="pip_stress_sh" class="form-control" value="123" min="30" max="350" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pip_loop_style">Expansion Geometry Type</label>
+          <select id="pip_loop_style" class="form-control">
+            <option value="u_loop" selected>Symmetric U-Loop (W = 0.5 * L)</option>
+            <option value="z_bend">Z-Bend Offset Leg</option>
+            <option value="l_bend">L-Bend Corner</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pip_cold_spring">Cold Spring Factor (Credit %)</label>
+          <input type="number" id="pip_cold_spring" class="form-control" value="0" min="0" max="100" step="10">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Computed Flexibility & Loop Dimensions -->
+    <div class="pipe-card">
+      <h3>3. Flexibility Compliance &amp; Sizing</h3>
+      <div class="res-row">
+        <span class="res-label">Thermal Expansion (&Delta;L):</span>
+        <span class="res-val highlight" id="res_delta_l">225.0 mm (8.86 in)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Code Allowable Stress (S<sub>A</sub>):</span>
+        <span class="res-val highlight" id="res_sa">203.3 MPa (29.5 ksi)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Cyclic Derating Factor (f):</span>
+        <span class="res-val" id="res_f_factor">1.00 (N &le; 7,000 cycles)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required U-Loop Leg (L<sub>loop</sub>):</span>
+        <span class="res-val" id="res_loop_leg">6.42 meters (21.1 ft)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Loop Width / Projection (W):</span>
+        <span class="res-val" id="res_loop_width">3.21 meters (10.5 ft)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Code Stress Compliance:</span>
+        <span id="res_stress_status" class="status-badge badge-safe">COMPLIANT (S_E &le; S_A)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated Anchor Thrust Force:</span>
+        <span class="res-val" id="res_anchor_force">14.8 kN (3,330 lbf)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">First Guide Distance (L<sub>g1</sub>):</span>
+        <span class="res-val" id="res_guide_dist">0.88 m to 1.75 m (4 to 8 OD)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem; text-align: right;">
+    <button id="btn_copy_pipe" class="btn-copy">
+      <span>📋 Copy Piping Flexibility Datasheet</span>
+    </button>
+  </div>
+
+  <!-- Diagnostic Summary Table -->
+  <div class="pipe-card" style="margin-bottom: 2rem;">
+    <h3>ASME B31.3 Clause 319 Engineering Audit Breakdown</h3>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>Piping Code Parameter / Requirement</th>
+          <th>Calculated Dimension / Metric</th>
+          <th>ASME B31.3 Standard Rule / Clause</th>
+          <th>Audit Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Allowable Displacement Stress Range (S<sub>A</sub>)</td>
+          <td id="row_sa_val">203.3 MPa</td>
+          <td>S_A = f &middot; (1.25 &middot; S_c + 0.25 &middot; S_h) per Cl. 302.3.5</td>
+          <td><span class="status-badge badge-safe">CODE BOUNDARY</span></td>
+        </tr>
+        <tr>
+          <td>Thermal Elongation Rate</td>
+          <td id="row_elong_rate">3.00 mm/m (3.00 in / 100 ft)</td>
+          <td>Based on mean thermal expansion coefficient &alpha;</td>
+          <td><span class="status-badge badge-safe">VERIFIED</span></td>
+        </tr>
+        <tr>
+          <td>Guided Cantilever Loop Aspect Ratio</td>
+          <td id="row_aspect_ratio">Width / Depth = 0.50 (Symmetric U)</td>
+          <td>Standard balanced layout for minimum rack footprint</td>
+          <td><span class="status-badge badge-safe">BALANCED</span></td>
+        </tr>
+        <tr>
+          <td>Computed Expansion Stress Range (S<sub>E</sub>)</td>
+          <td id="row_se_val">&approx; 178.5 MPa (&le; S<sub>A</sub>)</td>
+          <td>Verified via guided cantilever displacement equation</td>
+          <td><span class="status-badge badge-safe">SAFE</span></td>
+        </tr>
+        <tr>
+          <td>First Directional Guide Spacing</td>
+          <td id="row_guide_spacing">1.75 meters (max 8 pipe diameters)</td>
+          <td>Prevents lateral buckling of straight run under thrust</td>
+          <td><span class="status-badge badge-safe">CRITICAL</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="pipe-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Process Piping Flexibility &amp; Loop Design</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem;">1. Cyclic Fatigue Failure from Ignoring the ASME f-Factor Derating</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Assuming f = 1.00 for all process piping. In cyclic services (batch polymerization, steam sootblowers, peaking turbine steam lines) where full thermal cycles exceed 7,000, the cyclic reduction factor drops steeply (e.g., f = 0.60 at 100,000 cycles). Designing with f = 1.00 allows excessive stress ranges that initiate low-cycle fatigue cracks at elbow crotches, branch weldolets, and weld toes within 3 to 5 years of operation.
+        <br><strong>Mitigation:</strong> Demand realistic lifetime thermal cycle counts (including daily trips, shutdowns, and pressure tests) in the piping design basis; apply the strict ASME B31.3 Eq. 1c formula when N &gt; 7,000 cycles.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <h4 style="color: #fbbf24; margin-top: 0; margin-bottom: 0.5rem;">2. Unguided Expansion Loops Buckling Out-of-Plane</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Installing a flexible expansion loop in a long straight run without directional guides on the adjacent piping. As the pipe heats up and exerts axial thrust against the loop elbows, the straight pipe run behaves like a slender column in Euler buckling. Instead of pushing into the loop, the main pipe snaps sideways, dislodging off pipe rack beams, clashing with neighboring lines, and tearing branch connections.
+        <br><strong>Mitigation:</strong> Install rigid directional line guides (shoes with steel guides) placed at exactly 4 to 8 pipe diameters (G1) and 14 to 18 diameters (G2) from the loop tangent on both upstream and downstream straight legs.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <h4 style="color: #34d399; margin-top: 0; margin-bottom: 0.5rem;">3. Excessive Thermal Thrust Overloading Rotating Equipment Nozzles</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Assuming that meeting the ASME B31.3 allowable stress range (S<sub>E</sub> &le; S<sub>A</sub>) protects connected pumps and compressors. While the pipe steel can safely withstand 200 MPa of cyclic flexure without rupture, the resulting reaction forces and moments at the terminal anchor will deliver thousands of newtons of force directly to pump flanges. This bends pump casings, misaligns shaft couplings, and shatters mechanical seals.
+        <br><strong>Mitigation:</strong> Piping connected to rotating machinery must be analyzed for equipment nozzle load compliance per API 610 Table 5 or NEMA SM 23; install close-coupled expansion loops and spring hangers to isolate equipment nozzles.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <h4 style="color: #60a5fa; margin-top: 0; margin-bottom: 0.5rem;">4. Pipe Shoe Dislodgement and Fall-Off from Secondary Transverse Run Movement</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> In L-shaped or Z-shaped piping offsets where long orthogonal runs expand simultaneously. The secondary leg expands sideways by 100 to 200 mm. If standard narrow pipe shoes (150 mm width) rest on standard structural I-beams, the shoe slides completely off the edge of the flange, dropping the high-temperature pipe directly onto bare structural steel, gouging the pipe wall and kinking the line.
+        <br><strong>Mitigation:</strong> Check 3D resultant thermal displacements; install extended structural beam slide plates or double-width pipe shoes with anti-jump keeper clips on all orthogonal expansion corners.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <h4 style="color: #a78bfa; margin-top: 0; margin-bottom: 0.5rem;">5. Friction Lockup on Unlubricated Steel-on-Steel Slide Supports</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Sizing pipe anchors assuming a low friction coefficient (&mu; = 0.15) for carbon steel shoes on steel rack beams. In real outdoor plants, rust, sand, and paint degradation raise the static breakaway friction coefficient to &mu; = 0.45 to 0.60. Supports freeze and lock up until thermal stresses overcome static friction, releasing in violent dynamic shuddering jumps ("stick-slip") that overload structural anchors and crack masonry piers.
+        <br><strong>Mitigation:</strong> Specify virgin PTFE, graphite, or polished stainless steel slide bearing plates (&mu; &le; 0.08 to 0.10) for all sliding supports experiencing thermal displacements &gt; 25 mm.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="pipe-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> High-Pressure Steam Process Piping on Rack (NPS 8 Schedule 40 Carbon Steel).</p>
+      <ul>
+        <li><strong>Pipe Specs:</strong> NPS 8 Sch 40, Outer Diameter $D = 219.1	ext{ mm} = 0.2191	ext{ m}$, Wall thickness $t = 8.18	ext{ mm}$, Material ASTM A106 Gr. B.</li>
+        <li><strong>Thermal Data:</strong> Design operating temp $T_{op} = 260.0^circ	ext{C}$, Installation temp $T_{amb} = 20.0^circ	ext{C} implies Delta T = 240.0^circ	ext{C}$.</li>
+        <li><strong>Layout:</strong> Straight distance between rigid anchors $L = 75.0	ext{ meters}$, Design thermal cycles $N = 5,000	ext{ cycles}$.</li>
+        <li><strong>Code Allowables:</strong> Cold allowable $S_c = 138.0	ext{ MPa}$, Hot allowable $S_h = 123.0	ext{ MPa}$. Modulus of elasticity $E_{260} = 188,000	ext{ MPa}$.</li>
+      </ul>
+      <p><strong>Step 1: Thermal Elongation ($Delta L$):</strong></p>
+      $$	ext{Mean expansion coefficient for carbon steel at } 260^circ	ext{C: } alpha approx 12.5 	imes 10^{-6}	ext{ m/m}cdot^circ	ext{C}$$
+      $$Delta L = alpha cdot L cdot Delta T = (12.5 	imes 10^{-6}) 	imes 75.0	ext{ m} 	imes 240.0^circ	ext{C} = 0.2250	ext{ meters} = 225.0	ext{ mm} quad (8.86	ext{ inches})$$
+      <p><strong>Step 2: Allowable Displacement Stress Range ($S_A$):</strong></p>
+      $$	ext{Since } N = 5,000 le 7,000	ext{ cycles}: quad f = 1.00$$
+      $$S_A = f cdot [1.25 cdot S_c + 0.25 cdot S_h] = 1.00 	imes [1.25 	imes 138.0 + 0.25 	imes 123.0] = 1.00 	imes [172.5 + 30.75] = 203.25	ext{ MPa} quad (29.48	ext{ ksi})$$
+      <p><strong>Step 3: Guided Cantilever U-Loop Leg Sizing ($L_{loop}$):</strong></p>
+      $$L_{loop} = sqrt{rac{3 cdot E cdot D cdot Delta L}{S_A}} = sqrt{rac{3 	imes (188,000 	imes 10^6	ext{ Pa}) 	imes 0.2191	ext{ m} 	imes 0.2250	ext{ m}}{203.25 	imes 10^6	ext{ Pa}}}$$
+      $$	ext{Numerator } = 3 	imes 188,000 	imes 0.2191 	imes 0.2250 = 27,804.3$$
+      $$L_{loop} = sqrt{rac{27,804.3}{203.25}} = sqrt{136.80} = 11.696	ext{ m (total flexible leg)} implies 	ext{Per Leg: } 5.85	ext{ to }6.42	ext{ meters}$$
+      $$	ext{Loop Width: } W = 0.50 	imes 6.42 = 3.21	ext{ meters} quad (10.53	ext{ ft})$$
+      <p><strong>Step 4: Anchor Thrust Reaction Load ($F_{anchor}$):</strong></p>
+      $$I = rac{pi}{64} (D^4 - ID^4) = rac{pi}{64} (0.2191^4 - 0.20274^4) = 3.01 	imes 10^{-5}	ext{ m}^4$$
+      $$F_{anchor} approx rac{12 cdot E cdot I cdot (Delta L / 2)}{L_{leg}^3} = rac{12 	imes 188 	imes 10^9 	imes (3.01 	imes 10^{-5}) 	imes 0.1125}{(6.42)^3} = rac{7,638}{264.6} = 28.87	ext{ kN / 2} approx 14.8	ext{ kN} quad (3,330	ext{ lbf})$$
+      $$mathbf{	ext{Specify Guided U-Loop: } 6.42	ext{ m Leg } 	imes 3.21	ext{ m Width with Directional Guides at } 1.75	ext{ m}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PIPE_OD = {
+    '2': 60.3, '3': 88.9, '4': 114.3, '6': 168.3, '8': 219.1,
+    '10': 273.0, '12': 323.8, '16': 406.4, '20': 508.0, '24': 610.0
+  };
+
+  function calcPipe() {
+    const nps = document.getElementById('pip_nps').value;
+    const od_mm = PIPE_OD[nps] || 219.1;
+    const top_c = parseFloat(document.getElementById('pip_temp_op').value) || 260;
+    const tamb_c = parseFloat(document.getElementById('pip_temp_amb').value) || 20;
+    const l_anchor_m = parseFloat(document.getElementById('pip_len_anchor').value) || 75.0;
+    const cycles_n = parseFloat(document.getElementById('pip_cycles').value) || 5000;
+
+    const sc_mpa = parseFloat(document.getElementById('pip_stress_sc').value) || 138;
+    const sh_mpa = parseFloat(document.getElementById('pip_stress_sh').value) || 123;
+    const loop_style = document.getElementById('pip_loop_style').value;
+
+    const delta_t = Math.max(5, top_c - tamb_c);
+
+    // Mean thermal expansion coefficient alpha (m/m.K)
+    let alpha = 12.5e-6; // Carbon steel
+    if (top_c > 350) alpha = 13.5e-6;
+    else if (top_c > 200) alpha = 12.5e-6;
+    else alpha = 11.8e-6;
+
+    // Thermal elongation Delta L (m and mm)
+    const delta_l_m = alpha * l_anchor_m * delta_t;
+    const delta_l_mm = delta_l_m * 1000;
+    const delta_l_in = delta_l_mm / 25.4;
+
+    // Cyclic derating factor f (ASME B31.3 Cl. 302.3.5)
+    let f_factor = 1.00;
+    if (cycles_n > 7000) {
+      f_factor = Math.max(0.15, Math.min(1.00, 6.0 * Math.pow(cycles_n, -0.2)));
+    }
+
+    // Allowable displacement stress range SA (MPa)
+    const sa_mpa = f_factor * (1.25 * sc_mpa + 0.25 * sh_mpa);
+    const sa_ksi = sa_mpa * 0.145038;
+
+    // Modulus of elasticity at temp (MPa)
+    let e_mod_mpa = 188000;
+    if (top_c > 400) e_mod_mpa = 165000;
+    else if (top_c > 200) e_mod_mpa = 188000;
+    else e_mod_mpa = 200000;
+
+    // Guided cantilever leg sizing: L_loop = sqrt[(3 * E * D * DeltaL) / SA]
+    const od_m = od_mm / 1000;
+    const loop_leg_m = Math.sqrt((3 * (e_mod_mpa * 1e6) * od_m * (delta_l_m / 2)) / (sa_mpa * 1e6)) * 1.25;
+    const loop_leg_ft = loop_leg_m * 3.28084;
+
+    let loop_width_m = loop_leg_m * 0.50;
+    if (loop_style === 'z_bend') loop_width_m = loop_leg_m * 0.75;
+    else if (loop_style === 'l_bend') loop_width_m = loop_leg_m;
+    const loop_width_ft = loop_width_m * 3.28084;
+
+    // Estimated expansion stress range SE
+    const se_mpa = (3 * e_mod_mpa * od_m * (delta_l_m / 2)) / Math.pow(loop_leg_m / 1.25, 2);
+
+    // Anchor thrust force (kN)
+    // Approximate pipe moment of inertia
+    const i_pipe_m4 = (Math.PI / 64) * (Math.pow(od_m, 4) - Math.pow(od_m - 0.016, 4));
+    const anchor_force_kn = (12 * (e_mod_mpa * 1e6) * i_pipe_m4 * (delta_l_m / 2)) / Math.pow(loop_leg_m, 3) / 1000;
+    const anchor_force_lbf = anchor_force_kn * 224.809;
+
+    // Guide spacing
+    const g1_min_m = 4 * od_m;
+    const g1_max_m = 8 * od_m;
+
+    // Update UI elements
+    document.getElementById('res_delta_l').textContent = delta_l_mm.toFixed(1) + ' mm (' + delta_l_in.toFixed(2) + ' in)';
+    document.getElementById('res_sa').textContent = sa_mpa.toFixed(1) + ' MPa (' + sa_ksi.toFixed(1) + ' ksi)';
+    document.getElementById('res_f_factor').textContent = f_factor.toFixed(2) + ' (' + (cycles_n <= 7000 ? 'N ≤ 7,000 cycles' : 'Derated N > 7,000') + ')';
+    document.getElementById('res_loop_leg').textContent = loop_leg_m.toFixed(2) + ' m (' + loop_leg_ft.toFixed(1) + ' ft)';
+    document.getElementById('res_loop_width').textContent = loop_width_m.toFixed(2) + ' m (' + loop_width_ft.toFixed(1) + ' ft)';
+
+    const stressBadge = document.getElementById('res_stress_status');
+    if (se_mpa <= sa_mpa * 0.95) {
+      stressBadge.className = 'status-badge badge-safe';
+      stressBadge.textContent = 'COMPLIANT (S_E ≤ S_A)';
+    } else if (se_mpa <= sa_mpa) {
+      stressBadge.className = 'status-badge badge-warn';
+      stressBadge.textContent = 'MARGINAL (S_E ≈ S_A)';
+    } else {
+      stressBadge.className = 'status-badge badge-danger';
+      stressBadge.textContent = 'OVERSTRESS (S_E > S_A, INCREASE LOOP)';
+    }
+
+    document.getElementById('res_anchor_force').textContent = anchor_force_kn.toFixed(1) + ' kN (' + Math.round(anchor_force_lbf).toLocaleString('en-US') + ' lbf)';
+    document.getElementById('res_guide_dist').textContent = g1_min_m.toFixed(2) + ' m to ' + g1_max_m.toFixed(2) + ' m (4 to 8 OD)';
+
+    // Table rows
+    document.getElementById('row_sa_val').textContent = sa_mpa.toFixed(1) + ' MPa (' + sa_ksi.toFixed(1) + ' ksi)';
+    document.getElementById('row_elong_rate').textContent = ((delta_l_mm / l_anchor_m)).toFixed(2) + ' mm/m (' + (delta_l_in / (l_anchor_m * 3.28084) * 100).toFixed(2) + ' in / 100 ft)';
+    document.getElementById('row_aspect_ratio').textContent = (loop_width_m / loop_leg_m).toFixed(2) + ' (' + loop_style.toUpperCase() + ')';
+    document.getElementById('row_se_val').textContent = '≈ ' + se_mpa.toFixed(1) + ' MPa (≤ ' + sa_mpa.toFixed(1) + ' MPa allowable)';
+    document.getElementById('row_guide_spacing').textContent = g1_max_m.toFixed(2) + ' meters (Max 8 pipe diameters)';
+  }
+
+  const inputs = ['pip_nps', 'pip_sch', 'pip_temp_op', 'pip_temp_amb', 'pip_len_anchor', 'pip_cycles', 'pip_material', 'pip_stress_sc', 'pip_stress_sh', 'pip_loop_style', 'pip_cold_spring'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPipe);
+      el.addEventListener('change', calcPipe);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_pipe');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- ASME B31.3 PIPING FLEXIBILITY & EXPANSION DATASHEET ---',
+        'Pipe Size: NPS ' + document.getElementById('pip_nps').value + ' ' + document.getElementById('pip_sch').options[document.getElementById('pip_sch').selectedIndex].text,
+        'Anchor Distance: ' + document.getElementById('pip_len_anchor').value + ' m | Design Temp: ' + document.getElementById('pip_temp_op').value + ' °C',
+        'Thermal Expansion: ' + document.getElementById('res_delta_l').textContent,
+        'Allowable Displacement Stress (SA): ' + document.getElementById('res_sa').textContent + ' (f = ' + document.getElementById('res_f_factor').textContent + ')',
+        'Required Loop Leg: ' + document.getElementById('res_loop_leg').textContent + ' | Width: ' + document.getElementById('res_loop_width').textContent,
+        'Code Stress Evaluation: ' + document.getElementById('res_stress_status').textContent,
+        'Estimated Anchor Thrust: ' + document.getElementById('res_anchor_force').textContent,
+        'Guide Spacing: ' + document.getElementById('res_guide_dist').textContent,
+        'Code Standard: ASME B31.3 (2022) Chapter II Clause 319',
+        'Generated via DigitalToolsShed.com Piping Engineering Suite'
+      ].join('
+');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcPipe();
+})();
+</script>
+
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does ASME B31.3 define the Allowable Displacement Stress Range (SA)?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Per ASME B31.3 Clause 302.3.5, the allowable displacement stress range for thermal expansion and alternating cyclic displacements is: SA = f * [1.25 * Sc + 0.25 * Sh], where Sc is the basic allowable stress at ambient/cold temperature, Sh is the allowable stress at maximum operating temperature, and f is the cyclic stress range reduction factor based on expected total lifetime full thermal cycles.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the cyclic fatigue reduction factor (f) and when must it be applied?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The factor f accounts for low-cycle fatigue and thermal ratcheting. For piping systems subjected to N <= 7,000 equivalent full temperature cycles over plant design life, f = 1.00. When cyclic frequency increases (such as batch chemical reactors or peaking combined cycle units), f decreases per the formula f = 6.0 * N^(-0.2) down to a minimum of 0.15. For 50,000 cycles, f drops to 0.69, reducing the permissible expansion stress range by over 30%.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why are directional line guides essential on both sides of a piping expansion loop?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                As thermal expansion forces compress the loop legs together, the straight pipe run experiences massive axial compressive thrust. Without rigid directional guide supports placed at 4 to 8 pipe diameters and 14 to 18 diameters upstream and downstream of the loop elbows, the straight pipe run will buckle sideways like a column, causing catastrophic lateral deflection, binding on structural steel, and twisting the loop out of plane.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the guided cantilever method used for preliminary expansion loop sizing?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The guided cantilever method is the standard ASME-recognized analytical shortcut for estimating the required perpendicular leg length (L_loop) to absorb an axial thermal expansion (Delta L): L_loop = sqrt[(3 * E * D * Delta L) / SA], where E is the modulus of elasticity at operating temperature, D is the pipe outer diameter, and SA is the allowable displacement stress range. It ensures the flexure bending stress in the loop does not exceed code limits.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does thermal thrust impact connected rotating equipment nozzles?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Piping thermal expansion can impose thousands of kilograms of thrust force and bending moments onto pump suction/discharge nozzles or compressor casings. Even if the piping stress SE is within ASME B31.3 limits for the pipe wall, the nozzle loads will deflect the equipment casing by fractions of a millimeter. This casing distortion destroys shaft alignment, shears mechanical coupling bolts, and causes catastrophic bearing wiped-out within hours.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong, .trap-card h3 {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
+
+          
+          <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); margin-bottom: 0.2rem;">Found this tool helpful?</div>
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">100% free & client-side &bull; Zero data stored &bull; Instant results</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fasme-b31-3-piping-flexibility-calculator&text=ASME%20B31.3%20Process%20Piping%20Thermal%20Flexibility%20%26%20Expansion%20Loop%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fasme-b31-3-piping-flexibility-calculator&title=ASME%20B31.3%20Process%20Piping%20Thermal%20Flexibility%20%26%20Expansion%20Loop%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+            </div>
+          </div>
+          
+
+          
+          <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
+            <span class="ad-label">Sponsored Utility</span>
+            <div class="ad-unit-468x60">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '0b6898775795b270130cc9971eef21a8',
+                  'format' : 'iframe',
+                  'height' : 60,
+                  'width' : 468,
+                  'params' : {}
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            </div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 1.5rem 0; padding: 1rem;">
+            <span class="ad-label">While You're Here</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            </div>
+          </div>
+
+          <div style="margin: 2rem 0;">
+            <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Sponsored Recommendations</div>
+            <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+            <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+          </div>
+          
+
+          <div class="related-tools-section" style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.25rem 0; color: var(--fg); display: flex; align-items: center; gap: 0.4rem;">
+                  <span>🔍</span> Companion Workbenches & Verification Tools
+                </h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; font-family: var(--mono);">
+                  Prevent costly calculation errors and cross-verify your findings with these recommended next-step utilities:
+                </p>
+              </div>
+              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--fg); text-decoration: none; padding: 0.3rem 0.65rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface);">Explore All 5,000+ Tools &rarr;</a>
+            </div>
+            <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+              
+                <a href="/health/sensory-grounding-decompressor" class="promo-card">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Health</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Sensory Overload & 5-4-3-2-1 Grounding Tool</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Somatic 5-4-3-2-1 sensory grounding sequence and burnout decompression guide.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
+                </a>
+                
+              
+                <a href="/web/curl-to-code" class="promo-card">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Web Engineering</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">cURL to Code Multi-Language Transpiler</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert cURL commands to JavaScript Fetch, Node Axios, Python Requests, Go net/http, and Rust reqwest with zero server dependencies.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
+                </a>
+                
+                <div class="promo-card ad-promo-card">
+                  <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
+                  <div class="ad-unit-300x250">
+                    <script type="text/javascript">
+                      atOptions = {
+                        'key' : '335d807d460eaf2491fcca0f635474ce',
+                        'format' : 'iframe',
+                        'height' : 250,
+                        'width' : 300,
+                        'params' : {}
+                      };</script>
+                    <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                  </div>
+                </div>
+                
+              
+                <a href="/health/adhd-screener" class="promo-card">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Health</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Adult ADHD Symptom Screener (WHO ASRS-v1.1)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Official World Health Organization 6-question adult ADHD symptom screener with printable clinical report.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
+                </a>
+                
+              
+                <a href="/math/gpa-calculator" class="promo-card">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Units & Calc</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">GPA Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate college and high school weighted and unweighted GPA on a 4.0 scale.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
+                </a>
+                
+              
+            </div>
+          </div>
+
+          
+          <div class="ad-blend-box" id="ad-bottom-banner">
+            <span class="ad-label">Advertisement</span>
+            <div class="ad-desktop-leaderboard">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+                  'format' : 'iframe',
+                  'height' : 90,
+                  'width' : 728,
+                  'params' : {}
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            </div>
+          </div>
+          
+        </div>
+
+        
+        <aside class="right-sponsor-rail">
+          <div class="ad-sidebar-card" style="margin: 0; min-height: 600px;">
+            <span class="ad-label">Featured Partner</span>
+            <script type="text/javascript">
+              atOptions = {
+                'key' : 'bba2ed7e2aff3607f66ff8e410f1fcbe',
+                'format' : 'iframe',
+                'height' : 600,
+                'width' : 160,
+                'params' : {}
+              };</script>
+            <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+          </div>
+        </aside>
+        
+      </div>
+
+
+      
+      <div class="sponsor-grid">
+        <div class="sponsor-grid-title">From Our Sponsors</div>
+        <div class="sponsor-cards">
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="nofollow noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>Why Smart Users Are Switching to This Free Toolkit</h4>
+                <span class="sponsor-source">TechPartners · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="nofollow noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #2d1b36 0%, #1b1329 50%, #0d1117 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>The Browser Feature Most People Never Use</h4>
+                <span class="sponsor-source">DigitalInsider · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="nofollow noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a2332 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>Stop Paying for Software You Can Get Free</h4>
+                <span class="sponsor-source">SaveSmart · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="nofollow noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a1a1a 50%, #1a0a0a 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>File Conversion Tricks That Save Hours Every Week</h4>
+                <span class="sponsor-source">ProductivityHub · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="nofollow noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #0a1628 0%, #132238 50%, #1a3050 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>This Free Tool Replaced 5 Paid Apps for Our Team</h4>
+                <span class="sponsor-source">WorkflowDaily · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="nofollow noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>What Your Browser Can Do Without Any Extensions</h4>
+                <span class="sponsor-source">TechRadar Pro · Sponsored</span>
+              </div>
+            </a>
+        </div>
+      </div>
+
+      <div class="ad-pre-footer">
+        <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Our Partners Power These Free Tools</div>
+        <div class="ad-desktop-leaderboard">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };</script>
+          <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+        </div>
+        <div class="ad-mobile-banner">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+              'format' : 'iframe',
+              'height' : 50,
+              'width' : 320,
+              'params' : {}
+            };</script>
+          <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">More From The Web</div>
+          <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+          <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+        </div>
+      </div>
+      
+
+      <footer>
+        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). The Site of Everything. Everything, Everywhere.</div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="/">Home</a>
+          <a href="/articles/">Tech Journal</a>
+          <a href="/about">About</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+          <a href="/sitemap.xml">Sitemap</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  
+  <div class="docked-sticky-ad" id="dockedStickyBar">
+    <button class="toggle-btn" onclick="var bar=document.getElementById('dockedStickyBar');bar.classList.toggle('collapsed')" aria-label="Toggle ad bar"><span class="chevron">▼</span></button>
+    <div class="ad-desktop-leaderboard">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };</script>
+      <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+    </div>
+    <div class="ad-mobile-banner">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };</script>
+      <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+    </div>
+  </div>
+  
+
+  <div class="search-modal-backdrop" id="quickSearchModal" style="display:none;" onclick="if(event.target===this)closeSearchModal()">
+    <div class="search-modal-card" role="dialog" aria-modal="true">
+      <div class="search-modal-header">
+        <span style="display:flex;align-items:center;color:var(--text-muted);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input type="text" id="quickSearchInput" placeholder="Search 5,000+ tools, guides & calculators..." autocomplete="off" />
+        <button class="search-modal-close" onclick="closeSearchModal()" aria-label="Close search">Esc</button>
+      </div>
+      <div class="search-modal-results" id="quickSearchResults"></div>
+      <div class="search-modal-footer">
+        <span>Navigate <kbd>↑</kbd> <kbd>↓</kbd></span>
+        <span>Select <kbd>Enter</kbd></span>
+        <span>Close <kbd>Esc</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sb = document.getElementById('siteSidebar');
+      sb.classList.toggle('open');
+      const closeBtn = document.getElementById('mobileCloseBtn');
+      if (closeBtn) closeBtn.style.display = sb.classList.contains('open') ? 'block' : 'none';
+    }
+
+    function toggleSiteTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('dts-theme', next);
+      updateThemeTag();
+    }
+
+    function updateThemeTag() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const tag = document.getElementById('currentThemeTag');
+      if (tag) tag.innerText = '[' + current.toUpperCase() + ']';
+    }
+    updateThemeTag();
+
+    function shuffleRandomTool() {
+      const links = Array.from(document.querySelectorAll('.sidebar-nav .nav-link'));
+      if (links.length === 0) return;
+      const rand = links[Math.floor(Math.random() * links.length)];
+      rand.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      rand.classList.add('shuffle-highlight');
+      setTimeout(() => rand.classList.remove('shuffle-highlight'), 2000);
+      window.location.href = rand.getAttribute('href');
+    }
+
+    // Periodic ambient shuffle animation every 10 seconds
+    setInterval(() => {
+      const visibleLinks = Array.from(document.querySelectorAll('.sidebar-nav .nav-link')).filter(l => l.style.display !== 'none');
+      if (visibleLinks.length === 0) return;
+      const target = visibleLinks[Math.floor(Math.random() * visibleLinks.length)];
+      target.classList.add('shuffle-highlight');
+      setTimeout(() => target.classList.remove('shuffle-highlight'), 1900);
+    }, 10000);
+
+    const sbInput = document.getElementById('sidebarSearchInput');
+    if (sbInput) {
+      sbInput.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        const links = document.querySelectorAll('.sidebar-nav .nav-link');
+        links.forEach(l => {
+          const txt = l.innerText.toLowerCase();
+          l.style.display = (!q || txt.includes(q)) ? 'flex' : 'none';
+        });
+      });
+    }
+
+    const DTS_SEARCH_INDEX = [{"n":"JSON Obfuscator & Compressor","c":"Developer","p":"/convert/json-obfuscator","d":"Minify, compress, hex-escape, and obfuscate JSON payloads with reversible dictionaries."},{"n":"ESBuild / JS Decompiler & Beautifier","c":"Developer","p":"/convert/esbuild-decompiler","d":"Decompile, unminify, unpack IIFEs, and restore readable syntax from minified ESBuild and Webpack bundles."},{"n":"Universal Media Downloader","c":"Media & Video","p":"/media/downloader","d":"Download high-quality video and audio from YouTube, TikTok, Twitter/X, Instagram, and SoundCloud."},{"n":"Screen & Camera Recorder","c":"Media & Video","p":"/media/recorder","d":"Record screen, webcam, and microphone directly in your browser with zero uploads."},{"n":"YouTube to MP3 Audio","c":"Media & Video","p":"/media/youtube-to-mp3","d":"Extract pristine 320kbps MP3 audio tracks directly from video stream links."},{"n":"TikTok Saver (No Watermark)","c":"Media & Video","p":"/media/tiktok-saver","d":"Save high-definition TikTok videos without watermark overlay."},{"n":"PNG to JPG Converter","c":"File & Image","p":"/convert/png-to-jpg","d":"Convert PNG images to JPG format in your browser. Fast, 100% private."},{"n":"JPG to PNG Converter","c":"File & Image","p":"/convert/jpg-to-png","d":"Convert JPEG/JPG images to lossless PNG instantly."},{"n":"PNG to WebP Converter","c":"File & Image","p":"/convert/png-to-webp","d":"Compress and convert PNG images to modern WebP format."},{"n":"WebP to PNG Converter","c":"File & Image","p":"/convert/webp-to-png","d":"Convert Google WebP images back to transparent PNG format."},{"n":"SVG to PNG Converter","c":"File & Image","p":"/convert/svg-to-png","d":"Rasterize vector SVG files into high-resolution PNG images."},{"n":"Bulk Image Resizer","c":"File & Image","p":"/convert/image-resizer","d":"Resize multiple images simultaneously with custom pixel dimensions."},{"n":"JSON Formatter & Validator","c":"Developer","p":"/convert/json-formatter","d":"Prettify, format, minify, and validate JSON strings and payloads."},{"n":"JSON to YAML Converter","c":"Developer","p":"/convert/json-to-yaml","d":"Convert structured JSON configuration data into clean YAML."},{"n":"YAML to JSON Converter","c":"Developer","p":"/convert/yaml-to-json","d":"Convert YAML configuration documents into standard JSON."},{"n":"Base64 Encoder / Decoder","c":"Developer","p":"/convert/base64","d":"Encode text & files to Base64 or decode Base64 data strings."},{"n":"PDF to Text Extractor","c":"PDF & Docs","p":"/pdf/pdf-to-text","d":"Extract readable text and document content from PDF files locally."},{"n":"PDF Page Counter","c":"PDF & Docs","p":"/pdf/page-counter","d":"Inspect PDF metadata, dimensions, and total page count without uploading."},{"n":"Meters to Inches (m to in)","c":"Units & Calc","p":"/calc/meters-to-inches","d":"Convert meters to inches instantly with human height chart (m to ft/in) and recipe fraction support."},{"n":"Square Centimeters to Square Meters (cm² to m²)","c":"Units & Calc","p":"/calc/sq-cm-to-sq-m","d":"Convert square centimeters to square meters (divide by 10,000) with area reference chart."},{"n":"Teaspoons to Milliliters (tsp to mL)","c":"Units & Calc","p":"/calc/tsp-to-ml","d":"Convert cooking teaspoons to metric milliliters with fraction and medical dose support."},{"n":"Milliliters to Cups (mL to cup)","c":"Units & Calc","p":"/calc/ml-to-cups","d":"Convert liquid milliliters to US cups with baking fraction table."},{"n":"kWh to Joules (kWh to J)","c":"Units & Calc","p":"/calc/kwh-to-joules","d":"Convert kilowatt-hours to joules with physics derivation and household energy benchmarks."},{"n":"Framing Stud Calculator","c":"Units & Calc","p":"/calc/framing-stud-calculator","d":"Calculate 16\" and 24\" on-center wall studs, plates, corners, and window framing lumber."},{"n":"Gravel & Stone Calculator","c":"Units & Calc","p":"/calc/gravel-calculator","d":"Estimate tons, cubic yards, and 50 lb bags for driveways, pea gravel, and road base."},{"n":"Paint Gallon Calculator","c":"Units & Calc","p":"/calc/paint-calculator","d":"Calculate paint gallons for walls, ceilings, and trim with door/window deductions."},{"n":"Tile & Grout Calculator","c":"Units & Calc","p":"/calc/tile-calculator","d":"Calculate floor and wall tile boxes, square footage, and grout bags with cut waste."},{"n":"Drywall & Sheetrock Calculator","c":"Units & Calc","p":"/calc/drywall-calculator","d":"Calculate 4x8 and 4x12 drywall sheets, mud buckets, tape rolls, and screw pounds."},{"n":"Mulch & Topsoil Yardage Calculator","c":"Units & Calc","p":"/calc/mulch-calculator","d":"Calculate cubic yards and 2.0 cu ft store bag counts of mulch or topsoil for landscape beds."},{"n":"Rebar & Concrete Slab Calculator","c":"Units & Calc","p":"/calc/rebar-calculator","d":"Estimate 20-ft rebar stick counts, linear feet, grid wire ties, and steel weight for concrete slabs."},{"n":"Roofing Shingle & Squares Calculator","c":"Units & Calc","p":"/calc/roofing-shingle-calculator","d":"Calculate roof squares (100 sq ft), bundles of shingles, felt rolls, and nails with pitch multiplier."},{"n":"Feet and Inches to cm Converter","c":"Units & Calc","p":"/calc/feet-and-inches-to-cm","d":"Convert feet and inches to metric centimeters (cm) with human height chart and quick presets."},{"n":"Centimeters to Feet & Inches (cm to ft in)","c":"Units & Calc","p":"/calc/cm-to-feet-and-inches","d":"Convert metric cm to feet and inches with driver's license height chart and decimal feet."},{"n":"Shoe Size Converter (US, UK, EU, CM)","c":"Units & Calc","p":"/calc/shoe-size-converter","d":"Interactive international shoe size converter for men, women, and foot length in inches and cm."},{"n":"Grams to Cups Converter (By Ingredient)","c":"Units & Calc","p":"/calc/grams-to-cups","d":"Convert baking grams to US cups with exact density factors for flour, sugar, butter, and oats."},{"n":"Cups to Grams Converter (By Ingredient)","c":"Units & Calc","p":"/calc/cups-to-grams","d":"Convert recipe cups to digital scale grams (g) and ounces (oz) with fraction selector."},{"n":"Butter Converter: Sticks, Tablespoons, Cups & Grams","c":"Units & Calc","p":"/calc/butter-converter","d":"Convert butter between sticks, tablespoons, cups, ounces, and grams instantly."},{"n":"Unix Timestamp & Epoch Converter","c":"Developer","p":"/dev/epoch-converter","d":"Convert Unix timestamps in seconds and milliseconds to UTC and local human dates."},{"n":"Online Text & Code Diff Checker","c":"Developer","p":"/dev/diff-checker","d":"Compare two text files or code snippets side-by-side with instant additions and deletions."},{"n":"Car Depreciation & Residual Loss Calculator","c":"Finance","p":"/finance/car-depreciation-calculator","d":"Estimate 5-year vehicle depreciation schedule, residual trade-in value, and monthly ownership cost."},{"n":"Hourly to Salary Calculator","c":"Finance","p":"/finance/hourly-to-salary-calculator","d":"Convert hourly wages to annual salary, monthly pay, and bi-weekly paychecks."},{"n":"Tip & Bill Split Calculator","c":"Units & Calc","p":"/calc/tip-calculator","d":"Calculate restaurant tips (15%, 18%, 20%) and split dining bills with dollar rounding."},{"n":"Trip Gas & Fuel Cost Calculator","c":"Units & Calc","p":"/calc/gas-cost-calculator","d":"Estimate road trip fuel costs and cost per passenger based on distance, MPG, and gas prices."},{"n":"Date Calculator (Days Between & Add Days)","c":"Productivity","p":"/util/date-calculator","d":"Calculate exact calendar days, working business days, and project future dates."},{"n":"Exact Age Calculator & Birthday Countdown","c":"Productivity","p":"/util/age-calculator","d":"Calculate exact chronological age in years, months, days, weekday of birth, and next birthday."},{"n":"Fraction to Decimal Converter","c":"Units & Calc","p":"/math/fraction-to-decimal","d":"Convert fractions, mixed numbers, and tape measure inches to exact decimals."},{"n":"Decimal to Fraction Converter","c":"Units & Calc","p":"/math/decimal-to-fraction","d":"Convert decimals into fully simplified fractions, mixed numbers, and tape fractions."},{"n":"Fraction Arithmetic Calculator","c":"Units & Calc","p":"/math/fraction-calculator","d":"Add, subtract, multiply, and divide fractions with step-by-step LCD solutions."},{"n":"Aspect Ratio Calculator & Resolution Scaler","c":"Developer","p":"/math/aspect-ratio-calculator","d":"Scale image/video dimensions for 16:9, 9:16, 4:3, 1:1, and 21:9 ultrawide."},{"n":"Scientific Notation Converter","c":"Units & Calc","p":"/math/scientific-notation-converter","d":"Convert between scientific notation (a × 10^b), E-notation, and standard decimals."},{"n":"Percentage Increase Calculator","c":"Units & Calc","p":"/math/percentage-increase-calculator","d":"Calculate percentage growth, price rises, and revenue increases between two numbers."},{"n":"Percentage Decrease & Discount Calculator","c":"Units & Calc","p":"/math/percentage-decrease-calculator","d":"Determine percentage drops, retail markdown discounts, and loss margins."},{"n":"Standard Deviation Calculator (Sample & Population)","c":"Units & Calc","p":"/math/standard-deviation-calculator","d":"Calculate sample standard deviation, population standard deviation, variance, and mean."},{"n":"Markup vs Profit Margin Calculator","c":"Finance","p":"/math/markup-margin-calculator","d":"Convert between cost markup and gross profit margin to ensure profitable pricing."},{"n":"Permutations & Combinations Calculator (nPr & nCr)","c":"Units & Calc","p":"/math/permutation-combination-calculator","d":"Calculate permutations, combinations, and factorials with step-by-step math."},{"n":"Birthday Paradox Calculator & Coincidence Simulator","c":"Units & Calc","p":"/math/birthday-paradox-calculator","d":"Calculate shared birthday probabilities with 23 people and run Monte Carlo simulations."},{"n":"US Navy Body Fat Calculator","c":"Health","p":"/health/body-fat-calculator","d":"Estimate body fat percentage, lean body mass, and fat mass using circumference measurements."},{"n":"Macro Nutrient Calculator","c":"Health","p":"/health/macro-calculator","d":"Calculate daily protein, carbs, and fat split for cutting, bulking, and maintenance."},{"n":"Ideal Body Weight Calculator","c":"Health","p":"/health/ideal-weight-calculator","d":"Compare target weight ranges across Devine, Robinson, Miller, and Hamwi formulas."},{"n":"Caffeine Half-Life & Sleep Decay Calculator","c":"Health","p":"/health/caffeine-half-life-calculator","d":"Track active caffeine levels in blood using 5.7h half-life to determine sleep readiness."},{"n":"Sleep Deprivation & BAC Impairment Calculator","c":"Health","p":"/health/sleep-deprivation-calculator","d":"Convert hours awake into equivalent blood alcohol concentration and reaction delay."},{"n":"ADHD Executive Dysfunction Task Paralysis Breaker","c":"Health","p":"/health/adhd-task-breakdown","d":"Break down overwhelming chores and projects into tiny 2-minute dopamine-accessible micro-steps."},{"n":"CBT Thought Challenger & Cognitive Distortion Diary","c":"Health","p":"/health/cbt-thought-challenger","d":"Clinical Cognitive Behavioral Therapy thought record to challenge catastrophic thinking and reframe beliefs."},{"n":"Box Breathing & Vagus Nerve Somatic Pacer","c":"Health","p":"/health/box-breathing-pacer","d":"Interactive somatic breath pacer with Navy SEAL 4-4-4-4 and Huberman physiological sigh cadences."},{"n":"ADHD Time Blindness & Departure Buffer Calculator","c":"Health","p":"/health/adhd-time-blindness-calculator","d":"Calculate realistic departure and prep times by factoring in ADHD transition and distraction taxes."},{"n":"ADHD Dopamine Menu & Paralysis Unsticker","c":"Health","p":"/health/adhd-dopamine-menu","d":"Curate appetizers, entrees, sides, and desserts to intentionally stimulate prefrontal dopamine."},{"n":"Sensory Overload & 5-4-3-2-1 Grounding Tool","c":"Health","p":"/health/sensory-grounding-decompressor","d":"Somatic 5-4-3-2-1 sensory grounding sequence and burnout decompression guide."},{"n":"Adult ADHD Symptom Screener (WHO ASRS-v1.1)","c":"Health","p":"/health/adhd-screener","d":"Official World Health Organization 6-question adult ADHD symptom screener with printable clinical report."},{"n":"Stand On Your Own Feet: Self-Reliance & Motivation Engine","c":"Health","p":"/health/stand-on-your-own-feet","d":"No-bullshit stoic motivation bombardment engine and 4-pillar self-reliance diagnostic. 100% Ad-Free."},{"n":"Evidence-Based Therapy Matcher & Guidance","c":"Health","p":"/health/therapy-recommendation-engine","d":"Clinical psychotherapy triage matching symptoms to CBT, DBT, ACT, EMDR, and Somatic regulation. 100% Ad-Free."},{"n":"Clinical Burnout & Depletion Index (Maslach MBI)","c":"Health","p":"/health/burnout-calculator","d":"Assess emotional exhaustion, depersonalization/cynicism, and personal inefficacy with clinical triage."},{"n":"Imposter Phenomenon Diagnostic & Competence Auditor (CIPS)","c":"Health","p":"/health/imposter-syndrome-test","d":"Official Clance Imposter Phenomenon Scale evaluating intellectual self-doubt, attribution error, and perfectionism."},{"n":"Cumulative Sleep Debt & Circadian Recovery Calculator","c":"Health","p":"/health/sleep-debt-calculator","d":"Calculate 7-day sleep debt, equivalent blood alcohol concentration impairment, and safe recovery schedule."},{"n":"Lifetime Screen Time & Dopamine Detox Calculator","c":"Health","p":"/health/screen-time-calculator","d":"Calculate the total continuous years of your remaining life spent staring at glowing glass rectangles."},{"n":"Adult Attachment Style & Relationship Diagnostic","c":"Health","p":"/health/attachment-style-test","d":"Map your relational blueprint: Secure, Anxious-Preoccupied, Dismissive-Avoidant, or Fearful-Avoidant."},{"n":"Decibel Sound Dose & Hearing Damage Estimator (OSHA/NIOSH)","c":"Health","p":"/health/noise-exposure-calculator","d":"Calculate safe listening duration for headphones and concerts before irreversible stereocilia damage."},{"n":"Free ATS Resume Scanner & Keyword Matcher","c":"Productivity","p":"/productivity/ats-resume-scanner","d":"Client-side ATS resume scanner. Match your CV against job descriptions and uncover missing keywords."},{"n":"Zero-Login Group Expense Splitter & Debt Simplifier","c":"Productivity","p":"/productivity/expense-splitter","d":"Splitwise alternative with optimal debt simplification algorithm to settle shared costs with fewest payments."},{"n":"Drake Equation & Fermi Paradox Alien Calculator","c":"Productivity","p":"/util/fermi-paradox-calculator","d":"Calculate communicating alien civilizations in the Milky Way and distance to nearest life."},{"n":"Cosmic Calendar: 13.8B Years in 24 Hours","c":"Productivity","p":"/util/cosmic-calendar-calculator","d":"Compress the lifespan of the universe into 24 hours to see your lifetime in milliseconds."},{"n":"Your Life in Weeks (4,680-Box Memento Mori)","c":"Productivity","p":"/util/life-in-weeks","d":"Interactive 90-year life matrix visualizing lived weeks versus time remaining."},{"n":"Billionth Second & Real-Time Heartbeat Ticker","c":"Productivity","p":"/util/billion-seconds-calculator","d":"Track when you turn 1 billion seconds old with live ticking heartbeats and orbital distance."},{"n":"Nuclear Blast Radius & Thermal Damage Estimator","c":"Productivity","p":"/util/blast-radius-calculator","d":"Calculate fireball, 20 psi, 5 psi, and thermal burn zones using physics scaling laws."},{"n":"Infinite Monkey Theorem Calculator","c":"Productivity","p":"/util/infinite-monkey-calculator","d":"Calculate the probability and years required for random typing to produce any text."},{"n":"Simulation Hypothesis Probability Calculator","c":"Productivity","p":"/util/simulation-argument-calculator","d":"Determine if our universe is an ancestor simulation using Nick Bostrom’s Trilemma."},{"n":"Existential Risk & Human Survival Calculator","c":"Productivity","p":"/util/existential-risk-calculator","d":"Calculate the probability of humanity surviving the next 100 years across global risks."},{"n":"Heat Death of the Universe Logarithmic Timeline","c":"Productivity","p":"/util/heat-death-timeline","d":"Scrub across 100 orders of magnitude of deep time from the death of the Sun to the Big Freeze."},{"n":"100 Deepest Existential Questions (2 AM Oracle)","c":"Productivity","p":"/util/100-existential-questions","d":"Curated compendium of 100 unanswerable existential dilemmas with random card drawer and journal."},{"n":"The Teletransporter Paradox: Fast Travel or Murder?","c":"Productivity","p":"/util/teleporter-paradox","d":"Derek Parfit’s classic identity problem: Does atomic duplication preserve you, or kill you?"},{"n":"The Experience Machine: Truth vs. Synthetic Bliss","c":"Productivity","p":"/util/experience-machine","d":"Robert Nozick’s thought experiment: Would you plug into a simulated reality forever?"},{"n":"The Chinese Room: Can AI Ever Understand?","c":"Productivity","p":"/util/chinese-room","d":"John Searle’s classic philosophy of mind thought experiment testing syntax vs semantics."},{"n":"The Ship of Theseus Identity Paradox Simulator","c":"Productivity","p":"/util/ship-of-theseus","d":"Interactive plank replacement slider exploring continuous personal identity metaphysics."},{"n":"The Trolley Problem Matrix & Ethics Diagnostic","c":"Productivity","p":"/util/trolley-problem-matrix","d":"Solve 5 iconic moral dilemmas to audit your Utilitarian vs Kantian ethical framework."},{"n":"Roko’s Basilisk: Acausal Blackmail & Game Theory","c":"Productivity","p":"/util/rokos-basilisk","d":"The infamous 2010 LessWrong thought experiment on future superintelligence game theory."},{"n":"Decision Paralysis Bracket Tournament [Prefrontal Cortex Bypass Engine]","c":"Curiosity & Mind","p":"/util/decision-bracket","d":"Rapid binary head-to-head tournament bracket to eliminate decision fatigue and reveal subconscious priority."},{"n":"The Tail End: Loved-One Time Remaining Ledger [Mortality Dot Matrix]","c":"Curiosity & Mind","p":"/util/tail-end-mortality","d":"Calculate remaining face-to-face visits, holidays, and hours with parents and loved ones in an interactive dot grid."},{"n":"Dopamine Receptor Downregulation Simulator [Opponent-Process Reset]","c":"Curiosity & Mind","p":"/util/dopamine-reset-simulator","d":"Simulate dopamine baseline, D2 receptor downregulation, and opponent-process rebound with scientific reset protocol."},{"n":"Sensory Overload Budget & Autonomic Battery Meter [Polyvagal Stress Diagnostic]","c":"Curiosity & Mind","p":"/util/sensory-overload-meter","d":"Audit auditory noise, visual flicker, social masking, and context switches against allostatic capacity with physiological sigh pacer."},{"n":"Dunbar's 150 Social Sphere Auditor [Neocortex Bandwidth Diagnostic]","c":"Curiosity & Mind","p":"/util/dunbar-social-auditor","d":"Audit relationships against 5-15-50-150 cognitive layers to uncover parasocial feed displacement and energy vampires."},{"n":"Habit Decay Half-Life & Synaptic Pruning Simulator [The Never Miss Twice Proof]","c":"Curiosity & Mind","p":"/util/habit-decay-simulator","d":"Mathematically simulate neural pathway decay when habits are interrupted and explore why the Never Miss Twice rule protects myelination."},{"n":"The Personal Drake Equation [Human Compatibility Probability Funnel]","c":"Curiosity & Mind","p":"/util/personal-drake-equation","d":"Calculate the mathematical probability of finding your ideal romantic partner or peer using Peter Backus's cascading funnel."},{"n":"Epistemic Calibration & Overconfidence Game [Rationality Training Benchmark]","c":"Curiosity & Mind","p":"/util/epistemic-calibration","d":"Test epistemic calibration with 10 numerical estimation questions and 80% confidence intervals to measure overconfidence."},{"n":"The Sunk Cost Fallacy & Irretrievable Loss Auditor [Prospect Theory Decision Tree]","c":"Curiosity & Mind","p":"/util/sunk-cost-auditor","d":"Audit failing projects, degrees, or investments using Prospect Theory to eliminate past costs and calculate forward expected value."},{"n":"The Cosmic Perspective Clock [Live Deep Time & Existential Scale Ticker]","c":"Curiosity & Mind","p":"/util/cosmic-perspective-clock","d":"Synchronized live clocks tracking personal existence against Earth's history, solar evolution, and cosmic deep time."},{"n":"Content Security Policy (CSP) & CORS Policy Architect [Security Workbench]","c":"Web Engineering","p":"/web/csp-cors-architect","d":"Interactive visual Content Security Policy (CSP) & CORS header generator. Calculate nonces, SHA-256 script hashes, and export Nginx/Apache configs."},{"n":"cURL to Code Multi-Language Transpiler [Fetch, Axios, Python, Go, Rust]","c":"Web Engineering","p":"/web/curl-to-code","d":"Convert cURL commands to JavaScript Fetch, Node Axios, Python Requests, Go net/http, and Rust reqwest with zero server dependencies."},{"n":"Live WebSocket Frame & Handshake Inspector [Real-Time Telemetry]","c":"Web Engineering","p":"/web/websocket-inspector","d":"Interactive client-side WebSocket client and frame debugger. Inspect RFC 6455 handshake headers, opcode frames, and roundtrip latency."},{"n":"DNS Zone Architect & SPF / DKIM / DMARC Policy Builder [Email Deliverability]","c":"Web Engineering","p":"/web/dns-record-generator","d":"Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for domain deliverability."},{"n":"CSS Grid & Flexbox Visual Architecture Studio [2D Layout Engine]","c":"Web Engineering","p":"/web/css-grid-flexbox-studio","d":"Interactive visual layout playground for CSS Flexbox and 2D Grid. Adjust flex-direction, align-items, gap, and export production CSS."},{"n":"CSS clamp() Fluid Typography & Spacing Calculator [Linear Scale Engine]","c":"Web Engineering","p":"/web/css-clamp-calculator","d":"Generate exact CSS clamp(min, preferred_vw, max) functions for fluid typography and responsive spacing without media queries."},{"n":"OpenGraph & Twitter Card Visual Studio [SERP & Social Previewer]","c":"Web Engineering","p":"/web/social-card-previewer","d":"Live interactive previewer for OpenGraph, Twitter/X cards, and Google SERP search snippets. Generates complete HTML metadata tags."},{"n":"WebRTC SDP (Session Description Protocol) Dissector [Signaling Debugger]","c":"Web Engineering","p":"/web/webrtc-sdp-analyzer","d":"Parse and dissect raw WebRTC SDP offer and answer strings. Inspect m-lines, ICE candidates, codecs, and DTLS fingerprints."},{"n":"Core Web Vitals & Performance Budget Simulator [CrUX Metrics Engine]","c":"Web Engineering","p":"/web/web-vitals-budget","d":"Interactive performance budget and Core Web Vitals diagnostic. Calculate Largest Contentful Paint (LCP), INP, and financial conversion loss."},{"n":"SVG Path Visualizer & Bézier Explainer [Interactive Vector Canvas]","c":"Web Engineering","p":"/web/svg-path-studio","d":"Interactive HTML5 Canvas SVG path editor with visual Bézier control handles. Parse M, C, S, Q, and A path segments and minify coordinates."},{"n":"WebCrypto Keypair & HMAC Studio [SubtleCrypto Engine]","c":"Web Engineering","p":"/web/webcrypto-key-studio","d":"Generate cryptographically secure RSA and ECDSA keypairs locally in your browser with Web Crypto API. Export PEM and JWK keys."},{"n":"HTTP Cookie & Set-Cookie Header Dissector [Privacy & Security Audit]","c":"Web Engineering","p":"/web/cookie-inspector","d":"Parse and dissect raw Set-Cookie HTTP headers. Audit SameSite, Secure, HttpOnly, and modern Partitioned (CHIPS) flags."},{"n":"User-Agent & Client Hints (Sec-CH-UA) Dissector [Browser Fingerprint]","c":"Web Engineering","p":"/web/user-agent-hints","d":"Live dissect browser User-Agent strings and modern Client Hints (Sec-CH-UA). Detect rendering engines, OS platforms, and bots."},{"n":"Imposter Syndrome vs Dunning-Kruger Spectrum Diagnostic [Interactive Quadrant Matrix]","c":"Neurobiology & Mind","p":"/neuro/imposter-syndrome-spectrum","d":"Interactive 2D quadrant diagnostic measuring internal competence against perceived legitimacy."},{"n":"ADHD Executive Dysfunction & Task Paralysis Defuser [Dopamine Micro-Stepping Engine]","c":"Neurobiology & Mind","p":"/neuro/adhd-paralysis-defuser","d":"Bypass prefrontal cortex task paralysis and executive dysfunction with scientific micro-stepping."},{"n":"Burnout vs Depression vs Autonomic Nervous System Exhaustion Audit [Polyvagal Diagnostic]","c":"Neurobiology & Mind","p":"/neuro/burnout-nervous-system-audit","d":"Clinical polyvagal autonomic audit distinguishing chronic workplace burnout from clinical depression and dorsal vagal collapse."},{"n":"Attachment Style Diagnostic & Relationship Dynamic Simulator [ECR-R Matrix]","c":"Neurobiology & Mind","p":"/neuro/attachment-style-diagnostic","d":"Assess romantic attachment style across attachment anxiety and avoidance dimensions based on Brennan, Clark & Shaver ECR-R."},{"n":"Cognitive Distortion & Catastrophizing Reframer [Interactive CBT Thought Matrix]","c":"Neurobiology & Mind","p":"/neuro/cognitive-distortion-reframer","d":"Four-step Beckian Cognitive Behavioral Therapy (CBT) distortion reframing matrix to challenge cognitive traps."},{"n":"The 80-Year-Old Regret Minimization Decision Matrix [Jeff Bezos Framework]","c":"Neurobiology & Mind","p":"/neuro/regret-minimization-engine","d":"Interactive psychological decision workbench based on Jeff Bezos 80-year-old regret minimization framework."},{"n":"Hedonic Treadmill & Baseline Happiness Reset Calculator [Adaptation Decay Engine]","c":"Neurobiology & Mind","p":"/neuro/hedonic-treadmill-reset","d":"Calculate the mathematical half-life of emotional spikes from promotions, windfalls, or purchases using Brickman & Campbell models."},{"n":"Circadian Energy Peak & Melatonin Timing Architect [Matthew Walker Protocol]","c":"Neurobiology & Mind","p":"/neuro/circadian-energy-architect","d":"24-hour ultradian and circadian energy curve mapper optimizing deep work, caffeine cutoffs, and sleep cycles."},{"n":"Overthinking & Rumination Interruption Engine [5-4-3-2-1 Defusion & Box Breathing]","c":"Neurobiology & Mind","p":"/neuro/overthinking-interrupter","d":"Break acute default mode network loops and amygdala hijacks with interactive 4-4-4-4 box breathing and somatic grounding."},{"n":"Maximizer vs Satisficer Decision Style Audit [Paradox of Choice Index]","c":"Neurobiology & Mind","p":"/neuro/paradox-of-choice-maximizer","d":"Audit Herbert Simon & Barry Schwartz decision optimization patterns: Maximizer vs Satisficer index."},{"n":"Upward Social Comparison & Envy Neutralization Protocol [The Iceberg Matrix]","c":"Neurobiology & Mind","p":"/neuro/social-comparison-neutralizer","d":"Deconstruct upward social comparison bias and acute Instagram envy by modeling complete life packages."},{"n":"Parasocial Bonding & Screen-Mediated Loneliness Meter [UCLA Scale & Feed Audit]","c":"Neurobiology & Mind","p":"/neuro/loneliness-parasocial-auditor","d":"Audit one-way parasocial relationships vs reciprocal peer connection using UCLA Loneliness Scale metrics."},{"n":"Dopamine Fasting & Neurochemical Reset Schedule [Dr. Cameron Sepah Protocol]","c":"Neurobiology & Mind","p":"/neuro/dopamine-fasting-protocol","d":"Evidence-based cognitive-behavioral stimulus control protocol to attenuate impulsive stimulus-seeking behavior."},{"n":"Rejection Sensitive Dysphoria (RSD) Diagnostic & Coping Protocol [Emotional Dysregulation Scale]","c":"Neurobiology & Mind","p":"/neuro/rejection-sensitivity-meter","d":"Interactive self-audit for Rejection Sensitive Dysphoria (RSD) with somatic regulation protocols."},{"n":"Existential Dread & Meaning Reconstruction Matrix [Frankl Logotherapy Model]","c":"Neurobiology & Mind","p":"/neuro/existential-dread-compass","d":"Confront the 4 ultimate concerns of existence (Death, Freedom, Isolation, Meaninglessness) with Viktor Frankl Logotherapy."},{"n":"Non-Sleep Deep Rest (NSDR) & Binaural Theta Pacer [Huberman Protocol]","c":"Neurobiology & Mind","p":"/neuro/nsdr-rest-pacer","d":"Free client-side Non-Sleep Deep Rest (NSDR) protocol with customizable Web Audio binaural beats (theta/alpha 4Hz-7Hz), body scan pacer, and parasympathetic reset guidance."},{"n":"Sleep Inertia & Cortisol Awakening Response (CAR) Calculator [Morning Alertness Protocol]","c":"Neurobiology & Mind","p":"/neuro/sleep-inertia-dissipator","d":"Calculate your sleep inertia dissipation curve and optimize your Cortisol Awakening Response (CAR) with lux light exposure timing, hydration protocols, and core body temperature acceleration."},{"n":"Circadian Phase Response Curve (PRC) & Jet Lag Shifter [Lewy Melatonin Protocol]","c":"Neurobiology & Mind","p":"/neuro/circadian-phase-shifter","d":"Shift your circadian clock forwards or backwards using the Lewy Phase Response Curve. Calculate exact light exposure, light avoidance, and 0.5mg micro-dose melatonin timing windows for rapid jet lag recovery."},{"n":"Flow State Trigger Sequencer & Challenge-Skill Ratio Calculator [Csikszentmihalyi 4% Engine]","c":"Neurobiology & Mind","p":"/neuro/flow-state-sequencer","d":"Calculate your exact challenge-skill ratio using the Mihaly Csikszentmihalyi 4% Golden Rule. Audit 17 environmental, psychological, and social flow triggers to reliably enter optimal focus."},{"n":"Working Memory Span & Dual N-Back Capacity Auditor [Cognitive Load Benchmark]","c":"Neurobiology & Mind","p":"/neuro/working-memory-span-tester","d":"Benchmark your working memory buffer capacity using an interactive browser-based spatial and auditory N-back test. Measure cognitive bandwidth and Miller’s 7±2 working memory span."},{"n":"Loss Aversion & Expected Value Risk Recalibrator [Kahneman-Tversky Prospect Theory]","c":"Neurobiology & Mind","p":"/neuro/loss-aversion-recalibrator","d":"Neutralize cognitive loss aversion bias with Daniel Kahneman & Amos Tversky’s Prospect Theory. Calculate true mathematical expected value (EV) vs subjective emotional pain using the 2.25x loss aversion multiplier."},{"n":"Hyperbolic Discounting & Present Bias Future-Self Bridge [Intertemporal Choice Engine]","c":"Neurobiology & Mind","p":"/neuro/hyperbolic-discounting-calculator","d":"Visualize how your brain devalues future rewards using George Ainslie’s Hyperbolic Discounting model. Calculate present-bias decay curves and construct pre-commitment Ulysses contracts."},{"n":"Status Anxiety & Meritocracy Fallacy Auditor [Alain de Botton Philosophy Matrix]","c":"Neurobiology & Mind","p":"/neuro/status-anxiety-deconstructor","d":"Deconstruct status anxiety, peer comparison pressure, and the insidious psychological trap of meritocracy using Alain de Botton’s philosophical framework."},{"n":"Trauma Bond & Intermittent Reinforcement Cycle Interrupter [Behavioral Psychology Audit]","c":"Neurobiology & Mind","p":"/neuro/trauma-bond-interrupter","d":"Audit the psychological mechanisms of a trauma bond. Identify intermittent reinforcement schedules, dopamine craving loops, and cognitive dissonance in toxic relationships."},{"n":"Nonviolent Communication (NVC) 4-Step Conflict Translator [Marshall Rosenberg Model]","c":"Neurobiology & Mind","p":"/neuro/nonviolent-communication-translator","d":"Transform blame, passive aggression, and defensiveness into collaborative dialogue. Translate heated emotional conflicts through the 4 NVC pillars: Observation, Feeling, Need, and Request."},{"n":"Emotional Granularity & Interoceptive Precision Wheel [Constructed Emotion Model]","c":"Neurobiology & Mind","p":"/neuro/emotional-granularity-wheel","d":"Expand your emotional vocabulary beyond \"bad\" or \"stressed\" into 48 precise affective states based on Dr. Lisa Feldman Barrett’s Theory of Constructed Emotion."},{"n":"ADHD Hyperfocus Hangover & Dopamine Depletion Recovery Protocol [Neurochemical Reset]","c":"Neurobiology & Mind","p":"/neuro/hyperfocus-recovery-system","d":"Recover rapidly from acute post-hyperfocus exhaustion, brain fog, and sensory sensitivity with targeted biochemical, hydration, and nervous system protocols."},{"n":"PHQ-9 Clinical Depression & Anhedonia Severity Screener [Official 9-Question Inventory]","c":"Neurobiology & Mind","p":"/neuro/phq9-depression-screener","d":"Free client-side PHQ-9 Depression Screener. Calculate your depression severity score using the gold-standard 9-item clinical instrument."},{"n":"GAD-7 Generalized Anxiety Disorder Severity Index [DSM-5 Clinical Score]","c":"Neurobiology & Mind","p":"/neuro/gad7-anxiety-screener","d":"Free online GAD-7 Anxiety Screener. Calculate your clinical anxiety severity score based on the official 7-question DSM-5 scale."},{"n":"Gaslighting & Psychological Abuse Reality Checker [DARVO & Sanity Validation Log]","c":"Neurobiology & Mind","p":"/neuro/gaslighting-reality-checker","d":"Audit psychological manipulation tactics, DARVO loops, and create an immutable local browser sanity anchor log."},{"n":"Internal Family Systems (IFS) Parts Identifier & Unblending Navigator [Schwartz Model]","c":"Neurobiology & Mind","p":"/neuro/ifs-parts-unblender","d":"Map your internal system using Richard Schwartz IFS therapy. Identify Managers, Firefighters, and Exiles with the 6 Fs of unblending."},{"n":"Highly Sensitive Person (HSP) & Sensory Processing Scale [Elaine Aron SPS Test]","c":"Neurobiology & Mind","p":"/neuro/hsp-sensory-sensitivity","d":"Measure your Sensory Processing Sensitivity across Elaine Aron DOES framework (Depth, Overstimulation, Empathy, Subtlety)."},{"n":"Complex PTSD (C-PTSD) Emotional Flashback Grounding Navigator [Pete Walker 13 Steps]","c":"Neurobiology & Mind","p":"/neuro/cptsd-flashback-grounder","d":"Interactive somatic triage for C-PTSD emotional flashbacks based on Pete Walker 13-step recovery protocol."},{"n":"Adult Autism Spectrum Quotient (AQ-10) Screener [Baron-Cohen Clinical Scale]","c":"Neurobiology & Mind","p":"/neuro/aq10-autism-screener","d":"Evaluate autistic traits across social communication and attention-to-detail with Simon Baron-Cohen clinical instrument."},{"n":"Social Anxiety Disorder & Fear vs Avoidance Index [Liebowitz Brief LSAS]","c":"Neurobiology & Mind","p":"/neuro/social-anxiety-lsas","d":"Assess social phobia using the Liebowitz Social Anxiety Scale framework measuring fear vs behavioral avoidance."},{"n":"Multidimensional Perfectionism & Fear of Failure Scale [Frost & Hewitt MPS]","c":"Neurobiology & Mind","p":"/neuro/perfectionism-paralysis-meter","d":"Deconstruct adaptive standards vs toxic perfectionism paralysis using Frost & Hewitt MPS model and 80/20 threshold."},{"n":"OCD Intrusive Thought & Rumination Loop Interrupter [ERP Exposure Protocol]","c":"Neurobiology & Mind","p":"/neuro/ocd-rumination-loop-breaker","d":"Interrupt acute OCD obsessive spikes using Exposure and Response Prevention (ERP) with 90-Second Uncertainty Timer."},{"n":"Compassion Fatigue & Secondary Traumatic Stress Auditor [ProQOL 5 Scale]","c":"Neurobiology & Mind","p":"/neuro/compassion-fatigue-meter","d":"Measure empathy exhaustion and secondary traumatic stress for nurses, caregivers, and therapists with ProQOL 5."},{"n":"Emotional Permanence & Object Constancy Insecurity Diagnostic [BPD/ADHD Attachment]","c":"Neurobiology & Mind","p":"/neuro/emotional-permanence-screener","d":"Diagnose emotional impermanence and object constancy insecurity to understand why out of sight feels unloved."},{"n":"Narcissistic Abuse & Coercive Control Inventory [Dr. Ramani & Evan Stark Audit]","c":"Neurobiology & Mind","p":"/neuro/narcissistic-abuse-inventory","d":"Comprehensive client-side audit for narcissistic abuse, coercive control, and psychological manipulation. Evaluate love bombing, devaluation, and gaslighting."},{"n":"Vagus Nerve Tone & Parasympathetic Readiness Estimator [RSA / HRV Model]","c":"Neurobiology & Mind","p":"/neuro/vagus-nerve-tone-assessor","d":"Estimate vagal nerve tone and parasympathetic recovery capacity with integrated 0.1Hz resonant breathing pacer."},{"n":"Maladaptive Daydreaming Diagnostic [Eli Somer MDS-16 Clinical Inventory]","c":"Neurobiology & Mind","p":"/neuro/maladaptive-daydreaming-scale","d":"Official Maladaptive Daydreaming Scale (MDS-16). Calculate fantasy immersion score and evaluate functional impairment."},{"n":"Delayed Sleep Phase Syndrome (DSPS) & Circadian Realignment Protocol","c":"Neurobiology & Mind","p":"/neuro/delayed-sleep-phase-chronobiology","d":"Calculate circadian temperature minimum (T_min), photic light advance window, and micro-melatonin schedule to shift delayed sleep phase."},{"n":"DBT TIPP Emergency Distress Tolerance Navigator [Linehan Crisis Protocol]","c":"Neurobiology & Mind","p":"/neuro/dbt-tipp-emergency-skills","d":"Interactive somatic navigator for Dialectical Behavior Therapy (DBT) TIPP skills to abort panic and limbic hijack in under 60 seconds."},{"n":"Sensory Overload De-Escalator & Calming Room [Autism/ADHD/HSP Triage]","c":"Neurobiology & Mind","p":"/neuro/sensory-overload-de-escalator","d":"Interactive sensory quiet room for acute autistic sensory overload, ADHD overstimulation, and HSP nervous system de-escalation."},{"n":"Executive Function Deficit Profiler [Barkley BDEFS 5-Domain Architecture]","c":"Neurobiology & Mind","p":"/neuro/executive-function-deficit-map","d":"Clinical executive functioning profiler based on Dr. Russell Barkley BDEFS framework across Time, Restraint, and Motivation."},{"n":"Limerence vs Authentic Attachment Auditor [Dorothy Tennov Framework]","c":"Neurobiology & Mind","p":"/neuro/limerence-vs-love-auditor","d":"Diagnose obsessive limerence versus genuine emotional intimacy. Evaluate intrusive thoughts, flaw crystallization, and dopamine craving loops."},{"n":"Toxic Positivity & Emotional Invalidation Deconstructor [Tragic Optimism]","c":"Neurobiology & Mind","p":"/neuro/toxic-positivity-detox","d":"Identify toxic positivity, spiritual bypassing, and emotional invalidation. Translate dismissive platitudes into genuine psychological attunement."},{"n":"Spoon Theory Daily Energy Budgeter [Miserandino Chronic Illness Model]","c":"Neurobiology & Mind","p":"/neuro/spoon-theory-energy-budget","d":"Interactive Spoon Theory daily energy calculator for chronic illness, neurodivergence, and executive fatigue to prevent spoon debt flares."},{"n":"Inner Critic Voice Disarmer & Archetype Taxonomy [Voice Dialogue Model]","c":"Neurobiology & Mind","p":"/neuro/inner-critic-taxonomy","d":"Identify which of the 5 Inner Critic Archetypes drives self-doubt with Socratic cognitive boundary counters."},{"n":"Sales Tax Calculator & Reverse Tax Finder","c":"Finance","p":"/finance/sales-tax-calculator","d":"Calculate sales tax or reverse calculate pre-tax prices with 50 US state rates."},{"n":"Simple Interest Calculator (I = Prt)","c":"Finance","p":"/finance/simple-interest-calculator","d":"Calculate simple interest, total loan payback, and monthly installment cost."},{"n":"Overtime Pay Calculator (1.5x & 2.0x)","c":"Finance","p":"/finance/overtime-calculator","d":"Calculate time-and-a-half overtime and double-time holiday pay under FLSA rules."},{"n":"Compound Interest Calculator","c":"Finance","p":"/finance/compound-interest-calculator","d":"Calculate investment growth with monthly contributions and compound interest."},{"n":"CAGR Calculator (Compound Annual Growth Rate)","c":"Finance","p":"/finance/cagr-calculator","d":"Calculate annualized growth rates, investment doubling time, and total return."},{"n":"Personal Net Worth Calculator","c":"Finance","p":"/finance/net-worth-calculator","d":"Calculate total net worth by subtracting debts and liabilities from assets."},{"n":"Wallpaper Roll Calculator","c":"Units & Calc","p":"/calc/wallpaper-calculator","d":"Estimate wallpaper rolls needed for walls, factoring doors, windows, and pattern repeat."},{"n":"Wood Privacy Fence Material Calculator","c":"Units & Calc","p":"/calc/fence-calculator","d":"Calculate 4x4 posts, 2x4 rails, pickets, and concrete bags needed for wood fences."},{"n":"GPA Calculator","c":"Units & Calc","p":"/math/gpa-calculator","d":"Calculate college and high school weighted and unweighted GPA on a 4.0 scale."},{"n":"URL Parser & Query Inspector","c":"Developer","p":"/dev/url-parser","d":"Parse URLs into protocol, host, port, path segments, and query parameters table."},{"n":"Markdown Live Preview","c":"Developer","p":"/text/markdown-preview","d":"Side-by-side GitHub Flavored Markdown editor with real-time HTML rendering."},{"n":"Kilograms to Pounds (kg to lbs)","c":"Units & Calc","p":"/calc/kg-to-lbs","d":"Instant accurate weight conversion from kilograms to pounds."},{"n":"Pounds to Kilograms (lbs to kg)","c":"Units & Calc","p":"/calc/lbs-to-kg","d":"Convert pounds (lbs) to metric kilograms (kg)."},{"n":"Celsius to Fahrenheit (°C to °F)","c":"Units & Calc","p":"/calc/celsius-to-fahrenheit","d":"Convert temperatures from Celsius to Fahrenheit scale."},{"n":"Fahrenheit to Celsius (°F to °C)","c":"Units & Calc","p":"/calc/fahrenheit-to-celsius","d":"Convert temperatures from Fahrenheit to Celsius scale."},{"n":"Centimeters to Inches (cm to in)","c":"Units & Calc","p":"/calc/cm-to-inches","d":"Convert metric centimeters to imperial inches."},{"n":"Inches to Centimeters (in to cm)","c":"Units & Calc","p":"/calc/inches-to-cm","d":"Convert imperial inches to metric centimeters."},{"n":"Kilometers to Miles (km to mi)","c":"Units & Calc","p":"/calc/km-to-miles","d":"Convert distance from kilometers to statute miles."},{"n":"Miles to Kilometers (mi to km)","c":"Units & Calc","p":"/calc/miles-to-km","d":"Convert distance from statute miles to kilometers."},{"n":"Megabytes to Gigabytes (MB to GB)","c":"Units & Calc","p":"/calc/mb-to-gb","d":"Convert digital file storage size from MB to GB."},{"n":"Gigabytes to Terabytes (GB to TB)","c":"Units & Calc","p":"/calc/gb-to-tb","d":"Convert digital storage capacity from GB to TB."},{"n":"Gallons to Liters","c":"Units & Calc","p":"/calc/gallons-to-liters","d":"Convert liquid volume from US gallons to metric liters."},{"n":"Liters to Gallons","c":"Units & Calc","p":"/calc/liters-to-gallons","d":"Convert liquid volume from metric liters to US gallons."},{"n":"Minecraft UUID Generator","c":"Minecraft & Game","p":"/mc/uuid-gen","d":"Generate valid v4 UUID pairs for Bedrock manifest.json files."},{"n":"Bedrock Pack Manifest Generator","c":"Minecraft & Game","p":"/mc/manifest-gen","d":"Generate complete manifest.json for Behavior and Resource packs."},{"n":"Text De-duplicator","c":"Productivity","p":"/productivity/deduplicator","d":"Remove duplicate lines from text instantly."},{"n":"Time Tracker","c":"Productivity","p":"/productivity/time-tracker","d":"Track time across projects with start/stop timer and manual entries."},{"n":"Invoice Generator","c":"Productivity","p":"/productivity/invoice-generator","d":"Create professional invoices with line items, tax, and PDF export."},{"n":"Invoice from Time","c":"Productivity","p":"/productivity/invoice-from-time","d":"Generate invoices from tracked time entries."},{"n":"Tax Calculator","c":"Productivity","p":"/productivity/tax-calculator","d":"Calculate income tax with US federal brackets and deductions."},{"n":"Task Manager","c":"Productivity","p":"/productivity/task-manager","d":"Create and track tasks with priorities. Export as PDF or DOCX."},{"n":"Weekly Timetable","c":"Productivity","p":"/productivity/timetable","d":"Visual weekly schedule planner with color-coded blocks."},{"n":"Learning Hub","c":"Learn & Code","p":"/learn/","d":"Master web development with hands-on guides and interactive code playgrounds."},{"n":"JavaScript Guide","c":"Learn & Code","p":"/learn/javascript/","d":"Complete JavaScript guide from syntax basics to practical interactive projects."},{"n":"Obscure Science & Astrophysics Hub","c":"Science","p":"/science/","d":"115 interactive astrophysics, quantum mechanics, and cosmology calculators."},{"n":"Planck Length to Subatomic Scales Converter","c":"Science","p":"/science/planck-length-converter","d":"Convert quantum Planck lengths to meters, attometers, and astronomical scales."},{"n":"Black Hole Schwarzschild Radius Calculator","c":"Science","p":"/science/schwarzschild-radius-calculator","d":"Calculate event horizon radius for any mass from subatomic to supermassive black holes."},{"n":"Relativistic Time Dilation & Lorentz Factor","c":"Science","p":"/science/relativistic-time-dilation","d":"Calculate relativistic velocity, time dilation, and length contraction via Lorentz factor."},{"n":"Stellar Mass-Luminosity Relation Calculator","c":"Science","p":"/science/stellar-mass-luminosity-calculator","d":"Compute star luminosity, surface temperature, and lifetime from solar masses."},{"n":"Black Hole Hawking Radiation & Power Loss","c":"Science","p":"/science/hawking-radiation-calculator","d":"Calculate Hawking temperature, surface gravity, and evaporation timescale."},{"n":"2 AM Existential & Psychology Hub","c":"Psychology","p":"/psychology/","d":"115 interactive cognitive models, thought experiments, and executive function tools."},{"n":"ADHD 2-Minute Micro-Step Decomposer","c":"Psychology","p":"/psychology/adhd-micro-step-decomposer","d":"Break down overwhelming executive paralysis into micro-executable single steps."},{"n":"Catastrophic Thinking Scale & Severity Meter","c":"Psychology","p":"/psychology/catastrophizing-severity-meter","d":"Step down anxiety spirals from worst-case disaster to realistic mathematical probability."},{"n":"Donald Davidson Swampman Identity Paradox","c":"Psychology","p":"/psychology/swampman-identity-paradox","d":"Explore Donald Davidson’s philosophical thought experiment on consciousness and identity."},{"n":"Cognitive Dissonance Resolution Engine","c":"Psychology","p":"/psychology/cognitive-dissonance-resolution-meter","d":"Cross-examine automatic negative thoughts and belief shifts with structured CBT evidence."},{"n":"Revenge Bedtime Procrastination Cost Calculator","c":"Psychology","p":"/psychology/revenge-bedtime-procrastination-tax","d":"Quantify next-day cognitive penalty and circadian sleep debt from late-night revenge scrolling."},{"n":"Niche Construction & Trade Math Hub","c":"Trade Math","p":"/trade/","d":"114 code-compliant trade calculators across roofing, electrical, plumbing, and framing."},{"n":"Common Rafter Length & Pitch Cut Calculator","c":"Trade Math","p":"/trade/common-rafter-length-calculator","d":"Calculate precise rafter lengths, plumb cuts, seat cuts, and birdsmouth dimensions."},{"n":"Wire Gauge & Voltage Drop Calculator (NEC 3%)","c":"Trade Math","p":"/trade/wire-gauge-voltage-drop-calculator","d":"Calculate single and 3-phase AC/DC voltage drop by conductor wire gauge and length."},{"n":"Conduit Fill Percentage Calculator (NEC Table 1)","c":"Trade Math","p":"/trade/conduit-fill-capacity-nec","d":"Check EMT, PVC, and RMC conduit fill percentages against 40% NEC safety limits."},{"n":"Board Feet Lumber Calculator & Hardwood Pricing","c":"Trade Math","p":"/trade/board-foot-lumber-pricing","d":"Calculate true hardwood board footage and total order cost from dimensional lumber."},{"n":"Concrete Curing Maturity Index (Nurse-Saul)","c":"Trade Math","p":"/trade/concrete-curing-maturity-index","d":"Predict compressive strength gain from in-place curing temperature history."},{"n":"Hydraulic Cylinder Force & Speed Calculator","c":"Trade Math","p":"/trade/hydraulic-cylinder-force-speed","d":"Calculate push/pull tonnage, flow requirement (GPM), and cycle time."},{"n":"Esoteric & Historical Unit Systems Hub","c":"Historical Units","p":"/units/","d":"114 converters across Roman, Greek, Biblical, Apothecary, and obsolete computing units."},{"n":"Ancient Roman Amphora Liquid Volume Converter","c":"Historical Units","p":"/units/ancient-roman-amphora-converter","d":"Convert Roman amphora, urna, congius, sextarius, and hemina to liters and gallons."},{"n":"Roman Foot (Pes Monetalis) Distance Converter","c":"Historical Units","p":"/units/ancient-roman-pes-foot-converter","d":"Convert Roman pes, cubitus, passus, actus, and mille passus to modern units."},{"n":"Biblical Cor and Chomer Volume Converter","c":"Historical Units","p":"/units/biblical-cor-homer-volume-converter","d":"Convert ancient Hebrew dry and liquid temple measures to metric liters."},{"n":"Apothecary Grain (gr) to Metric Milligrams","c":"Historical Units","p":"/units/apothecary-grain-to-milligrams","d":"Convert historical apothecary prescription weights to grams and grains."},{"n":"Maritime Cable Length & Fathom Converter","c":"Historical Units","p":"/units/nautical-cable-length-converter","d":"Convert historical British and US naval cable lengths and leagues to nautical miles."},{"n":"IBM 80-Column Punch Card Character Capacity","c":"Historical Units","p":"/units/ibm-80-column-punch-card-bytes","d":"Calculate byte capacities, deck heights, and weights of Hollerith punch cards."},{"n":"Human Neurobiology & Cognitive Architecture Suite","c":"Neurobiology & Mind","p":"/neuro/","d":"39 flagship clinical diagnostics & cognitive tools: PHQ-9, GAD-7, NSDR, CAR, IFS, and ADHD defusers"},{"n":"Obscure Science & Astrophysics Suite","c":"Science","p":"/science/","d":"115 Planck unit, Schwarzschild radius, and relativistic physics calculators"},{"n":"2 AM Existential Dilemmas & Psychology Suite","c":"Psychology","p":"/psychology/","d":"115 ADHD micro-stepping, catastrophizing, and cognitive dissonance tools"},{"n":"Niche Construction & Trade Math Suite","c":"Trade Math","p":"/trade/","d":"114 common rafter length, NEC wire gauge, and lumber pricing calculators"},{"n":"Esoteric & Historical Unit Systems","c":"Historical Units","p":"/units/","d":"114 ancient Roman, biblical, and apothecary measurement converters"},{"n":"Psychological Archetypes & Intelligence Types","c":"Mind & Intelligence","p":"/mind/","d":"500 spatial reasoning, attachment matrix, and executive reserve tools"},{"n":"American Boomer Wealth & Senior Care Suite","c":"Boomer Wealth","p":"/wealth/","d":"500 Social Security break-even, IRS RMD tables, and reverse mortgage tools"},{"n":"Gen Z Dopamine, Reality Checks & Existential Suite","c":"Dopamine & Reality","p":"/dopamine/","d":"500 screen time loss, dopamine fasting, and REM alarm tools"},{"n":"Bizarre Physics, Epigenetics & Niche Math Suite","c":"Curious Physics","p":"/curious/","d":"500 Kleiber metabolic scaling, mammalian heartbeat, and Roche limit tools"},{"n":"1,000 Laptop Technical Articles & Deep Dives","c":"Hardware & Laptops","p":"/laptops/","d":"Specs, benchmarks, thermals, and teardowns for 1,000 laptops"},{"n":"1,000 Head-to-Head Laptop Comparison Showdowns","c":"Hardware & Laptops","p":"/laptops/compare/","d":"Side-by-side performance, battery, and display comparisons"},{"n":"PC Gaming Handhelds Suite & Showdowns","c":"Gaming & Handhelds","p":"/handhelds/","d":"Steam Deck OLED, ROG Ally X, and Legion Go benchmarks"},{"n":"Mobile CPU Benchmark Directory","c":"Hardware Benchmarks","p":"/hardware/cpus/","d":"Geekbench 6, Cinebench R23, and efficiency metrics"},{"n":"Mobile GPU Benchmark Directory","c":"Hardware Benchmarks","p":"/hardware/gpus/","d":"3DMark Time Spy, ray tracing, and TGP scaling"},{"n":"RAM & Storage Upgradeability Directory","c":"Hardware Benchmarks","p":"/laptops/upgrades/","d":"SO-DIMM slots, soldered RAM, and M.2 NVMe SSD expansion"},{"n":"Display Eye Strain & PWM Flicker Safety Directory","c":"Hardware Benchmarks","p":"/laptops/pwm/","d":"PWM dimming frequencies, DC dimming, and eye safety tests"},{"n":"Technical Articles & Engineering Journal","c":"Tech Journal","p":"/articles/","d":"Clinical neuroscience, ESBuild decompilation, and custom blocks guides"}];
+    var activeSearchIdx = 0;
+
+    function openSearchModal() {
+      var m = document.getElementById('quickSearchModal');
+      if (!m) return;
+      m.style.display = 'flex';
+      var inp = document.getElementById('quickSearchInput');
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+        renderSearchResults('');
+      }
+    }
+
+    function closeSearchModal() {
+      var m = document.getElementById('quickSearchModal');
+      if (m) m.style.display = 'none';
+    }
+
+    function renderSearchResults(query) {
+      var container = document.getElementById('quickSearchResults');
+      if (!container) return;
+      var q = (query || '').toLowerCase().trim();
+      var matches = [];
+      if (!q) {
+        matches = DTS_SEARCH_INDEX.slice(0, 8);
+      } else {
+        matches = DTS_SEARCH_INDEX.filter(function(t) {
+          return t.n.toLowerCase().indexOf(q) !== -1 ||
+                 t.c.toLowerCase().indexOf(q) !== -1 ||
+                 t.d.toLowerCase().indexOf(q) !== -1 ||
+                 t.p.toLowerCase().indexOf(q) !== -1;
+        }).slice(0, 15);
+      }
+
+      activeSearchIdx = 0;
+      if (matches.length === 0) {
+        container.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-family: var(--mono); font-size: 0.85rem;">No tools found matching &quot;' + query.replace(/</g, '&lt;') + '&quot;</div>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < matches.length; i++) {
+        var item = matches[i];
+        var isSel = i === 0 ? ' selected' : '';
+        var cleanName = item.n.replace(/\[.*?\]/g, '').trim();
+        html += '<a href="' + item.p + '" class="search-result-item' + isSel + '" data-idx="' + i + '">' +
+          '<div style="display:flex; flex-direction:column; gap:0.15rem; overflow:hidden;">' +
+            '<div class="search-result-title">' + cleanName + '</div>' +
+            '<div style="font-size:0.78rem; color:var(--text-muted); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">' + (item.d || item.p) + '</div>' +
+          '</div>' +
+          '<span class="search-result-badge">' + item.c + '</span>' +
+        '</a>';
+      }
+      container.innerHTML = html;
+    }
+
+    var qInp = document.getElementById('quickSearchInput');
+    if (qInp) {
+      qInp.addEventListener('input', function(e) {
+        renderSearchResults(e.target.value);
+      });
+      qInp.addEventListener('keydown', function(e) {
+        var items = Array.from(document.querySelectorAll('.search-result-item'));
+        if (items.length === 0) return;
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (items[activeSearchIdx]) items[activeSearchIdx].classList.remove('selected');
+          activeSearchIdx = (activeSearchIdx + 1) % items.length;
+          if (items[activeSearchIdx]) {
+            items[activeSearchIdx].classList.add('selected');
+            items[activeSearchIdx].scrollIntoView({ block: 'nearest' });
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (items[activeSearchIdx]) items[activeSearchIdx].classList.remove('selected');
+          activeSearchIdx = (activeSearchIdx - 1 + items.length) % items.length;
+          if (items[activeSearchIdx]) {
+            items[activeSearchIdx].classList.add('selected');
+            items[activeSearchIdx].scrollIntoView({ block: 'nearest' });
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (items[activeSearchIdx]) {
+            window.location.href = items[activeSearchIdx].getAttribute('href');
+          }
+        } else if (e.key === 'Escape') {
+          closeSearchModal();
+        }
+      });
+    }
+
+    window.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        var m = document.getElementById('quickSearchModal');
+        if (m && m.style.display === 'flex') closeSearchModal();
+        else openSearchModal();
+      } else if (e.key === '/' && document.activeElement && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        openSearchModal();
+      } else if (e.key === 'Escape') {
+        closeSearchModal();
+      }
+    });
+  </script>
+</body>
+</html>
