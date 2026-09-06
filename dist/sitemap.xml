@@ -302,6 +302,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/circuit-breaker-sizing-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/cm-to-feet-and-inches</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -357,6 +363,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/cooling-degree-days-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/cooling-load-manual-j-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -591,6 +603,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/fl-oz-to-tsp</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/flange-bolt-torque-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1491,6 +1509,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/pints-to-quarts</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/pipe-expansion-loop-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -27522,6 +27522,2675 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (23 calculators in /calc/)');
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CIRCUIT BREAKER SIZING, WIRE AMPACITY & CONTINUOUS LOAD CALCULATOR (NEC)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const circuitBreakerBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Circuit Breaker Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Circuit Breaker Sizing &amp; Wire Ampacity Calculator (NEC)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate branch circuit breaker sizes per NEC Articles 210, 215, 240 &amp; 430: determine 125% continuous duty overcurrent protection, minimum conductor copper/aluminum gauge (Table 310.16), voltage drop %, and AIC interrupt ratings.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/><line x1="9" y1="6" x2="15" y2="6"/></svg>
+        Electrical Circuit &amp; Load Specifications
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cbPreset">Common Equipment Preset</label>
+        <select id="cbPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="custom">Custom Load Entry</option>
+          <option value="ev48" selected>Level 2 EV Charger (48A @ 240V — 11.5 kW Continuous)</option>
+          <option value="ev32">Level 2 EV Charger (32A @ 240V — 7.7 kW Continuous)</option>
+          <option value="dryer">Electric Clothes Dryer (30A @ 240V — 5.5 kW)</option>
+          <option value="range">Electric Range / Oven (40A @ 240V — 9.6 kW)</option>
+          <option value="water_heater">Electric Water Heater (4.5 kW @ 240V Continuous)</option>
+          <option value="ac3ton">Central AC / Heat Pump (3-Ton / 18A MCA @ 240V)</option>
+          <option value="kitchen_circ">Kitchen Small Appliance Branch (20A @ 120V)</option>
+          <option value="general_circ">General Residential Lighting (15A @ 120V)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cbVolt">System Voltage &amp; Phase</label>
+          <select id="cbVolt" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="120_1">120V 1-Phase (Standard Branch)</option>
+            <option value="240_1" selected>240V 1-Phase (Heavy Residential)</option>
+            <option value="208_1">208V 1-Phase (Commercial Leg)</option>
+            <option value="208_3">208V 3-Phase (Commercial Wye)</option>
+            <option value="277_1">277V 1-Phase (Commercial Lighting)</option>
+            <option value="480_3">480V 3-Phase (Industrial Power)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cbDuty">Load Duty Classification</label>
+          <select id="cbDuty" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="continuous" selected>Continuous Duty (&gt;3 hrs &rarr; 125% Breaker)</option>
+            <option value="non_continuous">Non-Continuous Duty (Intermittent &rarr; 100%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cbPowerVal" id="cbPowerLabel">Connected Load (Kilowatts)</label>
+          <input type="number" id="cbPowerVal" value="11.52" min="0.1" max="500" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Nameplate electrical draw</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cbDistance">One-Way Run Distance (Ft)</label>
+          <input type="number" id="cbDistance" value="80" min="5" max="1500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Panel to load termination</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cbMetal">Conductor Material</label>
+          <select id="cbMetal" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="cu" selected>Copper (THHN / THWN-2 75°C)</option>
+            <option value="al">Aluminum / AA-8000 Alloy</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cbTemp">Ambient Location Temp</label>
+          <select id="cbTemp" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.0" selected>Standard Condition (&le; 86°F / 30°C)</option>
+            <option value="0.88">Warm Attic / Plant (96°F - 104°F)</option>
+            <option value="0.82">Hot Attic / Rooftop (105°F - 113°F)</option>
+            <option value="0.75">Severe Heat Rooftop (114°F - 122°F)</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="copyCbBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Complete Breaker &amp; Conductor Schedule</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Sizing Determination &amp; OCPD Specification
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Required Breaker Size</div>
+            <div id="outBreaker" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">60 Amp</div>
+            <div id="outMca" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">60.0A Min Circuit Ampacity (MCA)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Minimum Conductor</div>
+            <div id="outWire" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">#6 AWG Cu</div>
+            <div id="outWireAmp" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">65A Rating @ 75°C Terminal</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Operating Load</div>
+            <div id="outAmps" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">48.0 A</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Actual current</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Voltage Drop</div>
+            <div id="outVdPct" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">1.57%</div>
+            <div style="font-size:0.7rem;color:#10b981;">✓ &le; 3.0% NEC Limit</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Continuous Max</div>
+            <div id="outMaxCont" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">48.0 A</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">80% Breaker Derate</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Equipment Ground (EGC)</div>
+            <div id="outEgc" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">#10 AWG Copper</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">NEC Table 250.122</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Recommended AIC Rating</div>
+            <div id="outAic" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">10,000 AIC</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Standard Residential Panel</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTINUOUS LOAD PROTECTION NOTICE -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          NEC 210.20(A) 80% Rule Compliance
+        </h3>
+        <p style="font-size:0.85rem;line-height:1.6;color:var(--text-muted);margin:0;">
+          Standard thermal-magnetic circuit breakers are engineered to carry continuous loads for 3 or more hours at no more than <strong>80% of their faceplate rating</strong>. A 60A breaker carrying a continuous 48A EV charger operates at exactly 80% capacity. Attempting to run 48A continuous through a 50A breaker causes internal thermal bi-metal warping and nuisance thermal tripping within 45 to 90 minutes.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE PANELBOARD & TRIP CURVE (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+        Panelboard Busbar Architecture &amp; Thermal-Magnetic Trip Mechanism
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Busbar &amp; Breaker Visualizer
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="panelSvg" viewBox="0 0 800 300" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: COMMON NEC SIZING BENCHMARKS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Standard NEC Circuit Breaker &amp; Copper Wire Sizing Schedule</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Breaker Size</th>
+            <th style="padding:0.6rem 0.75rem;">Max Continuous Load (80%)</th>
+            <th style="padding:0.6rem 0.75rem;">Min Copper Wire (75°C)</th>
+            <th style="padding:0.6rem 0.75rem;">Min Aluminum Wire</th>
+            <th style="padding:0.6rem 0.75rem;">Ground Wire (EGC)</th>
+            <th style="padding:0.6rem 0.75rem;">Typical Dedicated Appliance</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);"><td>15 Amp</td><td>12.0 Amps (1,440W @ 120V)</td><td>#14 AWG Cu</td><td>N/A (Code Prohibited)</td><td>#14 AWG Cu</td><td>Lighting / Bedroom Outlets</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>20 Amp</td><td>16.0 Amps (1,920W @ 120V)</td><td>#12 AWG Cu</td><td>#10 AWG Al</td><td>#12 AWG Cu</td><td>Kitchen Small Appliance, Bath Outlets</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>25 Amp</td><td>20.0 Amps (4,800W @ 240V)</td><td>#10 AWG Cu</td><td>#8 AWG Al</td><td>#10 AWG Cu</td><td>Water Heater, Small Heat Pump</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>30 Amp</td><td>24.0 Amps (5,760W @ 240V)</td><td>#10 AWG Cu</td><td>#8 AWG Al</td><td>#10 AWG Cu</td><td>Electric Clothes Dryer, RV 30A</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>40 Amp</td><td>32.0 Amps (7,680W @ 240V)</td><td>#8 AWG Cu</td><td>#6 AWG Al</td><td>#10 AWG Cu</td><td>Electric Cooktop, 32A EV Charger</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;"><td>50 Amp</td><td>40.0 Amps (9,600W @ 240V)</td><td>#6 AWG Cu</td><td>#4 AWG Al</td><td>#10 AWG Cu</td><td>Electric Range, 40A EV Charger (NEMA 14-50)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.08);font-weight:700;"><td>60 Amp</td><td>48.0 Amps (11,520W @ 240V)</td><td>#6 AWG Cu (THHN in conduit)</td><td>#4 AWG Al</td><td>#10 AWG Cu</td><td>Hardwired 48A EV Charger (Tesla / ChargePoint)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>100 Amp</td><td>80.0 Amps (19.2 kW @ 240V)</td><td>#3 or #2 AWG Cu</td><td>#1 or 1/0 AWG Al</td><td>#8 AWG Cu</td><td>Subpanel Feeder, Electric Furnace</td></tr>
+          <tr><td>200 Amp</td><td>160.0 Amps (38.4 kW @ 240V)</td><td>2/0 or 3/0 AWG Cu</td><td>4/0 AWG Al</td><td>#6 AWG Cu</td><td>Main Residential Service Entrance</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">NEC Calculations &amp; Step-by-Step Derivations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Operational Load Current ($I$):</strong><br>
+        For a connected load of <span id="mKw">11.52</span> kW at <span id="mVolt">240</span>V:
+        $$I = \frac{P_{\text{Watts}}}{V} = \frac{<span id="mWatts">11,520</span>}{240} = \mathbf{<span id="mAmps">48.0</span> \text{ Amps}}$$
+      </p>
+
+      <p>
+        <strong>2. Minimum Circuit Ampacity (MCA) with Continuous Duty Factor:</strong><br>
+        Per NEC Article 210.19(A)(1), branch conductors and overcurrent devices serving continuous loads must be sized at 125% of the continuous load:
+        $$\text{MCA} = I \times 1.25 = 48.0 \times 1.25 = \mathbf{<span id="mMca">60.0</span> \text{ Amps}}$$
+        Standard overcurrent breaker selection per NEC 240.6: <strong><span id="mBreaker">60 Amp</span> OCPD</strong>.
+      </p>
+
+      <p>
+        <strong>3. One-Way Voltage Drop Verification:</strong><br>
+        Conductor resistance for <span id="mWireSize">#6 AWG</span> copper ($R = 0.491\ \Omega / 1,000\text{ ft}$):
+        $$V_{\text{drop}} = \frac{2 \times L \times R \times I}{1,000} = \frac{2 \times <span id="mDist">80</span> \times 0.491 \times 48.0}{1,000} = \mathbf{<span id="mVdVolts">3.77</span> \text{ Volts}}$$
+        $$\% \text{ Voltage Drop} = \frac{3.77\text{ V}}{240\text{ V}} \times 100\% = \mathbf{<span id="mVdPct">1.57</span>\%} \quad (\le 3.0\% \text{ NEC Recommended Limit})$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & ELECTRICAL CODE PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Circuit Breaker Sizing Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: The 80% Continuous Duty Thermal Tripping Hazard</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Standard molded-case circuit breakers are 80% rated devices. While a 50A breaker can carry 50A for a short 10-minute burst, running 48A through it continuously (such as charging an electric vehicle for 6 hours) heats the internal bimetallic deflection strip until it trips on false thermal overload. EV chargers, water heaters, and snow-melt systems must always be sized with a breaker rated at 125% of continuous current (e.g. a 48A charger requires a 60A breaker; a 32A charger requires a 40A breaker).
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Terminal Lug 75°C Temperature Rating Mismatch</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Modern THHN copper wire has a high-temperature insulation rating of 90°C (allowing #6 AWG THHN to carry 75 amps). However, virtually all residential and commercial circuit breaker terminal lugs are rated for <strong>75°C only</strong>! Per NEC 110.14(C)(1), you cannot use the 90°C ampacity column to size the breaker; you must size conductors according to the 75°C column (#6 AWG Cu = 65A max). The 90°C rating is only permitted for bundling and ambient derating calculations.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Shared Neutral Overheating in Multi-Wire Branch Circuits (MWBC)</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          In a Multi-Wire Branch Circuit (two 120V circuits sharing one neutral), conductors must originate from <strong>opposite electrical phases (Phase A and Phase B)</strong> so neutral return currents cancel each other out ($I_{\text{neutral}} = I_A - I_B$). If an installer mistakenly lands both hot wires on the same phase, the return currents add together ($I_{\text{neutral}} = I_A + I_B = 16A + 16A = 32A$), burning out the #12 neutral wire inside walls without tripping either 20A breaker! NEC 210.4(B) requires a simultaneous handle-tie on all MWBC breakers.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Up-Sizing Conductors for Voltage Drop Without Up-Sizing Ground Wire</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When running a long circuit (e.g. 200 feet to a detached garage), electricians correctly upsize #10 wire to #6 wire to combat voltage drop. However, many forget NEC 250.122(B): <strong>where ungrounded conductors are increased in size for voltage drop, the equipment grounding conductor (EGC) must be proportionately increased in circular mil area</strong>. Failing to upsize the ground wire leaves insufficient fault clearing capacity, preventing the breaker from tripping during a ground fault.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Undersizing AIC Interrupt Rating Leading to Explosive Arc Flash</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Ampere Interrupting Capacity (AIC) is the maximum fault current a breaker can safely extinguish without exploding. Standard residential breakers are rated for 10,000 AIC (10 kA). If a building is located adjacent to a utility substation or fed by a large 500 kVA transformer with low impedance, available short-circuit fault current can exceed 25,000 to 45,000 amps. Installing a 10kA breaker on a 25kA busbar causes the breaker contacts to vaporize in an explosive plasma fireball during a bolted fault.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Circuit Breaker Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What size breaker do I need for a 48-Amp Level 2 EV charger?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        A 48-Amp EV charger is a continuous electrical load per NEC Article 625. Under the 125% rule ($48\text{ A} \times 1.25 = 60\text{ A}$), you must install a <strong>60-Amp dedicated double-pole circuit breaker</strong> with minimum <strong>#6 AWG copper conductors</strong> (THHN in conduit) or #4 AWG Romex (NM-B), and it must be hardwired.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why can't I just put a larger breaker on existing wiring?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Circuit breakers exist to protect the electrical wiring inside walls from overheating, melting its insulation, and catching fire. #14 AWG wire is rated for a maximum of 15 amps; #12 AWG is rated for 20 amps. Installing a 20A or 30A breaker on #14 wire allows excess current to overheat the wire to over 200°F without tripping the breaker, creating an extreme house fire hazard.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the 80% continuous load rule in the National Electrical Code?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Under NEC 210.20(A), any load where maximum current is expected to continue for 3 hours or more is classified as a "continuous load." Standard circuit breakers are tested in open air; when enclosed inside a panelboard alongside dozens of other warm breakers, continuous full-amperage heat causes thermal tripping. Therefore, breakers may only be loaded to 80% of their faceplate rating ($20\text{A} \times 0.80 = 16\text{A}$; $50\text{A} \times 0.80 = 40\text{A}$).
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How does a thermal-magnetic circuit breaker work?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Thermal-magnetic breakers have two separate tripping mechanisms: (1) A <strong>bimetallic thermal strip</strong> that slowly bends in response to sustained moderate overloads (e.g. running 22 amps through a 20A breaker), tripping the switch in 30 to 90 seconds. (2) An <strong>electromagnetic solenoid</strong> that instantly snaps the contacts open in under 16 milliseconds (1 cycle) during a high-amperage short circuit or ground fault.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the maximum allowable voltage drop on a branch circuit?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        NEC Informational Note 210.19(A) recommends that voltage drop on a branch circuit should not exceed <strong>3% of nominal voltage</strong>, and the total drop across feeder plus branch circuit should not exceed <strong>5%</strong>. On a 120V circuit, 3% equals 3.6 volts (116.4V delivered); on a 240V circuit, 3% equals 7.2 volts (232.8V delivered).
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      var PRESETS = {
+        ev48: { volt: '240_1', duty: 'continuous', kw: 11.52, dist: 80, metal: 'cu' },
+        ev32: { volt: '240_1', duty: 'continuous', kw: 7.68,  dist: 60, metal: 'cu' },
+        dryer: { volt: '240_1', duty: 'non_continuous', kw: 5.50, dist: 40, metal: 'cu' },
+        range: { volt: '240_1', duty: 'non_continuous', kw: 9.60, dist: 45, metal: 'cu' },
+        water_heater: { volt: '240_1', duty: 'continuous', kw: 4.50, dist: 50, metal: 'cu' },
+        ac3ton: { volt: '240_1', duty: 'continuous', kw: 4.32, dist: 55, metal: 'cu' },
+        kitchen_circ: { volt: '120_1', duty: 'non_continuous', kw: 1.92, dist: 40, metal: 'cu' },
+        general_circ: { volt: '120_1', duty: 'non_continuous', kw: 1.44, dist: 50, metal: 'cu' }
+      };
+
+      var WIRE_CU = [
+        { name: '#14 AWG Cu', amp75: 15, r: 3.07, egc: '#14 AWG' },
+        { name: '#12 AWG Cu', amp75: 20, r: 1.93, egc: '#12 AWG' },
+        { name: '#10 AWG Cu', amp75: 30, r: 1.21, egc: '#10 AWG' },
+        { name: '#8 AWG Cu',  amp75: 50, r: 0.764, egc: '#10 AWG' },
+        { name: '#6 AWG Cu',  amp75: 65, r: 0.491, egc: '#10 AWG' },
+        { name: '#4 AWG Cu',  amp75: 85, r: 0.308, egc: '#8 AWG' },
+        { name: '#3 AWG Cu',  amp75: 100, r: 0.245, egc: '#8 AWG' },
+        { name: '#2 AWG Cu',  amp75: 115, r: 0.194, egc: '#6 AWG' },
+        { name: '#1 AWG Cu',  amp75: 130, r: 0.154, egc: '#6 AWG' },
+        { name: '1/0 AWG Cu', amp75: 150, r: 0.122, egc: '#6 AWG' },
+        { name: '2/0 AWG Cu', amp75: 175, r: 0.0967, egc: '#6 AWG' },
+        { name: '3/0 AWG Cu', amp75: 200, r: 0.0766, egc: '#6 AWG' },
+        { name: '4/0 AWG Cu', amp75: 230, r: 0.0608, egc: '#4 AWG' }
+      ];
+
+      var WIRE_AL = [
+        { name: '#12 AWG Al', amp75: 15, r: 3.18, egc: '#12 AWG' },
+        { name: '#10 AWG Al', amp75: 25, r: 2.00, egc: '#10 AWG' },
+        { name: '#8 AWG Al',  amp75: 40, r: 1.26, egc: '#8 AWG' },
+        { name: '#6 AWG Al',  amp75: 50, r: 0.808, egc: '#8 AWG' },
+        { name: '#4 AWG Al',  amp75: 65, r: 0.508, egc: '#6 AWG' },
+        { name: '#2 AWG Al',  amp75: 90, r: 0.319, egc: '#6 AWG' },
+        { name: '#1 AWG Al',  amp75: 100, r: 0.253, egc: '#4 AWG' },
+        { name: '1/0 AWG Al', amp75: 120, r: 0.201, egc: '#4 AWG' },
+        { name: '2/0 AWG Al', amp75: 135, r: 0.159, egc: '#4 AWG' },
+        { name: '3/0 AWG Al', amp75: 155, r: 0.126, egc: '#4 AWG' },
+        { name: '4/0 AWG Al', amp75: 180, r: 0.100, egc: '#2 AWG' }
+      ];
+
+      var STANDARD_BREAKERS = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200, 225, 250, 300, 400];
+
+      function updatePreset() {
+        var pKey = document.getElementById('cbPreset').value;
+        if (pKey !== 'custom' && PRESETS[pKey]) {
+          var p = PRESETS[pKey];
+          document.getElementById('cbVolt').value = p.volt;
+          document.getElementById('cbDuty').value = p.duty;
+          document.getElementById('cbPowerVal').value = p.kw;
+          document.getElementById('cbDistance').value = p.dist;
+          document.getElementById('cbMetal').value = p.metal;
+        }
+      }
+
+      function calcBreaker() {
+        var vSpec = document.getElementById('cbVolt').value;
+        var parts = vSpec.split('_');
+        var volt = parseFloat(parts[0]);
+        var phase = parseInt(parts[1], 10);
+
+        var duty = document.getElementById('cbDuty').value;
+        var kw = parseFloat(document.getElementById('cbPowerVal').value) || 0;
+        var distFt = parseFloat(document.getElementById('cbDistance').value) || 50;
+        var metal = document.getElementById('cbMetal').value;
+        var tempDerate = parseFloat(document.getElementById('cbTemp').value) || 1.0;
+
+        var watts = kw * 1000;
+        var loadAmps = 0;
+        if (phase === 1) {
+          loadAmps = watts / volt;
+        } else {
+          loadAmps = watts / (Math.sqrt(3) * volt);
+        }
+
+        // MCA
+        var isContinuous = (duty === 'continuous');
+        var mca = isContinuous ? (loadAmps * 1.25) : loadAmps;
+
+        // Select standard breaker size >= MCA
+        var breakerSize = STANDARD_BREAKERS[0];
+        for (var b = 0; b < STANDARD_BREAKERS.length; b++) {
+          if (STANDARD_BREAKERS[b] >= mca) {
+            breakerSize = STANDARD_BREAKERS[b];
+            break;
+          }
+        }
+
+        // Wire Selection (accounting for derating)
+        var wireList = (metal === 'cu') ? WIRE_CU : WIRE_AL;
+        var selectedWire = wireList[wireList.length - 1];
+
+        for (var w = 0; w < wireList.length; w++) {
+          var deratedAmp = wireList[w].amp75 * tempDerate;
+          if (deratedAmp >= breakerSize) {
+            selectedWire = wireList[w];
+            break;
+          }
+        }
+
+        // Voltage drop calculation
+        var vdVolts = (2 * distFt * (selectedWire.r / 1000) * loadAmps);
+        if (phase === 3) {
+          vdVolts = (Math.sqrt(3) * distFt * (selectedWire.r / 1000) * loadAmps);
+        }
+        var vdPct = (vdVolts / volt) * 100;
+
+        // If voltage drop exceeds 3%, upsize wire until <3%
+        var wireUpsized = false;
+        if (vdPct > 3.0) {
+          for (var uw = 0; uw < wireList.length; uw++) {
+            var candR = wireList[uw].r;
+            var testVd = (2 * distFt * (candR / 1000) * loadAmps);
+            if (phase === 3) testVd = (Math.sqrt(3) * distFt * (candR / 1000) * loadAmps);
+            var testPct = (testVd / volt) * 100;
+            if (testPct <= 3.0 && wireList[uw].amp75 >= selectedWire.amp75) {
+              selectedWire = wireList[uw];
+              vdPct = testPct;
+              wireUpsized = true;
+              break;
+            }
+          }
+        }
+
+        var maxContinuousAmps = breakerSize * 0.80;
+
+        // Update DOM
+        document.getElementById('outBreaker').textContent = breakerSize + ' Amp';
+        document.getElementById('outMca').textContent = mca.toFixed(1) + 'A Min Circuit Ampacity (MCA)';
+        document.getElementById('outWire').textContent = selectedWire.name + (wireUpsized ? ' (Upsized for VD)' : '');
+        document.getElementById('outWireAmp').textContent = selectedWire.amp75 + 'A Rating @ 75°C Terminal';
+        document.getElementById('outAmps').textContent = loadAmps.toFixed(1) + ' A';
+        document.getElementById('outVdPct').textContent = vdPct.toFixed(2) + '%';
+        document.getElementById('outMaxCont').textContent = maxContinuousAmps.toFixed(1) + ' A';
+        document.getElementById('outEgc').textContent = selectedWire.egc + ' Copper';
+
+        // Update Math Derivations
+        document.getElementById('mKw').textContent = kw.toFixed(2);
+        document.getElementById('mVolt').textContent = volt;
+        document.getElementById('mWatts').textContent = Math.round(watts).toLocaleString();
+        document.getElementById('mAmps').textContent = loadAmps.toFixed(1);
+        document.getElementById('mMca').textContent = mca.toFixed(1);
+        document.getElementById('mBreaker').textContent = breakerSize + ' Amp';
+        document.getElementById('mWireSize').textContent = selectedWire.name;
+        document.getElementById('mDist').textContent = distFt;
+        document.getElementById('mVdVolts').textContent = vdVolts.toFixed(2);
+        document.getElementById('mVdPct').textContent = vdPct.toFixed(2);
+
+        drawPanelSvg(breakerSize, loadAmps, selectedWire.name, volt, phase);
+      }
+
+      function drawPanelSvg(breakerAmps, loadAmps, wireName, volt, phase) {
+        var svg = document.getElementById('panelSvg');
+        var svgContent = '';
+
+        // Viewport: 800 x 300
+        svgContent += '<rect width="800" height="300" fill="#0f172a"/>';
+
+        // Steel Panel Enclosure Box
+        svgContent += '<rect x="80" y="30" width="340" height="240" fill="#1e293b" stroke="#64748b" stroke-width="3" rx="4"/>';
+        svgContent += '<text x="100" y="55" fill="#94a3b8" font-size="12" font-weight="700">DISTRIBUTION PANELBOARD</text>';
+
+        // Main Busbars (Phase A & Phase B)
+        svgContent += '<rect x="140" y="70" width="14" height="180" fill="#d97706" rx="2"/>'; // Copper Bus A
+        svgContent += '<rect x="170" y="70" width="14" height="180" fill="#d97706" rx="2"/>'; // Copper Bus B
+        svgContent += '<text x="147" y="262" fill="#fbbf24" font-size="9" font-family="monospace" text-anchor="middle">A</text>';
+        svgContent += '<text x="177" y="262" fill="#fbbf24" font-size="9" font-family="monospace" text-anchor="middle">B</text>';
+
+        // Neutral & Ground Bars
+        svgContent += '<rect x="100" y="80" width="10" height="140" fill="#94a3b8"/>'; // Neutral
+        svgContent += '<rect x="390" y="80" width="10" height="140" fill="#10b981"/>'; // Ground
+
+        // Installed Circuit Breaker Unit
+        var breakerH = (phase === 1 && volt === 120) ? 35 : 70;
+        svgContent += '<rect x="200" y="100" width="160" height="' + breakerH + '" fill="#0f172a" stroke="#38bdf8" stroke-width="2" rx="3"/>';
+        svgContent += '<text x="220" y="125" fill="#f8fafc" font-size="14" font-weight="700" font-family="monospace">' + breakerAmps + 'A</text>';
+        svgContent += '<text x="220" y="142" fill="#94a3b8" font-size="10" font-family="monospace">OCPD ' + (breakerH > 40 ? '2-POLE' : '1-POLE') + '</text>';
+        // Breaker Switch Handle (Orange/On)
+        svgContent += '<rect x="330" y="115" width="20" height="18" fill="#f59e0b" rx="2"/>';
+        svgContent += '<text x="340" y="128" fill="#000" font-size="8" font-weight="700" text-anchor="middle">ON</text>';
+
+        // Branch Circuit Cable Leaving Panel
+        svgContent += '<path d="M360 135 L480 135" stroke="#38bdf8" stroke-width="5" fill="none"/>';
+        svgContent += '<text x="420" y="125" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700">' + wireName + '</text>';
+
+        // Thermal-Magnetic Trip Curve Visualizer (Right Side)
+        svgContent += '<rect x="490" y="30" width="270" height="240" fill="#1e293b" stroke="#475569" stroke-width="2" rx="4"/>';
+        svgContent += '<text x="505" y="55" fill="#cbd5e1" font-size="12" font-weight="700">TRIP TIME-CURRENT CURVE</text>';
+
+        // Curve Grid
+        svgContent += '<line x1="530" y1="75" x2="530" y2="235" stroke="#64748b" stroke-width="1.5"/>';
+        svgContent += '<line x1="530" y1="235" x2="735" y2="235" stroke="#64748b" stroke-width="1.5"/>';
+        svgContent += '<text x="735" y="250" fill="#94a3b8" font-size="9" text-anchor="end">Current Multiplier</text>';
+        svgContent += '<text x="520" y="85" fill="#94a3b8" font-size="9" text-anchor="end">Time</text>';
+
+        // Inverse Time Bimetal Curve (Thermal Zone)
+        svgContent += '<path d="M550 85 Q570 180 640 190" fill="none" stroke="#f59e0b" stroke-width="3"/>';
+        svgContent += '<text x="590" y="130" fill="#fbbf24" font-size="10" font-family="monospace">Thermal (Bimetal)</text>';
+
+        // Magnetic Instantaneous Drop (Short Circuit)
+        svgContent += '<line x1="640" y1="190" x2="640" y2="235" stroke="#ef4444" stroke-width="3"/>';
+        svgContent += '<text x="648" y="215" fill="#f87171" font-size="10" font-family="monospace">Instant Magnetic</text>';
+
+        // Operating Point Dot (Current Load)
+        var loadFrac = loadAmps / breakerAmps; // e.g. 48/60 = 0.80
+        var dotX = 530 + loadFrac * 100;
+        svgContent += '<circle cx="' + dotX + '" cy="235" r="5" fill="#10b981"/>';
+        svgContent += '<text x="' + dotX + '" y="222" fill="#34d399" font-size="9" font-family="monospace" text-anchor="middle">' + Math.round(loadFrac * 100) + '%</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyCbSpec() {
+        var preset = document.getElementById('cbPreset').value;
+        var breaker = document.getElementById('outBreaker').textContent;
+        var wire = document.getElementById('outWire').textContent;
+        var mca = document.getElementById('outMca').textContent;
+        var amps = document.getElementById('outAmps').textContent;
+        var vd = document.getElementById('outVdPct').textContent;
+        var egc = document.getElementById('outEgc').textContent;
+        var cont = document.getElementById('outMaxCont').textContent;
+        var aic = document.getElementById('outAic').textContent;
+
+        var text = "=== NEC BRANCH CIRCUIT BREAKER & CONDUCTOR REPORT ===\n" +
+          "Load Preset: " + preset.toUpperCase() + "\n" +
+          "System Voltage: " + document.getElementById('cbVolt').value + " (" + document.getElementById('cbDuty').value.toUpperCase() + ")\n" +
+          "Connected Load: " + document.getElementById('cbPowerVal').value + " kW (" + amps + " Operating Amps)\n" +
+          "MINIMUM CIRCUIT AMPACITY (MCA): " + mca + "\n" +
+          "RECOMMENDED OCPD BREAKER: " + breaker + " (Max Continuous Load: " + cont + ")\n" +
+          "BRANCH CONDUCTOR GAUGE: " + wire + " (" + document.getElementById('outWireAmp').textContent + ")\n" +
+          "EQUIPMENT GROUND WIRE (EGC): " + egc + "\n" +
+          "ONE-WAY VOLTAGE DROP: " + vd + " @ " + document.getElementById('cbDistance').value + " ft\n" +
+          "RECOMMENDED AIC INTERRUPT RATING: " + aic + "\n" +
+          "Governing Standard: National Electrical Code (NEC Articles 210, 215, 240 & 310)\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/circuit-breaker-sizing-calculator)";
+
+        var btn = document.getElementById('copyCbBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Breaker Schedule Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['cbPreset', 'cbVolt', 'cbDuty', 'cbPowerVal', 'cbDistance', 'cbMetal', 'cbTemp'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcBreaker);
+          el.addEventListener('change', function() {
+            if (id === 'cbPreset') updatePreset();
+            calcBreaker();
+          });
+        }
+      });
+
+      document.getElementById('copyCbBtn').addEventListener('click', copyCbSpec);
+
+      updatePreset();
+      calcBreaker();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'circuit-breaker-sizing-calculator.html'), renderTradePage({
+    title: "Circuit Breaker Sizing Calculator: NEC Wire Ampacity & OCPD | Digital Tools Shed",
+    metaDesc: "Calculate branch circuit breaker sizes per NEC Articles 210, 215, 240 & 430: determine 125% continuous duty MCA, copper/aluminum wire gauge, and voltage drop %.",
+    canonical: `${DOMAIN}/calc/circuit-breaker-sizing-calculator`,
+    bodyContent: circuitBreakerBody,
+    currentPath: '/calc/circuit-breaker-sizing-calculator',
+    faq: [
+      {
+        "q": "What size circuit breaker do I need for a 48A Level 2 EV charger?",
+        "a": "A 48-Amp EV charger is a continuous electrical load per NEC Article 625. Applying the 125% continuous duty multiplier (48A * 1.25 = 60A MCA), you must install a 60-Amp dedicated double-pole circuit breaker with minimum #6 AWG copper conductors (THHN in conduit) or #4 AWG Romex (NM-B)."
+      },
+      {
+        "q": "Why can't I replace a 15A breaker with a 20A breaker on existing wiring?",
+        "a": "Breakers protect wires from overheating and igniting wall framing. Standard 15A circuits use #14 AWG wire, which is only rated to safely carry 15 amps. Putting a 20A breaker on #14 wire allows dangerous overheating without tripping the breaker, creating an immediate fire hazard."
+      },
+      {
+        "q": "What is the 80% continuous load rule in the National Electrical Code?",
+        "a": "Under NEC 210.20(A), any load expected to run continuously for 3 hours or more may only draw up to 80% of the breaker's nominal faceplate rating. For example, a 50A breaker can only handle 40A continuously; a 20A breaker can only handle 16A continuously."
+      },
+      {
+        "q": "Why do circuit breaker terminal ratings limit wire ampacity to 75°C?",
+        "a": "Even though THHN wire insulation is rated for 90°C, circuit breaker terminal lugs are rated for 75°C. Under NEC 110.14(C), conductor ampacity cannot exceed the temperature rating of the weakest connected component, making the 75°C ampacity column mandatory for sizing."
+      },
+      {
+        "q": "What is the maximum allowable voltage drop on a branch circuit?",
+        "a": "NEC Informational Note 210.19(A) recommends that voltage drop on a branch circuit not exceed 3% of nominal voltage (3.6V on a 120V circuit, or 7.2V on a 240V circuit), and 5% total from service entrance to final outlet."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PIPING THERMAL EXPANSION LOOP, ANCHOR FORCE & FLEXIBILITY CALCULATOR (ASME B31)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const pipeExpansionLoopBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Pipe Expansion Loop Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Pipe Thermal Expansion Loop &amp; Flexibility Calculator (ASME B31.1 / B31.3)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate linear thermal expansion ($\Delta L$), minimum U-loop and Z-bend dimensions ($W \times H$), anchor reaction thrust forces ($F_x$), and EJMA guide spacings for steam, hot water, and process piping.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6v6H4zM14 4h6v6h-6zM4 4h6v6H4zM14 14h6v6h-6z"/></svg>
+        Piping Run &amp; Operating Temperatures
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="elMat">Piping Material</label>
+        <select id="elMat" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="cs" selected>Carbon Steel (ASTM A106 / A53 — &alpha; = 6.5 &times; 10⁻⁶)</option>
+          <option value="ss">Stainless Steel (304 / 316 — &alpha; = 9.6 &times; 10⁻⁶ &rarr; 50% Higher Growth!)</option>
+          <option value="copper">Copper (Type L / K — &alpha; = 9.4 &times; 10⁻⁶)</option>
+          <option value="al">Aluminum 6061 (&alpha; = 12.8 &times; 10⁻⁶)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="elNps">Nominal Pipe Size (Schedule 40)</label>
+          <select id="elNps" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.315">1" (OD: 1.315 in)</option>
+            <option value="1.900">1-1/2" (OD: 1.900 in)</option>
+            <option value="2.375">2" (OD: 2.375 in)</option>
+            <option value="3.500">3" (OD: 3.500 in)</option>
+            <option value="4.500" selected>4" (OD: 4.500 in — Standard)</option>
+            <option value="6.625">6" (OD: 6.625 in)</option>
+            <option value="8.625">8" (OD: 8.625 in)</option>
+            <option value="10.750">10" (OD: 10.750 in)</option>
+            <option value="12.750">12" (OD: 12.750 in)</option>
+            <option value="16.000">16" (OD: 16.000 in)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="elLength">Distance Between Anchors (Ft)</label>
+          <input type="number" id="elLength" value="200" min="20" max="2500" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Straight span between rigid anchors</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="elTinstall">Installation Temp (°F)</label>
+          <input type="number" id="elTinstall" value="70" min="-40" max="120" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Cold construction baseline</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="elToper">Maximum Operating Temp (°F)</label>
+          <input type="number" id="elToper" value="350" min="32" max="1200" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">120 PSIG steam = ~350°F; Hydronic = ~180°F</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="elStress">Allowable Bending Stress ($S_A$ PSI)</label>
+          <input type="number" id="elStress" value="16000" min="8000" max="35000" step="1000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">ASME B31.1 displacement stress range</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="elAspect">Loop Proportion Style</label>
+          <select id="elAspect" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="square" selected>Square Loop (W = H)</option>
+            <option value="wide">Wide Loop (W = 2H)</option>
+            <option value="narrow">Deep Loop (H = 2W)</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="copyElBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Complete Expansion Loop Schedule</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Thermal Growth &amp; Loop Dimensions
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Linear Thermal Growth (&Delta;L)</div>
+            <div id="outDeltaL" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">4.37 Inches</div>
+            <div id="outDeltaRate" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">2.18" per 100 ft of run</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Minimum Loop Legs (W &times; H)</div>
+            <div id="outLoopDims" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">10.9' &times; 10.9'</div>
+            <div id="outDevLen" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">32.8 ft total developed loop pipe</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Anchor Thrust ($F_x$)</div>
+            <div id="outAnchorFx" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">892 lbs</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Axial load at ends</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">1st Guide ($G_1$)</div>
+            <div id="outG1" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">1.5 Ft</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">&le; 4 &times; Outside Dia</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">2nd Guide ($G_2$)</div>
+            <div id="outG2" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">5.3 Ft</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">&le; 14 &times; Outside Dia</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Cold Spring Recommendation</div>
+            <div id="outColdSpring" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">2.18 Inches (50%)</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Reduces hot operating anchor load</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Temperature Swing (&Delta;T)</div>
+            <div id="outDeltaT" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">280 °F</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Thermal differential</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EJMA GUIDE & ANCHOR NOTICE -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          EJMA &amp; ASME Alignment Rules
+        </h3>
+        <p style="font-size:0.85rem;line-height:1.6;color:var(--text-muted);margin:0;">
+          An expansion loop functions as a spring. Without rigid alignment guides placed at $G_1 \le 4 D_o$ and $G_2 \le 14 D_o$ on both sides of the loop, axial expansion forces will cause the straight pipe run to buckle laterally as an Euler column, bending pipe hangers and crushing wall penetrations rather than flexing into the loop.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE PIPING U-LOOP SCHEMATIC (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6v6H4zM14 4h6v6h-6zM4 4h6v6H4zM14 14h6v6h-6z"/></svg>
+        Piping Run, Rigid Anchors &amp; Expansion U-Loop Flexibility Model
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Flex Displacement &amp; Guides
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="loopSvg" viewBox="0 0 800 320" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: EXPANSION BENCHMARKS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Thermal Expansion (Inches per 100 Feet) from 70°F Installation Baseline</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Operating Temp (°F)</th>
+            <th style="padding:0.6rem 0.75rem;">Carbon Steel (&alpha; = 6.5)</th>
+            <th style="padding:0.6rem 0.75rem;">Stainless 304/316 (&alpha; = 9.6)</th>
+            <th style="padding:0.6rem 0.75rem;">Copper Pipe (&alpha; = 9.4)</th>
+            <th style="padding:0.6rem 0.75rem;">Typical Application</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);"><td>150°F</td><td>0.62 in / 100'</td><td>0.92 in / 100'</td><td>0.90 in / 100'</td><td>Domestic Hot Water / Low Hydronic</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>212°F (0 PSIG Steam)</td><td>1.11 in / 100'</td><td>1.64 in / 100'</td><td>1.60 in / 100'</td><td>Atmospheric Steam / Condensate</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>250°F (15 PSIG Steam)</td><td>1.40 in / 100'</td><td>2.07 in / 100'</td><td>2.03 in / 100'</td><td>Low-Pressure Steam Heating</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;"><td>350°F (120 PSIG Steam)</td><td>2.18 in / 100'</td><td>3.23 in / 100'</td><td>3.16 in / 100'</td><td>Standard Industrial Process Steam</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>450°F (400 PSIG Steam)</td><td>2.96 in / 100'</td><td>4.38 in / 100'</td><td>4.29 in / 100'</td><td>High-Pressure Steam Header</td></tr>
+          <tr><td>600°F (Superheated)</td><td>4.13 in / 100'</td><td>6.11 in / 100'</td><td>N/A (Exceeds Limit)</td><td>Superheated Steam Turbines</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">ASME B31 Flexibility &amp; Loop Sizing Formulations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Total Linear Thermal Growth ($\Delta L$):</strong><br>
+        $$\Delta L = 12 \times L_{\text{ft}} \times \alpha \times (T_{\text{oper}} - T_{\text{install}})$$
+        $$\Delta L = 12 \times <span id="mLen">200</span> \times <span id="mAlpha">6.5 &times; 10⁻⁶</span> \times (<span id="mTo">350</span> - <span id="mTi">70</span>) = \mathbf{<span id="mDeltaL">4.37</span> \text{ Inches}}$$
+      </p>
+
+      <p>
+        <strong>2. Minimum Expansion Loop Dimensions (ASME B31 / Kellogg Formulation):</strong><br>
+        For a symmetrical 4-elbow expansion U-loop, the required leg height $H$ to restrict bending stress below $S_A = <span id="mStress">16,000</span>\text{ PSI}$:
+        $$H = \frac{1}{12} \times \sqrt{\frac{E \cdot D_o \cdot \Delta L}{2 \cdot S_A}} = \frac{1}{12} \times \sqrt{\frac{(<span id="mE">27.9 \times 10⁶</span>) \times (<span id="mDo">4.50</span>) \times 4.37}{2 \times 16,000}} = \mathbf{<span id="mHeight">10.9</span> \text{ Feet}}$$
+        Total developed pipe inside loop: $L_{\text{developed}} = W + 2H = 10.9 + 2(10.9) = \mathbf{<span id="mDevTotal">32.8</span> \text{ Feet}}$.
+      </p>
+
+      <p>
+        <strong>3. Anchor Reaction Thrust Force ($F_x$):</strong><br>
+        $$F_x = \frac{12 \cdot E \cdot I \cdot \Delta L}{(H \times 12)^3} = \frac{12 \times (27.9 \times 10^6) \times (<span id="mI">7.23</span>) \times 4.37}{(<span id="mHin">130.8</span>)^3} = \mathbf{<span id="mFx">892</span> \text{ lbs}}$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & PIPING FLEXIBILITY PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Piping Expansion Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: Column Buckling and Lateral Snapping of Unguided Pipe Runs</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          An expansion loop offers flexibility, but the straight pipe run leading into it is under immense axial compressive stress. If alignment guides ($G_1$ and $G_2$) are omitted, the pipe behaves as a slender Euler structural column. When steam heats the line, rather than pushing smoothly into the expansion loop, the straight run suddenly buckles violently to one side, jumping off structural clevis hangers, tearing ceiling trapeze supports, and shearing welded branch takeoffs.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Stainless Steel 50% Higher Thermal Expansion Underestimation</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Engineers frequently substitute 304 or 316 stainless steel for carbon steel in corrosive chemical or pharmaceutical steam applications without resizing expansion loops. Austenitic stainless steel has a thermal expansion coefficient of $\alpha = 9.6 \times 10^{-6}\text{ in}/(\text{in}\cdot^\circ\text{F})$—nearly <strong>50% higher than carbon steel ($\alpha = 6.5$)</strong>. A 200-foot run of stainless steel steam pipe expands over 6.5 inches compared to 4.4 inches for carbon steel, over-stressing elbows beyond yield strength and causing plastic deformation and fatigue cracking.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Anchor Reaction Force Wall Tearing</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Rigid pipe anchors at the ends of an expansion span must withstand thousands of pounds of thrust ($F_x$). In many facilities, contractors anchor 6" steam lines to light masonry block walls or standard non-structural building columns. When the pipe expands, the thrust force shears the anchor bolts right out of the cinder blocks, pushing structural walls outward and collapsing overhead equipment supports. Always verify anchor reactions against building structural capacity.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Guide Binding & Roller Jamming Due to Lateral Deflection</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Alignment guides must allow free axial longitudinal motion while strictly restraining lateral movement. If pipe guides are installed too tight against the pipe insulation or if ungreased slide plates bind, thermal expansion causes the pipe to cock diagonally inside the guide sleeve. This transforms the sliding support into an accidental rigid anchor, completely immobilizing the run and forcing thermal expansion to crush valve bodies and flange gaskets.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Hanger Rod Swing Exceeding the 4-Degree Limit</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          MSS SP-58 standard stipulates that rigid threaded hanger rods supporting expanding pipe must not swing more than <strong>4 degrees from true vertical</strong> during maximum thermal expansion. If a 200-foot steam run expands 4.4 inches, standard 12-inch hanger rods will swing over 10 degrees, creating severe vertical lifting forces that lift the pipe completely off adjacent intermediate supports. For long runs, install roller chairs or variable spring hangers.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Expansion Loop Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is a pipe expansion loop and how does it work?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        An expansion loop is a U-shaped arrangement of four 90° pipe elbows installed in a long straight run of piping. Because metals expand when heated, a constrained straight pipe develops immense axial compressive forces that can buckle or snap supports. The expansion loop flexes elastically like a giant U-spring, absorbing the axial elongation through bending across its perpendicular legs while keeping pipe stress well within ASME B31 allowable limits.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is "Cold Springing" in pipe installation?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Cold springing is the deliberate pre-stretching or spreading open of an expansion loop during cold installation (typically 50% of total calculated expansion). When the cold line is bolted together, it is under tension. When hot operating fluid enters and the pipe expands, the thermal growth relaxes the pre-tension, cutting operating anchor forces and nozzle reactions in half.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why are alignment guides mandatory on both sides of an expansion loop?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Without alignment guides, the straight pipe run will bow out laterally instead of pushing straight into the loop. The Expansion Joint Manufacturers Association (EJMA) requires Guide 1 to be placed within $4 D_o$ of the loop, and Guide 2 within $14 D_o$, ensuring true linear axial motion into the flexibility leg.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How does thermal expansion differ between Carbon Steel and Stainless Steel?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Austenitic stainless steels (304, 316) have a crystalline structure that expands roughly <strong>50% more than carbon steel</strong> per degree of temperature rise ($9.6 \times 10^{-6}\text{ vs } 6.5 \times 10^{-6}\text{ in}/(\text{in}\cdot^\circ\text{F})$). A 350°F steam line expanding 2.2 inches per 100 feet in carbon steel will expand 3.2 inches per 100 feet in stainless steel, requiring substantially larger expansion loops.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What are the advantages of pipe loops over bellows expansion joints?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Expansion loops are fabricated entirely from standard pipe and elbows with zero moving parts, packings, or thin metal membranes. They require zero maintenance and last the full 50-year structural life of the plant. In contrast, mechanical bellows expansion joints can suffer fatigue rupture, squirm, or chloride stress corrosion cracking, requiring periodic inspection and replacement.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      var MAT_PROPS = {
+        cs:     { name: 'Carbon Steel', alpha: 6.5e-6, E: 27.9e6 },
+        ss:     { name: 'Stainless 304/316', alpha: 9.6e-6, E: 28.3e6 },
+        copper: { name: 'Copper', alpha: 9.4e-6, E: 17.0e6 },
+        al:     { name: 'Aluminum 6061', alpha: 12.8e-6, E: 10.0e6 }
+      };
+
+      // Sch 40 OD and Moment of Inertia (I in in^4)
+      var PIPE_SPECS = {
+        '1.315': { od: 1.315, id: 1.049, I: 0.0874 },
+        '1.900': { od: 1.900, id: 1.610, I: 0.310 },
+        '2.375': { od: 2.375, id: 2.067, I: 0.666 },
+        '3.500': { od: 3.500, id: 3.068, I: 3.017 },
+        '4.500': { od: 4.500, id: 4.026, I: 7.233 },
+        '6.625': { od: 6.625, id: 6.065, I: 28.14 },
+        '8.625': { od: 8.625, id: 7.981, I: 72.50 },
+        '10.750':{ od: 10.750,id: 10.020,I: 160.8 },
+        '12.750':{ od: 12.750,id: 11.938,I: 279.3 },
+        '16.000':{ od: 16.000,id: 15.000,I: 562.0 }
+      };
+
+      function calcLoop() {
+        var matKey = document.getElementById('elMat').value;
+        var mat = MAT_PROPS[matKey];
+        var npsKey = document.getElementById('elNps').value;
+        var pSpec = PIPE_SPECS[npsKey] || PIPE_SPECS['4.500'];
+
+        var lenFt = parseFloat(document.getElementById('elLength').value) || 200;
+        var tInst = parseFloat(document.getElementById('elTinstall').value) || 70;
+        var tOper = parseFloat(document.getElementById('elToper').value) || 350;
+        var saPsi = parseFloat(document.getElementById('elStress').value) || 16000;
+        var aspect = document.getElementById('elAspect').value;
+
+        var deltaT = Math.max(1, tOper - tInst);
+        // Linear expansion in inches: 12 * L * alpha * deltaT
+        var deltaL_in = 12 * lenFt * mat.alpha * deltaT;
+        var deltaL_rate = (deltaL_in / lenFt) * 100; // in / 100 ft
+
+        // Loop leg height H (in feet) per ASME B31.1 / Kellogg:
+        // H = (1/12) * sqrt( (E * Do * deltaL) / (2 * Sa) )
+        var baseH = (1 / 12) * Math.sqrt((mat.E * pSpec.od * deltaL_in) / (2 * saPsi));
+        var H_ft = baseH;
+        var W_ft = baseH;
+
+        if (aspect === 'wide') {
+          W_ft = baseH * 1.5;
+          H_ft = baseH * 0.85;
+        } else if (aspect === 'narrow') {
+          H_ft = baseH * 1.4;
+          W_ft = baseH * 0.75;
+        }
+
+        var devLenFt = W_ft + 2 * H_ft;
+
+        // Anchor Force Fx (lbs) approx: (12 * E * I * deltaL) / (H_in^3)
+        var H_in = H_ft * 12;
+        var Fx_lbs = (12 * mat.E * pSpec.I * deltaL_in) / Math.pow(Math.max(1, H_in), 3);
+
+        // EJMA Guide Spacing: G1 <= 4 * Do; G2 <= 14 * Do
+        var G1_ft = (4 * pSpec.od) / 12;
+        var G2_ft = (14 * pSpec.od) / 12;
+
+        var coldSpringIn = deltaL_in * 0.50;
+
+        // Update DOM
+        document.getElementById('outDeltaL').textContent = deltaL_in.toFixed(2) + ' Inches';
+        document.getElementById('outDeltaRate').textContent = deltaL_rate.toFixed(2) + '" per 100 ft of run';
+        document.getElementById('outLoopDims').textContent = W_ft.toFixed(1) + '\' \u00d7 ' + H_ft.toFixed(1) + '\'';
+        document.getElementById('outDevLen').textContent = devLenFt.toFixed(1) + ' ft total developed loop pipe';
+        document.getElementById('outAnchorFx').textContent = Math.round(Fx_lbs).toLocaleString() + ' lbs';
+        document.getElementById('outG1').textContent = G1_ft.toFixed(1) + ' Ft';
+        document.getElementById('outG2').textContent = G2_ft.toFixed(1) + ' Ft';
+        document.getElementById('outColdSpring').textContent = coldSpringIn.toFixed(2) + ' Inches (50%)';
+        document.getElementById('outDeltaT').textContent = Math.round(deltaT) + ' °F';
+
+        // Update Math Derivations
+        document.getElementById('mLen').textContent = lenFt;
+        document.getElementById('mAlpha').textContent = (mat.alpha * 1e6).toFixed(1) + ' \u00d7 10⁻⁶';
+        document.getElementById('mTo').textContent = Math.round(tOper);
+        document.getElementById('mTi').textContent = Math.round(tInst);
+        document.getElementById('mDeltaL').textContent = deltaL_in.toFixed(2);
+        document.getElementById('mStress').textContent = saPsi.toLocaleString();
+        document.getElementById('mE').textContent = (mat.E / 1e6).toFixed(1) + ' \u00d7 10⁶';
+        document.getElementById('mDo').textContent = pSpec.od.toFixed(2);
+        document.getElementById('mHeight').textContent = H_ft.toFixed(1);
+        document.getElementById('mDevTotal').textContent = devLenFt.toFixed(1);
+        document.getElementById('mI').textContent = pSpec.I.toFixed(2);
+        document.getElementById('mHin').textContent = H_in.toFixed(1);
+        document.getElementById('mFx').textContent = Math.round(Fx_lbs).toLocaleString();
+
+        drawLoopSvg(deltaL_in, W_ft, H_ft, lenFt);
+      }
+
+      function drawLoopSvg(deltaL, W_ft, H_ft, lenFt) {
+        var svg = document.getElementById('loopSvg');
+        var svgContent = '';
+
+        // Viewport: 800 x 320
+        svgContent += '<rect width="800" height="320" fill="#0f172a"/>';
+
+        // Ground / Pipe Rack Baseline
+        svgContent += '<line x1="40" y1="260" x2="760" y2="260" stroke="#334155" stroke-width="2"/>';
+
+        // Rigid Anchors at both ends
+        // Left Anchor
+        svgContent += '<polygon points="50,260 70,260 60,210" fill="#dc2626" stroke="#f87171" stroke-width="1.5"/>';
+        svgContent += '<text x="60" y="278" fill="#fca5a5" font-size="10" font-family="monospace" text-anchor="middle" font-weight="700">ANCHOR 1</text>';
+        // Right Anchor
+        svgContent += '<polygon points="730,260 750,260 740,210" fill="#dc2626" stroke="#f87171" stroke-width="1.5"/>';
+        svgContent += '<text x="740" y="278" fill="#fca5a5" font-size="10" font-family="monospace" text-anchor="middle" font-weight="700">ANCHOR 2</text>';
+
+        // Cold Baseline Pipe Run (Gray dashed centerline)
+        svgContent += '<line x1="60" y1="210" x2="740" y2="210" stroke="#475569" stroke-width="2" stroke-dasharray="4,4"/>';
+
+        // Alignment Guides G1 and G2 on left and right of loop
+        var loopMidX = 400;
+        var halfLoopW = 50; // px
+        var leftLoopX = loopMidX - halfLoopW;
+        var rightLoopX = loopMidX + halfLoopW;
+
+        // Left Guides
+        svgContent += '<rect x="310" y="200" width="14" height="20" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>';
+        svgContent += '<text x="317" y="195" fill="#38bdf8" font-size="9" font-family="monospace" text-anchor="middle">G1</text>';
+        svgContent += '<rect x="250" y="200" width="14" height="20" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>';
+        svgContent += '<text x="257" y="195" fill="#38bdf8" font-size="9" font-family="monospace" text-anchor="middle">G2</text>';
+
+        // Right Guides
+        svgContent += '<rect x="476" y="200" width="14" height="20" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>';
+        svgContent += '<text x="483" y="195" fill="#38bdf8" font-size="9" font-family="monospace" text-anchor="middle">G1</text>';
+        svgContent += '<rect x="536" y="200" width="14" height="20" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>';
+        svgContent += '<text x="543" y="195" fill="#38bdf8" font-size="9" font-family="monospace" text-anchor="middle">G2</text>';
+
+        // Active Hot Pipe with Expansion Loop (Cyan & Amber)
+        // Straight line from left anchor to loop
+        svgContent += '<line x1="60" y1="210" x2="' + leftLoopX + '" y2="210" stroke="#38bdf8" stroke-width="5"/>';
+        // U-Loop: Up, Across, Down
+        var loopTopY = 60;
+        svgContent += '<line x1="' + leftLoopX + '" y1="210" x2="' + leftLoopX + '" y2="' + loopTopY + '" stroke="#f59e0b" stroke-width="5"/>';
+        svgContent += '<line x1="' + leftLoopX + '" y1="' + loopTopY + '" x2="' + rightLoopX + '" y2="' + loopTopY + '" stroke="#f59e0b" stroke-width="5"/>';
+        svgContent += '<line x1="' + rightLoopX + '" y1="' + loopTopY + '" x2="' + rightLoopX + '" y2="210" stroke="#f59e0b" stroke-width="5"/>';
+        // Straight line from loop to right anchor
+        svgContent += '<line x1="' + rightLoopX + '" y1="210" x2="740" y2="210" stroke="#38bdf8" stroke-width="5"/>';
+
+        // 4 Elbow Dots
+        svgContent += '<circle cx="' + leftLoopX + '" cy="210" r="5" fill="#ffffff"/>';
+        svgContent += '<circle cx="' + leftLoopX + '" cy="' + loopTopY + '" r="5" fill="#ffffff"/>';
+        svgContent += '<circle cx="' + rightLoopX + '" cy="' + loopTopY + '" r="5" fill="#ffffff"/>';
+        svgContent += '<circle cx="' + rightLoopX + '" cy="210" r="5" fill="#ffffff"/>';
+
+        // Loop Dimensions Dimension Callouts
+        svgContent += '<text x="' + loopMidX + '" y="' + (loopTopY - 12) + '" fill="#fbbf24" font-size="12" font-family="monospace" font-weight="700" text-anchor="middle">WIDTH W = ' + W_ft.toFixed(1) + ' FT</text>';
+        svgContent += '<text x="' + (leftLoopX - 12) + '" y="' + (loopTopY + 75) + '" fill="#fbbf24" font-size="12" font-family="monospace" font-weight="700" text-anchor="end">HEIGHT H = ' + H_ft.toFixed(1) + ' FT</text>';
+
+        // Expansion Motion Arrows (\Delta L pushing in)
+        svgContent += '<line x1="200" y1="230" x2="240" y2="230" stroke="#10b981" stroke-width="2.5"/>';
+        svgContent += '<polygon points="240,230 232,226 232,234" fill="#10b981"/>';
+        svgContent += '<line x1="600" y1="230" x2="560" y2="230" stroke="#10b981" stroke-width="2.5"/>';
+        svgContent += '<polygon points="560,230 568,226 568,234" fill="#10b981"/>';
+        svgContent += '<text x="400" y="240" fill="#34d399" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">&Delta;L = ' + deltaL.toFixed(2) + '" TOTAL THERMAL GROWTH ABSORBED</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyElSpec() {
+        var mat = document.getElementById('elMat').value;
+        var nps = document.getElementById('elNps').value;
+        var len = document.getElementById('elLength').value;
+        var deltaL = document.getElementById('outDeltaL').textContent;
+        var dims = document.getElementById('outLoopDims').textContent;
+        var dev = document.getElementById('outDevLen').textContent;
+        var fx = document.getElementById('outAnchorFx').textContent;
+        var g1 = document.getElementById('outG1').textContent;
+        var g2 = document.getElementById('outG2').textContent;
+        var cs = document.getElementById('outColdSpring').textContent;
+
+        var text = "=== PIPING THERMAL EXPANSION LOOP REPORT ===\n" +
+          "Material: " + mat.toUpperCase() + "\n" +
+          "Pipe Size: " + nps + "\" OD Schedule 40\n" +
+          "Distance Between Anchors: " + len + " ft\n" +
+          "Temperature Differential: " + document.getElementById('outDeltaT').textContent + "\n" +
+          "TOTAL LINEAR EXPANSION (&Delta;L): " + deltaL + " (" + document.getElementById('outDeltaRate').textContent + ")\n" +
+          "MINIMUM LOOP DIMENSIONS (W x H): " + dims + " (" + dev + ")\n" +
+          "ANCHOR THRUST LOAD (Fx): " + fx + "\n" +
+          "EJMA Guide Spacings: Guide 1 = " + g1 + "; Guide 2 = " + g2 + "\n" +
+          "Recommended Cold Spring: " + cs + "\n" +
+          "Standard: ASME B31.1 Power Piping & M.W. Kellogg Flexibility Model\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/pipe-expansion-loop-calculator)";
+
+        var btn = document.getElementById('copyElBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Expansion Loop Specs Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['elMat', 'elNps', 'elLength', 'elTinstall', 'elToper', 'elStress', 'elAspect'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcLoop);
+          el.addEventListener('change', calcLoop);
+        }
+      });
+
+      document.getElementById('copyElBtn').addEventListener('click', copyElSpec);
+
+      calcLoop();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'pipe-expansion-loop-calculator.html'), renderTradePage({
+    title: "Pipe Expansion Loop Calculator: ASME B31 Thermal Flex & Sizing | Digital Tools Shed",
+    metaDesc: "Calculate thermal linear growth (&Delta;L), minimum expansion U-loop dimensions (W x H), anchor thrust loads, and EJMA guide spacing per ASME B31.1 & B31.3.",
+    canonical: `${DOMAIN}/calc/pipe-expansion-loop-calculator`,
+    bodyContent: pipeExpansionLoopBody,
+    currentPath: '/calc/pipe-expansion-loop-calculator',
+    faq: [
+      {
+        "q": "What is a pipe thermal expansion loop and why is it required?",
+        "a": "Pipes expand when carrying hot fluids like steam or thermal oil. In a constrained straight run, expansion generates massive axial thrust that can crush anchors or buckle pipe racks. An expansion loop flexes like a giant U-spring, absorbing growth through elastic bending without exceeding ASME B31 allowable stress."
+      },
+      {
+        "q": "What is Cold Springing in piping construction?",
+        "a": "Cold springing involves pre-stretching an expansion loop during installation by roughly 50% of the calculated thermal expansion. When hot operating steam enters, the pipe expands and relaxes the pre-stress, cutting hot anchor forces and equipment nozzle reactions in half."
+      },
+      {
+        "q": "Why are alignment guides mandatory around expansion loops?",
+        "a": "Without alignment guides, straight pipe behaves like an Euler column under compressive stress and buckles sideways off hangers instead of pushing into the loop. EJMA mandates Guide 1 within 4 pipe diameters and Guide 2 within 14 pipe diameters on both sides of the loop."
+      },
+      {
+        "q": "How much more does Stainless Steel expand compared to Carbon Steel?",
+        "a": "Austenitic stainless steel (304/316) expands roughly 50% more than carbon steel (9.6 x 10⁻⁶ vs 6.5 x 10⁻⁶ in/(in·°F)). A 350°F steam line expanding 2.2 inches per 100 feet in carbon steel expands 3.2 inches per 100 feet in stainless steel."
+      },
+      {
+        "q": "What is the maximum allowable hanger rod swing angle?",
+        "a": "Under MSS SP-58, threaded hanger rods supporting expanding piping must not swing more than 4 degrees from true vertical. If thermal movement causes rods to exceed 4 degrees, roller chairs or variable spring hangers must be installed."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // ACCA MANUAL J RESIDENTIAL HEATING & COOLING BLOCK LOAD CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const manualJBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Manual J Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">ACCA Manual J Heating &amp; Cooling Load Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Perform room-by-room and whole-house block load calculations per ACCA Manual J 8th Edition: size HVAC heat pumps, air conditioners, and furnaces based on envelope conduction, fenestration solar heat gains, infiltration CFM, and sensible-to-latent ratios.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Building Envelope &amp; Design Temperatures
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mjSqFt">Conditioned Floor Area (Sq Ft)</label>
+          <input type="number" id="mjSqFt" value="2400" min="400" max="25000" step="100" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mjCeilH">Ceiling Height (Feet)</label>
+          <input type="number" id="mjCeilH" value="9.0" min="7.0" max="20.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+      </div>
+
+      <!-- DESIGN TEMPERATURES -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+        <div style="font-weight:600;font-size:0.85rem;margin-bottom:0.75rem;">Outdoor &amp; Indoor Design Temperatures (°F)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="mjToCool">Summer Outdoor 1% Dry Bulb</label>
+            <input type="number" id="mjToCool" value="95" min="75" max="120" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="mjTiCool">Summer Indoor Setpoint</label>
+            <input type="number" id="mjTiCool" value="75" min="68" max="80" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="mjToHeat">Winter Outdoor 99% Dry Bulb</label>
+            <input type="number" id="mjToHeat" value="10" min="-40" max="60" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="mjTiHeat">Winter Indoor Setpoint</label>
+            <input type="number" id="mjTiHeat" value="70" min="60" max="75" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          </div>
+        </div>
+      </div>
+
+      <!-- ENVELOPE R-VALUES -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mjWallR">Exterior Wall Insulation</label>
+          <select id="mjWallR" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="4">Uninsulated 2x4 (R-4)</option>
+            <option value="13">2x4 Frame + R-13 Fiberglass</option>
+            <option value="19" selected>2x6 Frame + R-19 / R-21</option>
+            <option value="25">2x6 + R-20 + 1" Foam (R-25)</option>
+            <option value="35">Advanced Double-Stud (R-35)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mjAtticR">Attic / Ceiling Insulation</label>
+          <select id="mjAtticR" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="11">Old Pre-1980 Attic (R-11)</option>
+            <option value="30">Standard Attic (R-30)</option>
+            <option value="38" selected>Code Compliant Attic (R-38)</option>
+            <option value="49">Cold Climate Attic (R-49)</option>
+            <option value="60">High-Performance Attic (R-60)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- WINDOW GLAZING & SOLAR -->
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.35rem;" for="mjGlassArea">Window Area (Sq Ft)</label>
+          <input type="number" id="mjGlassArea" value="320" min="50" max="3000" step="20" style="width:100%;padding:0.5rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.35rem;" for="mjGlassU">Window U-Factor</label>
+          <input type="number" id="mjGlassU" value="0.30" min="0.15" max="1.20" step="0.02" style="width:100%;padding:0.5rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.35rem;" for="mjShgc">Window SHGC</label>
+          <input type="number" id="mjShgc" value="0.25" min="0.15" max="0.75" step="0.02" style="width:100%;padding:0.5rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        </div>
+      </div>
+
+      <!-- INFILTRATION & OCCUPANTS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mjAch50">Airtightness (ACH50)</label>
+          <select id="mjAch50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.0">Passive House / Tight (&le; 1.0 ACH50)</option>
+            <option value="3.0" selected>Modern IECC 2021 Code (3.0 ACH50)</option>
+            <option value="5.0">Standard Construction (5.0 ACH50)</option>
+            <option value="8.0">Older Leaky Home (8.0 ACH50)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mjOccupants">Occupant Count</label>
+          <input type="number" id="mjOccupants" value="4" min="1" max="25" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+      </div>
+
+      <button id="copyMjBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Manual J Sizing Schedule</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          ACCA Manual J Sizing Determination
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Total Cooling Load</div>
+            <div id="outCoolBtu" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">23,850 BTU/h</div>
+            <div id="outTons" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">Select 2.0 Ton Heat Pump / AC</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Total Heating Load</div>
+            <div id="outHeatBtu" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">24,620 BTU/h</div>
+            <div id="outHeatKbtu" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">24.6 kBtu/h Output Capacity</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Sensible Heat Ratio</div>
+            <div id="outShr" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">0.91 SHR</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Dry cooling fraction</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Latent Moisture</div>
+            <div id="outLatent" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">2,150 BTU/h</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Dehumidification load</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Natural Infiltration</div>
+            <div id="outInfilCfm" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">54 CFM</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Envelope draft rate</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Rule of Thumb Contrast</div>
+            <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#ef4444;">5.0 Tons (Oversized!)</div>
+            <div style="font-size:0.7rem;color:#ef4444;">Obsolete 500 sq ft/ton rule</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Supply Air Volume</div>
+            <div id="outSupplyCfm" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">800 CFM</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">400 CFM per nominal ton</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOAD COMPONENT BREAKDOWN CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Cooling Heat Gain Distribution (Where the Heat Enters)
+        </h3>
+
+        <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
+              <span>Windows (Conduction + Solar SHGC):</span>
+              <span id="pctGlass" style="font-family:var(--mono);font-weight:600;">38.5%</span>
+            </div>
+            <div style="width:100%;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+              <div id="barGlass" style="width:38.5%;height:100%;background:#f59e0b;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
+              <span>Ceiling / Attic Heat Conduction:</span>
+              <span id="pctAttic" style="font-family:var(--mono);font-weight:600;">24.2%</span>
+            </div>
+            <div style="width:100%;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+              <div id="barAttic" style="width:24.2%;height:100%;background:#ef4444;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
+              <span>Internal Loads (People &amp; Appliances):</span>
+              <span id="pctInternal" style="font-family:var(--mono);font-weight:600;">21.0%</span>
+            </div>
+            <div style="width:100%;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+              <div id="barInternal" style="width:21.0%;height:100%;background:#10b981;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
+              <span>Exterior Walls &amp; Infiltration:</span>
+              <span id="pctWalls" style="font-family:var(--mono);font-weight:600;">16.3%</span>
+            </div>
+            <div style="width:100%;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+              <div id="barWalls" style="width:16.3%;height:100%;background:#38bdf8;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE HOUSE ENVELOPE & SOLAR VECTORS (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        House Thermal Envelope Heat Flux &amp; Solar Gain Model
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Conduction &amp; Solar Simulation
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="houseSvg" viewBox="0 0 800 320" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: MANUAL J VS RULE OF THUMB -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Manual J Load vs Obsolete "500 Sq Ft / Ton" Rule of Thumb</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Home Size</th>
+            <th style="padding:0.6rem 0.75rem;">Obsolete Rule of Thumb</th>
+            <th style="padding:0.6rem 0.75rem;">Manual J (Code Home)</th>
+            <th style="padding:0.6rem 0.75rem;">Manual J (High Performance)</th>
+            <th style="padding:0.6rem 0.75rem;">Oversizing Risk / Impact</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);"><td>1,500 Sq Ft</td><td>3.0 Tons (36 kBtu)</td><td>1.5 Tons (18 kBtu)</td><td>1.0 Ton (12 kBtu)</td><td>Short cycles every 6 minutes</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>2,000 Sq Ft</td><td>4.0 Tons (48 kBtu)</td><td>2.0 Tons (24 kBtu)</td><td>1.5 Tons (18 kBtu)</td><td>Fails to dehumidify (&gt;65% RH)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;"><td>2,500 Sq Ft</td><td>5.0 Tons (60 kBtu)</td><td>2.5 Tons (30 kBtu)</td><td>2.0 Tons (24 kBtu)</td><td>Cold, clammy indoor comfort</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>3,000 Sq Ft</td><td>6.0 Tons (Two units)</td><td>3.0 Tons (36 kBtu)</td><td>2.5 Tons (30 kBtu)</td><td>High electrical spike &amp; noise</td></tr>
+          <tr><td>3,500 Sq Ft</td><td>7.0 Tons (84 kBtu)</td><td>3.5 Tons (42 kBtu)</td><td>3.0 Tons (36 kBtu)</td><td>Premature compressor failure</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">ACCA Manual J Component Equations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Opaque Conduction &amp; Glazing Solar Gains:</strong><br>
+        $$Q_{\text{walls}} = A_{\text{net}} \times \frac{1}{R_{\text{wall}}} \times \Delta T = <span id="mWallA">1,800</span> \times \frac{1}{<span id="mRw">19</span>} \times <span id="mDtc">20</span> = \mathbf{<span id="mQwall">1,895</span> \text{ BTU/h}}$$
+        $$Q_{\text{glass}} = A_{\text{glass}} \times \left( U \cdot \Delta T + \text{SHGC} \cdot I_{\text{solar}} \right) = <span id="mGlassA">320</span> \times \left( (<span id="mGu">0.30</span> \times 20) + (<span id="mShgc">0.25</span> \times 80) \right) = \mathbf{<span id="mQglass">8,320</span> \text{ BTU/h}}$$
+      </p>
+
+      <p>
+        <strong>2. Air Infiltration Heat Load:</strong><br>
+        Using Lawrence Berkeley National Laboratory (LBNL) conversion factor $N \approx 20$:
+        $$\text{CFM}_{\text{natural}} = \frac{V_{\text{house}} \times \text{ACH50}}{20 \times 60} = \frac{<span id="mVol">21,600</span> \times <span id="mAch">3.0</span>}{1,200} = \mathbf{<span id="mInfilCfm">54</span> \text{ CFM}}$$
+        $$Q_{\text{sensible, infil}} = 1.08 \times \text{CFM} \times \Delta T = 1.08 \times 54 \times 20 = \mathbf{<span id="mQsensInfil">1,166</span> \text{ BTU/h}}$$
+      </p>
+
+      <p>
+        <strong>3. Total Sizing &amp; Tonnage:</strong><br>
+        $$Q_{\text{total}} = Q_{\text{sensible}} + Q_{\text{latent}} = <span id="mTotSens">21,700</span> + <span id="mTotLat">2,150</span> = \mathbf{<span id="mTotCool">23,850</span> \text{ BTU/h}}$$
+        $$\text{Tonnage} = \frac{23,850}{12,000 \text{ BTU/ton}} = \mathbf{<span id="mRawTons">1.99</span> \text{ Tons}} \quad (\text{Select 2.0 Ton Unit})$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & MANUAL J SIZING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; HVAC Sizing Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: The "500 Sq Ft Per Ton" Rule-of-Thumb Oversizing Disaster</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          The obsolete rule of thumb "1 ton per 500 square feet" originated in the 1970s when homes were built with single-pane windows, uninsulated 2x4 walls, and massive air leakage. Applying this rule to a modern 2,500 sq ft home results in a <strong>5-ton air conditioner</strong> when a true Manual J calculation proves only <strong>2.5 tons</strong> is needed! An oversized system satisfies the thermostat in 7 minutes and shuts off before it can condense airborne moisture, leaving indoor relative humidity above 65%, creating cold clammy air, dust mites, and toxic black mold growth.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Neglecting Solar Heat Gain Coefficient (SHGC)</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Windows account for over 35% of peak residential cooling loads. A clear single-pane window has an SHGC of 0.75, transmitting 75% of solar radiation directly into living spaces. Modern Low-E vinyl windows feature an SHGC of 0.22. Sizing equipment without verifying window NFRC ratings will miss thousands of BTUs of radiant solar heat on west-facing master bedrooms, causing upstairs zones to run 10°F hotter than downstairs every afternoon.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Unsealed Attic Duct Leakage Multiplying Infiltration</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When HVAC ductwork is located in an unconditioned 140°F attic, a 15% return duct leakage rate draws superheated attic air directly into the air handler return plenum. This can double the sensible cooling load and overwhelm the evaporator coil. In winter, leaky supply ducts pressurize the attic, blowing conditioned heat outdoors while pulling freezing air into wall cavities. Duct leakage must be tested and sealed with mastic before finalizing equipment size.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Oversizing Furnaces Leading to Heat Exchanger Thermal Stress</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Contractors frequently install 100,000 or 120,000 BTU gas furnaces in homes that require only 40,000 BTU of heating. When a massive burner fires into ductwork sized for low airflow, the primary heat exchanger overheats rapidly, tripping high-limit safety switches. The repeated severe thermal expansion and contraction cycles cause the stamped steel clamshell heat exchanger to crack along its weld seams within 7 to 10 years, leaking Carbon Monoxide into the supply airstream.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: High Static Pressure Duct Choking When Up-Sizing Tonnage</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When a homeowner complains that their 3-ton AC isn't cooling properly, unscrupulous contractors often replace it with a 4-ton or 5-ton system without touching the existing ductwork. A 5-ton unit requires 2,000 CFM of airflow ($400\text{ CFM/ton}$). Trying to force 2,000 CFM through ductwork built for 1,200 CFM spikes external static pressure to over 1.0" w.g., burning out ECM blower motors, creating roaring wind noise, and freezing the coil into a solid block of ice.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Manual J Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is an ACCA Manual J load calculation?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Manual J is the official national standard developed by the Air Conditioning Contractors of America (ACCA) and mandated by building codes (IRC/IECC) to calculate the precise heating and cooling BTUs a home loses and gains. It accounts for wall R-values, window orientations, solar heat gain, ceiling insulation, air infiltration, and internal appliance loads to correctly size HVAC equipment.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why is an oversized air conditioner worse than an undersized one?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        An air conditioner has two jobs: lowering air temperature (sensible cooling) and removing humidity (latent cooling). Dehumidification requires warm air to blow across a cold coil for at least 15 to 20 minutes. An oversized AC cools the room in 5 to 7 minutes and shuts off before it can remove moisture, leaving indoor air feeling like a damp, clammy basement.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is Sensible Heat Ratio (SHR)?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        SHR is the fraction of total cooling load dedicated to lowering dry-bulb temperature: $\text{SHR} = Q_{\text{sensible}} / Q_{\text{total}}$. A typical home has an SHR around 0.75 to 0.85 (meaning 75% to 85% sensible temperature drop and 15% to 25% moisture removal). In humid marine climates, SHR can drop to 0.65, requiring specialized variable-speed blower profiles or dedicated dehumidifiers.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the difference between Manual J, Manual S, and Manual D?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        The ACCA design suite consists of three sequential protocols:
+        <ul>
+          <li><strong>Manual J:</strong> Calculates the thermal heating and cooling load (BTU/hr) of the building.</li>
+          <li><strong>Manual S:</strong> Selects specific manufacturer equipment that matches the Manual J sensible and latent capacities.</li>
+          <li><strong>Manual D:</strong> Designs the ductwork distribution system (CFM and friction rate) to deliver proper airflow to every room.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How many CFM of airflow is required per ton of air conditioning?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Under standard residential design, air conditioning systems require <strong>400 CFM of airflow per nominal ton of cooling</strong>. A 2.0-ton system requires 800 CFM; a 3.0-ton system requires 1,200 CFM. In ultra-humid climates, airflow can be lowered to 350 CFM/ton to make the coil colder for enhanced moisture removal; in dry desert climates, airflow can be increased to 450 CFM/ton.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      function calcManualJ() {
+        var sqft = parseFloat(document.getElementById('mjSqFt').value) || 2400;
+        var ceilH = parseFloat(document.getElementById('mjCeilH').value) || 9.0;
+        var toCool = parseFloat(document.getElementById('mjToCool').value) || 95;
+        var tiCool = parseFloat(document.getElementById('mjTiCool').value) || 75;
+        var toHeat = parseFloat(document.getElementById('mjToHeat').value) || 10;
+        var tiHeat = parseFloat(document.getElementById('mjTiHeat').value) || 70;
+        var rWall = parseFloat(document.getElementById('mjWallR').value) || 19;
+        var rAttic = parseFloat(document.getElementById('mjAtticR').value) || 38;
+        var glassArea = parseFloat(document.getElementById('mjGlassArea').value) || 320;
+        var glassU = parseFloat(document.getElementById('mjGlassU').value) || 0.30;
+        var shgc = parseFloat(document.getElementById('mjShgc').value) || 0.25;
+        var ach50 = parseFloat(document.getElementById('mjAch50').value) || 3.0;
+        var occ = parseFloat(document.getElementById('mjOccupants').value) || 4;
+
+        var volCuFt = sqft * ceilH;
+        var dTc = Math.max(1, toCool - tiCool);
+        var dTh = Math.max(1, tiHeat - toHeat);
+
+        // Approximate net exterior wall area: Perimeter approx 4 * sqrt(sqft) * ceilH - glassArea
+        var perimApprox = 4 * Math.sqrt(sqft);
+        var grossWallArea = perimApprox * ceilH;
+        var netWallArea = Math.max(200, grossWallArea - glassArea);
+
+        // 1. Opaque Wall Conduction
+        var qWallCool = netWallArea * (1 / rWall) * dTc;
+        var qWallHeat = netWallArea * (1 / rWall) * dTh;
+
+        // 2. Ceiling / Attic Conduction (Attic deltaT is higher due to solar roof baking: dTc + 25)
+        var qAtticCool = sqft * (1 / rAttic) * (dTc + 25);
+        var qAtticHeat = sqft * (1 / rAttic) * dTh;
+
+        // 3. Fenestration (Windows: Conduction + Solar Gain)
+        var qGlassCond = glassArea * glassU * dTc;
+        var qGlassSolar = glassArea * shgc * 80; // avg 80 BTU/hr-sqft solar intensity
+        var qGlassCool = qGlassCond + qGlassSolar;
+        var qGlassHeat = glassArea * glassU * dTh;
+
+        // 4. Infiltration (LBNL N=20 factor)
+        var infilCfm = (volCuFt * ach50) / (20 * 60);
+        var qInfilSensCool = 1.08 * infilCfm * dTc;
+        var qInfilLatCool = qInfilSensCool * 0.35; // summer latent infiltration
+        var qInfilHeat = 1.08 * infilCfm * dTh;
+
+        // 5. Internal Loads
+        var qPeopleSens = occ * 230;
+        var qPeopleLat = occ * 200;
+        var qAppSens = 1200 * 3.412; // 1.2 kW base appliances = ~4,094 BTU/h
+
+        // Totals
+        var totalSensCool = qWallCool + qAtticCool + qGlassCool + qInfilSensCool + qPeopleSens + qAppSens;
+        var totalLatCool = qInfilLatCool + qPeopleLat;
+        var totalCoolBtu = totalSensCool + totalLatCool;
+        var rawTons = totalCoolBtu / 12000;
+
+        // Round to nearest 0.5 ton
+        var nomTons = Math.max(1.5, Math.ceil(rawTons * 2) / 2);
+        var supplyCfm = nomTons * 400;
+        var shr = totalSensCool / totalCoolBtu;
+
+        var totalHeatBtu = qWallHeat + qAtticHeat + qGlassHeat + qInfilHeat;
+
+        // Percentages for bar chart
+        var pctG = (qGlassCool / totalCoolBtu) * 100;
+        var pctA = (qAtticCool / totalCoolBtu) * 100;
+        var pctI = ((qPeopleSens + qPeopleLat + qAppSens) / totalCoolBtu) * 100;
+        var pctW = ((qWallCool + qInfilSensCool + qInfilLatCool) / totalCoolBtu) * 100;
+
+        // Update DOM
+        document.getElementById('outCoolBtu').textContent = Math.round(totalCoolBtu).toLocaleString() + ' BTU/h';
+        document.getElementById('outTons').textContent = 'Select ' + nomTons.toFixed(1) + ' Ton Heat Pump / AC (' + Math.round(rawTons * 10) / 10 + ' Tons Raw)';
+        document.getElementById('outHeatBtu').textContent = Math.round(totalHeatBtu).toLocaleString() + ' BTU/h';
+        document.getElementById('outHeatKbtu').textContent = (totalHeatBtu / 1000).toFixed(1) + ' kBtu/h Output Needed';
+        document.getElementById('outShr').textContent = shr.toFixed(2) + ' SHR';
+        document.getElementById('outLatent').textContent = Math.round(totalLatCool).toLocaleString() + ' BTU/h';
+        document.getElementById('outInfilCfm').textContent = Math.round(infilCfm) + ' CFM';
+        document.getElementById('outSupplyCfm').textContent = supplyCfm + ' CFM';
+
+        document.getElementById('pctGlass').textContent = pctG.toFixed(1) + '%';
+        document.getElementById('barGlass').style.width = pctG.toFixed(1) + '%';
+        document.getElementById('pctAttic').textContent = pctA.toFixed(1) + '%';
+        document.getElementById('barAttic').style.width = pctA.toFixed(1) + '%';
+        document.getElementById('pctInternal').textContent = pctI.toFixed(1) + '%';
+        document.getElementById('barInternal').style.width = pctI.toFixed(1) + '%';
+        document.getElementById('pctWalls').textContent = pctW.toFixed(1) + '%';
+        document.getElementById('barWalls').style.width = pctW.toFixed(1) + '%';
+
+        // Update Math Derivations
+        document.getElementById('mWallA').textContent = Math.round(netWallArea).toLocaleString();
+        document.getElementById('mRw').textContent = rWall;
+        document.getElementById('mDtc').textContent = dTc;
+        document.getElementById('mQwall').textContent = Math.round(qWallCool).toLocaleString();
+        document.getElementById('mGlassA').textContent = glassArea;
+        document.getElementById('mGu').textContent = glassU.toFixed(2);
+        document.getElementById('mShgc').textContent = shgc.toFixed(2);
+        document.getElementById('mQglass').textContent = Math.round(qGlassCool).toLocaleString();
+        document.getElementById('mVol').textContent = Math.round(volCuFt).toLocaleString();
+        document.getElementById('mAch').textContent = ach50.toFixed(1);
+        document.getElementById('mInfilCfm').textContent = Math.round(infilCfm);
+        document.getElementById('mQsensInfil').textContent = Math.round(qInfilSensCool).toLocaleString();
+        document.getElementById('mTotSens').textContent = Math.round(totalSensCool).toLocaleString();
+        document.getElementById('mTotLat').textContent = Math.round(totalLatCool).toLocaleString();
+        document.getElementById('mTotCool').textContent = Math.round(totalCoolBtu).toLocaleString();
+        document.getElementById('mRawTons').textContent = rawTons.toFixed(2);
+
+        drawHouseSvg(nomTons, totalCoolBtu, totalHeatBtu, pctG, pctA);
+      }
+
+      function drawHouseSvg(tons, coolBtu, heatBtu, pctG, pctA) {
+        var svg = document.getElementById('houseSvg');
+        var svgContent = '';
+
+        // Viewport: 800 x 320
+        svgContent += '<rect width="800" height="320" fill="#0f172a"/>';
+
+        // Ground Line
+        svgContent += '<line x1="40" y1="280" x2="760" y2="280" stroke="#78716c" stroke-width="4"/>';
+
+        // House Framing & Roof
+        svgContent += '<polygon points="400,40 220,120 580,120" fill="#334155" stroke="#64748b" stroke-width="3"/>'; // Roof
+        svgContent += '<rect x="240" y="120" width="320" height="160" fill="#1e293b" stroke="#64748b" stroke-width="3"/>'; // Main Box
+
+        // Attic Space Fill
+        svgContent += '<polygon points="400,50 235,118 565,118" fill="#ef4444" opacity="0.3"/>';
+        svgContent += '<text x="400" y="95" fill="#fca5a5" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">ATTIC HEAT: ' + pctA.toFixed(0) + '% OF LOAD</text>';
+
+        // Windows with Solar Vectors
+        svgContent += '<rect x="270" y="150" width="50" height="60" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>';
+        svgContent += '<rect x="480" y="150" width="50" height="60" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>';
+
+        // Solar Sun & Rays (Top Right)
+        svgContent += '<circle cx="680" cy="50" r="25" fill="#f59e0b"/>';
+        svgContent += '<line x1="655" y1="65" x2="530" y2="150" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="4,2"/>';
+        svgContent += '<polygon points="530,150 538,145 538,155" fill="#fbbf24"/>';
+        svgContent += '<text x="630" y="115" fill="#fde68a" font-size="10" font-family="monospace">SOLAR GAIN (SHGC): ' + pctG.toFixed(0) + '%</text>';
+
+        // Heat Pump Outdoor Condenser Unit
+        svgContent += '<rect x="620" y="225" width="55" height="55" fill="#0f172a" stroke="#10b981" stroke-width="2" rx="4"/>';
+        svgContent += '<circle cx="647" cy="252" r="18" fill="#10b981" opacity="0.2"/>';
+        svgContent += '<text x="647" y="256" fill="#34d399" font-size="10" font-family="monospace" font-weight="700" text-anchor="middle">' + tons.toFixed(1) + 'T</text>';
+        svgContent += '<text x="647" y="295" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">HEAT PUMP</text>';
+
+        // Refrigerant Line Set into house
+        svgContent += '<path d="M620 250 L560 250" stroke="#10b981" stroke-width="3" fill="none"/>';
+
+        // Interior Comfort Cloud & CFM
+        svgContent += '<text x="400" y="180" fill="#f8fafc" font-size="15" font-weight="700" text-anchor="middle">MANUAL J SIZED: ' + tons.toFixed(1) + ' TONS</text>';
+        svgContent += '<text x="400" y="202" fill="#38bdf8" font-size="12" font-family="monospace" text-anchor="middle">Cooling: ' + Math.round(coolBtu).toLocaleString() + ' BTU/h</text>';
+        svgContent += '<text x="400" y="220" fill="#f87171" font-size="12" font-family="monospace" text-anchor="middle">Heating: ' + Math.round(heatBtu).toLocaleString() + ' BTU/h</text>';
+
+        // Infiltration air arrows under door
+        svgContent += '<line x1="210" y1="275" x2="250" y2="275" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3,3"/>';
+        svgContent += '<polygon points="250,275 244,272 244,278" fill="#38bdf8"/>';
+        svgContent += '<text x="195" y="268" fill="#93c5fd" font-size="9" font-family="monospace">Drafts</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyMjSpec() {
+        var sqft = document.getElementById('mjSqFt').value;
+        var coolBtu = document.getElementById('outCoolBtu').textContent;
+        var tons = document.getElementById('outTons').textContent;
+        var heatBtu = document.getElementById('outHeatBtu').textContent;
+        var shr = document.getElementById('outShr').textContent;
+        var latent = document.getElementById('outLatent').textContent;
+        var cfm = document.getElementById('outSupplyCfm').textContent;
+        var infil = document.getElementById('outInfilCfm').textContent;
+
+        var text = "=== ACCA MANUAL J HEATING & COOLING BLOCK LOAD REPORT ===\n" +
+          "Conditioned Floor Area: " + sqft + " sq ft (" + document.getElementById('mjCeilH').value + "' ceiling)\n" +
+          "Design Temperatures: Summer " + document.getElementById('mjToCool').value + "°F / " + document.getElementById('mjTiCool').value + "°F; Winter " + document.getElementById('mjToHeat').value + "°F / " + document.getElementById('mjTiHeat').value + "°F\n" +
+          "TOTAL COOLING LOAD: " + coolBtu + " (" + tons + ")\n" +
+          "TOTAL HEATING LOAD: " + heatBtu + "\n" +
+          "Sensible Heat Ratio (SHR): " + shr + " (Latent Moisture: " + latent + ")\n" +
+          "Required Supply Airflow: " + cfm + " (Natural Infiltration: " + infil + ")\n" +
+          "Envelope Specs: Wall R-" + document.getElementById('mjWallR').value + "; Attic R-" + document.getElementById('mjAtticR').value + "; Glass U-" + document.getElementById('mjGlassU').value + " (SHGC " + document.getElementById('mjShgc').value + ")\n" +
+          "Governing Standard: ACCA Manual J 8th Edition & ANSI/ACCA 2 Manual J-2016\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/cooling-load-manual-j-calculator)";
+
+        var btn = document.getElementById('copyMjBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Manual J Schedule Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['mjSqFt', 'mjCeilH', 'mjToCool', 'mjTiCool', 'mjToHeat', 'mjTiHeat', 'mjWallR', 'mjAtticR', 'mjGlassArea', 'mjGlassU', 'mjShgc', 'mjAch50', 'mjOccupants'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcManualJ);
+          el.addEventListener('change', calcManualJ);
+        }
+      });
+
+      document.getElementById('copyMjBtn').addEventListener('click', copyMjSpec);
+
+      calcManualJ();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'cooling-load-manual-j-calculator.html'), renderTradePage({
+    title: "ACCA Manual J Calculator: HVAC Heating & Cooling Load | Digital Tools Shed",
+    metaDesc: "Perform ACCA Manual J 8th Edition residential load calculations: determine exact AC & heat pump tonnage, heating BTUs, sensible heat ratio, and infiltration CFM.",
+    canonical: `${DOMAIN}/calc/cooling-load-manual-j-calculator`,
+    bodyContent: manualJBody,
+    currentPath: '/calc/cooling-load-manual-j-calculator',
+    faq: [
+      {
+        "q": "What is an ACCA Manual J load calculation?",
+        "a": "Manual J is the ANSI-recognized national standard developed by the Air Conditioning Contractors of America (ACCA) to calculate exact room-by-room heating and cooling BTUs. It accounts for wall insulation, window SHGC, attic heat, and air infiltration to size equipment precisely."
+      },
+      {
+        "q": "Why is the 500 sq ft per ton rule of thumb bad for home HVAC?",
+        "a": "The 500 sq ft per ton rule was created in the 1970s for drafty, uninsulated homes. Applying it to modern code-built homes results in a 4 or 5-ton system when only 2 or 2.5 tons is needed. Oversized units short-cycle, failing to dehumidify, and fostering indoor mold."
+      },
+      {
+        "q": "What is Sensible Heat Ratio (SHR)?",
+        "a": "Sensible Heat Ratio (SHR) is the proportion of cooling power devoted to lowering air temperature versus removing humidity. A home with 0.85 SHR requires 85% sensible temperature drop and 15% latent moisture condensation."
+      },
+      {
+        "q": "How does window Solar Heat Gain Coefficient (SHGC) affect cooling?",
+        "a": "Windows represent over 35% of peak cooling loads. Standard clear glass transmits 75% of solar radiation (SHGC 0.75), whereas modern Low-E vinyl windows block over 75% of solar radiation (SHGC 0.22), reducing cooling equipment tonnage significantly."
+      },
+      {
+        "q": "How many CFM of supply airflow is needed per ton of cooling?",
+        "a": "Standard residential air conditioning systems require 400 CFM of airflow per nominal ton of cooling. A 2.0-ton heat pump requires 800 CFM; a 3.0-ton unit requires 1,200 CFM."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ASME B16.5 & PCC-1 FLANGE BOLT TORQUE, PRELOAD & TIGHTENING SEQUENCE CALCULATOR
+  // ═══════════════════════════════════════════════════════════════════════════
+  const flangeBoltTorqueBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Flange Bolt Torque Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">ASME B16.5 Flange Bolt Torque &amp; Tightening Sequence Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate stud bolt torque (ft-lbs &amp; N&middot;m), target clamping preload, and gasket seating stress across ASME B16.5 Class 150 to 2500 flanges per ASME PCC-1. Includes nut friction factors, bolt yield limits, and 4-pass cross-pattern star tightening sequence schedules.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
+        Flange &amp; Fastener Specifications
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flangeClass">Flange Pressure Class</label>
+          <select id="flangeClass" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="150" selected>Class 150 #</option>
+            <option value="300">Class 300 #</option>
+            <option value="600">Class 600 #</option>
+            <option value="900">Class 900 #</option>
+            <option value="1500">Class 1500 #</option>
+            <option value="2500">Class 2500 #</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pipeSize">Nominal Pipe Size (NPS)</label>
+          <select id="pipeSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.5">1/2" NPS</option>
+            <option value="0.75">3/4" NPS</option>
+            <option value="1">1" NPS</option>
+            <option value="1.25">1-1/4" NPS</option>
+            <option value="1.5">1-1/2" NPS</option>
+            <option value="2">2" NPS</option>
+            <option value="2.5">2-1/2" NPS</option>
+            <option value="3">3" NPS</option>
+            <option value="4" selected>4" NPS</option>
+            <option value="6">6" NPS</option>
+            <option value="8">8" NPS</option>
+            <option value="10">10" NPS</option>
+            <option value="12">12" NPS</option>
+            <option value="14">14" NPS</option>
+            <option value="16">16" NPS</option>
+            <option value="18">18" NPS</option>
+            <option value="20">20" NPS</option>
+            <option value="24">24" NPS</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="studGrade">Stud Material / Grade</label>
+          <select id="studGrade" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="b7" selected>ASTM A193 B7 (105 ksi Yield)</option>
+            <option value="b16">ASTM A193 B16 (105 ksi High-Temp)</option>
+            <option value="l7">ASTM A320 L7 (105 ksi Low-Temp)</option>
+            <option value="b8_cl2">ASTM A193 B8 Cl.2 (95 ksi 304 SS)</option>
+            <option value="b8m_cl2">ASTM A193 B8M Cl.2 (95 ksi 316 SS)</option>
+            <option value="b8_cl1">ASTM A193 B8 Cl.1 (30 ksi Annealed)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boltStressTarget">Target Bolt Stress (% Yield)</label>
+          <select id="boltStressTarget" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0.30">30% Yield (Low Seating)</option>
+            <option value="0.40">40% Yield (Moderate Duty)</option>
+            <option value="0.50" selected>50% Yield (ASME PCC-1 Standard)</option>
+            <option value="0.60">60% Yield (High Pressure / Spiral)</option>
+            <option value="0.70">70% Yield (Severe Service Max)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="lubricantK">Nut Factor / Lubricant (K)</label>
+          <select id="lubricantK" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0.12">K = 0.12 (Fluoropolymer / PTFE Coating)</option>
+            <option value="0.15" selected>K = 0.15 (Moly / Nickel Anti-Seize Paste)</option>
+            <option value="0.18">K = 0.18 (Light Machine Oil / Clean Lube)</option>
+            <option value="0.20">K = 0.20 (Dry As-Received Commercial Steel)</option>
+            <option value="0.25">K = 0.25 (Rusted, Degreased, or Weathered)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gasketType">Gasket Style</label>
+          <select id="gasketType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="spiral_wound" selected>Spiral Wound with Inner/Outer Rings</option>
+            <option value="kammprofile">Kammprofile (Grooved Metal w/ Facing)</option>
+            <option value="ptfe">Expanded PTFE (ePTFE / Tealon)</option>
+            <option value="cnaf">Compressed Non-Asbestos Fiber (CNAF)</option>
+            <option value="ring_joint">RTJ (Metallic Ring Type Joint)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Bolt Count: <strong id="lblBoltCount" style="color:var(--fg);">8 studs</strong></div>
+          <div>Bolt Diameter: <strong id="lblBoltDia" style="color:var(--fg);">5/8"-11 UNC</strong></div>
+          <div>Bolt Circle: <strong id="lblBoltCircle" style="color:var(--fg);">7.50 in</strong></div>
+          <div>Wrench / Nut Size: <strong id="lblWrenchSize" style="color:var(--fg);">1-1/16 in</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Recommended Final Target Torque</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resTorqueFtLbs">106</span> <span style="font-size:1.25rem;font-weight:500;">ft-lbs</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.15rem;color:var(--text-muted);margin-top:0.25rem;">
+              <span id="resTorqueNm">144</span> N&middot;m &nbsp;|&nbsp; <span id="resTorqueInLbs">1,272</span> in-lbs
+            </div>
+          </div>
+          <span id="badgeYield" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">50% YIELD SAFE</span>
+        </div>
+
+        <!-- 4-PASS TORQUING STAGES TABLE -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;">
+          <h3 style="font-size:0.95rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">ASME PCC-1 4-Pass Torquing Schedule</h3>
+          <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:0.5rem;text-align:center;">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">PASS 1 (30%)</div>
+              <div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--fg);margin-top:0.25rem;" id="resPass1">32</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">ft-lbs (Star)</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">PASS 2 (60%)</div>
+              <div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--fg);margin-top:0.25rem;" id="resPass2">64</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">ft-lbs (Star)</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">PASS 3 (100%)</div>
+              <div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--primary);margin-top:0.25rem;" id="resPass3">106</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">ft-lbs (Star)</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">PASS 4 (100%)</div>
+              <div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--primary);margin-top:0.25rem;" id="resPass4">106</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">ft-lbs (Circular)</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;border-top:1px solid var(--border);padding-top:1.25rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Stud Bolt Preload (Per Bolt)</span>
+            <span id="resBoltPreload" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);">11,865 lbf</span>
+            <span id="resBoltStress" style="font-size:0.75rem;color:var(--text-muted);display:block;">52,500 PSI Bolt Stress</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Estimated Gasket Seating Stress</span>
+            <span id="resGasketStress" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);">12,410 PSI</span>
+            <span id="resGasketStatus" style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">✓ Ideal Seating Stress</span>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">Tightening Star Pattern Order:</span>
+            <strong id="resStarPattern" style="font-family:var(--mono);color:var(--primary);">1 - 5 - 3 - 7 - 2 - 6 - 4 - 8</strong>
+          </div>
+          <div style="color:var(--text-muted);font-size:0.75rem;">Follow opposite cross-bolt pattern on passes 1 to 3, then clockwise circular rotation on pass 4.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Flange Torquing Schedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE ASME B16.5 FLANGE FACE & BOLT STAR TIGHTENING PATTERN SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 12l5-5"/></svg>
+      Interactive Flange Face &amp; Star-Pattern Bolting Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live ASME B16.5 flange geometry showing bolt circle PCD, raised face gasket zone, numbered star tightening sequence path, and wrench clearance.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="flangeSvgContainer" style="width:100%;max-width:680px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: Torque, Preload &amp; Flange Sealing</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        The integrity of a bolted flange joint is governed by achieving sufficient compressive contact stress across the gasket seating face without exceeding the yield strength of the stud bolts or crushing the gasket material. The fundamental relationship between applied wrench torque and axial bolt clamping force is defined by the classical short-form torque equation:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        T = (K &middot; F<sub>preload</sub> &middot; d<sub>b</sub>) / 12 &nbsp;&nbsp;[ft-lbs]
+      </div>
+      <p>Where:</p>
+      <ul style="padding-left:1.5rem;margin-bottom:1rem;">
+        <li><strong>T</strong> = Applied tightening torque in foot-pounds (ft-lbs).</li>
+        <li><strong>K</strong> = Nut friction factor (torque coefficient), combining thread friction, under-head nut bearing friction, and pitch lead angle. Recommended values range from <strong>0.12</strong> for PTFE coating, <strong>0.15</strong> for moly anti-seize paste, to <strong>0.20</strong> for dry steel.</li>
+        <li><strong>F<sub>preload</sub></strong> = Target bolt tensile clamping force (lbf), calculated as \( F = \sigma_b \times A_s \), where \( \sigma_b \) is target bolt stress and \( A_s \) is the tensile stress area.</li>
+        <li><strong>d<sub>b</sub></strong> = Nominal stud outer diameter in inches.</li>
+      </ul>
+      <p>
+        Tensile stress area \( A_s \) for unified inch screw threads (UNC and 8-UN series) is computed per ASME B1.1:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:0.95rem;text-align:center;">
+        A<sub>s</sub> = 0.7854 &times; [ d<sub>b</sub> - (0.9743 / n) ]<sup>2</sup>
+      </div>
+      <p>
+        Total clamping force exerted by all \( N \) bolts compresses the gasket contact area:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:0.95rem;text-align:center;">
+        S<sub>gasket</sub> = (N<sub>bolts</sub> &times; F<sub>preload</sub>) / A<sub>gasket</sub> &nbsp;&nbsp;[PSI]
+      </div>
+      <p>
+        Per ASME PCC-1 Table 1 and Appendix O, standard spiral-wound gaskets with inner and outer rings require a minimum seating stress of <strong>10,000 PSI</strong> to prevent blowout under design hydrostatic test pressures, while not exceeding <strong>30,000 PSI</strong> to prevent radial crushing and buckling of the spiral metal winding.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Flange Bolting</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: The "Dry Torque" Friction Trap (Up to 50% Preload Loss)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Using torque values calculated for lubricated studs (K = 0.15) on dry, unlubricated, or rusted bolts (K = 0.20 to 0.25) wastes up to 50% of the wrench energy overcoming metal-on-metal friction. The resulting clamping force is only half of what is required to seat the gasket, leading to instantaneous blowout during hydrostatic testing. Always lubricate both the stud threads and the nut contact face generously.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Single-Pass Tightening &amp; Flange Cocking</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Torquing bolts directly to 100% in a single pass cocks the flange faces out of parallel. The gasket on the first-torqued side is crushed beyond its elastic limit, while the opposite side is left loose. When the remaining bolts are pulled down, the cocked flange creates immense localized bending stress, warping the flange ring and causing incurable joint leaks. Always adhere strictly to the 4-pass sequence (30%, 60%, 100% star, and 100% circular).
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Reusing Stretched or Thermally Yielded B7 Studs</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Reusing stud bolts removed from high-pressure or high-temperature piping is a frequent cause of catastrophic fastener failure. Studs that have previously been torqued past yield or subjected to thermal cycling undergo permanent plastic strain and micro-necking. Upon re-torquing, the necked section fractures before reaching the target clamping load. Replace all studs and heavy hex nuts whenever breaking critical flanges.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Spiral-Wound Gasket Over-Torquing &amp; Winding Buckling</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Applying excessive torque (exceeding 70% of bolt yield) on low-pressure Class 150 flanges can generate compressive stresses over 30,000 PSI across the gasket. On spiral-wound gaskets without an inner retaining ring, excessive stress causes inward buckling, where the V-shaped metallic windings unravel into the pipe bore, impeding process flow and destroying the pressure seal.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Skipping the 4-to-24 Hour Gasket Relaxation Pass</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          All gasket materials—including compressed sheet, PTFE, and spiral-wound flexible graphite—exhibit viscoelastic creep relaxation after initial assembly. Within 4 to 24 hours, bolt preload can decay by 15% to 30% without any nuts turning. Failure to perform a final 100% rotational verification pass prior to hydro-testing or startup is the leading cause of "cold leaks" during commissioning.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ASME B16.5 Flange Dimension Lookup Table
+      // [boltCount, boltDiaInches, threadsPerInch, boltCircleInches, wrenchSizeInches, raisedFaceOD, raisedFaceID]
+      const FLANGE_DATA = {
+        '150': {
+          '0.5': [4, 0.50, 13, 2.38, '0.875', 1.38, 0.84],
+          '0.75': [4, 0.50, 13, 2.75, '0.875', 1.69, 1.05],
+          '1': [4, 0.50, 13, 3.12, '0.875', 2.00, 1.32],
+          '1.25': [4, 0.50, 13, 3.50, '0.875', 2.50, 1.66],
+          '1.5': [4, 0.50, 13, 3.88, '0.875', 2.88, 1.90],
+          '2': [4, 0.625, 11, 4.75, '1.0625', 3.62, 2.38],
+          '2.5': [4, 0.625, 11, 5.50, '1.0625', 4.12, 2.88],
+          '3': [4, 0.625, 11, 6.00, '1.0625', 5.00, 3.50],
+          '4': [8, 0.625, 11, 7.50, '1.0625', 6.19, 4.50],
+          '6': [8, 0.75, 10, 9.50, '1.25', 8.50, 6.62],
+          '8': [8, 0.75, 10, 11.75, '1.25', 10.62, 8.62],
+          '10': [12, 0.875, 9, 14.25, '1.4375', 12.75, 10.75],
+          '12': [12, 0.875, 9, 17.00, '1.4375', 15.00, 12.75],
+          '14': [12, 1.00, 8, 18.75, '1.625', 16.25, 14.00],
+          '16': [16, 1.00, 8, 21.25, '1.625', 18.50, 16.00],
+          '18': [16, 1.125, 8, 22.75, '1.8125', 21.00, 18.00],
+          '20': [20, 1.125, 8, 25.00, '1.8125', 23.00, 20.00],
+          '24': [20, 1.25, 8, 29.50, '2.00', 27.25, 24.00]
+        },
+        '300': {
+          '0.5': [4, 0.50, 13, 2.62, '0.875', 1.38, 0.84],
+          '0.75': [4, 0.625, 11, 3.25, '1.0625', 1.69, 1.05],
+          '1': [4, 0.625, 11, 3.50, '1.0625', 2.00, 1.32],
+          '1.25': [4, 0.625, 11, 3.88, '1.0625', 2.50, 1.66],
+          '1.5': [4, 0.75, 10, 4.50, '1.25', 2.88, 1.90],
+          '2': [8, 0.625, 11, 5.00, '1.0625', 3.62, 2.38],
+          '2.5': [8, 0.75, 10, 5.88, '1.25', 4.12, 2.88],
+          '3': [8, 0.75, 10, 6.62, '1.25', 5.00, 3.50],
+          '4': [8, 0.75, 10, 7.88, '1.25', 6.19, 4.50],
+          '6': [12, 0.75, 10, 10.62, '1.25', 8.50, 6.62],
+          '8': [12, 0.875, 9, 13.00, '1.4375', 10.62, 8.62],
+          '10': [16, 1.00, 8, 15.25, '1.625', 12.75, 10.75],
+          '12': [16, 1.125, 8, 17.75, '1.8125', 15.00, 12.75],
+          '14': [20, 1.125, 8, 20.25, '1.8125', 16.25, 14.00],
+          '16': [20, 1.25, 8, 22.50, '2.00', 18.50, 16.00],
+          '18': [24, 1.25, 8, 24.75, '2.00', 21.00, 18.00],
+          '20': [24, 1.25, 8, 27.00, '2.00', 23.00, 20.00],
+          '24': [24, 1.50, 8, 32.00, '2.375', 27.25, 24.00]
+        },
+        '600': {
+          '0.5': [4, 0.50, 13, 2.62, '0.875', 1.38, 0.84],
+          '0.75': [4, 0.625, 11, 3.25, '1.0625', 1.69, 1.05],
+          '1': [4, 0.625, 11, 3.50, '1.0625', 2.00, 1.32],
+          '1.25': [4, 0.625, 11, 3.88, '1.0625', 2.50, 1.66],
+          '1.5': [4, 0.75, 10, 4.50, '1.25', 2.88, 1.90],
+          '2': [8, 0.625, 11, 5.00, '1.0625', 3.62, 2.38],
+          '2.5': [8, 0.75, 10, 5.88, '1.25', 4.12, 2.88],
+          '3': [8, 0.75, 10, 6.62, '1.25', 5.00, 3.50],
+          '4': [8, 0.875, 9, 8.50, '1.4375', 6.19, 4.50],
+          '6': [12, 1.00, 8, 11.50, '1.625', 8.50, 6.62],
+          '8': [12, 1.125, 8, 13.75, '1.8125', 10.62, 8.62],
+          '10': [16, 1.25, 8, 17.00, '2.00', 12.75, 10.75],
+          '12': [20, 1.25, 8, 19.25, '2.00', 15.00, 12.75],
+          '14': [20, 1.375, 8, 20.75, '2.1875', 16.25, 14.00],
+          '16': [20, 1.50, 8, 23.75, '2.375', 18.50, 16.00],
+          '18': [20, 1.625, 8, 25.75, '2.5625', 21.00, 18.00],
+          '20': [24, 1.625, 8, 28.50, '2.5625', 23.00, 20.00],
+          '24': [24, 1.875, 8, 33.00, '2.9375', 27.25, 24.00]
+        },
+        '900': {
+          '0.5': [4, 0.75, 10, 3.25, '1.25', 1.38, 0.84],
+          '0.75': [4, 0.75, 10, 3.50, '1.25', 1.69, 1.05],
+          '1': [4, 0.875, 9, 4.00, '1.4375', 2.00, 1.32],
+          '1.25': [4, 0.875, 9, 4.38, '1.4375', 2.50, 1.66],
+          '1.5': [4, 1.00, 8, 4.88, '1.625', 2.88, 1.90],
+          '2': [8, 0.875, 9, 6.50, '1.4375', 3.62, 2.38],
+          '3': [8, 0.875, 9, 7.50, '1.4375', 5.00, 3.50],
+          '4': [8, 1.125, 8, 9.25, '1.8125', 6.19, 4.50],
+          '6': [12, 1.125, 8, 12.50, '1.8125', 8.50, 6.62],
+          '8': [12, 1.375, 8, 15.50, '2.1875', 10.62, 8.62],
+          '10': [16, 1.375, 8, 18.50, '2.1875', 12.75, 10.75],
+          '12': [20, 1.375, 8, 21.00, '2.1875', 15.00, 12.75],
+          '16': [20, 1.625, 8, 24.25, '2.5625', 18.50, 16.00],
+          '20': [20, 2.00, 8, 29.50, '3.125', 23.00, 20.00],
+          '24': [20, 2.50, 8, 35.50, '3.875', 27.25, 24.00]
+        },
+        '1500': {
+          '0.5': [4, 0.75, 10, 3.25, '1.25', 1.38, 0.84],
+          '0.75': [4, 0.75, 10, 3.50, '1.25', 1.69, 1.05],
+          '1': [4, 0.875, 9, 4.00, '1.4375', 2.00, 1.32],
+          '1.5': [4, 1.00, 8, 4.88, '1.625', 2.88, 1.90],
+          '2': [8, 0.875, 9, 6.50, '1.4375', 3.62, 2.38],
+          '3': [8, 1.125, 8, 8.00, '1.8125', 5.00, 3.50],
+          '4': [8, 1.25, 8, 9.50, '2.00', 6.19, 4.50],
+          '6': [12, 1.375, 8, 12.50, '2.1875', 8.50, 6.62],
+          '8': [12, 1.625, 8, 15.50, '2.5625', 10.62, 8.62],
+          '10': [12, 1.875, 8, 19.00, '2.9375', 12.75, 10.75],
+          '12': [16, 2.00, 8, 22.50, '3.125', 15.00, 12.75]
+        },
+        '2500': {
+          '0.5': [4, 0.75, 10, 3.50, '1.25', 1.38, 0.84],
+          '0.75': [4, 0.75, 10, 3.75, '1.25', 1.69, 1.05],
+          '1': [4, 0.875, 9, 4.25, '1.4375', 2.00, 1.32],
+          '1.5': [4, 1.125, 8, 5.75, '1.8125', 2.88, 1.90],
+          '2': [8, 1.00, 8, 6.75, '1.625', 3.62, 2.38],
+          '3': [8, 1.25, 8, 9.00, '2.00', 5.00, 3.50],
+          '4': [8, 1.50, 8, 10.75, '2.375', 6.19, 4.50],
+          '6': [8, 2.00, 8, 14.50, '3.125', 8.50, 6.62],
+          '8': [12, 2.00, 8, 17.25, '3.125', 10.62, 8.62],
+          '10': [12, 2.50, 8, 21.25, '3.875', 12.75, 10.75],
+          '12': [12, 2.75, 8, 24.38, '4.25', 15.00, 12.75]
+        }
+      };
+
+      // Star sequences for bolt counts
+      const STAR_PATTERNS = {
+        4: [1, 3, 2, 4],
+        8: [1, 5, 3, 7, 2, 6, 4, 8],
+        12: [1, 7, 4, 10, 2, 8, 5, 11, 3, 9, 6, 12],
+        16: [1, 9, 5, 13, 3, 11, 7, 15, 2, 10, 6, 14, 4, 12, 8, 16],
+        20: [1, 11, 6, 16, 3, 13, 8, 18, 5, 15, 10, 20, 2, 12, 7, 17, 4, 14, 9, 19],
+        24: [1, 13, 7, 19, 4, 16, 10, 22, 2, 14, 8, 20, 5, 17, 11, 23, 3, 15, 9, 21, 6, 18, 12, 24]
+      };
+
+      // Yield strengths (PSI)
+      const YIELD_STRENGTHS = {
+        'b7': 105000,
+        'b16': 105000,
+        'l7': 105000,
+        'b8_cl2': 95000,
+        'b8m_cl2': 95000,
+        'b8_cl1': 30000
+      };
+
+      const selClass = document.getElementById('flangeClass');
+      const selPipe = document.getElementById('pipeSize');
+      const selGrade = document.getElementById('studGrade');
+      const selTarget = document.getElementById('boltStressTarget');
+      const selK = document.getElementById('lubricantK');
+      const selGasket = document.getElementById('gasketType');
+
+      function updatePipeOptions() {
+        const cls = selClass.value;
+        const available = FLANGE_DATA[cls];
+        const curVal = selPipe.value;
+        selPipe.innerHTML = '';
+        const sizes = ['0.5', '0.75', '1', '1.25', '1.5', '2', '2.5', '3', '4', '6', '8', '10', '12', '14', '16', '18', '20', '24'];
+        let matched = false;
+        sizes.forEach(function(sz) {
+          if (available[sz]) {
+            const opt = document.createElement('option');
+            opt.value = sz;
+            let display = sz;
+            if (sz === '0.5') display = '1/2"';
+            else if (sz === '0.75') display = '3/4"';
+            else if (sz === '1.25') display = '1-1/4"';
+            else if (sz === '1.5') display = '1-1/2"';
+            else if (sz === '2.5') display = '2-1/2"';
+            else display = sz + '"';
+            opt.textContent = display + ' NPS';
+            if (sz === curVal) {
+              opt.selected = true;
+              matched = true;
+            }
+            selPipe.appendChild(opt);
+          }
+        });
+        if (!matched) {
+          selPipe.value = available['4'] ? '4' : Object.keys(available)[0];
+        }
+      }
+
+      function calcTorque() {
+        const cls = selClass.value;
+        let sz = selPipe.value;
+        if (!FLANGE_DATA[cls] || !FLANGE_DATA[cls][sz]) {
+          updatePipeOptions();
+          sz = selPipe.value;
+        }
+
+        const data = FLANGE_DATA[cls][sz];
+        const numBolts = data[0];
+        const boltDia = data[1];
+        const tpi = data[2];
+        const boltCircle = data[3];
+        const wrenchSize = data[4];
+        const rfOD = data[5];
+        const rfID = data[6];
+
+        // Format fractions for display
+        let diaStr = boltDia + '"';
+        if (boltDia === 0.5) diaStr = '1/2"';
+        else if (boltDia === 0.625) diaStr = '5/8"';
+        else if (boltDia === 0.75) diaStr = '3/4"';
+        else if (boltDia === 0.875) diaStr = '7/8"';
+        else if (boltDia === 1.125) diaStr = '1-1/8"';
+        else if (boltDia === 1.25) diaStr = '1-1/4"';
+        else if (boltDia === 1.375) diaStr = '1-3/8"';
+        else if (boltDia === 1.5) diaStr = '1-1/2"';
+        else if (boltDia === 1.625) diaStr = '1-5/8"';
+        else if (boltDia === 1.875) diaStr = '1-7/8"';
+        else if (boltDia === 2.0) diaStr = '2"';
+        else if (boltDia === 2.5) diaStr = '2-1/2"';
+        else if (boltDia === 2.75) diaStr = '2-3/4"';
+
+        const threadType = tpi === 8 && boltDia > 1 ? '8-UN' : 'UNC';
+        document.getElementById('lblBoltCount').textContent = numBolts + ' studs';
+        document.getElementById('lblBoltDia').textContent = diaStr + '-' + tpi + ' ' + threadType;
+        document.getElementById('lblBoltCircle').textContent = boltCircle.toFixed(2) + ' in';
+        document.getElementById('lblWrenchSize').textContent = wrenchSize + ' in';
+
+        // Tensile stress area: As = 0.7854 * (d - 0.9743/n)^2
+        const asArea = 0.7854 * Math.pow(boltDia - (0.9743 / tpi), 2);
+
+        // Target stress
+        const yieldStrength = YIELD_STRENGTHS[selGrade.value] || 105000;
+        const targetPercent = parseFloat(selTarget.value) || 0.50;
+        const boltStress = yieldStrength * targetPercent;
+        const boltPreloadLbf = boltStress * asArea;
+
+        // Nut factor
+        const K = parseFloat(selK.value) || 0.15;
+
+        // Torque T = (K * F * d) / 12 [ft-lbs]
+        const torqueFtLbs = (K * boltPreloadLbf * boltDia) / 12;
+        const torqueNm = torqueFtLbs * 1.355818;
+        const torqueInLbs = torqueFtLbs * 12;
+
+        const roundTorque = Math.round(torqueFtLbs);
+        document.getElementById('resTorqueFtLbs').textContent = roundTorque;
+        document.getElementById('resTorqueNm').textContent = Math.round(torqueNm);
+        document.getElementById('resTorqueInLbs').textContent = Math.round(torqueInLbs).toLocaleString();
+
+        // 4-pass schedule
+        const pass1 = Math.round(torqueFtLbs * 0.30);
+        const pass2 = Math.round(torqueFtLbs * 0.60);
+        const pass3 = roundTorque;
+        const pass4 = roundTorque;
+
+        document.getElementById('resPass1').textContent = pass1;
+        document.getElementById('resPass2').textContent = pass2;
+        document.getElementById('resPass3').textContent = pass3;
+        document.getElementById('resPass4').textContent = pass4;
+
+        document.getElementById('resBoltPreload').textContent = Math.round(boltPreloadLbf).toLocaleString() + ' lbf';
+        document.getElementById('resBoltStress').textContent = Math.round(boltStress).toLocaleString() + ' PSI (' + Math.round(targetPercent * 100) + '% Yield)';
+
+        // Gasket seating stress
+        const gasketContactArea = Math.PI * (Math.pow(rfOD / 2, 2) - Math.pow(rfID / 2, 2));
+        const totalClampForce = boltPreloadLbf * numBolts;
+        const gasketStress = gasketContactArea > 0 ? (totalClampForce / gasketContactArea) : 0;
+
+        document.getElementById('resGasketStress').textContent = Math.round(gasketStress).toLocaleString() + ' PSI';
+
+        const badgeYield = document.getElementById('badgeYield');
+        const resGasketStatus = document.getElementById('resGasketStatus');
+
+        if (targetPercent <= 0.50) {
+          badgeYield.style.background = '#10b981';
+          badgeYield.textContent = (targetPercent * 100) + '% YIELD SAFE';
+        } else if (targetPercent <= 0.60) {
+          badgeYield.style.background = '#3b82f6';
+          badgeYield.textContent = (targetPercent * 100) + '% YIELD ELEVATED';
+        } else {
+          badgeYield.style.background = '#ef4444';
+          badgeYield.textContent = (targetPercent * 100) + '% YIELD HIGH RISK';
+        }
+
+        if (gasketStress < 8000) {
+          resGasketStatus.textContent = '⚠️ Low Seating (<8,000 PSI - Check Leak Risk)';
+          resGasketStatus.style.color = '#f59e0b';
+        } else if (gasketStress > 30000) {
+          resGasketStatus.textContent = '⚠️ High Seating (>30,000 PSI - Risk of Crushing)';
+          resGasketStatus.style.color = '#ef4444';
+        } else {
+          resGasketStatus.textContent = '✓ Ideal Seating Stress (10k-25k PSI)';
+          resGasketStatus.style.color = '#10b981';
+        }
+
+        // Star sequence
+        const pattern = STAR_PATTERNS[numBolts] || [];
+        document.getElementById('resStarPattern').textContent = pattern.join(' - ');
+
+        // Draw Interactive SVG
+        drawFlangeSvg(numBolts, boltCircle, rfOD, rfID, pattern, roundTorque);
+      }
+
+      function drawFlangeSvg(numBolts, bc, rfOD, rfID, pattern, targetTorque) {
+        const container = document.getElementById('flangeSvgContainer');
+        const w = 680;
+        const h = 420;
+        const cx = 250;
+        const cy = 210;
+
+        const maxFlangeR = 175;
+        const scale = maxFlangeR / (bc * 0.75);
+
+        const rBC = Math.min(145, (bc / 2) * scale);
+        const rRF = Math.max(35, Math.min(rBC - 20, (rfOD / 2) * scale));
+        const rBore = Math.max(15, Math.min(rRF - 15, (rfID / 2) * scale));
+        const rOuter = rBC + 28;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Outer Flange Body
+        s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rOuter + '" fill="#2b3544" stroke="#475569" stroke-width="2"/>';
+
+        // Bolt Circle PCD dashed
+        s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rBC + '" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4"/>';
+
+        // Raised Face
+        s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rRF + '" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>';
+
+        // Gasket Hatch / Area
+        s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rRF + '" fill="rgba(56,189,248,0.15)"/>';
+
+        // Pipe Bore Center
+        s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rBore + '" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>';
+        s += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">PIPE BORE</text>';
+
+        // Compute bolt positions
+        const boltCoords = [];
+        for (let i = 0; i < numBolts; i++) {
+          const angleRad = (-Math.PI / 2) + (i * (2 * Math.PI / numBolts));
+          const bx = cx + rBC * Math.cos(angleRad);
+          const by = cy + rBC * Math.sin(angleRad);
+          boltCoords.push({ index: i + 1, x: bx, y: by });
+        }
+
+        // Draw star pattern connecting lines in order
+        if (pattern && pattern.length > 0) {
+          let pathD = '';
+          for (let p = 0; p < pattern.length; p++) {
+            const bNum = pattern[p];
+            const coord = boltCoords[bNum - 1];
+            if (p === 0) {
+              pathD += 'M ' + coord.x + ' ' + coord.y;
+            } else {
+              pathD += ' L ' + coord.x + ' ' + coord.y;
+            }
+          }
+          s += '<path d="' + pathD + '" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,4" opacity="0.85"/>';
+        }
+
+        // Draw bolt holes and numbering badges
+        boltCoords.forEach(function(b) {
+          s += '<circle cx="' + b.x + '" cy="' + b.y + '" r="13" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>';
+          s += '<circle cx="' + b.x + '" cy="' + b.y + '" r="5" fill="#e2e8f0"/>';
+          s += '<circle cx="' + b.x + '" cy="' + b.y + '" r="10" fill="#3b82f6"/>';
+          s += '<text x="' + b.x + '" y="' + (b.y + 4) + '" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">' + b.index + '</text>';
+        });
+
+        // Legend & Information Panel on the Right Side
+        const lx = 480;
+        s += '<g transform="translate(' + lx + ', 30)">';
+        s += '<rect x="0" y="0" width="185" height="350" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="14" y="26" fill="#f8fafc" font-size="13" font-weight="700">Sequence Legend</text>';
+
+        s += '<circle cx="22" cy="52" r="8" fill="#3b82f6"/>';
+        s += '<text x="22" y="56" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">#</text>';
+        s += '<text x="36" y="56" fill="#cbd5e1" font-size="11">Bolt Identification</text>';
+
+        s += '<line x1="14" y1="78" x2="30" y2="78" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3"/>';
+        s += '<text x="36" y="82" fill="#cbd5e1" font-size="11">Star Torque Vector</text>';
+
+        s += '<line x1="14" y1="102" x2="30" y2="102" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3"/>';
+        s += '<text x="36" y="106" fill="#cbd5e1" font-size="11">Bolt Circle (PCD)</text>';
+
+        s += '<circle cx="22" cy="126" r="6" fill="rgba(56,189,248,0.3)" stroke="#38bdf8" stroke-width="1.5"/>';
+        s += '<text x="36" y="130" fill="#cbd5e1" font-size="11">Raised Face Gasket</text>';
+
+        s += '<line x1="14" y1="148" x2="170" y2="148" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="14" y="172" fill="#94a3b8" font-size="11" font-weight="600">PASS SCHEDULE:</text>';
+        s += '<text x="14" y="194" fill="#f8fafc" font-size="11">Pass 1: <tspan fill="#f59e0b" font-weight="700">30%</tspan> Star</text>';
+        s += '<text x="14" y="214" fill="#f8fafc" font-size="11">Pass 2: <tspan fill="#f59e0b" font-weight="700">60%</tspan> Star</text>';
+        s += '<text x="14" y="234" fill="#f8fafc" font-size="11">Pass 3: <tspan fill="#10b981" font-weight="700">100%</tspan> Star</text>';
+        s += '<text x="14" y="254" fill="#f8fafc" font-size="11">Pass 4: <tspan fill="#38bdf8" font-weight="700">100%</tspan> Circular</text>';
+
+        s += '<line x1="14" y1="272" x2="170" y2="272" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="14" y="294" fill="#94a3b8" font-size="11">TARGET TORQUE:</text>';
+        s += '<text x="14" y="318" fill="#38bdf8" font-size="17" font-weight="700" font-family="monospace">' + targetTorque + ' ft-lbs</text>';
+        s += '<text x="14" y="336" fill="#64748b" font-size="10">ASME PCC-1 Protocol</text>';
+
+        s += '</g>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const cls = selClass.value;
+        const sz = selPipe.value;
+        const grade = selGrade.options[selGrade.selectedIndex].text;
+        const target = selTarget.options[selTarget.selectedIndex].text;
+        const lube = selK.options[selK.selectedIndex].text;
+        const gasket = selGasket.options[selGasket.selectedIndex].text;
+
+        const ftlbs = document.getElementById('resTorqueFtLbs').textContent;
+        const nm = document.getElementById('resTorqueNm').textContent;
+        const inlbs = document.getElementById('resTorqueInLbs').textContent;
+        const p1 = document.getElementById('resPass1').textContent;
+        const p2 = document.getElementById('resPass2').textContent;
+        const p3 = document.getElementById('resPass3').textContent;
+        const p4 = document.getElementById('resPass4').textContent;
+        const pattern = document.getElementById('resStarPattern').textContent;
+        const preload = document.getElementById('resBoltPreload').textContent;
+        const stress = document.getElementById('resBoltStress').textContent;
+        const gStress = document.getElementById('resGasketStress').textContent;
+        const studs = document.getElementById('lblBoltCount').textContent;
+        const dia = document.getElementById('lblBoltDia').textContent;
+        const wrench = document.getElementById('lblWrenchSize').textContent;
+
+        const summary = [
+          '=== ASME B16.5 FLANGE BOLT TORQUE & TIGHTENING REPORT ===',
+          'Flange Specification: Class ' + cls + '# | ' + sz + '" NPS',
+          'Fastener Detail: ' + studs + ' (' + dia + ') | Wrench Size: ' + wrench,
+          'Stud Material: ' + grade,
+          'Preload Target: ' + target,
+          'Lubricant Nut Factor: ' + lube,
+          'Gasket Specification: ' + gasket,
+          '',
+          '--- TARGET TIGHTENING TORQUE ---',
+          'Final Target: ' + ftlbs + ' ft-lbs (' + nm + ' N·m / ' + inlbs + ' in-lbs)',
+          '',
+          '--- ASME PCC-1 4-PASS TIGHTENING SCHEDULE ---',
+          'Pass 1 (30% Star): ' + p1 + ' ft-lbs',
+          'Pass 2 (60% Star): ' + p2 + ' ft-lbs',
+          'Pass 3 (100% Star): ' + p3 + ' ft-lbs',
+          'Pass 4 (100% Circular): ' + p4 + ' ft-lbs (Clockwise rotational pass until no nut turns)',
+          'Star Sequence Order: ' + pattern,
+          '',
+          '--- MECHANICAL JOINT STRESS METRICS ---',
+          'Bolt Clamping Preload: ' + preload + ' (' + stress + ')',
+          'Estimated Gasket Seating Stress: ' + gStress,
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/flange-bolt-torque-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Torquing Schedule Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Torquing Schedule Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Flange Torquing Schedule';
+          }, 2500);
+        });
+      });
+
+      selClass.addEventListener('change', function() {
+        updatePipeOptions();
+        calcTorque();
+      });
+      selPipe.addEventListener('change', calcTorque);
+      selGrade.addEventListener('change', calcTorque);
+      selTarget.addEventListener('change', calcTorque);
+      selK.addEventListener('change', calcTorque);
+      selGasket.addEventListener('change', calcTorque);
+
+      updatePipeOptions();
+      calcTorque();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'flange-bolt-torque-calculator.html'), renderTradePage({
+    title: "ASME B16.5 Flange Bolt Torque Calculator: Bolt Preload & Star Pattern | Digital Tools Shed",
+    metaDesc: "Calculate stud bolt torque (ft-lbs & N·m), bolt clamping preload, and gasket seating stress across ASME B16.5 Class 150 to 2500 flanges per ASME PCC-1 bolting guidelines.",
+    canonical: `${DOMAIN}/calc/flange-bolt-torque-calculator`,
+    bodyContent: flangeBoltTorqueBody,
+    currentPath: '/calc/flange-bolt-torque-calculator',
+    faq: [
+      {
+        "q": "What is the standard torque for an ASME Class 150 4-inch flange?",
+        "a": "For a standard 4-inch Class 150 flange using eight 5/8-inch ASTM A193 B7 stud bolts lubricated with moly anti-seize paste (K = 0.15) at 50% bolt yield (52,500 PSI), the recommended target tightening torque is 106 ft-lbs (144 N·m)."
+      },
+      {
+        "q": "Why is anti-seize lubrication mandatory for flange bolt torquing?",
+        "a": "Up to 80% to 90% of torque wrench energy is consumed overcoming thread and nut face friction. Using dry, unlubricated bolts (K = 0.20-0.25) robs up to 50% of intended clamping preload, preventing the gasket from properly seating and causing immediate joint failure under pressure testing."
+      },
+      {
+        "q": "What is the ASME PCC-1 4-pass cross-pattern star tightening sequence?",
+        "a": "ASME PCC-1 mandates tightening in progressive stages: Pass 1 at 20-30% torque using a cross-pattern star sequence; Pass 2 at 50-70% torque using the star sequence; Pass 3 at 100% torque using the star sequence; and Pass 4 at 100% torque in a clockwise circular motion until all nuts cease rotation."
+      },
+      {
+        "q": "Why do flange gaskets leak 4 to 24 hours after torquing?",
+        "a": "Gaskets undergo viscoelastic creep relaxation after initial compression, losing up to 15% to 30% of clamping preload without nut movement. Performing a final 100% rotational pass 4 to 24 hours post-assembly recovers this lost preload and prevents cold joint leaks."
+      },
+      {
+        "q": "What is the recommended bolt stress for ASTM A193 B7 studs?",
+        "a": "ASME PCC-1 recommends tightening ASTM A193 B7 studs to between 40% and 50% of their 105,000 PSI minimum yield strength (42,000 to 52,500 PSI) for standard raised-face flanges with spiral-wound gaskets to balance leak tightness against flange rotation."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (27 calculators in /calc/)');
 }
 
