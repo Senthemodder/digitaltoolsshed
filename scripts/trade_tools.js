@@ -138608,6 +138608,2616 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (207 calculators in /calc/)');
+    // ==========================================
+  // Tool BO1: Centrifugal Pump Impeller Trimming & Affinity Laws Calculator (Hydraulic Institute / Karassik)
+  // ==========================================
+  (() => {
+    const slug = 'centrifugal-pump-impeller-trim-calculator';
+    const title = 'Centrifugal Pump Impeller Trimming & Affinity Laws Calculator';
+    const metaDescription = 'Accurately size trimmed centrifugal pump impeller diameters (D2) using Hydraulic Institute affinity laws with empirical slip derates, cutwater gap checks, and motor margin ratings.';
+
+    const faq = [
+      {
+        q: 'Why do textbook affinity laws (H ∝ D²) overestimate trimmed pump head?',
+        a: 'Classical textbook affinity laws assume idealized geometric and kinematic similarity. When a physical impeller is turned down on a lathe, several non-ideal phenomena occur: 1) the blade discharge angle β2 changes as metal is removed along the curved vane profile; 2) vane overlap is reduced, allowing liquid to slip backwards between adjacent blades; 3) the radial clearance between blade tips and the stationary volute casing increases, magnifying internal recirculatory leakage. Empirical testing across thousands of pumps by the Hydraulic Institute and Karassik proves that actual head drops with an exponent between 2.15 and 2.30 rather than 2.0. Consequently, turning down to the exact theoretical square-root diameter leaves the pump severely under-headed.'
+      },
+      {
+        q: 'What is the maximum recommended diameter reduction for a centrifugal impeller?',
+        a: 'The Hydraulic Institute and major pump OEMs (Flowserve, Sulzer, Goulds) strongly advise limiting impeller trims to 15% to 20% of the maximum designed diameter. Beyond 20% trim, the overlapping passage between adjacent vanes disappears, turning the impeller into an inefficient paddle wheel. Hydraulic efficiency plummets by 15 to 25 percentage points, shaft deflection spikes, and internal flow separation creates massive hydraulic vibration that destroys mechanical seals and bearings. If a greater than 20% reduction is required, install a Variable Frequency Drive (VFD) or replace the pump casing with a smaller hydraulic model.'
+      },
+      {
+        q: 'What is Cutwater Clearance (Gap B) and why is it acoustically critical?',
+        a: 'Cutwater clearance—designated as Gap B in Hydraulic Institute ANSI/HI 9.6.4—is the radial distance between the outer diameter of the impeller blade tip and the stationary volute tongue (cutwater). The recommended Gap B is 6% to 10% of the impeller outer radius for volute casings (and 3% to 6% for diffusers). If Gap B is too narrow (&lt;4%), high-velocity fluid jets leaving each blade tip violently strike the stationary tongue, generating intense pressure pulsations at the Blade Passing Frequency (Z × RPM). If Gap B is too wide (&gt;15%) due to excessive trimming, liquid recirculates continuously from the discharge throat back into the volute, degrading head and hydraulic efficiency.'
+      },
+      {
+        q: 'Why must every turned impeller be dynamically rebalanced before reinstallation?',
+        a: 'Sand castings naturally exhibit minor core shifts, varying shroud thickness, and hidden porosity. Lathe machining removes a uniform ring of metal based on the outer circumference, which alters the mass distribution relative to the original cast geometry. Operating an unbalance-machined impeller at 2950 or 3550 RPM generates destructive centrifugal vibration forces (F = m·r·ω²). ISO 1940-1 Grade G2.5 (or API 610 G1.0/G2.5) dynamic two-plane spin balancing is mandatory after every machining operation to protect mechanical seal faces and silicon carbide bearings.'
+      },
+      {
+        q: 'How does trimming affect Net Positive Suction Head Required (NPSHr)?',
+        a: 'Trimming the outer diameter leaves the suction eye diameter and inlet blade geometry unchanged while shifting the Best Efficiency Point (BEP) to lower flow and lower head. Near the new BEP, NPSHr remains roughly constant or decreases slightly. However, at runout flow rates beyond the new BEP, the distorted velocity triangle entering the unchanged suction eye causes flow incidence shock and separation at the leading blade edge. For high suction specific speed (Nss &gt; 11,000) impellers, NPSHr at runout can increase by 15% to 30%, risking severe cavitation during line flushing.'
+      }
+    ];
+
+    const content = `
+<style>
+.pmp-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.pmp-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.pmp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.pmp-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .pmp-grid-2, .pmp-grid-3, .pmp-grid-4 { grid-template-columns: 1fr; }
+}
+.pmp-stat {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+.pmp-stat-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 0.25rem;
+}
+.pmp-stat-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.pmp-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.pmp-btn:hover { opacity: 0.9; }
+.pmp-unit-toggle {
+  display: flex;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.pmp-unit-btn {
+  flex: 1;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.pmp-unit-btn.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+</style>
+
+<div class="pmp-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">Centrifugal Pump Impeller Trimming & Affinity Scaling</h2>
+      <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.85rem;">Hydraulic Institute empirical slip correction, acoustic cutwater Gap B check, and motor margin.</p>
+    </div>
+    <div class="pmp-unit-toggle">
+      <button type="button" class="pmp-unit-btn active" id="pmp_btn_metric" onclick="pmpSetUnits(true)">Metric (mm, m, m³/h, kW)</button>
+      <button type="button" class="pmp-unit-btn" id="pmp_btn_us" onclick="pmpSetUnits(false)">US (in, ft, GPM, HP)</button>
+    </div>
+  </div>
+
+  <div class="pmp-grid-2">
+    <div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.35rem;">Calculation Method</label>
+        <select id="pmp_method" onchange="pmpUpdateMethod(); pmpCalc();" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+          <option value="head">Target Differential Head (H2)</option>
+          <option value="flow">Target Volumetric Flow (Q2)</option>
+          <option value="diameter">Direct Specified Trim Diameter (D2)</option>
+        </select>
+      </div>
+
+      <div class="pmp-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Original Diameter (D1) <span id="pmp_u_d1" style="color:var(--text-muted);">(mm)</span></label>
+          <input type="number" id="pmp_d1" value="250" step="any" oninput="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Original Head (H1) <span id="pmp_u_h1" style="color:var(--text-muted);">(m)</span></label>
+          <input type="number" id="pmp_h1" value="50" step="any" oninput="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="pmp-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Original Flow (Q1) <span id="pmp_u_q1" style="color:var(--text-muted);">(m³/h)</span></label>
+          <input type="number" id="pmp_q1" value="120" step="any" oninput="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Original Power (P1) <span id="pmp_u_p1" style="color:var(--text-muted);">(kW)</span></label>
+          <input type="number" id="pmp_p1" value="22" step="any" oninput="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div id="pmp_target_wrap" style="margin-bottom:0.75rem; background:rgba(2, 132, 199, 0.08); border:1px solid var(--primary); border-radius:6px; padding:0.75rem;">
+        <label id="pmp_lbl_target" style="display:block; font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:0.35rem;">Target Head (H2) (m)</label>
+        <input type="number" id="pmp_target_val" value="38" step="any" oninput="pmpCalc()" style="width:100%; padding:0.55rem; border-radius:6px; border:1px solid var(--primary); background:var(--background); color:var(--text); font-weight:700; font-size:1rem;">
+      </div>
+
+      <div class="pmp-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Pump Speed (N) <span style="color:var(--text-muted);">(RPM)</span></label>
+          <input type="number" id="pmp_rpm" value="2950" step="10" oninput="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Cutwater Radius (Rcw) <span id="pmp_u_rcw" style="color:var(--text-muted);">(mm)</span></label>
+          <input type="number" id="pmp_rcw" value="142" step="any" oninput="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="pmp-grid-2">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Fluid Specific Gravity (SG)</label>
+          <input type="number" id="pmp_sg" value="1.0" step="0.01" oninput="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Trim Model</label>
+          <select id="pmp_model" onchange="pmpCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+            <option value="karassik">HI / Karassik (Empirical Slip)</option>
+            <option value="ideal">Ideal Affinity (Uncorrected)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Summary Panel -->
+    <div style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="pmp-stat" style="margin-bottom:1rem; border-color:var(--primary); background:rgba(2, 132, 199, 0.05);">
+          <div class="pmp-stat-lbl">Recommended Trim Diameter (D2)</div>
+          <div class="pmp-stat-val" id="pmp_res_d2" style="font-size:2rem;">--</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;" id="pmp_res_trim_sub">--</div>
+        </div>
+
+        <div class="pmp-grid-2" style="margin-bottom:1rem;">
+          <div class="pmp-stat">
+            <div class="pmp-stat-lbl">Trimmed Head (H2)</div>
+            <div class="pmp-stat-val" id="pmp_res_h2">--</div>
+          </div>
+          <div class="pmp-stat">
+            <div class="pmp-stat-lbl">Trimmed Flow (Q2)</div>
+            <div class="pmp-stat-val" id="pmp_res_q2">--</div>
+          </div>
+        </div>
+
+        <div class="pmp-grid-2" style="margin-bottom:1rem;">
+          <div class="pmp-stat">
+            <div class="pmp-stat-lbl">Trimmed Power (P2)</div>
+            <div class="pmp-stat-val" id="pmp_res_p2">--</div>
+          </div>
+          <div class="pmp-stat">
+            <div class="pmp-stat-lbl">Rec. Motor (API 610)</div>
+            <div class="pmp-stat-val" id="pmp_res_motor">--</div>
+          </div>
+        </div>
+
+        <div class="pmp-stat" style="margin-bottom:1rem;">
+          <div class="pmp-stat-lbl">Cutwater Radial Clearance (Gap B)</div>
+          <div class="pmp-stat-val" id="pmp_res_gap" style="font-size:1.15rem;">--</div>
+        </div>
+
+        <div id="pmp_banner" style="padding:0.75rem 1rem; border-radius:6px; font-size:0.85rem; line-height:1.4; margin-bottom:1rem;">
+          Evaluating feasibility...
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" class="pmp-btn" onclick="pmpCopySummary()">
+          <span>Copy Diagnostic Summary</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2D Canvas Simulator -->
+<div class="pmp-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <h3 style="margin:0; font-size:1.1rem;">2D Dynamic Volute Casing & Cutwater Geometry Simulator</h3>
+    <span style="font-size:0.75rem; color:var(--text-muted);">Real-Time Kinematic Simulation</span>
+  </div>
+  <div style="text-align:center;">
+    <canvas id="pmp_canvas" width="760" height="360" style="max-width:100%; height:auto; background:#090d16; border-radius:8px;"></canvas>
+  </div>
+  <div style="display:flex; justify-content:space-around; font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+    <span><span style="display:inline-block; width:12px; height:12px; border:2px dashed #94a3b8; margin-right:4px; vertical-align:middle;"></span>Original D1</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#0284c7; border-radius:50%; margin-right:4px; vertical-align:middle;"></span>Trimmed D2</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:50%; margin-right:4px; vertical-align:middle;"></span>Cutwater Tongue (Rcw)</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; border-radius:50%; margin-right:4px; vertical-align:middle;"></span>Fluid Discharge Particles</span>
+  </div>
+</div>
+
+<!-- Mathematical Derivations Section -->
+<div class="pmp-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">Engineering Derivations & Empirical Scaling Formulas</h2>
+  
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">1. Classical Affinity Laws vs. Viscous Impeller Slip</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      Standard textbook affinity laws assume geometric and kinematic similarity across ideal fluid streamlines:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      Q₂ / Q₁ = D₂ / D₁ &nbsp;|&nbsp; H₂ / H₁ = (D₂ / D₁)² &nbsp;|&nbsp; P₂ / P₁ = (D₂ / D₁)³
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      In practical centrifugal machinery, turning down an impeller alters the exit blade angle β₂, reduces vane overlap, and widens the radial clearance to the volute. Real head drops at an empirical exponent between <strong>2.15 and 2.25</strong>, while flow drops at approximately <strong>1.85 to 1.90</strong>.
+    </p>
+  </div>
+
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">2. Hydraulic Institute & Karassik Trim Correlation</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      The Karassik / HI empirical formulation relates ideal head ratio to the physical lathe cut diameter:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      (D₂ / D₁)<sub>actual</sub> = (D₂ / D₁)<sub>ideal</sub> + [1 - (D₂ / D₁)<sub>ideal</sub>] × C<sub>trim</sub><br>
+      where (D₂ / D₁)<sub>ideal</sub> = √(H₂ / H₁) and C<sub>trim</sub> ≈ 0.15 to 0.20
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      Expressed via empirical exponents: <code>H₂ / H₁ = (D₂ / D₁)^2.15</code> and <code>Q₂ / Q₁ = (D₂ / D₁)^1.88</code>.
+    </p>
+  </div>
+
+  <div>
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">3. Cutwater Clearance (Gap B) Criteria (ANSI/HI 9.6.4)</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      Gap B defines the radial clearance between the outer blade tips and the stationary casing tongue:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      Gap B (%) = [ (R<sub>cutwater</sub> - R<sub>impeller</sub>) / R<sub>impeller</sub> ] × 100%
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      The safe operating range is <strong>6% to 10%</strong>. Clearances below 4% induce intense pressure spikes at blade-pass frequency (Z × RPM), while clearances above 15% cause severe recirculatory head loss.
+    </p>
+  </div>
+</div>
+
+<!-- 5 Fatal Traps Section -->
+<div class="pmp-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">5 Fatal Engineering Traps in Impeller Trimming</h2>
+  
+  <div class="trap-card" style="border-left:4px solid #ef4444; background:rgba(239,68,68,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#ef4444; margin:0 0 0.25rem 0;">1. The Ideal Quadratic Head Fallacy: Turning to Exact Square Root</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Machinists who use elementary formula D2 = D1 × √(H2/H1) invariably over-machine the impeller. The pump will test 5% to 12% below target head on the test bench because blade exit slip and internal leakage widen as the outer shroud and vanes separate from the volute walls. Always turn the diameter 2% larger than the ideal affinity calculation on the first rough cut.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #f59e0b; background:rgba(245,158,11,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#f59e0b; margin:0 0 0.25rem 0;">2. Exceeding the 15% to 20% Maximum Safe Trim Boundary</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Impeller vanes are curved specifically to channel liquid smoothly. When more than 15% to 20% of the diameter is turned away, the overlapping passage between adjacent vanes disappears entirely, transforming the centrifugal pump into an inefficient paddle wheel. Efficiency plummets by 15-25 points, and low-flow recirculation destroys mechanical seals. If a &gt;20% reduction is required, install a Variable Frequency Drive (VFD) or purchase a smaller hydraulic casing.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #10b981; background:rgba(16,185,129,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#10b981; margin:0 0 0.25rem 0;">3. Shroud-Only vs. Vane Trimming on High-Energy Pumps</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Machining both the front and back shrouds flush with the vanes leaves an open rectangular gap that creates severe axial hydraulic imbalance. On high-head pumps (stage head &gt; 200 m), best practice requires an oblique cut (underfiling the trailing blade edge or stepping the shroud back 3-5 mm past the vane tip) to maintain uniform velocity distribution and prevent thrust bearing overheating.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #3b82f6; background:rgba(59,130,246,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#3b82f6; margin:0 0 0.25rem 0;">4. Neglecting NPSH Required (NPSHr) Changes at Runout</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      While trimming diameter shifts the Best Efficiency Point (BEP) to lower flow and lower head, the suction eye diameter remains unchanged. Consequently, the inlet eye flow velocity profile becomes distorted. In some high suction specific speed (Nss &gt; 11,000) impellers, trimming the outer diameter causes NPSHr at high flow to increase unexpectedly by 15-30%, triggering inlet cavitation when operating near system runout.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #8b5cf6; background:rgba(139,92,246,0.06); padding:1rem; border-radius:0 6px 6px 0;">
+    <h3 style="font-size:0.95rem; color:#8b5cf6; margin:0 0 0.25rem 0;">5. Neglecting Motor Nameplate Safety Margins (API 610)</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Trimming reduces power draw at the duty point by roughly (D2/D1)³, tempting operators to downsize drive motors. However, if the downstream control valve opens fully during startup or line flush, the pump operates at runout flow. If the motor lacks standard API 610 safety margins (25% margin below 22 kW; 15% between 22-55 kW; 10% above 55 kW), the motor thermal overload breaker will trip during cold commissioning.
+    </p>
+  </div>
+</div>
+
+<script>
+var pmpIsMetric = true;
+var pmpLastCalc = null;
+var pmpAngle = 0;
+
+function pmpSetUnits(metric) {
+  if (pmpIsMetric === metric) return;
+  pmpIsMetric = metric;
+
+  document.getElementById('pmp_btn_metric').classList.toggle('active', pmpIsMetric);
+  document.getElementById('pmp_btn_us').classList.toggle('active', !pmpIsMetric);
+
+  document.getElementById('pmp_u_d1').textContent = pmpIsMetric ? '(mm)' : '(in)';
+  document.getElementById('pmp_u_h1').textContent = pmpIsMetric ? '(m)' : '(ft)';
+  document.getElementById('pmp_u_q1').textContent = pmpIsMetric ? '(m³/h)' : '(GPM)';
+  document.getElementById('pmp_u_p1').textContent = pmpIsMetric ? '(kW)' : '(HP)';
+  document.getElementById('pmp_u_rcw').textContent = pmpIsMetric ? '(mm)' : '(in)';
+
+  var elD1 = document.getElementById('pmp_d1');
+  var elH1 = document.getElementById('pmp_h1');
+  var elQ1 = document.getElementById('pmp_q1');
+  var elP1 = document.getElementById('pmp_p1');
+  var elRcw = document.getElementById('pmp_rcw');
+
+  if (pmpIsMetric) {
+    elD1.value = (parseFloat(elD1.value) * 25.4).toFixed(1);
+    elH1.value = (parseFloat(elH1.value) * 0.3048).toFixed(1);
+    elQ1.value = (parseFloat(elQ1.value) / 4.40287).toFixed(1);
+    elP1.value = (parseFloat(elP1.value) * 0.7457).toFixed(1);
+    elRcw.value = (parseFloat(elRcw.value) * 25.4).toFixed(1);
+  } else {
+    elD1.value = (parseFloat(elD1.value) / 25.4).toFixed(2);
+    elH1.value = (parseFloat(elH1.value) / 0.3048).toFixed(1);
+    elQ1.value = (parseFloat(elQ1.value) * 4.40287).toFixed(1);
+    elP1.value = (parseFloat(elP1.value) / 0.7457).toFixed(1);
+    elRcw.value = (parseFloat(elRcw.value) / 25.4).toFixed(2);
+  }
+  pmpUpdateMethod();
+  pmpCalc();
+}
+
+function pmpUpdateMethod() {
+  var m = document.getElementById('pmp_method').value;
+  var lbl = document.getElementById('pmp_lbl_target');
+  var inp = document.getElementById('pmp_target_val');
+  if (m === 'head') {
+    lbl.textContent = 'Target Head (H2) ' + (pmpIsMetric ? '(m)' : '(ft)');
+    inp.value = pmpIsMetric ? '38' : '125';
+  } else if (m === 'flow') {
+    lbl.textContent = 'Target Flow (Q2) ' + (pmpIsMetric ? '(m³/h)' : '(GPM)');
+    inp.value = pmpIsMetric ? '95' : '420';
+  } else {
+    lbl.textContent = 'Direct Target Trim Diameter (D2) ' + (pmpIsMetric ? '(mm)' : '(in)');
+    inp.value = pmpIsMetric ? '220' : '8.7';
+  }
+}
+
+function pmpCalc() {
+  var d1 = parseFloat(document.getElementById('pmp_d1').value) || 1;
+  var h1 = parseFloat(document.getElementById('pmp_h1').value) || 1;
+  var q1 = parseFloat(document.getElementById('pmp_q1').value) || 1;
+  var p1 = parseFloat(document.getElementById('pmp_p1').value) || 1;
+  var rpm = parseFloat(document.getElementById('pmp_rpm').value) || 2950;
+  var rcw = parseFloat(document.getElementById('pmp_rcw').value) || (d1 * 0.58);
+  var sg = parseFloat(document.getElementById('pmp_sg').value) || 1.0;
+  var targetVal = parseFloat(document.getElementById('pmp_target_val').value) || 1;
+  var method = document.getElementById('pmp_method').value;
+  var isEmpirical = (document.getElementById('pmp_model').value === 'karassik');
+
+  var d2 = d1;
+  var h2 = h1;
+  var q2 = q1;
+  var p2 = p1;
+
+  var expHead = isEmpirical ? 2.15 : 2.0;
+  var expFlow = isEmpirical ? 1.88 : 1.0;
+  var expPwr = 3.0;
+
+  if (method === 'head') {
+    h2 = targetVal;
+    var ratioH = Math.max(0.01, h2 / h1);
+    d2 = d1 * Math.pow(ratioH, 1.0 / expHead);
+    q2 = q1 * Math.pow(d2 / d1, expFlow);
+  } else if (method === 'flow') {
+    q2 = targetVal;
+    var ratioQ = Math.max(0.01, q2 / q1);
+    d2 = d1 * Math.pow(ratioQ, 1.0 / expFlow);
+    h2 = h1 * Math.pow(d2 / d1, expHead);
+  } else {
+    d2 = targetVal;
+    var ratioD = Math.max(0.01, d2 / d1);
+    h2 = h1 * Math.pow(ratioD, expHead);
+    q2 = q1 * Math.pow(ratioD, expFlow);
+  }
+
+  var trimPct = ((d1 - d2) / d1) * 100.0;
+  var effDerate = 1.0;
+  if (trimPct > 0) {
+    effDerate = Math.max(0.75, 1.0 - (trimPct / 100.0) * 0.4);
+  }
+  p2 = (p1 * Math.pow(d2 / d1, expPwr)) / effDerate;
+
+  var rImpeller2 = d2 / 2.0;
+  var radialGap = rcw - rImpeller2;
+  var gapBPercent = (radialGap / rImpeller2) * 100.0;
+
+  var pKw = pmpIsMetric ? p2 : (p2 * 0.7457);
+  var motorMargin = 1.10;
+  if (pKw < 22) {
+    motorMargin = 1.25;
+  } else if (pKw <= 55) {
+    motorMargin = 1.15;
+  }
+  var recMotor = p2 * motorMargin;
+
+  var uLen = pmpIsMetric ? ' mm' : ' in';
+  var uHead = pmpIsMetric ? ' m' : ' ft';
+  var uFlow = pmpIsMetric ? ' m³/h' : ' GPM';
+  var uPwr = pmpIsMetric ? ' kW' : ' HP';
+
+  document.getElementById('pmp_res_d2').textContent = d2.toFixed(1) + uLen;
+  document.getElementById('pmp_res_trim_sub').textContent = trimPct.toFixed(1) + '% reduction (' + (d1 - d2).toFixed(1) + uLen + ' cut)';
+  document.getElementById('pmp_res_h2').textContent = h2.toFixed(1) + uHead;
+  document.getElementById('pmp_res_q2').textContent = q2.toFixed(1) + uFlow;
+  document.getElementById('pmp_res_p2').textContent = p2.toFixed(1) + uPwr;
+  document.getElementById('pmp_res_motor').textContent = recMotor.toFixed(1) + uPwr;
+  document.getElementById('pmp_res_gap').textContent = radialGap.toFixed(1) + uLen + ' (' + gapBPercent.toFixed(1) + '% Gap B)';
+
+  var banner = document.getElementById('pmp_banner');
+  if (trimPct < 0) {
+    banner.style.background = 'rgba(239, 68, 68, 0.1)';
+    banner.style.color = '#ef4444';
+    banner.innerHTML = '<strong>⚠ Impossible Expansion:</strong> Target condition requires an impeller larger than current D1. Trimming can only reduce head and flow.';
+  } else if (trimPct > 20) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ Excessive Trim (' + trimPct.toFixed(1) + '%):</strong> Exceeds Hydraulic Institute safe threshold (15-20%). Blade overlap loss will severely degrade efficiency. Consider a VFD or smaller pump.';
+  } else if (gapBPercent < 4.0) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ Tight Cutwater Clearance (' + gapBPercent.toFixed(1) + '%):</strong> Gap B is below 4-6%. High risk of acoustic blade-passing pulsation and bearing damage.';
+  } else {
+    banner.style.background = 'rgba(16, 185, 129, 0.1)';
+    banner.style.color = '#10b981';
+    banner.innerHTML = '<strong>✓ Hydraulically Feasible Trim:</strong> Trim reduction is within safe 0-15% limit. Cutwater acoustic Gap B (' + gapBPercent.toFixed(1) + '%) satisfies ANSI/HI 9.6.4. Dynamically rebalance to ISO G2.5 after turning.';
+  }
+
+  pmpLastCalc = {
+    d1: d1, d2: d2, h1: h1, h2: h2, q1: q1, q2: q2, p1: p1, p2: p2, trimPct: trimPct,
+    rcw: rcw, radialGap: radialGap, gapB: gapBPercent, motor: recMotor, uLen: uLen, uHead: uHead, uFlow: uFlow, uPwr: uPwr, isMetric: pmpIsMetric
+  };
+}
+
+function pmpCopySummary() {
+  if (!pmpLastCalc) return;
+  var d = pmpLastCalc;
+  var s = '=== CENTRIFUGAL PUMP IMPELLER TRIM REPORT (HYDRAULIC INSTITUTE) ===\n' +
+    'Original Impeller (D1): ' + d.d1.toFixed(1) + d.uLen + '\n' +
+    'Trimmed Diameter (D2): ' + d.d2.toFixed(1) + d.uLen + '\n' +
+    'Diameter Reduction: ' + d.trimPct.toFixed(1) + '%\n' +
+    'Head: ' + d.h1.toFixed(1) + ' -> ' + d.h2.toFixed(1) + d.uHead + '\n' +
+    'Flow: ' + d.q1.toFixed(1) + ' -> ' + d.q2.toFixed(1) + d.uFlow + '\n' +
+    'Power: ' + d.p1.toFixed(1) + ' -> ' + d.p2.toFixed(1) + d.uPwr + '\n' +
+    'Cutwater Radial Gap: ' + d.radialGap.toFixed(1) + d.uLen + ' (Gap B = ' + d.gapB.toFixed(1) + '%)\n' +
+    'Recommended Motor (API 610): ' + d.motor.toFixed(1) + d.uPwr + '\n' +
+    'Dynamic Balance Standard: ISO 1940-1 Grade G2.5\n' +
+    'Generated at: https://digitaltoolsshed.com/calc/centrifugal-pump-impeller-trim-calculator.html';
+
+  navigator.clipboard.writeText(s).then(function() {
+    var btn = document.querySelector('.pmp-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+function pmpDraw() {
+  var canvas = document.getElementById('pmp_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var cx = w * 0.42;
+  var cy = h * 0.5;
+  var rcwVal = (pmpLastCalc && pmpLastCalc.rcw) ? pmpLastCalc.rcw : 142;
+  var scale = 0.85 * (h / 2.0) / Math.max(1, rcwVal);
+
+  var r1 = ((pmpLastCalc && pmpLastCalc.d1) ? pmpLastCalc.d1 / 2.0 : 125) * scale;
+  var r2 = ((pmpLastCalc && pmpLastCalc.d2) ? pmpLastCalc.d2 / 2.0 : 110) * scale;
+  var rcw = rcwVal * scale;
+
+  // Volute casing spiral
+  ctx.beginPath();
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 6;
+  for (var th = 0; th <= Math.PI * 2.0; th += 0.05) {
+    var rVol = r1 * 1.08 + (rcw - r1 * 0.95) * (th / (Math.PI * 2));
+    var px = cx + Math.cos(th) * rVol;
+    var py = cy + Math.sin(th) * rVol;
+    if (th === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Discharge nozzle
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx + r1 * 0.8, cy - rcw * 1.15, w * 0.35, rcw * 0.55);
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cx + r1 * 0.8, cy - rcw * 1.15, w * 0.35, rcw * 0.55);
+
+  // Cutwater tongue marker
+  var cwX = cx + Math.cos(-Math.PI * 0.25) * rcw;
+  var cwY = cy + Math.sin(-Math.PI * 0.25) * rcw;
+  ctx.beginPath();
+  ctx.arc(cwX, cwY, 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#ef4444';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.fillStyle = '#f87171';
+  ctx.font = '11px system-ui';
+  ctx.fillText('Cutwater Tongue', cwX + 10, cwY - 8);
+
+  // Ghosted full D1 circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, r1, 0, Math.PI * 2);
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Trimmed D2 circle & rotating blades
+  ctx.beginPath();
+  ctx.arc(cx, cy, r2, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(2, 132, 199, 0.15)';
+  ctx.fill();
+  ctx.strokeStyle = '#0284c7';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Impeller suction eye hub
+  ctx.beginPath();
+  ctx.arc(cx, cy, r1 * 0.28, 0, Math.PI * 2);
+  ctx.fillStyle = '#334155';
+  ctx.fill();
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Curved vanes (6 vanes)
+  var numVanes = 6;
+  for (var v = 0; v < numVanes; v++) {
+    var bAngle = pmpAngle + (v * (Math.PI * 2 / numVanes));
+    ctx.beginPath();
+    var xStart = cx + Math.cos(bAngle) * (r1 * 0.28);
+    var yStart = cy + Math.sin(bAngle) * (r1 * 0.28);
+    var xMid = cx + Math.cos(bAngle + 0.35) * (r2 * 0.65);
+    var yMid = cy + Math.sin(bAngle + 0.35) * (r2 * 0.65);
+    var xEnd = cx + Math.cos(bAngle + 0.65) * r2;
+    var yEnd = cy + Math.sin(bAngle + 0.65) * r2;
+
+    ctx.moveTo(xStart, yStart);
+    ctx.quadraticCurveTo(xMid, yMid, xEnd, yEnd);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+  }
+
+  // Fluid discharge flow particles
+  for (var p = 0; p < 4; p++) {
+    var flowX = cx + r1 * 0.9 + ((pmpAngle * 60 + p * 40) % (w * 0.3));
+    var flowY = cy - rcw * 0.9 + Math.sin(flowX * 0.05) * 6;
+    ctx.beginPath();
+    ctx.arc(flowX, flowY, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fill();
+  }
+
+  // Annotations
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px system-ui';
+  ctx.fillText('D1 Full: ' + (pmpLastCalc && pmpLastCalc.d1 ? pmpLastCalc.d1.toFixed(1) : '') + (pmpLastCalc ? pmpLastCalc.uLen : ''), cx - 40, cy + r1 + 18);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('D2 Trim: ' + (pmpLastCalc && pmpLastCalc.d2 ? pmpLastCalc.d2.toFixed(1) : '') + (pmpLastCalc ? pmpLastCalc.uLen : ''), cx - 40, cy + r2 + 3);
+
+  pmpAngle += 0.025;
+  requestAnimationFrame(pmpDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  pmpCalc();
+  pmpDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BO2: Boiler Continuous Blowdown Rate & Flash Steam Energy Recovery Calculator (ASME Section I & ABMA)
+  // ==========================================
+  (() => {
+    const slug = 'boiler-blowdown-rate-flash-steam-calculator';
+    const title = 'Boiler Continuous Blowdown Rate & Flash Steam Energy Recovery Calculator';
+    const metaDescription = 'Size boiler continuous blowdown rates (CBD), cycles of concentration (CoC), and flash steam energy recovery in accordance with ASME Section I & ABMA guidelines.';
+
+    const faq = [
+      {
+        q: 'What is the fundamental difference between continuous blowdown (CBD) and bottom intermittent blowdown (IBD)?',
+        a: 'Continuous blowdown (CBD) and intermittent bottom blowdown (IBD) serve completely distinct water chemistry functions. Continuous blowdown continuously removes high-TDS water from just below the water surface in the steam drum where evaporation concentrates dissolved solids (calcium, magnesium, silica, chlorides). Intermittent bottom blowdown utilizes large quick-opening valves at the bottom of the mud drum to dislodge heavy, precipitated insoluble sludge and rust particles during short 5-to-10 second flushes. Controlling TDS via bottom blowdown dumps massive quantities of clean, hot water and wastes up to 400% more fuel than surface continuous skimming.'
+      },
+      {
+        q: 'How are boiler maximum allowable Total Dissolved Solids (TDS) determined by ASME?',
+        a: 'ASME Consensus on Operating Practices for the Control of Feedwater and Boiler Water Chemistry specifies maximum boiler water TDS based on operating pressure: 0-300 psig (21 bar): 3,500 ppm max; 301-450 psig (31 bar): 3,000 ppm; 451-600 psig (41 bar): 2,500 ppm; 601-750 psig (52 bar): 1,000 ppm; 751-900 psig (62 bar): 750 ppm; 901-1,000 psig: 625 ppm. For high-pressure utility power boilers (&gt;100 bar), dissolved solids must be maintained below 100 ppb with zero solid chemical treatment.'
+      },
+      {
+        q: 'How does an isenthalpic flash tank recover clean steam from high-pressure blowdown?',
+        a: 'High-pressure saturated blowdown liquid contains high sensible enthalpy (h_f). When throttled into a lower-pressure vessel (such as a 1.5 bar g / 22 psig deaerator header), the sudden drop in saturation pressure causes instantaneous boiling: excess sensible heat vaporizes a fraction of the liquid into 100% pure, distilled flash steam (x_flash = (h_f,drum - h_f,flash) / h_fg,flash). At 16 bar g drum pressure, roughly 15.6% of the blowdown flashes into clean steam that is piped directly to the deaerator, saving both boiler fuel and expensive makeup water treatment chemicals.'
+      },
+      {
+        q: 'Why does local plumbing code prohibit dumping uncooled blowdown directly into sewers?',
+        a: 'Municipal plumbing codes (such as International Plumbing Code IPC Section 701.7) strictly forbid discharging wastewater hotter than 60°C (140°F) into public sewers. Hot boiler blowdown discharged at 100°C to 180°C instantly melts and distorts PVC/ABS drainage pipes, destroys rubber gasket seals, fractures cast iron through thermal shock, and emits scalding steam clouds through municipal manholes. Blowdown must pass through a flash vessel and heat exchanger cooler (or cold water tempering quench tank) before sewer discharge.'
+      },
+      {
+        q: 'Why are standard 316L stainless steel heat exchangers susceptible to chloride stress corrosion cracking in blowdown service?',
+        a: 'Blowdown brine concentrates chloride ions by 10 to 30 times relative to raw feed. Standard austenitic stainless steels (304 and 316L) are highly vulnerable to Chloride Stress Corrosion Cracking (CSCC) at temperatures above 60°C when chloride concentrations exceed 150 ppm. In continuous blowdown heat recovery where effluent temperatures exceed 100°C, specifying titanium, 254 SMO, or nickel alloy plates is essential to prevent sudden plate perforation.'
+      }
+    ];
+
+    const content = `
+<style>
+.bbd-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.bbd-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.bbd-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.bbd-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .bbd-grid-2, .bbd-grid-3, .bbd-grid-4 { grid-template-columns: 1fr; }
+}
+.bbd-stat {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+.bbd-stat-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 0.25rem;
+}
+.bbd-stat-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bbd-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.bbd-btn:hover { opacity: 0.9; }
+.bbd-unit-toggle {
+  display: flex;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.bbd-unit-btn {
+  flex: 1;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.bbd-unit-btn.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+</style>
+
+<div class="bbd-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">Boiler Blowdown & Flash Steam Heat Recovery</h2>
+      <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.85rem;">ASME PTC 4.4 & ABMA water chemistry control, flash vessel steam yield, and annual fuel savings.</p>
+    </div>
+    <div class="bbd-unit-toggle">
+      <button type="button" class="bbd-unit-btn active" id="bbd_btn_metric" onclick="bbdSetUnits(true)">Metric (t/h, bar g, °C)</button>
+      <button type="button" class="bbd-unit-btn" id="bbd_btn_us" onclick="bbdSetUnits(false)">US (lb/hr, psig, °F)</button>
+    </div>
+  </div>
+
+  <div class="bbd-grid-2">
+    <div>
+      <div class="bbd-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Steam Evaporation Rate <span id="bbd_u_steam" style="color:var(--text-muted);">(t/h)</span></label>
+          <input type="number" id="bbd_steam" value="20" step="any" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Boiler Drum Pressure <span id="bbd_u_pdrum" style="color:var(--text-muted);">(bar g)</span></label>
+          <input type="number" id="bbd_pdrum" value="16" step="any" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="bbd-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Max Boiler Water TDS <span style="color:var(--text-muted);">(ppm)</span></label>
+          <input type="number" id="bbd_tds_b" value="2500" step="10" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Feedwater TDS <span style="color:var(--text-muted);">(ppm)</span></label>
+          <input type="number" id="bbd_tds_f" value="125" step="1" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="bbd-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Flash Vessel Pressure <span id="bbd_u_pflash" style="color:var(--text-muted);">(bar g)</span></label>
+          <input type="number" id="bbd_pflash" value="1.5" step="any" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Makeup Water Temp <span id="bbd_u_tmakeup" style="color:var(--text-muted);">(°C)</span></label>
+          <input type="number" id="bbd_tmakeup" value="15" step="any" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="bbd-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Boiler Efficiency (HHV) <span style="color:var(--text-muted);">(%)</span></label>
+          <input type="number" id="bbd_eff" value="82" step="0.5" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Operating Hours/Year</label>
+          <input type="number" id="bbd_hours" value="8000" step="100" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Fuel Unit Cost <span id="bbd_u_fuel" style="color:var(--text-muted);">($/GJ)</span></label>
+        <input type="number" id="bbd_fuel" value="8.0" step="0.5" oninput="bbdCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+      </div>
+    </div>
+
+    <!-- Right Results Panel -->
+    <div style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="bbd-stat" style="margin-bottom:1rem; border-color:var(--primary); background:rgba(2, 132, 199, 0.05);">
+          <div class="bbd-stat-lbl">Continuous Blowdown Rate (CBD)</div>
+          <div class="bbd-stat-val" id="bbd_res_pct" style="font-size:2rem;">--</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;" id="bbd_res_coc_sub">--</div>
+        </div>
+
+        <div class="bbd-grid-2" style="margin-bottom:1rem;">
+          <div class="bbd-stat">
+            <div class="bbd-stat-lbl">Blowdown Mass Flow (Wbd)</div>
+            <div class="bbd-stat-val" id="bbd_res_flow_bd">--</div>
+          </div>
+          <div class="bbd-stat">
+            <div class="bbd-stat-lbl">Recovered Flash Steam</div>
+            <div class="bbd-stat-val" id="bbd_res_flash">--</div>
+          </div>
+        </div>
+
+        <div class="bbd-grid-2" style="margin-bottom:1rem;">
+          <div class="bbd-stat">
+            <div class="bbd-stat-lbl">Total Heat Recovery Rate</div>
+            <div class="bbd-stat-val" id="bbd_res_heat">--</div>
+          </div>
+          <div class="bbd-stat">
+            <div class="bbd-stat-lbl">Annual Fuel Cost Savings</div>
+            <div class="bbd-stat-val" id="bbd_res_annual" style="color:#10b981;">--</div>
+          </div>
+        </div>
+
+        <div id="bbd_banner" style="padding:0.75rem 1rem; border-radius:6px; font-size:0.85rem; line-height:1.4; margin-bottom:1rem;">
+          Evaluating boiler water chemistry...
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" class="bbd-btn" onclick="bbdCopySummary()">
+          <span>Copy Diagnostic Summary</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2D Canvas Flowsheet Simulator -->
+<div class="bbd-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <h3 style="margin:0; font-size:1.1rem;">Continuous Blowdown & Flash Steam Heat Recovery Flowsheet Simulator</h3>
+    <span style="font-size:0.75rem; color:var(--text-muted);">IAPWS-IF97 Phase Boundary</span>
+  </div>
+  <div style="text-align:center;">
+    <canvas id="bbd_canvas" width="760" height="360" style="max-width:100%; height:auto; background:#090d16; border-radius:8px;"></canvas>
+  </div>
+  <div style="display:flex; justify-content:space-around; font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+    <span><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; margin-right:4px; vertical-align:middle;"></span>Main Steam</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; margin-right:4px; vertical-align:middle;"></span>Continuous Blowdown</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#a855f7; margin-right:4px; vertical-align:middle;"></span>Flash Steam to Deaerator</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#10b981; margin-right:4px; vertical-align:middle;"></span>Cooled Drain to Sewer</span>
+  </div>
+</div>
+
+<!-- Mathematical Derivations Section -->
+<div class="bbd-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">Thermodynamic Mass & Energy Balance Derivations</h2>
+  
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">1. Total Dissolved Solids (TDS) Steady-State Mass Balance</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      Because steam departs essentially pure, all non-volatile dissolved mineral salts remain in the liquid. At steady-state equilibrium:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      W<sub>fw</sub> × TDS<sub>feed</sub> = W<sub>bd</sub> × TDS<sub>boiler</sub><br>
+      Since W<sub>fw</sub> = W<sub>steam</sub> + W<sub>bd</sub>:<br>
+      W<sub>bd</sub> = W<sub>steam</sub> × [ TDS<sub>feed</sub> / (TDS<sub>boiler</sub> - TDS<sub>feed</sub>) ]
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      Expressed as percentage of steam generation: <code>B (%) = [ TDS_feed / (TDS_boiler - TDS_feed) ] × 100%</code>.
+    </p>
+  </div>
+
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">2. Flash Steam Recovery via Isenthalpic Expansion</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      Throttling saturated liquid from drum pressure into a lower-pressure separator releases excess sensible heat to vaporize water:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      x<sub>flash</sub> = (h<sub>f,drum</sub> - h<sub>f,flash</sub>) / h<sub>fg,flash</sub> &nbsp;|&nbsp; W<sub>flash</sub> = W<sub>bd</sub> × x<sub>flash</sub>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      At 16 bar g drum pressure flashing down to 1.5 bar g, x<sub>flash</sub> yields approximately <strong>15.6% clean distilled steam</strong> returned directly to boiler feedwater.
+    </p>
+  </div>
+
+  <div>
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">3. Sensible Heat Recovery & Annual Dollar Savings</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      A drain heat exchanger cools residual flash vessel brine before disposal, preheating incoming cold makeup water:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      Q<sub>total</sub> = Q<sub>flash</sub> + Q<sub>drain_hx</sub><br>
+      Annual Savings ($) = [ (Q<sub>total</sub> × Operating Hours) / η<sub>boiler</sub> ] × Fuel Unit Cost
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      Two-stage heat recovery captures over <strong>85% of blowdown enthalpy</strong>, typically paying back equipment within 6 to 12 months.
+    </p>
+  </div>
+</div>
+
+<!-- 5 Fatal Traps Section -->
+<div class="bbd-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">5 Fatal Engineering Traps in Boiler Blowdown Management</h2>
+  
+  <div class="trap-card" style="border-left:4px solid #ef4444; background:rgba(239,68,68,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#ef4444; margin:0 0 0.25rem 0;">1. The Intermittent Bottom Blowdown Fallacy for TDS Control</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Using bottom drain valves to control TDS creates massive thermal swings and spikes chemical consumption. Bottom blowdown is designed solely to dislodge precipitated heavy sludge from the mud drum in brief 5-to-10 second blasts. Dissolved salts concentrate at the evaporation water line; controlling TDS via bottom blowdown dumps clean water and wastes up to 400% more fuel than a top-skimmer continuous blowdown pipe.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #f59e0b; background:rgba(245,158,11,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#f59e0b; margin:0 0 0.25rem 0;">2. Flash Tank Vapor Velocity & Demister Pad Flooding</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      If a blowdown flash tank is undersized, the vapor superficial velocity exceeds the Souders-Brown entrainment limit. Saturated brine droplets get carried upward into the deaerator, contaminating pure boiler feedwater with high TDS and causing severe foaming, drum level instability, and superheater tube burnout.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #10b981; background:rgba(16,185,129,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#10b981; margin:0 0 0.25rem 0;">3. High-Chloride Stress Corrosion Cracking (SCC) on 316L Exchangers</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Blowdown brine concentrates chloride ions by 10 to 30 times. Operating standard 304 or 316L stainless steel plate heat exchangers above 60°C with chloride concentrations exceeding 150 ppm triggers catastrophic Chloride Stress Corrosion Cracking (CSCC) within months. For high-chloride blowdown, specify titanium or 254 SMO alloy plates.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #3b82f6; background:rgba(59,130,246,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#3b82f6; margin:0 0 0.25rem 0;">4. Discharging Uncooled Blowdown Directly to Municipal Sewers</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Environmental and municipal plumbing codes (IPC Section 701.7) strictly prohibit draining wastewater hotter than 60°C (140°F) into municipal sewers. Discharging uncooled saturated brine causes thermal expansion failure of PVC/iron municipal pipes and emits scalding steam through street manholes, inviting heavy regulatory fines. An automated cold-water tempering quench pit or heat exchanger is mandatory.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #8b5cf6; background:rgba(139,92,246,0.06); padding:1rem; border-radius:0 6px 6px 0;">
+    <h3 style="font-size:0.95rem; color:#8b5cf6; margin:0 0 0.25rem 0;">5. Liquid-Only Sizing of the Blowdown Modulating Valve</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      The pressure drop across the continuous blowdown control valve induces instantaneous two-phase flashing inside the valve trim. Sizing the control valve based on single-phase liquid Cv formulas causes sonic choked flow, severe acoustic cavitation, and wire-drawing erosion across the seat. Always specify hardened tungsten carbide or ceramic multistage trim with expanded downstream piping.
+    </p>
+  </div>
+</div>
+
+<script>
+var bbdIsMetric = true;
+var bbdLastCalc = null;
+var bbdAnimTime = 0;
+
+function bbdSatLiquidEnthalpy(pBarG) {
+  var pAbs = Math.max(1.0, pBarG + 1.013);
+  var tSatC = 42.6776 + (110.0 * Math.pow(pAbs, 0.224));
+  return 4.186 * tSatC;
+}
+
+function bbdSatEvapLatentHeat(pBarG) {
+  var pAbs = Math.max(1.0, pBarG + 1.013);
+  return Math.max(1800, 2257.0 - 58.0 * Math.pow(pAbs, 0.42));
+}
+
+function bbdSetUnits(metric) {
+  if (bbdIsMetric === metric) return;
+  bbdIsMetric = metric;
+
+  document.getElementById('bbd_btn_metric').classList.toggle('active', bbdIsMetric);
+  document.getElementById('bbd_btn_us').classList.toggle('active', !bbdIsMetric);
+
+  document.getElementById('bbd_u_steam').textContent = bbdIsMetric ? '(t/h)' : '(k lb/hr)';
+  document.getElementById('bbd_u_pdrum').textContent = bbdIsMetric ? '(bar g)' : '(psig)';
+  document.getElementById('bbd_u_pflash').textContent = bbdIsMetric ? '(bar g)' : '(psig)';
+  document.getElementById('bbd_u_tmakeup').textContent = bbdIsMetric ? '(°C)' : '(°F)';
+  document.getElementById('bbd_u_fuel').textContent = bbdIsMetric ? '($/GJ)' : '($/MMBtu)';
+
+  var elSteam = document.getElementById('bbd_steam');
+  var elPDrum = document.getElementById('bbd_pdrum');
+  var elPFlash = document.getElementById('bbd_pflash');
+  var elTMakeup = document.getElementById('bbd_tmakeup');
+  var elFuel = document.getElementById('bbd_fuel');
+
+  if (bbdIsMetric) {
+    elSteam.value = (parseFloat(elSteam.value) * 0.453592).toFixed(1);
+    elPDrum.value = (parseFloat(elPDrum.value) * 0.0689476).toFixed(1);
+    elPFlash.value = (parseFloat(elPFlash.value) * 0.0689476).toFixed(1);
+    elTMakeup.value = ((parseFloat(elTMakeup.value) - 32) * 5 / 9).toFixed(1);
+    elFuel.value = (parseFloat(elFuel.value) / 1.055).toFixed(2);
+  } else {
+    elSteam.value = (parseFloat(elSteam.value) / 0.453592).toFixed(1);
+    elPDrum.value = (parseFloat(elPDrum.value) / 0.0689476).toFixed(1);
+    elPFlash.value = (parseFloat(elPFlash.value) / 0.0689476).toFixed(1);
+    elTMakeup.value = ((parseFloat(elTMakeup.value) * 9 / 5) + 32).toFixed(1);
+    elFuel.value = (parseFloat(elFuel.value) * 1.055).toFixed(2);
+  }
+  bbdCalc();
+}
+
+function bbdCalc() {
+  var rawSteam = parseFloat(document.getElementById('bbd_steam').value) || 1;
+  var rawPDrum = parseFloat(document.getElementById('bbd_pdrum').value) || 1;
+  var tdsB = parseFloat(document.getElementById('bbd_tds_b').value) || 2500;
+  var tdsF = parseFloat(document.getElementById('bbd_tds_f').value) || 100;
+  var rawPFlash = parseFloat(document.getElementById('bbd_pflash').value) || 1;
+  var rawTMakeup = parseFloat(document.getElementById('bbd_tmakeup').value) || 15;
+  var eff = (parseFloat(document.getElementById('bbd_eff').value) || 82) / 100.0;
+  var hours = parseFloat(document.getElementById('bbd_hours').value) || 8000;
+  var rawFuel = parseFloat(document.getElementById('bbd_fuel').value) || 8.0;
+
+  var steamKgH = bbdIsMetric ? (rawSteam * 1000.0) : (rawSteam * 1000.0 * 0.453592);
+  var pDrumBarG = bbdIsMetric ? rawPDrum : (rawPDrum * 0.0689476);
+  var pFlashBarG = bbdIsMetric ? rawPFlash : (rawPFlash * 0.0689476);
+  var tMakeupC = bbdIsMetric ? rawTMakeup : ((rawTMakeup - 32) * 5 / 9);
+  var fuelCostPerGJ = bbdIsMetric ? rawFuel : (rawFuel / 1.05506);
+
+  if (tdsB <= tdsF) {
+    tdsB = tdsF + 50;
+    document.getElementById('bbd_tds_b').value = tdsB;
+  }
+
+  var coc = tdsB / tdsF;
+  var bPct = (tdsF / (tdsB - tdsF)) * 100.0;
+  var flowBdKgH = steamKgH * (bPct / 100.0);
+
+  var hfDrum = bbdSatLiquidEnthalpy(pDrumBarG);
+  var hfFlash = bbdSatLiquidEnthalpy(pFlashBarG);
+  var hfgFlash = bbdSatEvapLatentHeat(pFlashBarG);
+
+  var xFlash = Math.max(0.0, Math.min(0.35, (hfDrum - hfFlash) / hfgFlash));
+  var flashSteamKgH = flowBdKgH * xFlash;
+  var drainLiquidKgH = flowBdKgH * (1.0 - xFlash);
+
+  var hfMakeup = 4.186 * tMakeupC;
+  var qFlashKjH = flashSteamKgH * (hfFlash + hfgFlash - hfMakeup);
+  var tFlashSat = hfFlash / 4.186;
+  var tDrainExit = tMakeupC + 10.0;
+  var qDrainKjH = drainLiquidKgH * 4.186 * Math.max(0, tFlashSat - tDrainExit);
+  var qTotalKjH = qFlashKjH + qDrainKjH;
+  var qTotalKw = qTotalKjH / 3600.0;
+
+  var annualGj = (qTotalKjH * hours / 1e6) / eff;
+  var annualSav = annualGj * fuelCostPerGJ;
+
+  var uFlow = bbdIsMetric ? ' t/h' : ' k lb/hr';
+  var dispFlowBd = bbdIsMetric ? (flowBdKgH / 1000.0) : (flowBdKgH / 453.592);
+  var dispFlash = bbdIsMetric ? (flashSteamKgH / 1000.0) : (flashSteamKgH / 453.592);
+
+  document.getElementById('bbd_res_pct').textContent = bPct.toFixed(2) + '%';
+  document.getElementById('bbd_res_coc_sub').textContent = coc.toFixed(1) + ' Cycles of Concentration';
+  document.getElementById('bbd_res_flow_bd').textContent = dispFlowBd.toFixed(2) + uFlow;
+  document.getElementById('bbd_res_flash').textContent = dispFlash.toFixed(2) + uFlow + ' (' + (xFlash * 100).toFixed(1) + '%)';
+  document.getElementById('bbd_res_heat').textContent = qTotalKw.toFixed(1) + ' kW';
+  document.getElementById('bbd_res_annual').textContent = '$' + Math.round(annualSav).toLocaleString() + ' / yr';
+
+  var banner = document.getElementById('bbd_banner');
+  if (bPct > 10.0) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ High Blowdown Rate (' + bPct.toFixed(1) + '%):</strong> Poor feedwater requires heavy water dumping. Consider upstream Reverse Osmosis to boost CoC &gt; 25.';
+  } else if (coc > 50.0) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ Extreme Cycles (' + coc.toFixed(1) + '):</strong> Risk of rapid calcium silicate scale deposition and caustic gouging. Verify ASME limits.';
+  } else {
+    banner.style.background = 'rgba(16, 185, 129, 0.1)';
+    banner.style.color = '#10b981';
+    banner.innerHTML = '<strong>✓ Optimized Continuous Blowdown Regime:</strong> Blowdown rate (' + bPct.toFixed(2) + '%) and CoC (' + coc.toFixed(1) + ') satisfy ASME Section I guidelines. Flash recovery captures ~' + (xFlash * 100).toFixed(0) + '% clean steam.';
+  }
+
+  bbdLastCalc = {
+    bPct: bPct, coc: coc, flowBd: dispFlowBd, flashSteam: dispFlash, xFlash: xFlash,
+    qTotalKw: qTotalKw, annualSav: annualSav, uFlow: uFlow, pDrum: pDrumBarG, pFlash: pFlashBarG
+  };
+}
+
+function bbdCopySummary() {
+  if (!bbdLastCalc) return;
+  var d = bbdLastCalc;
+  var s = '=== BOILER CONTINUOUS BLOWDOWN & HEAT RECOVERY AUDIT ===\n' +
+    'Blowdown Rate: ' + d.bPct.toFixed(2) + '%\n' +
+    'Cycles of Concentration (CoC): ' + d.coc.toFixed(1) + ' cycles\n' +
+    'Continuous Blowdown Flow (Wbd): ' + d.flowBd.toFixed(2) + d.uFlow + '\n' +
+    'Recovered Flash Steam: ' + d.flashSteam.toFixed(2) + d.uFlow + ' (' + (d.xFlash * 100).toFixed(1) + '% yield)\n' +
+    'Total Heat Recovery: ' + d.qTotalKw.toFixed(1) + ' kW\n' +
+    'Annual Fuel Savings: $' + Math.round(d.annualSav).toLocaleString() + ' / yr\n' +
+    'Standards: ASME PTC 4.4, ASME Section I, ABMA Table 1\n' +
+    'Generated at: https://digitaltoolsshed.com/calc/boiler-blowdown-rate-flash-steam-calculator.html';
+
+  navigator.clipboard.writeText(s).then(function() {
+    var btn = document.querySelector('.bbd-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+function bbdDraw() {
+  var canvas = document.getElementById('bbd_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // 1. Boiler Steam Drum
+  var drumX = 140;
+  var drumY = 130;
+  var drumW = 180;
+  var drumH = 90;
+
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(drumX, drumY, drumW, drumH);
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(drumX, drumY, drumW, drumH);
+
+  // Water level in drum
+  var waterY = drumY + drumH * 0.45;
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+  ctx.fillRect(drumX + 2, waterY, drumW - 4, drumH * 0.55 - 2);
+
+  ctx.strokeStyle = '#38bdf8';
+  ctx.setLineDash([4, 2]);
+  ctx.beginPath();
+  ctx.moveTo(drumX + 2, waterY);
+  ctx.lineTo(drumX + drumW - 2, waterY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = 'bold 12px system-ui';
+  ctx.fillText('Boiler Steam Drum', drumX + 28, drumY + 28);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px system-ui';
+  ctx.fillText((bbdLastCalc && bbdLastCalc.pDrum ? bbdLastCalc.pDrum.toFixed(1) : '16') + ' bar g sat', drumX + 50, drumY + 44);
+
+  // Main steam nozzle
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(drumX + drumW * 0.5, drumY);
+  ctx.lineTo(drumX + drumW * 0.5, drumY - 50);
+  ctx.stroke();
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('Main Steam Out', drumX + drumW * 0.5 - 40, drumY - 58);
+
+  // Internal CBD collector pipe
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(drumX + 30, waterY + 12);
+  ctx.lineTo(drumX + drumW - 30, waterY + 12);
+  ctx.lineTo(drumX + drumW, waterY + 12);
+  ctx.lineTo(drumX + drumW + 50, waterY + 12);
+  ctx.stroke();
+
+  // 2. Flash Vessel
+  var fX = 460;
+  var fY = 100;
+  var fW = 80;
+  var fH = 150;
+
+  ctx.beginPath();
+  ctx.moveTo(drumX + drumW + 50, waterY + 12);
+  ctx.lineTo(fX, fY + 60);
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Orifice / Valve symbol
+  var vX = (drumX + drumW + 50 + fX) * 0.5;
+  var vY = (waterY + 12 + fY + 60) * 0.5;
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.arc(vX, vY, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f87171';
+  ctx.font = '9px system-ui';
+  ctx.fillText('CBD Valve (Flash)', vX - 35, vY - 10);
+
+  // Flash tank body
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(fX, fY, fW, fH);
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(fX, fY, fW, fH);
+
+  // Liquid in flash tank
+  ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+  ctx.fillRect(fX + 2, fY + fH * 0.6, fW - 4, fH * 0.4 - 2);
+
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = 'bold 11px system-ui';
+  ctx.fillText('Flash Tank', fX + 12, fY + 24);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '9px system-ui';
+  ctx.fillText((bbdLastCalc && bbdLastCalc.pFlash ? bbdLastCalc.pFlash.toFixed(1) : '1.5') + ' bar g', fX + 18, fY + 38);
+
+  // Flash steam to deaerator
+  ctx.strokeStyle = '#a855f7';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(fX + fW * 0.5, fY);
+  ctx.lineTo(fX + fW * 0.5, fY - 50);
+  ctx.lineTo(fX + fW * 0.5 + 80, fY - 50);
+  ctx.stroke();
+  ctx.fillStyle = '#c084fc';
+  ctx.font = '11px system-ui';
+  ctx.fillText('Clean Flash Steam -> Deaerator', fX + fW * 0.5 - 20, fY - 58);
+
+  // 3. Bottom Drain Cooler HX
+  var hxX = 640;
+  var hxY = 240;
+  var hxW = 80;
+  var hxH = 60;
+
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(fX + fW * 0.5, fY + fH);
+  ctx.lineTo(fX + fW * 0.5, hxY + 30);
+  ctx.lineTo(hxX, hxY + 30);
+  ctx.stroke();
+
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(hxX, hxY, hxW, hxH);
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(hxX, hxY, hxW, hxH);
+
+  ctx.fillStyle = '#34d399';
+  ctx.font = 'bold 10px system-ui';
+  ctx.fillText('Blowdown', hxX + 16, hxY + 26);
+  ctx.fillText('Cooler HX', hxX + 16, hxY + 40);
+
+  // Effluent to sewer
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(hxX + hxW, hxY + 30);
+  ctx.lineTo(w - 20, hxY + 30);
+  ctx.stroke();
+  ctx.fillStyle = '#10b981';
+  ctx.font = '10px system-ui';
+  ctx.fillText('Cooled to Drain (<50°C)', hxX + 10, hxY + 80);
+
+  // Animated bubbles
+  for (var b = 0; b < 3; b++) {
+    var bX = (drumX + drumW + 50) + ((bbdAnimTime * 40 + b * 50) % (fX - drumX - drumW - 50));
+    ctx.beginPath();
+    ctx.arc(bX, waterY + 12 + (bX - (drumX + drumW + 50)) * ((fY + 60 - waterY - 12) / (fX - drumX - drumW - 50)), 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fill();
+  }
+
+  bbdAnimTime += 0.05;
+  requestAnimationFrame(bbdDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  bbdCalc();
+  bbdDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BO3: Cyclone Dust Separator Sizing & Cut Diameter Calculator (Stairmand / Swift High-Efficiency)
+  // ==========================================
+  (() => {
+    const slug = 'cyclone-separator-sizing-stairmand-calculator';
+    const title = 'Cyclone Dust Separator Sizing & Cut Diameter Calculator';
+    const metaDescription = 'Size industrial reverse-flow cyclone dust separators using Stairmand and Swift high-efficiency geometry standards, Lapple cut diameter (d50), and pressure drop.';
+
+    const faq = [
+      {
+        q: 'What is the Lapple 50% cut diameter (d50) in cyclone dust collection?',
+        a: 'The 50% cut diameter (d50) is the characteristic aerodynamic particle size collected by the cyclone with exactly 50% fractional efficiency. Particles larger than d50 are captured at progressively higher efficiencies (&gt;90% for particles twice d50), while smaller particles escape out the central vortex finder into the exhaust gas. Mathematically derived from Stokes drag and centrifugal force, d50 = sqrt[(9 * mu * b) / (2 * pi * Ne * vi * (rho_p - rho_g))], where mu is gas dynamic viscosity, b is inlet duct width, Ne is number of outer spiral turns (~5 for Stairmand), vi is inlet gas velocity, and rho_p is true solid particle density.'
+      },
+      {
+        q: 'Why does air infiltration into the dust hopper devastate collection efficiency?',
+        a: 'Industrial cyclones operate under negative pressure due to downstream induced draft (ID) fans. Any atmospheric air leak through the hopper discharge valve (faulty rotary airlock, open slide gate, or eroded flapper seal) draws high-velocity ambient air directly into the bottom apex of the cone. Even an air in-leakage rate of 2% to 3% of total gas volume generates an upward aerodynamic jet that sweeps separated dust off the cone walls and blows it straight into the ascending clean gas core, dropping overall collection efficiency from 95% down to under 40%.'
+      },
+      {
+        q: 'What is the optimum inlet velocity range for a Stairmand high-efficiency cyclone?',
+        a: 'The optimum inlet gas velocity for standard Stairmand cyclones is 15 to 20 m/s (50 to 65 ft/s). If inlet velocity drops below 12 m/s, centrifugal acceleration weakens significantly, causing d50 cut diameter to increase and allowing fine dust to escape. Conversely, if inlet velocity exceeds 22 m/s (the Kalen & Zenz saltation limit), intense boundary layer turbulence shears previously separated dust cakes off the cone walls, re-entraining them into the exhaust while pressure drop spikes quadratically (delta-P proportional to vi²).'
+      },
+      {
+        q: 'When should a multicyclone array be selected instead of a single large cyclone?',
+        a: 'Because cut diameter scales with the square root of barrel diameter (d50 proportional to sqrt(Dc)), smaller cyclone bodies generate exponentially higher centrifugal G-forces. A small 200 mm diameter cyclone captures particles down to 2-3 microns, whereas a 2,000 mm diameter unit only captures particles down to 8-12 microns. When treating large gas volumetric flows that require capture of fine sub-5-micron particles, engineers install multicyclones—parallel arrays of 20 to 100 small cast-iron cyclone tubes housed inside a common distribution plenum.'
+      },
+      {
+        q: 'How does operating temperature affect cyclone separation and fan horsepower?',
+        a: 'Unlike liquids, gas dynamic viscosity increases with temperature (governed by Sutherland law: mu proportional to T^1.5 / (T + S)). At 350°C boiler flue gas conditions, air viscosity is ~60% higher than at 20°C, increasing aerodynamic drag and elevating d50 cut diameter by ~25%. Concurrently, gas density drops, reducing the pressure drop in pascals for a given velocity, but requiring higher volumetric CFM capacity and larger fan impellers to move equivalent mass.'
+      }
+    ];
+
+    const content = `
+<style>
+.cyc-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.cyc-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.cyc-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.cyc-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .cyc-grid-2, .cyc-grid-3, .cyc-grid-4 { grid-template-columns: 1fr; }
+}
+.cyc-stat {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+.cyc-stat-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 0.25rem;
+}
+.cyc-stat-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cyc-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.cyc-btn:hover { opacity: 0.9; }
+.cyc-unit-toggle {
+  display: flex;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.cyc-unit-btn {
+  flex: 1;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.cyc-unit-btn.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+</style>
+
+<div class="cyc-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">Industrial Cyclone Dust Separator Sizing</h2>
+      <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.85rem;">Stairmand & Swift high-efficiency geometry, Lapple cut diameter (d50), and pressure drop.</p>
+    </div>
+    <div class="cyc-unit-toggle">
+      <button type="button" class="cyc-unit-btn active" id="cyc_btn_metric" onclick="cycSetUnits(true)">Metric (m³/h, m/s, mm, Pa)</button>
+      <button type="button" class="cyc-unit-btn" id="cyc_btn_us" onclick="cycSetUnits(false)">US (CFM, ft/s, in, inWG)</button>
+    </div>
+  </div>
+
+  <div class="cyc-grid-2">
+    <div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.35rem;">Geometry Standard</label>
+        <select id="cyc_standard" onchange="cycCalc()" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+          <option value="stairmand_he">Stairmand High-Efficiency (a/D=0.5, b/D=0.2, H/D=4.0)</option>
+          <option value="swift_he">Swift High-Efficiency (a/D=0.44, b/D=0.21, H/D=3.9)</option>
+          <option value="lapple_gp">Lapple General Purpose (a/D=0.5, b/D=0.25, H/D=4.0)</option>
+        </select>
+      </div>
+
+      <div class="cyc-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Gas Volumetric Flow <span id="cyc_u_q" style="color:var(--text-muted);">(m³/h)</span></label>
+          <input type="number" id="cyc_q" value="7200" step="100" oninput="cycCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Target Inlet Velocity <span id="cyc_u_vi" style="color:var(--text-muted);">(m/s)</span></label>
+          <input type="number" id="cyc_vi" value="18" step="0.5" oninput="cycCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="cyc-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Gas Temperature <span id="cyc_u_t" style="color:var(--text-muted);">(°C)</span></label>
+          <input type="number" id="cyc_t" value="20" step="5" oninput="cycCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Particle True Density <span id="cyc_u_rhop" style="color:var(--text-muted);">(kg/m³)</span></label>
+          <input type="number" id="cyc_rhop" value="2200" step="50" oninput="cycCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="cyc-grid-2">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Target Particle Size (dp) <span style="color:var(--text-muted);">(μm)</span></label>
+          <input type="number" id="cyc_dp" value="5.0" step="0.5" oninput="cycCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">ID Fan Efficiency <span style="color:var(--text-muted);">(%)</span></label>
+          <input type="number" id="cyc_fan_eff" value="70" step="5" oninput="cycCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Results Panel -->
+    <div style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="cyc-stat" style="margin-bottom:1rem; border-color:var(--primary); background:rgba(2, 132, 199, 0.05);">
+          <div class="cyc-stat-lbl">Cyclone Barrel Diameter (Dc)</div>
+          <div class="cyc-stat-val" id="cyc_res_dc" style="font-size:2rem;">--</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;" id="cyc_res_inlet_sub">--</div>
+        </div>
+
+        <div class="cyc-grid-2" style="margin-bottom:1rem;">
+          <div class="cyc-stat">
+            <div class="cyc-stat-lbl">50% Cut Diameter (d50)</div>
+            <div class="cyc-stat-val" id="cyc_res_d50">--</div>
+          </div>
+          <div class="cyc-stat">
+            <div class="cyc-stat-lbl">Collection Efficiency</div>
+            <div class="cyc-stat-val" id="cyc_res_eff" style="color:#10b981;">--</div>
+          </div>
+        </div>
+
+        <div class="cyc-grid-2" style="margin-bottom:1rem;">
+          <div class="cyc-stat">
+            <div class="cyc-stat-lbl">Pressure Drop (ΔP)</div>
+            <div class="cyc-stat-val" id="cyc_res_dp">--</div>
+          </div>
+          <div class="cyc-stat">
+            <div class="cyc-stat-lbl">Fan Power Requirement</div>
+            <div class="cyc-stat-val" id="cyc_res_power">--</div>
+          </div>
+        </div>
+
+        <div id="cyc_banner" style="padding:0.75rem 1rem; border-radius:6px; font-size:0.85rem; line-height:1.4; margin-bottom:1rem;">
+          Evaluating cyclone aerodynamics...
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" class="cyc-btn" onclick="cycCopySummary()">
+          <span>Copy Diagnostic Summary</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2D Canvas Simulator -->
+<div class="cyc-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <h3 style="margin:0; font-size:1.1rem;">2D Dynamic Cyclone Counter-Current Vortex Simulator</h3>
+    <span style="font-size:0.75rem; color:var(--text-muted);">Centrifugal Separation Trajectory</span>
+  </div>
+  <div style="text-align:center;">
+    <canvas id="cyc_canvas" width="760" height="420" style="max-width:100%; height:auto; background:#090d16; border-radius:8px;"></canvas>
+  </div>
+  <div style="display:flex; justify-content:space-around; font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+    <span><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; margin-right:4px; vertical-align:middle;"></span>Tangential Dirty Gas</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:50%; margin-right:4px; vertical-align:middle;"></span>Descending Outer Dust Vortex</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; border-radius:50%; margin-right:4px; vertical-align:middle;"></span>Ascending Clean Gas Core</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#10b981; margin-right:4px; vertical-align:middle;"></span>Collected Dust Hopper</span>
+  </div>
+</div>
+
+<!-- Mathematical Derivation Section -->
+<div class="cyc-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">Aerodynamic Sizing & Mathematical Derivations</h2>
+  
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">1. Stairmand High-Efficiency Geometric Proportions</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      C.J. Stairmand established standard dimensionless ratios normalized against the cyclone barrel diameter D<sub>c</sub>:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      Inlet Height (a) = 0.5 × D<sub>c</sub> &nbsp;|&nbsp; Inlet Width (b) = 0.2 × D<sub>c</sub><br>
+      Gas Exit (D<sub>e</sub>) = 0.5 × D<sub>c</sub> &nbsp;|&nbsp; Vortex Finder Length (S) = 0.5 × D<sub>c</sub><br>
+      Cylinder Barrel (h) = 1.5 × D<sub>c</sub> &nbsp;|&nbsp; Total Height (H) = 4.0 × D<sub>c</sub>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      Inlet area is <code>A_i = Q / v_i = a × b = 0.10 × D_c²</code>, yielding barrel diameter <code>D_c = √(Q / (0.10 × v_i))</code>.
+    </p>
+  </div>
+
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">2. Lapple 50% Cut Diameter (d₅₀) Formulation</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      The 50% cut diameter balances Stokes drag against centrifugal acceleration across inlet width b over N<sub>e</sub> outer vortex turns:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      d₅₀ = √[ (9 × μ<sub>g</sub> × b) / (2 × π × N<sub>e</sub> × v<sub>i</sub> × (ρ<sub>p</sub> - ρ<sub>g</sub>)) ]<br>
+      where N<sub>e</sub> ≈ (1/a) × [ h + (H - h)/2 ] ≈ 5.0 turns
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      Fractional grade efficiency follows the Lapple curve: <code>η(d_p) = 1 / [1 + (d_50 / d_p)²]</code>.
+    </p>
+  </div>
+
+  <div>
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">3. Cyclone Pressure Drop (Shepherd & Lapple)</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      Total pressure loss across the cyclone is expressed in inlet velocity heads N<sub>H</sub>:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      ΔP = 0.5 × ρ<sub>g</sub> × v<sub>i</sub>² × N<sub>H</sub> &nbsp;(N<sub>H</sub> ≈ 6.4 for Stairmand standard)
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      At 18 m/s inlet velocity in ambient air (ρ = 1.2 kg/m³), ΔP is approximately <strong>1,244 Pa (12.4 mbar / 5.0 inWG)</strong>.
+    </p>
+  </div>
+</div>
+
+<!-- 5 Fatal Traps Section -->
+<div class="cyc-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">5 Fatal Engineering Traps in Cyclone Dust Separator Design</h2>
+  
+  <div class="trap-card" style="border-left:4px solid #ef4444; background:rgba(239,68,68,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#ef4444; margin:0 0 0.25rem 0;">1. Hopper Air In-Leakage: The Silent Efficiency Killer</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Because the cyclone operates under negative pressure (induced draft fan downstream), any leakage through the dust hopper discharge valve (rotary airlock or flap gate) draws high-velocity ambient air directly into the bottom apex of the cone. An air infiltration of just 2% to 3% of the main gas flow completely blows the separated dust back into the central upward vortex core, destroying collection efficiency from 95% down to under 40%.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #f59e0b; background:rgba(245,158,11,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#f59e0b; margin:0 0 0.25rem 0;">2. The High-Velocity Fallacy: Designing Above 22 m/s</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Engineers often believe that cranking up inlet velocity to 25-30 m/s will centrifuge smaller sub-micron particles. In reality, beyond the Kalen & Zenz saltation limit (~22 m/s), turbulent shear stresses on the outer wall rip already-deposited dust cakes off the metal surface, re-entraining them into the gas stream. Meanwhile, pressure drop spikes quadratically (ΔP ∝ v²), causing massive electrical energy waste and rapid abrasive wear on the cone walls.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #10b981; background:rgba(16,185,129,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#10b981; margin:0 0 0.25rem 0;">3. Vortex Finder Roof Creep (Short-Circuiting)</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      A boundary layer of dirty gas clings to the top flat roof of the cyclone barrel and travels radially inward across the roof plate directly into the outer lip of the vortex finder without ever entering the downward centrifugal vortex. To prevent this, Stairmand specified vortex finder penetration depth S = 0.5 × Dc. Truncating the vortex finder tube to save material allows unseparated dust to dump straight into the exhaust stack.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #3b82f6; background:rgba(59,130,246,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#3b82f6; margin:0 0 0.25rem 0;">4. Temperature Viscosity Damping on Hot Flue Gas</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Unlike liquids whose viscosity decreases with temperature, gas viscosity increases with temperature (Sutherland's law: μ ∝ T^1.5 / (T + S)). Sizing a cyclone at ambient 20°C conditions for a 350°C boiler flue gas application causes cut diameter d50 to increase by over 35%, because the hotter, more viscous gas exerts substantially higher drag force opposing centrifugal settling.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #8b5cf6; background:rgba(139,92,246,0.06); padding:1rem; border-radius:0 6px 6px 0;">
+    <h3 style="font-size:0.95rem; color:#8b5cf6; margin:0 0 0.25rem 0;">5. Heavy Dust Loading Solids Friction & Pressure Drop Inversion</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Counterintuitively, when dust loading exceeds 50 g/m³, measured cyclone pressure drop actually drops by 15% to 30% compared to clean air. The heavy cloud of circulating solid particles dampens tangential gas vortex velocity through inter-particle collisions and wall friction. Designing fan static pressure without accounting for this loading suppression causes the ID fan to run off its design curve during clean-air startup.
+    </p>
+  </div>
+</div>
+
+<script>
+var cycIsMetric = true;
+var cycLastCalc = null;
+var cycAnimTime = 0;
+
+var CYC_GEOMS = {
+  stairmand_he: { a: 0.5, b: 0.2, de: 0.5, s: 0.5, h: 1.5, H: 4.0, B: 0.375, nh: 6.4 },
+  swift_he:     { a: 0.44, b: 0.21, de: 0.4, s: 0.5, h: 1.4, H: 3.9, B: 0.4,   nh: 7.2 },
+  lapple_gp:    { a: 0.5, b: 0.25, de: 0.5, s: 0.625, h: 2.0, H: 4.0, B: 0.25, nh: 8.0 }
+};
+
+function cycSetUnits(metric) {
+  if (cycIsMetric === metric) return;
+  cycIsMetric = metric;
+
+  document.getElementById('cyc_btn_metric').classList.toggle('active', cycIsMetric);
+  document.getElementById('cyc_btn_us').classList.toggle('active', !cycIsMetric);
+
+  document.getElementById('cyc_u_q').textContent = cycIsMetric ? '(m³/h)' : '(CFM)';
+  document.getElementById('cyc_u_vi').textContent = cycIsMetric ? '(m/s)' : '(ft/s)';
+  document.getElementById('cyc_u_t').textContent = cycIsMetric ? '(°C)' : '(°F)';
+  document.getElementById('cyc_u_rhop').textContent = cycIsMetric ? '(kg/m³)' : '(lb/ft³)';
+
+  var elQ = document.getElementById('cyc_q');
+  var elVi = document.getElementById('cyc_vi');
+  var elT = document.getElementById('cyc_t');
+  var elRhop = document.getElementById('cyc_rhop');
+
+  if (cycIsMetric) {
+    elQ.value = (parseFloat(elQ.value) * 1.69901).toFixed(0);
+    elVi.value = (parseFloat(elVi.value) * 0.3048).toFixed(1);
+    elT.value = ((parseFloat(elT.value) - 32) * 5 / 9).toFixed(0);
+    elRhop.value = (parseFloat(elRhop.value) * 16.0185).toFixed(0);
+  } else {
+    elQ.value = (parseFloat(elQ.value) / 1.69901).toFixed(0);
+    elVi.value = (parseFloat(elVi.value) / 0.3048).toFixed(1);
+    elT.value = ((parseFloat(elT.value) * 9 / 5) + 32).toFixed(0);
+    elRhop.value = (parseFloat(elRhop.value) / 16.0185).toFixed(1);
+  }
+  cycCalc();
+}
+
+function cycCalc() {
+  var rawQ = parseFloat(document.getElementById('cyc_q').value) || 1;
+  var rawVi = parseFloat(document.getElementById('cyc_vi').value) || 1;
+  var rawT = parseFloat(document.getElementById('cyc_t').value) || 20;
+  var rawRhop = parseFloat(document.getElementById('cyc_rhop').value) || 2200;
+  var dpTarget = parseFloat(document.getElementById('cyc_dp').value) || 5.0;
+  var fanEff = (parseFloat(document.getElementById('cyc_fan_eff').value) || 70) / 100.0;
+  var geom = CYC_GEOMS[document.getElementById('cyc_standard').value] || CYC_GEOMS.stairmand_he;
+
+  var qM3S = cycIsMetric ? (rawQ / 3600.0) : (rawQ * 0.000471947);
+  var viMS = cycIsMetric ? rawVi : (rawVi * 0.3048);
+  var tC = cycIsMetric ? rawT : ((rawT - 32) * 5 / 9);
+  var rhopKgM3 = cycIsMetric ? rawRhop : (rawRhop * 16.0185);
+
+  var tK = tC + 273.15;
+  var rhoGas = 101.325 / (0.287 * tK);
+  var muGas = 1.458e-6 * Math.pow(tK, 1.5) / (tK + 110.4);
+
+  var ai = qM3S / viMS;
+  var dc = Math.sqrt(ai / (geom.a * geom.b));
+
+  var dimA = geom.a * dc;
+  var dimB = geom.b * dc;
+  var dimDe = geom.de * dc;
+  var dimS = geom.s * dc;
+  var dimH = geom.H * dc;
+  var dimBarrelH = geom.h * dc;
+  var dimBDisch = geom.B * dc;
+
+  var ne = (1.0 / dimA) * (dimBarrelH + (dimH - dimBarrelH) / 2.0);
+  var d50M = Math.sqrt((9.0 * muGas * dimB) / (2.0 * Math.PI * ne * viMS * Math.max(10, rhopKgM3 - rhoGas)));
+  var d50Um = d50M * 1e6;
+
+  var effPercent = (1.0 / (1.0 + Math.pow(d50Um / dpTarget, 2.0))) * 100.0;
+
+  var deltaPPa = 0.5 * rhoGas * Math.pow(viMS, 2.0) * geom.nh;
+  var pAirKw = (qM3S * deltaPPa) / (fanEff * 1000.0);
+
+  var uLen = cycIsMetric ? ' mm' : ' in';
+  var dispDc = cycIsMetric ? (dc * 1000.0).toFixed(0) : (dc * 39.3701).toFixed(1);
+  var dispA = cycIsMetric ? (dimA * 1000.0).toFixed(0) : (dimA * 39.3701).toFixed(1);
+  var dispB = cycIsMetric ? (dimB * 1000.0).toFixed(0) : (dimB * 39.3701).toFixed(1);
+  var dispH = cycIsMetric ? (dimH * 1000.0).toFixed(0) : (dimH * 39.3701).toFixed(1);
+
+  document.getElementById('cyc_res_dc').textContent = dispDc + uLen;
+  document.getElementById('cyc_res_inlet_sub').textContent = 'Inlet ' + dispA + ' × ' + dispB + uLen + ' | Total H: ' + dispH + uLen;
+  document.getElementById('cyc_res_d50').textContent = d50Um.toFixed(2) + ' μm';
+  document.getElementById('cyc_res_eff').textContent = effPercent.toFixed(1) + '% (@ ' + dpTarget.toFixed(1) + ' μm)';
+
+  if (cycIsMetric) {
+    document.getElementById('cyc_res_dp').textContent = Math.round(deltaPPa) + ' Pa (' + (deltaPPa * 0.01).toFixed(1) + ' mbar)';
+    document.getElementById('cyc_res_power').textContent = pAirKw.toFixed(2) + ' kW';
+  } else {
+    var inWg = deltaPPa * 0.00401865;
+    document.getElementById('cyc_res_dp').textContent = inWg.toFixed(2) + ' inWG';
+    document.getElementById('cyc_res_power').textContent = (pAirKw * 1.34102).toFixed(2) + ' HP';
+  }
+
+  var banner = document.getElementById('cyc_banner');
+  if (viMS < 12.0) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ Low Inlet Velocity (' + viMS.toFixed(1) + ' m/s):</strong> Below minimum vortex threshold (15 m/s). Centrifugal separation force will be sluggish.';
+  } else if (viMS > 23.0) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ High Velocity (' + viMS.toFixed(1) + ' m/s):</strong> Exceeds Kalen & Zenz saltation limit (~22 m/s). Causes dust re-entrainment and abrasive wall wear.';
+  } else {
+    banner.style.background = 'rgba(16, 185, 129, 0.1)';
+    banner.style.color = '#10b981';
+    banner.innerHTML = '<strong>✓ Optimal Aerodynamic Operation:</strong> Inlet velocity (' + viMS.toFixed(1) + ' m/s) and pressure drop satisfy Stairmand standard. Ensure zero air in-leakage at hopper discharge.';
+  }
+
+  cycLastCalc = {
+    dc: dc, dispDc: dispDc, d50Um: d50Um, eff: effPercent, dpTarget: dpTarget,
+    dispA: dispA, dispB: dispB, dispH: dispH, deltaP: deltaPPa, pAirKw: pAirKw, uLen: uLen,
+    dimA: dimA, dimB: dimB, dimDe: dimDe, dimS: dimS, dimH: dimH, dimBarrelH: dimBarrelH, dimBDisch: dimBDisch
+  };
+}
+
+function cycCopySummary() {
+  if (!cycLastCalc) return;
+  var d = cycLastCalc;
+  var sel = document.getElementById('cyc_standard');
+  var geomName = sel.options[sel.selectedIndex].text;
+  var s = '=== CYCLONE DUST SEPARATOR SIZING REPORT (STAIRMAND) ===\n' +
+    'Geometry Standard: ' + geomName + '\n' +
+    'Barrel Diameter (Dc): ' + d.dispDc + d.uLen + '\n' +
+    '50% Cut Diameter (d50): ' + d.d50Um.toFixed(2) + ' μm\n' +
+    'Target Particle Size: ' + d.dpTarget.toFixed(1) + ' μm\n' +
+    'Calculated Efficiency: ' + d.eff.toFixed(1) + '%\n' +
+    'Inlet Duct (a × b): ' + d.dispA + ' × ' + d.dispB + d.uLen + '\n' +
+    'Total Height (H): ' + d.dispH + d.uLen + '\n' +
+    'Pressure Drop (ΔP): ' + Math.round(d.deltaP) + ' Pa\n' +
+    'Fan Power Requirement: ' + d.pAirKw.toFixed(2) + ' kW\n' +
+    'Standards: Stairmand (1951), Lapple d50 formulation\n' +
+    'Generated at: https://digitaltoolsshed.com/calc/cyclone-separator-sizing-stairmand-calculator.html';
+
+  navigator.clipboard.writeText(s).then(function() {
+    var btn = document.querySelector('.cyc-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+function cycDraw() {
+  var canvas = document.getElementById('cyc_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var cx = w * 0.5;
+  var cy = 40;
+  var d = cycLastCalc;
+  var scale = 320.0 / Math.max(0.5, (d && d.dimH) ? d.dimH : 2.5);
+
+  var rBarrel = (((d && d.dc) ? d.dc : 0.6) * 0.5) * scale;
+  var hBarrel = ((d && d.dimBarrelH) ? d.dimBarrelH : 0.9) * scale;
+  var hTotal = ((d && d.dimH) ? d.dimH : 2.4) * scale;
+  var rDe = (((d && d.dimDe) ? d.dimDe : 0.3) * 0.5) * scale;
+  var lenS = ((d && d.dimS) ? d.dimS : 0.3) * scale;
+  var rDisch = (((d && d.dimBDisch) ? d.dimBDisch : 0.22) * 0.5) * scale;
+
+  // 1. Outer Shell
+  ctx.beginPath();
+  ctx.moveTo(cx - rBarrel, cy);
+  ctx.lineTo(cx + rBarrel, cy);
+  ctx.lineTo(cx + rBarrel, cy + hBarrel);
+  ctx.lineTo(cx + rDisch, cy + hTotal);
+  ctx.lineTo(cx - rDisch, cy + hTotal);
+  ctx.lineTo(cx - rBarrel, cy + hBarrel);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+  ctx.fill();
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // 2. Tangential Inlet Duct
+  var inletW = ((d && d.dimB) ? d.dimB : 0.12) * scale;
+  var inletH = ((d && d.dimA) ? d.dimA : 0.3) * scale;
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(cx - rBarrel - 60, cy, 60, inletH);
+  ctx.strokeStyle = '#d97706';
+  ctx.strokeRect(cx - rBarrel - 60, cy, 60, inletH);
+  ctx.fillStyle = '#fff';
+  ctx.font = '10px system-ui';
+  ctx.fillText('Dirty Gas', cx - rBarrel - 54, cy + inletH * 0.5 + 3);
+
+  // 3. Central Vortex Finder
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - rDe, cy - 25, rDe * 2, lenS + 25);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(cx - rDe, cy - 25, rDe * 2, lenS + 25);
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '10px system-ui';
+  ctx.fillText('Clean Gas Out', cx - rDe + 6, cy - 30);
+
+  // 4. Hopper Box
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - rDisch * 1.5, cy + hTotal, rDisch * 3, 30);
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cx - rDisch * 1.5, cy + hTotal, rDisch * 3, 30);
+  ctx.fillStyle = '#34d399';
+  ctx.font = '10px system-ui';
+  ctx.fillText('Dust Hopper', cx - 30, cy + hTotal + 20);
+
+  // 5. Descending outer particles (Red)
+  for (var i = 0; i < 18; i++) {
+    var pT = ((cycAnimTime * 0.8 + i * (1.0 / 18)) % 1.0);
+    var py = cy + pT * hTotal;
+    var curRadius = py < (cy + hBarrel) ? (rBarrel * 0.88) : (rBarrel * 0.88 - (py - (cy + hBarrel)) * ((rBarrel * 0.88 - rDisch * 0.8) / (hTotal - hBarrel)));
+    var pAngle = pT * Math.PI * 10.0;
+    var px = cx + Math.cos(pAngle) * curRadius;
+
+    ctx.beginPath();
+    ctx.arc(px, py, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#ef4444';
+    ctx.fill();
+  }
+
+  // 6. Ascending inner vortex (Cyan)
+  for (var j = 0; j < 12; j++) {
+    var uT = 1.0 - ((cycAnimTime * 1.2 + j * (1.0 / 12)) % 1.0);
+    var uy = (cy + hTotal * 0.85) - uT * (hTotal * 0.85 + 25);
+    var coreRadius = rDe * 0.55 * (0.4 + 0.6 * (1.0 - uT));
+    var uAngle = (1.0 - uT) * Math.PI * 8.0;
+    var ux = cx + Math.sin(uAngle) * coreRadius;
+
+    ctx.beginPath();
+    ctx.arc(ux, uy, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fill();
+  }
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px system-ui';
+  ctx.fillText('Dc = ' + ((d && d.dispDc) ? d.dispDc : '') + ((d && d.uLen) ? d.uLen : ''), cx + rBarrel + 15, cy + hBarrel * 0.5);
+  ctx.fillText('H = ' + ((d && d.dispH) ? d.dispH : '') + ((d && d.uLen) ? d.uLen : ''), cx + rBarrel + 15, cy + hTotal * 0.5);
+
+  cycAnimTime += 0.015;
+  requestAnimationFrame(cycDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  cycCalc();
+  cycDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BO4: Compact Plate-Fin Heat Exchanger Sizing & Offset-Strip Fin Rating Calculator (Kays & London / Manglik-Bergles)
+  // ==========================================
+  (() => {
+    const slug = 'compact-heat-exchanger-plate-fin-calculator';
+    const title = 'Compact Plate-Fin Heat Exchanger Sizing & Offset-Strip Fin Rating Calculator';
+    const metaDescription = 'Size compact plate-fin heat exchangers (PFHE) with offset-strip fins (OSF), calculate Colburn j factors, Fanning friction f, NTU effectiveness, and pressure drop.';
+
+    const faq = [
+      {
+        q: 'What defines a compact heat exchanger according to Kays and London?',
+        a: 'Per Kays and London (1984), a heat exchanger is classified as "compact" if its surface area density (beta) exceeds 700 m²/m³ (213 ft²/ft³) for gas streams or 400 m²/m³ (122 ft²/ft³) for liquid streams. Conventional shell-and-tube exchangers provide beta values of only 100 to 200 m²/m³. Compact plate-fin heat exchangers (PFHE) achieve surface area densities between 800 and 1,500 m²/m³, enabling dramatic volume and weight reductions of 80% to 90% in aerospace, cryogenic air separation (ASU), and LNG liquefaction facilities.'
+      },
+      {
+        q: 'How do offset-strip (serrated) fins enhance convective heat transfer over plain fins?',
+        a: 'Plain straight fins establish continuous thermal and hydrodynamic boundary layers that thicken downstream, progressively degrading convective heat transfer coefficients. Offset-strip fins (OSF) periodically cut and stagger alternate fin strips by half a pitch along the flow length (ls). Each strip edge acts as a blunt stagnation point that continuously disrupts and restarts a thin laminar boundary layer while shedding microscopic vortex wakes. This increases Colburn j heat transfer factors by 200% to 400% compared to plain rectangular channels, at the expense of a moderate form drag friction penalty.'
+      },
+      {
+        q: 'Why does assuming smooth-channel friction (f = 16/Re) cause catastrophic core under-sizing?',
+        a: 'Standard laminar duct formulas assume uninterrupted shear friction along smooth channel walls. However, in serrated offset-strip fin matrices, each strip leading and trailing edge generates significant form drag (pressure drag from flow separation and wake dissipation) even at deep laminar Reynolds numbers (Re = 300 to 800). Applying f = 16/Re underestimates true core pressure drop by 300% to 500%, choking process compressor suction and starving the heat exchanger of mass flow. The Manglik & Bergles (1995) empirical correlation accurately captures this form drag behavior.'
+      },
+      {
+        q: 'What is header tank maldistribution and why is it fatal to plate-fin thermal effectiveness?',
+        a: 'A brazed aluminum plate-fin core contains hundreds of parallel micro-channels. When process fluid enters the header tank from a high-velocity pipe nozzle without proper internal distribution vanes or perforated diffusers, dynamic stagnation pressure concentrates 60% of the mass flow through 20% of the central core channels. The starved peripheral channels suffer severe thermal pinch. In high-NTU cryogenic cores designed for 97% effectiveness, flow maldistribution degrades thermal effectiveness down to 80% and induces catastrophic localized thermal stress cracking across parting plates.'
+      },
+      {
+        q: 'Why are plate-fin heat exchangers predominantly manufactured from vacuum-brazed aluminum?',
+        a: 'Aluminum alloys (such as 3003 core fins with 4004 Al-Si eutectic braze cladding) offer exceptional thermal conductivity (~160 W/m·K), high strength-to-weight ratio, excellent vacuum-brazing metallurgical bonding, and outstanding ductility at cryogenic temperatures down to -269°C without ductile-to-brittle transition hazards. For temperatures above 250°C or severe sour corrosive environments, stainless steel or nickel superalloy plate-fin blocks are specified instead.'
+      }
+    ];
+
+    const content = `
+<style>
+.pfh-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.pfh-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.pfh-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.pfh-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .pfh-grid-2, .pfh-grid-3, .pfh-grid-4 { grid-template-columns: 1fr; }
+}
+.pfh-stat {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+.pfh-stat-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 0.25rem;
+}
+.pfh-stat-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.pfh-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.pfh-btn:hover { opacity: 0.9; }
+.pfh-unit-toggle {
+  display: flex;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.pfh-unit-btn {
+  flex: 1;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.pfh-unit-btn.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+</style>
+
+<div class="pfh-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">Compact Plate-Fin Core & Offset Strip Fin Rating</h2>
+      <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.85rem;">Kays & London compact core methodology, Manglik-Bergles j & f correlations, and NTU effectiveness.</p>
+    </div>
+    <div class="pfh-unit-toggle">
+      <button type="button" class="pfh-unit-btn active" id="pfh_btn_metric" onclick="pfhSetUnits(true)">Metric (mm, kW, kg/s, kPa)</button>
+      <button type="button" class="pfh-unit-btn" id="pfh_btn_us" onclick="pfhSetUnits(false)">US (in, kBTU/hr, lb/s, psi)</button>
+    </div>
+  </div>
+
+  <div class="pfh-grid-2">
+    <div>
+      <div class="pfh-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Hot Stream Flow <span id="pfh_u_mh" style="color:var(--text-muted);">(kg/s)</span></label>
+          <input type="number" id="pfh_mh" value="0.8" step="0.05" oninput="pfhCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Cold Stream Flow <span id="pfh_u_mc" style="color:var(--text-muted);">(kg/s)</span></label>
+          <input type="number" id="pfh_mc" value="1.2" step="0.05" oninput="pfhCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <div class="pfh-grid-2" style="margin-bottom:0.75rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Hot Inlet Temp <span id="pfh_u_thin" style="color:var(--text-muted);">(°C)</span></label>
+          <input type="number" id="pfh_th_in" value="95" step="1" oninput="pfhCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Cold Inlet Temp <span id="pfh_u_tcin" style="color:var(--text-muted);">(°C)</span></label>
+          <input type="number" id="pfh_tc_in" value="25" step="1" oninput="pfhCalc()" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--background); color:var(--text);">
+        </div>
+      </div>
+
+      <!-- Fin Geometry Sub-panel -->
+      <div style="background:rgba(2, 132, 199, 0.05); border:1px solid var(--border); padding:0.75rem; border-radius:6px; margin-bottom:0.75rem;">
+        <span style="display:block; font-size:0.75rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem;">Offset-Strip Fin (OSF) Matrix Dimensions</span>
+        <div class="pfh-grid-3">
+          <div>
+            <label style="display:block; font-size:0.75rem; margin-bottom:0.2rem;">Pitch (pf)</label>
+            <input type="number" id="pfh_pf" value="1.5" step="0.1" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; margin-bottom:0.2rem;">Height (b)</label>
+            <input type="number" id="pfh_b" value="6.5" step="0.2" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; margin-bottom:0.2rem;">Thk (t)</label>
+            <input type="number" id="pfh_t" value="0.2" step="0.02" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+          </div>
+        </div>
+        <div class="pfh-grid-2" style="margin-top:0.5rem;">
+          <div>
+            <label style="display:block; font-size:0.75rem; margin-bottom:0.2rem;">Strip Length (ls)</label>
+            <input type="number" id="pfh_ls" value="3.2" step="0.2" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; margin-bottom:0.2rem;">Plate Thk (tp)</label>
+            <input type="number" id="pfh_tp" value="0.8" step="0.1" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Envelope Dimensions -->
+      <div class="pfh-grid-3">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Width (W)</label>
+          <input type="number" id="pfh_w" value="300" step="10" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Height (H)</label>
+          <input type="number" id="pfh_h" value="400" step="10" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Length (L)</label>
+          <input type="number" id="pfh_l" value="500" step="10" oninput="pfhCalc()" style="width:100%; padding:0.4rem; border-radius:4px; border:1px solid var(--border); background:var(--background); color:var(--text); font-size:0.85rem;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Results Panel -->
+    <div style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="pfh-stat" style="margin-bottom:1rem; border-color:var(--primary); background:rgba(2, 132, 199, 0.05);">
+          <div class="pfh-stat-lbl">Thermal Effectiveness (ε)</div>
+          <div class="pfh-stat-val" id="pfh_res_eff" style="font-size:2rem;">--</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;" id="pfh_res_q_sub">--</div>
+        </div>
+
+        <div class="pfh-grid-2" style="margin-bottom:1rem;">
+          <div class="pfh-stat">
+            <div class="pfh-stat-lbl">Area Density (β)</div>
+            <div class="pfh-stat-val" id="pfh_res_beta" style="color:#10b981;">--</div>
+          </div>
+          <div class="pfh-stat">
+            <div class="pfh-stat-lbl">Hydraulic Diam (Dh)</div>
+            <div class="pfh-stat-val" id="pfh_res_dh">--</div>
+          </div>
+        </div>
+
+        <div class="pfh-grid-2" style="margin-bottom:1rem;">
+          <div class="pfh-stat">
+            <div class="pfh-stat-lbl">Hot Stream ΔP</div>
+            <div class="pfh-stat-val" id="pfh_res_dph">--</div>
+          </div>
+          <div class="pfh-stat">
+            <div class="pfh-stat-lbl">Cold Stream ΔP</div>
+            <div class="pfh-stat-val" id="pfh_res_dpc">--</div>
+          </div>
+        </div>
+
+        <div class="pfh-stat" style="margin-bottom:1rem;">
+          <div class="pfh-stat-lbl">Manglik-Bergles Factors</div>
+          <div class="pfh-stat-val" id="pfh_res_jf" style="font-size:1.15rem;">--</div>
+        </div>
+
+        <div id="pfh_banner" style="padding:0.75rem 1rem; border-radius:6px; font-size:0.85rem; line-height:1.4; margin-bottom:1rem;">
+          Evaluating compact core...
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" class="pfh-btn" onclick="pfhCopySummary()">
+          <span>Copy Diagnostic Summary</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3D Canvas Simulator -->
+<div class="pfh-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <h3 style="margin:0; font-size:1.1rem;">3D Isometric Compact Plate-Fin Matrix & Offset Strip Fin Simulator</h3>
+    <span style="font-size:0.75rem; color:var(--text-muted);">Multi-Stream Thermal Boundary</span>
+  </div>
+  <div style="text-align:center;">
+    <canvas id="pfh_canvas" width="760" height="380" style="max-width:100%; height:auto; background:#090d16; border-radius:8px;"></canvas>
+  </div>
+  <div style="display:flex; justify-content:space-around; font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+    <span><span style="display:inline-block; width:12px; height:12px; background:#ef4444; margin-right:4px; vertical-align:middle;"></span>Hot Pass</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; margin-right:4px; vertical-align:middle;"></span>Cold Pass</span>
+    <span><span style="display:inline-block; width:12px; height:12px; background:#94a3b8; margin-right:4px; vertical-align:middle;"></span>Parting Sheets (tp)</span>
+    <span><span style="display:inline-block; width:12px; height:12px; border:1px solid #cbd5e1; background:#334155; margin-right:4px; vertical-align:middle;"></span>Serrated Corrugated Fins</span>
+  </div>
+</div>
+
+<!-- Mathematical Derivations Section -->
+<div class="pfh-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">Compact Heat Exchanger Physics & Empirical Correlations</h2>
+  
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">1. Surface Area Density (β) & Compactness Threshold</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      A heat exchanger is classified as compact if surface area density β exceeds <strong>700 m²/m³</strong>. For offset strip fins:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      s = p<sub>f</sub> - t &nbsp;|&nbsp; β = [ 2 × (b × (1 - t/p<sub>f</sub>) + s) ] / [ p<sub>f</sub> × (b + t<sub>p</sub>) ]<br>
+      D<sub>h</sub> = (4 × s × b × l<sub>s</sub>) / [ 2 × (s × l<sub>s</sub> + b × l<sub>s</sub> + t × b) + t × s ]
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      With standard pitch p<sub>f</sub> = 1.5 mm and height b = 6.5 mm, β typically reaches <strong>1,100 to 1,400 m²/m³</strong>—delivering 8 to 12 times the surface density of shell-and-tube units.
+    </p>
+  </div>
+
+  <div style="margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">2. Manglik & Bergles (1995) Dimensionless Correlations</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      Colburn j and Fanning friction f factors are computed from aspect ratios α = s/b, δ = t/l_s, γ = t/s:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      j = 0.6522 × Re<sup>-0.5403</sup> × α<sup>-0.1541</sup> × δ<sup>0.1499</sup> × γ<sup>-0.0678</sup> × [ 1 + 5.269×10<sup>-5</sup> Re<sup>1.34</sup> α<sup>0.504</sup> δ<sup>0.456</sup> γ<sup>-1.055</sup> ]<sup>0.1</sup><br>
+      h<sub>c</sub> = j × G × c<sub>p</sub> × Pr<sup>-2/3</sup>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      Boundary layer restarting yields heat transfer coefficients 2 to 4 times higher than continuous plain channels.
+    </p>
+  </div>
+
+  <div>
+    <h3 style="font-size:1rem; color:var(--primary); margin:0 0 0.5rem 0;">3. ε-NTU Effectiveness for Counter-Current Flow</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0 0 0.5rem 0;">
+      Thermal effectiveness ε determines actual heat transferred compared to the thermodynamic maximum:
+    </p>
+    <div style="background:var(--background); border:1px solid var(--border); padding:0.75rem 1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; margin-bottom:0.5rem;">
+      C<sub>min</sub> = min(m<sub>h</sub>c<sub>p,h</sub>, m<sub>c</sub>c<sub>p,c</sub>), &nbsp; C<sub>r</sub> = C<sub>min</sub> / C<sub>max</sub> &nbsp;|&nbsp; NTU = U × A / C<sub>min</sub><br>
+      ε = [ 1 - exp(-NTU(1 - C<sub>r</sub>)) ] / [ 1 - C<sub>r</sub> exp(-NTU(1 - C<sub>r</sub>)) ]
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin:0;">
+      For cryogenic BAHX units, ε routinely exceeds <strong>95% to 98%</strong> with approach temperatures under 2°C.
+    </p>
+  </div>
+</div>
+
+<!-- 5 Fatal Traps Section -->
+<div class="pfh-box">
+  <h2 style="font-size:1.25rem; margin-top:0; margin-bottom:1rem;">5 Fatal Engineering Traps in Plate-Fin Core Design</h2>
+  
+  <div class="trap-card" style="border-left:4px solid #ef4444; background:rgba(239,68,68,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#ef4444; margin:0 0 0.25rem 0;">1. The Smooth-Duct Friction Trap: Applying f = 16/Re</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Assuming standard laminar pipe flow friction (f = 16/Re) for serrated offset strip fins underestimates pressure drop by 300% to 500%. Every fin strip presents a blunt leading edge that sheds microscopic vortex wakes, generating form drag even at low Reynolds numbers (Re = 300-800). Always use empirical correlations (Manglik-Bergles or Joshi-Webb) to avoid suffocating downstream compressors.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #f59e0b; background:rgba(245,158,11,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#f59e0b; margin:0 0 0.25rem 0;">2. Header Tank Maldistribution & Edge Jetting</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      A plate-fin core contains hundreds of parallel micro-passages. If the inlet manifold nozzle introduces fluid perpendicularly without guide vanes or a diffuser baffle, the dynamic pressure jet concentrates 60% of the mass flow through 20% of the central passages. The starvation of peripheral channels degrades thermal effectiveness from 96% down to 78% and induces severe thermal stress fractures.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #10b981; background:rgba(16,185,129,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#10b981; margin:0 0 0.25rem 0;">3. Vacuum Brazing Alloy Leaching & Thermal Shock Fatigue</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Brazed aluminum plate-fin cores (BAHX) rely on an Al-Si eutectic braze clad on parting sheets. Excessive brazing temperature leaches silicon into the ultra-thin 0.2 mm fin foil, creating brittle intermetallic joints. In cryogenic service (e.g. LNG or air separation), thermal cycling between -196°C and +40°C triggers micro-cracks along the fin-to-sheet fillet, causing cross-contamination between high-pressure process streams.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #3b82f6; background:rgba(59,130,246,0.06); padding:1rem; border-radius:0 6px 6px 0; margin-bottom:0.75rem;">
+    <h3 style="font-size:0.95rem; color:#3b82f6; margin:0 0 0.25rem 0;">4. Narrow Channel Particulate Plugging (Dh &lt; 2 mm)</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Because offset strip fin hydraulic diameters are typically 1.5 to 3.0 mm, they cannot tolerate particulate matter. Operating without 50-micron upstream filtration allows rust flakes, pipe scale, or molecular sieve dust to plug channel leading edges. Once a channel is blocked, back-flushing is almost impossible due to the intricate serrated geometry, requiring complete core replacement.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left:4px solid #8b5cf6; background:rgba(139,92,246,0.06); padding:1rem; border-radius:0 6px 6px 0;">
+    <h3 style="font-size:0.95rem; color:#8b5cf6; margin:0 0 0.25rem 0;">5. Neglecting Fin Conduction Efficiency on High-Heat-Flux Gases</h3>
+    <p style="font-size:0.85rem; line-height:1.5; margin:0; color:var(--text);">
+      Treating the entire finned area as 100% effective heat transfer surface overestimates performance. For tall, thin fins (b &gt; 8 mm, t &lt; 0.15 mm) in high-pressure gas service, the fin conduction temperature gradient causes fin efficiency η_f to drop below 70%. The total surface efficiency η_o = 1 - (A_f/A_total) × (1 - η_f) must be rigorously calculated using the hyperbolic tangent formula: η_f = tanh(m·b/2) / (m·b/2).
+    </p>
+  </div>
+</div>
+
+<script>
+var pfhIsMetric = true;
+var pfhLastCalc = null;
+var pfhAnimTime = 0;
+
+function pfhSetUnits(metric) {
+  if (pfhIsMetric === metric) return;
+  pfhIsMetric = metric;
+
+  document.getElementById('pfh_btn_metric').classList.toggle('active', pfhIsMetric);
+  document.getElementById('pfh_btn_us').classList.toggle('active', !pfhIsMetric);
+
+  document.getElementById('pfh_u_mh').textContent = pfhIsMetric ? '(kg/s)' : '(lb/s)';
+  document.getElementById('pfh_u_mc').textContent = pfhIsMetric ? '(kg/s)' : '(lb/s)';
+  document.getElementById('pfh_u_thin').textContent = pfhIsMetric ? '(°C)' : '(°F)';
+  document.getElementById('pfh_u_tcin').textContent = pfhIsMetric ? '(°C)' : '(°F)';
+
+  var elMh = document.getElementById('pfh_mh');
+  var elMc = document.getElementById('pfh_mc');
+  var elThIn = document.getElementById('pfh_th_in');
+  var elTcIn = document.getElementById('pfh_tc_in');
+  var elPf = document.getElementById('pfh_pf');
+  var elB = document.getElementById('pfh_b');
+  var elT = document.getElementById('pfh_t');
+  var elLs = document.getElementById('pfh_ls');
+  var elTp = document.getElementById('pfh_tp');
+  var elW = document.getElementById('pfh_w');
+  var elH = document.getElementById('pfh_h');
+  var elL = document.getElementById('pfh_l');
+
+  if (pfhIsMetric) {
+    elMh.value = (parseFloat(elMh.value) * 0.453592).toFixed(2);
+    elMc.value = (parseFloat(elMc.value) * 0.453592).toFixed(2);
+    elThIn.value = ((parseFloat(elThIn.value) - 32) * 5 / 9).toFixed(1);
+    elTcIn.value = ((parseFloat(elTcIn.value) - 32) * 5 / 9).toFixed(1);
+    elPf.value = (parseFloat(elPf.value) * 25.4).toFixed(1);
+    elB.value = (parseFloat(elB.value) * 25.4).toFixed(1);
+    elT.value = (parseFloat(elT.value) * 25.4).toFixed(2);
+    elLs.value = (parseFloat(elLs.value) * 25.4).toFixed(1);
+    elTp.value = (parseFloat(elTp.value) * 25.4).toFixed(1);
+    elW.value = (parseFloat(elW.value) * 25.4).toFixed(0);
+    elH.value = (parseFloat(elH.value) * 25.4).toFixed(0);
+    elL.value = (parseFloat(elL.value) * 25.4).toFixed(0);
+  } else {
+    elMh.value = (parseFloat(elMh.value) / 0.453592).toFixed(2);
+    elMc.value = (parseFloat(elMc.value) / 0.453592).toFixed(2);
+    elThIn.value = ((parseFloat(elThIn.value) * 9 / 5) + 32).toFixed(1);
+    elTcIn.value = ((parseFloat(elTcIn.value) * 9 / 5) + 32).toFixed(1);
+    elPf.value = (parseFloat(elPf.value) / 25.4).toFixed(3);
+    elB.value = (parseFloat(elB.value) / 25.4).toFixed(3);
+    elT.value = (parseFloat(elT.value) / 25.4).toFixed(4);
+    elLs.value = (parseFloat(elLs.value) / 25.4).toFixed(3);
+    elTp.value = (parseFloat(elTp.value) / 25.4).toFixed(3);
+    elW.value = (parseFloat(elW.value) / 25.4).toFixed(1);
+    elH.value = (parseFloat(elH.value) / 25.4).toFixed(1);
+    elL.value = (parseFloat(elL.value) / 25.4).toFixed(1);
+  }
+  pfhCalc();
+}
+
+function pfhCalc() {
+  var rawMh = parseFloat(document.getElementById('pfh_mh').value) || 0.1;
+  var rawMc = parseFloat(document.getElementById('pfh_mc').value) || 0.1;
+  var rawThIn = parseFloat(document.getElementById('pfh_th_in').value) || 95;
+  var rawTcIn = parseFloat(document.getElementById('pfh_tc_in').value) || 25;
+  var rawPf = parseFloat(document.getElementById('pfh_pf').value) || 1.5;
+  var rawB = parseFloat(document.getElementById('pfh_b').value) || 6.5;
+  var rawT = parseFloat(document.getElementById('pfh_t').value) || 0.2;
+  var rawLs = parseFloat(document.getElementById('pfh_ls').value) || 3.2;
+  var rawTp = parseFloat(document.getElementById('pfh_tp').value) || 0.8;
+  var rawW = parseFloat(document.getElementById('pfh_w').value) || 300;
+  var rawH = parseFloat(document.getElementById('pfh_h').value) || 400;
+  var rawL = parseFloat(document.getElementById('pfh_l').value) || 500;
+
+  var mhKgS = pfhIsMetric ? rawMh : (rawMh * 0.453592);
+  var mcKgS = pfhIsMetric ? rawMc : (rawMc * 0.453592);
+  var thInC = pfhIsMetric ? rawThIn : ((rawThIn - 32) * 5 / 9);
+  var tcInC = pfhIsMetric ? rawTcIn : ((rawTcIn - 32) * 5 / 9);
+
+  var pfM = (pfhIsMetric ? rawPf : (rawPf * 25.4)) / 1000.0;
+  var bM = (pfhIsMetric ? rawB : (rawB * 25.4)) / 1000.0;
+  var tM = (pfhIsMetric ? rawT : (rawT * 25.4)) / 1000.0;
+  var lsM = (pfhIsMetric ? rawLs : (rawLs * 25.4)) / 1000.0;
+  var tpM = (pfhIsMetric ? rawTp : (rawTp * 25.4)) / 1000.0;
+
+  var wM = (pfhIsMetric ? rawW : (rawW * 25.4)) / 1000.0;
+  var hM = (pfhIsMetric ? rawH : (rawH * 25.4)) / 1000.0;
+  var lM = (pfhIsMetric ? rawL : (rawL * 25.4)) / 1000.0;
+
+  var sM = pfM - tM;
+  var dhM = (4.0 * sM * bM * lsM) / (2.0 * (sM * lsM + bM * lsM + tM * bM) + tM * sM);
+  var beta = (2.0 * (bM * (1.0 - tM / pfM) + sM)) / (pfM * (bM + tpM));
+
+  var alpha = sM / bM;
+  var delta = tM / lsM;
+  var gamma = tM / sM;
+
+  var cpH = 2200.0;
+  var cpC = 2100.0;
+  var muH = 2.5e-4;
+  var prH = 3.5;
+  var rhoH = 820.0;
+
+  var numLayers = Math.floor(hM / (bM + tpM));
+  var numHotLayers = Math.floor(numLayers / 2);
+  var numColdLayers = numLayers - numHotLayers;
+
+  var aFreeH = numHotLayers * (wM * (1.0 - tM / pfM) * bM);
+  var aFreeC = numColdLayers * (wM * (1.0 - tM / pfM) * bM);
+
+  var gH = mhKgS / Math.max(1e-4, aFreeH);
+  var reH = (gH * dhM) / muH;
+
+  var termJ = 1.0 + 5.269e-5 * Math.pow(reH, 1.34) * Math.pow(alpha, 0.504) * Math.pow(delta, 0.456) * Math.pow(gamma, -1.055);
+  var jH = 0.6522 * Math.pow(reH, -0.5403) * Math.pow(alpha, -0.1541) * Math.pow(delta, 0.1499) * Math.pow(gamma, -0.0678) * Math.pow(Math.max(0.1, termJ), 0.1);
+
+  var termF = 1.0 + 7.669e-8 * Math.pow(reH, 4.429) * Math.pow(alpha, 0.920) * Math.pow(delta, 3.767) * Math.pow(gamma, 0.236);
+  var fH = 9.6243 * Math.pow(reH, -0.7422) * Math.pow(alpha, -0.1856) * Math.pow(delta, 0.3053) * Math.pow(gamma, -0.2659) * Math.pow(Math.max(0.1, termF), 0.1);
+
+  var hcH = jH * gH * cpH * Math.pow(prH, -2.0 / 3.0);
+  var aTotalH = beta * (wM * hM * lM * 0.5);
+  var uaW = (hcH * aTotalH * 0.45);
+
+  var ch = mhKgS * cpH;
+  var cc = mcKgS * cpC;
+  var cMin = Math.min(ch, cc);
+  var cMax = Math.max(ch, cc);
+  var cr = cMin / cMax;
+
+  var ntu = uaW / Math.max(1, cMin);
+  var eff = 0.8;
+  if (Math.abs(1 - cr) < 0.01) {
+    eff = ntu / (1.0 + ntu);
+  } else {
+    eff = (1.0 - Math.exp(-ntu * (1.0 - cr))) / (1.0 - cr * Math.exp(-ntu * (1.0 - cr)));
+  }
+  eff = Math.min(0.99, Math.max(0.05, eff));
+
+  var qMaxW = cMin * (thInC - tcInC);
+  var qActualW = eff * qMaxW;
+  var qKw = qActualW / 1000.0;
+
+  var deltaPHPa = (fH * (lM / dhM) * (Math.pow(gH, 2.0) / (2.0 * rhoH))) * 1.35;
+  var deltaPCPa = deltaPHPa * (mcKgS / mhKgS);
+
+  document.getElementById('pfh_res_eff').textContent = (eff * 100.0).toFixed(1) + '%';
+  document.getElementById('pfh_res_jf').textContent = 'j = ' + jH.toFixed(4) + ' | f = ' + fH.toFixed(3);
+
+  if (pfhIsMetric) {
+    document.getElementById('pfh_res_q_sub').textContent = qKw.toFixed(1) + ' kW heat duty transferred';
+    document.getElementById('pfh_res_beta').textContent = Math.round(beta) + ' m²/m³';
+    document.getElementById('pfh_res_dh').textContent = (dhM * 1000.0).toFixed(2) + ' mm';
+    document.getElementById('pfh_res_dph').textContent = (deltaPHPa / 1000.0).toFixed(1) + ' kPa';
+    document.getElementById('pfh_res_dpc').textContent = (deltaPCPa / 1000.0).toFixed(1) + ' kPa';
+  } else {
+    document.getElementById('pfh_res_q_sub').textContent = (qKw * 3.41214).toFixed(1) + ' kBTU/hr duty transferred';
+    document.getElementById('pfh_res_beta').textContent = Math.round(beta * 0.3048) + ' ft²/ft³';
+    document.getElementById('pfh_res_dh').textContent = (dhM * 39.3701).toFixed(3) + ' in';
+    document.getElementById('pfh_res_dph').textContent = (deltaPHPa * 0.000145038).toFixed(2) + ' psi';
+    document.getElementById('pfh_res_dpc').textContent = (deltaPCPa * 0.000145038).toFixed(2) + ' psi';
+  }
+
+  var banner = document.getElementById('pfh_banner');
+  if (beta < 700) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ Sub-Compact Geometry (β = ' + Math.round(beta) + ' m²/m³):</strong> Below Kays & London compact threshold (700 m²/m³). Consider tighter fin pitch pf to maximize surface density.';
+  } else if (deltaPHPa > 50000) {
+    banner.style.background = 'rgba(245, 158, 11, 0.1)';
+    banner.style.color = '#f59e0b';
+    banner.innerHTML = '<strong>⚠ High Core Pressure Drop (' + (deltaPHPa / 1000).toFixed(1) + ' kPa):</strong> Exceeds typical allowable threshold. Expand core width W or increase fin pitch to reduce mass velocity.';
+  } else {
+    banner.style.background = 'rgba(16, 185, 129, 0.1)';
+    banner.style.color = '#10b981';
+    banner.innerHTML = '<strong>✓ High-Performance Compact Rating:</strong> Surface area density (' + Math.round(beta) + ' m²/m³) and effectiveness (' + (eff * 100).toFixed(1) + '%) satisfy aerospace & cryogenic standards.';
+  }
+
+  pfhLastCalc = {
+    eff: eff, qKw: qKw, beta: beta, dhMm: dhM * 1000.0, jH: jH, fH: fH,
+    dphKpa: deltaPHPa / 1000.0, dpcKpa: deltaPCPa / 1000.0, reH: reH, ntu: ntu,
+    wM: wM, hM: hM, lM: lM, bM: bM, pfM: pfM, numLayers: numLayers
+  };
+}
+
+function pfhCopySummary() {
+  if (!pfhLastCalc) return;
+  var d = pfhLastCalc;
+  var s = '=== COMPACT PLATE-FIN HEAT EXCHANGER (PFHE) SIZING REPORT ===\n' +
+    'Thermal Effectiveness (ε): ' + (d.eff * 100).toFixed(1) + '%\n' +
+    'Heat Duty (Q): ' + d.qKw.toFixed(1) + ' kW\n' +
+    'Surface Area Density (β): ' + Math.round(d.beta) + ' m²/m³\n' +
+    'Hydraulic Diameter (Dh): ' + d.dhMm.toFixed(2) + ' mm\n' +
+    'Reynolds Number (Re): ' + Math.round(d.reH) + '\n' +
+    'Colburn j / Fanning f: ' + d.jH.toFixed(4) + ' / ' + d.fH.toFixed(3) + '\n' +
+    'Hot Stream ΔP: ' + d.dphKpa.toFixed(1) + ' kPa\n' +
+    'Cold Stream ΔP: ' + d.dpcKpa.toFixed(1) + ' kPa\n' +
+    'Standards: Kays & London (1984), Manglik & Bergles (1995)\n' +
+    'Generated at: https://digitaltoolsshed.com/calc/compact-heat-exchanger-plate-fin-calculator.html';
+
+  navigator.clipboard.writeText(s).then(function() {
+    var btn = document.querySelector('.pfh-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+function pfhDraw() {
+  var canvas = document.getElementById('pfh_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var cx = w * 0.45;
+  var cy = h * 0.42;
+
+  var cos30 = Math.cos(Math.PI / 6);
+  var sin30 = Math.sin(Math.PI / 6);
+
+  var cW = 160;
+  var cL = 200;
+  var cH = 120;
+
+  function isoProject(x, y, z) {
+    return {
+      px: cx + (x * cos30 - y * cos30),
+      py: cy + (x * sin30 + y * sin30) - z
+    };
+  }
+
+  var layers = 6;
+  var layerH = cH / layers;
+
+  for (var i = 0; i < layers; i++) {
+    var z0 = i * layerH;
+    var z1 = z0 + layerH * 0.85;
+    var isHot = (i % 2 === 0);
+
+    var p0 = isoProject(cW, 0, z0);
+    var p1 = isoProject(cW, cL, z0);
+    var p2 = isoProject(cW, cL, z1);
+    var p3 = isoProject(cW, 0, z1);
+
+    ctx.beginPath();
+    ctx.moveTo(p0.px, p0.py);
+    ctx.lineTo(p1.px, p1.py);
+    ctx.lineTo(p2.px, p2.py);
+    ctx.lineTo(p3.px, p3.py);
+    ctx.closePath();
+    ctx.fillStyle = isHot ? 'rgba(239, 68, 68, 0.4)' : 'rgba(56, 189, 248, 0.4)';
+    ctx.fill();
+    ctx.strokeStyle = isHot ? '#ef4444' : '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    var l0 = isoProject(0, 0, z0);
+    var l1 = isoProject(cW, 0, z0);
+    var l2 = isoProject(cW, 0, z1);
+    var l3 = isoProject(0, 0, z1);
+
+    ctx.beginPath();
+    ctx.moveTo(l0.px, l0.py);
+    ctx.lineTo(l1.px, l1.py);
+    ctx.lineTo(l2.px, l2.py);
+    ctx.lineTo(l3.px, l3.py);
+    ctx.closePath();
+    ctx.fillStyle = isHot ? 'rgba(220, 38, 38, 0.6)' : 'rgba(2, 132, 199, 0.6)';
+    ctx.fill();
+    ctx.strokeStyle = '#475569';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1;
+    for (var f = 0; f <= 10; f++) {
+      var fx = (cW / 10) * f;
+      var fBot = isoProject(fx, 0, z0);
+      var fTop = isoProject(fx, 0, z1);
+      ctx.moveTo(fBot.px, fBot.py);
+      ctx.lineTo(fTop.px, fTop.py);
+    }
+    ctx.stroke();
+
+    var s0 = isoProject(0, 0, z1);
+    var s1 = isoProject(cW, 0, z1);
+    var s2 = isoProject(cW, cL, z1);
+    var s3 = isoProject(0, cL, z1);
+    ctx.beginPath();
+    ctx.moveTo(s0.px, s0.py);
+    ctx.lineTo(s1.px, s1.py);
+    ctx.lineTo(s2.px, s2.py);
+    ctx.lineTo(s3.px, s3.py);
+    ctx.closePath();
+    ctx.fillStyle = '#334155';
+    ctx.fill();
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  var flowPos = (pfhAnimTime * 60) % cL;
+  var arrHot = isoProject(cW * 0.5, flowPos, cH * 0.7);
+  ctx.beginPath();
+  ctx.arc(arrHot.px, arrHot.py, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#ef4444';
+  ctx.fill();
+
+  var arrCold = isoProject(cW * 0.5, cL - flowPos, cH * 0.35);
+  ctx.beginPath();
+  ctx.arc(arrCold.px, arrCold.py, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fill();
+
+  ctx.fillStyle = '#f87171';
+  ctx.font = 'bold 11px system-ui';
+  var hotLbl = isoProject(cW * 0.5, 0, cH + 15);
+  ctx.fillText('Hot In ->', hotLbl.px - 20, hotLbl.py);
+
+  ctx.fillStyle = '#38bdf8';
+  var coldLbl = isoProject(cW * 0.5, cL, cH + 15);
+  ctx.fillText('<- Cold In', coldLbl.px - 20, coldLbl.py);
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px system-ui';
+  ctx.fillText('L = ' + (pfhLastCalc && pfhLastCalc.lM ? (pfhLastCalc.lM * 1000).toFixed(0) : '500') + ' mm', cx + cW * 0.6, cy + cL * 0.6);
+
+  pfhAnimTime += 0.025;
+  requestAnimationFrame(pfhDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  pfhCalc();
+  pfhDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (211 calculators in /calc/)');
 }
 
