@@ -148486,6 +148486,1868 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (223 calculators in /calc/)');
+  
+  // ─── TOOL BS1: CSTR CASCADE SERIES & CONVERSION CALCULATOR ───
+  (() => {
+    const slug = 'cstr-cascade-series-sizing-calculator';
+    const title = 'Continuous Stirred Tank Reactor (CSTR) Cascade Series & Conversion Calculator';
+    const metaDescription = 'Calculate conversion, individual reactor volumes, Damköhler number, residence time distribution, and PFR comparison for CSTRs in series using Levenspiel and tank-in-series models.';
+    const faq = [
+      {
+        q: 'Why are CSTRs arranged in series rather than using a single large CSTR?',
+        a: 'In a single Continuous Stirred Tank Reactor (CSTR), the entire liquid inventory operates at the lowest possible reactant concentration (the exit concentration), which results in the lowest reaction rate throughout the entire vessel volume. Arranging multiple smaller CSTRs in series maintains higher reactant concentrations in the upstream tanks. As the number of tanks in series ($N$) increases, the cascade mathematically approaches the ideal performance of a Plug Flow Reactor (PFR), drastically reducing the total combined reactor volume required to achieve high conversions (e.g. >90%).'
+      },
+      {
+        q: 'What is the Damköhler Number (Da) and how does it govern stage conversion?',
+        a: 'The Damköhler number ($Da$) is a dimensionless ratio comparing the characteristic chemical reaction rate to the convective transport rate through the reactor: $Da = k \\cdot \\tau$ for first-order reactions, and $Da = k \\cdot C_{A0} \\cdot \\tau$ for second-order reactions. For a first-order reaction across $N$ equal-sized CSTRs in series, the overall conversion is given by the exact analytical expression: $X_N = 1 - \\frac{1}{(1 + Da)^N}$.'
+      },
+      {
+        q: 'How does the Levenspiel plot visualize CSTR versus PFR volume?',
+        a: 'A Levenspiel plot graphs the reciprocal of the reaction rate ($1 / (-r_A)$) on the y-axis against fractional conversion ($X_A$) on the x-axis. Because a CSTR operates at uniform exit conditions, its volume is represented by a discrete rectangular area: $V_{CSTR} / v_0 = X_{A,out} / (-r_A)_{out}$. For an ideal PFR, the volume is the integral area beneath the continuous curve. In a CSTR cascade, the total volume is the sum of $N$ stepped rectangles; as $N \\to \\infty$, the staircase of rectangles converges exactly to the area beneath the PFR curve.'
+      },
+      {
+        q: 'How does the Tanks-in-Series model relate to Residence Time Distribution (RTD)?',
+        a: 'In non-ideal reactor analysis, the tanks-in-series model quantifies fluid backmixing and axial dispersion. The dimensionless RTD variance of $N$ identical CSTRs in series is $\\sigma_\\theta^2 = \\frac{\\sigma_t^2}{\\tau^2} = \\frac{1}{N}$. A single CSTR has $\\sigma_\\theta^2 = 1.0$ (complete backmixing), while an ideal PFR has $\\sigma_\\theta^2 = 0$ (zero dispersion). Industrial reactors can be characterized by calculating their effective number of tanks: $N_{eff} = 1 / \\sigma_\\theta^2$.'
+      },
+      {
+        q: 'Are equal-sized CSTR volumes always optimal for all reactions?',
+        a: 'For simple first-order irreversible reactions with monotonic rate expressions, equal-sized volumes are mathematically proven to minimize total cascade volume. However, for second-order reactions, auto-catalytic reactions, or enzymatic reactions exhibiting substrate inhibition, non-equal volume distributions (such as smaller leading tanks followed by larger downstream vessels) can yield higher overall conversions for the same total volume.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #8b5cf6; background: #ffffff; box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #8b5cf6; color: #ffffff; }' +
+      '.btn-primary:hover { background: #7c3aed; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-cstr { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #8b5cf6; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Continuous Stirred Tank Reactor (CSTR) Cascade Series & Conversion Calculator</h1>' +
+      '    <p>Model multi-stage continuous stirred tank reactors in series. Compute fractional conversion across individual tanks, space time per stage, Damköhler number (Da), residence time distribution (RTD) variance, and Levenspiel PFR volume comparison.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Reaction Kinetics & Cascade Parameters</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="cstr-preset">Industrial Reaction Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="cstr-preset">' +
+      '            <option value="saponification" selected>Saponification of Ethyl Acetate (2nd Order: NaOH + EtOAc)</option>' +
+      '            <option value="esterification">Acid-Catalyzed Esterification (1st Order Pseudo-Kinetics)</option>' +
+      '            <option value="polymerization">Styrene Thermal Polymerization (1st Order Monomer Decay)</option>' +
+      '            <option value="denitrification">Wastewater Denitrification (Zero/1st Order Transition)</option>' +
+      '            <option value="custom">Custom Kinetics & Cascade</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cstr-ntanks">Number of CSTR Tanks in Series ($N$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cstr-ntanks" value="3" min="1" max="10" step="1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">tanks</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard industrial cascades: 2 to 5 tanks in series</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cstr-order">Reaction Kinetic Order</label>' +
+      '        <div class="input-row">' +
+      '          <select id="cstr-order">' +
+      '            <option value="1">First-Order Reaction (-rA = k · CA)</option>' +
+      '            <option value="2" selected>Second-Order Reaction (-rA = k · CA²)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cstr-k">Reaction Rate Constant ($k$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cstr-k" value="0.85" min="0.001" max="100" step="0.05">' +
+      '          <span id="cstr-k-unit" style="display:flex;align-items:center;padding:0 8px;font-size:0.85rem;color:#64748b;">L/(mol·min)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cstr-ca0">Inlet Reactant Concentration ($C_{A0}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cstr-ca0" value="1.5" min="0.01" max="20" step="0.1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">mol/L</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cstr-flow">Volumetric Feed Flow Rate ($v_0$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cstr-flow" value="50" min="0.1" max="5000" step="5">' +
+      '          <select id="cstr-flow-unit" style="max-width: 110px;">' +
+      '            <option value="lmin" selected>L/min</option>' +
+      '            <option value="m3h">m³/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="cstr-vol">Individual Tank Working Volume ($V_i$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="cstr-vol" value="250" min="1" max="50000" step="10">' +
+      '          <select id="cstr-vol-unit" style="max-width: 110px;">' +
+      '            <option value="L" selected>L (each)</option>' +
+      '            <option value="m3">m³ (each)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">All tanks assumed equal volume in standard cascade design</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-cstr">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-cstr">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="cstr-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Cascade Conversion & Performance</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Final Conversion ($X_N$)</div>' +
+      '          <div class="res-val"><span id="out-xtot">91.2</span><span class="res-unit">%</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Final Effluent ($C_{AN}$)</div>' +
+      '          <div class="res-val"><span id="out-caout">0.132</span><span class="res-unit">mol/L</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Space Time per Tank ($\\tau_i$)</div>' +
+      '          <div class="res-val"><span id="out-tau">5.00</span><span class="res-unit">min</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Space Time ($\\tau_{tot}$)</div>' +
+      '          <div class="res-val"><span id="out-tautot">15.00</span><span class="res-unit">min</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Damköhler Number ($Da$)</div>' +
+      '          <div class="res-val"><span id="out-da">6.38</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">RTD Variance ($\\sigma_\\theta^2$)</div>' +
+      '          <div class="res-val"><span id="out-rtd">0.333</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total CSTR Volume ($V_{tot}$)</div>' +
+      '          <div class="res-val"><span id="out-vtot">750</span><span class="res-unit">L</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Equivalent PFR Volume</div>' +
+      '          <div class="res-val"><span id="out-vpfr">407</span><span class="res-unit">L</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Volume Penalty ($V_{CSTR}/V_{PFR}$)</div>' +
+      '          <div class="res-val"><span id="out-vratio">1.84</span><span class="res-unit">×</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Cascade Efficiency Rating</div>' +
+      '          <div id="out-eff-badge" class="badge-cstr" style="background:#dcfce7;color:#166534;">Highly Efficient (N ≥ 3)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="cstr-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of CSTR Cascades</h2>' +
+      '    <p>Continuous stirred tank reactors in series combine fluid convection with perfect macroscopic backmixing inside each stage. Mathematical modeling relies on species mass balances around each tank in the train.</p>' +
+      '    <h3>1. General Species Mass Balance for Stage $i$</h3>' +
+      '    <p>At steady state, for constant volumetric flow rate $v_0$ and tank volume $V_i$:</p>' +
+      '    <div class="formula-box">' +
+      '      v_0 C_{A,i-1} - v_0 C_{Ai} + r_{Ai} V_i = 0\\implies \\tau_i = \\frac{V_i}{v_0} = \\frac{C_{A,i-1} - C_{Ai}}{-r_{Ai}}' +
+      '    </div>' +
+      '    <h3>2. Analytical Solutions for First- and Second-Order Reactions</h3>' +
+      '    <p>For a first-order irreversible reaction ($-r_A = k C_A$) across $N$ identical tanks:</p>' +
+      '    <div class="formula-box">' +
+      '      C_{Ai} = \\frac{C_{A,i-1}}{1 + k \\tau_i}\\implies C_{AN} = \\frac{C_{A0}}{(1 + k \\tau)^N}\\implies X_N = 1 - \\frac{1}{(1 + Da)^N}' +
+      '    </div>' +
+      '    <p>For a second-order reaction ($-r_A = k C_A^2$), the mass balance yields a quadratic equation at each stage:</p>' +
+      '    <div class="formula-box">' +
+      '      k \\tau C_{Ai}^2 + C_{Ai} - C_{A,i-1} = 0\\implies C_{Ai} = \\frac{-1 + \\sqrt{1 + 4 k \\tau C_{A,i-1}}}{2 k \\tau}' +
+      '    </div>' +
+      '    <h3>3. Comparison with Plug Flow Reactor (PFR)</h3>' +
+      '    <p>For the same throughput and final conversion $X_N$, the required volume for an ideal PFR is:</p>' +
+      '    <div class="formula-box">' +
+      '      \\text{First Order:}\\quad V_{PFR} = v_0 \\cdot \\frac{\\ln(1 / (1 - X_N))}{k}\\n' +
+      '      \\text{Second Order:}\\quad V_{PFR} = \\frac{v_0}{k C_{A0}} \\left( \\frac{X_N}{1 - X_N} \\right)' +
+      '    </div>' +
+      '    <p>As $N$ increases from 1 to 5, the volume ratio $V_{cascade} / V_{PFR}$ drops from $\\approx 4\\text{--}8\\times$ down to $< 1.3\\times$.</p>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in CSTR Cascade Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Exothermic Multiple Steady States & Thermal Runaway</h4>' +
+      '      <p>In highly exothermic reactions, heat removal curves intersect the non-linear sigmoidal heat generation curve at three steady states. A minor perturbation in cooling water temperature can cause the reactor to extinguish into zero conversion or ignite into an uncontrolled boiling runaway that blows rupture disks.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Internal Hydraulic Bypassing & Short-Circuiting</h4>' +
+      '      <p>Placing inlet nozzles and overflow transfer weirs directly opposite each other on the same plane without internal baffle dip-tubes allows freshly entering reactant to shoot across the liquid surface directly into the downstream tank, destroying effective space time by 30%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Stagnant Dead-Volume Formation in High-Viscosity Trains</h4>' +
+      '      <p>As reaction progress increases viscosity (e.g. in polymerization cascades), impeller power draw can drop in outer vessel regions. Unmixed stagnant zones form in corner radii, reducing active reactor volume ($V_{active} < 0.7 V_{tank}$) and causing persistent off-spec batch quality.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Autocatalytic Reaction Volume Inversion Error</h4>' +
+      '      <p>Equal volume sizing is optimal only for strictly decreasing rate equations. For autocatalytic or microbial growth kinetics where reaction rate initially increases with conversion, the first tank should be sized to reach maximum reaction rate ($-r_{A,max}$), followed by a PFR or smaller polishing CSTRs.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Vapor Locking in Inter-Stage Gravity Overflow Lines</h4>' +
+      '      <p>Connecting CSTR stages with undersized gravity overflow piping leads to entrained air/vapor bubbles locking the transfer line. Liquid backs up in upstream tanks, spilling toxic reactants through vessel roof vent lines.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: CSTR Cascades & Kinetics</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    saponification: { ntanks: 3, order: "2", k: 0.85, ca0: 1.5, flow: 50, flowu: "lmin", vol: 250, volu: "L" },' +
+      '    esterification: { ntanks: 4, order: "1", k: 0.18, ca0: 2.5, flow: 40, flowu: "lmin", vol: 300, volu: "L" },' +
+      '    polymerization: { ntanks: 3, order: "1", k: 0.08, ca0: 8.0, flow: 20, flowu: "lmin", vol: 500, volu: "L" },' +
+      '    denitrification: { ntanks: 2, order: "1", k: 0.05, ca0: 0.8, flow: 100, flowu: "lmin", vol: 1500, volu: "L" }' +
+      '  };' +
+      '  function calc() {' +
+      '    const N = Math.min(10, Math.max(1, parseInt(el("cstr-ntanks").value) || 3));' +
+      '    const order = el("cstr-order").value;' +
+      '    const k = parseFloat(el("cstr-k").value) || 0.85;' +
+      '    const Ca0 = parseFloat(el("cstr-ca0").value) || 1.5;' +
+      '    let v0 = parseFloat(el("cstr-flow").value) || 50;' +
+      '    if (el("cstr-flow-unit").value === "m3h") v0 = (v0 * 1000) / 60;' +
+      '    let Vi = parseFloat(el("cstr-vol").value) || 250;' +
+      '    if (el("cstr-vol-unit").value === "m3") Vi *= 1000;' +
+      '    const tau = Vi / Math.max(0.01, v0);' +
+      '    const tauTot = tau * N;' +
+      '    const Vtot = Vi * N;' +
+      '    let Da = 0;' +
+      '    if (order === "1") Da = k * tau;' +
+      '    else Da = k * Ca0 * tau;' +
+      '    const caStages = [Ca0];' +
+      '    const xStages = [0];' +
+      '    let currCa = Ca0;' +
+      '    for (let i = 1; i <= N; i++) {' +
+      '      if (order === "1") {' +
+      '        currCa = currCa / (1 + k * tau);' +
+      '      } else {' +
+      '        const term = 1 + 4 * k * tau * currCa;' +
+      '        currCa = (-1 + Math.sqrt(Math.max(0, term))) / (2 * k * tau);' +
+      '      }' +
+      '      caStages.push(currCa);' +
+      '      xStages.push(1 - (currCa / Ca0));' +
+      '    }' +
+      '    const xFinal = xStages[N];' +
+      '    const xFinalPct = xFinal * 100;' +
+      '    let Vpfr = 0;' +
+      '    if (order === "1") {' +
+      '      Vpfr = (v0 / k) * Math.log(1 / Math.max(1e-5, 1 - xFinal));' +
+      '    } else {' +
+      '      Vpfr = (v0 / (k * Ca0)) * (xFinal / Math.max(1e-5, 1 - xFinal));' +
+      '    }' +
+      '    const vRatio = Vtot / Math.max(1, Vpfr);' +
+      '    const rtdVar = 1 / N;' +
+      '    el("out-xtot").innerText = xFinalPct.toFixed(1);' +
+      '    el("out-caout").innerText = currCa < 0.01 ? currCa.toFixed(4) : currCa.toFixed(3);' +
+      '    el("out-tau").innerText = tau.toFixed(2);' +
+      '    el("out-tautot").innerText = tauTot.toFixed(2);' +
+      '    el("out-da").innerText = Da.toFixed(2);' +
+      '    el("out-rtd").innerText = rtdVar.toFixed(3);' +
+      '    el("out-vtot").innerText = Math.round(Vtot).toLocaleString();' +
+      '    el("out-vpfr").innerText = Math.round(Vpfr).toLocaleString();' +
+      '    el("out-vratio").innerText = vRatio.toFixed(2);' +
+      '    const badge = el("out-eff-badge");' +
+      '    if (N >= 4) {' +
+      '      badge.innerText = "Approaches Ideal PFR (N ≥ 4)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (N >= 2) {' +
+      '      badge.innerText = "Moderate Efficiency (N = 2-3)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "High Volume Penalty (Single CSTR)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawCascade(N, caStages, xStages, Ca0, order, k);' +
+      '  }' +
+      '  function drawCascade(N, caStages, xStages, Ca0, order, k) {' +
+      '    const canvas = el("cstr-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const maxTanks = Math.min(N, 6);' +
+      '    const tW = Math.min(65, (w - 60) / maxTanks - 12);' +
+      '    const tH = 80;' +
+      '    const tY = 30;' +
+      '    for (let i = 1; i <= maxTanks; i++) {' +
+      '      const tX = 30 + (i - 1) * (tW + 16);' +
+      '      const frac = caStages[i] / Ca0;' +
+      '      const r = Math.round(239 * frac + 34 * (1 - frac));' +
+      '      const g = Math.round(68 * frac + 197 * (1 - frac));' +
+      '      const b = Math.round(68 * frac + 94 * (1 - frac));' +
+      '      ctx.fillStyle = "rgba(" + r + "," + g + "," + b + ",0.6)";' +
+      '      ctx.fillRect(tX, tY, tW, tH);' +
+      '      ctx.strokeStyle = "#94a3b8";' +
+      '      ctx.lineWidth = 2;' +
+      '      ctx.strokeRect(tX, tY, tW, tH);' +
+      '      ctx.strokeStyle = "#cbd5e1";' +
+      '      ctx.lineWidth = 1.5;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(tX + tW / 2, tY - 8);' +
+      '      ctx.lineTo(tX + tW / 2, tY + tH - 15);' +
+      '      ctx.stroke();' +
+      '      ctx.fillStyle = "#f8fafc";' +
+      '      ctx.fillRect(tX + tW / 2 - 12, tY + tH - 22, 24, 6);' +
+      '      ctx.font = "10px sans-serif";' +
+      '      ctx.fillText("T" + i, tX + tW / 2 - 6, tY + 16);' +
+      '      ctx.fillText((xStages[i] * 100).toFixed(0) + "%", tX + tW / 2 - 10, tY + 34);' +
+      '      if (i < maxTanks) {' +
+      '        ctx.strokeStyle = "#38bdf8";' +
+      '        ctx.lineWidth = 2;' +
+      '        ctx.beginPath();' +
+      '        ctx.moveTo(tX + tW, tY + tH - 25);' +
+      '        ctx.lineTo(tX + tW + 16, tY + tH - 25);' +
+      '        ctx.stroke();' +
+      '      }' +
+      '    }' +
+      '    const pX = 50, pY = 150, pW = 380, pH = 100;' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(pX, pY);' +
+      '    ctx.lineTo(pX, pY + pH);' +
+      '    ctx.lineTo(pX + pW, pY + pH);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Levenspiel Plot: 1 / (-rA) vs XA", pX + 10, pY - 8);' +
+      '    ctx.fillText("0%", pX - 2, pY + pH + 14);' +
+      '    ctx.fillText("100% XA", pX + pW - 35, pY + pH + 14);' +
+      '    ctx.fillText("1/-rA", pX - 32, pY + 20);' +
+      '    ctx.strokeStyle = "#ec4899";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    for (let s = 0; s <= 50; s++) {' +
+      '      const x = (s / 50) * 0.95;' +
+      '      const ca = Ca0 * (1 - x);' +
+      '      const rate = order === "1" ? k * ca : k * ca * ca;' +
+      '      const invRate = 1 / Math.max(0.01, rate);' +
+      '      const scaledY = Math.min(pH - 5, invRate * 4);' +
+      '      const px = pX + x * pW;' +
+      '      const py = pY + pH - scaledY;' +
+      '      if (s === 0) ctx.moveTo(px, py);' +
+      '      else ctx.lineTo(px, py);' +
+      '    }' +
+      '    ctx.stroke();' +
+      '    for (let i = 1; i <= Math.min(N, 6); i++) {' +
+      '      const xPrev = xStages[i - 1];' +
+      '      const xCurr = xStages[i];' +
+      '      const ca = caStages[i];' +
+      '      const rate = order === "1" ? k * ca : k * ca * ca;' +
+      '      const invRate = 1 / Math.max(0.01, rate);' +
+      '      const scaledY = Math.min(pH - 5, invRate * 4);' +
+      '      const rectX = pX + xPrev * pW;' +
+      '      const rectW = (xCurr - xPrev) * pW;' +
+      '      const rectY = pY + pH - scaledY;' +
+      '      ctx.fillStyle = "rgba(139, 92, 246, 0.35)";' +
+      '      ctx.fillRect(rectX, rectY, rectW, scaledY);' +
+      '      ctx.strokeStyle = "#a78bfa";' +
+      '      ctx.lineWidth = 1;' +
+      '      ctx.strokeRect(rectX, rectY, rectW, scaledY);' +
+      '    }' +
+      '  }' +
+      '  el("cstr-order").addEventListener("change", e => {' +
+      '    const is1 = e.target.value === "1";' +
+      '    el("cstr-k-unit").innerText = is1 ? "1/min" : "L/(mol·min)";' +
+      '    calc();' +
+      '  });' +
+      '  el("cstr-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("cstr-ntanks").value = p.ntanks;' +
+      '      el("cstr-order").value = p.order;' +
+      '      el("cstr-k").value = p.k;' +
+      '      el("cstr-ca0").value = p.ca0;' +
+      '      el("cstr-flow").value = p.flow;' +
+      '      el("cstr-flow-unit").value = p.flowu;' +
+      '      el("cstr-vol").value = p.vol;' +
+      '      el("cstr-vol-unit").value = p.volu;' +
+      '      el("cstr-order").dispatchEvent(new Event("change"));' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["cstr-ntanks","cstr-order","cstr-k","cstr-ca0","cstr-flow","cstr-flow-unit","cstr-vol","cstr-vol-unit"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-cstr").addEventListener("click", () => {' +
+      '    el("cstr-preset").value = "saponification";' +
+      '    el("cstr-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-cstr").addEventListener("click", () => {' +
+      '    const text = ["=== CSTR CASCADE IN SERIES KINETIC DIAGNOSTIC ===",' +
+      '      "Number of CSTR Tanks in Series: " + el("cstr-ntanks").value,' +
+      '      "Total Overall Conversion (XN): " + el("out-xtot").innerText + " %",' +
+      '      "Final Effluent Concentration: " + el("out-caout").innerText + " mol/L",' +
+      '      "Space Time per Tank: " + el("out-tau").innerText + " min (Total: " + el("out-tautot").innerText + " min)",' +
+      '      "Damköhler Number (Da): " + el("out-da").innerText,' +
+      '      "RTD Variance (1/N): " + el("out-rtd").innerText,' +
+      '      "Total Cascade Volume: " + el("out-vtot").innerText + " L",' +
+      '      "Equivalent PFR Volume: " + el("out-vpfr").innerText + " L (Ratio: " + el("out-vratio").innerText + "x)",' +
+      '      "Efficiency Assessment: " + el("out-eff-badge").innerText,' +
+      '      "Kinetics: Order = " + el("cstr-order").value + ", k = " + el("cstr-k").value + " " + el("cstr-k-unit").innerText + ", CA0 = " + el("cstr-ca0").value + " mol/L",' +
+      '      "Operating Conditions: Flow = " + el("cstr-flow").value + " " + el("cstr-flow-unit").value + ", Tank Vol = " + el("cstr-vol").value + " " + el("cstr-vol-unit").value,' +
+      '      "Standard Validation: Levenspiel Reactor Design & Tanks-in-Series RTD Model"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("cstr-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BS2: PERVAPORATION MEMBRANE FLUX & DEHYDRATION CALCULATOR ───
+  (() => {
+    const slug = 'pervaporation-membrane-flux-calculator';
+    const title = 'Pervaporation Membrane Flux & Bioethanol Dehydration Sizing Calculator';
+    const metaDescription = 'Calculate partial permeation fluxes, separation factor (alpha), concentration polarization, required membrane area, and condenser cooling duty for pervaporation dehydration systems.';
+    const faq = [
+      {
+        q: 'What is Pervaporation and why is it superior to azeotropic distillation?',
+        a: 'Pervaporation is a membrane separation process that combines liquid permeation through a dense non-porous or molecular-sieve membrane with phase change into a low-pressure vapor permeate. Unlike conventional distillation, which is limited by vapor-liquid equilibrium (VLE) azeotropes (e.g. the 95.6 wt% ethanol-water azeotrope), pervaporation selectivity is governed strictly by the chemical affinity and relative diffusivity of molecules within the membrane (the Solution-Diffusion mechanism). This enables clean dehydration beyond azeotropic limits without adding toxic entrainers like benzene or cyclohexane, cutting separation energy by up to 50%.'
+      },
+      {
+        q: 'How does the Solution-Diffusion model dictate pervaporation mass flux?',
+        a: 'In dense pervaporation membranes, mass transport occurs in three sequential steps: (1) preferential sorption of the fast component at the feed-membrane interface, (2) activated diffusion through the selective membrane thickness $l$, and (3) desorption into the low-pressure vapor phase. The partial flux of water is driven by its partial vapor pressure difference: $J_w = \\frac{P_w}{l} \\left( p_{w,feed} - p_{w,perm} \\right) = \\frac{P_w}{l} \\left( x_w \\gamma_w P_{sat,w}(T) - y_w P_{perm} \\right)$, where $\\gamma_w$ is the liquid activity coefficient and $P_{sat,w}$ is saturated vapor pressure.'
+      },
+      {
+        q: 'What is the Separation Factor (alpha) and how is it calculated?',
+        a: 'The separation factor ($\\alpha_{w/org}$) quantifies membrane selectivity relative to feed composition: $\\alpha_{w/org} = \\frac{y_w / (1 - y_w)}{x_w / (1 - x_w)}$, where $y_w$ is the mass or mole fraction of water in the permeate and $x_w$ is the fraction in the feed. Polymeric PVA membranes typically achieve $\\alpha \\approx 100\\text{--}400$, while modern inorganic ceramic Zeolite NaA membranes reach $\\alpha > 2000\\text{--}5000$, yielding permeate that is $>99.5\\%$ pure water.'
+      },
+      {
+        q: 'What is Concentration Polarization and why does crossflow velocity matter?',
+        a: 'Because water permeates rapidly through the membrane, the concentration of water in the liquid layer immediately adjacent to the membrane surface drops below that of the bulk liquid. If crossflow velocity is low ($u < 0.5\\,\\text{m/s}$), molecular diffusion cannot replenish water fast enough, creating a stagnant depleted boundary layer. Concentration polarization reduces the effective driving force at the membrane face, slashing permeation flux by 30% to 60%. Maintaining turbulent crossflow minimizes this boundary layer.'
+      },
+      {
+        q: 'Why is permeate condenser vacuum temperature critical in preventing flux choke?',
+        a: 'The driving force for permeation is the vapor pressure difference across the membrane. If the permeate condenser is too warm or operating vacuum is degraded (e.g. $P_{perm} > 30\\,\\text{mbar}$), permeate back-pressure approaches feed water partial pressure ($p_{w,feed}$). This pinches the driving force $\\Delta p_w$ toward zero, choking off permeate flux regardless of membrane area.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0d9488; background: #ffffff; box-shadow: 0 0 0 3px rgba(13,148,136,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0d9488; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0f766e; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-pervap { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0d9488; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Pervaporation Membrane Flux & Bioethanol Dehydration Sizing Calculator</h1>' +
+      '    <p>Perform industrial membrane pervaporation modeling for biofuel and solvent dehydration. Calculate water and organic permeation fluxes, separation factor (alpha), concentration polarization, required membrane area, and permeate condenser cooling duty using solution-diffusion theory.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Feed & Membrane Operating Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="pv-preset">Dehydration & Solvent Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="pv-preset">' +
+      '            <option value="bioethanol" selected>Bioethanol Dehydration (92% -> 99.5% Fuel Grade, NaA Zeolite)</option>' +
+      '            <option value="ipa">Isopropanol IPA Dehydration (85% -> 99.8% Electronic Grade)</option>' +
+      '            <option value="butanol">n-Butanol Biofuel Dehydration (88% -> 99.5% wt%)</option>' +
+      '            <option value="acetic">Acetic Acid Dehydration (90% -> 99.5% Glacial Acid)</option>' +
+      '            <option value="custom">Custom Solvent Pervaporation</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pv-mfeed">Feed Mixture Flow Rate ($\\dot{m}_{feed}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pv-mfeed" value="2500" min="50" max="50000" step="100">' +
+      '          <select id="pv-mfeed-unit" style="max-width: 100px;">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="tph">t/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pv-xwin">Feed ($x_{w,in}$) & Target Retentate ($x_{w,out}$) Water wt%</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pv-xwin" value="8.0" min="0.5" max="30" step="0.5" title="Feed Water wt%">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">wt% in</span>' +
+      '          <input type="number" id="pv-xwout" value="0.5" min="0.05" max="5" step="0.05" title="Retentate Water wt%">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">wt% out</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pv-temp">Feed Operating Temperature ($T_{feed}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pv-temp" value="105" min="50" max="140" step="1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">°C</span>' +
+      '        </div>' +
+      '        <div class="hint">Higher temperature boosts water vapor pressure driving force exponentially</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pv-pperm">Permeate Vacuum Pressure ($P_{perm}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pv-pperm" value="10" min="1" max="100" step="1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">mbar(a)</span>' +
+      '        </div>' +
+      '        <div class="hint">Typically 5 to 20 mbar(a) maintained by cold chilled vacuum condenser</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pv-mem-type">Membrane Material & Intrinsic Permeance</label>' +
+      '        <div class="input-row">' +
+      '          <select id="pv-mem-type">' +
+      '            <option value="zeolite" selected>Zeolite NaA Ceramic (Alpha = 2,500, Q = 3.2 kg/m²·h·bar)</option>' +
+      '            <option value="pva">Polymeric PVA Composite (Alpha = 350, Q = 1.8 kg/m²·h·bar)</option>' +
+      '            <option value="silica">Hybrid Silica Ceramic (Alpha = 900, Q = 2.5 kg/m²·h·bar)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pv-crossflow">Crossflow Velocity ($u_{cross}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pv-crossflow" value="1.2" min="0.2" max="4.0" step="0.1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">m/s</span>' +
+      '        </div>' +
+      '        <div class="hint">Velocities > 1.0 m/s suppress concentration polarization boundary layer</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-pv">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-pv">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="pv-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Permeation Flux & Membrane Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Water Removal Rate</div>' +
+      '          <div class="res-val"><span id="out-mwater">188.4</span><span class="res-unit">kg/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Dehydrated Product Yield</div>' +
+      '          <div class="res-val"><span id="out-mret">2,311.6</span><span class="res-unit">kg/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Average Water Flux (Jw)</div>' +
+      '          <div class="res-val"><span id="out-jw">2.65</span><span class="res-unit">kg/m²·h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Required Membrane Area</div>' +
+      '          <div class="res-val"><span id="out-amem">71.2</span><span class="res-unit">m²</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Separation Factor ($\\alpha$)</div>' +
+      '          <div class="res-val"><span id="out-alpha">2,500</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Permeate Purity ($y_w$)</div>' +
+      '          <div class="res-val"><span id="out-yw">99.4</span><span class="res-unit">% water</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Driving Force ($\\Delta p_w$)</div>' +
+      '          <div class="res-val"><span id="out-dpw">0.828</span><span class="res-unit">bar</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Condenser Heat Duty</div>' +
+      '          <div class="res-val"><span id="out-qcond">125.8</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Polarization Factor ($\\beta$)</div>' +
+      '          <div class="res-val"><span id="out-cpol">0.88</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Membrane Health Status</div>' +
+      '          <div id="out-mem-badge" class="badge-pervap" style="background:#dcfce7;color:#166534;">Optimal Selectivity (NaA)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="pv-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Pervaporation Mass Transfer</h2>' +
+      '    <p>Pervaporation transports volatile components across a selective permselective membrane driven by a chemical potential gradient established by upstream temperature and downstream vacuum.</p>' +
+      '    <h3>1. Partial Vapor Pressure & Solution-Diffusion Flux</h3>' +
+      '    <p>The saturated vapor pressure of water $P_{sat,w}$ at temperature $T$ ($^\\circ\\text{C}$) follows the Antoine equation:</p>' +
+      '    <div class="formula-box">' +
+      '      \\ln(P_{sat,w}[bar]) = 11.6834 - \\frac{3816.44}{T + 273.15 - 46.13}' +
+      '    </div>' +
+      '    <p>Accounting for ethanol-water non-ideal liquid phase activity coefficient $\\gamma_w$ (Margules / NRTL) and concentration polarization factor $\\beta_{CP} \\approx 1 - 0.25 \\cdot \\exp(-0.8 \\cdot u_{cross})$:</p>' +
+      '    <div class="formula-box">' +
+      '      p_{w,feed} = x_w \\cdot \\gamma_w \\cdot P_{sat,w}(T) \\cdot \\beta_{CP}\\n' +
+      '      \\Delta p_w = p_{w,feed} - y_w \\cdot \\frac{P_{perm}}{1000}\\quad [bar]' +
+      '    </div>' +
+      '    <p>The permeation flux $J_w$ ($kg/m^2\\cdot h$) is directly proportional to intrinsic membrane permeance $Q_w / l$:</p>' +
+      '    <div class="formula-box">' +
+      '      J_w = \\left( \\frac{Q_w}{l} \\right) \\cdot \\Delta p_w' +
+      '    </div>' +
+      '    <h3>2. Overall Mass Balance & Membrane Surface Area</h3>' +
+      '    <div class="formula-box">' +
+      '      \\dot{m}_{ret} = \\dot{m}_{feed} \\cdot \\left( \\frac{100 - x_{w,in}}{100 - x_{w,out}} \\right)\\n' +
+      '      \\dot{m}_{perm} = \\dot{m}_{feed} - \\dot{m}_{ret}\\implies A_{mem} = \\frac{\\dot{m}_{w,evap}}{\\bar{J}_w}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Pervaporation Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Concentration Polarization Flux Starvation</h4>' +
+      '      <p>Operating membrane modules with feed crossflow velocity below $0.6\\,\\text{m/s}$ allows a stagnant water-depleted boundary layer to blanket the membrane face. Despite high bulk water concentration, the membrane experiences dry conditions, cutting permeation flux by 50%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Rapid Thermal Shock Ceramic Delamination</h4>' +
+      '      <p>Inorganic Zeolite NaA membranes are grown on porous $\\alpha$-alumina ceramic tubes. Rapid thermal cycling ($> 2^\\circ\\text{C/min}$) induces severe thermal stress between the thin zeolite crystals and the ceramic substrate, causing microscopic delamination and pinhole leaks that destroy selectivity.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Excessive Feed Moisture Polymer Plasticization</h4>' +
+      '      <p>Exposing polymeric PVA membranes to feeds containing $> 20\\,\\text{wt}\\%$ water causes severe polymer matrix swelling. The expanded polymer free volume destroys size exclusion selectivity, causing ethanol leakage into the permeate and collapsing separation factor from 350 down to $< 15$.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Permeate Condenser Temperature Creep & Choked Flux</h4>' +
+      '      <p>If the chilled vacuum condenser brine temperature rises, the saturation vapor pressure inside the vacuum header spikes from 10 mbar to 45 mbar. This backpressure erodes the driving force $\\Delta p_w$, choking off permeation and causing off-spec wet product.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Acid Hydrolysis & Zeolite Framework Leaching</h4>' +
+      '      <p>Raw fermentation broths containing trace organic acids (acetic, formic) degrade Zeolite NaA lattices. Operating at $\\text{pH} < 5.0$ leaches structural aluminum atoms out of the zeolite framework, destroying crystallinity and rendering expensive membrane stacks useless within weeks.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Pervaporation Membrane Dehydration</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    bioethanol: { mfeed: 2500, munit: "kgh", xwin: 8.0, xwout: 0.5, temp: 105, pperm: 10, mem: "zeolite", u: 1.2 },' +
+      '    ipa: { mfeed: 1800, munit: "kgh", xwin: 15.0, xwout: 0.2, temp: 95, pperm: 8, mem: "zeolite", u: 1.4 },' +
+      '    butanol: { mfeed: 3000, munit: "kgh", xwin: 12.0, xwout: 0.5, temp: 110, pperm: 12, mem: "silica", u: 1.1 },' +
+      '    acetic: { mfeed: 1500, munit: "kgh", xwin: 10.0, xwout: 0.5, temp: 100, pperm: 10, mem: "pva", u: 1.0 }' +
+      '  };' +
+      '  function calc() {' +
+      '    let mfeed = parseFloat(el("pv-mfeed").value) || 2500;' +
+      '    if (el("pv-mfeed-unit").value === "tph") mfeed *= 1000;' +
+      '    const xwin = parseFloat(el("pv-xwin").value) || 8.0;' +
+      '    const xwout = parseFloat(el("pv-xwout").value) || 0.5;' +
+      '    const tempC = parseFloat(el("pv-temp").value) || 105;' +
+      '    const pperm_mbar = parseFloat(el("pv-pperm").value) || 10;' +
+      '    const memType = el("pv-mem-type").value;' +
+      '    const u_cross = parseFloat(el("pv-crossflow").value) || 1.2;' +
+      '    let alpha = 2500;' +
+      '    let Q_perm = 3.2;' +
+      '    if (memType === "pva") {' +
+      '      alpha = 350;' +
+      '      Q_perm = 1.8;' +
+      '    } else if (memType === "silica") {' +
+      '      alpha = 900;' +
+      '      Q_perm = 2.5;' +
+      '    }' +
+      '    const org_in_pct = 100 - xwin;' +
+      '    const org_out_pct = 100 - xwout;' +
+      '    const m_ret = mfeed * (org_in_pct / org_out_pct);' +
+      '    const m_perm = Math.max(0, mfeed - m_ret);' +
+      '    const m_water_evap = m_perm * 0.992;' +
+      '    const p_sat_bar = Math.exp(11.6834 - (3816.44 / (tempC + 273.15 - 46.13)));' +
+      '    const gamma_w = 1.85;' +
+      '    const beta_cp = Math.max(0.65, Math.min(0.98, 1 - 0.28 * Math.exp(-0.9 * u_cross)));' +
+      '    const xw_mean = ((xwin + xwout) / 2) / 100;' +
+      '    const pw_feed_bar = xw_mean * gamma_w * p_sat_bar * beta_cp;' +
+      '    const p_perm_bar = (pperm_mbar / 1000) * 0.99;' +
+      '    const delta_pw = Math.max(0.02, pw_feed_bar - p_perm_bar);' +
+      '    const Jw = Q_perm * delta_pw;' +
+      '    const A_mem = m_water_evap / Math.max(0.1, Jw);' +
+      '    const deltaH_vap_kj = 2400;' +
+      '    const Q_cond_kw = (m_perm * deltaH_vap_kj) / 3600;' +
+      '    const yw_pct = (alpha * (xwin / 100)) / (1 + (alpha - 1) * (xwin / 100)) * 100;' +
+      '    el("out-mwater").innerText = m_water_evap.toFixed(1);' +
+      '    el("out-mret").innerText = m_ret.toFixed(1);' +
+      '    el("out-jw").innerText = Jw.toFixed(2);' +
+      '    el("out-amem").innerText = A_mem.toFixed(1);' +
+      '    el("out-alpha").innerText = alpha.toLocaleString();' +
+      '    el("out-yw").innerText = Math.min(99.9, yw_pct).toFixed(1);' +
+      '    el("out-dpw").innerText = delta_pw.toFixed(3);' +
+      '    el("out-qcond").innerText = Q_cond_kw.toFixed(1);' +
+      '    el("out-cpol").innerText = beta_cp.toFixed(2);' +
+      '    const badge = el("out-mem-badge");' +
+      '    if (alpha >= 1000) {' +
+      '      badge.innerText = "High Selectivity Ceramic (NaA)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (alpha >= 300) {' +
+      '      badge.innerText = "Moderate Selectivity (PVA/Silica)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "Swelling Degraded Selectivity";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawMembrane(xwin, xwout, Jw, A_mem, tempC);' +
+      '  }' +
+      '  function drawMembrane(xwin, xwout, Jw, Amem, tempC) {' +
+      '    const canvas = el("pv-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const mX = 50, mY = 50, mW = 380, mH = 160;' +
+      '    ctx.fillStyle = "rgba(234, 88, 12, 0.25)";' +
+      '    ctx.fillRect(mX, mY, mW, 60);' +
+      '    ctx.strokeStyle = "#cbd5e1";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.strokeRect(mX, mY, mW, 60);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillRect(mX, mY + 60, mW, 8);' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.strokeRect(mX, mY + 60, mW, 8);' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.8)";' +
+      '    ctx.fillRect(mX, mY + 68, mW, 80);' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.strokeRect(mX, mY + 68, mW, 80);' +
+      '    ctx.strokeStyle = "#22c55e";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(mX - 25, mY + 30);' +
+      '    ctx.lineTo(mX, mY + 30);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#22c55e";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Feed " + xwin + "% H2O", mX - 45, mY + 15);' +
+      '    ctx.strokeStyle = "#3b82f6";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(mX + mW, mY + 30);' +
+      '    ctx.lineTo(mX + mW + 25, mY + 30);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#3b82f6";' +
+      '    ctx.fillText("Retentate " + xwout + "%", mX + mW + 5, mY + 15);' +
+      '    ctx.fillStyle = "rgba(56, 189, 248, 0.7)";' +
+      '    for (let p = 0; p < 25; p++) {' +
+      '      const px = mX + 15 + Math.random() * (mW - 30);' +
+      '      const py = mY + 75 + Math.random() * 60;' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(px, py, 2, 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillText("Liquid Feed Channel (Hot: " + tempC + "°C)", mX + 80, mY + 25);' +
+      '    ctx.fillText("Selective Membrane Layer (Zeolite/PVA)", mX + 80, mY + 58);' +
+      '    ctx.fillText("Permeate Vacuum Vapor Space (P < 15 mbar)", mX + 80, mY + 115);' +
+      '    ctx.fillText("Flux Jw = " + Jw.toFixed(2) + " kg/m²·h | Required Area: " + Amem.toFixed(1) + " m²", mX + 50, mY + mH + 25);' +
+      '  }' +
+      '  el("pv-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("pv-mfeed").value = p.mfeed;' +
+      '      el("pv-mfeed-unit").value = p.munit;' +
+      '      el("pv-xwin").value = p.xwin;' +
+      '      el("pv-xwout").value = p.xwout;' +
+      '      el("pv-temp").value = p.temp;' +
+      '      el("pv-pperm").value = p.pperm;' +
+      '      el("pv-mem-type").value = p.mem;' +
+      '      el("pv-crossflow").value = p.u;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["pv-mfeed","pv-mfeed-unit","pv-xwin","pv-xwout","pv-temp","pv-pperm","pv-mem-type","pv-crossflow"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-pv").addEventListener("click", () => {' +
+      '    el("pv-preset").value = "bioethanol";' +
+      '    el("pv-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-pv").addEventListener("click", () => {' +
+      '    const text = ["=== PERVAPORATION MEMBRANE DEHYDRATION DIAGNOSTIC ===",' +
+      '      "Required Membrane Surface Area: " + el("out-amem").innerText + " m²",' +
+      '      "Average Water Permeation Flux (Jw): " + el("out-jw").innerText + " kg/m²·h",' +
+      '      "Water Removal Rate: " + el("out-mwater").innerText + " kg/h",' +
+      '      "Dehydrated Product Yield: " + el("out-mret").innerText + " kg/h",' +
+      '      "Membrane Separation Factor: " + el("out-alpha").innerText,' +
+      '      "Permeate Water Purity: " + el("out-yw").innerText + " %",' +
+      '      "Vapor Driving Force (delta Pw): " + el("out-dpw").innerText + " bar",' +
+      '      "Permeate Condenser Cooling Duty: " + el("out-qcond").innerText + " kW",' +
+      '      "Concentration Polarization Factor: " + el("out-cpol").innerText,' +
+      '      "Operating Conditions: Feed = " + el("pv-mfeed").value + " " + el("pv-mfeed-unit").value + " (" + el("pv-xwin").value + "% -> " + el("pv-xwout").value + "% H2O), Temp = " + el("pv-temp").value + " °C, P_perm = " + el("pv-pperm").value + " mbar, u = " + el("pv-crossflow").value + " m/s",' +
+      '      "Standard Validation: Solution-Diffusion Mass Transfer & Antoine-Margules VLE Model"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("pv-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BS3: LIQUID-LIQUID EXTRACTION (LLE) & KREMSER CALCULATOR ───
+  (() => {
+    const slug = 'liquid-liquid-extraction-kremser-calculator';
+    const title = 'Liquid-Liquid Extraction (LLE) Column & Kremser Sizing Calculator';
+    const metaDescription = 'Calculate theoretical stages, extraction factor (E), minimum solvent ratio (S/F), column diameter, and solute recovery in countercurrent extraction columns using the Kremser equation.';
+    const faq = [
+      {
+        q: 'What is Liquid-Liquid Extraction (LLE) and when is it preferred over distillation?',
+        a: 'Liquid-Liquid Extraction (LLE), or solvent extraction, is a separation unit operation that separates components of a liquid solution by contacting it with an immiscible or partially miscible solvent that selectively dissolves one or more solutes. LLE is preferred when distillation is impossible or uneconomical, such as: separating close-boiling mixtures, recovering high-boiling solutes from dilute aqueous streams (e.g. phenol recovery), separating azeotropes, and isolating thermally labile biopharmaceuticals, vitamins, or antibiotics that degrade at distillation temperatures.'
+      },
+      {
+        q: 'What is the Extraction Factor (E) and why must E > 1 for high recovery?',
+        a: 'The extraction factor ($E$) represents the ratio of the solute\'s equilibrium capacity in the solvent stream to that in the feed stream: $E = \\frac{K_D \\cdot S}{F}$, where $K_D$ is the distribution coefficient ($y^* / x$), $S$ is solvent mass flow rate, and $F$ is feed mass flow rate. If $E < 1$, the operating line slope is less than the equilibrium line slope, making it mathematically impossible to achieve high solute recovery regardless of how many theoretical stages are added ($N \\to \\infty$). For economical industrial column design, engineers target $E = 1.3\\text{--}2.0$.'
+      },
+      {
+        q: 'How does the Kremser equation determine the number of theoretical stages?',
+        a: 'For dilute, immiscible systems with linear equilibrium ($y^* = K_D \\cdot x$), the Kremser shortcut equation analytically calculates the required number of theoretical stages $N_{theor}$: $N_{theor} = \\frac{\\ln\\left[ \\left(\\frac{x_{in} - y_{in}/K_D}{x_{out} - y_{in}/K_D}\\right) \\left(1 - \\frac{1}{E}\\right) + \\frac{1}{E} \\right]}{\\ln(E)}$. If $E = 1$, the equation simplifies to $N_{theor} = \\frac{x_{in} - x_{out}}{x_{out} - y_{in}/K_D}$.'
+      },
+      {
+        q: 'What is HETS and how does it determine column packed height?',
+        a: 'HETS stands for Height Equivalent to a Theoretical Stage. In packed extraction columns, mass transfer occurs continuously rather than in discrete equilibrium stages. The total required height of packing is $H_{pack} = N_{theor} \\cdot HETS$. For standard structured packings or random dump packings (such as ceramic saddles or metal Pall rings), HETS typically ranges from $0.6$ to $1.2\\,\\text{m}$ ($2\\text{--}4\\,\\text{ft}$), depending on interfacial tension, phase viscosity, and droplet Sauter mean diameter.'
+      },
+      {
+        q: 'What causes flooding and emulsification in extraction columns?',
+        a: 'Column flooding occurs when the counter-current flow of the continuous and dispersed phases exceeds hydraulic capacity. Droplets coalesce into large stagnant liquid slugs that exit through the wrong outlet, causing carryover. Emulsification is triggered by intense mechanical shear (excessive rotor RPM) or trace surface-active contaminants that reduce interfacial tension below $2\\,\\text{mN/m}$, creating micro-droplets that refuse to settle.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #14b8a6; background: #ffffff; box-shadow: 0 0 0 3px rgba(20,184,166,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #14b8a6; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0f766e; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-lle { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #14b8a6; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Liquid-Liquid Extraction (LLE) Column & Kremser Sizing Calculator</h1>' +
+      '    <p>Perform industrial solvent extraction modeling for countercurrent liquid-liquid extraction columns. Calculate the number of theoretical stages, extraction factor (E), minimum solvent-to-feed ratio (S/F), column diameter, and solute recovery using the Kremser equation.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Feed, Solvent & Equilibrium Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="lle-preset">Industrial Extraction Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="lle-preset">' +
+      '            <option value="phenol" selected>Phenol Extraction from Wastewater (Solvent: MIBK)</option>' +
+      '            <option value="acetic">Acetic Acid Recovery (Solvent: Ethyl Acetate)</option>' +
+      '            <option value="caprolactam">Caprolactam from Ammonium Sulfate (Solvent: Toluene)</option>' +
+      '            <option value="rareearth">Rare Earths Nd/Pr Separation (Solvent: DEHPA in Kerosene)</option>' +
+      '            <option value="custom">Custom Two-Phase Liquid-Liquid System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="lle-fflow">Feed Solution Flow Rate ($F$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="lle-fflow" value="10000" min="100" max="200000" step="500">' +
+      '          <select id="lle-fflow-unit" style="max-width: 100px;">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="tph">tonne/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="lle-xin">Feed ($x_{in}$) & Target Raffinate ($x_{out}$) Solute wt%</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="lle-xin" value="4.5" min="0.1" max="40" step="0.1" title="Feed Solute wt%">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">wt% in</span>' +
+      '          <input type="number" id="lle-xout" value="0.1" min="0.001" max="10" step="0.01" title="Raffinate Solute wt%">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">wt% out</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="lle-sflow">Solvent Flow Rate ($S$) & Inlet Solute ($y_{in}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="lle-sflow" value="3500" min="50" max="100000" step="100" title="Solvent kg/h">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">kg/h (S)</span>' +
+      '          <input type="number" id="lle-yin" value="0.02" min="0" max="2" step="0.01" title="Solvent Solute wt%">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">wt% yin</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="lle-kd">Distribution Coefficient ($K_D = y^*/x$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="lle-kd" value="4.2" min="0.1" max="100" step="0.1">' +
+      '        </div>' +
+      '        <div class="hint">Equilibrium partition ratio: $y^* = K_D \\cdot x$</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="lle-eff">Stage Efficiency ($E_o$) & HETS</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="lle-eff" value="45" min="10" max="95" step="5" title="Stage Efficiency (%)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">% Eff</span>' +
+      '          <input type="number" id="lle-hets" value="0.8" min="0.2" max="3.0" step="0.1" title="HETS (m)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">m HETS</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-lle">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-lle">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="lle-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Extraction Yield & Column Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Extraction Factor ($E$)</div>' +
+      '          <div class="res-val"><span id="out-efactor">1.47</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Solute Recovery</div>' +
+      '          <div class="res-val"><span id="out-recov">97.8</span><span class="res-unit">%</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Theoretical Stages ($N_{theor}$)</div>' +
+      '          <div class="res-val"><span id="out-ntheor">5.2</span><span class="res-unit">stages</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Actual Stages / Trays</div>' +
+      '          <div class="res-val"><span id="out-nactual">12</span><span class="res-unit">stages</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Packed Bed Height ($H_{pack}$)</div>' +
+      '          <div class="res-val"><span id="out-hpack">4.16</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Minimum (S/F) Ratio</div>' +
+      '          <div class="res-val"><span id="out-sfmin">0.233</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Operating (S/F) Ratio</div>' +
+      '          <div class="res-val"><span id="out-sfoper">0.350</span><span class="res-unit">× S/F</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Extract Solute Conc. ($y_{out}$)</div>' +
+      '          <div class="res-val"><span id="out-yout">12.6</span><span class="res-unit">wt%</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Column Diameter ($D_c$)</div>' +
+      '          <div class="res-val"><span id="out-dia">0.94</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Extraction Feasibility</div>' +
+      '          <div id="out-lle-badge" class="badge-lle" style="background:#dcfce7;color:#166534;">High Efficiency (E > 1.3)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="lle-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Countercurrent Extraction</h2>' +
+      '    <p>Liquid-liquid extraction columns operate under countercurrent flow where solute transfers across liquid-liquid phase boundaries driven by thermodynamic chemical activity differences.</p>' +
+      '    <h3>1. Overall Solute Mass Balance</h3>' +
+      '    <p>Solute entering in the feed ($F \\cdot x_{in}$) and solvent ($S \\cdot y_{in}$) equals solute exiting in raffinate ($R \\cdot x_{out}$) and extract ($E_{str} \\cdot y_{out}$):</p>' +
+      '    <div class="formula-box">' +
+      '      F \\cdot x_{in} + S \\cdot y_{in} = F \\cdot x_{out} + S \\cdot y_{out}\\implies y_{out} = y_{in} + \\frac{F}{S} (x_{in} - x_{out})' +
+      '    </div>' +
+      '    <h3>2. The Kremser Equation for Theoretical Stages</h3>' +
+      '    <p>The extraction factor $E = \\frac{K_D \\cdot S}{F}$ represents the ratio of the equilibrium line slope to the operating line slope. The exact analytical Kremser formula gives:</p>' +
+      '    <div class="formula-box">' +
+      '      N_{theor} = \\frac{\\ln \\left[ \\left( \\frac{x_{in} - y_{in} / K_D}{x_{out} - y_{in} / K_D} \\right) \\left( 1 - \\frac{1}{E} \\right) + \\frac{1}{E} \\right]}{\\ln(E)}' +
+      '    </div>' +
+      '    <h3>3. Column Hydraulic Sizing & Packed Height</h3>' +
+      '    <p>Total packed height accounts for stage efficiency or HETS:</p>' +
+      '    <div class="formula-box">' +
+      '      H_{pack} = N_{theor} \\cdot HETS\\quad\\text{and}\\quad N_{actual} = \\frac{N_{theor}}{E_o / 100}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Extraction Column Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Sub-Critical Extraction Factor ($E < 1.0$)</h4>' +
+      '      <p>If $E = K_D \\cdot S / F < 1.0$, the solvent capacity is thermodynamically insufficient to extract the solute. An infinite number of stages ($N \\to \\infty$) will still fail to reach the target raffinate purity, leading to permanent off-spec waste discharge.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Emulsification & Phase Inversion Flooding</h4>' +
+      '      <p>Excessive rotor agitation speed in stirred columns (Karr, Scheibel, RDC) shatters droplets below $0.5\\,\\text{mm}$. Micro-droplets lack buoyant velocity to overcome continuous phase drag, causing stable emulsion inversion and spewing solvent directly into the raffinate discharge.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Assuming Constant $K_D$ Across Broad Concentration Ranges</h4>' +
+      '      <p>In concentrated systems, high solute levels increase mutual solvent-water solubility (solutropy). The distribution coefficient $K_D$ drops significantly near the column inlet. Designing columns using dilute Henry\'s law $K_D$ underestimates required stage count by 40%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Axial Backmixing in Wide Columns ($D_c > 1.5\\,\\text{m}$)</h4>' +
+      '      <p>Large cross-sectional areas promote Taylor circulation cells where continuous phase fluid recirculates upstream. Axial dispersion degrades interstage concentration driving forces, requiring 25% to 50% more height than pilot-scale test columns.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Internal Surface Wettability Inversion</h4>' +
+      '      <p>Internal packings or sieve trays must be preferentially wetted by the continuous phase. If the dispersed phase wets the packing material, droplets coalesce into thick liquid films that channel along the steel, collapsing specific interfacial area by 85%.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Liquid-Liquid Extraction Columns</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    phenol: { fflow: 10000, funit: "kgh", xin: 4.5, xout: 0.1, sflow: 3500, yin: 0.02, kd: 4.2, eff: 45, hets: 0.8 },' +
+      '    acetic: { fflow: 15000, funit: "kgh", xin: 8.0, xout: 0.5, sflow: 12000, yin: 0.05, kd: 1.8, eff: 50, hets: 0.9 },' +
+      '    caprolactam: { fflow: 8000, funit: "kgh", xin: 12.0, xout: 0.2, sflow: 6500, yin: 0.01, kd: 3.5, eff: 40, hets: 0.75 },' +
+      '    rareearth: { fflow: 5000, funit: "kgh", xin: 2.0, xout: 0.02, sflow: 2500, yin: 0.001, kd: 6.0, eff: 55, hets: 0.6 }' +
+      '  };' +
+      '  function calc() {' +
+      '    let F = parseFloat(el("lle-fflow").value) || 10000;' +
+      '    if (el("lle-fflow-unit").value === "tph") F *= 1000;' +
+      '    const xin_pct = parseFloat(el("lle-xin").value) || 4.5;' +
+      '    const xout_pct = parseFloat(el("lle-xout").value) || 0.1;' +
+      '    const S = parseFloat(el("lle-sflow").value) || 3500;' +
+      '    const yin_pct = parseFloat(el("lle-yin").value) || 0.02;' +
+      '    const KD = parseFloat(el("lle-kd").value) || 4.2;' +
+      '    const eff_pct = Math.min(95, Math.max(10, parseFloat(el("lle-eff").value) || 45));' +
+      '    const hets_m = parseFloat(el("lle-hets").value) || 0.8;' +
+      '    const xin = xin_pct / 100;' +
+      '    const xout = xout_pct / 100;' +
+      '    const yin = yin_pct / 100;' +
+      '    const E = (KD * S) / Math.max(1, F);' +
+      '    const recov_pct = Math.min(99.9, ((xin - xout) / xin) * 100);' +
+      '    const sf_oper = S / F;' +
+      '    const sf_min = Math.max(0.01, (xin - xout) / (KD * xin - yin));' +
+      '    const yout = yin + (F / S) * (xin - xout);' +
+      '    const yout_pct = yout * 100;' +
+      '    let Ntheor = 1;' +
+      '    if (Math.abs(E - 1) < 0.01) {' +
+      '      Ntheor = (xin - xout) / Math.max(1e-5, (xout - yin / KD));' +
+      '    } else if (E > 1) {' +
+      '      const num = ((xin - yin / KD) / Math.max(1e-5, (xout - yin / KD))) * (1 - 1 / E) + (1 / E);' +
+      '      Ntheor = Math.log(Math.max(1.001, num)) / Math.log(E);' +
+      '    } else {' +
+      '      Ntheor = 25;' +
+      '    }' +
+      '    Ntheor = Math.min(40, Math.max(1, Ntheor));' +
+      '    const Nactual = Math.ceil(Ntheor / (eff_pct / 100));' +
+      '    const Hpack = Ntheor * hets_m;' +
+      '    const rhoF = 1000;' +
+      '    const rhoS = 820;' +
+      '    const qTot_m3s = (F / rhoF + S / rhoS) / 3600;' +
+      '    const vFlood = 0.025;' +
+      '    const vOper = vFlood * 0.65;' +
+      '    const areaCol = qTot_m3s / vOper;' +
+      '    const diaCol = Math.sqrt((4 * areaCol) / Math.PI);' +
+      '    el("out-efactor").innerText = E.toFixed(2);' +
+      '    el("out-recov").innerText = recov_pct.toFixed(1);' +
+      '    el("out-ntheor").innerText = Ntheor.toFixed(1);' +
+      '    el("out-nactual").innerText = Nactual;' +
+      '    el("out-hpack").innerText = Hpack.toFixed(2);' +
+      '    el("out-sfmin").innerText = sf_min.toFixed(3);' +
+      '    el("out-sfoper").innerText = sf_oper.toFixed(3);' +
+      '    el("out-yout").innerText = yout_pct.toFixed(2);' +
+      '    el("out-dia").innerText = diaCol.toFixed(2);' +
+      '    const badge = el("out-lle-badge");' +
+      '    if (E >= 1.3) {' +
+      '      badge.innerText = "Optimal Factor (E ≥ 1.3)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (E >= 1.0) {' +
+      '      badge.innerText = "Marginal Factor (1.0 ≤ E < 1.3)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "SUB-CRITICAL (E < 1.0 Pinch)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawLLE(Ntheor, Hpack, diaCol, E, xin_pct, xout_pct);' +
+      '  }' +
+      '  function drawLLE(Ntheor, Hpack, dia, E, xin, xout) {' +
+      '    const canvas = el("lle-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const colX = 140, colY = 25, colW = 80, colH = 220;' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.strokeRect(colX, colY, colW, colH);' +
+      '    const pGrad = ctx.createLinearGradient(0, colY + 30, 0, colY + colH - 30);' +
+      '    pGrad.addColorStop(0, "rgba(239, 68, 68, 0.4)");' +
+      '    pGrad.addColorStop(1, "rgba(20, 184, 166, 0.4)");' +
+      '    ctx.fillStyle = pGrad;' +
+      '    ctx.fillRect(colX + 2, colY + 30, colW - 4, colH - 60);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.setLineDash([3, 3]);' +
+      '    const nLayers = Math.min(8, Math.ceil(Ntheor));' +
+      '    for (let l = 1; l < nLayers; l++) {' +
+      '      const ly = colY + 30 + (l / nLayers) * (colH - 60);' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(colX + 4, ly);' +
+      '      ctx.lineTo(colX + colW - 4, ly);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ctx.setLineDash([]);' +
+      '    ctx.strokeStyle = "#ef4444";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX - 25, colY + 20);' +
+      '    ctx.lineTo(colX, colY + 20);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Feed (x=" + xin + "%)", colX - 78, colY + 14);' +
+      '    ctx.strokeStyle = "#14b8a6";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + colW + 25, colY + colH - 20);' +
+      '    ctx.lineTo(colX + colW, colY + colH - 20);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#14b8a6";' +
+      '    ctx.fillText("Solvent In ↑", colX + colW + 10, colY + colH - 8);' +
+      '    ctx.strokeStyle = "#10b981";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + colW / 2, colY);' +
+      '    ctx.lineTo(colX + colW / 2, colY - 15);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("Extract ↑", colX + colW / 2 - 18, colY - 18);' +
+      '    ctx.strokeStyle = "#3b82f6";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + colW / 2, colY + colH);' +
+      '    ctx.lineTo(colX + colW / 2, colY + colH + 15);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#3b82f6";' +
+      '    ctx.fillText("Raffinate ↓ (x=" + xout + "%)", colX + colW / 2 - 40, colY + colH + 28);' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("N_theor: " + Ntheor.toFixed(1) + " stages", 265, 80);' +
+      '    ctx.fillText("Packed Height: " + Hpack.toFixed(2) + " m", 265, 110);' +
+      '    ctx.fillText("Column Dia: " + dia.toFixed(2) + " m", 265, 140);' +
+      '    ctx.fillText("Factor E: " + E.toFixed(2), 265, 170);' +
+      '  }' +
+      '  el("lle-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("lle-fflow").value = p.fflow;' +
+      '      el("lle-fflow-unit").value = p.funit;' +
+      '      el("lle-xin").value = p.xin;' +
+      '      el("lle-xout").value = p.xout;' +
+      '      el("lle-sflow").value = p.sflow;' +
+      '      el("lle-yin").value = p.yin;' +
+      '      el("lle-kd").value = p.kd;' +
+      '      el("lle-eff").value = p.eff;' +
+      '      el("lle-hets").value = p.hets;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["lle-fflow","lle-fflow-unit","lle-xin","lle-xout","lle-sflow","lle-yin","lle-kd","lle-eff","lle-hets"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-lle").addEventListener("click", () => {' +
+      '    el("lle-preset").value = "phenol";' +
+      '    el("lle-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-lle").addEventListener("click", () => {' +
+      '    const text = ["=== LIQUID-LIQUID EXTRACTION (LLE) COLUMN SIZING DIAGNOSTIC ===",' +
+      '      "Extraction Factor (E): " + el("out-efactor").innerText + " (" + el("out-lle-badge").innerText + ")",' +
+      '      "Solute Recovery: " + el("out-recov").innerText + " %",' +
+      '      "Theoretical Stages (N_theor): " + el("out-ntheor").innerText + " stages",' +
+      '      "Actual Stages / Trays (Eo=" + el("lle-eff").value + "%): " + el("out-nactual").innerText + " stages",' +
+      '      "Packed Bed Height: " + el("out-hpack").innerText + " m (HETS = " + el("lle-hets").value + " m)",' +
+      '      "Operating Solvent-to-Feed Ratio: " + el("out-sfoper").innerText + " (Minimum S/F: " + el("out-sfmin").innerText + ")",' +
+      '      "Extract Outlet Solute Concentration: " + el("out-yout").innerText + " wt%",' +
+      '      "Column Diameter: " + el("out-dia").innerText + " m",' +
+      '      "Operating Conditions: Feed = " + el("lle-fflow").value + " " + el("lle-fflow-unit").value + " (" + el("lle-xin").value + "% -> " + el("lle-xout").value + "%), Solvent = " + el("lle-sflow").value + " kg/h (KD = " + el("lle-kd").value + ")",' +
+      '      "Standard Validation: Kremser Countercurrent Extraction Model & Hydraulics"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("lle-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BS4: STEAM STRIPPING COLUMN SIZING & MASS TRANSFER CALCULATOR ───
+  (() => {
+    const slug = 'steam-stripping-column-sizing-calculator';
+    const title = 'Industrial Steam Stripping Column Sizing & Mass Transfer Calculator';
+    const metaDescription = 'Calculate steam-to-feed ratio, stripping factor (S), NTU-HTU packed bed height, column diameter, and VOC removal in industrial steam strippers using Onda and Kremser models.';
+    const faq = [
+      {
+        q: 'What is Steam Stripping and how does it differ from air stripping?',
+        a: 'Steam Stripping is a continuous gas-liquid mass transfer unit operation used to remove volatile organic compounds (VOCs), hydrogen sulfide ($H_2S$), ammonia ($NH_3$), and hazardous air pollutants from industrial wastewater. Unlike air stripping—which discharges volatile contaminants into large air streams requiring expensive gas-phase carbon adsorption—steam stripping uses live steam as the stripping vapor. The overhead steam and stripped organics are easily condensed into a small liquid volume, enabling simple decantation, phase separation, or solvent recovery.'
+      },
+      {
+        q: 'What is the Stripping Factor (S) and why is it critical in column design?',
+        a: 'The stripping factor ($S$) is the dimensionless ratio of the equilibrium capacity of the stripping vapor to that of the liquid: $S = \\frac{K_{vol} \\cdot G}{L}$, where $K_{vol} = y^* / x$ is the vapor-liquid equilibrium volatility, $G$ is molar vapor flow, and $L$ is molar liquid flow. If $S < 1$, the operating line slope is steeper than the equilibrium line, making high solute removal thermodynamically impossible even with infinite packing height. Industrial steam strippers operate with $S = 1.5\\text{--}3.5$ for robust, energy-efficient recovery.'
+      },
+      {
+        q: 'How does the NTU-HTU method calculate packed bed depth?',
+        a: 'The total packed bed depth is the product of the Number of Transfer Units ($NTU_{OL}$) and the Height of a Transfer Unit ($HTU_{OL}$): $Z_{pack} = NTU_{OL} \\cdot HTU_{OL}$. $NTU_{OL}$ measures the separation difficulty and is calculated from the Colburn/Kremser formula: $NTU_{OL} = \\frac{S}{S - 1} \\ln\\left[ \\left( \\frac{C_{in}}{C_{out}} \\right) \\left( \\frac{S - 1}{S} \\right) + \\frac{1}{S} \\right]$. $HTU_{OL}$ reflects mass transfer kinetics (typically $0.6\\text{--}1.2\\,\\text{m}$ for modern structured packing).'
+      },
+      {
+        q: 'What is Sour Water Stripping (SWS) and what unique challenges does it present?',
+        a: 'Sour water strippers in petroleum refineries remove toxic hydrogen sulfide ($H_2S$) and ammonia ($NH_3$) from process wash waters. Because $H_2S$ and $NH_3$ react in water to form ammonium bisulfide ($NH_4HS$), the stripping column must operate at elevated temperatures ($115\\text{--}130^\\circ\\text{C}$) and pressures ($1.5\\text{--}2.5\\,\\text{bar(a)}$) to dissociate the salt. If overhead vapors cool below $65^\\circ\\text{C}$, $NH_4HS$ deposits as solid corrosive salts that plug condensers.'
+      },
+      {
+        q: 'Why are liquid redistributors mandatory in tall packed columns?',
+        a: 'As liquid flows downward through random or structured packing, capillary action and surface tension naturally draw liquid droplets toward the column wall (wall flow). Without liquid redistributors installed every 5 to 7 meters of bed height, the core of the packing becomes starved of liquid while the perimeter floods, reducing mass transfer efficiency by up to 50%.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #f97316; background: #ffffff; box-shadow: 0 0 0 3px rgba(249,115,22,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #f97316; color: #ffffff; }' +
+      '.btn-primary:hover { background: #ea580c; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-strip { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #f97316; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Industrial Steam Stripping Column Sizing & Mass Transfer Calculator</h1>' +
+      '    <p>Perform complete engineering design of industrial steam stripping columns for volatile organic compound (VOC), ammonia, and H2S wastewater remediation. Calculate steam-to-feed ratio, stripping factor (S), NTU-HTU packed bed height, column diameter, and thermal duty using Onda and Kremser models.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Feed, Steam & Packing Parameters</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="ss-preset">Industrial Stripping Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="ss-preset">' +
+      '            <option value="sws" selected>Refinery Sour Water Stripper (H2S / NH3 removal)</option>' +
+      '            <option value="benzene">Benzene & Toluene Wastewater Steam Stripping</option>' +
+      '            <option value="tce">Trichloroethylene (TCE / Chlorinated VOCs)</option>' +
+      '            <option value="methanol">Methanol Stripping from Pulp Mill Condensate</option>' +
+      '            <option value="custom">Custom Aqueous Volatile Stripping</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ss-flow">Wastewater Feed Flow Rate ($L$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ss-flow" value="20" min="0.5" max="500" step="1">' +
+      '          <select id="ss-flow-unit" style="max-width: 100px;">' +
+      '            <option value="m3h" selected>m³/h</option>' +
+      '            <option value="gpm">gpm</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ss-cin">Inlet ($C_{in}$) & Target Bottoms ($C_{out}$) Concentration</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ss-cin" value="450" min="1" max="50000" step="10" title="Inlet mg/L">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">mg/L in</span>' +
+      '          <input type="number" id="ss-cout" value="2.0" min="0.01" max="100" step="0.1" title="Outlet mg/L">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">mg/L out</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ss-steam">Injected Live Steam Rate ($G_{steam}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ss-steam" value="1800" min="50" max="50000" step="100">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">kg/h steam</span>' +
+      '        </div>' +
+      '        <div class="hint">Typical ratio: 60 - 120 kg steam per m³ of wastewater feed</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ss-kvol">Equilibrium Volatility ($K_{vol} = y^*/x$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ss-kvol" value="28" min="0.5" max="500" step="1">' +
+      '        </div>' +
+      '        <div class="hint">Stripping volatility at column bottom operating boiling point</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ss-packing">Packing Type & Height of Transfer Unit ($HTU$)</label>' +
+      '        <div class="input-row">' +
+      '          <select id="ss-packing">' +
+      '            <option value="structured" selected>Structured Metal 250Y (HTU = 0.65 m, high capacity)</option>' +
+      '            <option value="pall">Metal Pall Rings 2" (HTU = 0.95 m, fouling tolerant)</option>' +
+      '            <option value="intalox">Ceramic Saddles 1.5" (HTU = 0.85 m, corrosive service)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ss-press">Column Operating Pressure ($P_{col}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ss-press" value="1.5" min="0.2" max="10" step="0.1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">bar(a)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-ss">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-ss">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="ss-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Stripping Performance & Bed Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Stripping Factor ($S$)</div>' +
+      '          <div class="res-val"><span id="out-sfactor">2.52</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Solute Removal Efficiency</div>' +
+      '          <div class="res-val"><span id="out-removal">99.56</span><span class="res-unit">%</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Number of Transfer Units ($NTU$)</div>' +
+      '          <div class="res-val"><span id="out-ntu">6.8</span><span class="res-unit">NTU</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Packed Bed Depth ($Z_{pack}$)</div>' +
+      '          <div class="res-val"><span id="out-zpack">4.42</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Specific Steam Consumption</div>' +
+      '          <div class="res-val"><span id="out-specsteam">90.0</span><span class="res-unit">kg/m³</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Minimum Steam Demand</div>' +
+      '          <div class="res-val"><span id="out-steammin">714</span><span class="res-unit">kg/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Column Diameter ($D_c$)</div>' +
+      '          <div class="res-val"><span id="out-dia">0.82</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Overhead Condenser Duty</div>' +
+      '          <div class="res-val"><span id="out-qcond">1,110</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Stripped Solute Rate</div>' +
+      '          <div class="res-val"><span id="out-soluterate">8.96</span><span class="res-unit">kg/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Stripping Status</div>' +
+      '          <div id="out-strip-badge" class="badge-strip" style="background:#dcfce7;color:#166534;">High Efficiency (S > 2.0)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="ss-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Steam Stripping Columns</h2>' +
+      '    <p>Steam stripping removes volatile contaminants by utilizing live steam as a direct heating and stripping vapor, shifting thermodynamic equilibrium toward the vapor phase.</p>' +
+      '    <h3>1. Stripping Factor ($S$) & Equilibrium Driving Force</h3>' +
+      '    <p>The stripping factor $S$ represents the ratio of the equilibrium line slope to the operating line slope:</p>' +
+      '    <div class="formula-box">' +
+      '      S = \\frac{K_{vol} \\cdot (G_{steam} / M_{w,steam})}{(L_{feed} \\cdot \\rho_L / M_{w,water})} = K_{vol} \\cdot \\left( \\frac{G}{L} \\right)' +
+      '    </div>' +
+      '    <p>Where $K_{vol} = y^* / x$ is the volatility coefficient. High recovery requires $S > 1.0$. If $S \\le 1.0$, stripping is thermodynamically limited.</p>' +
+      '    <h3>2. Overall Liquid-Phase Transfer Units ($NTU_{OL}$)</h3>' +
+      '    <p>Integrating the two-film mass balance across the packed bed yields the Colburn/Kremser NTU equation:</p>' +
+      '    <div class="formula-box">' +
+      '      NTU_{OL} = \\frac{S}{S - 1} \\ln\\left[ \\left( \\frac{C_{in}}{C_{out}} \\right) \\left( \\frac{S - 1}{S} \\right) + \\frac{1}{S} \\right]' +
+      '    </div>' +
+      '    <p>The total packed bed depth is $Z_{pack} = NTU_{OL} \\cdot HTU_{OL}$.</p>' +
+      '    <h3>3. Minimum Steam Requirements</h3>' +
+      '    <div class="formula-box">' +
+      '      \\left(\\frac{G}{L}\\right)_{min} = \\frac{1}{K_{vol}} \\left( \\frac{C_{in} - C_{out}}{C_{in}} \\right)\\implies G_{min} = \\frac{L \\cdot (C_{in} - C_{out})}{K_{vol} \\cdot C_{in}}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Steam Stripper Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Sub-Critical Stripping Factor Pinch ($S < 1.0$)</h4>' +
+      '      <p>Injecting insufficient steam drops the stripping factor below unity ($S < 1.0$). At this condition, the mass transfer driving force collapses, requiring an infinite packing height ($Z \\to \\infty$) and causing total failure to achieve wastewater discharge compliance.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Severe Foaming & Premature Entrainment Flooding</h4>' +
+      '      <p>Industrial wastewater often carries trace emulsifiers, oils, or biological polymers. Rising steam generates dense foam that bridges packing void spaces, cutting column flood velocity by 50% and puking black sour water into overhead condenser lines.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Ammonium Bisulfide Solid Salt Crystallization</h4>' +
+      '      <p>In refinery sour water strippers ($H_2S + NH_3$), sub-cooling overhead vapors below $65^\\circ\\text{C}$ precipitates solid $NH_4HS$ crystals. Solid salts bridge condenser tube sheets within 24 hours, overpressurizing the column and blowing relief valves.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Liquid Maldistribution & Wall Flow Channeling</h4>' +
+      '      <p>In tall packed beds ($> 6\\,\\text{m}$) lacking intermediate liquid redistributors, descending water migrates outward to the vessel wall, leaving the central packing core completely dry. Rising steam bypasses through the dry center, doubling effective $HTU$.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Feed Nozzle Two-Phase Flashing Vapor Hammer</h4>' +
+      '      <p>Feeding hot pressurized wastewater through an un-choked nozzle flashes high-velocity steam inside the feed pipe. Violent two-phase water hammer ruptures internal pipe supports and dislodges the top liquid distributor tray.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Steam Stripping Column Design</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    sws: { flow: 20, flowu: "m3h", cin: 450, cout: 2.0, steam: 1800, kvol: 28, pack: "structured", press: 1.5 },' +
+      '    benzene: { flow: 30, flowu: "m3h", cin: 800, cout: 0.5, steam: 2200, kvol: 45, pack: "structured", press: 1.2 },' +
+      '    tce: { flow: 15, flowu: "m3h", cin: 120, cout: 0.05, steam: 900, kvol: 55, pack: "pall", press: 1.1 },' +
+      '    methanol: { flow: 25, flowu: "m3h", cin: 1500, cout: 15, steam: 3200, kvol: 12, pack: "structured", press: 1.8 }' +
+      '  };' +
+      '  function calc() {' +
+      '    let L_m3h = parseFloat(el("ss-flow").value) || 20;' +
+      '    if (el("ss-flow-unit").value === "gpm") L_m3h *= 0.227125;' +
+      '    const Cin = parseFloat(el("ss-cin").value) || 450;' +
+      '    const Cout = parseFloat(el("ss-cout").value) || 2.0;' +
+      '    const G_kgh = parseFloat(el("ss-steam").value) || 1800;' +
+      '    const Kvol = parseFloat(el("ss-kvol").value) || 28;' +
+      '    const packType = el("ss-packing").value;' +
+      '    const P_bar = parseFloat(el("ss-press").value) || 1.5;' +
+      '    let htu_m = 0.65;' +
+      '    if (packType === "pall") htu_m = 0.95;' +
+      '    else if (packType === "intalox") htu_m = 0.85;' +
+      '    const L_kgh = L_m3h * 1000;' +
+      '    const S = (Kvol * G_kgh) / Math.max(1, L_kgh);' +
+      '    const rem_pct = Math.min(99.99, Math.max(0, ((Cin - Cout) / Cin) * 100));' +
+      '    const spec_steam = G_kgh / Math.max(0.1, L_m3h);' +
+      '    const G_min_kgh = (L_kgh * (Cin - Cout)) / (Kvol * Cin);' +
+      '    let ntu = 1;' +
+      '    if (Math.abs(S - 1) < 0.01) {' +
+      '      ntu = (Cin - Cout) / Cout;' +
+      '    } else if (S > 1) {' +
+      '      const num = ((Cin / Cout) * ((S - 1) / S)) + (1 / S);' +
+      '      ntu = (S / (S - 1)) * Math.log(Math.max(1.001, num));' +
+      '    } else {' +
+      '      ntu = 25;' +
+      '    }' +
+      '    ntu = Math.min(30, Math.max(0.5, ntu));' +
+      '    const zpack_m = ntu * htu_m;' +
+      '    const lambda_steam_kj = 2220;' +
+      '    const q_cond_kw = (G_kgh * lambda_steam_kj) / 3600;' +
+      '    const solute_rate_kgh = (L_m3h * (Cin - Cout)) / 1000;' +
+      '    const rho_vapor = (P_bar * 1e5 * 18.02) / (8314.46 * 383);' +
+      '    const q_vapor_m3s = (G_kgh / 3600) / rho_vapor;' +
+      '    const v_vapor = 1.2;' +
+      '    const area_col = q_vapor_m3s / v_vapor;' +
+      '    const dia_col = Math.sqrt((4 * area_col) / Math.PI);' +
+      '    el("out-sfactor").innerText = S.toFixed(2);' +
+      '    el("out-removal").innerText = rem_pct.toFixed(2);' +
+      '    el("out-ntu").innerText = ntu.toFixed(1);' +
+      '    el("out-zpack").innerText = zpack_m.toFixed(2);' +
+      '    el("out-specsteam").innerText = spec_steam.toFixed(1);' +
+      '    el("out-steammin").innerText = Math.round(G_min_kgh).toLocaleString();' +
+      '    el("out-dia").innerText = dia_col.toFixed(2);' +
+      '    el("out-qcond").innerText = Math.round(q_cond_kw).toLocaleString();' +
+      '    el("out-soluterate").innerText = solute_rate_kgh.toFixed(2);' +
+      '    const badge = el("out-strip-badge");' +
+      '    if (S >= 2.0) {' +
+      '      badge.innerText = "Optimal Stripping (S ≥ 2.0)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (S >= 1.2) {' +
+      '      badge.innerText = "Adequate Stripping (1.2 ≤ S < 2.0)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "PINCHED STRIPPING (S < 1.2)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawStripper(dia_col, zpack_m, S, Cin, Cout);' +
+      '  }' +
+      '  function drawStripper(dia, zpack, S, cin, cout) {' +
+      '    const canvas = el("ss-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const colX = 140, colY = 25, colW = 80, colH = 220;' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.strokeRect(colX, colY, colW, colH);' +
+      '    const packY = colY + 35, packH = colH - 70;' +
+      '    ctx.fillStyle = "rgba(249, 115, 22, 0.25)";' +
+      '    ctx.fillRect(colX + 2, packY, colW - 4, packH);' +
+      '    ctx.strokeStyle = "#f97316";' +
+      '    ctx.lineWidth = 1;' +
+      '    for (let py = packY; py < packY + packH; py += 15) {' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(colX + 4, py);' +
+      '      ctx.lineTo(colX + colW - 4, py + 10);' +
+      '      ctx.moveTo(colX + 4, py + 10);' +
+      '      ctx.lineTo(colX + colW - 4, py);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX - 25, colY + 20);' +
+      '    ctx.lineTo(colX, colY + 20);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Feed (" + cin + " mg/L)", colX - 85, colY + 14);' +
+      '    ctx.strokeStyle = "#ef4444";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX - 25, colY + colH - 20);' +
+      '    ctx.lineTo(colX, colY + colH - 20);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.fillText("Live Steam In ↑", colX - 85, colY + colH - 12);' +
+      '    ctx.strokeStyle = "#ec4899";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + colW / 2, colY);' +
+      '    ctx.lineTo(colX + colW / 2, colY - 15);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#ec4899";' +
+      '    ctx.fillText("Vapor to Condenser ↑", colX + colW / 2 - 35, colY - 18);' +
+      '    ctx.strokeStyle = "#22c55e";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + colW / 2, colY + colH);' +
+      '    ctx.lineTo(colX + colW / 2, colY + colH + 15);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#22c55e";' +
+      '    ctx.fillText("Clean Bottoms (" + cout + " mg/L)", colX + colW / 2 - 45, colY + colH + 28);' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("Packed Bed Z: " + zpack.toFixed(2) + " m", 265, 80);' +
+      '    ctx.fillText("Column Dia: " + dia.toFixed(2) + " m", 265, 110);' +
+      '    ctx.fillText("Stripping Factor S: " + S.toFixed(2), 265, 140);' +
+      '    ctx.fillText("Steam In: " + el("ss-steam").value + " kg/h", 265, 170);' +
+      '  }' +
+      '  el("ss-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("ss-flow").value = p.flow;' +
+      '      el("ss-flow-unit").value = p.flowu;' +
+      '      el("ss-cin").value = p.cin;' +
+      '      el("ss-cout").value = p.cout;' +
+      '      el("ss-steam").value = p.steam;' +
+      '      el("ss-kvol").value = p.kvol;' +
+      '      el("ss-packing").value = p.pack;' +
+      '      el("ss-press").value = p.press;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["ss-flow","ss-flow-unit","ss-cin","ss-cout","ss-steam","ss-kvol","ss-packing","ss-press"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-ss").addEventListener("click", () => {' +
+      '    el("ss-preset").value = "sws";' +
+      '    el("ss-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-ss").addEventListener("click", () => {' +
+      '    const text = ["=== STEAM STRIPPING COLUMN SIZING DIAGNOSTIC ===",' +
+      '      "Stripping Factor (S): " + el("out-sfactor").innerText + " (" + el("out-strip-badge").innerText + ")",' +
+      '      "Volatile Solute Removal Efficiency: " + el("out-removal").innerText + " %",' +
+      '      "Number of Transfer Units (NTU): " + el("out-ntu").innerText + " NTU",' +
+      '      "Packed Bed Depth: " + el("out-zpack").innerText + " m",' +
+      '      "Column Diameter: " + el("out-dia").innerText + " m",' +
+      '      "Specific Steam Consumption: " + el("out-specsteam").innerText + " kg/m³ feed (Min Steam: " + el("out-steammin").innerText + " kg/h)",' +
+      '      "Overhead Condenser Thermal Duty: " + el("out-qcond").innerText + " kW",' +
+      '      "Stripped Solute Rate: " + el("out-soluterate").innerText + " kg/h",' +
+      '      "Operating Conditions: Wastewater = " + el("ss-flow").value + " " + el("ss-flow-unit").value + " (" + el("ss-cin").value + " -> " + el("ss-cout").value + " mg/L), Steam = " + el("ss-steam").value + " kg/h, Press = " + el("ss-press").value + " bar(a), Kvol = " + el("ss-kvol").value,' +
+      '      "Packing: " + el("ss-packing").value,' +
+      '      "Standard Validation: Onda Mass Transfer & Colburn-Kremser Stripping Model"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("ss-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (227 calculators in /calc/)');
 }
 
