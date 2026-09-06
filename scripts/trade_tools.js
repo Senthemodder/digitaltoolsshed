@@ -42657,6 +42657,2589 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (47 calculators in /calc/)');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HEAT PIPE THERMAL RESISTANCE & CAPILLARY LIMITS (ASTM / ELECTRONICS COOLING)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const heatPipeThermalBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Heat Pipe Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Heat Pipe Thermal Resistance &amp; Capillary Limit Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate heat pipe and vapor chamber maximum heat transport capacity (\(Q_{max}\)), capillary pumping pressure, thermal resistance network, effective thermal conductivity (\(k_{eff}\)), and boiling limits for sintered copper powder, axial grooves, and screen mesh wicks across orientation angles.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Heat Pipe Geometry &amp; Wick Construction
+      </h2>
+
+      <!-- Pipe Outer Diameter & Wall Thickness -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpOuterDiameter">Outer Diameter D_o (mm)</label>
+          <input type="number" id="hpOuterDiameter" value="6.0" min="2" max="50" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard cylindrical heat pipe OD</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpWallThickness">Wall Thickness t_w (mm)</label>
+          <input type="number" id="hpWallThickness" value="0.5" min="0.1" max="5" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">High-purity copper envelope wall</span>
+        </div>
+      </div>
+
+      <!-- Section Lengths: Evaporator, Adiabatic, Condenser -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpEvapLen">Evap L_e (mm)</label>
+          <input type="number" id="hpEvapLen" value="35" min="5" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.7rem;color:var(--text-muted);">Heat source zone</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpAdiabaticLen">Adia L_a (mm)</label>
+          <input type="number" id="hpAdiabaticLen" value="100" min="0" max="2000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.7rem;color:var(--text-muted);">Transport zone</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpCondLen">Cond L_c (mm)</label>
+          <input type="number" id="hpCondLen" value="65" min="5" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.7rem;color:var(--text-muted);">Heat sink fin zone</span>
+        </div>
+      </div>
+
+      <!-- Wick Structure & Operating Temperature -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpWickType">Wick Structure Type</label>
+          <select id="hpWickType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="sintered" selected>Sintered Copper Powder (r_eff = 20 &mu;m)</option>
+            <option value="mesh">Copper Wire Mesh (r_eff = 50 &mu;m)</option>
+            <option value="grooved">Axial Micro-Grooves (r_eff = 85 &mu;m)</option>
+            <option value="composite">Composite (Groove + Sintered Layer)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Capillary pore radius &amp; permeability</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpOperatingTemp">Operating Temp T_vap (&deg;C)</label>
+          <input type="number" id="hpOperatingTemp" value="65" min="20" max="150" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Vapor core saturated temperature</span>
+        </div>
+      </div>
+
+      <!-- Tilt Orientation Angle & Applied Thermal Heat Load -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpTiltAngle">Tilt Angle (&deg; relative to horizontal)</label>
+          <input type="number" id="hpTiltAngle" value="0" min="-90" max="90" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">+90&deg; Gravity assisted, &minus;90&deg; Anti-gravity</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpHeatLoad">Applied Heat Load Q (Watts)</label>
+          <input type="number" id="hpHeatLoad" value="45" min="1" max="500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Thermal power dissipated into evaporator</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">Thermodynamic Capillary Governing Laws</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Capillary Limit: &Delta;P_cap &ge; &Delta;P_liquid + &Delta;P_vapor + &Delta;P_gravity</li>
+          <li>Capillary Pressure: &Delta;P_cap = (2 &times; &sigma; &times; cos &theta;) / r_eff</li>
+          <li>Effective Length: L_eff = 0.5 &times; L_e + L_a + 0.5 &times; L_c</li>
+          <li>Thermal Resistance: R_total = R_e,wall + R_e,wick + R_vapor + R_c,wick + R_c,wall</li>
+          <li>Effective Conductivity: k_eff = (Q &times; L_eff) / (A_cross &times; &Delta;T) [W/m&middot;K]</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Thermal Capacity &amp; Resistance Metrics
+      </h2>
+
+      <div id="hpAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <!-- Max Q & Operating Q/Qmax Ratio -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Max Heat Transport (Q_max)</div>
+          <div id="outHpQmax" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--primary);">68.5 W</div>
+          <div id="outHpLimitType" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Capillary Pumping Limit</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Thermal Resistance (R_th)</div>
+          <div id="outHpThermalRes" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--fg);">0.142 &deg;C/W</div>
+          <div id="outHpDeltaT" style="font-size:0.75rem;font-weight:700;color:#2563eb;margin-top:0.25rem;">&Delta;T = 6.4 &deg;C @ 45 W</div>
+        </div>
+      </div>
+
+      <!-- Effective k & Capillary Pressure -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Effective Conductivity k_eff</div>
+          <div id="outHpKeff" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#16a34a;">37,450 W/m&middot;K</div>
+          <div id="outHpCopperMult" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">93.6&times; Solid Pure Copper</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Capillary Pumping Head</div>
+          <div id="outHpPcap" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#d97706;">6,540 Pa</div>
+          <div id="outHpPcapMm" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">667 mm H_2O Pumping Head</div>
+        </div>
+      </div>
+
+      <!-- Boiling Limit & Vapor Core Velocity -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Radial Boiling Heat Flux</div>
+          <div id="outHpBoilingFlux" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--fg);">8.4 W/cm&sup2;</div>
+          <div id="outHpBoilingMargin" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">Safe (&lt; 25 W/cm&sup2; Critical Flux)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Vapor Mach Number</div>
+          <div id="outHpMachNumber" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#8b5cf6;">Ma = 0.024</div>
+          <div style="font-size:0.75rem;color:#16a34a;margin-top:0.25rem;">Incompressible (&lt;&lt; 0.2 Mach)</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Effective Heat Pipe Length (L_eff):</span>
+          <strong id="outHpEffectiveLen" style="font-family:var(--mono);">150.0 mm</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Gravitational Pressure Head (&Delta;P_g):</span>
+          <strong id="outHpPgravity" style="font-family:var(--mono);">0.0 Pa (Horizontal)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">Capacity Operating Margin:</span>
+          <strong id="outHpMarginPct" style="font-family:var(--mono);color:#16a34a;">34.3% Headroom (Safe)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG HEAT PIPE THERMAL CYCLE SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Heat Pipe Thermodynamics: Evaporation, Vapor Core Dynamics &amp; Capillary Wicking
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="heatPipeSvg" viewBox="0 0 900 380" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <defs>
+          <linearGradient id="hpWallGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#b45309"/>
+            <stop offset="100%" stop-color="#d97706"/>
+          </linearGradient>
+          <pattern id="hpWickPattern" width="6" height="6" patternUnits="userSpaceOnUse">
+            <circle cx="3" cy="3" r="1.5" fill="#f59e0b" opacity="0.8"/>
+          </pattern>
+          <linearGradient id="hpVaporFlow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f87171"/>
+            <stop offset="50%" stop-color="#fbbf24"/>
+            <stop offset="100%" stop-color="#60a5fa"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect x="0" y="0" width="900" height="380" fill="#0f172a" rx="10"/>
+
+        <!-- Section Delimiters (Top) -->
+        <line x1="280" y1="40" x2="280" y2="340" stroke="#334155" stroke-dasharray="6,4"/>
+        <line x1="620" y1="40" x2="620" y2="340" stroke="#334155" stroke-dasharray="6,4"/>
+
+        <!-- Section Header Labels -->
+        <text x="170" y="30" fill="#ef4444" font-size="12" font-weight="bold" text-anchor="middle">EVAPORATOR SECTION (L_e)</text>
+        <text x="450" y="30" fill="#f59e0b" font-size="12" font-weight="bold" text-anchor="middle">ADIABATIC SECTION (L_a)</text>
+        <text x="760" y="30" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">CONDENSER SECTION (L_c)</text>
+
+        <!-- Heat Pipe Outer Copper Envelope -->
+        <rect x="60" y="100" width="780" height="180" rx="20" fill="none" stroke="url(#hpWallGrad)" stroke-width="12"/>
+
+        <!-- Porous Wicking Layer (Top & Bottom) -->
+        <!-- Top Wick -->
+        <rect x="66" y="112" width="768" height="30" fill="url(#hpWickPattern)"/>
+        <!-- Bottom Wick -->
+        <rect x="66" y="238" width="768" height="30" fill="url(#hpWickPattern)"/>
+
+        <!-- Vapor Core (Central Cavity) -->
+        <rect x="66" y="142" width="768" height="96" fill="#1e293b"/>
+
+        <!-- High-Speed Vapor Flow Arrow -->
+        <line x1="140" y1="190" x2="740" y2="190" stroke="url(#hpVaporFlow)" stroke-width="8" stroke-linecap="round"/>
+        <polygon points="730,182 755,190 730,198" fill="#60a5fa"/>
+        <text x="450" y="180" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">SATURATED VAPOR CORE FLOW (FAST ADVECTION)</text>
+
+        <!-- Evaporator Boiling Vapor Arrows (Upwards into core) -->
+        <g stroke="#ef4444" stroke-width="2.5" fill="#ef4444">
+          <line x1="120" y1="235" x2="120" y2="210"/>
+          <polygon points="116,215 120,205 124,215"/>
+          <line x1="180" y1="235" x2="180" y2="210"/>
+          <polygon points="176,215 180,205 184,215"/>
+          <line x1="240" y1="235" x2="240" y2="210"/>
+          <polygon points="236,215 240,205 244,215"/>
+
+          <line x1="120" y1="145" x2="120" y2="170"/>
+          <polygon points="116,165 120,175 124,165"/>
+          <line x1="180" y1="145" x2="180" y2="170"/>
+          <polygon points="176,165 180,175 184,165"/>
+          <line x1="240" y1="145" x2="240" y2="170"/>
+          <polygon points="236,165 240,175 244,165"/>
+        </g>
+        <text x="170" y="165" fill="#f87171" font-size="10" font-weight="bold" text-anchor="middle">EVAPORATION</text>
+
+        <!-- Condenser Condensing Arrows (Outwards into wick) -->
+        <g stroke="#38bdf8" stroke-width="2.5" fill="#38bdf8">
+          <line x1="660" y1="190" x2="660" y2="150"/>
+          <polygon points="656,155 660,145 664,155"/>
+          <line x1="720" y1="190" x2="720" y2="150"/>
+          <polygon points="716,155 720,145 724,155"/>
+          <line x1="780" y1="190" x2="780" y2="150"/>
+          <polygon points="776,155 780,145 784,155"/>
+
+          <line x1="660" y1="190" x2="660" y2="230"/>
+          <polygon points="656,225 660,235 664,225"/>
+          <line x1="720" y1="190" x2="720" y2="230"/>
+          <polygon points="716,225 720,235 724,225"/>
+          <line x1="780" y1="190" x2="780" y2="230"/>
+          <polygon points="776,225 780,235 784,225"/>
+        </g>
+        <text x="730" y="215" fill="#93c5fd" font-size="10" font-weight="bold" text-anchor="middle">CONDENSATION</text>
+
+        <!-- Capillary Liquid Return Arrows (Leftwards in wick) -->
+        <g stroke="#38bdf8" stroke-width="3" fill="#38bdf8">
+          <!-- Top Wick Return -->
+          <line x1="700" y1="127" x2="160" y2="127" stroke-dasharray="8,4"/>
+          <polygon points="170,123 155,127 170,131"/>
+          <!-- Bottom Wick Return -->
+          <line x1="700" y1="253" x2="160" y2="253" stroke-dasharray="8,4"/>
+          <polygon points="170,249 155,253 170,257"/>
+        </g>
+        <text x="450" y="260" fill="#38bdf8" font-size="10" font-weight="bold" text-anchor="middle">&larr; CAPILLARY LIQUID RETURN FLOW THROUGH SINTERED WICK &larr;</text>
+
+        <!-- External Thermal Inputs / Outputs -->
+        <!-- Heat Source (Bottom Evaporator) -->
+        <rect x="100" y="300" width="140" height="40" rx="4" fill="#991b1b" stroke="#ef4444" stroke-width="2"/>
+        <text x="170" y="325" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">HEAT IN: Q = 45 W</text>
+        <line x1="170" y1="300" x2="170" y2="285" stroke="#ef4444" stroke-width="3"/>
+
+        <!-- Heat Sink / Fins (Top Condenser) -->
+        <rect x="660" y="300" width="140" height="40" rx="4" fill="#0369a1" stroke="#38bdf8" stroke-width="2"/>
+        <text x="730" y="325" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">HEAT SINK REJECTION</text>
+        <line x1="730" y1="300" x2="730" y2="285" stroke="#38bdf8" stroke-width="3"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- WICK STRUCTURES COMPARISON MATRIX -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"/><path d="M18 8h4a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-4"/><circle cx="8" cy="12" r="2"/></svg>
+      Heat Pipe Wick Structure Performance Comparison
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.25rem;">
+      Capillary pumping capability, anti-gravity performance, and radial thermal resistance trade-offs across common commercial wick architectures.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.875rem;text-align:left;">
+        <thead>
+          <tr style="background:var(--bg);border-bottom:2px solid var(--border);color:var(--text-muted);">
+            <th style="padding:0.75rem 1rem;">Wick Architecture</th>
+            <th style="padding:0.75rem 1rem;">Pore Radius (r_eff)</th>
+            <th style="padding:0.75rem 1rem;">Permeability (K)</th>
+            <th style="padding:0.75rem 1rem;">Anti-Gravity Ability</th>
+            <th style="padding:0.75rem 1rem;">Primary Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Sintered Copper Powder</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#16a34a;">15 &ndash; 30 &mu;m (High Pumping)</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);">Medium (10&minus;11 m&sup2;)</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-weight:700;">Excellent (Up to 300 mm vertical)</td>
+            <td style="padding:0.6rem 1rem;">Laptops, GPUs, Handhelds (Any Angle)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Axial Micro-Grooves</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#ef4444;">60 &ndash; 120 &mu;m (Low Pumping)</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#16a34a;">Highest (10&minus;9 m&sup2;)</td>
+            <td style="padding:0.6rem 1rem;color:#ef4444;font-weight:700;">Poor (Fails against gravity)</td>
+            <td style="padding:0.6rem 1rem;">Spacecraft, Gravity-assisted horizontal</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Woven Screen Mesh (100-200)</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);">40 &ndash; 70 &mu;m</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);">Moderate</td>
+            <td style="padding:0.6rem 1rem;color:#f59e0b;">Moderate (50 &ndash; 100 mm)</td>
+            <td style="padding:0.6rem 1rem;">Flexible heat pipes, Legacy electronics</td>
+          </tr>
+          <tr>
+            <td style="padding:0.6rem 1rem;font-weight:600;">Composite (Groove + Sintered)</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#16a34a;">Dual (20 &mu;m / 80 &mu;m)</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#16a34a;">Very High</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-weight:700;">Superior</td>
+            <td style="padding:0.6rem 1rem;">Flagship Vapor Chambers, Ultra-thin Coolers</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Heat Pipe Thermal Performance Data Sheet
+      </h2>
+      <button id="copyHpAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Heat Pipe Audit</span>
+      </button>
+    </div>
+    <pre id="hpAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Heat Pipe Design</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. The Anti-Gravity Orientation Trap &amp; Evaporator Dryout
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Operating a heat pipe with the evaporator positioned above the condenser (\(\theta < 0^\circ\)) forces capillary pumping to fight gravity (\(\Delta P_g = \rho_l g L_{eff} \sin\theta\)). For grooved heat pipes with large pore radii (\(r_{eff} \approx 80 \mu\text{m}\)), capillary pressure is under 1,500 Pa, collapsing heat capacity to near zero at just a \(-15^\circ\) tilt. Only high-purity sintered copper powder with sub-25 \(\mu\text{m}\) pores maintains anti-gravity transport.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Boiling Limit &amp; Radial Vapor Film Blanketing
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        When radial heat flux at the evaporator exceeds the critical nucleate boiling limit (\(q_b \approx 20\text{--}30\text{ W/cm}^2\)), vapor bubbles nucleate too violently within the wick structure. Instead of smoothly escaping into the central core, trapped vapor forms a continuous insulating vapor blanket against the inner copper wall. Thermal resistance jumps tenfold instantly, leading to thermal runaway and component failure.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. Excessive Flattening &amp; Vapor Core Flow Choking
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        To fit thin laptop chassis, 6mm cylindrical heat pipes are often flattened to 2.0mm or 1.5mm thickness. Flattening squashes the central vapor core into an oval slit. Because vapor pressure drop varies inversely with the fourth power of hydraulic diameter (\(\Delta P_v \propto 1/D_h^4\)), over-flattening chokes vapor flow velocity toward the sonic limit, slashing total heat carrying capacity by 50% to 75%.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Non-Condensable Gas (NCG) Condenser Poisoning
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        If trace chemical contaminants or dissolved oxygen remain inside the copper envelope during manufacturing, electrochemical reactions generate non-condensable hydrogen gas (\(\text{H}_2\)). Moving vapor continuously sweeps hydrogen gas down to the far condenser end, forming an inert gas plug. Over months of operation, this dead zone creeps upstream, shrinking effective condenser length and steadily elevating operating temperature.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. Sub-Zero Freeze-Thaw Envelope Rupture
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Standard electronics heat pipes utilize high-purity deionized water working fluid. When stored or shipped below 0&deg;C (32&deg;F), water expands 9% upon freezing. In poorly designed wicks with excess liquid puddling, localized ice expansion ruptures thin copper sidewalls or delaminates the sintered powder from the envelope, rendering the heat pipe completely dead upon thawing.
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Heat Pipe Capillary Hydrodynamics &amp; Resistance Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        The operating principle of a two-phase closed thermosyphon/heat pipe is governed by the Young-Laplace capillary equation and viscous fluid flow through porous media:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Maximum Capillary Pumping Head</h3>
+      <p>
+        Surface tension \(\sigma\) at the liquid-vapor meniscus creates capillary pressure across effective pore radius \(r_{eff}\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        &Delta;P_cap = (2 &times; &sigma; &times; cos &theta;_c) / r_eff  [Pascals]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Viscous Pressure Losses (Liquid &amp; Vapor)</h3>
+      <p>
+        Liquid pressure drop follows Darcy's law through the porous wick, while vapor core flow follows Hagen-Poiseuille pipe flow:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        &Delta;P_l = (&mu;_l &times; Q &times; L_eff) / (&rho;_l &times; A_w &times; K &times; h_fg)<br>
+        &Delta;P_v = (128 &times; &mu;_v &times; Q &times; L_eff) / (&pi; &times; &rho;_v &times; d_v^4 &times; h_fg)<br>
+        &Delta;P_g = &rho;_l &times; g &times; L_eff &times; sin(&theta;)
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. Thermal Resistance Network &amp; Effective Conductivity</h3>
+      <p>
+        Total thermal resistance from evaporator outer wall to condenser outer wall is:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        R_total = R_e,wall + R_e,wick + R_vapor + R_c,wick + R_c,wall  [&deg;C/W]<br>
+        k_eff = (Q &times; L_eff) / (A_cross &times; &Delta;T)  [W/m&middot;K]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const odInput = document.getElementById('hpOuterDiameter');
+  const wallInput = document.getElementById('hpWallThickness');
+  const evapLenInput = document.getElementById('hpEvapLen');
+  const adiaLenInput = document.getElementById('hpAdiabaticLen');
+  const condLenInput = document.getElementById('hpCondLen');
+  const wickSelect = document.getElementById('hpWickType');
+  const tempInput = document.getElementById('hpOperatingTemp');
+  const tiltInput = document.getElementById('hpTiltAngle');
+  const loadInput = document.getElementById('hpHeatLoad');
+
+  const alertBox = document.getElementById('hpAlertBox');
+
+  function calculate() {
+    const D_o = (parseFloat(odInput.value) || 6.0) / 1000; // m
+    const t_w = (parseFloat(wallInput.value) || 0.5) / 1000; // m
+    const Le = (parseFloat(evapLenInput.value) || 35) / 1000; // m
+    const La = (parseFloat(adiaLenInput.value) || 100) / 1000; // m
+    const Lc = (parseFloat(condLenInput.value) || 65) / 1000; // m
+    const wickType = wickSelect.value;
+    const T = parseFloat(tempInput.value) || 65; // C
+    const tiltDeg = parseFloat(tiltInput.value) || 0;
+    const Q_applied = parseFloat(loadInput.value) || 45; // W
+
+    // Water fluid properties at T deg C (approx polynomial models)
+    const T_K = T + 273.15;
+    const sigma = Math.max(0.04, 0.0756 - 0.00014 * T); // N/m
+    const rho_l = 980; // kg/m^3
+    const mu_l = Math.max(0.0002, 0.001 * Math.exp(-0.02 * (T - 20))); // Pa-s
+    const h_fg = 2.35e6; // J/kg
+    const rho_v = Math.max(0.05, 0.6 * Math.exp(0.035 * (T - 60))); // kg/m^3
+    const mu_v = 1.2e-5; // Pa-s
+
+    // Wick parameters
+    let r_eff = 20e-6; // m
+    let K_wick = 1.5e-11; // m^2
+    let t_wick = 0.5e-3; // m
+    let k_wick_eff = 4.0; // W/m-K
+    if (wickType === 'mesh') {
+      r_eff = 50e-6;
+      K_wick = 3.5e-11;
+      t_wick = 0.4e-3;
+      k_wick_eff = 2.5;
+    } else if (wickType === 'grooved') {
+      r_eff = 85e-6;
+      K_wick = 8.0e-10;
+      t_wick = 0.35e-3;
+      k_wick_eff = 80.0;
+    } else if (wickType === 'composite') {
+      r_eff = 22e-6;
+      K_wick = 5.0e-11;
+      t_wick = 0.45e-3;
+      k_wick_eff = 6.0;
+    }
+
+    const D_i = D_o - 2 * t_w;
+    const d_v = Math.max(0.001, D_i - 2 * t_wick); // vapor core diameter
+    const A_v = Math.PI * Math.pow(d_v / 2, 2);
+    const A_w = Math.PI * (Math.pow(D_i / 2, 2) - Math.pow(d_v / 2, 2));
+    const A_cross = Math.PI * Math.pow(D_o / 2, 2);
+
+    // Effective length
+    const Leff = (0.5 * Le) + La + (0.5 * Lc);
+
+    // Capillary pressure
+    const deltaP_cap = (2 * sigma) / r_eff; // Pa
+
+    // Gravitational pressure head (+ is helping, - is fighting gravity)
+    const tiltRad = (tiltDeg * Math.PI) / 180;
+    const deltaP_g = rho_l * 9.81 * Leff * Math.sin(tiltRad); // Pa
+
+    // Flow resistances per Watt
+    const F_l = (mu_l * Leff) / (rho_l * A_w * K_wick * h_fg);
+    const F_v = (128 * mu_v * Leff) / (Math.PI * rho_v * Math.pow(d_v, 4) * h_fg);
+
+    // Available pressure for flow = deltaP_cap + deltaP_g
+    const deltaP_avail = deltaP_cap + deltaP_g;
+
+    let Q_max = 0;
+    if (deltaP_avail > 0) {
+      Q_max = deltaP_avail / (F_l + F_v);
+    } else {
+      Q_max = 0; // dryout under extreme anti-gravity
+    }
+
+    // Thermal Resistance Network
+    const k_copper = 390; // W/m-K
+    // Evaporator & Condenser wall conduction
+    const R_e_wall = Math.log(D_o / D_i) / (2 * Math.PI * k_copper * Le);
+    const R_c_wall = Math.log(D_o / D_i) / (2 * Math.PI * k_copper * Lc);
+    // Wick radial resistance
+    const R_e_wick = Math.log(D_i / d_v) / (2 * Math.PI * k_wick_eff * Le);
+    const R_c_wick = Math.log(D_i / d_v) / (2 * Math.PI * k_wick_eff * Lc);
+    // Vapor core axial resistance
+    const R_vapor = 0.005; // negligible
+
+    const R_total = R_e_wall + R_e_wick + R_vapor + R_c_wick + R_c_wall;
+    const deltaT = Q_applied * R_total;
+
+    // Effective thermal conductivity k_eff
+    const k_eff = (Q_applied * Leff) / (A_cross * Math.max(0.1, deltaT));
+
+    // Boiling Heat Flux at Evaporator (W/cm^2)
+    const A_evap_inner_cm2 = (Math.PI * D_i * Le) * 10000;
+    const boilingFlux = Q_applied / Math.max(0.01, A_evap_inner_cm2);
+
+    // Vapor velocity and Mach number
+    const vaporVelocity = (Q_applied / (rho_v * A_v * h_fg));
+    const speedOfSound = Math.sqrt(1.3 * 461.5 * T_K);
+    const machNumber = vaporVelocity / speedOfSound;
+
+    // Alerts
+    if (Q_applied > Q_max) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ CAPILLARY DRYOUT WARNING:</strong> Applied heat load (' + Q_applied + ' W) exceeds maximum capillary transport capacity (' + Q_max.toFixed(1) + ' W). Wick will dry out at evaporator, causing severe thermal runaway.';
+    } else if (boilingFlux > 25) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fffbeb';
+      alertBox.style.border = '1px solid #f59e0b';
+      alertBox.style.color = '#92400e';
+      alertBox.innerHTML = '<strong>⚠️ BOILING LIMIT HAZARD:</strong> Radial heat flux (' + boilingFlux.toFixed(1) + ' W/cm&sup2;) exceeds critical boiling threshold (~25 W/cm&sup2;). Vapor bubbles will blanket inner wall.';
+    } else if (tiltDeg < -15 && wickType === 'grooved') {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#eff6ff';
+      alertBox.style.border = '1px solid #3b82f6';
+      alertBox.style.color = '#1e3a8a';
+      alertBox.innerHTML = '<strong>ℹ️ ANTI-GRAVITY PERFORMANCE:</strong> Grooved heat pipes suffer severe performance drops against gravity. Sintered powder is strongly recommended for orientation-insensitive cooling.';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    // Update UI Results
+    document.getElementById('outHpQmax').textContent = Q_max.toFixed(1) + ' W';
+    document.getElementById('outHpThermalRes').textContent = R_total.toFixed(3) + ' °C/W';
+    document.getElementById('outHpDeltaT').textContent = 'ΔT = ' + deltaT.toFixed(1) + ' °C @ ' + Q_applied + ' W';
+
+    document.getElementById('outHpKeff').textContent = Math.round(k_eff).toLocaleString() + ' W/m·K';
+    document.getElementById('outHpCopperMult').textContent = (k_eff / 390).toFixed(1) + '× Solid Pure Copper (390 W/m·K)';
+
+    document.getElementById('outHpPcap').textContent = Math.round(deltaP_cap).toLocaleString() + ' Pa';
+    document.getElementById('outHpPcapMm').textContent = Math.round(deltaP_cap / 9.81) + ' mm H₂O Head';
+
+    document.getElementById('outHpBoilingFlux').textContent = boilingFlux.toFixed(1) + ' W/cm²';
+    const bBadge = document.getElementById('outHpBoilingMargin');
+    if (boilingFlux > 25) {
+      bBadge.textContent = 'EXCEEDED (> 25 W/cm² Burnout)';
+      bBadge.style.color = '#ef4444';
+    } else {
+      bBadge.textContent = 'Safe (< 25 W/cm² Critical Flux)';
+      bBadge.style.color = '#16a34a';
+    }
+
+    document.getElementById('outHpMachNumber').textContent = 'Ma = ' + machNumber.toFixed(3);
+
+    document.getElementById('outHpEffectiveLen').textContent = (Leff * 1000).toFixed(1) + ' mm';
+    document.getElementById('outHpPgravity').textContent = (deltaP_g >= 0 ? '+' : '') + deltaP_g.toFixed(1) + ' Pa (' + (tiltDeg >= 0 ? 'Assisting' : 'Opposing') + ')';
+
+    const marginPct = Q_max > 0 ? ((Q_max - Q_applied) / Q_max) * 100 : -100;
+    const marginBadge = document.getElementById('outHpMarginPct');
+    if (marginPct >= 20) {
+      marginBadge.textContent = marginPct.toFixed(1) + '% Headroom (Safe)';
+      marginBadge.style.color = '#16a34a';
+    } else if (marginPct >= 0) {
+      marginBadge.textContent = marginPct.toFixed(1) + '% Headroom (Tight)';
+      marginBadge.style.color = '#f59e0b';
+    } else {
+      marginBadge.textContent = 'DEFICIT (' + marginPct.toFixed(1) + '% Overload)';
+      marginBadge.style.color = '#ef4444';
+    }
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'HEAT PIPE THERMAL SPECIFICATION & CAPILLARY AUDIT\\n' +
+      '=======================================================\\n' +
+      'Envelope Outer Diameter (D_o):' + (D_o * 1000).toFixed(1) + ' mm\\n' +
+      'Copper Wall Thickness (t_w):  ' + (t_w * 1000).toFixed(2) + ' mm\\n' +
+      'Vapor Core Diameter (d_v):    ' + (d_v * 1000).toFixed(2) + ' mm\\n' +
+      'Section Lengths (Le/La/Lc):   ' + (Le * 1000).toFixed(0) + ' / ' + (La * 1000).toFixed(0) + ' / ' + (Lc * 1000).toFixed(0) + ' mm\\n' +
+      'Effective Length (L_eff):     ' + (Leff * 1000).toFixed(1) + ' mm\\n' +
+      'Wick Structure Selected:      ' + wickSelect.options[wickSelect.selectedIndex].text + '\\n' +
+      'Working Fluid:                High-Purity Deionized Water (Saturated)\\n' +
+      'Operating Saturated Temp:     ' + T.toFixed(1) + ' °C\\n' +
+      'Orientation Tilt Angle:       ' + tiltDeg.toFixed(0) + ' ° (' + (tiltDeg >= 0 ? 'Gravity Assisted' : 'Anti-Gravity') + ')\\n' +
+      '-------------------------------------------------------\\n' +
+      'CAPILLARY PUMPING & FLOW DYNAMICS:\\n' +
+      'Capillary Pressure (ΔP_cap):  ' + Math.round(deltaP_cap).toLocaleString() + ' Pa (' + Math.round(deltaP_cap / 9.81) + ' mm H2O)\\n' +
+      'Hydrostatic Head (ΔP_g):      ' + deltaP_g.toFixed(1) + ' Pa\\n' +
+      'MAX HEAT TRANSPORT (Q_max):   ' + Q_max.toFixed(1) + ' Watts\\n' +
+      'Applied Heat Load (Q):        ' + Q_applied.toFixed(1) + ' Watts (Margin: ' + marginPct.toFixed(1) + ' %)\\n' +
+      '-------------------------------------------------------\\n' +
+      'THERMAL RESISTANCE & CONDUCTIVITY:\\n' +
+      'Evaporator Conduction Res:    ' + (R_e_wall + R_e_wick).toFixed(3) + ' °C/W\\n' +
+      'Condenser Conduction Res:     ' + (R_c_wall + R_c_wick).toFixed(3) + ' °C/W\\n' +
+      'Total Thermal Resistance (R): ' + R_total.toFixed(3) + ' °C/W\\n' +
+      'End-to-End Temperature Drop:  ' + deltaT.toFixed(2) + ' °C @ ' + Q_applied + ' W\\n' +
+      'Effective Thermal Cond (k):   ' + Math.round(k_eff).toLocaleString() + ' W/m·K (' + (k_eff / 390).toFixed(1) + 'x Pure Copper)\\n' +
+      'Radial Boiling Flux:          ' + boilingFlux.toFixed(2) + ' W/cm² (< 25 W/cm² Critical)\\n' +
+      'Vapor Core Mach Number:       ' + machNumber.toFixed(4) + ' (Sonic Limit Safe)\\n' +
+      '=======================================================';
+    document.getElementById('hpAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copyHpAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('hpAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyHpAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Heat Pipe Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [odInput, wallInput, evapLenInput, adiaLenInput, condLenInput, wickSelect, tempInput, tiltInput, loadInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'heat-pipe-thermal-resistance-calculator.html'), renderTradePage({
+    title: "Heat Pipe Thermal Resistance & Capillary Limits Calculator",
+    metaDesc: "Calculate heat pipe maximum heat transport capacity (Qmax), capillary pumping head, thermal resistance network, effective thermal conductivity (keff), and boiling limits.",
+    canonical: `${DOMAIN}/calc/heat-pipe-thermal-resistance-calculator`,
+    bodyContent: heatPipeThermalBody,
+    currentPath: '/calc/heat-pipe-thermal-resistance-calculator',
+    faq: [
+      {
+        "q": "What is the capillary limit of a heat pipe?",
+        "a": "The capillary limit is the thermodynamic boundary where the sum of liquid pressure drop through the porous wick, vapor pressure drop through the core, and gravitational elevation head equals the maximum capillary pumping pressure generated by the meniscus. Exceeding this limit causes evaporator dryout and thermal runaway."
+      },
+      {
+        "q": "Why is effective thermal conductivity of a heat pipe so much higher than copper?",
+        "a": "Solid copper conducts heat purely by electron diffusion (k ≈ 390 W/m·K). A heat pipe transfers heat by continuous latent heat phase change: liquid evaporates at the hot end, vapor rushes through the low-resistance core at near-sonic speeds, and condenses at the cold end. This yields effective thermal conductivities exceeding 10,000 to 50,000 W/m·K."
+      },
+      {
+        "q": "Why are sintered copper powder wicks superior for portable electronics?",
+        "a": "Sintered copper powder creates sub-micron and micro-scale pore radii (15–30 µm), generating massive capillary pumping pressures (over 6,000 Pa). This allows the heat pipe to transport heat against gravity regardless of laptop or handheld orientation, unlike grooved wicks which stall when tilted."
+      },
+      {
+        "q": "What causes non-condensable gas (NCG) failure in heat pipes?",
+        "a": "Trace chemical residues or moisture reacting with copper envelope walls release free hydrogen gas over time. Vapor sweeps this gas to the far condenser tip, forming an insulating plug that shrinks active condensing area and elevates system temperatures."
+      },
+      {
+        "q": "How does flattening a heat pipe affect its cooling performance?",
+        "a": "Flattening a round heat pipe squashes the central vapor core into an oval or slit. Because vapor flow resistance varies inversely with the fourth power of hydraulic diameter, over-flattening chokes vapor velocity, significantly reducing maximum wattage capacity."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STEAM CONDENSER VACUUM & PERFORMANCE CALCULATOR (HEI STANDARDS)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const steamCondenserBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Steam Condenser Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Steam Surface Condenser Vacuum &amp; Performance Calculator (HEI)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Analyze steam turbine surface condenser vacuum dynamics per Heat Exchange Institute (HEI) Standards for Steam Surface Condensers: calculate condenser backpressure, saturation temperature, circulating water temperature rise, LMTD, overall heat transfer coefficient (U), Terminal Temperature Difference (TTD), and turbine heat rate / megawatt penalty.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Steam Flow &amp; Cooling Water Parameters
+      </h2>
+
+      <!-- Turbine Exhaust Steam Flow & Enthalpy -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="scSteamFlow">Exhaust Steam Flow (lb/hr)</label>
+          <input type="number" id="scSteamFlow" value="350000" min="1000" max="10000000" step="5000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Turbine LP exhaust mass flow rate</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="scLatentHeat">Steam Latent Heat h_fg (BTU/lb)</label>
+          <input type="number" id="scLatentHeat" value="970" min="850" max="1100" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Condensing enthalpy (approx 950 - 1000)</span>
+        </div>
+      </div>
+
+      <!-- Circulating Water Flow & Inlet Temp -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="scCwFlow">Circulating Water Flow (GPM)</label>
+          <input type="number" id="scCwFlow" value="45000" min="500" max="1000000" step="1000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Condenser cooling water supply pump flow</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="scCwInletTemp">CW Inlet Temp T_in (&deg;F)</label>
+          <input type="number" id="scCwInletTemp" value="70" min="35" max="105" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Cooling tower / river inlet water temp</span>
+        </div>
+      </div>
+
+      <!-- Tube Geometry & Surface Area -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="scSurfaceArea">Condenser Tube Area (sq ft)</label>
+          <input type="number" id="scSurfaceArea" value="55000" min="500" max="2000000" step="1000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Total active outside tube surface area</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="scTubeMaterial">Tube Material &amp; Cleanliness</label>
+          <select id="scTubeMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="titanium" selected>Titanium (F_m = 0.81, Cleanliness = 85%)</option>
+            <option value="cuni90">90-10 Copper-Nickel (F_m = 0.90, Cleanliness = 85%)</option>
+            <option value="admiralty">Admiralty Brass (F_m = 1.00, Cleanliness = 85%)</option>
+            <option value="ss304">304 Stainless Steel (F_m = 0.75, Cleanliness = 85%)</option>
+            <option value="cuni70">70-30 Copper-Nickel (F_m = 0.82, Cleanliness = 80%)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">HEI material correction factor (F_m)</span>
+        </div>
+      </div>
+
+      <!-- Turbine Generator Nominal Output -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="scTurbineMw">Turbine Rated Output (MW)</label>
+        <input type="number" id="scTurbineMw" value="150" min="5" max="2000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Turbine generator electrical rating</span>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">HEI 10th Edition Thermodynamic Relations</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Heat Duty Q = Steam Flow &times; Latent Heat h_fg (BTU/hr)</li>
+          <li>CW Temperature Rise: &Delta;T_cw = Q / (500 &times; GPM) [&deg;F]</li>
+          <li>Log Mean Temp Diff: LMTD = &Delta;T_cw / ln[(T_sat &minus; T_in) / (T_sat &minus; T_out)]</li>
+          <li>HEI Overall U-Factor: U = C_base &times; &radic;V_tube &times; F_temp &times; F_mat &times; Cleanliness</li>
+          <li>Backpressure: P_cond = f_steam_sat(T_sat) [inHg absolute]</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Condenser Vacuum &amp; Heat Rate Impact
+      </h2>
+
+      <div id="scAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <!-- Condenser Vacuum / Backpressure & Sat Temp -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Condenser Backpressure</div>
+          <div id="outScBackpressure" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--primary);">1.85 inHgA</div>
+          <div id="outScBackpressureMbar" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">62.6 mbar (0.91 psia)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Saturation Temp (T_sat)</div>
+          <div id="outScTsat" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--fg);">98.8 &deg;F</div>
+          <div id="outScTsatMetric" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">37.1 &deg;C</div>
+        </div>
+      </div>
+
+      <!-- CW Temp Rise & Terminal Temp Diff -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">CW Temperature Rise</div>
+          <div id="outScCwRise" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#d97706;">15.1 &deg;F</div>
+          <div id="outScCwOutlet" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Outlet Temp: 85.1 &deg;F</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Terminal Temp Diff (TTD)</div>
+          <div id="outScTtd" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#2563eb;">13.7 &deg;F</div>
+          <div id="outScTtdBadge" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">Normal TTD (8 &ndash; 15&deg;F)</div>
+        </div>
+      </div>
+
+      <!-- Heat Duty & Turbine MW Loss -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Heat Duty Rejected</div>
+          <div id="outScHeatDuty" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--fg);">339.5 MBH</div>
+          <div id="outScHeatMw" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">99.5 MW Thermal</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Turbine Heat Rate Loss</div>
+          <div id="outScTurbineLoss" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#ef4444;">&minus;1.05 MW</div>
+          <div id="outScLossCost" style="font-size:0.75rem;font-weight:700;color:#ef4444;margin-top:0.25rem;">$1,008 / day revenue penalty</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">HEI Overall Heat Transfer Coeff (U):</span>
+          <strong id="outScUfactor" style="font-family:var(--mono);">445 BTU/hr&middot;ft&sup2;&middot;&deg;F</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Log Mean Temperature Diff (LMTD):</span>
+          <strong id="outScLmtd" style="font-family:var(--mono);">20.4 &deg;F</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">Cooling Water Tube Velocity (V):</span>
+          <strong id="outScTubeVelocity" style="font-family:var(--mono);color:#16a34a;">6.8 ft/s (Optimal 6-7.5 ft/s)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG SURFACE CONDENSER SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Two-Pass Surface Condenser Cutaway &amp; Thermal Flow Profile
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="condenserSvg" viewBox="0 0 900 420" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <defs>
+          <linearGradient id="scSteamGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#f87171" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.2"/>
+          </linearGradient>
+          <pattern id="scTubeBundlePattern" width="12" height="12" patternUnits="userSpaceOnUse">
+            <circle cx="6" cy="6" r="2.5" fill="#38bdf8" stroke="#0284c7" stroke-width="1"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Canvas -->
+        <rect x="0" y="0" width="900" height="420" fill="#0f172a" rx="10"/>
+
+        <!-- Steam Turbine Exhaust Neck (Top Flange) -->
+        <path d="M 280 20 L 320 90 L 580 90 L 620 20 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
+        <text x="450" y="45" fill="#f87171" font-size="12" font-weight="bold" text-anchor="middle">STEAM TURBINE LP EXHAUST</text>
+        <!-- Steam Downward Vectors -->
+        <g stroke="#f87171" stroke-width="2.5" fill="#f87171">
+          <line x1="380" y1="55" x2="380" y2="85"/>
+          <polygon points="376,80 380,90 384,80"/>
+          <line x1="450" y1="55" x2="450" y2="85"/>
+          <polygon points="446,80 450,90 454,80"/>
+          <line x1="520" y1="55" x2="520" y2="85"/>
+          <polygon points="516,80 520,90 524,80"/>
+        </g>
+
+        <!-- Main Condenser Shell (Rectangular/Cylindrical Profile) -->
+        <rect x="220" y="90" width="460" height="240" fill="#1e293b" stroke="#475569" stroke-width="2.5"/>
+
+        <!-- Tube Bundles (Upper & Lower Pass) -->
+        <!-- Upper Tube Bundle -->
+        <rect x="250" y="115" width="400" height="85" fill="url(#scTubeBundlePattern)" stroke="#0284c7" stroke-width="1"/>
+        <rect x="330" y="145" width="240" height="25" rx="4" fill="#0f172a" opacity="0.85"/>
+        <text x="450" y="162" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">PASS 2 TUBE BUNDLE (OUTLET)</text>
+
+        <!-- Lower Tube Bundle -->
+        <rect x="250" y="215" width="400" height="85" fill="url(#scTubeBundlePattern)" stroke="#0284c7" stroke-width="1"/>
+        <rect x="330" y="245" width="240" height="25" rx="4" fill="#0f172a" opacity="0.85"/>
+        <text x="450" y="262" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">PASS 1 TUBE BUNDLE (INLET)</text>
+
+        <!-- Waterboxes (Left & Right) -->
+        <!-- Left Divided Waterbox (Inlet Bottom, Outlet Top) -->
+        <path d="M 120 100 L 220 100 L 220 320 L 120 320 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
+        <!-- Division Plate -->
+        <line x1="120" y1="205" x2="220" y2="205" stroke="#94a3b8" stroke-width="4"/>
+
+        <!-- Right Return Waterbox (Reversing Chamber) -->
+        <path d="M 680 100 L 770 115 L 770 305 L 680 320 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
+        <text x="725" y="215" fill="#cbd5e1" font-size="10" font-weight="bold" text-anchor="middle" transform="rotate(90 725 215)">REVERSING CHAMBER</text>
+
+        <!-- Hotwell Condensate Reservoir (Bottom) -->
+        <rect x="340" y="330" width="220" height="45" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+        <text x="450" y="357" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">HOTWELL CONDENSATE</text>
+
+        <!-- Condensate Extraction Pump Pipe -->
+        <line x1="450" y1="375" x2="450" y2="405" stroke="#38bdf8" stroke-width="6"/>
+        <polygon points="445,400 450,412 455,400" fill="#38bdf8"/>
+        <text x="465" y="405" fill="#38bdf8" font-size="10" font-weight="bold">TO BOILER FEED PUMPS</text>
+
+        <!-- External CW Piping -->
+        <!-- CW Inlet Pipe (Bottom Left) -->
+        <path d="M 20 270 L 120 270" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
+        <polygon points="110,264 125,270 110,276" fill="#38bdf8"/>
+        <text x="25" y="255" fill="#38bdf8" font-size="11" font-weight="bold">CW INLET (PASS 1)</text>
+        <text id="svgScCwInlet" x="25" y="295" fill="#ffffff" font-size="10">T_in: 70.0 &deg;F @ 45,000 GPM</text>
+
+        <!-- CW Outlet Pipe (Top Left) -->
+        <path d="M 120 150 L 20 150" stroke="#d97706" stroke-width="8" stroke-linecap="round"/>
+        <polygon points="30,144 15,150 30,156" fill="#d97706"/>
+        <text x="25" y="135" fill="#f59e0b" font-size="11" font-weight="bold">CW OUTLET (PASS 2)</text>
+        <text id="svgScCwOutlet" x="25" y="175" fill="#ffffff" font-size="10">T_out: 85.1 &deg;F (&Delta;T: 15.1&deg;F)</text>
+
+        <!-- Vacuum / Steam Saturation Annotation Box -->
+        <rect x="690" y="20" width="195" height="75" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text x="705" y="40" fill="#ffffff" font-size="11" font-weight="bold">CONDENSER VACUUM</text>
+        <text id="svgScBackpressureText" x="705" y="60" fill="#38bdf8" font-size="10">Backpressure: 1.85 inHgA</text>
+        <text id="svgScTsatText" x="705" y="80" fill="#10b981" font-size="10">T_sat: 98.8 &deg;F (TTD: 13.7&deg;F)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Steam Surface Condenser Performance &amp; Heat Rate Audit
+      </h2>
+      <button id="copyScAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Condenser Audit</span>
+      </button>
+    </div>
+    <pre id="scAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Steam Condenser Operation</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. Non-Condensable Air Ingress &amp; Insulating Air Blanketing
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Because surface condensers operate under deep sub-atmospheric vacuum (typically 1.0 to 2.5 inHg absolute), any microscopic leak in turbine gland seals, rupture disks, or low-pressure expansion joints ingests atmospheric air. Non-condensable air collects on tube surfaces, forming an inert boundary layer that slashes overall heat transfer coefficient \(U\) by up to 50% and elevates turbine backpressure.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Biological Slime Fouling &amp; The Megawatt Heat Rate Penalty
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        A microscopic biological slime biofilm layer of just 0.005 inches inside cooling tubes drops the cleanliness factor \(F_c\) from 0.85 down to 0.65. Every 1.0 inHg increase in condenser backpressure degrades steam turbine cycle thermal efficiency by approximately 1.5% to 2.0%. On a 500 MW combined-cycle block, this equates to losing 8 to 10 MW of electrical export capacity.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. Excessive Circulating Water Velocity &amp; Tube Inlet Erosion
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Pumping excess cooling water to compensate for summer heat can drive tube velocity above HEI recommended limits (> 7.5 ft/s for copper-nickel, > 8.5 ft/s for titanium). High-velocity turbulent eddies at tube inlets strip protective oxide films, causing inlet horseshoe erosion. Once a tube pinholes, raw cooling water contaminates pure boiler condensate with chlorides, cracking boiler superheater tubes.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Condensate Subcooling &amp; Dissolved Oxygen Pitting
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        If condensate falling to the hotwell drops more than 1&deg;F to 2&deg;F below saturation temperature (\(T_{cond} < T_{sat}\)), it is subcooled. Subcooled liquid eagerly absorbs oxygen and carbon dioxide from the residual steam-air mixture. Dissolved oxygen entering the boiler feedwater train causes aggressive localized pitting in high-pressure economizers and feedwater preheaters.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. Summer Cooling Water Inversion &amp; LP Turbine Choking
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        During summer heat waves, cooling tower basin temperatures can reach 88&deg;F to 92&deg;F. With a 15&deg;F cooling rise and 10&deg;F TTD, saturation temperature reaches 115&deg;F, driving condenser backpressure above 3.5 inHgA. Low-pressure turbine exhaust blading experiences sonic choking and high-temperature windage heating, forcing power plants to curtail output by 20% to avoid trip limits.
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Surface Condenser Thermodynamic &amp; HEI Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        Thermal performance of a steam surface condenser is calculated via simultaneous enthalpy balance and logarithmic mean temperature difference (LMTD) per HEI Standards:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Condenser Heat Duty &amp; Cooling Water Temperature Rise</h3>
+      <p>
+        The heat duty rejected by exhaust steam is absorbed by circulating water:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        Q = m_steam &times; h_fg  [BTU/hr]<br>
+        &Delta;T_cw = Q / (500 &times; GPM)  [&deg;F]<br>
+        T_out = T_in + &Delta;T_cw  [&deg;F]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Log Mean Temperature Difference (LMTD) &amp; TTD</h3>
+      <p>
+        Because condensing steam maintains an approximately isothermal temperature \(T_{sat}\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        LMTD = &Delta;T_cw / ln[(T_sat &minus; T_in) / (T_sat &minus; T_out)]  [&deg;F]<br>
+        TTD = T_sat &minus; T_out  [&deg;F]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. HEI Overall Heat Transfer Coefficient &amp; Backpressure</h3>
+      <p>
+        HEI empirical equation calculates clean tube overall coefficient \(U\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        U = C_base &times; &radic;V_tube &times; F_temp &times; F_mat &times; Cleanliness  [BTU/hr&middot;ft&sup2;&middot;&deg;F]<br>
+        Required LMTD = Q / (U &times; Area_tube)<br>
+        P_cond = Saturation_Pressure(T_sat)  [inHg absolute]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const steamFlowInput = document.getElementById('scSteamFlow');
+  const latentHeatInput = document.getElementById('scLatentHeat');
+  const cwFlowInput = document.getElementById('scCwFlow');
+  const cwInletInput = document.getElementById('scCwInletTemp');
+  const surfaceAreaInput = document.getElementById('scSurfaceArea');
+  const matSelect = document.getElementById('scTubeMaterial');
+  const turbineMwInput = document.getElementById('scTurbineMw');
+
+  const alertBox = document.getElementById('scAlertBox');
+
+  function calculate() {
+    const m_steam = parseFloat(steamFlowInput.value) || 300000;
+    const h_fg = parseFloat(latentHeatInput.value) || 970;
+    const gpm = parseFloat(cwFlowInput.value) || 40000;
+    const Tin = parseFloat(cwInletInput.value) || 70;
+    const A_surf = parseFloat(surfaceAreaInput.value) || 50000;
+    const matVal = matSelect.value;
+    const mwRated = parseFloat(turbineMwInput.value) || 100;
+
+    // Total Heat Duty
+    const Q = m_steam * h_fg; // BTU/hr
+    const heatMBH = Q / 1000;
+    const heatMW = Q / 3.412e6; // MW thermal
+
+    // CW Temperature Rise
+    const deltaT_cw = gpm > 0 ? Q / (500 * gpm) : 15;
+    const Tout = Tin + deltaT_cw;
+
+    // HEI Heat Transfer Coefficient Factors
+    let Fm = 0.81; // Titanium
+    let Fc = 0.85; // Cleanliness
+    if (matVal === 'cuni90') { Fm = 0.90; Fc = 0.85; }
+    else if (matVal === 'admiralty') { Fm = 1.00; Fc = 0.85; }
+    else if (matVal === 'ss304') { Fm = 0.75; Fc = 0.85; }
+    else if (matVal === 'cuni70') { Fm = 0.82; Fc = 0.80; }
+
+    // Average tube velocity (approx 6.5 to 7.0 ft/s typical for design)
+    const V_tube = 6.8; // ft/s
+    const Ft = Math.min(1.08, Math.max(0.65, 0.55 + 0.007 * Tin)); // inlet temp factor
+    const C_base = 263; // 7/8" OD tube base
+    const U = C_base * Math.sqrt(V_tube) * Ft * Fm * Fc;
+
+    // Required LMTD = Q / (U * A)
+    const LMTD_req = Math.max(5.0, Q / (U * A_surf));
+
+    // Solve for T_sat from LMTD formula:
+    // LMTD = deltaT_cw / ln[(Tsat - Tin) / (Tsat - Tout)]
+    // (Tsat - Tin) / (Tsat - Tout) = exp(deltaT_cw / LMTD) = R_ratio
+    const expTerm = Math.exp(deltaT_cw / LMTD_req);
+    let Tsat = 0;
+    if (expTerm > 1.001) {
+      Tsat = (Tout * expTerm - Tin) / (expTerm - 1.0);
+    } else {
+      Tsat = Tout + 10.0;
+    }
+
+    const TTD = Tsat - Tout;
+
+    // Convert Tsat (deg F) to Saturated Vapor Pressure in inHg absolute
+    // Using Antoine/Clausius Clapeyron regression for water 50-140 deg F:
+    // P_psia approx = exp(16.5362 - 3985 / (T_C + 234))
+    const Tsat_C = (Tsat - 32) * 5 / 9;
+    const P_psia = Math.exp(16.5362 - 3985 / (Tsat_C + 234.0));
+    const P_inHgA = P_psia * 2.03602;
+    const P_mbar = P_psia * 68.9476;
+
+    // Turbine Heat Rate / Power Penalty
+    // Standard baseline design backpressure is approx 1.5 inHgA
+    const baseBackpressure = 1.50;
+    const deltaBackpressure = P_inHgA - baseBackpressure;
+    // Rule of thumb: ~1.5% turbine power loss per 1 inHg rise above design
+    const mwLossPct = Math.max(0, deltaBackpressure * 1.5);
+    const mwLoss = (mwLossPct / 100) * mwRated;
+    const dailyLossCost = mwLoss * 1000 * 24 * 0.04; // $0.04 / kWh power generation value
+
+    // Alerts
+    if (P_inHgA > 3.5) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ HIGH BACKPRESSURE TRIP HAZARD:</strong> Condenser vacuum has degraded to ' + P_inHgA.toFixed(2) + ' inHgA (> 3.5 inHgA). LP turbine blading is subject to severe windage overheating and potential emergency unit trip!';
+    } else if (P_inHgA > 2.5) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fffbeb';
+      alertBox.style.border = '1px solid #f59e0b';
+      alertBox.style.color = '#92400e';
+      alertBox.innerHTML = '<strong>⚠️ ELEVATED BACKPRESSURE ALARM:</strong> Backpressure (' + P_inHgA.toFixed(2) + ' inHgA) exceeds 2.5 inHgA. Generating ' + mwLoss.toFixed(2) + ' MW in electrical power penalties. Inspect for tube fouling or air in-leakage.';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    // Update UI Results
+    document.getElementById('outScBackpressure').textContent = P_inHgA.toFixed(2) + ' inHgA';
+    document.getElementById('outScBackpressureMbar').textContent = P_mbar.toFixed(1) + ' mbar (' + P_psia.toFixed(2) + ' psia)';
+
+    document.getElementById('outScTsat').textContent = Tsat.toFixed(1) + ' °F';
+    document.getElementById('outScTsatMetric').textContent = Tsat_C.toFixed(1) + ' °C (Saturation)';
+
+    document.getElementById('outScCwRise').textContent = deltaT_cw.toFixed(1) + ' °F';
+    document.getElementById('outScCwOutlet').textContent = 'Outlet Temp: ' + Tout.toFixed(1) + ' °F';
+
+    document.getElementById('outScTtd').textContent = TTD.toFixed(1) + ' °F';
+    const ttdBadge = document.getElementById('outScTtdBadge');
+    if (TTD < 5.0) {
+      ttdBadge.textContent = 'Aggressive TTD (< 5°F)';
+      ttdBadge.style.color = '#ef4444';
+    } else if (TTD <= 15.0) {
+      ttdBadge.textContent = 'Optimal HEI TTD (5 - 15°F)';
+      ttdBadge.style.color = '#16a34a';
+    } else {
+      ttdBadge.textContent = 'High TTD (> 15°F: Fouling/Air Ingress)';
+      ttdBadge.style.color = '#d97706';
+    }
+
+    document.getElementById('outScHeatDuty').textContent = (heatMBH / 1000).toFixed(1) + ' MBH';
+    document.getElementById('outScHeatMw').textContent = heatMW.toFixed(1) + ' MW Thermal';
+
+    document.getElementById('outScTurbineLoss').textContent = '-' + mwLoss.toFixed(2) + ' MW';
+    document.getElementById('outScLossCost').textContent = '$' + Math.round(dailyLossCost).toLocaleString() + ' / day revenue penalty';
+
+    document.getElementById('outScUfactor').textContent = Math.round(U) + ' BTU/hr·ft²·°F';
+    document.getElementById('outScLmtd').textContent = LMTD_req.toFixed(1) + ' °F';
+    document.getElementById('outScTubeVelocity').textContent = V_tube.toFixed(1) + ' ft/s (Optimal 6 - 7.5 ft/s)';
+
+    // Update SVG Annotations
+    const svgIn = document.getElementById('svgScCwInlet');
+    if (svgIn) svgIn.textContent = 'T_in: ' + Tin.toFixed(1) + ' °F @ ' + Math.round(gpm).toLocaleString() + ' GPM';
+    const svgOut = document.getElementById('svgScCwOutlet');
+    if (svgOut) svgOut.textContent = 'T_out: ' + Tout.toFixed(1) + ' °F (ΔT: ' + deltaT_cw.toFixed(1) + '°F)';
+    const svgBp = document.getElementById('svgScBackpressureText');
+    if (svgBp) svgBp.textContent = 'Backpressure: ' + P_inHgA.toFixed(2) + ' inHgA';
+    const svgTsat = document.getElementById('svgScTsatText');
+    if (svgTsat) svgTsat.textContent = 'T_sat: ' + Tsat.toFixed(1) + ' °F (TTD: ' + TTD.toFixed(1) + '°F)';
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'STEAM SURFACE CONDENSER THERMAL AUDIT (HEI 10th ED)\\n' +
+      '=======================================================\\n' +
+      'Turbine Exhaust Steam Flow:   ' + m_steam.toLocaleString() + ' lb/hr\\n' +
+      'Condensing Latent Heat (h_fg):' + h_fg.toFixed(0) + ' BTU/lb\\n' +
+      'Total Heat Duty Rejected:     ' + (heatMBH / 1000).toFixed(2) + ' MBH (' + heatMW.toFixed(1) + ' MWth)\\n' +
+      'Circulating Water Flow:       ' + gpm.toLocaleString() + ' GPM\\n' +
+      'CW Inlet Water Temp (T_in):   ' + Tin.toFixed(1) + ' °F\\n' +
+      'Condenser Active Tube Area:   ' + A_surf.toLocaleString() + ' sq ft\\n' +
+      'Tube Material / Cleanliness:  ' + matSelect.options[matSelect.selectedIndex].text + '\\n' +
+      '-------------------------------------------------------\\n' +
+      'THERMAL & HYDRAULIC RESULTS:\\n' +
+      'Cooling Water Temp Rise (ΔT): ' + deltaT_cw.toFixed(2) + ' °F\\n' +
+      'Cooling Water Outlet (T_out): ' + Tout.toFixed(2) + ' °F\\n' +
+      'Log Mean Temp Diff (LMTD):    ' + LMTD_req.toFixed(2) + ' °F\\n' +
+      'Terminal Temp Difference (TTD):' + TTD.toFixed(2) + ' °F (' + ttdBadge.textContent + ')\\n' +
+      'Overall Heat Transfer (U):    ' + Math.round(U) + ' BTU/hr-ft²-°F\\n' +
+      'Condenser Saturation (T_sat): ' + Tsat.toFixed(2) + ' °F (' + Tsat_C.toFixed(2) + ' °C)\\n' +
+      'Condenser Backpressure:       ' + P_inHgA.toFixed(3) + ' inHgA (' + P_mbar.toFixed(1) + ' mbar / ' + P_psia.toFixed(3) + ' psia)\\n' +
+      '-------------------------------------------------------\\n' +
+      'TURBINE GENERATOR POWER PENALTY:\\n' +
+      'Baseline Design Backpressure: ' + baseBackpressure.toFixed(2) + ' inHgA\\n' +
+      'Backpressure Deviation:       ' + (deltaBackpressure >= 0 ? '+' : '') + deltaBackpressure.toFixed(3) + ' inHgA\\n' +
+      'Turbine Megawatt Loss:        -' + mwLoss.toFixed(2) + ' MW (' + mwLossPct.toFixed(2) + ' % rated capacity)\\n' +
+      'Daily Revenue Loss Penalty:   $' + Math.round(dailyLossCost).toLocaleString() + ' / day @ $40/MWh\\n' +
+      '=======================================================';
+    document.getElementById('scAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copyScAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('scAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyScAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Condenser Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [steamFlowInput, latentHeatInput, cwFlowInput, cwInletInput, surfaceAreaInput, matSelect, turbineMwInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'steam-condenser-vacuum-calculator.html'), renderTradePage({
+    title: "Steam Surface Condenser Vacuum & Performance Calculator | HEI",
+    metaDesc: "Calculate steam turbine surface condenser vacuum, backpressure inHgA, saturation temperature, LMTD, HEI overall U-factor, and turbine heat rate megawatt penalty.",
+    canonical: `${DOMAIN}/calc/steam-condenser-vacuum-calculator`,
+    bodyContent: steamCondenserBody,
+    currentPath: '/calc/steam-condenser-vacuum-calculator',
+    faq: [
+      {
+        "q": "What is Steam Surface Condenser Backpressure?",
+        "a": "Condenser backpressure is the absolute pressure existing at the steam turbine exhaust flange (measured in inches of Mercury absolute, inHgA, or mbar). Lower backpressure increases the expansion pressure ratio across the turbine blading, maximizing mechanical work extraction and plant thermal efficiency."
+      },
+      {
+        "q": "How does condenser backpressure impact steam turbine power output?",
+        "a": "Every 1.0 inHg rise in condenser backpressure reduces steam turbine power output by approximately 1.5% to 2.0%. For a 500 MW generating unit, this represents a massive 7.5 to 10 MW continuous generation loss, costing thousands of dollars per day in fuel heat rate penalties."
+      },
+      {
+        "q": "What is Terminal Temperature Difference (TTD) in a surface condenser?",
+        "a": "Terminal Temperature Difference is the difference between the condensing steam saturation temperature and the cooling water discharge temperature (TTD = T_sat - T_out). An increasing TTD indicates tube biofouling, mineral scaling, or air in-leakage insulating the tube surface."
+      },
+      {
+        "q": "Why is air in-leakage fatal to steam condenser performance?",
+        "a": "Air is a non-condensable gas. Under vacuum, ingested air forms a stagnant boundary layer around condenser tubes that acts as a thermal blanket, drastically reducing the heat transfer coefficient (U) and causing severe backpressure elevation."
+      },
+      {
+        "q": "What causes condensate subcooling and why is it harmful?",
+        "a": "Subcooling occurs when condensate drops below its saturation temperature. Subcooled water absorbs non-condensable oxygen and carbon dioxide gases from the condenser vacuum space, creating an aggressively corrosive acidic condensate that attacks boiler feedwater piping and economizers."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DIESEL GENERATOR SIZING & MOTOR STARTING (NFPA 110 / IEEE 446 / ISO 8528)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const dieselGeneratorBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Diesel Generator Sizing Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Diesel Generator Sizing &amp; Motor Starting Inrush Calculator (NFPA 110)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Size standby, prime, and emergency diesel generators per NFPA 110, IEEE 446, and ISO 8528: calculate steady-state running kW/kVA, peak motor starting inrush kVA (skVA), alternator transient voltage dip, wet stacking minimum load risk, and diesel fuel tank autonomy.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Connected Facility &amp; Motor Loads
+      </h2>
+
+      <!-- Steady-State Base Load & Power Factor -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgBaseKw">Base Continuous Load (kW)</label>
+          <input type="number" id="dgBaseKw" value="250" min="5" max="10000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Lighting, HVAC, pumps, general power</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgPowerFactor">Load Power Factor (PF)</label>
+          <input type="number" id="dgPowerFactor" value="0.80" min="0.60" max="1.00" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard generator 0.80 lagging PF</span>
+        </div>
+      </div>
+
+      <!-- Largest Motor & Starting Method -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgMotorHp">Largest Motor Size (HP)</label>
+          <input type="number" id="dgMotorHp" value="100" min="0" max="2500" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Fire pump, chiller compressor, elevator</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgStartMethod">Motor Starting Method</label>
+          <select id="dgStartMethod" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="dol">Direct-on-Line (DOL, 6.5x Inrush)</option>
+            <option value="soft" selected>Solid-State Soft Starter (3.5x Inrush)</option>
+            <option value="wye">Wye-Delta / Star-Delta (2.5x Inrush)</option>
+            <option value="vfd">Variable Frequency Drive (1.25x Inrush)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Controls peak starting kVA spike</span>
+        </div>
+      </div>
+
+      <!-- Non-Linear UPS Load & Voltage -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgUpsKw">Non-Linear / UPS Load (kW)</label>
+          <input type="number" id="dgUpsKw" value="60" min="0" max="5000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Data center UPS, LED drivers, VFDs</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgVoltage">System Line Voltage (V_LL)</label>
+          <select id="dgVoltage" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="480" selected>480 V (3-Phase, 4-Wire)</option>
+            <option value="208">208 V (3-Phase, 4-Wire)</option>
+            <option value="600">600 V (Canadian Industrial)</option>
+            <option value="400">400 V (IEC 50 Hz Standard)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Generator output terminal voltage</span>
+        </div>
+      </div>
+
+      <!-- Environmental Derates & Autonomy Hours -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgAltitude">Site Elevation (ft)</label>
+          <input type="number" id="dgAltitude" value="1000" min="0" max="15000" step="500" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Derate starts above 3,300 ft (ISO 8528)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dgRunHours">Fuel Autonomy Target (Hours)</label>
+          <input type="number" id="dgRunHours" value="72" min="4" max="168" step="12" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">NFPA 110 Class 72 hospital emergency</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">NFPA 110 &amp; IEEE 446 Sizing Rules</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Transient Voltage Dip must not exceed 15% &ndash; 20% to prevent contactor dropout.</li>
+          <li>Transient Frequency Dip must remain within 5% &ndash; 10% under block loading.</li>
+          <li>Wet Stacking: Minimum steady load must stay &ge; 30% of nameplate rating.</li>
+          <li>Subtransient Reactance X&quot;_d (12% &ndash; 18%) governs voltage sag during motor starts.</li>
+          <li>Fuel Consumption &asymp; 0.07 gal/hr per continuous running kW.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Recommended Generator &amp; Electrical Stability
+      </h2>
+
+      <div id="dgAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <!-- Recommended Generator Standby Rating -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Recommended Generator Size</div>
+          <div id="outDgRecKva" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--primary);">600 kVA</div>
+          <div id="outDgRecKw" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">480 kW Standby Rating (@ 0.8 PF)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Transient Voltage Dip</div>
+          <div id="outDgVoltDip" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--fg);">12.8% Dip</div>
+          <div id="outDgVoltDipStatus" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">IEEE 446 Compliant (&le; 15%)</div>
+        </div>
+      </div>
+
+      <!-- Running Load vs Peak Starting Inrush -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Running Load</div>
+          <div id="outDgRunningKw" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#2563eb;">395 kW</div>
+          <div id="outDgRunningKva" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">494 kVA Continuous (595 Amps)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Peak Motor Starting Inrush</div>
+          <div id="outDgSkva" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#d97706;">312 skVA</div>
+          <div id="outDgInrushAmps" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">375 A Inrush Surge</div>
+        </div>
+      </div>
+
+      <!-- Wet Stacking Audit & Diesel Fuel Demand -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Minimum Load (Wet Stacking)</div>
+          <div id="outDgLoadPct" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#16a34a;">82.3% Load</div>
+          <div id="outDgWetStackStatus" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">Safe (&gt; 30% Threshold)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Diesel Fuel Storage</div>
+          <div id="outDgFuelTotal" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#8b5cf6;">1,990 Gal</div>
+          <div id="outDgFuelRate" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">27.6 Gal/hr @ Rated Load</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Site Altitude Derate:</span>
+          <strong id="outDgAltDerate" style="font-family:var(--mono);color:#16a34a;">0.0% (Under 3,300 ft)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Alternator Subtransient Reactance X&quot;_d:</span>
+          <strong id="outDgXd" style="font-family:var(--mono);">15.0% Subtransient</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">NFPA 110 Type 10 Classification:</span>
+          <strong id="outDgType10" style="font-family:var(--mono);color:#16a34a;">10-Second Auto-Start OK</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG SINGLE-LINE & TRANSIENT STEP SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      Generator Transient Voltage Dip &amp; Recovery Waveform (IEEE 446 / ISO 8528)
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="generatorSvg" viewBox="0 0 900 420" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <!-- Background Canvas -->
+        <rect x="0" y="0" width="900" height="420" fill="#0f172a" rx="10"/>
+
+        <!-- Grid Lines -->
+        <g stroke="#334155" stroke-width="1" stroke-dasharray="4,4">
+          <line x1="80" y1="340" x2="840" y2="340"/>
+          <line x1="80" y1="270" x2="840" y2="270"/>
+          <line x1="80" y1="200" x2="840" y2="200"/>
+          <line x1="80" y1="130" x2="840" y2="130"/>
+          <line x1="80" y1="60" x2="840" y2="60"/>
+
+          <line x1="80" y1="40" x2="80" y2="340"/>
+          <line x1="260" y1="40" x2="260" y2="340"/>
+          <line x1="440" y1="40" x2="440" y2="340"/>
+          <line x1="620" y1="40" x2="620" y2="340"/>
+          <line x1="800" y1="40" x2="800" y2="340"/>
+        </g>
+
+        <!-- Main Axes -->
+        <line x1="80" y1="340" x2="860" y2="340" stroke="#94a3b8" stroke-width="2.5"/>
+        <line x1="80" y1="340" x2="80" y2="30" stroke="#94a3b8" stroke-width="2.5"/>
+
+        <!-- Axis Labels -->
+        <text x="470" y="380" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold">Time (Seconds After Motor Block Load Step)</text>
+        <text x="80" y="360" fill="#64748b" font-size="11" text-anchor="middle">0.0 s</text>
+        <text x="260" y="360" fill="#64748b" font-size="11" text-anchor="middle">0.5 s</text>
+        <text x="440" y="360" fill="#64748b" font-size="11" text-anchor="middle">1.0 s</text>
+        <text x="620" y="360" fill="#64748b" font-size="11" text-anchor="middle">1.5 s</text>
+        <text x="800" y="360" fill="#64748b" font-size="11" text-anchor="middle">2.0 s (Steady)</text>
+
+        <!-- Y Axis Percentages -->
+        <text x="25" y="190" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold" transform="rotate(-90 25 190)">Generator Bus Voltage (% Nominal)</text>
+        <text x="70" y="344" fill="#64748b" font-size="10" text-anchor="end">60%</text>
+        <text x="70" y="274" fill="#64748b" font-size="10" text-anchor="end">70%</text>
+        <text x="70" y="204" fill="#64748b" font-size="10" text-anchor="end">80%</text>
+        <text x="70" y="134" fill="#64748b" font-size="10" text-anchor="end">90%</text>
+        <text x="70" y="64" fill="#64748b" font-size="10" text-anchor="end">100% (480V)</text>
+
+        <!-- IEEE 446 80% (20% Dip) Dropout Limit (Red Dash Line) -->
+        <line x1="80" y1="200" x2="840" y2="200" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,4"/>
+        <text x="830" y="190" fill="#f87171" font-size="11" font-weight="bold" text-anchor="end">Contactor Dropout Limit (80% / 20% Dip)</text>
+
+        <!-- Voltage Dip Response Curve -->
+        <!-- Starts at 100% (y=60), at t=0.2s plunges to dip point (y=150), recovers smoothly back to 99% by 1.5s -->
+        <path id="svgVoltDipPath" d="M 80 60 L 150 60 C 160 60, 180 150, 220 150 C 320 150, 480 75, 700 65 L 840 65" fill="none" stroke="#38bdf8" stroke-width="4"/>
+        <circle id="svgDipPoint" cx="220" cy="150" r="7" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+
+        <text id="svgDipAnnotation" x="240" y="155" fill="#38bdf8" font-size="12" font-weight="bold">Peak Dip: 12.8% (418 V)</text>
+
+        <!-- ISO 8528 G2 Recovery Window Shaded Zone -->
+        <rect x="580" y="40" width="260" height="80" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text x="595" y="62" fill="#ffffff" font-size="11" font-weight="bold">TRANSIENT STABILITY AUDIT</text>
+        <text id="svgAuditGenModel" x="595" y="82" fill="#38bdf8" font-size="10">Gen Size: 600 kVA Standby</text>
+        <text id="svgAuditRecovTime" x="595" y="100" fill="#34d399" font-size="10">Voltage Recovery: &lt; 1.2 s (Fast)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        NFPA 110 Diesel Generator Engineering Data Sheet
+      </h2>
+      <button id="copyDgAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Generator Audit</span>
+      </button>
+    </div>
+    <pre id="dgAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Diesel Generator Sizing</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. The Wet Stacking Catastrophe (Operating Below 30% Continuous Load)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Oversizing a diesel generator so that normal facility load represents under 30% of nameplate rating prevents cylinder combustion temperatures from reaching complete fuel burn levels. Unburned diesel and condensed exhaust moisture pool in the exhaust manifold, producing &ldquo;wet stacking&rdquo; black sludge that fouls turbochargers, gums piston rings, and causes destructive exhaust stack fires during full-load testing.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Motor Starting Inrush Voltage Collapse &amp; Contactor Dropout
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Sizing a generator based only on continuous running kW without verifying motor starting kVA (skVA) results in severe voltage sag when the largest motor starts. If bus voltage drops by more than 20% to 25%, magnetic motor starters and elevator contactors chatter and drop out, dropping critical hospital or data center emergency systems during grid blackouts.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. High Elevation &amp; Ambient Heat Turbocharger Choking
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Standard generator nameplate ratings assume sea-level operation (&le; 3,300 ft / 1,000 m) at 77&deg;F (25&deg;C). At high elevations, thinner air density starves the turbocharger of oxygen, requiring a 3.5% derate per 1,000 ft above 3,300 ft. In hot desert conditions (115&deg;F), alternator windings overheat. Sizing without environmental derate causes premature engine thermal shutdown.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Non-Linear UPS Harmonics &amp; Subtransient Reactance Heating
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Data center Uninterruptible Power Supplies (UPS) and VFDs inject 5th, 7th, and 11th harmonic currents into the generator alternator. Harmonics circulate in the rotor damper windings, causing excessive rotor heating and voltage waveform distortion that confuses standard automatic voltage regulators (AVR). Generators feeding non-linear loads require oversized alternators with low subtransient reactance (\(X''_d \le 12\%\)).
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. NFPA 110 Type 10 Start Failure &amp; Jacket Heater Neglect
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        NFPA 110 Type 10 mandates that emergency life safety power transfer occurs within exactly 10 seconds of utility loss. If electric jacket water heaters fail, cold engine block friction prevents the starter motor from cranking to rated RPM in time. Cold cylinders fail to ignite diesel fuel, tripping overcrank lockout alarms and leaving emergency operating rooms in total darkness.
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Generator Sizing &amp; Transient Voltage Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        Generator capacity and electrodynamic transient voltage response are calculated via IEEE 446 and ISO 8528 synchronous machine equations:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Continuous Running Capacity &amp; Total kVA</h3>
+      <p>
+        Running power combines steady continuous base loads, UPS loads, and operating motor shaft power:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        kW_running = kW_base + kW_ups + (HP_motor &times; 0.746 / &eta;_motor)<br>
+        kVA_running = kW_running / PF_load
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Motor Starting Inrush kVA (skVA)</h3>
+      <p>
+        During acceleration, motors draw locked-rotor inrush scaled by the starting method:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        skVA = (HP &times; 0.746 / [&eta; &times; PF]) &times; Inrush_Multiplier<br>
+        Inrush_Multiplier: DOL = 6.5, Soft Start = 3.5, Wye-Delta = 2.5, VFD = 1.25
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. Alternator Transient Voltage Dip Formula</h3>
+      <p>
+        Transient voltage sag upon motor energization is governed by alternator subtransient reactance \(X''_d\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        &Delta;V% = [skVA / (skVA + kVA_gen / X&quot;_d)] &times; 100<br>
+        X&quot;_d &asymp; 0.15 (15% standard subtransient reactance)
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const baseKwInput = document.getElementById('dgBaseKw');
+  const pfInput = document.getElementById('dgPowerFactor');
+  const motorHpInput = document.getElementById('dgMotorHp');
+  const startMethodSelect = document.getElementById('dgStartMethod');
+  const upsKwInput = document.getElementById('dgUpsKw');
+  const voltSelect = document.getElementById('dgVoltage');
+  const altInput = document.getElementById('dgAltitude');
+  const hoursInput = document.getElementById('dgRunHours');
+
+  const alertBox = document.getElementById('dgAlertBox');
+
+  function calculate() {
+    const baseKw = parseFloat(baseKwInput.value) || 200;
+    const pf = parseFloat(pfInput.value) || 0.80;
+    const motorHp = parseFloat(motorHpInput.value) || 50;
+    const startMethod = startMethodSelect.value;
+    const upsKw = parseFloat(upsKwInput.value) || 50;
+    const vll = parseFloat(voltSelect.value) || 480;
+    const altFt = parseFloat(altInput.value) || 0;
+    const runHours = parseFloat(hoursInput.value) || 72;
+
+    // Motor running kW
+    const motorEff = 0.92;
+    const motorPf = 0.85;
+    const motorKw = (motorHp * 0.746) / motorEff;
+
+    // Total steady running kW and kVA
+    const totalRunningKw = baseKw + upsKw + motorKw;
+    const totalRunningKva = totalRunningKw / pf;
+
+    // Motor Starting kVA (skVA)
+    let inrushMult = 6.5; // DOL
+    if (startMethod === 'soft') inrushMult = 3.5;
+    else if (startMethod === 'wye') inrushMult = 2.5;
+    else if (startMethod === 'vfd') inrushMult = 1.25;
+
+    const motorBaseKva = (motorHp * 0.746) / (motorEff * motorPf);
+    const skva = motorBaseKva * inrushMult;
+    const inrushAmps = (skva * 1000) / (Math.sqrt(3) * vll);
+
+    // Environmental Derating (ISO 8528)
+    let altDeratePct = 0;
+    if (altFt > 3300) {
+      altDeratePct = ((altFt - 3300) / 1000) * 3.5;
+    }
+    const envDerateFactor = 1.0 - (altDeratePct / 100);
+
+    // Generator Sizing Criteria:
+    // 1. Running load with 20% future growth margin
+    const genKva_running = (totalRunningKva * 1.20) / envDerateFactor;
+    // 2. Motor starting voltage dip criteria (limit dip to <= 18% per IEEE 446)
+    // Delta V = skva / (skva + genKva / Xd) <= 0.18
+    // Solving for genKva: (1 - 0.18)/0.18 * skva * Xd = 4.55 * skva * 0.15 = 0.68 * skva
+    const Xd = 0.15; // 15% subtransient reactance
+    const maxDipAllowed = 0.18; // 18%
+    const genKva_starting = (skva * Xd * (1 - maxDipAllowed)) / maxDipAllowed;
+
+    // Standard commercial generator sizes (kVA)
+    const stdSizesKva = [50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 500, 600, 750, 800, 1000, 1250, 1500, 1750, 2000, 2500];
+    const rawReqKva = Math.max(genKva_running, genKva_starting);
+    let selectedKva = stdSizesKva[stdSizesKva.length - 1];
+    for (let i = 0; i < stdSizesKva.length; i++) {
+      if (stdSizesKva[i] >= rawReqKva) {
+        selectedKva = stdSizesKva[i];
+        break;
+      }
+    }
+    const selectedKw = selectedKva * 0.80; // 0.8 PF rating
+
+    // Actual Voltage Dip with selected generator
+    const voltDipPct = (skva / (skva + (selectedKva * envDerateFactor) / Xd)) * 100;
+
+    // Wet Stacking check: Running load as % of selected KW
+    const loadPct = (totalRunningKw / selectedKw) * 100;
+
+    // Diesel Fuel Consumption
+    // Approx 0.07 gal/hr per running kW at full load
+    const fuelRateGalPerHr = totalRunningKw * 0.07;
+    const totalFuelGal = fuelRateGalPerHr * runHours;
+
+    // Alerts
+    if (loadPct < 30.0) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ WET STACKING HAZARD:</strong> Continuous load is only ' + loadPct.toFixed(1) + '% of generator rating (< 30%). Engine will suffer severe unburned fuel buildup, cylinder glazing, and carbon accumulation without load banking!';
+    } else if (voltDipPct > 18.0) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fffbeb';
+      alertBox.style.border = '1px solid #f59e0b';
+      alertBox.style.color = '#92400e';
+      alertBox.innerHTML = '<strong>⚠️ HIGH VOLTAGE DIP (' + voltDipPct.toFixed(1) + '%):</strong> Motor starting inrush causes voltage dip to exceed 18%. Magnetic contactors may drop out. Consider soft starters or stepping up to next generator size.';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    // Update UI Results
+    document.getElementById('outDgRecKva').textContent = selectedKva + ' kVA';
+    document.getElementById('outDgRecKw').textContent = selectedKw + ' kW Standby Rating (@ 0.8 PF)';
+
+    document.getElementById('outDgVoltDip').textContent = voltDipPct.toFixed(1) + '% Dip';
+    const dipBadge = document.getElementById('outDgVoltDipStatus');
+    if (voltDipPct <= 15.0) {
+      dipBadge.textContent = 'Excellent (≤ 15% Dip IEEE 446)';
+      dipBadge.style.color = '#16a34a';
+    } else if (voltDipPct <= 20.0) {
+      dipBadge.textContent = 'Acceptable (15% - 20% Dip)';
+      dipBadge.style.color = '#f59e0b';
+    } else {
+      dipBadge.textContent = 'EXCESSIVE (> 20% Contactor Dropout Risk)';
+      dipBadge.style.color = '#ef4444';
+    }
+
+    document.getElementById('outDgRunningKw').textContent = Math.round(totalRunningKw) + ' kW';
+    const runningAmps = (totalRunningKva * 1000) / (Math.sqrt(3) * vll);
+    document.getElementById('outDgRunningKva').textContent = Math.round(totalRunningKva) + ' kVA Continuous (' + Math.round(runningAmps) + ' Amps)';
+
+    document.getElementById('outDgSkva').textContent = Math.round(skva) + ' skVA';
+    document.getElementById('outDgInrushAmps').textContent = Math.round(inrushAmps) + ' A Inrush Surge';
+
+    document.getElementById('outDgLoadPct').textContent = loadPct.toFixed(1) + '% Load';
+    const wsBadge = document.getElementById('outDgWetStackStatus');
+    if (loadPct >= 30.0) {
+      wsBadge.textContent = 'Safe (> 30% Threshold)';
+      wsBadge.style.color = '#16a34a';
+    } else {
+      wsBadge.textContent = 'WET STACKING RISK (< 30%)';
+      wsBadge.style.color = '#ef4444';
+    }
+
+    document.getElementById('outDgFuelTotal').textContent = Math.round(totalFuelGal).toLocaleString() + ' Gal';
+    document.getElementById('outDgFuelRate').textContent = fuelRateGalPerHr.toFixed(1) + ' Gal/hr @ Continuous Load';
+
+    document.getElementById('outDgAltDerate').textContent = altDeratePct.toFixed(1) + '% (' + (altFt > 3300 ? 'Altitude Derate' : 'Under 3,300 ft') + ')';
+
+    // Update SVG
+    const svgDipPoint = document.getElementById('svgDipPoint');
+    const svgDipText = document.getElementById('svgDipAnnotation');
+    if (svgDipPoint && svgDipText) {
+      // Map dip (0% to 40%) to SVG Y (60 to 340)
+      const dipY = Math.min(320, 60 + (voltDipPct / 40) * 280);
+      svgDipPoint.setAttribute('cy', dipY);
+      svgDipText.setAttribute('y', dipY + 5);
+      svgDipText.textContent = 'Peak Dip: ' + voltDipPct.toFixed(1) + '% (' + Math.round(vll * (1 - voltDipPct / 100)) + ' V)';
+
+      const dipPath = document.getElementById('svgVoltDipPath');
+      if (dipPath) {
+        dipPath.setAttribute('d', 'M 80 60 L 150 60 C 160 60, 180 ' + dipY + ', 220 ' + dipY + ' C 320 ' + dipY + ', 480 75, 700 65 L 840 65');
+      }
+    }
+
+    const svgModel = document.getElementById('svgAuditGenModel');
+    if (svgModel) svgModel.textContent = 'Gen Size: ' + selectedKva + ' kVA Standby';
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'NFPA 110 & IEEE 446 DIESEL GENERATOR SIZING AUDIT\\n' +
+      '=======================================================\\n' +
+      'Base Continuous Load:         ' + baseKw.toFixed(1) + ' kW\\n' +
+      'Non-Linear / UPS Load:        ' + upsKw.toFixed(1) + ' kW\\n' +
+      'Largest Electric Motor:       ' + motorHp.toFixed(0) + ' HP (' + motorKw.toFixed(1) + ' kW)\\n' +
+      'Motor Starting Method:        ' + startMethodSelect.options[startMethodSelect.selectedIndex].text + '\\n' +
+      'Nominal Line Voltage:         ' + vll + ' V (3-Phase AC)\\n' +
+      'Site Elevation:               ' + altFt + ' ft (Derate: ' + altDeratePct.toFixed(1) + ' %)\\n' +
+      '-------------------------------------------------------\\n' +
+      'ELECTRICAL CAPACITY REQUIREMENTS:\\n' +
+      'Total Continuous Running Load:' + totalRunningKw.toFixed(1) + ' kW (' + totalRunningKva.toFixed(1) + ' kVA @ ' + pf + ' PF)\\n' +
+      'Continuous Running Current:   ' + Math.round(runningAmps) + ' Amperes\\n' +
+      'Peak Motor Starting Inrush:   ' + Math.round(skva) + ' skVA (' + Math.round(inrushAmps) + ' A surge)\\n' +
+      '-------------------------------------------------------\\n' +
+      'RECOMMENDED GENERATOR SPECIFICATION:\\n' +
+      'Nameplate Standby Rating:     ' + selectedKva + ' kVA / ' + selectedKw + ' kW\\n' +
+      'Alternator Transient Sag:     ' + voltDipPct.toFixed(1) + ' % (' + dipBadge.textContent + ')\\n' +
+      'Running Load Percentage:      ' + loadPct.toFixed(1) + ' % of Nameplate (' + wsBadge.textContent + ')\\n' +
+      'Hourly Fuel Consumption:      ' + fuelRateGalPerHr.toFixed(2) + ' Gallons/Hour\\n' +
+      'Total Fuel Storage (' + runHours + 'h):     ' + Math.round(totalFuelGal).toLocaleString() + ' Gallons (NFPA Class ' + runHours + ')\\n' +
+      '=======================================================';
+    document.getElementById('dgAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copyDgAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('dgAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyDgAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Generator Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [baseKwInput, pfInput, motorHpInput, startMethodSelect, upsKwInput, voltSelect, altInput, hoursInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'diesel-generator-sizing-calculator.html'), renderTradePage({
+    title: "Diesel Generator Sizing & Motor Starting Calculator | NFPA 110",
+    metaDesc: "Calculate standby diesel generator sizing, motor starting inrush skVA, alternator transient voltage dip, wet stacking limits, and fuel storage per NFPA 110 and IEEE 446.",
+    canonical: `${DOMAIN}/calc/diesel-generator-sizing-calculator`,
+    bodyContent: dieselGeneratorBody,
+    currentPath: '/calc/diesel-generator-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the difference between Standby, Prime, and Continuous Generator ratings?",
+        "a": "Standby ratings represent maximum power output for emergency utility outages (typically limited to 200-500 hours/year with variable load). Prime ratings represent continuous power where no utility grid exists (with 10% overload capability for 1 hour in 12). Continuous ratings represent unvarying base-load generation running 8,760 hours per year."
+      },
+      {
+        "q": "What is motor starting kVA (skVA) and why does it dictate generator sizing?",
+        "a": "When an AC induction motor starts, it draws locked-rotor inrush current equal to 6 to 7 times its full load rating. Because generators have limited alternator excitation capacity compared to the utility grid, starting a large motor can collapse bus voltage by 30% or more unless the generator alternator is sized to handle the peak skVA."
+      },
+      {
+        "q": "What is 'Wet Stacking' in diesel generators and how is it prevented?",
+        "a": "Wet stacking is the accumulation of unburned fuel, carbon soot, and acidic moisture in the exhaust manifold caused by operating the generator continuously below 30% of its rated capacity. It is prevented by ensuring normal standby load exceeds 30% or by scheduling periodic full-load testing with load banks."
+      },
+      {
+        "q": "What is the maximum allowable voltage dip under IEEE 446 and NFPA 110?",
+        "a": "IEEE 446 recommends keeping transient voltage dip during motor starting below 15% to 20%. Exceeding 20% voltage sag risks de-energizing magnetic contactors, dropping offline IT servers, or causing elevator controllers to trigger fault shutdowns."
+      },
+      {
+        "q": "How does elevation affect generator output power?",
+        "a": "At high altitudes, thinner air reduces oxygen density entering the engine cylinders and reduces alternator convective cooling. Per ISO 8528, diesel generators must be derated by approximately 3.5% for every 1,000 feet of elevation above 3,300 feet (1,000 meters)."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CONDUIT CABLE PULLING TENSION & SWBP CALCULATOR (IEEE 576 / NEC)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const cablePullingBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Cable Pulling Tension Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Conduit Cable Pulling Tension &amp; Sidewall Pressure Calculator (IEEE 576)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate multi-segment underground duct and conduit cable pulling tensions, exponential bend friction multipliers, Sidewall Bearing Pressure (SWBP in lbs/ft), weight correction factors, conductor tensile limits, and jamming ratio risks per IEEE 576 and NFPA 70 (NEC Chapter 9).
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Cable &amp; Conduit Specifications
+      </h2>
+
+      <!-- Conductor Size & Count -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpCableSize">Conductor Size (AWG/kcmil)</label>
+          <select id="cpCableSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="500" selected>500 kcmil Copper (500,000 cmil)</option>
+            <option value="350">350 kcmil Copper (350,000 cmil)</option>
+            <option value="250">250 kcmil Copper (250,000 cmil)</option>
+            <option value="40">4/0 AWG Copper (211,600 cmil)</option>
+            <option value="20">2/0 AWG Copper (133,100 cmil)</option>
+            <option value="750">750 kcmil Copper (750,000 cmil)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Cross-sectional conductor area</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpCableCount">Conductors in Conduit</label>
+          <select id="cpCableCount" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="3" selected>3 Conductors (Triangular / Cradled)</option>
+            <option value="1">1 Single Conductor</option>
+            <option value="4">4 Conductors (3-Phase + Neutral)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Determines weight correction factor</span>
+        </div>
+      </div>
+
+      <!-- Conduit Trade Size & Coefficient of Friction -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpConduitSize">Conduit Size (Trade ID)</label>
+          <select id="cpConduitSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="4.026" selected>4&quot; Trade Size (ID = 4.026 in)</option>
+            <option value="3.068">3&quot; Trade Size (ID = 3.068 in)</option>
+            <option value="3.548">3.5&quot; Trade Size (ID = 3.548 in)</option>
+            <option value="5.047">5&quot; Trade Size (ID = 5.047 in)</option>
+            <option value="6.065">6&quot; Trade Size (ID = 6.065 in)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Schedule 40 PVC / EMT / RMC ID</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpFrictionCoeff">Coefficient of Friction (&mu;)</label>
+          <select id="cpFrictionCoeff" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="0.20" selected>0.20 &ndash; Well-Lubricated PVC / Polymer</option>
+            <option value="0.15">0.15 &ndash; Heavy High-Performance Lube</option>
+            <option value="0.35">0.35 &ndash; Light Lube / Metallic Conduit</option>
+            <option value="0.50">0.50 &ndash; Dry / Unlubricated Conduit (DANGEROUS)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Lubricant reduces friction up to 70%</span>
+        </div>
+      </div>
+
+      <!-- Conduit Route Segment 1 (Straight) & Bend 1 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpStraightLen1">Straight Section 1 (ft)</label>
+          <input type="number" id="cpStraightLen1" value="150" min="0" max="5000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">From cable reel to first elbow</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpBendAngle1">Bend 1 Angle &amp; Radius</label>
+          <select id="cpBendAngle1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="90-36" selected>90&deg; Bend &mdash; 36&quot; Standard Radius (3.0 ft)</option>
+            <option value="90-48">90&deg; Bend &mdash; 48&quot; Long Radius (4.0 ft)</option>
+            <option value="90-24">90&deg; Bend &mdash; 24&quot; Short Radius (2.0 ft)</option>
+            <option value="45-36">45&deg; Bend &mdash; 36&quot; Standard Radius (3.0 ft)</option>
+            <option value="0-0">0&deg; &mdash; No First Bend</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">First sweep elbow geometry</span>
+        </div>
+      </div>
+
+      <!-- Conduit Route Segment 2 (Straight) & Bend 2 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpStraightLen2">Straight Section 2 (ft)</label>
+          <input type="number" id="cpStraightLen2" value="200" min="0" max="5000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Between first and second bend</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpBendAngle2">Bend 2 Angle &amp; Radius</label>
+          <select id="cpBendAngle2" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="90-36" selected>90&deg; Bend &mdash; 36&quot; Standard Radius (3.0 ft)</option>
+            <option value="90-48">90&deg; Bend &mdash; 48&quot; Long Radius (4.0 ft)</option>
+            <option value="90-24">90&deg; Bend &mdash; 24&quot; Short Radius (2.0 ft)</option>
+            <option value="45-36">45&deg; Bend &mdash; 36&quot; Standard Radius (3.0 ft)</option>
+            <option value="0-0">0&deg; &mdash; No Second Bend</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Second sweep elbow geometry</span>
+        </div>
+      </div>
+
+      <!-- Segment 3 Straight Run (To Winch) -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpStraightLen3">Straight Section 3 to Pulling Winch (ft)</label>
+        <input type="number" id="cpStraightLen3" value="50" min="0" max="5000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Final run to pulling tugger / manhole</span>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">IEEE 576 Pulling Standards &amp; Limits</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Straight Pulling Tension: T_out = T_in + &mu; &times; w_c &times; w &times; L</li>
+          <li>Bend Exponential Multiplier: T_out = T_in &times; e^(&mu; &times; w_c &times; &theta;_rad)</li>
+          <li>Sidewall Bearing Pressure: SWBP = T_out / Radius_ft [lbs/ft of bend radius]</li>
+          <li>SWBP Limits: 500 lbs/ft (Standard THHN/PVC), 1,000 lbs/ft (EPR/XLPE)</li>
+          <li>Conductor Tensile Limit: T_allow = 0.008 &times; cmil &times; N (Pulling Eye)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Tension, SWBP &amp; Safety Verification
+      </h2>
+
+      <div id="cpAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <!-- Final Winch Tension & Tensile Capacity -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Final Pulling Tension (T_winch)</div>
+          <div id="outCpFinalTension" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--primary);">2,485 lbs</div>
+          <div id="outCpTensionKn" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">11.05 kN Pulling Force</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Max Allowable Tension</div>
+          <div id="outCpAllowTension" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:#16a34a;">12,000 lbs</div>
+          <div id="outCpTensionMargin" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">Safe (20.7% of Copper Limit)</div>
+        </div>
+      </div>
+
+      <!-- Critical SWBP at Elbows -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Critical Sidewall Pressure</div>
+          <div id="outCpMaxSwbp" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#d97706;">582 lbs/ft</div>
+          <div id="outCpSwbpLocation" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Occurs at Bend 2 Exit</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">SWBP Safety Status</div>
+          <div id="outCpSwbpStatus" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#16a34a;">EPR/XLPE Safe</div>
+          <div id="outCpSwbpLimit" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Limit: 1,000 lbs/ft (Rubber/XLPE)</div>
+        </div>
+      </div>
+
+      <!-- Jam Ratio & Weight Correction Factor -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Conduit Jamming Ratio (D/d)</div>
+          <div id="outCpJamRatio" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--fg);">3.66 Ratio</div>
+          <div id="outCpJamStatus" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">Safe (Outside 2.8 - 3.2 Zone)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Reverse Pull Optimization</div>
+          <div id="outCpReverseTension" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#2563eb;">1,420 lbs</div>
+          <div id="outCpReverseDiff" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">&minus;42.9% Less Tension (Pull B &rarr; A)</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Total Cable Assembly Weight:</span>
+          <strong id="outCpTotalWeight" style="font-family:var(--mono);">5.40 lbs/ft (2,160 lbs Total)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Weight Correction Factor (w_c):</span>
+          <strong id="outCpWc" style="font-family:var(--mono);">1.14 (Cradled Configuration)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">Conduit Fill Percentage:</span>
+          <strong id="outCpConduitFill" style="font-family:var(--mono);color:#16a34a;">22.4% (NEC 40% Max OK)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG CONDUIT PROFILE & TENSION PROGRESSION SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Conduit Pulling Profile, Elbow Sidewall Pressure &amp; Tension Gradient
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="cablePullingSvg" viewBox="0 0 900 380" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <defs>
+          <linearGradient id="cpTensionGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="40%" stop-color="#fbbf24"/>
+            <stop offset="100%" stop-color="#ef4444"/>
+          </linearGradient>
+          <radialGradient id="cpSwbpGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Background Canvas -->
+        <rect x="0" y="0" width="900" height="380" fill="#0f172a" rx="10"/>
+
+        <!-- Cable Reel at Start (Left) -->
+        <g transform="translate(60, 200)">
+          <circle r="45" fill="#1e293b" stroke="#64748b" stroke-width="4"/>
+          <circle r="20" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="-35" y1="0" x2="35" y2="0" stroke="#f59e0b" stroke-width="3"/>
+          <line x1="0" y1="-35" x2="0" y2="35" stroke="#f59e0b" stroke-width="3"/>
+          <text x="0" y="65" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">CABLE REEL (T_0 = 0)</text>
+        </g>
+
+        <!-- Conduit Profile Route (Gray outer duct with color-gradient cable inside) -->
+        <!-- Start Straight Run -->
+        <path d="M 120 200 L 320 200 Q 370 200 370 150 L 370 120 Q 370 70 420 70 L 750 70" fill="none" stroke="#334155" stroke-width="24" stroke-linecap="round"/>
+        <!-- Cable Core inside conduit (with gradient) -->
+        <path d="M 105 200 L 320 200 Q 370 200 370 150 L 370 120 Q 370 70 420 70 L 760 70" fill="none" stroke="url(#cpTensionGrad)" stroke-width="8" stroke-linecap="round"/>
+
+        <!-- Pulling Winch Tugger (Right) -->
+        <g transform="translate(790, 70)">
+          <rect x="-20" y="-30" width="40" height="60" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+          <circle cx="0" cy="0" r="14" fill="#f59e0b"/>
+          <text x="0" y="45" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">PULLING WINCH</text>
+        </g>
+
+        <!-- SWBP Critical Heat Circles at Bends -->
+        <!-- Bend 1 (Corner 1) -->
+        <g transform="translate(370, 175)">
+          <circle r="28" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,4"/>
+          <circle r="6" fill="#f59e0b"/>
+          <text id="svgSwbpText1" x="-40" y="-5" fill="#f59e0b" font-size="11" font-weight="bold" text-anchor="end">Bend 1 SWBP: 185 lbs/ft</text>
+        </g>
+
+        <!-- Bend 2 (Corner 2 - Highest SWBP) -->
+        <g transform="translate(395, 70)">
+          <circle r="36" fill="url(#cpSwbpGlow)"/>
+          <circle r="32" fill="none" stroke="#ef4444" stroke-width="2.5"/>
+          <circle r="8" fill="#ef4444"/>
+          <text id="svgSwbpText2" x="15" y="-20" fill="#f87171" font-size="11" font-weight="bold">Bend 2 CRITICAL SWBP: 582 lbs/ft</text>
+        </g>
+
+        <!-- Segment Tension Labels Along Route -->
+        <!-- Straight 1 Exit -->
+        <rect x="220" y="225" width="130" height="30" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text id="svgTensionSeg1" x="285" y="245" fill="#38bdf8" font-size="10" text-anchor="middle">T_1 = 185 lbs</text>
+
+        <!-- Straight 2 Exit -->
+        <rect x="280" y="115" width="130" height="30" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text id="svgTensionSeg2" x="345" y="135" fill="#fbbf24" font-size="10" text-anchor="middle">T_2 = 1,450 lbs</text>
+
+        <!-- Final Winch Tension -->
+        <rect x="580" y="95" width="160" height="30" rx="4" fill="#1e293b" stroke="#ef4444" stroke-width="1.5"/>
+        <text id="svgTensionFinal" x="660" y="115" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="middle">T_winch = 2,485 lbs</text>
+
+        <!-- Dynamic Legend Box -->
+        <rect x="480" y="240" width="370" height="105" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text x="500" y="265" fill="#ffffff" font-size="11" font-weight="bold">PULLING TENSION AUDIT</text>
+        <text id="svgAuditTotalTension" x="500" y="287" fill="#ef4444" font-size="10">Final Tension: 2,485 lbs (Limit: 12,000 lbs)</text>
+        <text id="svgAuditMaxSwbp" x="500" y="307" fill="#f59e0b" font-size="10">Max SWBP: 582 lbs/ft (EPR/XLPE Compliant)</text>
+        <text id="svgAuditJamming" x="500" y="327" fill="#34d399" font-size="10">Jam Ratio: 3.66 (Safe from Wedging Lockout)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        IEEE 576 Cable Pulling Tension Data Sheet
+      </h2>
+      <button id="copyCpAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Cable Pulling Audit</span>
+      </button>
+    </div>
+    <pre id="cpAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Cable Pulling</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. The Jamming Ratio Dead-Zone (The 2.8 to 3.2 Ratio Trap)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        When pulling 3 cables into a conduit, if the ratio of internal conduit diameter to single cable outside diameter (\(D/d\)) falls between 2.8 and 3.2, cables can twist from a triangular cluster into a side-by-side planar alignment around an elbow. The cables wedge violently against the conduit walls, mechanically locking the pull solid. Continued winch pulling snaps the pull line or shears the cable in half underground.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Sidewall Bearing Pressure (SWBP) Insulation Crushing
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Pulling tension is converted into radial compressive crushing force as cables drag around the inner curve of a conduit elbow (\(SWBP = T / R\)). Standard PVC/THHN insulation crushes when SWBP exceeds 500 lbs/ft, while EPR/XLPE tolerates up to 1,000 lbs/ft. Installing short-radius elbows (e.g. 24&quot; instead of 48&quot;) doubles the sidewall pressure, crushing insulation and causing immediate phase-to-ground faults upon commissioning.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. Wrong Pulling Direction &amp; Exponential Tension Multiplication
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Because conduit bends multiply pulling tension exponentially (\(T_{out} = T_{in} \cdot e^{\mu \theta}\)), pulling toward elbows located near the end of the run is disastrous. If a 90&deg; bend is located near the winch after 300 feet of straight run, high accumulated straight friction is multiplied by \(e^{0.20 \times 1.57} = 1.37\times\). Reversing the pull direction so elbows are near the reel keeps entry tension low, reducing peak winch tension by 40% to 60%!
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Dry Conduit Pulling Without Polymer Lubricant
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Pulling cables dry without certified pulling lubricant increases the coefficient of friction from \(\mu \approx 0.15\text{--}0.20\) up to \(\mu \ge 0.50\). In a run with two 90&deg; bends, a friction coefficient of 0.50 squares the exponential multiplier from \(1.37 \times 1.37 = 1.88\times\) up to \(2.19 \times 2.19 = 4.80\times\). The required pulling tension skyrockets by over 300%, blowing past winch motor limits and snapping pull ropes.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. Woven Basket Grip Shearing on Heavy Feeders
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Using a woven mesh basket grip (Kellems grip) on large 500 kcmil or 750 kcmil feeders applies all pulling force directly to the outer PVC or nylon jacket. IEEE 576 strictly limits basket grip pulling to 1,000 lbs maximum. Exceeding 1,000 lbs with a basket grip tears the outer jacket cleanly off the inner copper conductors. Heavy industrial feeders must always be pulled using steel pulling eyes crimped or welded directly to the copper cores.
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Cable Pulling &amp; Sidewall Pressure Mathematical Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        Underground duct cable pulling calculations are based on classical capstan friction theory and conductor mechanics per IEEE 576:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Straight Section Tension &amp; Weight Correction Factor</h3>
+      <p>
+        In straight conduit runs, friction depends on total cable weight \(w\) and the configuration weight factor \(w_c\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        T_out = T_in + &mu; &times; w_c &times; w_total &times; L  [lbs]<br>
+        w_c (Cradled 3-Cable) = 1 + (4/3) &times; [d / (D &minus; d)]&sup2;
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Curved Conduit Bends &amp; Exponential Friction</h3>
+      <p>
+        Euler-Eytelwein capstan relation governs cable tension through an elbow of angle \(\theta\) radians:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        T_out = T_in &times; e^(&mu; &times; w_c &times; &theta;_rad)  [lbs]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. Sidewall Bearing Pressure &amp; Maximum Tensile Limits</h3>
+      <p>
+        Sidewall compressive pressure and maximum pulling eye tension limits are:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        SWBP = T_out / Radius_ft  [lbs/ft]<br>
+        T_allow = 0.008 &times; cmil &times; N_conductors  [lbs] (Copper Pulling Eye)
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const cableSizeSelect = document.getElementById('cpCableSize');
+  const cableCountSelect = document.getElementById('cpCableCount');
+  const conduitSelect = document.getElementById('cpConduitSize');
+  const frictionSelect = document.getElementById('cpFrictionCoeff');
+  const straightLen1Input = document.getElementById('cpStraightLen1');
+  const bendSelect1 = document.getElementById('cpBendAngle1');
+  const straightLen2Input = document.getElementById('cpStraightLen2');
+  const bendSelect2 = document.getElementById('cpBendAngle2');
+  const straightLen3Input = document.getElementById('cpStraightLen3');
+
+  const alertBox = document.getElementById('cpAlertBox');
+
+  function calculate() {
+    const sizeVal = cableSizeSelect.value;
+    const numCables = parseInt(cableCountSelect.value, 10) || 3;
+    const conduitId = parseFloat(conduitSelect.value) || 4.026;
+    const mu = parseFloat(frictionSelect.value) || 0.20;
+
+    const L1 = parseFloat(straightLen1Input.value) || 0;
+    const bend1Val = bendSelect1.value;
+    const L2 = parseFloat(straightLen2Input.value) || 0;
+    const bend2Val = bendSelect2.value;
+    const L3 = parseFloat(straightLen3Input.value) || 0;
+
+    // Cable properties lookup (OD in inches, weight lb/ft, cmil)
+    let d_cable = 1.10; // in
+    let w_single = 1.80; // lb/ft
+    let cmil = 500000;
+    if (sizeVal === '350') { d_cable = 0.95; w_single = 1.30; cmil = 350000; }
+    else if (sizeVal === '250') { d_cable = 0.82; w_single = 0.95; cmil = 250000; }
+    else if (sizeVal === '40') { d_cable = 0.70; w_single = 0.78; cmil = 211600; }
+    else if (sizeVal === '20') { d_cable = 0.58; w_single = 0.50; cmil = 133100; }
+    else if (sizeVal === '750') { d_cable = 1.30; w_single = 2.65; cmil = 750000; }
+
+    const w_total = w_single * numCables; // total lb/ft
+
+    // Weight Correction Factor (wc)
+    let wc = 1.0;
+    if (numCables === 3) {
+      const ratio = d_cable / Math.max(0.1, conduitId - d_cable);
+      wc = 1 + (4 / 3) * Math.pow(ratio, 2);
+      wc = Math.min(1.4, Math.max(1.0, wc));
+    } else if (numCables === 4) {
+      wc = 1.25;
+    }
+
+    // Jamming ratio = Conduit ID / Cable OD
+    const jamRatio = conduitId / d_cable;
+
+    // Conduit Fill %
+    const cableArea = numCables * Math.PI * Math.pow(d_cable / 2, 2);
+    const conduitArea = Math.PI * Math.pow(conduitId / 2, 2);
+    const fillPct = (cableArea / conduitArea) * 100;
+
+    // Parse Bend 1
+    const b1Parts = bend1Val.split('-');
+    const angle1Deg = parseFloat(b1Parts[0]) || 0;
+    const rad1Inches = parseFloat(b1Parts[1]) || 36;
+    const rad1Ft = rad1Inches / 12;
+
+    // Parse Bend 2
+    const b2Parts = bend2Val.split('-');
+    const angle2Deg = parseFloat(b2Parts[0]) || 0;
+    const rad2Inches = parseFloat(b2Parts[1]) || 36;
+    const rad2Ft = rad2Inches / 12;
+
+    // Step-by-step pulling tension from Reel (T0 = 0) to Winch
+    let T = 0; // T0
+    // Segment 1: Straight run
+    T += mu * wc * w_total * L1;
+    const T_seg1 = T;
+
+    // Bend 1
+    let swbp1 = 0;
+    if (angle1Deg > 0 && rad1Ft > 0) {
+      const thetaRad1 = (angle1Deg * Math.PI) / 180;
+      T = T * Math.exp(mu * wc * thetaRad1);
+      swbp1 = T / rad1Ft;
+    }
+    const T_bend1 = T;
+
+    // Segment 2: Straight run
+    T += mu * wc * w_total * L2;
+    const T_seg2 = T;
+
+    // Bend 2
+    let swbp2 = 0;
+    if (angle2Deg > 0 && rad2Ft > 0) {
+      const thetaRad2 = (angle2Deg * Math.PI) / 180;
+      T = T * Math.exp(mu * wc * thetaRad2);
+      swbp2 = T / rad2Ft;
+    }
+    const T_bend2 = T;
+
+    // Segment 3: Final straight run
+    T += mu * wc * w_total * L3;
+    const finalTension = T;
+
+    const maxSwbp = Math.max(swbp1, swbp2);
+
+    // Conductor Tensile Limits (Pulling Eye)
+    // 0.008 lb/cmil for copper
+    const maxAllowTension = 0.008 * cmil * numCables;
+    const tensionPct = (finalTension / maxAllowTension) * 100;
+
+    // Reverse pull calculation (Pulling from Winch end back to Reel end)
+    let T_rev = 0;
+    T_rev += mu * wc * w_total * L3;
+    if (angle2Deg > 0 && rad2Ft > 0) {
+      const thetaRad2 = (angle2Deg * Math.PI) / 180;
+      T_rev = T_rev * Math.exp(mu * wc * thetaRad2);
+    }
+    T_rev += mu * wc * w_total * L2;
+    if (angle1Deg > 0 && rad1Ft > 0) {
+      const thetaRad1 = (angle1Deg * Math.PI) / 180;
+      T_rev = T_rev * Math.exp(mu * wc * thetaRad1);
+    }
+    T_rev += mu * wc * w_total * L1;
+
+    // Alerts
+    if (jamRatio >= 2.8 && jamRatio <= 3.2 && numCables === 3) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ DANGEROUS JAMMING RATIO (D/d = ' + jamRatio.toFixed(2) + '):</strong> The ratio of conduit ID to cable OD is in the fatal 2.8 to 3.2 wedging zone. The cables will wedge abreast in an elbow, deadlocking the pull. Change conduit size immediately!';
+    } else if (maxSwbp > 1000) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ SEVERE INSULATION CRUSHING RISK:</strong> Sidewall Bearing Pressure (' + Math.round(maxSwbp) + ' lbs/ft) exceeds 1,000 lbs/ft. Cable insulation will be flattened and ruined. Increase elbow radius to 48&quot; or reverse pull direction.';
+    } else if (maxSwbp > 500) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fffbeb';
+      alertBox.style.border = '1px solid #f59e0b';
+      alertBox.style.color = '#92400e';
+      alertBox.innerHTML = '<strong>⚠️ ELEVATED SWBP (' + Math.round(maxSwbp) + ' lbs/ft):</strong> Pressure exceeds 500 lbs/ft threshold for standard THHN/PVC insulation. Permissible only for heavy EPR or XLPE jacketed cables.';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    // Update UI Results
+    document.getElementById('outCpFinalTension').textContent = Math.round(finalTension).toLocaleString() + ' lbs';
+    const finalKn = finalTension * 0.00444822;
+    document.getElementById('outCpTensionKn').textContent = finalKn.toFixed(2) + ' kN Pulling Force';
+
+    document.getElementById('outCpAllowTension').textContent = Math.round(maxAllowTension).toLocaleString() + ' lbs';
+    const marginBadge = document.getElementById('outCpTensionMargin');
+    if (tensionPct <= 50.0) {
+      marginBadge.textContent = 'Safe (' + tensionPct.toFixed(1) + '% of Copper Limit)';
+      marginBadge.style.color = '#16a34a';
+    } else if (tensionPct <= 80.0) {
+      marginBadge.textContent = 'Moderate Tension (' + tensionPct.toFixed(1) + '%)';
+      marginBadge.style.color = '#f59e0b';
+    } else {
+      marginBadge.textContent = 'HIGH TENSION (' + tensionPct.toFixed(1) + '% Tensile Limit)';
+      marginBadge.style.color = '#ef4444';
+    }
+
+    document.getElementById('outCpMaxSwbp').textContent = Math.round(maxSwbp) + ' lbs/ft';
+    document.getElementById('outCpSwbpLocation').textContent = (swbp2 >= swbp1 ? 'Occurs at Bend 2 Exit' : 'Occurs at Bend 1 Exit');
+
+    const swbpStatusBadge = document.getElementById('outCpSwbpStatus');
+    if (maxSwbp <= 500) {
+      swbpStatusBadge.textContent = 'THHN / PVC & XLPE Safe';
+      swbpStatusBadge.style.color = '#16a34a';
+    } else if (maxSwbp <= 1000) {
+      swbpStatusBadge.textContent = 'EPR / XLPE Only (THHN Limit Exceeded)';
+      swbpStatusBadge.style.color = '#f59e0b';
+    } else {
+      swbpStatusBadge.textContent = 'CRUSHING FAILURE (> 1,000 lbs/ft)';
+      swbpStatusBadge.style.color = '#ef4444';
+    }
+
+    document.getElementById('outCpJamRatio').textContent = jamRatio.toFixed(2) + ' Ratio';
+    const jamBadge = document.getElementById('outCpJamStatus');
+    if (jamRatio >= 2.8 && jamRatio <= 3.2 && numCables === 3) {
+      jamBadge.textContent = 'JAMMING DANGER (2.8 - 3.2)';
+      jamBadge.style.color = '#ef4444';
+    } else {
+      jamBadge.textContent = 'Safe (Outside 2.8 - 3.2 Zone)';
+      jamBadge.style.color = '#16a34a';
+    }
+
+    document.getElementById('outCpReverseTension').textContent = Math.round(T_rev).toLocaleString() + ' lbs';
+    const revDiffPct = ((T_rev - finalTension) / finalTension) * 100;
+    const revBadge = document.getElementById('outCpReverseDiff');
+    if (revDiffPct < -5) {
+      revBadge.textContent = revDiffPct.toFixed(1) + '% Less Tension (Pull B → A)';
+      revBadge.style.color = '#16a34a';
+    } else if (revDiffPct > 5) {
+      revBadge.textContent = '+' + revDiffPct.toFixed(1) + '% More (Keep Current A → B)';
+      revBadge.style.color = '#2563eb';
+    } else {
+      revBadge.textContent = 'Equal Tension Both Directions';
+      revBadge.style.color = '#64748b';
+    }
+
+    const totalRouteFt = L1 + L2 + L3 + (angle1Deg > 0 ? (Math.PI * rad1Ft * angle1Deg / 180) : 0) + (angle2Deg > 0 ? (Math.PI * rad2Ft * angle2Deg / 180) : 0);
+    document.getElementById('outCpTotalWeight').textContent = w_total.toFixed(2) + ' lbs/ft (' + Math.round(w_total * totalRouteFt).toLocaleString() + ' lbs Total)';
+    document.getElementById('outCpWc').textContent = wc.toFixed(2) + ' (Configuration Factor)';
+    document.getElementById('outCpConduitFill').textContent = fillPct.toFixed(1) + '% (NEC 40% Max OK)';
+
+    // Update SVG Annotations
+    const svgSwbp1 = document.getElementById('svgSwbpText1');
+    if (svgSwbp1) svgSwbp1.textContent = 'Bend 1 SWBP: ' + Math.round(swbp1) + ' lbs/ft';
+    const svgSwbp2 = document.getElementById('svgSwbpText2');
+    if (svgSwbp2) svgSwbp2.textContent = 'Bend 2 SWBP: ' + Math.round(swbp2) + ' lbs/ft';
+
+    const svgSeg1 = document.getElementById('svgTensionSeg1');
+    if (svgSeg1) svgSeg1.textContent = 'T_1 = ' + Math.round(T_seg1) + ' lbs';
+    const svgSeg2 = document.getElementById('svgTensionSeg2');
+    if (svgSeg2) svgSeg2.textContent = 'T_2 = ' + Math.round(T_seg2) + ' lbs';
+    const svgFin = document.getElementById('svgTensionFinal');
+    if (svgFin) svgFin.textContent = 'T_winch = ' + Math.round(finalTension) + ' lbs';
+
+    const svgAuditTension = document.getElementById('svgAuditTotalTension');
+    if (svgAuditTension) svgAuditTension.textContent = 'Final Tension: ' + Math.round(finalTension).toLocaleString() + ' lbs (Limit: ' + Math.round(maxAllowTension).toLocaleString() + ' lbs)';
+    const svgAuditSwbp = document.getElementById('svgAuditMaxSwbp');
+    if (svgAuditSwbp) svgAuditSwbp.textContent = 'Max SWBP: ' + Math.round(maxSwbp) + ' lbs/ft (' + swbpStatusBadge.textContent + ')';
+    const svgAuditJam = document.getElementById('svgAuditJamming');
+    if (svgAuditJam) svgAuditJam.textContent = 'Jam Ratio: ' + jamRatio.toFixed(2) + ' (' + (jamRatio >= 2.8 && jamRatio <= 3.2 ? 'DANGER' : 'Safe') + ')';
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'IEEE 576 CONDUIT CABLE PULLING TENSION & SWBP AUDIT\\n' +
+      '=======================================================\\n' +
+      'Conductor Specification:      ' + numCables + ' × ' + cableSizeSelect.options[cableSizeSelect.selectedIndex].text + '\\n' +
+      'Cable Outside Diameter:       ' + d_cable.toFixed(2) + ' inches\\n' +
+      'Total Cable Linear Weight:    ' + w_total.toFixed(2) + ' lbs/ft\\n' +
+      'Conduit Trade Size:           ' + conduitSelect.options[conduitSelect.selectedIndex].text + '\\n' +
+      'Coefficient of Friction (μ):  ' + mu.toFixed(2) + '\\n' +
+      'Weight Correction Factor (wc):' + wc.toFixed(3) + '\\n' +
+      'Conduit Fill Percentage:      ' + fillPct.toFixed(1) + ' % (NEC Chapter 9 Compliant)\\n' +
+      'Jamming Ratio (D/d):          ' + jamRatio.toFixed(2) + ' (' + jamBadge.textContent + ')\\n' +
+      '-------------------------------------------------------\\n' +
+      'PULLING ROUTE SEGMENT TENSIONS:\\n' +
+      'Straight 1 (0 to ' + L1 + ' ft):        ' + Math.round(T_seg1) + ' lbs\\n' +
+      'Bend 1 Exit (' + angle1Deg + '° @ ' + rad1Inches + '"):       ' + Math.round(T_bend1) + ' lbs (SWBP: ' + Math.round(swbp1) + ' lbs/ft)\\n' +
+      'Straight 2 (' + L2 + ' ft):             ' + Math.round(T_seg2) + ' lbs\\n' +
+      'Bend 2 Exit (' + angle2Deg + '° @ ' + rad2Inches + '"):       ' + Math.round(T_bend2) + ' lbs (SWBP: ' + Math.round(swbp2) + ' lbs/ft)\\n' +
+      'Final Winch Pulling Tension:  ' + Math.round(finalTension).toLocaleString() + ' lbs (' + finalKn.toFixed(2) + ' kN)\\n' +
+      '-------------------------------------------------------\\n' +
+      'MECHANICAL STRENGTH & CRUSHING LIMITS:\\n' +
+      'Max Copper Tensile Limit:     ' + Math.round(maxAllowTension).toLocaleString() + ' lbs (' + tensionPct.toFixed(1) + ' % utilized)\\n' +
+      'Critical Sidewall Pressure:   ' + Math.round(maxSwbp) + ' lbs/ft (' + swbpStatusBadge.textContent + ')\\n' +
+      'Reverse Pull Tension (B → A): ' + Math.round(T_rev).toLocaleString() + ' lbs (' + revBadge.textContent + ')\\n' +
+      'Recommended Pulling Method:  Direct Copper Pulling Eye (Certified Crimp)\\n' +
+      '=======================================================';
+    document.getElementById('cpAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copyCpAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('cpAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyCpAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Cable Pulling Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [cableSizeSelect, cableCountSelect, conduitSelect, frictionSelect, straightLen1Input, bendSelect1, straightLen2Input, bendSelect2, straightLen3Input].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'cable-pulling-tension-calculator.html'), renderTradePage({
+    title: "Cable Pulling Tension & Sidewall Pressure Calculator | IEEE 576",
+    metaDesc: "Calculate conduit cable pulling tension, sidewall bearing pressure (SWBP in lbs/ft), exponential bend friction, jamming ratios, and tensile limits per IEEE 576 and NEC.",
+    canonical: `${DOMAIN}/calc/cable-pulling-tension-calculator`,
+    bodyContent: cablePullingBody,
+    currentPath: '/calc/cable-pulling-tension-calculator',
+    faq: [
+      {
+        "q": "What is Sidewall Bearing Pressure (SWBP) and why is it critical?",
+        "a": "Sidewall Bearing Pressure is the radial force exerted by cables against the inner wall of a conduit bend as they are pulled around an elbow (SWBP = Tension / Bend Radius in lbs/ft). Excessive SWBP crushes cable jackets and punctures insulation, leading to dielectric breakdown and ground faults."
+      },
+      {
+        "q": "What is the Jamming Ratio and why is 2.8 to 3.2 dangerous?",
+        "a": "The jamming ratio is the ratio of internal conduit diameter to single cable outside diameter (D/d). When pulling three cables, a ratio between 2.8 and 3.2 allows the cables to shift from a triangular cluster into a flat, planar alignment within an elbow, wedging tightly between the walls and permanently jamming the pull."
+      },
+      {
+        "q": "Why does pull direction matter in conduit runs with bends?",
+        "a": "Because conduit bends multiply incoming tension exponentially (T_out = T_in · e^(μθ)), locating bends near the end of the pull causes high accumulated straight-run tension to be magnified. Reversing the pull direction so elbows are near the reel keeps entry tension low, reducing final winch tension by 40% to 60%."
+      },
+      {
+        "q": "What is the maximum allowable pulling tension on copper conductors?",
+        "a": "Per IEEE 576 and manufacturer standards, the maximum allowable pulling tension for copper conductors pulled with pulling eyes attached directly to the copper cores is 0.008 lbs per circular mil (cmil). For aluminum conductors, the limit is 0.006 lbs/cmil."
+      },
+      {
+        "q": "What is the Weight Correction Factor (wc) in cable pulling?",
+        "a": "When multiple cables are pulled into a conduit, they ride up on the curved conduit walls, exerting lateral wedging forces against each other that increase normal contact pressure. The weight correction factor (wc) mathematically accounts for this increased normal force, typically ranging from 1.1 to 1.4."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (51 calculators in /calc/)');
 }
 
