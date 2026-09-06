@@ -177978,6 +177978,2362 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (275 calculators in /calc/)');
+  
+  // ─── TOOL CF1: GAS TURBINE INLET AIR FOGGING & EVAPORATIVE COOLING CALCULATOR ───
+  (() => {
+    const slug = 'gas-turbine-inlet-air-fogging-evaporative-cooling-calculator';
+    const title = 'Gas Turbine Inlet Air Fogging & Evaporative Cooling Calculator | Power Augmentation Engine';
+    const desc = 'Industrial Gas Turbine inlet air fogging and evaporative cooling power augmentation calculator. Size psychrometric wet-bulb depression, ambient temperature power boost (MW), heat rate improvement, demineralized water injection flow rate, and wet compression overspray limits.';
+
+    const faqs = [
+      {
+        q: 'Why does gas turbine electrical power output degrade significantly during hot summer weather?',
+        a: 'Gas turbines are constant-volumetric-flow machines; their axial compressors ingest a fixed volumetric intake of air on every revolution. As ambient summer air temperatures climb, air warms and expands, decreasing its density (at 35 deg C, ambient air is approximately 11% less dense than at 0 deg C). Because power output is directly proportional to the total mass flow rate of air compressed and expanded through the turbine, elevated ambient temperatures cause power output to drop by 0.6% to 0.9% for every 1 deg C rise above ISO rated conditions (15 deg C). During summer peak power demand hours, an uncooled gas turbine can lose 10% to 20% of its rated generating capacity.'
+      },
+      {
+        q: 'What is the difference between high-pressure inlet fogging and evaporative media cooling?',
+        a: 'Evaporative media cooling draws air through a porous cellulose or fiberglass wetted honeycomb matrix, typically achieving 85% to 90% evaporative saturation efficiency with a 0.5 to 1.0 inch water gauge parasitic air pressure drop. High-pressure inlet fogging atomizes demineralized water at 1,000 to 3,000 psi (70 to 200 bar) through micro-orifice swirl nozzles into billions of microscopic droplets (typically 10 to 20 microns in diameter). Fogging achieves 95% to 100% saturation efficiency with virtually zero aerodynamic pressure loss across the inlet duct, yielding 1% to 2% higher net power augmentation than media pads.'
+      },
+      {
+        q: 'What is overspray (wet compression) and how does it generate massive supplemental power?',
+        a: 'Overspray, or wet compression, injects more water mist than can evaporate in the inlet filter duct (typically 0.5% to 2.0% additional water by mass). The surplus microscopic droplets enter the compressor bellmouth and evaporate inside the first few stages of axial compression where air is heated by mechanical work. This provides intercooling inside the compressor, dramatically reducing the mechanical work needed to compress the gas. Wet compression increases net shaft power by an additional 5% to 12% above simple inlet saturation cooling, though it requires specialized compressor coatings to prevent blade erosion.'
+      },
+      {
+        q: 'What water purity specifications are required for gas turbine inlet fogging systems?',
+        a: 'Gas turbine inlet fogging mandates ultra-pure demineralized or reverse osmosis (RO) permeate water with total dissolved solids (TDS) under 5 ppm (frequently <1 ppm), silica under 0.02 ppm, and conductivity below 0.5 microSiemens/cm. Any mineral salts in the fog water do not evaporate; they deposit directly onto rotating axial compressor blades, creating rough crystalline scaling that destroys aerodynamic lift, chokes mass flow, and promotes stress corrosion cracking on high-tensile titanium and nickel alloy blades.'
+      },
+      {
+        q: 'How does inlet cooling affect the heat rate and combined-cycle steam production?',
+        a: 'By increasing mass flow and compressor density, inlet cooling improves gas turbine thermal efficiency, reducing the specific heat rate (heat rate decreases by 1.5% to 3.0% at full fogging saturation). In Combined Cycle Gas Turbine (CCGT) plants, total mass flow into the Heat Recovery Steam Generator (HRSG) increases, boosting high-pressure and reheat steam production from steam turbine generators. As a result, total combined-cycle plant output increases even more than the simple-cycle gas turbine alone.'
+      }
+    ];
+
+    const content = `<style>
+      .gt-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .gt-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .gt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .gt-group { margin-bottom: 16px; }
+      .gt-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .gt-group select, .gt-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .gt-group select:focus, .gt-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .gt-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-blue { background: #eff6ff; color: #1d4ed8; }
+      .gt-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .gt-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .gt-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .gt-res-sub { font-size: 0.8rem; color: #64748b; }
+      .gt-btn { background: #1d4ed8; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .gt-btn:hover { background: #1e40af; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="gt-wrap">
+      <div class="gt-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Gas Turbine Inlet Air Fogging & Evaporative Cooling Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Psychrometric wet-bulb cooling, mass flow recovery, power augmentation (MW), and demineralized fog injection sizing.</p>
+          </div>
+          <span class="gt-badge badge-blue">ASME Power & Turbomachinery</span>
+        </div>
+
+        <div class="gt-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Ambient Weather Conditions</h3>
+            <div class="gt-group">
+              <label for="gt_ambient_t">Ambient Dry-Bulb Temperature (deg C)</label>
+              <input type="number" id="gt_ambient_t" value="36" min="15" max="52" step="1">
+              <small style="color:#64748b;">Summer peak ambient air temp.</small>
+            </div>
+            <div class="gt-group">
+              <label for="gt_ambient_rh">Ambient Relative Humidity (% RH)</label>
+              <input type="number" id="gt_ambient_rh" value="32" min="5" max="95" step="1">
+              <small style="color:#64748b;">Lower humidity = larger wet-bulb depression.</small>
+            </div>
+            <div class="gt-group">
+              <label for="gt_site_elev">Site Elevation (meters MSL)</label>
+              <input type="number" id="gt_site_elev" value="150" min="0" max="3000" step="50">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Gas Turbine Specifications</h3>
+            <div class="gt-group">
+              <label for="gt_iso_mw">ISO Base Rated Power Output (MW)</label>
+              <input type="number" id="gt_iso_mw" value="180" min="10" max="600" step="5">
+              <small style="color:#64748b;">Rated at ISO 15 deg C, 60% RH, 101.3 kPa.</small>
+            </div>
+            <div class="gt-group">
+              <label for="gt_air_flow">Compressor Mass Flow at ISO (kg/s)</label>
+              <input type="number" id="gt_air_flow" value="520" min="30" max="1500" step="10">
+            </div>
+            <div class="gt-group">
+              <label for="gt_iso_hr">ISO Base Heat Rate (kJ/kWh)</label>
+              <input type="number" id="gt_iso_hr" value="9850" min="6500" max="14000" step="50">
+              <small style="color:#64748b;">E.g. 9,850 kJ/kWh (~36.5% LHV efficiency).</small>
+            </div>
+            <div class="gt-group">
+              <label for="gt_derate_rate">Derate Sensitivity (% Power / deg C)</label>
+              <input type="number" id="gt_derate_rate" value="0.75" min="0.50" max="1.10" step="0.05">
+              <small style="color:#64748b;">Heavy-frame: 0.65-0.80%; Aeroderivative: 0.85-1.1%.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Cooling Technology & Architecture</h3>
+            <div class="gt-group">
+              <label for="gt_cooling_tech">Inlet Cooling Architecture</label>
+              <select id="gt_cooling_tech">
+                <option value="fog_100" selected>High-Pressure Fogging (100% Saturation, 2000 psi)</option>
+                <option value="media_88">Evaporative Media Pad (88% Saturation Efficiency)</option>
+                <option value="overspray_1">High-Pressure Fogging + 1.0% Wet Compression Overspray</option>
+                <option value="overspray_15">High-Pressure Fogging + 1.5% Deep Wet Compression</option>
+              </select>
+            </div>
+            <div class="gt-group">
+              <label for="gt_elec_value">Peak Electricity Value ($/MWh)</label>
+              <input type="number" id="gt_elec_value" value="85" min="25" max="300" step="5">
+              <small style="color:#64748b;">On-peak summer capacity tariff.</small>
+            </div>
+            <div class="gt-group">
+              <label for="gt_pump_eff">HP Fog Pump Efficiency (%)</label>
+              <input type="number" id="gt_pump_eff" value="82" min="65" max="95" step="1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="gt-btn" id="gt_calc_btn">Compute Gas Turbine Inlet Cooling Augmentation</button>
+        </div>
+      </div>
+
+      <div class="gt-card" id="gt_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Power Augmentation & Thermodynamic Output</h2>
+          <button class="copy-btn" id="gt_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="gt_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="gt-res-grid">
+          <div class="gt-res-card">
+            <div class="gt-res-sub">Net Power Augmentation</div>
+            <div class="gt-res-val" id="res_power_gain">+0.0 MW</div>
+            <div class="gt-res-sub" id="res_power_gain_pct">+0.0% output boost</div>
+          </div>
+          <div class="gt-res-card">
+            <div class="gt-res-sub">Cooled Gas Turbine Output</div>
+            <div class="gt-res-val" id="res_total_mw">0.0 MW</div>
+            <div class="gt-res-sub" id="res_uncooled_mw">Uncooled: 0.0 MW</div>
+          </div>
+          <div class="gt-res-card">
+            <div class="gt-res-sub">Compressor Inlet Temperature</div>
+            <div class="gt-res-val" id="res_inlet_t">0.0 deg C</div>
+            <div class="gt-res-sub" id="res_temp_drop">Drop: -0.0 deg C (Twb: 0.0C)</div>
+          </div>
+          <div class="gt-res-card">
+            <div class="gt-res-sub">Demin Water Injection Flow</div>
+            <div class="gt-res-val" id="res_water_flow">0 m3/h</div>
+            <div class="gt-res-sub" id="res_water_gpm">0 GPM @ 140 bar</div>
+          </div>
+          <div class="gt-res-card">
+            <div class="gt-res-sub">Heat Rate Improvement</div>
+            <div class="gt-res-val" id="res_heat_rate_imp">-0 kJ/kWh</div>
+            <div class="gt-res-sub" id="res_heat_rate_pct">0.0% efficiency boost</div>
+          </div>
+          <div class="gt-res-card">
+            <div class="gt-res-sub">Peak Revenue Potential</div>
+            <div class="gt-res-val" id="res_hourly_rev">$0 / hr</div>
+            <div class="gt-res-sub" id="res_daily_rev">$0 / day (8 peak hrs)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Turbomachinery & Pumping Balance</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Compressor Air Mass Flow Gain: <strong id="res_air_flow_gain">+0.0 kg/s</strong></div>
+            <div>High-Pressure Pump Power Parasitic: <strong id="res_pump_kw">0 kW</strong></div>
+            <div>Effective Air Density: <strong id="res_air_density">0.000 kg/m3</strong></div>
+            <div>Wet-Bulb Depression Available: <strong id="res_wb_depression">0.0 deg C</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Gas Turbine Inlet Filter House & High-Pressure Fogging Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Ambient air entering weather louvers, high-pressure 10-micron fog nozzle array, rapid evaporative flash cooling zone, compressor bellmouth, and turbine power train.</p>
+          <div class="anim-box">
+            <canvas id="gt_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="gt-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Compressor Bellmouth Icing & Catastrophic Blade Ingestion</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">As air accelerates through the inlet bellmouth into the first-stage compressor blades, Mach number increases, causing static air temperature to drop by 4 to 8 deg C due to aerodynamic static pressure expansion. If fogging or evaporative cooling is activated when ambient dry-bulb temperatures drop below 10 deg C to 12 deg C, static temperatures inside the inlet plunge below 0 deg C. Supercooled moisture freezes instantly into thick ice sheets on inlet guide vanes (IGVs), breaking loose as massive ice chunks that destroy rotating titanium compressor blades.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Sub-Micron Mineral Deposition & High-Temperature Blade Pitting</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Using municipal potable water or improperly polished demineralized water (TDS > 5 ppm) introduces calcium, sodium, and silica. In a 500 kg/s turbine running 25 m3/h of fog water, 10 ppm TDS injects 250 grams of abrasive salts per hour. Salt crumbles into crystalline sandpaper on compressor blades, eroding aerodynamic foils. Downstream in the 1300 deg C hot gas path, sodium and potassium react with sulfur to form molten alkali sulfates that strip thermal barrier coatings (TBC), destroying turbine blades within hundreds of operating hours.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Duct Water Puddling & Uncontrolled Liquid Slug Ingestion</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Fogging systems spray thousands of liters of water into high-velocity intake ducts. If spray manifolds lack automated multi-stage drain troughs or if drain traps become clogged with dust, unevaporated water coalesces on duct floors into standing pools. During rapid gas turbine load ramps, surging airflow scoops up water puddles as sudden multi-gallon liquid slugs. Water striking rotating compressor blades running at 3,600 RPM causes severe hydrodynamic impact damage and trips the unit on high vibration.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Droplet Coalescence & Wet Compression Leading-Edge Erosion</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">While 10 to 15 micron droplets evaporate benignly or pass through blades without damage, droplets larger than 30 to 40 microns possess sufficient inertia to penetrate the aerodynamic boundary layer and collide with blade leading edges. If fog nozzles wear or lose high pressure (falling below 1000 psi / 70 bar), atomization deteriorates into coarse droplets. In wet compression overspray service, coarse water droplets act as ball bearings traveling at 400 m/s, scalloping and thinning the leading edges of stage 1 and 2 compressor blades.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Compressor Surge Margin Degradation on Fast Trip</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Inlet cooling shifts the compressor operating line toward the surge limit by densifying air and increasing pressure ratio across intermediate stages. If the fogging high-pressure pumps are suddenly tripped offline instantly without modulating IGVs and fuel gas flow simultaneously, the compressor experiences an abrupt thermal and density shock. Axial airflow stalls instantaneously, plunging the machine into violent rotating stall or destructive full-body surge cycles.</p>
+        </div>
+      </div>
+
+      <div class="gt-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Psychrometric & Gas Turbine Power Augmentation Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>ambient wet-bulb temperature ($T_{wb}$)</strong> is accurately calculated from dry-bulb temperature ($T$) and relative humidity ($RH$) using the <strong>Stull psychrometric empirical formula</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$T_{wb} = T \arctan(0.151977 \sqrt{RH + 8.313659}) + \arctan(T + RH) - \arctan(RH - 1.676331) + 0.00391838 (RH)^{3/2} \arctan(0.023101 RH) - 4.686035$$
+          </div>
+          <p>The <strong>effective cooled compressor inlet temperature ($T_{cooled}$)</strong> achieved by evaporative saturation efficiency ($eta_{evap}$) is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$T_{cooled} = T_{ambient} - \eta_{evap} \cdot (T_{ambient} - T_{wb})$$
+          </div>
+          <p>Where $eta_{evap} \approx 1.00$ for high-pressure fogging and $\approx 0.88$ for evaporative media pads.</p>
+          <p>The <strong>Net Gas Turbine Power Augmentation ($Delta P$)</strong> and required demineralized water flow ($dot{m}_w$) are:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\Delta P = P_{ISO} \cdot \left[ 1 - \alpha_T (T_{ambient} - 15) \right]_{gain} + \Delta P_{overspray}, \qquad \dot{m}_w = \dot{m}_{air} \cdot (w_{sat} - w_{amb}) + \dot{m}_{overspray}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var ambientTInput = document.getElementById('gt_ambient_t');
+        var ambientRhInput = document.getElementById('gt_ambient_rh');
+        var siteElevInput = document.getElementById('gt_site_elev');
+        var isoMwInput = document.getElementById('gt_iso_mw');
+        var airFlowInput = document.getElementById('gt_air_flow');
+        var isoHrInput = document.getElementById('gt_iso_hr');
+        var derateRateInput = document.getElementById('gt_derate_rate');
+        var coolingTechSel = document.getElementById('gt_cooling_tech');
+        var elecValueInput = document.getElementById('gt_elec_value');
+        var pumpEffInput = document.getElementById('gt_pump_eff');
+        var calcBtn = document.getElementById('gt_calc_btn');
+        var copyBtn = document.getElementById('gt_copy_btn');
+        var copyMsg = document.getElementById('gt_copy_msg');
+
+        var resPowerGain = document.getElementById('res_power_gain');
+        var resPowerGainPct = document.getElementById('res_power_gain_pct');
+        var resTotalMw = document.getElementById('res_total_mw');
+        var resUncooledMw = document.getElementById('res_uncooled_mw');
+        var resInletT = document.getElementById('res_inlet_t');
+        var resTempDrop = document.getElementById('res_temp_drop');
+        var resWaterFlow = document.getElementById('res_water_flow');
+        var resWaterGpm = document.getElementById('res_water_gpm');
+        var resHeatRateImp = document.getElementById('res_heat_rate_imp');
+        var resHeatRatePct = document.getElementById('res_heat_rate_pct');
+        var resHourlyRev = document.getElementById('res_hourly_rev');
+        var resDailyRev = document.getElementById('res_daily_rev');
+
+        var resAirFlowGain = document.getElementById('res_air_flow_gain');
+        var resPumpKw = document.getElementById('res_pump_kw');
+        var resAirDensity = document.getElementById('res_air_density');
+        var resWbDepression = document.getElementById('res_wb_depression');
+
+        var canvas = document.getElementById('gt_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // Psychrometric Stull Formula for Wet-Bulb Temperature (deg C)
+        function calcWetBulb(T, RH) {
+          var tw = T * Math.atan(0.151977 * Math.sqrt(RH + 8.313659)) +
+                   Math.atan(T + RH) -
+                   Math.atan(RH - 1.676331) +
+                   0.00391838 * Math.pow(RH, 1.5) * Math.atan(0.023101 * RH) -
+                   4.686035;
+          return tw;
+        }
+
+        // Approximate saturation humidity ratio (kg water / kg dry air) at 101.3 kPa
+        function calcSatHumidityRatio(T_C, P_kPa) {
+          // Tetens formula for saturation vapor pressure P_sat (kPa)
+          var pSat = 0.61078 * Math.exp((17.27 * T_C) / (T_C + 237.3));
+          if (pSat >= P_kPa) pSat = P_kPa * 0.95;
+          return 0.622 * (pSat / (P_kPa - pSat));
+        }
+
+        function calculate() {
+          var tAmb = parseFloat(ambientTInput.value) || 36;
+          var rhAmb = parseFloat(ambientRhInput.value) || 32;
+          var elevM = parseFloat(siteElevInput.value) || 150;
+          var isoMw = parseFloat(isoMwInput.value) || 180;
+          var airFlowIso = parseFloat(airFlowInput.value) || 520; // kg/s
+          var isoHr = parseFloat(isoHrInput.value) || 9850; // kJ/kWh
+          var deratePctPerC = (parseFloat(derateRateInput.value) || 0.75) / 100;
+          var tech = coolingTechSel.value;
+          var elecTariff = parseFloat(elecValueInput.value) || 85; // $/MWh
+          var pumpEff = (parseFloat(pumpEffInput.value) || 82) / 100;
+
+          // Site barometric pressure (barometric formula, kPa)
+          var pSiteKPa = 101.325 * Math.pow(1 - (2.25577e-5 * elevM), 5.25588);
+
+          // 1. Wet-Bulb Temperature & Depression
+          var tWb = calcWetBulb(tAmb, rhAmb);
+          var wbDepression = Math.max(0, tAmb - tWb);
+
+          // 2. Cooled Temperature based on Technology
+          var etaEvap = 1.00; // High-pressure fogging
+          var oversprayFraction = 0.0;
+          if (tech === 'media_88') {
+            etaEvap = 0.88;
+          } else if (tech === 'overspray_1') {
+            etaEvap = 1.00;
+            oversprayFraction = 0.010; // 1% overspray
+          } else if (tech === 'overspray_15') {
+            etaEvap = 1.00;
+            oversprayFraction = 0.015; // 1.5% overspray
+          }
+
+          var tCooled = tAmb - (etaEvap * wbDepression);
+          var actualDeltaT = tAmb - tCooled;
+
+          // 3. Uncooled Power at Ambient Condition
+          // ISO condition is 15 deg C.
+          var deltaTIsoAmb = tAmb - 15;
+          var uncooledPowerMw = isoMw * (1.0 - (deratePctPerC * deltaTIsoAmb));
+
+          // 4. Cooled Power & Augmentation
+          // Basic evaporative gain from recovered mass flow
+          var evaporativePowerGainMw = isoMw * deratePctPerC * actualDeltaT;
+
+          // Supplemental gain from wet compression overspray (approx 3.5 MW per 1% overspray on 100 MW machine)
+          var oversprayPowerGainMw = isoMw * (oversprayFraction * 3.2);
+
+          var grossPowerGainMw = evaporativePowerGainMw + oversprayPowerGainMw;
+
+          // 5. Water Flow Rate Calculation
+          var wAmb = rhAmb / 100.0 * calcSatHumidityRatio(tAmb, pSiteKPa);
+          var wSat = calcSatHumidityRatio(tCooled, pSiteKPa);
+          var deltaW = Math.max(0, wSat - wAmb);
+
+          // Air mass flow at cooled temp (increases with density)
+          var densityRatio = (tAmb + 273.15) / (tCooled + 273.15);
+          var actualAirFlowKgS = airFlowIso * Math.pow(densityRatio, 0.7);
+          var airFlowGainKgS = actualAirFlowKgS - (airFlowIso * Math.pow((15 + 273.15) / (tAmb + 273.15), 0.7));
+
+          // Evaporated water mass flow (kg/s)
+          var evapWaterKgS = actualAirFlowKgS * deltaW;
+          var oversprayWaterKgS = actualAirFlowKgS * oversprayFraction;
+          var totalWaterKgS = evapWaterKgS + oversprayWaterKgS;
+
+          var waterFlowM3H = (totalWaterKgS * 3600) / 1000;
+          var waterFlowGpm = waterFlowM3H * 4.40287;
+
+          // 6. High-Pressure Pump Parasitic Power
+          // P_pump (kW) = Q (m3/s) * deltaP (kPa) / pumpEff
+          // Fogging pressure = 140 bar = 14,000 kPa
+          var pFogKPa = 14000;
+          var pumpPowerKw = ((totalWaterKgS / 1000) * pFogKPa) / pumpEff;
+          var pumpPowerMw = pumpPowerKw / 1000;
+
+          // Net Power Output
+          var netPowerGainMw = grossPowerGainMw - pumpPowerMw;
+          var netCooledPowerMw = uncooledPowerMw + netPowerGainMw;
+          var pctPowerGain = (netPowerGainMw / uncooledPowerMw) * 100;
+
+          // 7. Heat Rate Improvement
+          // Decreases by ~0.15% per deg C of cooling
+          var hrImprovementPct = actualDeltaT * 0.18 + (oversprayFraction * 100 * 0.8);
+          var hrDeltaKj = isoHr * (hrImprovementPct / 100);
+
+          // 8. Economics
+          var hourlyRevenue = netPowerGainMw * elecTariff;
+          var dailyRevenue = hourlyRevenue * 8; // 8 peak summer hours
+
+          // Air density (kg/m3) at inlet: P / (R * T)
+          var rSpecAir = 0.287; // kJ/(kg*K)
+          var airDensity = pSiteKPa / (rSpecAir * (tCooled + 273.15));
+
+          // Update UI
+          resPowerGain.innerText = '+' + netPowerGainMw.toFixed(2) + ' MW';
+          resPowerGainPct.innerText = '+' + pctPowerGain.toFixed(1) + '% output boost';
+          resTotalMw.innerText = netCooledPowerMw.toFixed(1) + ' MW';
+          resUncooledMw.innerText = 'Uncooled: ' + uncooledPowerMw.toFixed(1) + ' MW (@ ' + tAmb + 'C)';
+          resInletT.innerText = tCooled.toFixed(1) + ' deg C';
+          resTempDrop.innerText = 'Cooled by -' + actualDeltaT.toFixed(1) + ' deg C (Twb: ' + tWb.toFixed(1) + 'C)';
+          resWaterFlow.innerText = Math.round(waterFlowM3H) + ' m3/h';
+          resWaterGpm.innerText = Math.round(waterFlowGpm) + ' GPM Demin Water';
+          resHeatRateImp.innerText = '-' + Math.round(hrDeltaKj) + ' kJ/kWh';
+          resHeatRatePct.innerText = hrImprovementPct.toFixed(1) + '% thermal efficiency gain';
+          resHourlyRev.innerText = '$' + Math.round(hourlyRevenue).toLocaleString() + ' / hr';
+          resDailyRev.innerText = '$' + Math.round(dailyRevenue).toLocaleString() + ' / day (8 peak hrs)';
+
+          resAirFlowGain.innerText = '+' + airFlowGainKgS.toFixed(1) + ' kg/s';
+          resPumpKw.innerText = Math.round(pumpPowerKw) + ' kW (' + (pumpPowerMw).toFixed(2) + ' MW)';
+          resAirDensity.innerText = airDensity.toFixed(3) + ' kg/m3';
+          resWbDepression.innerText = wbDepression.toFixed(1) + ' deg C';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Gas Turbine Inlet Duct & Turbomachinery Cross-Section
+          // Left: Inlet Filter House & Weather Hood
+          var fX = 40, fY = 40, fW = 100, fH = 220;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#64748b'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.rect(fX, fY, fW, fH); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('INLET AIR', fX + fW/2, fY + 25);
+          ctx.fillText('FILTER HOUSE', fX + fW/2, fY + 40);
+          ctx.fillStyle = '#94a3b8'; ctx.font = '9px sans-serif';
+          ctx.fillText(ambientTInput.value + ' deg C | ' + ambientRhInput.value + '% RH', fX + fW/2, fY + 65);
+
+          // Fogging Nozzle Array / Atomization Manifold
+          var nX = fX + fW + 15;
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(nX, fY + 20); ctx.lineTo(nX, fY + fH - 20); ctx.stroke();
+
+          // Nozzle Tips & Animated High-Pressure Fog Jet Cones
+          for (var n = 0; n < 6; n++) {
+            var ny = fY + 35 + n * 30;
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(nX - 4, ny - 4, 8, 8);
+
+            // Spray Mist Fog
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
+            ctx.beginPath();
+            ctx.moveTo(nX + 4, ny);
+            ctx.lineTo(nX + 55, ny - 16);
+            ctx.lineTo(nX + 55, ny + 16);
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('HP FOG RACK', nX + 25, fY + 12);
+
+          // Evaporative Cooling Duct Zone (Transition Duct)
+          var dX = nX + 55;
+          var dW = 75;
+          ctx.fillStyle = 'rgba(2, 132, 199, 0.2)';
+          ctx.fillRect(dX, fY + 20, dW, fH - 40);
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif';
+          ctx.fillText('FLASH EVAP', dX + dW/2, fY + fH/2);
+          ctx.fillText('COOLING', dX + dW/2, fY + fH/2 + 15);
+
+          // Compressor Bellmouth & Axial Compressor
+          var cX = dX + dW;
+          var cW = 100;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          // Bellmouth flare converging into compressor
+          ctx.moveTo(cX, fY + 30);
+          ctx.lineTo(cX + 20, fY + 60);
+          ctx.lineTo(cX + cW, fY + 75);
+          ctx.lineTo(cX + cW, fY + fH - 75);
+          ctx.lineTo(cX + 20, fY + fH - 60);
+          ctx.lineTo(cX, fY + fH - 30);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('AXIAL', cX + cW/2 + 5, fY + fH/2 - 8);
+          ctx.fillText('COMPRESSOR', cX + cW/2 + 5, fY + fH/2 + 8);
+          ctx.fillStyle = '#38bdf8'; ctx.font = '9px sans-serif';
+          ctx.fillText(resInletT.innerText, cX + cW/2 + 5, fY + fH/2 + 25);
+
+          // Combustor & Turbine Section
+          var tX = cX + cW + 10;
+          var tW = 80;
+          ctx.fillStyle = '#451a03'; ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(tX, fY + 65, tW, fH - 130, 8); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('COMBUSTOR', tX + tW/2, fY + fH/2 - 6);
+          ctx.fillText('& TURBINE', tX + tW/2, fY + fH/2 + 10);
+
+          // Generator Block (Right)
+          var gX = tX + tW + 10;
+          var gW = 60;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(gX, fY + 70, gW, fH - 140, 6); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#10b981'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('GEN', gX + gW/2, fY + fH/2 - 6);
+          ctx.fillText(resTotalMw.innerText.split(' ')[0] + 'MW', gX + gW/2, fY + fH/2 + 10);
+
+          // Animated Flow Particles rushing into turbine
+          ctx.fillStyle = '#60a5fa';
+          for (var p = 0; p < 8; p++) {
+            var px = fX + ((animStep * 3 + p * 45) % (gX + gW - fX));
+            var py = fY + 70 + (p * 12);
+            ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Right: Comprehensive Technical Telemetry Dashboard
+          var rX = 520, rY = 35, rW = 520, rH = 290;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(rX, rY, rW, rH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('GAS TURBINE INLET COOLING POWER TELEMETRY', rX + 20, rY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Net Power Augmentation: ' + resPowerGain.innerText + ' (' + resPowerGainPct.innerText + ')', rX + 20, rY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Total Plant Output: ' + resTotalMw.innerText + ' (' + resUncooledMw.innerText + ')', rX + 20, rY + 76);
+          ctx.fillText('Compressor Inlet Temperature: ' + resInletT.innerText + ' (' + resTempDrop.innerText + ')', rX + 20, rY + 97);
+          ctx.fillText('Psychrometric Wet-Bulb Depression: ' + resWbDepression.innerText + ' Available', rX + 20, rY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Demineralized Fog Water Flow: ' + resWaterFlow.innerText + ' (' + resWaterGpm.innerText + ')', rX + 20, rY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('High-Pressure Pump Parasitic: ' + resPumpKw.innerText + ' @ 140 bar (2000 psi)', rX + 20, rY + 165);
+          ctx.fillText('Air Mass Flow Increase: ' + resAirFlowGain.innerText + ' | Density: ' + resAirDensity.innerText, rX + 20, rY + 186);
+          ctx.fillText('Specific Heat Rate Gain: ' + resHeatRateImp.innerText + ' (' + resHeatRatePct.innerText + ')', rX + 20, rY + 207);
+
+          ctx.fillStyle = '#10b981';
+          ctx.fillText('Summer Peak Revenue Gain: ' + resHourlyRev.innerText + ' (' + resDailyRev.innerText + ')', rX + 20, rY + 233);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Compressor Anti-Icing Safety: Margin > 4 deg C above freezing', rX + 20, rY + 256);
+          ctx.fillText('Standards: ASME Performance Test Code PTC 22 & ISO 3977-2 Turbines', rX + 20, rY + 276);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== GAS TURBINE INLET COOLING POWER REPORT ===',
+            'Ambient Weather: ' + ambientTInput.value + ' deg C, ' + ambientRhInput.value + '% RH (Twb: ' + resInletT.innerText + ')',
+            'ISO Base Rating: ' + isoMwInput.value + ' MW (Flow: ' + airFlowInput.value + ' kg/s)',
+            'Cooling Architecture: ' + coolingTechSel.options[coolingTechSel.selectedIndex].text,
+            'Compressor Inlet Temperature: ' + resInletT.innerText + ' (' + resTempDrop.innerText + ')',
+            'Net Power Augmentation: ' + resPowerGain.innerText + ' (' + resPowerGainPct.innerText + ')',
+            'Total Cooled Turbine Output: ' + resTotalMw.innerText + ' (vs ' + resUncooledMw.innerText + ')',
+            'Air Mass Flow Gain: ' + resAirFlowGain.innerText + ' (Density: ' + resAirDensity.innerText + ')',
+            'Demin Water Requirement: ' + resWaterFlow.innerText + ' (' + resWaterGpm.innerText + ')',
+            'HP Fog Pumping Parasitic: ' + resPumpKw.innerText,
+            'Heat Rate Improvement: ' + resHeatRateImp.innerText + ' (' + resHeatRatePct.innerText + ')',
+            'Peak Summer Revenue Value: ' + resHourlyRev.innerText + ' (' + resDailyRev.innerText + ')',
+            'Standards: ASME PTC 22 Gas Turbine Performance Code'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [ambientTInput, ambientRhInput, siteElevInput, isoMwInput, airFlowInput, isoHrInput, derateRateInput, coolingTechSel, elecValueInput, pumpEffInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CF2: AMINE GAS SWEETENING & ACID GAS REMOVAL (MDEA/MEA/DEA) SIZING CALCULATOR ───
+  (() => {
+    const slug = 'amine-gas-sweetening-acid-gas-removal-mdea-calculator';
+    const title = 'Amine Gas Sweetening & Acid Gas Removal Calculator | MDEA / MEA / DEA Contactor Engine';
+    const desc = 'Industrial Amine Gas Sweetening and acid gas removal sizing calculator. Size MDEA, MEA, and DEA circulation rates, rich/lean amine loading, absorber contactor column diameter, regenerator reboiler steam duty, and pipeline H2S/CO2 specifications.';
+
+    const faqs = [
+      {
+        q: 'What is the chemical difference between primary (MEA), secondary (DEA), and tertiary (MDEA) amines?',
+        a: 'Monoethanolamine (MEA) is a primary amine with the highest reaction kinetics and basicity; it reacts instantaneously and non-selectively with both H2S and CO2 to form stable carbamates, but suffers from high corrosive aggressiveness, limiting concentrations to 15-20 wt% and requiring massive regeneration reboiler heat (up to 4.5 MJ/kg acid gas). Diethanolamine (DEA) is a secondary amine used at 25-35 wt% with moderate heat requirements. Methyldiethanolamine (MDEA) is a tertiary amine lacking a hydrogen atom on the nitrogen; it cannot form carbamates with CO2, reacting with CO2 only through slow bicarbonate formation while reacting instantaneously with H2S by proton transfer. This kinetic disparity enables MDEA to selectively absorb H2S while slipping a large fraction of CO2, drastically lowering solvent circulation and regeneration steam.'
+      },
+      {
+        q: 'What is rich versus lean amine loading and what are safe metallurgical limits?',
+        a: 'Amine loading ($\\alpha$) is defined as moles of total acid gas (H2S + CO2) absorbed per mole of active amine in solution. Lean amine loading exiting the regenerator stripper typically ranges from 0.005 to 0.04 mol/mol. Rich amine loading leaving the bottom of the contactor must be carefully restricted based on metallurgy: for carbon steel piping and vessels, rich loading must never exceed 0.40 to 0.45 mol/mol for MDEA and 0.35 to 0.38 mol/mol for MEA. Exceeding these limits breaks down the protective iron sulfide (FeS) passivating film, inducing catastrophic flashing erosion-corrosion.'
+      },
+      {
+        q: 'What causes amine solvent foaming and how is it diagnosed in gas plants?',
+        a: 'Amine foaming is the rapid buildup of high-surface-tension foam inside the absorber contactor trays or packing. It is triggered by contaminants including: (1) condensed liquid hydrocarbons (heavy aromatics, BTEX, or retrograde condensates entering with feed gas), (2) suspended particulate iron sulfide (FeS) corrosion fines smaller than 5 microns, (3) chemical well-treating additives (corrosion inhibitors, methanol, glycol carryover), and (4) accumulation of degraded heat-stable amine salts (HSS). Foaming manifests as a sudden spike in contactor differential pressure ($dP$), rapid liquid level drops in the bottom sump, and severe amine carryover into the downstream sweet gas scrubber.'
+      },
+      {
+        q: 'How is the regeneration stripper reboiler heat duty determined?',
+        a: 'The regenerator reboiler duty comprises three primary thermal components: (1) Sensible heat required to heat rich amine from the cross-exchanger inlet temperature (~100 deg C) to reboiler boiling temperature (~120-125 deg C); (2) Endothermic heat of reaction/desorption required to break chemical amine-acid gas bonds (~1,200 to 1,900 kJ/kg of acid gas for MDEA, up to 2,000 kJ/kg for MEA); and (3) Latent heat of vaporization to generate stripping steam inside the tower packing (typically 0.8 to 1.5 moles of steam per mole of stripped acid gas to maintain equilibrium driving force).'
+      },
+      {
+        q: 'What are the pipeline and LNG specifications for sweet natural gas?',
+        a: 'Standard interstate natural gas transmission pipeline tariffs (such as FERC in the US) mandate maximum H2S content of 4 ppmv (0.25 grains/100 SCF, or ~5.7 mg/Nm3) and total CO2 content below 2.0 to 3.0 mol%. For Liquefied Natural Gas (LNG) cryogenic liquefaction trains operating at -162 deg C, specifications are vastly more stringent: CO2 must be reduced to below 50 ppmv (0.005 mol%) to prevent solid dry ice crystallization from plugging cryogenic spiral-wound aluminum heat exchangers, and H2S must be under 1 ppmv.'
+      }
+    ];
+
+    const content = `<style>
+      .am-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .am-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .am-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .am-group { margin-bottom: 16px; }
+      .am-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .am-group select, .am-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .am-group select:focus, .am-group input:focus { border-color: #059669; outline: none; ring: 2px ring #6ee7b7; }
+      .am-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-emerald { background: #ecfdf5; color: #059669; }
+      .am-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .am-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .am-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .am-res-sub { font-size: 0.8rem; color: #64748b; }
+      .am-btn { background: #059669; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .am-btn:hover { background: #047857; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="am-wrap">
+      <div class="am-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Amine Gas Sweetening & Acid Gas Removal Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Circulation rate sizing, rich/lean loading, contactor column diameter, and regenerator reboiler steam duty.</p>
+          </div>
+          <span class="am-badge badge-emerald">GPA Midstream & API 1104</span>
+        </div>
+
+        <div class="am-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Sour Feed Gas Stream</h3>
+            <div class="am-group">
+              <label for="am_gas_flow">Sour Feed Gas Flow Rate</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="am_gas_flow" value="65" min="1" max="1000" step="5">
+                <select id="am_flow_unit" style="width:130px;">
+                  <option value="mmscfd" selected>MMSCFD</option>
+                  <option value="nm3_h">Nm3/h</option>
+                </select>
+              </div>
+            </div>
+            <div class="am-group">
+              <label for="am_press">Operating Pressure (bar gauge)</label>
+              <input type="number" id="am_press" value="65" min="5" max="150" step="5">
+              <small style="color:#64748b;">Typical pipeline contactor: 50 to 75 barg.</small>
+            </div>
+            <div class="am-group">
+              <label for="am_h2s_in">Feed Gas H2S (mol %)</label>
+              <input type="number" id="am_h2s_in" value="1.20" min="0.00" max="25.00" step="0.05">
+              <small style="color:#64748b;">E.g. 1.2 mol % = 12,000 ppmv.</small>
+            </div>
+            <div class="am-group">
+              <label for="am_co2_in">Feed Gas CO2 (mol %)</label>
+              <input type="number" id="am_co2_in" value="3.80" min="0.00" max="30.00" step="0.10">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Amine Solvent Chemistry</h3>
+            <div class="am-group">
+              <label for="am_solvent_type">Amine Solvent Type</label>
+              <select id="am_solvent_type">
+                <option value="mdea_50" selected>MDEA (Methyldiethanolamine - 50 wt%, Selective H2S)</option>
+                <option value="amdea_45">Formulated MDEA + Piperazine (45 wt%, Total Removal)</option>
+                <option value="dea_30">DEA (Diethanolamine - 30 wt%)</option>
+                <option value="mea_20">MEA (Monoethanolamine - 20 wt%, High Reactivity)</option>
+              </select>
+            </div>
+            <div class="am-group">
+              <label for="am_lean_loading">Lean Amine Loading (mol acid gas / mol amine)</label>
+              <input type="number" id="am_lean_loading" value="0.015" min="0.002" max="0.080" step="0.005">
+              <small style="color:#64748b;">Stripped amine return: typically 0.01 to 0.03.</small>
+            </div>
+            <div class="am-group">
+              <label for="am_target_rich">Target Rich Amine Loading (mol / mol)</label>
+              <input type="number" id="am_target_rich" value="0.42" min="0.25" max="0.55" step="0.01">
+              <small style="color:#64748b;">Carbon steel corrosion limit: max 0.45 mol/mol.</small>
+            </div>
+            <div class="am-group">
+              <label for="am_co2_slip">MDEA CO2 Slippage Ratio (%)</label>
+              <input type="number" id="am_co2_slip" value="45" min="0" max="85" step="5">
+              <small style="color:#64748b;">% CO2 slipped to sweet gas (selective MDEA mode).</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Reboiler & Tower Hydraulics</h3>
+            <div class="am-group">
+              <label for="am_steam_latent">LP Motive Steam Pressure (bar gauge)</label>
+              <input type="number" id="am_steam_latent" value="3.5" min="2.0" max="8.0" step="0.5">
+              <small style="color:#64748b;">Saturated steam at ~148 deg C.</small>
+            </div>
+            <div class="am-group">
+              <label for="am_packing_type">Contactor Column Internals</label>
+              <select id="am_packing_type">
+                <option value="structured" selected>Structured Packing (High capacity, low dP)</option>
+                <option value="valve_tray">Movable Valve Trays (High turndown, fouling resist)</option>
+              </select>
+            </div>
+            <div class="am-group">
+              <label for="am_target_spec">Downstream Pipeline Target</label>
+              <select id="am_target_spec">
+                <option value="pipeline" selected>Pipeline Standard (H2S < 4 ppmv, CO2 < 2.0%)</option>
+                <option value="lng">LNG Liquefaction (H2S < 1 ppmv, CO2 < 50 ppmv)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="am-btn" id="am_calc_btn">Calculate Amine Circulation & Contactor Hydraulics</button>
+        </div>
+      </div>
+
+      <div class="am-card" id="am_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Amine Plant Hydraulic & Thermal Performance</h2>
+          <button class="copy-btn" id="am_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="am_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="am-res-grid">
+          <div class="am-res-card">
+            <div class="am-res-sub">Amine Circulation Rate</div>
+            <div class="am-res-val" id="res_circ_rate">0 m3/h</div>
+            <div class="am-res-sub" id="res_circ_gpm">0 GPM Lean Amine</div>
+          </div>
+          <div class="am-res-card">
+            <div class="am-res-sub">Contactor Column Diameter</div>
+            <div class="am-res-val" id="res_col_dia">0.00 m</div>
+            <div class="am-res-sub" id="res_col_dia_in">0 inches ID (75% Flood)</div>
+          </div>
+          <div class="am-res-card">
+            <div class="am-res-sub">Reboiler Thermal Duty</div>
+            <div class="am-res-val" id="res_reb_duty">0.0 MW</div>
+            <div class="am-res-sub" id="res_reb_mmbtu">0 MMBtu/h</div>
+          </div>
+          <div class="am-res-card">
+            <div class="am-res-sub">LP Stripping Steam Demand</div>
+            <div class="am-res-val" id="res_steam_rate">0 tonnes/h</div>
+            <div class="am-res-sub" id="res_steam_ratio">0.0 kg steam / m3 amine</div>
+          </div>
+          <div class="am-res-card">
+            <div class="am-res-sub">Acid Gas Removal Load</div>
+            <div class="am-res-val" id="res_ag_load">0 kg/h</div>
+            <div class="am-res-sub" id="res_ag_mmscfd">0.0 MMSCFD to Claus SRU</div>
+          </div>
+          <div class="am-res-card">
+            <div class="am-res-sub">Specification Compliance</div>
+            <div class="am-res-val" id="res_spec_status">Pipeline Compliant</div>
+            <div class="am-res-sub" id="res_spec_detail">H2S < 4 ppmv, CO2 Spec Met</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Process & Reaction Enthalpy Telemetry</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Net Working Loading ($Delta alpha$): <strong id="res_delta_alpha">0.000 mol/mol</strong></div>
+            <div>Contactor Temperature Exotherm ($Delta T$): <strong id="res_exotherm">0.0 deg C</strong></div>
+            <div>H2S Stripped: <strong id="res_h2s_removed">0 kg/h</strong></div>
+            <div>CO2 Absorbed: <strong id="res_co2_absorbed">0 kg/h</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Amine Gas Sweetening & Regeneration Closed-Loop Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive flowsheet: High-pressure contactor tower, rich amine flash tank, lean/rich plate heat exchanger, regenerator stripper column with reboiler steam loop, and overhead acid gas discharge.</p>
+          <div class="anim-box">
+            <canvas id="am_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="am-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Heavy Hydrocarbon Condensation & Severe Amine Foaming</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">Lean amine enters the top of the contactor typically at 45 to 50 deg C. If lean amine temperature drops below the hydrocarbon dew point of the feed gas (or if inlet gas is cooler than lean amine by less than 5 deg C), retrograde hydrocarbon condensation occurs inside the tower. Liquid pentanes, hexanes, and aromatics form a separate immiscible phase with aqueous amine, reducing surface tension and creating violent foaming. The contactor liquid level collapses into the overhead scrubber within 15 minutes.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Over-Loading Rich Amine & Flashing Carbon Steel Erosion</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">In an effort to minimize circulation pump power, plant engineers sometimes reduce amine flow, allowing rich loading to rise above 0.48 mol/mol. Dissolved CO2 forms aggressive un-neutralized carbonic acid ($H_2CO_3$), and rich amine flashing across the bottom level control valve liberates high-velocity acid gas bubbles. The combined mechanical cavitation and chemical attack strips the iron sulfide protective patina off carbon steel piping, resulting in pipe wall thinning and catastrophic leaks at elbows and tees.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Heat-Stable Salts (HSS) Accumulation & Corrosion Runaway</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">When sour gas contains traces of oxygen, sulfur dioxide, or cyanides, irreversibly bound Heat-Stable Amine Salts (HSS: formates, acetates, oxalates, and thiosulfates) accumulate in the closed loop. HSS cannot be regenerated by reboiler steam. Once HSS exceeds 6% to 8% of total amine concentration, active absorption capacity degrades while solution conductivity surges, driving aggressive galvanic corrosion across regenerator bundle tubes and cross-exchangers.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Iron Sulfide Particulate Sludge Choking Structured Packing</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Corrosion throughout sour gas systems generates sub-micron iron sulfide ($FeS$) black particles. Without continuous slipstream mechanical filtration (100% full-flow 10-micron cartridge filters plus a 10% to 20% slipstream activated carbon bed), black FeS sludge accumulates in the narrow corrugated channels of structured packing. Liquid distribution channels plug, inducing maldistribution, localized dry spots, and severe weeping that drops H2S removal efficiency.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Reboiler Skin Temperature Thermal Decomposition (>150 deg C)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">MDEA begins thermal degradation at skin temperatures exceeding 150 deg C (300 deg F), breaking down into corrosive secondary amines, diamines, and volatile organic acids. If reboiler heating utilizes high-pressure steam (>5 barg) or thermal oil with tube-wall skin temperatures above 155 deg C, thermal cracking accelerates exponentially. Plant operators must limit motive steam pressure to 2.5 to 3.5 barg and verify high-velocity circulation across reboiler tubes to prevent localized stagnation hot spots.</p>
+        </div>
+      </div>
+
+      <div class="am-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Gas Sweetening Material & Energy Balance Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The total molar rate of acid gas absorbed ($\dot{n}_{AG}$, kmol/h) is determined from sour feed gas rate ($\dot{V}_{std}$) and molar fractions:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\dot{n}_{AG} = \dot{n}_{gas} \left[ y_{H2S} + (1 - f_{slip}) \cdot y_{CO2} \right]$$
+          </div>
+          <p>The <strong>required lean amine volumetric circulation rate ($L_{amine}$)</strong> is governed by net working loading:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$L_{amine} = \frac{\dot{n}_{AG}}{(\alpha_{rich} - \alpha_{lean}) \cdot C_{amine,mol}}, \qquad C_{amine,mol} = \frac{w_{amine} \cdot \rho_{solv}}{M_{amine}}$$
+          </div>
+          <p>Where $M_{amine}$ is molecular weight ($119.16$ for MDEA, $105.14$ for DEA, $61.08$ for MEA).</p>
+          <p>The <strong>Regenerator Reboiler Thermal Duty ($\dot{Q}_{reb}$)</strong> combines sensible liquid heating, chemical bond desorption enthalpy, and overhead stripping steam generation:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\dot{Q}_{reb} = L_{amine} \rho_{solv} c_p (T_{reb} - T_{feed}) + \dot{n}_{AG} \Delta H_{desorp} + \dot{n}_{steam} \Delta H_{vap}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var gasFlowInput = document.getElementById('am_gas_flow');
+        var flowUnitSel = document.getElementById('am_flow_unit');
+        var pressInput = document.getElementById('am_press');
+        var h2sInInput = document.getElementById('am_h2s_in');
+        var co2InInput = document.getElementById('am_co2_in');
+        var solventSel = document.getElementById('am_solvent_type');
+        var leanLoadingInput = document.getElementById('am_lean_loading');
+        var targetRichInput = document.getElementById('am_target_rich');
+        var co2SlipInput = document.getElementById('am_co2_slip');
+        var steamPressInput = document.getElementById('am_steam_latent');
+        var packingSel = document.getElementById('am_packing_type');
+        var specSel = document.getElementById('am_target_spec');
+        var calcBtn = document.getElementById('am_calc_btn');
+        var copyBtn = document.getElementById('am_copy_btn');
+        var copyMsg = document.getElementById('am_copy_msg');
+
+        var resCircRate = document.getElementById('res_circ_rate');
+        var resCircGpm = document.getElementById('res_circ_gpm');
+        var resColDia = document.getElementById('res_col_dia');
+        var resColDiaIn = document.getElementById('res_col_dia_in');
+        var resRebDuty = document.getElementById('res_reb_duty');
+        var resRebMmbtu = document.getElementById('res_reb_mmbtu');
+        var resSteamRate = document.getElementById('res_steam_rate');
+        var resSteamRatio = document.getElementById('res_steam_ratio');
+        var resAgLoad = document.getElementById('res_ag_load');
+        var resAgMmscfd = document.getElementById('res_ag_mmscfd');
+        var resSpecStatus = document.getElementById('res_spec_status');
+        var resSpecDetail = document.getElementById('res_spec_detail');
+
+        var resDeltaAlpha = document.getElementById('res_delta_alpha');
+        var resExotherm = document.getElementById('res_exotherm');
+        var resH2sRemoved = document.getElementById('res_h2s_removed');
+        var resCo2Absorbed = document.getElementById('res_co2_absorbed');
+
+        var canvas = document.getElementById('am_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // Amine physical properties database: [MW, Default Wt%, Density (kg/m3), Cp (kJ/kg*K), Desorption Heat (kJ/kmol AG)]
+        var amineData = {
+          mdea_50:  { mw: 119.16, wt: 0.50, rho: 1040, cp: 3.45, hDesorp: 58000 },
+          amdea_45: { mw: 115.00, wt: 0.45, rho: 1035, cp: 3.55, hDesorp: 64000 },
+          dea_30:   { mw: 105.14, wt: 0.30, rho: 1025, cp: 3.75, hDesorp: 69000 },
+          mea_20:   { mw: 61.08,  wt: 0.20, rho: 1015, cp: 3.90, hDesorp: 82000 }
+        };
+
+        function calculate() {
+          var rawGasFlow = parseFloat(gasFlowInput.value) || 65;
+          var flowUnit = flowUnitSel.value;
+          var pBarg = parseFloat(pressInput.value) || 65;
+          var yH2s = (parseFloat(h2sInInput.value) || 1.20) / 100.0;
+          var yCo2 = (parseFloat(co2InInput.value) || 3.80) / 100.0;
+          var solvKey = solventSel.value;
+          var alphaLean = parseFloat(leanLoadingInput.value) || 0.015;
+          var alphaRich = parseFloat(targetRichInput.value) || 0.42;
+          var co2SlipPct = (parseFloat(co2SlipInput.value) || 45) / 100.0;
+          var steamPressBarg = parseFloat(steamPressInput.value) || 3.5;
+          var packing = packingSel.value;
+          var specType = specSel.value;
+
+          // Convert gas flow to kmol/h: Standard gas volume = 23.685 Nm3/kmol (or 379.3 SCF/lbmol = 0.8366 kmol/MMSCF)
+          var flowKmolH = rawGasFlow * 1195.0; // 1 MMSCFD ~ 1195 kmol/day -> kmol/h: 1195 * MMSCFD / 24
+          if (flowUnit === 'nm3_h') {
+            flowKmolH = rawGasFlow / 22.414;
+          } else {
+            flowKmolH = (rawGasFlow * 1e6 / 379.3) * 0.45359 / 24.0; // kmol/h
+          }
+
+          // In MDEA selective mode, CO2 slip is active; in aMDEA/DEA/MEA, slip is low (~5-10%)
+          var actualSlip = co2SlipPct;
+          if (solvKey !== 'mdea_50') actualSlip = 0.05;
+
+          // Acid gas absorbed (kmol/h)
+          var h2sAbsKmolH = flowKmolH * yH2s; // Complete H2S removal
+          var co2AbsKmolH = flowKmolH * yCo2 * (1.0 - actualSlip);
+          var totalAgKmolH = h2sAbsKmolH + co2AbsKmolH;
+
+          // Mass of acid gas
+          var massH2sKgH = h2sAbsKmolH * 34.08;
+          var massCo2KgH = co2AbsKmolH * 44.01;
+          var totalAgKgH = massH2sKgH + massCo2KgH;
+          var totalAgMmscfd = (totalAgKmolH * 24.0 * 379.3 / 0.45359) / 1e6;
+
+          // Amine chemistry & concentration
+          var prop = amineData[solvKey] || amineData.mdea_50;
+          // Moles of active amine per m3 of solution:
+          // C_amine = (rho_solv * wt) / MW (kmol / m3)
+          var cAmineKmolM3 = (prop.rho * prop.wt) / prop.mw;
+
+          // Net working loading
+          var deltaAlpha = Math.max(0.05, alphaRich - alphaLean);
+
+          // Required amine circulation rate (m3/h)
+          var circRateM3H = totalAgKmolH / (deltaAlpha * cAmineKmolM3);
+          var circGpm = circRateM3H * 4.40287;
+
+          // Contactor Column Diameter Sizing
+          // Gas density at operating conditions: rho_g = P * MW / (Z * R * T)
+          var pAbsKPa = (pBarg + 1.013) * 100.0;
+          var tAbsK = 45.0 + 273.15; // 45 deg C inlet
+          var mwGas = 18.5; // Natural gas MW
+          var zGas = 0.85; // Compressibility at 65 bar
+          var rUniv = 8.314;
+          var rhoGasKgM3 = (pAbsKPa * mwGas) / (zGas * rUniv * tAbsK);
+
+          // Volumetric gas flow at actual conditions (m3/s)
+          var gasMassKgS = (flowKmolH * mwGas) / 3600.0;
+          var actualGasM3S = gasMassKgS / rhoGasKgM3;
+
+          // Souders-Brown / C-factor for contactor column
+          // C_sb typically 0.05 m/s for high pressure absorption
+          var cFactor = (packing === 'structured') ? 0.065 : 0.048;
+          var vFlood = cFactor * Math.sqrt((prop.rho - rhoGasKgM3) / rhoGasKgM3);
+          var vDesign = vFlood * 0.72; // 72% of flood
+          var colArea = actualGasM3S / vDesign;
+          var colDiaM = Math.sqrt((4.0 * colArea) / Math.PI);
+          var colDiaIn = colDiaM * 39.37;
+
+          // Reboiler Heat Duty (kW)
+          // 1. Sensible heat: deltaT across cross-exchanger ~ 25 C (120C reb - 95C feed)
+          var mSolvKgS = (circRateM3H * prop.rho) / 3600.0;
+          var qSensibleKw = mSolvKgS * prop.cp * 25.0;
+
+          // 2. Desorption reaction heat (kW)
+          var qReactionKw = (totalAgKmolH * prop.hDesorp) / 3600.0;
+
+          // 3. Stripping steam vapor generation: ~1.1 moles steam per mole acid gas
+          var hfgSteam = 2120.0; // kJ/kg at 3.5 barg
+          var steamMolesH = totalAgKmolH * 1.15;
+          var steamMassKgH = steamMolesH * 18.015;
+          var qSteamKw = (steamMassKgH * hfgSteam) / 3600.0;
+
+          var totalRebDutyKw = qSensibleKw + qReactionKw + qSteamKw;
+          var totalRebMw = totalRebDutyKw / 1000.0;
+          var totalRebMmbtu = totalRebMw * 3.41214;
+
+          // Reboiler LP steam consumption (tonnes/h)
+          var steamConsTonnesH = (totalRebDutyKw * 3600.0) / (hfgSteam * 1000.0);
+          var steamRatioKgM3 = (steamConsTonnesH * 1000.0) / circRateM3H;
+
+          // Contactor Reaction Exotherm (deg C)
+          var exothermC = (qReactionKw * 3600.0) / (circRateM3H * prop.rho * prop.cp);
+
+          // Update UI
+          resCircRate.innerText = Math.round(circRateM3H).toLocaleString() + ' m3/h';
+          resCircGpm.innerText = Math.round(circGpm).toLocaleString() + ' GPM Lean Amine';
+          resColDia.innerText = colDiaM.toFixed(2) + ' m';
+          resColDiaIn.innerText = Math.round(colDiaIn) + ' inches ID (at ' + pBarg + ' barg)';
+          resRebDuty.innerText = totalRebMw.toFixed(2) + ' MW';
+          resRebMmbtu.innerText = totalRebMmbtu.toFixed(1) + ' MMBtu/h Reboiler Duty';
+          resSteamRate.innerText = steamConsTonnesH.toFixed(1) + ' t/h';
+          resSteamRatio.innerText = steamRatioKgM3.toFixed(1) + ' kg steam / m3 amine';
+          resAgLoad.innerText = Math.round(totalAgKgH).toLocaleString() + ' kg/h';
+          resAgMmscfd.innerText = totalAgMmscfd.toFixed(2) + ' MMSCFD to Claus SRU';
+
+          resDeltaAlpha.innerText = deltaAlpha.toFixed(3) + ' mol/mol';
+          resExotherm.innerText = '+' + exothermC.toFixed(1) + ' deg C';
+          resH2sRemoved.innerText = Math.round(massH2sKgH).toLocaleString() + ' kg/h';
+          resCo2Absorbed.innerText = Math.round(massCo2KgH).toLocaleString() + ' kg/h';
+
+          if (specType === 'lng') {
+            resSpecStatus.innerText = (solvKey === 'amdea_45' || solvKey === 'mea_20') ? 'LNG Spec Met' : 'CO2 Slip Too High';
+            resSpecStatus.style.color = (solvKey === 'amdea_45' || solvKey === 'mea_20') ? '#10b981' : '#ef4444';
+            resSpecDetail.innerText = 'CO2 < 50 ppmv, H2S < 1 ppmv';
+          } else {
+            resSpecStatus.innerText = 'Pipeline Compliant';
+            resSpecStatus.style.color = '#10b981';
+            resSpecDetail.innerText = 'H2S < 4 ppmv, CO2 < 2.0 mol%';
+          }
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Amine Plant Closed-Loop Flowsheet
+          // 1. High-Pressure Contactor Absorber Tower (Left)
+          var cX = 50, cY = 30, cW = 75, cH = 240;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#059669'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(cX, cY, cW, cH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('CONTACTOR', cX + cW/2, cY + 25);
+          ctx.fillStyle = '#34d399'; ctx.font = '9px sans-serif';
+          ctx.fillText(pressInput.value + ' barg', cX + cW/2, cY + 40);
+
+          // Internals in contactor
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.4)';
+          for (var i = 0; i < 6; i++) {
+            ctx.beginPath();
+            ctx.moveTo(cX + 10, cY + 60 + i * 25);
+            ctx.lineTo(cX + cW - 10, cY + 60 + i * 25);
+            ctx.stroke();
+          }
+
+          // Sour gas in at bottom
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(cX - 30, cY + cH - 30); ctx.lineTo(cX, cY + cH - 30); ctx.stroke();
+          ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'right';
+          ctx.fillText('SOUR GAS IN', cX - 35, cY + cH - 27);
+
+          // Sweet gas out at top
+          ctx.strokeStyle = '#10b981'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(cX + cW/2, cY); ctx.lineTo(cX + cW/2, cY - 15); ctx.lineTo(cX + cW/2 + 40, cY - 15); ctx.stroke();
+          ctx.fillStyle = '#10b981'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('SWEET GAS OUT', cX + cW/2 + 45, cY - 12);
+
+          // 2. Lean/Rich Heat Exchanger in Middle
+          var hxX = 180, hxY = 130, hxW = 60, hxH = 60;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.rect(hxX, hxY, hxW, hxH); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('LEAN/RICH', hxX + hxW/2, hxY + 25);
+          ctx.fillText('CROSS HEX', hxX + hxW/2, hxY + 38);
+
+          // 3. Regenerator Stripper Column (Right of HEX)
+          var sX = 290, sY = 30, sW = 75, sH = 240;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH, 12); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('REGENERATOR', sX + sW/2, sY + 25);
+          ctx.fillStyle = '#fb923c'; ctx.font = '9px sans-serif';
+          ctx.fillText('STRIPPER (1.8 barg)', sX + sW/2, sY + 40);
+
+          // Overhead Acid Gas to Claus SRU
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(sX + sW/2, sY); ctx.lineTo(sX + sW/2, sY - 15); ctx.lineTo(sX + sW/2 + 45, sY - 15); ctx.stroke();
+          ctx.fillStyle = '#ef4444'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('ACID GAS TO CLAUS', sX + sW/2 + 50, sY - 12);
+
+          // Reboiler at bottom of regenerator
+          var rebX = sX + sW + 10;
+          var rebY = sY + sH - 50;
+          var rebW = 45;
+          var rebH = 40;
+          ctx.fillStyle = '#451a03'; ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(rebX, rebY, rebW, rebH, 6); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#f97316'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('REBOILER', rebX + rebW/2, rebY + 18);
+          ctx.fillText(resRebDuty.innerText.split(' ')[0] + 'MW', rebX + rebW/2, rebY + 30);
+
+          // Flow lines connecting Contactor -> HEX -> Regenerator
+          // Rich amine line (Bottom contactor -> HEX -> Top regenerator)
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cX + cW, cY + cH - 20);
+          ctx.lineTo(hxX, cY + cH - 20);
+          ctx.lineTo(hxX + 15, hxY + hxH);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(hxX + 15, hxY);
+          ctx.lineTo(hxX + 15, cY + 70);
+          ctx.lineTo(sX, cY + 70);
+          ctx.stroke();
+
+          // Lean amine line (Bottom regenerator -> HEX -> Top contactor)
+          ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(sX, cY + sH - 20);
+          ctx.lineTo(hxX + hxW, cY + sH - 20);
+          ctx.lineTo(hxX + 45, hxY + hxH);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(hxX + 45, hxY);
+          ctx.lineTo(hxX + 45, cY + 50);
+          ctx.lineTo(cX + cW, cY + 50);
+          ctx.stroke();
+
+          // Animated solvent flow particles
+          ctx.fillStyle = '#34d399';
+          for (var p = 0; p < 4; p++) {
+            var py = (cY + 55 + ((animStep * 2 + p * 40) % (cH - 80)));
+            ctx.beginPath(); ctx.arc(cX + cW/2, py, 2.5, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Right: Comprehensive Technical Telemetry Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('AMINE GAS SWEETENING MASS & ENERGY AUDIT', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#34d399';
+          ctx.fillText('Amine Circulation Rate: ' + resCircRate.innerText + ' (' + resCircGpm.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Active Working Loading (delta alpha): ' + resDeltaAlpha.innerText + ' (' + leanLoadingInput.value + ' -> ' + targetRichInput.value + ' mol/mol)', dX + 20, dY + 76);
+          ctx.fillText('Contactor Column Diameter: ' + resColDia.innerText + ' (' + resColDiaIn.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Contactor Reaction Exotherm: ' + resExotherm.innerText + ' Temperature Rise', dX + 20, dY + 118);
+
+          ctx.fillStyle = '#fb923c';
+          ctx.fillText('Regenerator Reboiler Duty: ' + resRebDuty.innerText + ' (' + resRebMmbtu.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('LP Stripping Steam Demand: ' + resSteamRate.innerText + ' (' + resSteamRatio.innerText + ')', dX + 20, dY + 165);
+          ctx.fillText('Acid Gas to Sulfur Plant: ' + resAgLoad.innerText + ' (' + resAgMmscfd.innerText + ')', dX + 20, dY + 186);
+          ctx.fillText('Mass Breakdown: H2S ' + resH2sRemoved.innerText + ' | CO2 ' + resCo2Absorbed.innerText, dX + 20, dY + 207);
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Quality Compliance: ' + resSpecStatus.innerText + ' (' + resSpecDetail.innerText + ')', dX + 20, dY + 233);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Metallurgy Limit: Rich Loading < 0.45 mol/mol avoids pipe erosion', dX + 20, dY + 258);
+          ctx.fillText('Standards: GPA Midstream Section 11 & API 14C Hydrocarbon Safety', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== AMINE GAS SWEETENING SIZING REPORT ===',
+            'Feed Gas Flow: ' + gasFlowInput.value + ' ' + flowUnitSel.value + ' @ ' + pressInput.value + ' barg',
+            'Inlet Acid Gas: ' + h2sInInput.value + '% H2S (' + resH2sRemoved.innerText + ') | ' + co2InInput.value + '% CO2 (' + resCo2Absorbed.innerText + ')',
+            'Solvent: ' + solventSel.options[solventSel.selectedIndex].text,
+            'Amine Circulation Rate: ' + resCircRate.innerText + ' (' + resCircGpm.innerText + ')',
+            'Contactor Column Diameter: ' + resColDia.innerText + ' (' + resColDiaIn.innerText + ')',
+            'Working Loading (delta alpha): ' + resDeltaAlpha.innerText + ' mol/mol',
+            'Reboiler Heat Duty: ' + resRebDuty.innerText + ' (' + resRebMmbtu.innerText + ')',
+            'Stripping Steam Demand: ' + resSteamRate.innerText + ' (' + resSteamRatio.innerText + ')',
+            'Acid Gas to Claus Unit: ' + resAgLoad.innerText + ' (' + resAgMmscfd.innerText + ')',
+            'Target Specification: ' + resSpecStatus.innerText + ' (' + resSpecDetail.innerText + ')',
+            'Standards: GPA Midstream & API Standards for Gas Treating'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [gasFlowInput, flowUnitSel, pressInput, h2sInInput, co2InInput, solventSel, leanLoadingInput, targetRichInput, co2SlipInput, steamPressInput, packingSel, specSel].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CF3: HYDROCYCLONE LIQUID-SOLID SEPARATION & CUT SIZE (d50) CALCULATOR ───
+  (() => {
+    const slug = 'hydrocyclone-solid-liquid-separation-d50-cut-size-calculator';
+    const title = 'Hydrocyclone Liquid-Solid Separation & Cut Size (d50) Calculator | Bradley & Rietema Models';
+    const desc = 'Industrial Hydrocyclone liquid-solid separation and cut size (d50) sizing calculator. Calculate cyclone body diameter, feed pressure drop, cut point particle size (microns), underflow/overflow flow splitting, G-force acceleration, and mineral slurry classification.';
+
+    const faqs = [
+      {
+        q: 'What is the d50 cut size of a hydrocyclone and how is it defined?',
+        a: 'The $d_{50}$ cut size (or separation cut point) is the equivalent spherical particle diameter that has an exact 50% probability of reporting to the underflow (coarse solids discharge) and a 50% probability of reporting to the overflow (fine solids and clarified liquid). Particles significantly coarser than $d_{50}$ (e.g. >$1.5 \\cdot d_{50}$) report nearly 100% to the underflow, while particles finer than $d_{50}$ (e.g. <$0.5 \\cdot d_{50}$) report predominantly to the overflow with the split liquid.'
+      },
+      {
+        q: 'How do the Bradley and Rietema hydrocyclone geometric models differ?',
+        a: 'The Rietema model (1961) was developed for optimum solid-liquid clarification efficiency in chemical processing, utilizing a relatively long cylindrical section, a 20-degree cone angle, and an inlet diameter of $0.28 \\cdot D_c$. The Bradley model (1965) was optimized for heavy industrial mineral separation and desanding, featuring a shallower cone angle (typically 9 to 15 degrees) and narrower inlet and vortex finder dimensions ($D_i = D_o = 0.14 \\cdot D_c$). The Bradley design generates significantly higher tangential velocities and centrifugal G-forces, achieving finer cut points at the expense of higher pressure drop.'
+      },
+      {
+        q: 'What is the difference between spray discharge and roping at the underflow spigot?',
+        a: 'In normal, healthy hydrocyclone operation, solids discharge from the apex nozzle as a flared, hollow conical spray with an internal angle of 20 to 30 degrees, maintained by a continuous low-pressure central air core. If the solids feed rate increases beyond the maximum volumetric packing discharge capacity of the apex orifice, the underflow transitions into roping: a dense, solid cylindrical rope of mud plunging straight down. Roping collapses the central air core, creates a slurry bed inside the cone, and forces oversized coarse solids to bypass directly into the overflow stream, destroying classification efficiency.'
+      },
+      {
+        q: 'How does feed slurry solids concentration affect the effective cut size (d50c)?',
+        a: 'In dilute slurries (<5 vol% solids), particles settle according to Stokes law without interfering with each other. As solids concentration rises above 10 to 15 vol%, hindered settling and apparent fluid slurry viscosity increase exponentially. High solids loading retards particle migration toward the cyclone wall, causing the actual corrected cut point ($d_{50c}$) to coarsen significantly (often shifting from 25 microns in dilute water up to 50 or 70 microns in a 30 wt% mineral slurry).'
+      },
+      {
+        q: 'What centrifugal G-force acceleration is generated inside an industrial hydrocyclone?',
+        a: 'Hydrocyclones operate with no internal moving parts, relying entirely on feed pressure energy converted into rotational momentum through a tangential feed nozzle. Centrifugal acceleration ($G = v_i^2 / (R_c \\cdot g)$) ranges from 500g in large 650 mm (26-inch) primary mill classification cyclones to over 4,000g in compact 25 mm to 50 mm (1 to 2-inch) desliming or clarifying cyclones. This intense artificial gravity enables separations down to 5 to 10 microns within milliseconds.'
+      }
+    ];
+
+    const content = `<style>
+      .hc-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .hc-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .hc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .hc-group { margin-bottom: 16px; }
+      .hc-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .hc-group select, .hc-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .hc-group select:focus, .hc-group input:focus { border-color: #8b5cf6; outline: none; ring: 2px ring #c4b5fd; }
+      .hc-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-purple { background: #f5f3ff; color: #7c3aed; }
+      .hc-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .hc-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .hc-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .hc-res-sub { font-size: 0.8rem; color: #64748b; }
+      .hc-btn { background: #7c3aed; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .hc-btn:hover { background: #6d28d9; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="hc-wrap">
+      <div class="hc-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Hydrocyclone Separation & Cut Size (d50) Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Bradley & Rietema models, feed pressure drop, centrifugal G-force, and underflow spigot roping audit.</p>
+          </div>
+          <span class="hc-badge badge-purple">SME Mineral Processing & AIChE</span>
+        </div>
+
+        <div class="hc-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Slurry Feed Properties</h3>
+            <div class="hc-group">
+              <label for="hc_slurry_flow">Feed Slurry Flow Rate</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="hc_slurry_flow" value="120" min="5" max="5000" step="10">
+                <select id="hc_flow_unit" style="width:130px;">
+                  <option value="m3_h" selected>m3/h</option>
+                  <option value="gpm">GPM (US)</option>
+                </select>
+              </div>
+            </div>
+            <div class="hc-group">
+              <label for="hc_rho_solid">Solid Particle Density (kg/m3)</label>
+              <input type="number" id="hc_rho_solid" value="2650" min="1100" max="7500" step="50">
+              <small style="color:#64748b;">Quartz: 2650; Magnetite: 5180; Coal: 1350 kg/m3.</small>
+            </div>
+            <div class="hc-group">
+              <label for="hc_solids_wt">Solids Concentration (wt %)</label>
+              <input type="number" id="hc_solids_wt" value="18.0" min="1.0" max="60.0" step="1.0">
+            </div>
+            <div class="hc-group">
+              <label for="hc_liquid_visc">Liquid Viscosity (cP or mPa*s)</label>
+              <input type="number" id="hc_liquid_visc" value="1.0" min="0.5" max="25.0" step="0.1">
+              <small style="color:#64748b;">Water at 20 deg C = 1.0 cP.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Hydrocyclone Geometry & Standard</h3>
+            <div class="hc-group">
+              <label for="hc_model_type">Theoretical Hydrodynamic Model</label>
+              <select id="hc_model_type">
+                <option value="bradley" selected>Bradley Model (Standard Mineral & Grit Separation)</option>
+                <option value="rietema">Rietema Model (High Efficiency Chemical Classification)</option>
+              </select>
+            </div>
+            <div class="hc-group">
+              <label for="hc_cyclone_dia">Cyclone Body Diameter ($D_c$, mm)</label>
+              <input type="number" id="hc_cyclone_dia" value="250" min="25" max="1000" step="25">
+              <small style="color:#64748b;">Typically 50 mm (fine) to 650 mm (coarse).</small>
+            </div>
+            <div class="hc-group">
+              <label for="hc_num_cyclones">Number of Cyclones in Cluster</label>
+              <input type="number" id="hc_num_cyclones" value="2" min="1" max="48" step="1">
+            </div>
+            <div class="hc-group">
+              <label for="hc_cone_angle">Included Cone Angle (degrees)</label>
+              <input type="number" id="hc_cone_angle" value="15" min="8" max="30" step="1">
+              <small style="color:#64748b;">Standard: 10 to 20 deg.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Hydraulics & Apex Sizing</h3>
+            <div class="hc-group">
+              <label for="hc_press_drop">Feed Pressure Drop ($Delta P$, kPa)</label>
+              <input type="number" id="hc_press_drop" value="140" min="30" max="400" step="10">
+              <small style="color:#64748b;">Standard operating range: 70 to 200 kPa (10-30 psi).</small>
+            </div>
+            <div class="hc-group">
+              <label for="hc_apex_dia">Apex / Spigot Diameter ($D_u$, mm)</label>
+              <input type="number" id="hc_apex_dia" value="45" min="10" max="180" step="5">
+            </div>
+            <div class="hc-group">
+              <label for="hc_vortex_dia">Vortex Finder Diameter ($D_o$, mm)</label>
+              <input type="number" id="hc_vortex_dia" value="85" min="15" max="350" step="5">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="hc-btn" id="hc_calc_btn">Calculate Hydrocyclone Separation & Cut Size</button>
+        </div>
+      </div>
+
+      <div class="hc-card" id="hc_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Separation Cut Point & Hydraulic Results</h2>
+          <button class="copy-btn" id="hc_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="hc_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="hc-res-grid">
+          <div class="hc-res-card">
+            <div class="hc-res-sub">Corrected Cut Size ($d_{50c}$)</d_sub>
+            <div class="hc-res-val" id="res_d50c">0.0 microns</div>
+            <div class="hc-res-sub" id="res_d50_base">Base d50: 0.0 um</div>
+          </div>
+          <div class="hc-res-card">
+            <div class="hc-res-sub">Centrifugal Acceleration</div>
+            <div class="hc-res-val" id="res_g_force">0 g</div>
+            <div class="hc-res-sub" id="res_inlet_vel">Inlet: 0.0 m/s</div>
+          </div>
+          <div class="hc-res-card">
+            <div class="hc-res-sub">Underflow Discharge State</div>
+            <div class="hc-res-val" id="res_discharge_state">Umbrella Spray</div>
+            <div class="hc-res-sub" id="res_discharge_sub">Healthy Air Core Active</div>
+          </div>
+          <div class="hc-res-card">
+            <div class="hc-res-sub">Underflow Slurry Flow</div>
+            <div class="hc-res-val" id="res_uf_flow">0 m3/h</div>
+            <div class="hc-res-sub" id="res_uf_solids">0.0% solids by wt</div>
+          </div>
+          <div class="hc-res-card">
+            <div class="hc-res-sub">Overflow Clarified Flow</div>
+            <div class="hc-res-val" id="res_of_flow">0 m3/h</div>
+            <div class="hc-res-sub" id="res_of_split">0% volume split</div>
+          </div>
+          <div class="hc-res-card">
+            <div class="hc-res-sub">Feed Pumping Power</div>
+            <div class="hc-res-val" id="res_pump_kw">0.0 kW</div>
+            <div class="hc-res-sub" id="res_slurry_density">Density: 0 kg/m3</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Flow Split & Classification Telemetry</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Flow per Cyclone: <strong id="res_flow_per_cyclone">0.0 m3/h</strong></div>
+            <div>Inlet Nozzle Velocity: <strong id="res_vi_ms">0.0 m/s</strong></div>
+            <div>Apex/Vortex Diameter Ratio ($D_u / D_o$): <strong id="res_apex_ratio">0.00</strong></div>
+            <div>Solids Hindered Factor ($d_{50c} / d_{50}$): <strong id="res_hindered_factor">0.00x</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Hydrocyclone Double-Vortex Multiphase Separation Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Tangential slurry entry, outer downward vortex carrying heavy coarse particles to apex spigot, inner upward vortex carrying fine particles to overflow, and low-pressure central air core.</p>
+          <div class="anim-box">
+            <canvas id="hc_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="hc-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Apex Spigot Roping & Coarse Particle Overflow Contamination</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">When feed solids surge or when the apex spigot diameter ($D_u$) is undersized, the underflow transitions from a healthy 20-degree umbrella flare into a solid cylindrical rope. Roping chokes the apex discharge capacity, completely collapsing the low-pressure air core. Dense, coarse abrasive grit that should report to underflow backs up into the cyclone cone and exits out the top overflow nozzle, causing catastrophic downstream equipment erosion and ruining product grind targets.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Submerged Underflow Discharge & Air Core Destruction</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">A hydrocyclone requires an open atmospheric air core extending from the apex up through the vortex finder to establish the radial pressure gradient. If plant piping discharges the underflow spigot directly into a flooded sump or submerged pipe below the water line, backpressure destroys the air core. Separation efficiency plunges, water recovery into the underflow spikes from 15% to over 40%, and separation sharpness ($d_{50}$) becomes erratic.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Hindered Settling Viscosity Blindness in High-Density Slurries</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Designing cyclone batteries based on clean-water cut size correlations ($d_{50}$) leads to massive classification failure when slurry solids exceed 20 vol% (over 40 wt% in mineral slurries). Apparent slurry viscosity escalates non-linearly, dampening centrifugal particle acceleration. The actual industrial cut size ($d_{50c}$) often doubles or triples compared to dilute laboratory data, resulting in severely under-ground ore recycled to ball mills.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Inlet Velocity Excessive Gouging Wear (>7 m/s)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Operating with excessive feed pressure drops (>250 kPa / 35 psi) drives inlet feed velocities above 7 to 9 m/s. High-velocity quartz or mineral particles impact the feed chamber and polyurethane or rubber liners with kinetic energy proportional to velocity squared ($v^2$). Abrasive gouging wears grooves through the liner within weeks. Once the liner wears unevenly, turbulence destroys laminar vortex rotation, causing unstable classification.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Asymmetric Radial Manifold Maldistribution in Clusters</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">In multi-cyclone clusters (e.g., 6 to 18 cyclones on a circular radial distributor), uneven slurry feed piping causes coarse particles to centrifuge to the outer wall of the feed header. Certain cyclones receive 30% higher solids loading than others, causing some units to rope while others run under-loaded in a flared spray. A central symmetric circular distributor with top axial feed entry is mandatory for uniform multi-cyclone performance.</p>
+        </div>
+      </div>
+
+      <div class="hc-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Hydrodynamic Classification & Bradley Model Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>theoretical base cut size ($d_{50}$)</strong> in microns is modeled via the <strong>Bradley hydrodynamic equilibrium equation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$d_{50} = \frac{K_B \cdot D_c^{1.52} \cdot \mu_L^{0.5}}{Q^{0.5} \cdot (\rho_s - \rho_L)^{0.5}} \cdot \left( \frac{\tan(\theta / 2)}{\tan(4.5^\circ)} \right)^{0.5}$$
+          </div>
+          <p>Where $K_B \approx 38.5$ for Bradley geometry ($D_i / D_c = 0.14$, $D_o / D_c = 0.14$), with $D_c$ in meters, $Q$ in m3/h, and densities in kg/m3.</p>
+          <p>The <strong>corrected cut size ($d_{50c}$)</strong> accounting for hindered particle settling and volumetric solids concentration ($C_v$) is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$d_{50c} = d_{50} \cdot \exp(4.5 \cdot C_v), \qquad C_v = \frac{w_s / \rho_s}{(w_s / \rho_s) + ((1 - w_s) / \rho_L)}$$
+          </div>
+          <p>The <strong>Centrifugal G-Force Acceleration</strong> at the cyclone outer wall radius ($R_c = D_c / 2$) is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$v_i = \frac{Q_{cyclone}}{A_i}, \qquad G = \frac{v_i^2}{R_c \cdot g}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var slurryFlowInput = document.getElementById('hc_slurry_flow');
+        var flowUnitSel = document.getElementById('hc_flow_unit');
+        var rhoSolidInput = document.getElementById('hc_rho_solid');
+        var solidsWtInput = document.getElementById('hc_solids_wt');
+        var liquidViscInput = document.getElementById('hc_liquid_visc');
+        var modelSel = document.getElementById('hc_model_type');
+        var cycloneDiaInput = document.getElementById('hc_cyclone_dia');
+        var numCyclonesInput = document.getElementById('hc_num_cyclones');
+        var coneAngleInput = document.getElementById('hc_cone_angle');
+        var pressDropInput = document.getElementById('hc_press_drop');
+        var apexDiaInput = document.getElementById('hc_apex_dia');
+        var vortexDiaInput = document.getElementById('hc_vortex_dia');
+        var calcBtn = document.getElementById('hc_calc_btn');
+        var copyBtn = document.getElementById('hc_copy_btn');
+        var copyMsg = document.getElementById('hc_copy_msg');
+
+        var resD50c = document.getElementById('res_d50c');
+        var resD50Base = document.getElementById('res_d50_base');
+        var resGForce = document.getElementById('res_g_force');
+        var resInletVel = document.getElementById('res_inlet_vel');
+        var resDischargeState = document.getElementById('res_discharge_state');
+        var resDischargeSub = document.getElementById('res_discharge_sub');
+        var resUfFlow = document.getElementById('res_uf_flow');
+        var resUfSolids = document.getElementById('res_uf_solids');
+        var resOfFlow = document.getElementById('res_of_flow');
+        var resOfSplit = document.getElementById('res_of_split');
+        var resPumpKw = document.getElementById('res_pump_kw');
+        var resSlurryDensity = document.getElementById('res_slurry_density');
+
+        var resFlowPerCyclone = document.getElementById('res_flow_per_cyclone');
+        var resViMs = document.getElementById('res_vi_ms');
+        var resApexRatio = document.getElementById('res_apex_ratio');
+        var resHinderedFactor = document.getElementById('res_hindered_factor');
+
+        var canvas = document.getElementById('hc_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var rawFlow = parseFloat(slurryFlowInput.value) || 120;
+          var unit = flowUnitSel.value;
+          var rhoSolid = parseFloat(rhoSolidInput.value) || 2650;
+          var solidsWtPct = (parseFloat(solidsWtInput.value) || 18.0) / 100.0;
+          var muLiquid = parseFloat(liquidViscInput.value) || 1.0; // cP
+          var modelType = modelSel.value;
+          var dcMm = parseFloat(cycloneDiaInput.value) || 250;
+          var numCyclones = parseInt(numCyclonesInput.value, 10) || 2;
+          var coneAngleDeg = parseFloat(coneAngleInput.value) || 15;
+          var deltaPKPa = parseFloat(pressDropInput.value) || 140;
+          var duApexMm = parseFloat(apexDiaInput.value) || 45;
+          var doVortexMm = parseFloat(vortexDiaInput.value) || 85;
+
+          var rhoLiquid = 1000.0; // kg/m3
+
+          // Convert flow to m3/h
+          var totalFlowM3H = rawFlow;
+          if (unit === 'gpm') totalFlowM3H = rawFlow * 0.227125;
+
+          var flowPerCycloneM3H = totalFlowM3H / numCyclones;
+          var flowPerCycloneM3S = flowPerCycloneM3H / 3600.0;
+
+          // Slurry density & Volumetric solids concentration Cv
+          var cv = (solidsWtPct / rhoSolid) / ((solidsWtPct / rhoSolid) + ((1.0 - solidsWtPct) / rhoLiquid));
+          var rhoSlurry = cv * rhoSolid + (1.0 - cv) * rhoLiquid;
+
+          // Cyclone Geometry dimensions
+          var dcM = dcMm / 1000.0;
+          var duM = duApexMm / 1000.0;
+          var doM = doVortexMm / 1000.0;
+
+          // Inlet diameter Di: Bradley Di = 0.14*Dc; Rietema Di = 0.28*Dc
+          var diRatio = (modelType === 'bradley') ? 0.14 : 0.28;
+          var diM = diRatio * dcM;
+          var aiM2 = (Math.PI / 4.0) * Math.pow(diM, 2);
+
+          // Inlet velocity vi (m/s)
+          var vi = flowPerCycloneM3S / aiM2;
+
+          // Centrifugal G-Force: vi^2 / (Rc * g)
+          var rcM = dcM / 2.0;
+          var g = 9.80665;
+          var gForce = Math.pow(vi, 2) / (rcM * g);
+
+          // Cut Size d50 Calculation (microns)
+          var deltaRho = Math.max(100.0, rhoSolid - rhoLiquid);
+          var kb = (modelType === 'bradley') ? 38.5 : 44.2;
+
+          // Bradley empirical d50 (microns)
+          var angleRad = (coneAngleDeg * Math.PI) / 180.0;
+          var angleCorr = Math.sqrt(Math.tan(angleRad / 2.0) / Math.tan(4.5 * Math.PI / 180.0));
+          var d50Base = (kb * Math.pow(dcM, 1.52) * Math.sqrt(muLiquid) / (Math.sqrt(flowPerCycloneM3H) * Math.sqrt(deltaRho / 1000.0))) * angleCorr;
+
+          // Hindered settling correction: exp(4.5 * Cv)
+          var hinderedFactor = Math.exp(4.5 * cv);
+          var d50c = d50Base * hinderedFactor;
+
+          // Underflow & Overflow Split
+          // Apex / Vortex ratio: Du / Do
+          var duDoRatio = duM / doM;
+          // Water split to underflow Rf ~ typically 0.10 to 0.25 based on (Du/Do)^1.75
+          var splitRf = 0.22 * Math.pow(duDoRatio / 0.5, 1.75);
+          splitRf = Math.min(0.40, Math.max(0.06, splitRf));
+
+          var ufFlowM3H = totalFlowM3H * splitRf;
+          var ofFlowM3H = totalFlowM3H - ufFlowM3H;
+          var ofSplitPct = (ofFlowM3H / totalFlowM3H) * 100.0;
+
+          // Underflow solids concentration estimate
+          var solidRecoveryFraction = 0.88; // 88% solids recovery to underflow
+          var totalSolidsKgH = totalFlowM3H * rhoSlurry * solidsWtPct;
+          var ufSolidsKgH = totalSolidsKgH * solidRecoveryFraction;
+          var ufTotalMassKgH = ufFlowM3H * (rhoSlurry * 1.15);
+          var ufSolidsWtPct = Math.min(75.0, (ufSolidsKgH / ufTotalMassKgH) * 100.0);
+
+          // Roping Check: Roping occurs if underflow solids by volume exceeds ~50% (or solids by weight > 65%)
+          var isRoping = (ufSolidsWtPct > 62.0) || (duDoRatio < 0.25);
+          var isOverSpray = (duDoRatio > 0.65);
+
+          // Pumping Power (kW) = Q * deltaP / eta (eta ~ 70%)
+          var totalFlowM3S = totalFlowM3H / 3600.0;
+          var pumpPowerKw = (totalFlowM3S * deltaPKPa) / 0.70;
+
+          // Update UI
+          resD50c.innerText = d50c.toFixed(1) + ' μm';
+          resD50Base.innerText = 'Base d50: ' + d50Base.toFixed(1) + ' μm (Dilute)';
+          resGForce.innerText = Math.round(gForce).toLocaleString() + ' g';
+          resInletVel.innerText = 'Inlet Vel: ' + vi.toFixed(1) + ' m/s';
+
+          if (isRoping) {
+            resDischargeState.innerText = 'CRITICAL ROPING';
+            resDischargeState.style.color = '#ef4444';
+            resDischargeSub.innerText = 'Air Core Choked (Apex Overloaded)';
+          } else if (isOverSpray) {
+            resDischargeState.innerText = 'Wide Spray (>40 deg)';
+            resDischargeState.style.color = '#f59e0b';
+            resDischargeSub.innerText = 'Excess Water in Underflow';
+          } else {
+            resDischargeState.innerText = 'Umbrella Spray';
+            resDischargeState.style.color = '#10b981';
+            resDischargeSub.innerText = 'Healthy Air Core (20-30 deg flare)';
+          }
+
+          resUfFlow.innerText = ufFlowM3H.toFixed(1) + ' m3/h';
+          resUfSolids.innerText = ufSolidsWtPct.toFixed(1) + '% solids by wt';
+          resOfFlow.innerText = ofFlowM3H.toFixed(1) + ' m3/h';
+          resOfSplit.innerText = ofSplitPct.toFixed(1) + '% overflow split';
+          resPumpKw.innerText = pumpPowerKw.toFixed(1) + ' kW';
+          resSlurryDensity.innerText = 'Slurry: ' + Math.round(rhoSlurry) + ' kg/m3';
+
+          resFlowPerCyclone.innerText = flowPerCycloneM3H.toFixed(1) + ' m3/h (' + numCyclones + ' units)';
+          resViMs.innerText = vi.toFixed(1) + ' m/s @ ' + deltaPKPa + ' kPa';
+          resApexRatio.innerText = duDoRatio.toFixed(2) + ' (Du: ' + duApexMm + ' / Do: ' + doVortexMm + ' mm)';
+          resHinderedFactor.innerText = hinderedFactor.toFixed(2) + 'x (Cv: ' + (cv * 100).toFixed(1) + '%)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Hydrocyclone Cross-Section (Left)
+          var cX = 220, cY = 40;
+          var topW = 120;
+          var cylH = 65;
+          var coneH = 170;
+          var apexW = 26;
+
+          // 1. Tangential Feed Inlet (Left Side)
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(cX - topW/2 - 50, cY + 25); ctx.lineTo(cX - topW/2, cY + 25); ctx.stroke();
+          ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'right';
+          ctx.fillText('SLURRY IN ->', cX - topW/2 - 55, cY + 28);
+
+          // 2. Hydrocyclone Outer Shell (Cylinder + Cone)
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#8b5cf6'; ctx.lineWidth = 3;
+          ctx.beginPath();
+          // Top lid
+          ctx.moveTo(cX - topW/2, cY);
+          ctx.lineTo(cX + topW/2, cY);
+          // Cylindrical wall
+          ctx.lineTo(cX + topW/2, cY + cylH);
+          // Conical tapering wall down to apex
+          ctx.lineTo(cX + apexW/2, cY + cylH + coneH);
+          // Apex discharge orifice
+          ctx.lineTo(cX - apexW/2, cY + cylH + coneH);
+          // Conical wall back up
+          ctx.lineTo(cX - topW/2, cY + cylH);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+
+          // 3. Overflow Vortex Finder Tube (Top Center)
+          var vfW = 38;
+          var vfH = 50;
+          ctx.fillStyle = '#0f172a'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.rect(cX - vfW/2, cY - 20, vfW, vfH);
+          ctx.fill(); ctx.stroke();
+
+          // Overflow discharge arrow
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(cX, cY - 20); ctx.lineTo(cX, cY - 35); ctx.lineTo(cX + 30, cY - 35); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('OVERFLOW (FINES < ' + resD50c.innerText + ')', cX + 35, cY - 32);
+
+          // 4. Central Air Core (Negative pressure column)
+          ctx.fillStyle = 'rgba(248, 250, 252, 0.2)';
+          ctx.beginPath();
+          ctx.moveTo(cX - 5, cY - 20);
+          ctx.lineTo(cX + 5, cY - 20);
+          ctx.lineTo(cX + 3, cY + cylH + coneH + 15);
+          ctx.lineTo(cX - 3, cY + cylH + coneH + 15);
+          ctx.closePath();
+          ctx.fill();
+
+          // 5. Underflow Apex Spigot Discharge (Bottom)
+          var apexY = cY + cylH + coneH;
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+          // Umbrella spray flare
+          ctx.beginPath();
+          ctx.moveTo(cX - apexW/2, apexY);
+          ctx.lineTo(cX - apexW/2 - 18, apexY + 30);
+          ctx.moveTo(cX + apexW/2, apexY);
+          ctx.lineTo(cX + apexW/2 + 18, apexY + 30);
+          ctx.stroke();
+
+          ctx.fillStyle = '#ef4444'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('UNDERFLOW SPIGOT', cX, apexY + 45);
+          ctx.fillText('(COARSE GRIT > ' + resD50c.innerText + ')', cX, apexY + 58);
+
+          // 6. Dual Vortex Animation Particles
+          // Downward Outer Swirling Vortex (Heavy coarse particles - Red/Orange)
+          ctx.fillStyle = '#f97316';
+          for (var p = 0; p < 8; p++) {
+            var frac = ((animStep * 1.5 + p * 40) % 200) / 200;
+            var py = cY + 15 + frac * (cylH + coneH - 25);
+            var currentRadius = (frac < (cylH / (cylH + coneH))) ? (topW/2 - 8) : ((topW/2 - 8) * (1 - frac * 0.75));
+            var px = cX + Math.sin(animStep * 0.15 + p) * currentRadius;
+            ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Upward Inner Swirling Vortex (Clarified fine liquid - Blue)
+          ctx.fillStyle = '#38bdf8';
+          for (var p2 = 0; p2 < 6; p2++) {
+            var frac2 = ((animStep * 2 + p2 * 35) % 180) / 180;
+            var py2 = (cY + cylH + coneH - 30) - frac2 * (cylH + coneH - 10);
+            var px2 = cX + Math.sin(-animStep * 0.2 + p2) * 12;
+            ctx.beginPath(); ctx.arc(px2, py2, 2.0, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Right: Comprehensive Diagnostic Telemetry Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('HYDROCYCLONE CLASSIFICATION TELEMETRY', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#a78bfa';
+          ctx.fillText('Corrected Cut Point (d50c): ' + resD50c.innerText + ' (' + resD50Base.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Centrifugal Acceleration: ' + resGForce.innerText + ' | Inlet: ' + resInletVel.innerText, dX + 20, dY + 76);
+          ctx.fillText('Underflow State: ' + resDischargeState.innerText + ' (' + resDischargeSub.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Model Correlation: ' + modelSel.options[modelSel.selectedIndex].text.split('(')[0], dX + 20, dY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Underflow Solids: ' + resUfSolids.innerText + ' (' + resUfFlow.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Overflow Clarified Stream: ' + resOfFlow.innerText + ' (' + resOfSplit.innerText + ')', dX + 20, dY + 165);
+          ctx.fillText('Cluster Pumping Duty: ' + resPumpKw.innerText + ' (' + resSlurryDensity.innerText + ')', dX + 20, dY + 186);
+          ctx.fillText('Hindered Settling Shift: ' + resHinderedFactor.innerText + ' | Ratio Du/Do: ' + resApexRatio.innerText, dX + 20, dY + 207);
+
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Operating Safety: Feed Pressure ' + pressDropInput.value + ' kPa avoids liner gouge wear', dX + 20, dY + 233);
+          ctx.fillText('Air Core Stability: Maintained with atmospheric discharge', dX + 20, dY + 258);
+          ctx.fillText('Standards: SME Mineral Processing Handbook & Bradley Hydrocyclone Principles', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== HYDROCYCLONE CLASSIFICATION REPORT ===',
+            'Slurry Flow Rate: ' + slurryFlowInput.value + ' ' + flowUnitSel.value + ' (' + numCyclonesInput.value + ' x ' + cycloneDiaInput.value + ' mm Cyclones)',
+            'Solids Concentration: ' + solidsWtInput.value + ' wt% (Density: ' + rhoSolidInput.value + ' kg/m3)',
+            'Feed Pressure Drop: ' + pressDropInput.value + ' kPa (' + resViMs.innerText + ')',
+            'Cut Point d50c: ' + resD50c.innerText + ' (' + resD50Base.innerText + ')',
+            'Centrifugal Acceleration: ' + resGForce.innerText,
+            'Underflow Discharge State: ' + resDischargeState.innerText + ' (' + resDischargeSub.innerText + ')',
+            'Underflow Flow: ' + resUfFlow.innerText + ' (' + resUfSolids.innerText + ')',
+            'Overflow Flow: ' + resOfFlow.innerText + ' (' + resOfSplit.innerText + ')',
+            'Slurry Pumping Power: ' + resPumpKw.innerText,
+            'Model Framework: ' + modelSel.options[modelSel.selectedIndex].text,
+            'Standards: SME Mineral Processing Handbook & Bradley Model'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [slurryFlowInput, flowUnitSel, rhoSolidInput, solidsWtInput, liquidViscInput, modelSel, cycloneDiaInput, numCyclonesInput, coneAngleInput, pressDropInput, apexDiaInput, vortexDiaInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CF4: MULTI-STAGE FLASH (MSF) DESALINATION PERFORMANCE RATIO CALCULATOR ───
+  (() => {
+    const slug = 'multi-stage-flash-msf-desalination-performance-ratio-calculator';
+    const title = 'Multi-Stage Flash (MSF) Desalination Performance Ratio Calculator | Thermal Heat Balance';
+    const desc = 'Industrial Multi-Stage Flash (MSF) thermal seawater desalination sizing calculator. Calculate Performance Ratio (PR: kg distillate / kg steam), Top Brine Temperature (TBT), stage flash profiles, brine recirculation flow rate, specific heat consumption, and condenser tube area.';
+
+    const faqs = [
+      {
+        q: 'How does the Multi-Stage Flash (MSF) seawater desalination process work?',
+        a: 'In a Multi-Stage Flash Brine Recirculation (MSF-BR) plant, preheated seawater brine is pumped through condenser tube bundles inside a series of flash stages, gaining heat from condensing distillate vapor. The brine enters an external shell-and-tube brine heater where low-pressure motive steam heats it to its Top Brine Temperature (TBT, typically 105 to 115 deg C). This pressurized hot brine then enters stage 1, which operates at a slightly reduced pressure below the brine saturation pressure. The brine instantly flashes into vapor. The flashed steam passes through a wire-mesh demister pad and condenses onto condenser tubes overhead, producing pure fresh water. The remaining brine flows through an inter-stage orifice into stage 2 at an even lower pressure, flashing again. This process cascades across 18 to 24 stages down to ~40 deg C.'
+      },
+      {
+        q: 'What is Top Brine Temperature (TBT) and why is it strictly limited to 115-120 deg C?',
+        a: 'Top Brine Temperature (TBT) is the highest temperature reached by the brine before it flashes in the first stage. Higher TBT expands the flashing range ($\\Delta T_{total} = \\text{TBT} - T_n$), reducing required brine recirculation and improving the plant Performance Ratio. However, TBT is strictly constrained by inverse-solubility mineral scaling: calcium sulfate ($CaSO_4$) crystallizes into hard anhydrite or hemihydrate scale above 115-120 deg C, which cannot be dissolved by chemical acid washings and causes irreversible heat transfer loss. With advanced polyphosphonate or polymaleic polymeric antiscalants, commercial plants operate safely between 105 and 112 deg C.'
+      },
+      {
+        q: 'What is the Performance Ratio (PR) and Gain Output Ratio (GOR)?',
+        a: 'The Performance Ratio (PR), also called Gain Output Ratio (GOR), is the fundamental thermal efficiency benchmark of an evaporative desalination plant. It is defined as the mass of pure distillate fresh water produced per unit mass of motive heating steam supplied to the brine heater ($kg \\text{ distillate} / kg \\text{ steam}$). Modern MSF plants operate with a Performance Ratio of 8.0 to 9.5 (meaning 1 kg of LP boiler steam produces 8.0 to 9.5 kg of drinking water). Specific thermal energy consumption is inversely related to PR, typically requiring 250 to 300 kJ of heat per kilogram of distillate.'
+      },
+      {
+        q: 'What is Non-Equilibrium Allowance (NEA) and why is it critical in stage hydraulics?',
+        a: 'Non-Equilibrium Allowance (NEA) represents the thermodynamic penalty caused by incomplete flashing. Brine passing rapidly through a flash chamber does not reach complete vapor-liquid equilibrium; the discharging liquid remains slightly superheated above the equilibrium saturation temperature of the vapor space by 0.3 to 1.2 deg C. NEA reduces the effective thermal driving force across the condenser tube bundle. Maximizing flash chamber length, installing turbulence promoter weir baffles, and maintaining optimal brine pool levels are critical to minimize NEA.'
+      },
+      {
+        q: 'Why are MSF plants divided into Heat Recovery and Heat Rejection sections?',
+        a: 'An MSF-BR plant is partitioned into a Heat Recovery Section (typically 18 to 21 stages) and a Heat Rejection Section (typically 3 stages). In the Heat Recovery stages, latent heat from flashing vapor is recycled directly into the recirculating brine feed, conserving thermal energy. In the final Heat Rejection stages, cold raw seawater is circulated through the condenser tubes to absorb and discard the excess enthalpy of the system to the sea, establishing the cold sink temperature (typically 38 to 42 deg C) needed to maintain high vacuum.'
+      }
+    ];
+
+    const content = `<style>
+      .msf-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .msf-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .msf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .msf-group { margin-bottom: 16px; }
+      .msf-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .msf-group select, .msf-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .msf-group select:focus, .msf-group input:focus { border-color: #0284c7; outline: none; ring: 2px ring #7dd3fc; }
+      .msf-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-cyan { background: #ecfeff; color: #0891b2; }
+      .msf-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .msf-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .msf-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .msf-res-sub { font-size: 0.8rem; color: #64748b; }
+      .msf-btn { background: #0891b2; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .msf-btn:hover { background: #0e7490; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="msf-wrap">
+      <div class="msf-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Multi-Stage Flash (MSF) Desalination Performance Ratio Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Thermal heat balance, Top Brine Temperature (TBT), stage flashing profiles, and motive steam consumption.</p>
+          </div>
+          <span class="msf-badge badge-cyan">IDA Desalination & Cogeneration</span>
+        </div>
+
+        <div class="msf-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Distillate Production & Feed Water</h3>
+            <div class="msf-group">
+              <label for="msf_prod_rate">Target Distillate Production</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="msf_prod_rate" value="30000" min="500" max="500000" step="1000">
+                <select id="msf_prod_unit" style="width:130px;">
+                  <option value="m3_d" selected>m3/day</option>
+                  <option value="mgd">MGD (US)</option>
+                </select>
+              </div>
+            </div>
+            <div class="msf-group">
+              <label for="msf_feed_tds">Seawater Feed Salinity (TDS ppm)</label>
+              <input type="number" id="msf_feed_tds" value="42000" min="25000" max="55000" step="1000">
+              <small style="color:#64748b;">Arabian Gulf: ~42,000-45,000 ppm; Red Sea: ~41,000 ppm.</small>
+            </div>
+            <div class="msf-group">
+              <label for="msf_feed_temp">Seawater Inlet Temperature (deg C)</label>
+              <input type="number" id="msf_feed_temp" value="28" min="15" max="38" step="1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Thermal Cycle & Flashing Range</h3>
+            <div class="msf-group">
+              <label for="msf_tbt">Top Brine Temperature (TBT, deg C)</label>
+              <input type="number" id="msf_tbt" value="108" min="90" max="120" step="1">
+              <small style="color:#64748b;">Typically 105 to 112 deg C with polymeric antiscalant.</small>
+            </div>
+            <div class="msf-group">
+              <label for="msf_last_stage_t">Last Stage Temperature ($T_n$, deg C)</label>
+              <input type="number" id="msf_last_stage_t" value="40" min="32" max="48" step="1">
+              <small style="color:#64748b;">Cold heat rejection sink (vacuum ~7.4 kPa abs).</small>
+            </div>
+            <div class="msf-group">
+              <label for="msf_num_stages">Total Number of Flash Stages</label>
+              <input type="number" id="msf_num_stages" value="24" min="12" max="32" step="1">
+              <small style="color:#64748b;">Typical: 21 Heat Recovery + 3 Heat Rejection.</small>
+            </div>
+            <div class="msf-group">
+              <label for="msf_steam_t">Motive Heating Steam Temp ($T_s$, deg C)</label>
+              <input type="number" id="msf_steam_t" value="122" min="100" max="140" step="1">
+              <small style="color:#64748b;">LP steam from extraction turbine (~2.1 bar abs).</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Heat Transfer & Hydraulics</h3>
+            <div class="msf-group">
+              <label for="msf_u_coeff">Condenser Heat Transfer Coeff ($U$, W/m2*K)</label>
+              <input type="number" id="msf_u_coeff" value="2600" min="1500" max="4000" step="100">
+              <small style="color:#64748b;">Cu-Ni or Titanium tube bundle benchmark.</small>
+            </div>
+            <div class="msf-group">
+              <label for="msf_nea">Non-Equilibrium Allowance (NEA, deg C)</label>
+              <input type="number" id="msf_nea" value="0.5" min="0.2" max="1.5" step="0.1">
+            </div>
+            <div class="msf-group">
+              <label for="msf_bpe">Boiling Point Elevation (BPE, deg C)</label>
+              <input type="number" id="msf_bpe" value="1.1" min="0.6" max="2.2" step="0.1">
+              <small style="color:#64748b;">Elevation due to brine salt concentration.</small>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="msf-btn" id="msf_calc_btn">Compute Thermal Heat Balance & Performance Ratio</button>
+        </div>
+      </div>
+
+      <div class="msf-card" id="msf_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">MSF Thermal Performance & Mass Balance</h2>
+          <button class="copy-btn" id="msf_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="msf_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="msf-res-grid">
+          <div class="msf-res-card">
+            <div class="msf-res-sub">Performance Ratio (PR / GOR)</div>
+            <div class="msf-res-val" id="res_pr">0.00</div>
+            <div class="msf-res-sub" id="res_pr_sub">kg distillate / kg steam</div>
+          </div>
+          <div class="msf-res-card">
+            <div class="msf-res-sub">Motive Steam Consumption</div>
+            <div class="msf-res-val" id="res_steam_flow">0 t/h</div>
+            <div class="msf-res-sub" id="res_steam_kg_s">0 kg/s @ 122 deg C</div>
+          </div>
+          <div class="msf-res-card">
+            <div class="msf-res-sub">Brine Recirculation Flow</div>
+            <div class="msf-res-val" id="res_brine_flow">0 m3/h</div>
+            <div class="msf-res-sub" id="res_brine_gpm">0 GPM Recirculation</div>
+          </div>
+          <div class="msf-res-card">
+            <div class="msf-res-sub">Specific Thermal Energy</div>
+            <div class="msf-res-val" id="res_spec_heat">0 kJ/kg</div>
+            <div class="msf-res-sub" id="res_spec_kwh">0 kWh_th / m3 distillate</div>
+          </div>
+          <div class="msf-res-card">
+            <div class="msf-res-sub">Total Condenser Surface Area</div>
+            <div class="msf-res-val" id="res_tube_area">0 m2</div>
+            <div class="msf-res-sub" id="res_tube_area_ft2">0 ft2 Tube Surface</div>
+          </div>
+          <div class="msf-res-card">
+            <div class="msf-res-sub">Brine Blowdown Salinity</div>
+            <div class="msf-res-val" id="res_blowdown_tds">0 ppm</div>
+            <div class="msf-res-sub" id="res_conc_factor">CF: 0.0x Seawater</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Thermal Hydraulic Profile Breakdown</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Total Flash Range: <strong id="res_flash_range">0.0 deg C</strong></div>
+            <div>Stage Flashing Drop ($Delta T_{stg}$): <strong id="res_stage_dt">0.0 deg C / stage</strong></div>
+            <div>Brine Heater Thermal Duty: <strong id="res_heater_mw">0.0 MW</strong></div>
+            <div>Brine Recirculation Ratio ($M_b / M_d$): <strong id="res_recirc_ratio">0.0x</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Multi-Stage Flash (MSF-BR) Desalination Dynamic Flowsheet Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: External brine heater with motive steam, cascading flashing chambers with wire demisters, overhead condenser tube bundle heat recovery, distillate product trough, and brine recirculation.</p>
+          <div class="anim-box">
+            <canvas id="msf_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="msf-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. TBT Thermal Runaway & Insoluble Anhydrite Scale</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">Calcium sulfate ($CaSO_4$) has an inverted solubility curve in seawater brine; its solubility decreases sharply as temperature rises. If the brine heater control loop overshoots and pushes Top Brine Temperature past 118 deg C (or if antiscalant dosing pump trips for even 30 minutes), rock-hard anhydrite scale forms instantly on the internal surfaces of the Cu-Ni or titanium tubes. Unlike calcium carbonate, anhydrite scale cannot be dissolved by sulfamic or citric acid cleanings, requiring mechanical drilling of thousands of tubes.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Inter-Stage Orifice Vapor Blowthrough & Stage Flooding</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Brine transfers between stages through submerged rectangular gate orifices calibrated to maintain a hydraulic liquid seal (typically 300 to 450 mm brine depth). If the plant is operated below 70% turndown without adjusting variable inter-stage weirs, the brine seal is lost, allowing high-pressure vapor from upstream stages to blow directly into downstream stages. The pressure gradient collapses, causing violent stage-to-stage surging and massive water carryover.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Demister Wire Mesh Fouling & Distillate Salinity Contamination</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Stainless steel wire-mesh demister pads (typically 100 to 150 mm thick) strip entrained brine droplets from rising vapor. If brine level in a flash chamber rises too close to the demister (reducing vapor disengagement height below 0.8 m), violent brine geysering floods the mesh. Salts crystallize in the wire weave, creating permanent salt bridges that contaminate the product distillate trough, sending product salinity from <10 ppm soaring past 500 ppm.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Non-Condensable Gas Blanketing on Condenser Bundles</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Seawater carries dissolved air and bicarbonates that decompose inside high-temperature flash chambers, generating free carbon dioxide ($CO_2$) and oxygen. Because these gases do not condense, they accumulate around condenser tube bundles. Even a 1% concentration of non-condensable gas in the vapor envelope slashes the overall heat transfer coefficient ($U$) by over 50%. A malfunctioning two-stage steam ejector vacuum system leads to catastrophic loss of plant distillate output.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. High Vacuum Deep Cavitation in Distillate & Brine Pumps</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">The final flash stage operates under deep vacuum (~7.4 kPa abs / 0.074 bar) at boiling temperature (~40 deg C). Liquid brine and pure distillate leaving this stage have virtually zero net positive suction head ($NPSH$). The extraction pumps must be installed in deep pit wells (typically 6 to 10 meters below grade) to provide essential hydrostatic static head. If pit level drops or if pump NPSH margin is violated, violent boiling cavitation destroys pump impellers within weeks.</p>
+        </div>
+      </div>
+
+      <div class="msf-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">MSF Thermodynamic Balance & Performance Ratio Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The total flash range ($\Delta T_{total}$) across $N$ stages is divided into approximately equal stage drops:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\Delta T_{total} = \text{TBT} - T_n, \qquad \Delta T_{stage} = \frac{\Delta T_{total}}{N}$$
+          </div>
+          <p>The <strong>required brine recirculation mass flow rate ($M_b$)</strong> is determined from overall distillate yield ($M_d$):</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$M_b = \frac{M_d \cdot \lambda_{avg}}{c_{p,b} \cdot (\Delta T_{total} - \sum \text{BPE} - \sum \text{NEA})}$$
+          </div>
+          <p>The <strong>Performance Ratio (PR)</strong> and motive steam demand ($M_{steam}$) are governed by the Brine Heater energy balance:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\dot{Q}_{heater} = M_b \cdot c_{p,b} \cdot (\text{TBT} - T_{in,bh}) = M_{steam} \cdot \lambda_s, \qquad \text{PR} = \frac{M_d}{M_{steam}}$$
+          </div>
+          <p>Where specific heat consumption is $q_{th} = \frac{\lambda_s}{\text{PR}} \quad [\text{kJ} / \text{kg distillate}]$.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var prodRateInput = document.getElementById('msf_prod_rate');
+        var prodUnitSel = document.getElementById('msf_prod_unit');
+        var feedTdsInput = document.getElementById('msf_feed_tds');
+        var feedTempInput = document.getElementById('msf_feed_temp');
+        var tbtInput = document.getElementById('msf_tbt');
+        var lastStageTInput = document.getElementById('msf_last_stage_t');
+        var numStagesInput = document.getElementById('msf_num_stages');
+        var steamTInput = document.getElementById('msf_steam_t');
+        var uCoeffInput = document.getElementById('msf_u_coeff');
+        var neaInput = document.getElementById('msf_nea');
+        var bpeInput = document.getElementById('msf_bpe');
+        var calcBtn = document.getElementById('msf_calc_btn');
+        var copyBtn = document.getElementById('msf_copy_btn');
+        var copyMsg = document.getElementById('msf_copy_msg');
+
+        var resPr = document.getElementById('res_pr');
+        var resPrSub = document.getElementById('res_pr_sub');
+        var resSteamFlow = document.getElementById('res_steam_flow');
+        var resSteamKgS = document.getElementById('res_steam_kg_s');
+        var resBrineFlow = document.getElementById('res_brine_flow');
+        var resBrineGpm = document.getElementById('res_brine_gpm');
+        var resSpecHeat = document.getElementById('res_spec_heat');
+        var resSpecKwh = document.getElementById('res_spec_kwh');
+        var resTubeArea = document.getElementById('res_tube_area');
+        var resTubeAreaFt2 = document.getElementById('res_tube_area_ft2');
+        var resBlowdownTds = document.getElementById('res_blowdown_tds');
+        var resConcFactor = document.getElementById('res_conc_factor');
+
+        var resFlashRange = document.getElementById('res_flash_range');
+        var resStageDt = document.getElementById('res_stage_dt');
+        var resHeaterMw = document.getElementById('res_heater_mw');
+        var resRecircRatio = document.getElementById('res_recirc_ratio');
+
+        var canvas = document.getElementById('msf_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var rawProd = parseFloat(prodRateInput.value) || 30000;
+          var unit = prodUnitSel.value;
+          var feedTds = parseFloat(feedTdsInput.value) || 42000;
+          var tFeedC = parseFloat(feedTempInput.value) || 28;
+          var tbtC = parseFloat(tbtInput.value) || 108;
+          var tnC = parseFloat(lastStageTInput.value) || 40;
+          var nStages = parseInt(numStagesInput.value, 10) || 24;
+          var steamTC = parseFloat(steamTInput.value) || 122;
+          var uCoeff = parseFloat(uCoeffInput.value) || 2600; // W/m2*K
+          var neaC = parseFloat(neaInput.value) || 0.5;
+          var bpeC = parseFloat(bpeInput.value) || 1.1;
+
+          // Convert production to kg/s (1 m3 = 1000 kg)
+          var prodM3D = rawProd;
+          if (unit === 'mgd') prodM3D = rawProd * 3785.41;
+
+          var prodKgS = (prodM3D * 1000.0) / 86400.0; // kg/s
+          var prodTonnesH = (prodM3D * 1000.0) / (24.0 * 1000.0);
+
+          // Flash range
+          var flashRange = Math.max(10.0, tbtC - tnC);
+          var stageDt = flashRange / nStages;
+
+          // Average latent heat of vaporization in flash range (~75 deg C avg)
+          var tAvgC = (tbtC + tnC) / 2.0;
+          var lambdaAvgKj = 2501.0 - 2.37 * tAvgC; // kJ/kg
+
+          // Specific heat capacity of brine (kJ/kg*K) ~ 3.95 for seawater
+          var cpBrine = 3.98;
+
+          // Effective thermal flashing drop accounting for losses
+          var effectiveFlashingDt = flashRange - (bpeC + neaC) * 1.5;
+          if (effectiveFlashingDt <= 5.0) effectiveFlashingDt = 5.0;
+
+          // Brine recirculation mass flow rate Mb (kg/s)
+          var brineKgS = (prodKgS * lambdaAvgKj) / (cpBrine * effectiveFlashingDt);
+          var rhoBrineAvg = 1050.0; // kg/m3
+          var brineFlowM3H = (brineKgS * 3600.0) / rhoBrineAvg;
+          var brineGpm = brineFlowM3H * 4.40287;
+          var recircRatio = brineKgS / prodKgS;
+
+          // Brine Heater Energy Balance
+          // Brine entering brine heater from Stage 1 condenser: T_in,bh = TBT - stageDt
+          var tInBh = tbtC - stageDt;
+          var deltaTBh = tbtC - tInBh; // Heating in brine heater
+          var heaterDutyKw = brineKgS * cpBrine * deltaTBh;
+          var heaterDutyMw = heaterDutyKw / 1000.0;
+
+          // Motive steam properties (latent heat at T_s)
+          var lambdaSteamKj = 2501.0 - 2.37 * steamTC; // kJ/kg ~ 2200 kJ/kg
+          var steamKgS = heaterDutyKw / lambdaSteamKj;
+          var steamTonnesH = steamKgS * 3.6;
+
+          // Performance Ratio (PR = kg distillate / kg steam)
+          var pr = prodKgS / steamKgS;
+
+          // Specific Thermal Energy Consumption (kJ/kg distillate and kWh_th/m3)
+          var specHeatKjKg = (steamKgS * lambdaSteamKj) / prodKgS;
+          var specKwhThM3 = specHeatKjKg / 3.6;
+
+          // Condenser surface area sizing
+          // Total heat exchanged in recovery stages:
+          var qCondenserTotalKw = prodKgS * lambdaAvgKj;
+          // Log mean temperature difference LMTD per stage (~3.5 to 5.0 C)
+          var lmtdAvg = 4.2;
+          var totalTubeAreaM2 = (qCondenserTotalKw * 1000.0) / (uCoeff * lmtdAvg);
+          var totalTubeAreaFt2 = totalTubeAreaM2 * 10.7639;
+
+          // Blowdown salinity:
+          // Concentration factor CF typically 1.55 to 1.70 for Gulf MSF plants
+          var cf = 1.65;
+          var blowdownTds = feedTds * cf;
+
+          // Update UI
+          resPr.innerText = pr.toFixed(2);
+          resPrSub.innerText = 'kg distillate / kg steam (GOR: ' + pr.toFixed(2) + ')';
+          resSteamFlow.innerText = steamTonnesH.toFixed(1) + ' t/h';
+          resSteamKgS.innerText = steamKgS.toFixed(1) + ' kg/s @ ' + steamTC + ' deg C';
+          resBrineFlow.innerText = Math.round(brineFlowM3H).toLocaleString() + ' m3/h';
+          resBrineGpm.innerText = Math.round(brineGpm).toLocaleString() + ' GPM Brine Recirc';
+          resSpecHeat.innerText = Math.round(specHeatKjKg) + ' kJ/kg';
+          resSpecKwh.innerText = Math.round(specKwhThM3) + ' kWh_th / m3 distillate';
+          resTubeArea.innerText = Math.round(totalTubeAreaM2).toLocaleString() + ' m2';
+          resTubeAreaFt2.innerText = Math.round(totalTubeAreaFt2).toLocaleString() + ' ft2 (Condenser Tubes)';
+          resBlowdownTds.innerText = Math.round(blowdownTds).toLocaleString() + ' ppm';
+          resConcFactor.innerText = 'CF: ' + cf.toFixed(2) + 'x Feed Seawater';
+
+          resFlashRange.innerText = flashRange.toFixed(1) + ' deg C (' + tbtC + ' -> ' + tnC + 'C)';
+          resStageDt.innerText = stageDt.toFixed(2) + ' deg C / stage (' + nStages + ' stages)';
+          resHeaterMw.innerText = heaterDutyMw.toFixed(2) + ' MW Thermal';
+          resRecircRatio.innerText = recircRatio.toFixed(1) + 'x Distillate Rate';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // MSF-BR Flowsheet Diagram
+          // 1. External Brine Heater (Top Left)
+          var bhX = 50, bhY = 35, bhW = 85, bhH = 55;
+          ctx.fillStyle = '#451a03'; ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(bhX, bhY, bhW, bhH, 8); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#fb923c'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('BRINE HEATER', bhX + bhW/2, bhY + 20);
+          ctx.fillStyle = '#ffffff'; ctx.font = '8px sans-serif';
+          ctx.fillText('Steam: ' + steamTInput.value + 'C', bhX + bhW/2, bhY + 34);
+          ctx.fillText('TBT: ' + tbtInput.value + 'C', bhX + bhW/2, bhY + 46);
+
+          // Motive steam in
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(bhX + bhW/2, bhY - 20); ctx.lineTo(bhX + bhW/2, bhY); ctx.stroke();
+          ctx.fillStyle = '#ef4444'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('LP STEAM IN', bhX + bhW/2 + 5, bhY - 10);
+
+          // 2. Cascading Flash Chambers (Stages 1, 2, 3 ... N)
+          var nBoxes = 4;
+          var bW = 75, bH = 140;
+          var startX = 50, startY = 120;
+          var gap = 12;
+
+          for (var i = 0; i < nBoxes; i++) {
+            var sx = startX + i * (bW + gap);
+            ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(sx, startY, bW, bH, 8); ctx.fill(); ctx.stroke();
+
+            ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+            var stageName = (i === 0) ? 'STAGE 1' : ((i === nBoxes - 1) ? 'STAGE N' : 'STAGE ' + (i+1));
+            ctx.fillText(stageName, sx + bW/2, startY + 16);
+
+            // Overhead Condenser Tube Bundle (Blue horizontal tubes)
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(sx + 8, startY + 28); ctx.lineTo(sx + bW - 8, startY + 28);
+            ctx.moveTo(sx + 8, startY + 36); ctx.lineTo(sx + bW - 8, startY + 36);
+            ctx.stroke();
+
+            // Demister Pad (Mesh texture)
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
+            ctx.fillRect(sx + 6, startY + 50, bW - 12, 6);
+
+            // Distillate Product Trough under tubes
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+            ctx.fillRect(sx + 10, startY + 62, bW - 20, 10);
+
+            // Flashing Brine Pool at Bottom
+            ctx.fillStyle = 'rgba(2, 132, 199, 0.45)';
+            ctx.fillRect(sx + 2, startY + bH - 35, bW - 4, 33);
+
+            // Flashing Vapor Droplets rising through demister
+            ctx.fillStyle = '#bae6fd';
+            for (var d = 0; d < 3; d++) {
+              var dy = (startY + bH - 35) - ((animStep * 1.5 + d * 25 + i * 20) % 45);
+              ctx.beginPath(); ctx.arc(sx + 20 + d * 18, dy, 1.8, 0, Math.PI * 2); ctx.fill();
+            }
+
+            // Inter-stage orifice connection between stages
+            if (i < nBoxes - 1) {
+              ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.moveTo(sx + bW, startY + bH - 18);
+              ctx.lineTo(sx + bW + gap, startY + bH - 18);
+              ctx.stroke();
+            }
+          }
+
+          // Hot Brine from Heater to Stage 1
+          ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(bhX + 20, bhY + bhH);
+          ctx.lineTo(bhX + 20, startY + bH - 18);
+          ctx.lineTo(startX, startY + bH - 18);
+          ctx.stroke();
+
+          // Condenser Feed returning to Brine Heater (Preheated Brine Recirculation)
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(startX + (nBoxes - 1) * (bW + gap) + bW/2, startY + 32);
+          ctx.lineTo(bhX + bhW, startY - 45);
+          ctx.lineTo(bhX + bhW, bhY + 28);
+          ctx.stroke();
+
+          // Fresh Water Distillate Product Pipeline out
+          var lastSx = startX + (nBoxes - 1) * (bW + gap);
+          ctx.strokeStyle = '#10b981'; ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(lastSx + bW, startY + 67);
+          ctx.lineTo(lastSx + bW + 40, startY + 67);
+          ctx.lineTo(lastSx + bW + 40, startY + bH + 20);
+          ctx.stroke();
+          ctx.fillStyle = '#10b981'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('DISTILLATE TO POTABLE PUMPS', lastSx + bW + 15, startY + bH + 35);
+          ctx.fillText('Salinity < 10 ppm TDS', lastSx + bW + 15, startY + bH + 48);
+
+          // Right: Comprehensive Technical Telemetry Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('MSF DESALINATION THERMODYNAMIC AUDIT', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Performance Ratio (PR / GOR): ' + resPr.innerText + ' kg water / kg steam', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Specific Heat Consumption: ' + resSpecHeat.innerText + ' (' + resSpecKwh.innerText + ')', dX + 20, dY + 76);
+          ctx.fillText('LP Motive Steam Demand: ' + resSteamFlow.innerText + ' (' + resSteamKgS.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Brine Heater Thermal Duty: ' + resHeaterMw.innerText, dX + 20, dY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Brine Recirculation Rate: ' + resBrineFlow.innerText + ' (' + resRecircRatio.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Total Flash Range: ' + resFlashRange.innerText + ' | Drop: ' + resStageDt.innerText, dX + 20, dY + 165);
+          ctx.fillText('Condenser Heat Transfer Area: ' + resTubeArea.innerText + ' (' + resTubeAreaFt2.innerText + ')', dX + 20, dY + 186);
+          ctx.fillText('Blowdown Salinity: ' + resBlowdownTds.innerText + ' (' + resConcFactor.innerText + ')', dX + 20, dY + 207);
+
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Scale Control: TBT ' + tbtInput.value + ' deg C safely below CaSO4 anhydrite threshold', dX + 20, dY + 233);
+          ctx.fillText('Vacuum Integrity: Last stage @ ' + lastStageTInput.value + ' deg C (~7.4 kPa abs)', dX + 20, dY + 258);
+          ctx.fillText('Standards: International Desalination Association (IDA) & ASME PTC 30', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== MULTI-STAGE FLASH (MSF) DESALINATION REPORT ===',
+            'Distillate Production: ' + prodRateInput.value + ' ' + prodUnitSel.value + ' (Feed TDS: ' + feedTdsInput.value + ' ppm)',
+            'Top Brine Temperature (TBT): ' + tbtInput.value + ' deg C (Last Stage: ' + lastStageTInput.value + ' deg C)',
+            'Performance Ratio (PR / GOR): ' + resPr.innerText + ' kg water / kg steam',
+            'Motive Steam Consumption: ' + resSteamFlow.innerText + ' (' + resSteamKgS.innerText + ')',
+            'Brine Heater Thermal Duty: ' + resHeaterMw.innerText,
+            'Specific Thermal Energy: ' + resSpecHeat.innerText + ' (' + resSpecKwh.innerText + ')',
+            'Brine Recirculation Flow: ' + resBrineFlow.innerText + ' (' + resBrineGpm.innerText + ')',
+            'Condenser Tube Surface Area: ' + resTubeArea.innerText + ' (' + resTubeAreaFt2.innerText + ')',
+            'Blowdown Salinity: ' + resBlowdownTds.innerText + ' (' + resConcFactor.innerText + ')',
+            'Standards: IDA Thermal Desalination Standards & ASME PTC 30'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [prodRateInput, prodUnitSel, feedTdsInput, feedTempInput, tbtInput, lastStageTInput, numStagesInput, steamTInput, uCoeffInput, neaInput, bpeInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (279 calculators in /calc/)');
 }
 
