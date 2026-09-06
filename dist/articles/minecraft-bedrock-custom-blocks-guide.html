@@ -73,6 +73,54 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between behavior pack block definitions and resource pack terrain textures?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Behavior Pack defines physical simulation properties (collision, friction, destructibility, permutations), while the Resource Pack provides the visual 3D model geometry and texture atlas mappings."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my custom 3D block show up as a purple-and-black missing texture cube in-game?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This occurs when the texture shortname declared in minecraft:material_instances is missing from textures/terrain_texture.json or the referenced PNG texture file path is incorrect."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can custom Bedrock blocks have interactive GUI inventories or custom tick events?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, custom blocks can attach script components via the Script API (@minecraft/server) to handle onPlayerInteract, onStepOn, and custom entity inventory synchronization."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do Molang state conditions work in custom block permutations?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Permutations evaluate boolean Molang expressions such as q.block_state('custom:powered') == 1, dynamically applying alternate light emission, collision shapes, and textures when states update."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where should block sound definitions be placed in modern Minecraft Bedrock addons?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Block step, place, and break sound definitions belong in the Resource Pack blocks.json file, mapping block identifiers directly to sound event keys defined in sounds.json."
+      }
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Minecraft Bedrock Custom 3D Blocks & Molang Component Architecture Guide",
   "description": "Step-by-step technical tutorial on building custom 3D blocks in Bedrock 1.21.0+ with geometry, material instances, Molang query states, and permutations.",
@@ -941,6 +989,17 @@
           </header>
 
           <div class="article-body">
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1.5rem 0 2rem 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--fg);">Actionable Executive Technical Summary</div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">One-click copy of verified architecture takeaways, engineering rules, and reference implementations.</div>
+        </div>
+        <button id="btnCopyArticleKeyTakeaways" type="button" class="btn btn-primary" onclick="copyArticleKeyTakeaways()" style="padding:0.6rem 1.25rem;font-family:var(--mono);font-size:0.85rem;cursor:pointer;">
+          📋 Copy Key Takeaways
+        </button>
+      </div>
+    
             <p>With Minecraft Bedrock 1.21.0+, custom block authoring transitioned into a declarative component system. The legacy block pipeline has been replaced by modular components in the Behavior Pack paired with texture definitions in the Resource Pack.</p>
 
             <h2>1. Behavior Pack Component Declaration</h2>
@@ -1035,6 +1094,96 @@
               </div>
             </div>
           
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:0.5rem;color:var(--fg);">⚠️ 5 Fatal Traps & Engineering Pitfalls</h2>
+        <p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">Critical implementation hazards and architecture failure modes discovered in production environments:</p>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">1. Format Version Downgrade Error</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Attempting to use legacy format versions like 1.16.100 for modern custom blocks breaks custom_components, collision boxes, and creative inventory grouping in Bedrock 1.21.0+.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">2. Missing Material Instances with Geometry</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Declaring minecraft:geometry without a corresponding minecraft:material_instances component triggers compilation errors and renders blocks as missing black/purple checkerboards.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">3. Sound Property Placement in Description</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Placing sound properties inside the description object in 1.26+ block schemas causes silent loader rejection. Sound mappings belong in blocks.json via the resource pack.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">4. Geometry Identifier Namespace Casing Mismatch</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Bedrock geometry identifiers are case-sensitive. A mismatch between geometry.industrial_workbench in the model and the BP block definition will cause invisible blocks.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">5. Permutation Component Masking</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Permutations override base components completely for specified keys. Forgetting to re-declare collision_box or material_instances in permutations can cause collision clipping.</p>
+          </div>
+        
+      </div>
+    
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What is the difference between behavior pack block definitions and resource pack terrain textures?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">The Behavior Pack defines physical simulation properties (collision, friction, destructibility, permutations), while the Resource Pack provides the visual 3D model geometry and texture atlas mappings.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Why does my custom 3D block show up as a purple-and-black missing texture cube in-game?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">This occurs when the texture shortname declared in minecraft:material_instances is missing from textures/terrain_texture.json or the referenced PNG texture file path is incorrect.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Can custom Bedrock blocks have interactive GUI inventories or custom tick events?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Yes, custom blocks can attach script components via the Script API (@minecraft/server) to handle onPlayerInteract, onStepOn, and custom entity inventory synchronization.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How do Molang state conditions work in custom block permutations?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Permutations evaluate boolean Molang expressions such as q.block_state('custom:powered') == 1, dynamically applying alternate light emission, collision shapes, and textures when states update.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Where should block sound definitions be placed in modern Minecraft Bedrock addons?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Block step, place, and break sound definitions belong in the Resource Pack blocks.json file, mapping block identifiers directly to sound event keys defined in sounds.json.</div>
+          </details>
+        
+      </div>
+    
+      <script>
+        function copyArticleKeyTakeaways() {
+          var btn = document.getElementById("btnCopyArticleKeyTakeaways");
+          var text = "DIGITAL TOOLS SHED — EXECUTIVE TECHNICAL TAKEAWAYS\n" +
+            "Article: Minecraft Bedrock Custom 3D Blocks & Molang Component Architecture Guide\n" +
+            "Category: Minecraft & Game Engine | Read Time: 7 min read\n" +
+            "Published: 2026-08-16 | Source: https://digitaltoolsshed.com/articles/minecraft-bedrock-custom-blocks-guide\n\n" +
+            "CORE ARCHITECTURAL PRINCIPLES & RULES:\n" +
+            " 1. Bedrock 1.21.0+ uses declarative block components in Behavior Packs paired with Resource Pack texture definitions.\n 2. minecraft:geometry and minecraft:material_instances must always be declared together in components.\n 3. Never place sound definitions under block description in 1.26+ format versions.\n 4. Molang state permutations enable dynamic block lighting, rotation, and variant textures." + "\n\n" +
+            "FATAL PITFALLS AUDITED:\n" +
+            " 1. Format Version Downgrade Error: Attempting to use legacy format versions like 1.16.100 for modern custom blocks breaks custom_components, collision boxes, and creative inventory grouping in Bedrock 1.21.0+.\n 2. Missing Material Instances with Geometry: Declaring minecraft:geometry without a corresponding minecraft:material_instances component triggers compilation errors and renders blocks as missing black/purple checkerboards.\n 3. Sound Property Placement in Description: Placing sound properties inside the description object in 1.26+ block schemas causes silent loader rejection. Sound mappings belong in blocks.json via the resource pack.\n 4. Geometry Identifier Namespace Casing Mismatch: Bedrock geometry identifiers are case-sensitive. A mismatch between geometry.industrial_workbench in the model and the BP block definition will cause invisible blocks.\n 5. Permutation Component Masking: Permutations override base components completely for specified keys. Forgetting to re-declare collision_box or material_instances in permutations can cause collision clipping." + "\n\n" +
+            "Read the complete technical guide: https://digitaltoolsshed.com/articles/minecraft-bedrock-custom-blocks-guide";
+
+          navigator.clipboard.writeText(text).then(function() {
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = "✓ Copied Takeaways!";
+              btn.style.borderColor = "#10b981";
+              btn.style.color = "#10b981";
+              setTimeout(function() {
+                btn.innerHTML = orig;
+                btn.style.borderColor = "";
+                btn.style.color = "";
+              }, 2500);
+            }
+          });
+        }
+      </script>
+    
     <div style="margin: 2rem 0;">
       <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Recommended Reading</div>
       <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>

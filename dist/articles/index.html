@@ -64,6 +64,54 @@
   ]
 }
 </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What topics does the Digital Tools Shed Engineering Journal cover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Journal covers reverse engineering minified JavaScript bundles, client-side data obfuscation, in-browser HTML5 canvas image processing, Minecraft Bedrock 3D block and manifest architectures, and applied neuroscience frameworks (circadian rhythms, ADHD executive function, and somatic crisis triage)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are all code examples and technical architectures tested in production?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Every code snippet, AST pattern, and architectural layout featured in our technical articles is derived directly from the open-source production engines powering Digital Tools Shed tools."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I run the algorithms and converters mentioned in these guides offline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Absolutely. All utilities linked within our guides—including our ESBuild decompiler, JSON obfuscator, image format converters, and neurobiology calculators—execute 100% client-side in your browser without external backend servers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Digital Tools Shed advocate for zero-backend client-side computing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Client-side processing guarantees complete user data privacy, eliminates network upload latency, enables offline operation, and allows free access without requiring account creation or subscription fees."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How frequently are technical specifications and Minecraft Bedrock guides updated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our engineering team reviews all technical guides and schema references continuously with each stable engine release, ensuring compatibility with the latest Minecraft Bedrock specifications and modern web standards."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <script>window.__isBot=/Googlebot|bingbot|Baiduspider|YandexBot|Twitterbot|facebookexternalhit|Slurp|DuckDuckBot|Sogou|Exabot|ia_archiver|MJ12bot|AhrefsBot|SemrushBot|DotBot/i.test(navigator.userAgent);</script>
@@ -908,14 +956,58 @@
           
 
           
-    <div class="hero">
-      <h1>The Engineer's Journal & Tech Guides</h1>
-      <p>In-depth technical architecture breakdowns, reverse engineering workflows, zero-server client algorithms, and Minecraft Bedrock technical specifications.</p>
-    </div>
+    <div class="article-container" style="max-width:1100px;">
+      <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+        <a href="/">Home</a> &gt; Technical Journal & Guides
+      </nav>
 
-    <div class="article-card-grid">
-      
-    <a href="/articles/how-to-decompile-esbuild-bundles" class="article-journal-card">
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">
+        <span class="badge badge-purple">Tech Journal & Guides</span>
+        <span class="badge badge-blue">Production Architecture</span>
+        <span class="badge badge-green">10 In-Depth Papers</span>
+      </div>
+
+      <h1 style="font-family:var(--serif);font-size:2.4rem;line-height:1.2;margin-bottom:0.75rem;">The Engineer's Journal & Tech Blueprints</h1>
+      <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:2rem;">
+        In-depth technical architecture breakdowns, reverse engineering workflows, zero-server client algorithms, Minecraft Bedrock technical specifications, and applied cognitive neurobiology.
+      </p>
+
+      <!-- ACTIONABLE UTILITY COPY CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--fg);">Actionable Journal Directory Summary</div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">One-click copy of all 10 technical deep dives with read times, categories, and direct URLs.</div>
+        </div>
+        <button id="btnCopyJournalDirectory" type="button" class="btn btn-primary" onclick="copyJournalDirectory()" style="padding:0.6rem 1.25rem;font-family:var(--mono);font-size:0.85rem;cursor:pointer;">
+          📋 Copy Journal Directory
+        </button>
+      </div>
+
+      <!-- SEARCH & FILTER CONTROLS -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:2rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
+        <div style="flex:1;min-width:260px;">
+          <input type="text" id="journal-search" placeholder="Search guides by title, keyword, or topic (e.g. Bedrock, ESBuild, CAR, ADHD, Canvas)..." oninput="filterJournal()" style="width:100%;padding:0.65rem 0.85rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-size:0.9rem;">
+        </div>
+        <div>
+          <select id="journal-category" onchange="filterJournal()" style="padding:0.65rem 0.85rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-size:0.9rem;">
+            <option value="all">All Disciplines</option>
+            <option value="developer">Developer & Reverse Engineering</option>
+            <option value="security">Security & Web Architecture</option>
+            <option value="minecraft">Minecraft & Game Engine</option>
+            <option value="performance">Web Performance & Canvas</option>
+            <option value="media">Media & Streaming</option>
+            <option value="neurobiology">Neurobiology & Psychology</option>
+          </select>
+        </div>
+        <div style="font-family:var(--mono);font-size:0.85rem;color:var(--text-muted);margin-left:auto;">
+          Showing <strong id="journal-count-disp" style="color:var(--fg);">10</strong> guides
+        </div>
+      </div>
+
+      <!-- CARDS GRID -->
+      <div id="journal-grid" class="article-card-grid" style="margin-bottom:3rem;">
+        
+    <a href="/articles/how-to-decompile-esbuild-bundles" class="article-journal-card" data-title="reverse engineering minified esbuild & webpack bundles: a practical guide" data-cat="developer & reverse engineering" data-desc="understand how modern js bundlers compile modules into iifes, how to unwind helper functions, expand comma-operators, and recover clean readable source code.">
       <div>
         <div class="article-journal-tag">Developer & Reverse Engineering</div>
         <h3>Reverse Engineering Minified ESBuild & Webpack Bundles: A Practical Guide</h3>
@@ -929,7 +1021,7 @@
     </a>
   
 
-    <a href="/articles/json-obfuscation-and-compression-techniques" class="article-journal-card">
+    <a href="/articles/json-obfuscation-and-compression-techniques" class="article-journal-card" data-title="json payload obfuscation & minification: strategies for client-side protection" data-cat="security & web architecture" data-desc="explore reversible property dictionary mappings, unicode hexadecimal escaping, and whitespace elimination strategies for protecting and compressing json data.">
       <div>
         <div class="article-journal-tag">Security & Web Architecture</div>
         <h3>JSON Payload Obfuscation & Minification: Strategies for Client-Side Protection</h3>
@@ -943,7 +1035,7 @@
     </a>
   
 
-    <a href="/articles/minecraft-bedrock-custom-blocks-guide" class="article-journal-card">
+    <a href="/articles/minecraft-bedrock-custom-blocks-guide" class="article-journal-card" data-title="minecraft bedrock custom 3d blocks & molang component architecture guide" data-cat="minecraft & game engine" data-desc="step-by-step technical tutorial on building custom 3d blocks in bedrock 1.21.0+ with geometry, material instances, molang query states, and permutations.">
       <div>
         <div class="article-journal-tag">Minecraft & Game Engine</div>
         <h3>Minecraft Bedrock Custom 3D Blocks & Molang Component Architecture Guide</h3>
@@ -957,7 +1049,7 @@
     </a>
   
 
-    <a href="/articles/minecraft-bedrock-manifest-uuid-guide" class="article-journal-card">
+    <a href="/articles/minecraft-bedrock-manifest-uuid-guide" class="article-journal-card" data-title="mastering minecraft bedrock manifest.json architecture & uuid dependency routing" data-cat="minecraft & game engine" data-desc="understand manifest.json structure, header and module uuid v4 pairing, min_engine_version requirements, and dependency resolution between bp and rp.">
       <div>
         <div class="article-journal-tag">Minecraft & Game Engine</div>
         <h3>Mastering Minecraft Bedrock Manifest.json Architecture & UUID Dependency Routing</h3>
@@ -971,7 +1063,7 @@
     </a>
   
 
-    <a href="/articles/zero-upload-client-side-image-processing" class="article-journal-card">
+    <a href="/articles/zero-upload-client-side-image-processing" class="article-journal-card" data-title="zero-upload image processing: how in-browser html5 canvas compression works" data-cat="web architecture & performance" data-desc="how modern web applications convert, resize, and compress high-resolution images locally inside browser memory using html5 canvas, webp, and web workers.">
       <div>
         <div class="article-journal-tag">Web Architecture & Performance</div>
         <h3>Zero-Upload Image Processing: How In-Browser HTML5 Canvas Compression Works</h3>
@@ -985,7 +1077,7 @@
     </a>
   
 
-    <a href="/articles/universal-media-stream-extraction-guide" class="article-journal-card">
+    <a href="/articles/universal-media-stream-extraction-guide" class="article-journal-card" data-title="media stream extraction: how modern video & audio savers work without backend servers" data-cat="media & streaming" data-desc="a breakdown of progressive video extraction, dash/hls audio stream demuxing, and decentralized cors relay endpoints for zero-storage media tools.">
       <div>
         <div class="article-journal-tag">Media & Streaming</div>
         <h3>Media Stream Extraction: How Modern Video & Audio Savers Work Without Backend Servers</h3>
@@ -999,7 +1091,7 @@
     </a>
   
 
-    <a href="/articles/how-to-cure-sleep-inertia-and-cortisol-awakening-response" class="article-journal-card">
+    <a href="/articles/how-to-cure-sleep-inertia-and-cortisol-awakening-response" class="article-journal-card" data-title="how to cure sleep inertia & calibrate the cortisol awakening response (car)" data-cat="neurobiology & chronobiology" data-desc="the molecular neuroscience of morning grogginess: how adenosine clearance, core body temperature curves, and delayed caffeine intake eliminate the afternoon energy crash.">
       <div>
         <div class="article-journal-tag">Neurobiology & Chronobiology</div>
         <h3>How to Cure Sleep Inertia & Calibrate the Cortisol Awakening Response (CAR)</h3>
@@ -1013,7 +1105,7 @@
     </a>
   
 
-    <a href="/articles/the-neuroscience-of-adhd-task-paralysis-and-micro-stepping" class="article-journal-card">
+    <a href="/articles/the-neuroscience-of-adhd-task-paralysis-and-micro-stepping" class="article-journal-card" data-title="the neuroscience of adhd task paralysis: bypassing prefrontal gating with micro-stepping" data-cat="cognitive architecture & adhd" data-desc="why executive dysfunction causes agonizing task freeze, how ambiguous cognitive scope triggers amygdala threat responses, and how 120-second dopamine micro-stepping bypasses prefrontal inertia.">
       <div>
         <div class="article-journal-tag">Cognitive Architecture & ADHD</div>
         <h3>The Neuroscience of ADHD Task Paralysis: Bypassing Prefrontal Gating with Micro-Stepping</h3>
@@ -1027,7 +1119,7 @@
     </a>
   
 
-    <a href="/articles/the-neuroscience-of-limerence-why-brains-obsess-over-uncertain-love" class="article-journal-card">
+    <a href="/articles/the-neuroscience-of-limerence-why-brains-obsess-over-uncertain-love" class="article-journal-card" data-title="the neuroscience of limerence: why the brain obsesses over uncertain love" data-cat="clinical neurobiology & psychology" data-desc="explore the dopamine-driven neurochemistry of obsessive infatuation, intermittent reinforcement schedules, and how to decouple fantasy projection from authentic emotional intimacy.">
       <div>
         <div class="article-journal-tag">Clinical Neurobiology & Psychology</div>
         <h3>The Neuroscience of Limerence: Why the Brain Obsesses Over Uncertain Love</h3>
@@ -1041,7 +1133,7 @@
     </a>
   
 
-    <a href="/articles/dbt-tipp-skills-how-to-abort-an-emotional-crisis-in-60-seconds" class="article-journal-card">
+    <a href="/articles/dbt-tipp-skills-how-to-abort-an-emotional-crisis-in-60-seconds" class="article-journal-card" data-title="dbt tipp skills: how to abort an emotional crisis in under 60 seconds" data-cat="somatic neurobiology & crisis triage" data-desc="master the dialectical behavior therapy tipp protocol. learn how the mammalian dive reflex, cold exposure, and paced breathing downregulate acute amygdala hijacks.">
       <div>
         <div class="article-journal-tag">Somatic Neurobiology & Crisis Triage</div>
         <h3>DBT TIPP Skills: How to Abort an Emotional Crisis in Under 60 Seconds</h3>
@@ -1054,7 +1146,135 @@
       </div>
     </a>
   
+      </div>
+
+      <!-- 5 FATAL ENGINEERING INFORMATION TRAPS -->
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:0.5rem;color:var(--fg);">⚠️ 5 Fatal Technical Information Traps & Pitfalls</h2>
+        <p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">Crucial engineering information hazards to avoid when designing production client-side systems:</p>
+        
+    <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">1. The Outdated Documentation Trap</div>
+      <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Relying on 2022–2023 tutorials for fast-evolving ecosystems (like Minecraft Bedrock 1.21+ declarative blocks or ESBuild bundling) leads to broken schemas, silent build rejections, and wasted development hours.</p>
     </div>
+  
+
+    <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">2. The Black-Box Cloud Dependency Trap</div>
+      <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Routing simple file transformations through third-party SaaS APIs adds subscription costs, upload latency, and privacy compliance liabilities for tasks browsers handle natively.</p>
+    </div>
+  
+
+    <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">3. The Premature Architecture Optimization Trap</div>
+      <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Writing complex multi-tiered abstraction layers before profiling real performance bottlenecks bloats codebases and impairs long-term maintainability.</p>
+    </div>
+  
+
+    <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">4. The Client-Server Security Confusion</div>
+      <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Treating client-side JavaScript obfuscation or dictionary mapping as a substitute for server-side cryptographic authentication and authorization models.</p>
+    </div>
+  
+
+    <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">5. The Passive Reading Illusion</div>
+      <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Skimming theoretical engineering concepts without testing code implementations in live browser environments creates a false sense of mastery that fails under real production edge cases.</p>
+    </div>
+  
+      </div>
+
+      <!-- HUB FAQS -->
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2>
+        
+    <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+      <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What topics does the Digital Tools Shed Engineering Journal cover?</summary>
+      <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">The Journal covers reverse engineering minified JavaScript bundles, client-side data obfuscation, in-browser HTML5 canvas image processing, Minecraft Bedrock 3D block and manifest architectures, and applied neuroscience frameworks (circadian rhythms, ADHD executive function, and somatic crisis triage).</div>
+    </details>
+  
+
+    <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+      <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Are all code examples and technical architectures tested in production?</summary>
+      <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Yes. Every code snippet, AST pattern, and architectural layout featured in our technical articles is derived directly from the open-source production engines powering Digital Tools Shed tools.</div>
+    </details>
+  
+
+    <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+      <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Can I run the algorithms and converters mentioned in these guides offline?</summary>
+      <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Absolutely. All utilities linked within our guides—including our ESBuild decompiler, JSON obfuscator, image format converters, and neurobiology calculators—execute 100% client-side in your browser without external backend servers.</div>
+    </details>
+  
+
+    <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+      <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Why does Digital Tools Shed advocate for zero-backend client-side computing?</summary>
+      <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Client-side processing guarantees complete user data privacy, eliminates network upload latency, enables offline operation, and allows free access without requiring account creation or subscription fees.</div>
+    </details>
+  
+
+    <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+      <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How frequently are technical specifications and Minecraft Bedrock guides updated?</summary>
+      <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Our engineering team reviews all technical guides and schema references continuously with each stable engine release, ensuring compatibility with the latest Minecraft Bedrock specifications and modern web standards.</div>
+    </details>
+  
+      </div>
+    </div>
+
+    <script>
+      function filterJournal() {
+        var q = (document.getElementById("journal-search").value || "").toLowerCase().trim();
+        var cat = document.getElementById("journal-category").value;
+        var cards = document.querySelectorAll(".article-journal-card");
+        var count = 0;
+
+        cards.forEach(function(card) {
+          var title = card.getAttribute("data-title") || "";
+          var cardCat = card.getAttribute("data-cat") || "";
+          var desc = card.getAttribute("data-desc") || "";
+
+          var matchSearch = !q || title.indexOf(q) >= 0 || desc.indexOf(q) >= 0 || cardCat.indexOf(q) >= 0;
+          var matchCat = cat === "all" ||
+            (cat === "developer" && cardCat.indexOf("developer") >= 0) ||
+            (cat === "security" && cardCat.indexOf("security") >= 0) ||
+            (cat === "minecraft" && cardCat.indexOf("minecraft") >= 0) ||
+            (cat === "performance" && (cardCat.indexOf("performance") >= 0 || cardCat.indexOf("architecture") >= 0)) ||
+            (cat === "media" && cardCat.indexOf("media") >= 0) ||
+            (cat === "neurobiology" && (cardCat.indexOf("neuro") >= 0 || cardCat.indexOf("psychology") >= 0 || cardCat.indexOf("adhd") >= 0 || cardCat.indexOf("triage") >= 0));
+
+          if (matchSearch && matchCat) {
+            card.style.display = "";
+            count++;
+          } else {
+            card.style.display = "none";
+          }
+        });
+
+        var disp = document.getElementById("journal-count-disp");
+        if (disp) disp.textContent = count;
+      }
+
+      function copyJournalDirectory() {
+        var btn = document.getElementById("btnCopyJournalDirectory");
+        var text = "# Digital Tools Shed — Technical Journal Directory\n" +
+          "Official Engineering Papers & Applied Neurobiology Guides\n\n" +
+          "1. [Reverse Engineering Minified ESBuild & Webpack Bundles: A Practical Guide](https://digitaltoolsshed.com/articles/how-to-decompile-esbuild-bundles)\n   - Category: Developer & Reverse Engineering | Read Time: 6 min read\n   - Synopsis: Understand how modern JS bundlers compile modules into IIFEs, how to unwind helper functions, expand comma-operators, and recover clean readable source code.\n\n2. [JSON Payload Obfuscation & Minification: Strategies for Client-Side Protection](https://digitaltoolsshed.com/articles/json-obfuscation-and-compression-techniques)\n   - Category: Security & Web Architecture | Read Time: 5 min read\n   - Synopsis: Explore reversible property dictionary mappings, Unicode hexadecimal escaping, and whitespace elimination strategies for protecting and compressing JSON data.\n\n3. [Minecraft Bedrock Custom 3D Blocks & Molang Component Architecture Guide](https://digitaltoolsshed.com/articles/minecraft-bedrock-custom-blocks-guide)\n   - Category: Minecraft & Game Engine | Read Time: 7 min read\n   - Synopsis: Step-by-step technical tutorial on building custom 3D blocks in Bedrock 1.21.0+ with geometry, material instances, Molang query states, and permutations.\n\n4. [Mastering Minecraft Bedrock Manifest.json Architecture & UUID Dependency Routing](https://digitaltoolsshed.com/articles/minecraft-bedrock-manifest-uuid-guide)\n   - Category: Minecraft & Game Engine | Read Time: 6 min read\n   - Synopsis: Understand manifest.json structure, header and module UUID v4 pairing, min_engine_version requirements, and dependency resolution between BP and RP.\n\n5. [Zero-Upload Image Processing: How In-Browser HTML5 Canvas Compression Works](https://digitaltoolsshed.com/articles/zero-upload-client-side-image-processing)\n   - Category: Web Architecture & Performance | Read Time: 5 min read\n   - Synopsis: How modern web applications convert, resize, and compress high-resolution images locally inside browser memory using HTML5 Canvas, WebP, and Web Workers.\n\n6. [Media Stream Extraction: How Modern Video & Audio Savers Work Without Backend Servers](https://digitaltoolsshed.com/articles/universal-media-stream-extraction-guide)\n   - Category: Media & Streaming | Read Time: 6 min read\n   - Synopsis: A breakdown of progressive video extraction, DASH/HLS audio stream demuxing, and decentralized CORS relay endpoints for zero-storage media tools.\n\n7. [How to Cure Sleep Inertia & Calibrate the Cortisol Awakening Response (CAR)](https://digitaltoolsshed.com/articles/how-to-cure-sleep-inertia-and-cortisol-awakening-response)\n   - Category: Neurobiology & Chronobiology | Read Time: 7 min read\n   - Synopsis: The molecular neuroscience of morning grogginess: how adenosine clearance, core body temperature curves, and delayed caffeine intake eliminate the afternoon energy crash.\n\n8. [The Neuroscience of ADHD Task Paralysis: Bypassing Prefrontal Gating with Micro-Stepping](https://digitaltoolsshed.com/articles/the-neuroscience-of-adhd-task-paralysis-and-micro-stepping)\n   - Category: Cognitive Architecture & ADHD | Read Time: 8 min read\n   - Synopsis: Why executive dysfunction causes agonizing task freeze, how ambiguous cognitive scope triggers amygdala threat responses, and how 120-second dopamine micro-stepping bypasses prefrontal inertia.\n\n9. [The Neuroscience of Limerence: Why the Brain Obsesses Over Uncertain Love](https://digitaltoolsshed.com/articles/the-neuroscience-of-limerence-why-brains-obsess-over-uncertain-love)\n   - Category: Clinical Neurobiology & Psychology | Read Time: 8 min read\n   - Synopsis: Explore the dopamine-driven neurochemistry of obsessive infatuation, intermittent reinforcement schedules, and how to decouple fantasy projection from authentic emotional intimacy.\n\n10. [DBT TIPP Skills: How to Abort an Emotional Crisis in Under 60 Seconds](https://digitaltoolsshed.com/articles/dbt-tipp-skills-how-to-abort-an-emotional-crisis-in-60-seconds)\n   - Category: Somatic Neurobiology & Crisis Triage | Read Time: 7 min read\n   - Synopsis: Master the dialectical behavior therapy TIPP protocol. Learn how the mammalian dive reflex, cold exposure, and paced breathing downregulate acute amygdala hijacks." + "\n\n" +
+          "Browse all interactive articles: https://digitaltoolsshed.com/articles/";
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = "✓ Copied Directory!";
+            btn.style.borderColor = "#10b981";
+            btn.style.color = "#10b981";
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = "";
+              btn.style.color = "";
+            }, 2500);
+          }
+        });
+      }
+    </script>
   
 
           

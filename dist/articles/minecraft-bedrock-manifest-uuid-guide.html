@@ -73,6 +73,54 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Minecraft Bedrock require two separate UUIDs in every manifest.json file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The header UUID uniquely identifies the overall add-on package, while the module UUID uniquely identifies the specific payload (e.g. behavior data, client resources, or JavaScript scripts) within that package."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if two different addons share the exact same header UUID?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Minecraft Bedrock treats them as identical packages, overwriting files from the first pack or failing to import the second pack with a duplicate pack UUID error."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I link a Behavior Pack to a Resource Pack using the dependencies block?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In the Behavior Pack manifest.json, add an entry to the dependencies array containing the Resource Pack header UUID and matching version tuple."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between module types data, resources, and script?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The data module defines server-side behavior (entities, blocks, loot tables), resources defines client-side visuals (textures, models, animations), and script activates the @minecraft/server JavaScript runtime."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do version numbers in manifest.json affect player world migration and addon updates?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Incrementing version tuples (e.g. from [1, 0, 0] to [1, 0, 1]) signals to Minecraft that existing worlds should reload cached pack definitions and apply updated components."
+      }
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Mastering Minecraft Bedrock Manifest.json Architecture & UUID Dependency Routing",
   "description": "Understand manifest.json structure, header and module UUID v4 pairing, min_engine_version requirements, and dependency resolution between BP and RP.",
@@ -941,6 +989,17 @@
           </header>
 
           <div class="article-body">
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1.5rem 0 2rem 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--fg);">Actionable Executive Technical Summary</div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">One-click copy of verified architecture takeaways, engineering rules, and reference implementations.</div>
+        </div>
+        <button id="btnCopyArticleKeyTakeaways" type="button" class="btn btn-primary" onclick="copyArticleKeyTakeaways()" style="padding:0.6rem 1.25rem;font-family:var(--mono);font-size:0.85rem;cursor:pointer;">
+          📋 Copy Key Takeaways
+        </button>
+      </div>
+    
             <p>The <code>manifest.json</code> file is the root identity certificate for every Minecraft Bedrock add-on pack. A single invalid UUID, mismatched module type, or conflicting version definition causes Bedrock to reject the pack or silently ignore assets.</p>
 
             <h2>1. The Core Schema Breakdown</h2>
@@ -992,6 +1051,96 @@
               </div>
             </div>
           
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:0.5rem;color:var(--fg);">⚠️ 5 Fatal Traps & Engineering Pitfalls</h2>
+        <p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">Critical implementation hazards and architecture failure modes discovered in production environments:</p>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">1. Identical Header and Module UUIDs</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Copy-pasting the same UUID v4 into both the header and module sections causes the Bedrock engine to reject the pack upon world import with invalid manifest errors.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">2. Dependency Module UUID Misrouting</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">When linking a BP to an RP, referencing the Resource Pack's module UUID instead of its header UUID breaks texture loading and triggers dependency missing warnings.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">3. Min Engine Version Semantic Drift</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Specifying an outdated min_engine_version (e.g. [1, 16, 0]) disables modern Script API beta modules and declarative block components.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">4. String-Based Version Formatting</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Writing "version": "1.0.0" as a string instead of an integer array [1, 0, 0] causes silent JSON schema parsing failure in Minecraft Bedrock.</p>
+          </div>
+        
+          <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+            <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">5. Stale UUID Folders in Development Directory</div>
+            <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Leaving duplicate development folders with matching UUIDs in com.mojang causes module version conflicts and prevents new script changes from loading.</p>
+          </div>
+        
+      </div>
+    
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Why does Minecraft Bedrock require two separate UUIDs in every manifest.json file?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">The header UUID uniquely identifies the overall add-on package, while the module UUID uniquely identifies the specific payload (e.g. behavior data, client resources, or JavaScript scripts) within that package.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What happens if two different addons share the exact same header UUID?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Minecraft Bedrock treats them as identical packages, overwriting files from the first pack or failing to import the second pack with a duplicate pack UUID error.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How do I link a Behavior Pack to a Resource Pack using the dependencies block?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">In the Behavior Pack manifest.json, add an entry to the dependencies array containing the Resource Pack header UUID and matching version tuple.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What is the difference between module types data, resources, and script?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">The data module defines server-side behavior (entities, blocks, loot tables), resources defines client-side visuals (textures, models, animations), and script activates the @minecraft/server JavaScript runtime.</div>
+          </details>
+        
+          <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+            <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How do version numbers in manifest.json affect player world migration and addon updates?</summary>
+            <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Incrementing version tuples (e.g. from [1, 0, 0] to [1, 0, 1]) signals to Minecraft that existing worlds should reload cached pack definitions and apply updated components.</div>
+          </details>
+        
+      </div>
+    
+      <script>
+        function copyArticleKeyTakeaways() {
+          var btn = document.getElementById("btnCopyArticleKeyTakeaways");
+          var text = "DIGITAL TOOLS SHED — EXECUTIVE TECHNICAL TAKEAWAYS\n" +
+            "Article: Mastering Minecraft Bedrock Manifest.json Architecture & UUID Dependency Routing\n" +
+            "Category: Minecraft & Game Engine | Read Time: 6 min read\n" +
+            "Published: 2026-08-16 | Source: https://digitaltoolsshed.com/articles/minecraft-bedrock-manifest-uuid-guide\n\n" +
+            "CORE ARCHITECTURAL PRINCIPLES & RULES:\n" +
+            " 1. Every manifest.json requires distinct header and module UUID v4 identifiers that never collide.\n 2. Behavior Packs bind to Resource Packs by referencing the Resource Pack's header UUID in their dependencies block.\n 3. Version tuples must always be formatted as integer arrays [1, 0, 0], never strings.\n 4. Clean development directories to eliminate conflicting duplicate UUID folders in com.mojang." + "\n\n" +
+            "FATAL PITFALLS AUDITED:\n" +
+            " 1. Identical Header and Module UUIDs: Copy-pasting the same UUID v4 into both the header and module sections causes the Bedrock engine to reject the pack upon world import with invalid manifest errors.\n 2. Dependency Module UUID Misrouting: When linking a BP to an RP, referencing the Resource Pack's module UUID instead of its header UUID breaks texture loading and triggers dependency missing warnings.\n 3. Min Engine Version Semantic Drift: Specifying an outdated min_engine_version (e.g. [1, 16, 0]) disables modern Script API beta modules and declarative block components.\n 4. String-Based Version Formatting: Writing \"version\": \"1.0.0\" as a string instead of an integer array [1, 0, 0] causes silent JSON schema parsing failure in Minecraft Bedrock.\n 5. Stale UUID Folders in Development Directory: Leaving duplicate development folders with matching UUIDs in com.mojang causes module version conflicts and prevents new script changes from loading." + "\n\n" +
+            "Read the complete technical guide: https://digitaltoolsshed.com/articles/minecraft-bedrock-manifest-uuid-guide";
+
+          navigator.clipboard.writeText(text).then(function() {
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = "✓ Copied Takeaways!";
+              btn.style.borderColor = "#10b981";
+              btn.style.color = "#10b981";
+              setTimeout(function() {
+                btn.innerHTML = orig;
+                btn.style.borderColor = "";
+                btn.style.color = "";
+              }, 2500);
+            }
+          });
+        }
+      </script>
+    
     <div style="margin: 2rem 0;">
       <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Recommended Reading</div>
       <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
