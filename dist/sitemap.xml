@@ -722,6 +722,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/centrifugal-slurry-pump-head-deration-warman-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/chilled-water-ahu-coil-sizing-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -1185,6 +1191,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/deaerator-boiler-feedwater-tray-spray-steam-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/deaerator-steam-mass-balance-tray-spray-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1869,6 +1881,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/heat-pipe-thermal-resistance-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/heat-pipe-thermal-resistance-wick-capillary-limit-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3117,6 +3135,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/pneumatic-dilute-phase-saltation-velocity-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/pneumatic-impact-hammer-piston-kinetic-energy-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
