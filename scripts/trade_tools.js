@@ -64446,6 +64446,2621 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (79 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 80: Three-Phase Oil-Water-Gas Separator Sizing Calculator (API 12J & GPSA)
+  // ==========================================
+  const threePhaseSeparatorBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">API Specification 12J</span>
+      <span class="calc-clean-badge">GPSA Engineering Data Book Sec 7</span>
+      <span class="calc-clean-badge">Upstream Production Surface Facilities</span>
+    </div>
+    <h1 class="calc-clean-title">Three-Phase Oil-Water-Gas Separator Sizing Calculator</h1>
+    <p class="calc-clean-desc">
+      Size horizontal three-phase production separators by determining shell diameter, seam-to-seam length, Souders-Brown gas capacity (K-factor), Stokes droplet settling velocities, liquid retention times, and oil weir crest heights per API 12J and GPSA standards.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Oil Production Flow Rate -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_oilRate">Oil Production Rate (Qo)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_oilRate" class="calc-clean-input" value="5000" min="100" max="100000" step="250">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">BOPD</span>
+        </div>
+        <small class="calc-clean-help">Net barrels of oil per day (42 US gal/bbl)</small>
+      </div>
+
+      <!-- Water Production Flow Rate -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_waterRate">Water Production Rate (Qw)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_waterRate" class="calc-clean-input" value="3500" min="0" max="100000" step="250">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">BWPD</span>
+        </div>
+        <small class="calc-clean-help">Produced brine / formation water rate</small>
+      </div>
+
+      <!-- Gas Flow Rate -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_gasRate">Gas Flow Rate (Qg)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_gasRate" class="calc-clean-input" value="5.50" min="0.1" max="150.0" step="0.25">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">MMSCFD</span>
+        </div>
+        <small class="calc-clean-help">Associated gas volumetric flow at standard conditions</small>
+      </div>
+
+      <!-- Operating Pressure -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_pressure">Operating Pressure (Pop)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_pressure" class="calc-clean-input" value="250" min="15" max="3000" step="10">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">psig</span>
+        </div>
+        <small class="calc-clean-help">Vessel internal operating pressure</small>
+      </div>
+
+      <!-- Operating Temperature -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_temp">Operating Temperature (Top)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_temp" class="calc-clean-input" value="100" min="40" max="250" step="5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Operating fluid separation temperature</small>
+      </div>
+
+      <!-- Oil Gravity (API) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_api">Oil Gravity (°API)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_api" class="calc-clean-input" value="35.0" min="10.0" max="60.0" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°API</span>
+        </div>
+        <small class="calc-clean-help">Specific gravity: SG = 141.5 / (131.5 + API)</small>
+      </div>
+
+      <!-- Water Specific Gravity -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_sgw">Water Specific Gravity (SGw)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_sgw" class="calc-clean-input" value="1.06" min="1.00" max="1.25" step="0.01">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">SG</span>
+        </div>
+        <small class="calc-clean-help">Formation brine specific gravity relative to fresh water</small>
+      </div>
+
+      <!-- Gas Specific Gravity -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_sgg">Gas Specific Gravity (SGg)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_sgg" class="calc-clean-input" value="0.68" min="0.55" max="1.50" step="0.01">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">air = 1.0</span>
+        </div>
+        <small class="calc-clean-help">Gas specific gravity relative to air (MW = 28.97 × SGg)</small>
+      </div>
+
+      <!-- Oil Retention Time (tro) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_tro">Oil Retention Time (tro)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_tro" class="calc-clean-input" value="12.0" min="3.0" max="45.0" step="1.0">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">min</span>
+        </div>
+        <small class="calc-clean-help">API 12J recommends 10 to 15 min for medium oils</small>
+      </div>
+
+      <!-- Water Retention Time (trw) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_trw">Water Retention Time (trw)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_trw" class="calc-clean-input" value="12.0" min="3.0" max="45.0" step="1.0">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">min</span>
+        </div>
+        <small class="calc-clean-help">Water pad retention time for de-oiling</small>
+      </div>
+
+      <!-- Vessel Slenderness Ratio (L/D) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_ld">Slenderness Ratio (L/D)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="sep_ld" class="calc-clean-input" value="4.0" min="2.5" max="6.0" step="0.25">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">L/D ratio</span>
+        </div>
+        <small class="calc-clean-help">Length-to-diameter ratio (typically 3.0 to 5.0)</small>
+      </div>
+
+      <!-- Mist Eliminator Type / K-Factor -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="sep_kfactor">Souders-Brown Gas K-Factor</label>
+        <select id="sep_kfactor" class="calc-clean-select">
+          <option value="0.35" selected>K = 0.35 ft/s (Standard Wire Mesh Demister Pad)</option>
+          <option value="0.40">K = 0.40 ft/s (High-Capacity Mesh Mist Eliminator)</option>
+          <option value="0.50">K = 0.50 ft/s (High-Efficiency Vane Pack Droplet Interceptor)</option>
+          <option value="0.20">K = 0.20 ft/s (Bare Shell Gravity Settling, No Mesh)</option>
+        </select>
+        <small class="calc-clean-help">Empirical Souders-Brown gas separation coefficient</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Separator Dimensions & Multi-Phase Operating Ratings</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Vessel Inner Diameter -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Vessel Inside Diameter (ID)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="sep_res_dia">84.0 in (7.0 ft)</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="sep_res_diasi">2,134 mm Shell ID</div>
+      </div>
+
+      <!-- Seam-to-Seam Length -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Seam-to-Seam Length (Lss)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="sep_res_length">28.0 ft</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="sep_res_lengthsi">8.53 m (L/D = 4.00)</div>
+      </div>
+
+      <!-- Gas Superficial Velocity -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Gas Velocity vs Limit</div>
+        <div style="color: #10b981; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="sep_res_vgas">1.42 ft/s</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="sep_res_vgasmax">V_max = 2.18 ft/s (65% capacity)</div>
+      </div>
+
+      <!-- Oil Weir Height -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Oil Weir & Interface Height</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="sep_res_weir">Weir: 50.4 in</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="sep_res_interface">Water Interface: 25.2 in</div>
+      </div>
+
+      <!-- Stokes Settling Velocity -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Water-in-Oil Settling</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="sep_res_stokes">1.85 in/min</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;">For 500 μm water droplets</div>
+      </div>
+
+      <!-- Total Vessel Working Volume -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Liquid Sump Volume</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="sep_res_vol">638 bbl</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="sep_res_volbrk">Oil: 375 bbl | Water: 263 bbl</div>
+      </div>
+    </div>
+
+    <!-- Separator Longitudinal Cutaway Cross-Section SVG -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">Horizontal 3-Phase Vessel Longitudinal Section & Fluid Strata</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;" id="sep_svg_subtitle">API 12J Weir Compartment Layout</span>
+      </div>
+      <div id="sep_svg_wrap" style="width: 100%; overflow-x: auto; text-align: center;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copySepAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy Separator Sizing Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per API Spec 12J & GPSA Engineering Data Book</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="sepAuditBox">Production Separator Sizing & Process Hydraulics Log</label>
+      <textarea id="sepAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Engineering Principles of Three-Phase Gravity Separation (API 12J & GPSA)</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      A horizontal three-phase separator simultaneously performs three discrete fluid mechanics processes: (1) primary bulk gas-liquid separation using an inlet momentum diverter, (2) gravity disengagement of liquid mists from the vapor stream in the upper vessel dome, and (3) gravity settling of immiscible liquid-liquid phases (water droplets settling out of the continuous oil pad, and oil droplets rising out of the water layer) across prescribed retention durations.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Separation Phase</th>
+            <th style="padding: 10px;">Governing Physical Equation</th>
+            <th style="padding: 10px;">Typical API 12J Criterion</th>
+            <th style="padding: 10px;">Design Controlling Factor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Gas-Liquid Velocity</td>
+            <td style="padding: 10px; font-family: monospace;">Vmax = K × √[(ρL - ρg)/ρg]</td>
+            <td style="padding: 10px; color: #10b981;">K = 0.35 – 0.50 ft/s</td>
+            <td style="padding: 10px;">Souders-Brown mist droplet re-entrainment limit</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Water-in-Oil Settling</td>
+            <td style="padding: 10px; font-family: monospace;">vt = g(ρw - ρo)d² / (18μo)</td>
+            <td style="padding: 10px;">500 μm droplet cut-point</td>
+            <td style="padding: 10px;">Stokes' law laminar terminal settling velocity</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Liquid Retention</td>
+            <td style="padding: 10px; font-family: monospace;">V_liquid = (Q × tr) / 1440</td>
+            <td style="padding: 10px;">10 – 20 minutes (oil & water)</td>
+            <td style="padding: 10px;">Coalescence time for emulsified water droplets</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Slenderness Ratio</td>
+            <td style="padding: 10px; font-family: monospace;">Lss / D</td>
+            <td style="padding: 10px; color: #f59e0b;">3.0 to 5.0 (4.0 optimum)</td>
+            <td style="padding: 10px;">Economic balance between plate thickness and footprint</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Souders-Brown Gas Capacity & Demister Velocity Limits</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      The maximum allowable superficial gas velocity \(V_{max}\) inside the vapor space is determined by balancing gravitational drag against aerodynamic upward lift on liquid droplets:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      V_{max} = K \cdot \sqrt{\frac{\rho_L - \rho_g}{\rho_g}}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where \(\rho_L\) is the density of the light liquid phase (crude oil), \(\rho_g\) is the operating gas density, and \(K\) is the Souders-Brown empirical sizing constant. For horizontal vessels equipped with a standard 4-to-6-inch stainless steel wire-mesh mist eliminator pad, \(K = 0.35\) ft/s is the proven baseline per API 12J.
+    </p>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Liquid Phase Geometry and Weir Height</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      In an overflow weir configuration, the oil weir plate maintains a constant liquid level across the settling compartment. The oil layer floats on the heavier water cushion. The weir crest height \(h_w\) is typically set at <strong>50% to 65% of the vessel inside diameter</strong> (leaving the upper 35% to 50% for gas flow and disengagement). The interface float control maintains the water level below the oil weir so that only clean, de-watered crude spills over into the oil collection bucket.
+    </p>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Sizing a 5,000 BOPD 3-Phase Separator</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Size a horizontal three-phase production separator for 5,000 BOPD of 35°API crude (\(SG_o = 0.850\), \(\rho_o = 53.0\) lb/cu ft), 3,500 BWPD formation water (\(SG_w = 1.06\), \(\rho_w = 66.1\) lb/cu ft), and 5.5 MMSCFD gas (\(SG_g = 0.68\)) operating at 250 psig and 100°F. Retention times are 12.0 minutes for both oil and water pads, with an L/D ratio of 4.0 and \(K = 0.35\) ft/s.
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Operating Gas Density & Maximum Velocity:</strong><br>
+        \(P = 250 + 14.7 = 264.7\text{ psia}\), \(T = 100 + 460 = 560\text{ R}\).<br>
+        Gas molecular weight: \(MW_g = 0.68 \times 28.97 = 19.7\).<br>
+        \(\rho_g = \frac{264.7 \times 19.7}{0.96 \times 10.7316 \times 560} = \mathbf{0.903\text{ lb/cu ft}}\).<br>
+        \(V_{max} = 0.35 \times \sqrt{\frac{53.0 - 0.903}{0.903}} = 0.35 \times \sqrt{57.69} = \mathbf{2.66\text{ ft/s}}\).
+      </li>
+      <li>
+        <strong>Calculate Liquid Retention Volumes:</strong><br>
+        Oil working volume: \(V_o = \frac{5,000 \times 12.0}{1440} \times 5.615 = 233.9\text{ cu ft} = \mathbf{41.7\text{ bbl}}\).<br>
+        Water working volume: \(V_w = \frac{3,500 \times 12.0}{1440} \times 5.615 = 163.8\text{ cu ft} = \mathbf{29.2\text{ bbl}}\).<br>
+        Total liquid volume: \(V_L = 233.9 + 163.8 = \mathbf{397.7\text{ cu ft}}\).
+      </li>
+      <li>
+        <strong>Determine Shell Diameter & Length:</strong><br>
+        Allocating 55% of vessel volume to liquid (45% gas space):<br>
+        Total vessel volume = \(\frac{397.7}{0.55} = 723\) cu ft.<br>
+        For \(L/D = 4.0\): \(V_{total} = \frac{\pi}{4} D^2 (4D) = \pi D^3 = 723\) cu ft.<br>
+        \(D = (723 / \pi)^{1/3} = (230.1)^{1/3} = 6.13\text{ ft} = 73.5\) inches.<br>
+        Standardize to standard plate size: <strong>D = 84.0 inches ID (7.0 ft)</strong>.<br>
+        Seam-to-seam length: \(L_{ss} = 4.0 \times 7.0\text{ ft} = \mathbf{28.0\text{ ft}}\).
+      </li>
+      <li>
+        <strong>Verify Gas Velocity in 45% Upper Area:</strong><br>
+        Vessel cross-sectional area: \(A = \frac{\pi}{4}(7.0)^2 = 38.48\) sq ft.<br>
+        Gas area: \(A_g = 0.45 \times 38.48 = 17.32\) sq ft.<br>
+        Actual gas flow rate: \(Q_{g,actual} = \frac{5.5 \times 10^6}{86,400} \times \frac{14.7}{264.7} \times \frac{560}{520} = 3.81\text{ cu ft/sec}\).<br>
+        Superficial gas velocity: \(V_g = \frac{3.81}{17.32} = \mathbf{0.22\text{ ft/s}}\), well below the 2.66 ft/s limit.
+      </li>
+      <li>
+        <strong>Weir Heights & Level Settings:</strong><br>
+        Weir height: \(h_w = 0.60 \times 84.0 = \mathbf{50.4\text{ inches}}\).<br>
+        Water interface float level setpoint: \(h_{int} = \frac{163.8}{397.7} \times 50.4 = \mathbf{20.8\text{ inches}}\).
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Three-Phase Separator Operation</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. The Emulsion "Rag Layer" Trap</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Natural surfactants, fine clays, and asphaltenes gather at the oil-water interface, forming a thick, stubborn emulsion band known as the "rag layer." If this emulsion layer grows to 12–18 inches thick, it spills over the oil weir into the oil bucket, driving basic sediment and water (BS&W) far above pipeline sales specifications (typically >0.5% BS&W limit). Demulsifier chemical injection upstream of the choke valve is mandatory.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. Severe Foaming & Gas Demister Carryover</h3>
+      <p style="color: #f59e0b; line-height: 1.6; margin-bottom: 0;">
+        Crude oils with high carbon dioxide or gas breakout tendency generate dense surface foam. Foam bubbles resist gravity drainage, filling the upper vapor space and blinding the wire-mesh mist eliminator pad. Liquid is sucked directly into the overhead gas line, causing liquid slugging in downstream gas compressors and catastrophic valve damage. Foaming crudes require a 40% K-factor derate and silicone anti-foam dosing.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Level Transmitter False Reading & Interface Loss</h3>
+      <p style="color: #10b981; line-height: 1.6; margin-bottom: 0;">
+        Differential pressure (DP) interface transmitters rely on fixed fluid density differences. If wellhead water salinity shifts or oil API changes during production blending, the transmitter miscalculates the interface height. The water dump valve opens prematurely, dumping valuable crude oil into the produced water disposal system or holding water until it overflows the oil weir. Guided-wave radar (GWR) probes must be specified for complex interfaces.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. Sand Accumulation & Bottom Drain Choking</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        In unconsolidated sandstone reservoirs, produced sand drops out under gravity and accumulates in the bottom water compartment. Within months, compacted sand dunes occupy up to 30% of vessel volume, cutting water retention time in half and cutting through water dump valve seats via erosion. Vessels must be equipped with sand jetting manifolds and sand drain nozzles.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Slug Wave Sloshing & Weir Splashing</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Long multiphase flowlines deliver intermittent liquid slugs. When a liquid slug impacts the inlet momentum diverter, it generates internal hydraulic slosh waves that travel down the vessel length. Waves crest over the oil weir, splashing slugs of free water directly into the dry oil bucket. Transverse perforated anti-slosh baffles must be installed between the inlet and the weir.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const oilRateInput = document.getElementById('sep_oilRate');
+    const waterRateInput = document.getElementById('sep_waterRate');
+    const gasRateInput = document.getElementById('sep_gasRate');
+    const pressInput = document.getElementById('sep_pressure');
+    const tempInput = document.getElementById('sep_temp');
+    const apiInput = document.getElementById('sep_api');
+    const sgwInput = document.getElementById('sep_sgw');
+    const sggInput = document.getElementById('sep_sgg');
+    const troInput = document.getElementById('sep_tro');
+    const trwInput = document.getElementById('sep_trw');
+    const ldInput = document.getElementById('sep_ld');
+    const kfactorSelect = document.getElementById('sep_kfactor');
+
+    const resDia = document.getElementById('sep_res_dia');
+    const resDiaSi = document.getElementById('sep_res_diasi');
+    const resLen = document.getElementById('sep_res_length');
+    const resLenSi = document.getElementById('sep_res_lengthsi');
+    const resVgas = document.getElementById('sep_res_vgas');
+    const resVgasMax = document.getElementById('sep_res_vgasmax');
+    const resWeir = document.getElementById('sep_res_weir');
+    const resInterface = document.getElementById('sep_res_interface');
+    const resStokes = document.getElementById('sep_res_stokes');
+    const resVol = document.getElementById('sep_res_vol');
+    const resVolBrk = document.getElementById('sep_res_volbrk');
+    const auditBox = document.getElementById('sepAuditBox');
+    const svgWrap = document.getElementById('sep_svg_wrap');
+    const svgSubtitle = document.getElementById('sep_svg_subtitle');
+
+    function calculate() {
+      const Qo = parseFloat(oilRateInput.value) || 5000;
+      const Qw = parseFloat(waterRateInput.value) || 3500;
+      const Qg = parseFloat(gasRateInput.value) || 5.5;
+      const Pop = parseFloat(pressInput.value) || 250;
+      const Top_F = parseFloat(tempInput.value) || 100;
+      const Top_R = Top_F + 459.67;
+      const API = parseFloat(apiInput.value) || 35;
+      const SGw = parseFloat(sgwInput.value) || 1.06;
+      const SGg = parseFloat(sggInput.value) || 0.68;
+      const tro = parseFloat(troInput.value) || 12;
+      const trw = parseFloat(trwInput.value) || 12;
+      const LD = parseFloat(ldInput.value) || 4.0;
+      const K = parseFloat(kfactorSelect.value) || 0.35;
+
+      if (Qo <= 0 || Pop <= 0 || LD <= 0) {
+        resDia.textContent = 'Invalid Input';
+        return;
+      }
+
+      // Densities
+      const SGo = 141.5 / (131.5 + API);
+      const rho_o = SGo * 62.37; // lb/cu ft
+      const rho_w = SGw * 62.37; // lb/cu ft
+      const Pop_psia = Pop + 14.7;
+      const MWg = SGg * 28.97;
+      const Zg = 0.96;
+      const rho_g = (Pop_psia * MWg) / (Zg * 10.7316 * Top_R);
+
+      // Gas capacity Souders-Brown Vmax
+      const Vmax = K * Math.sqrt(Math.max(1.0, (rho_o - rho_g) / rho_g));
+
+      // Liquid volumes (cu ft)
+      const Vo_cuft = (Qo * tro / 1440.0) * 5.61458;
+      const Vw_cuft = (Qw * trw / 1440.0) * 5.61458;
+      const VL_cuft = Vo_cuft + Vw_cuft;
+      const VL_bbl = VL_cuft / 5.61458;
+
+      // Vessel diameter D based on 55% liquid fullness
+      const fL = 0.55;
+      const Vtotal_cuft = VL_cuft / fL;
+      // Vtotal = (pi/4) * D^2 * (LD * D) = (pi/4)*LD * D^3
+      const D_ft_calc = Math.pow(Vtotal_cuft / ((Math.PI / 4) * LD), 1.0 / 3.0);
+      let D_in = Math.round(D_ft_calc * 12.0 / 6.0) * 6.0; // round to nearest 6 inches
+      if (D_in < 36) D_in = 36;
+      const D_ft = D_in / 12.0;
+      const Lss_ft = D_ft * LD;
+
+      // Gas superficial velocity
+      const Agas_sqft = (1.0 - fL) * (Math.PI / 4) * Math.pow(D_ft, 2);
+      const Qg_actual_cfs = (Qg * 1e6 / 86400.0) * (14.7 / Pop_psia) * (Top_R / 520.0);
+      const Vgas_actual = Qg_actual_cfs / Agas_sqft;
+
+      // Weir and interface height
+      const hWeir_in = D_in * 0.60;
+      const waterFraction = VL_cuft > 0 ? (Vw_cuft / VL_cuft) : 0.5;
+      const hInterface_in = hWeir_in * waterFraction;
+
+      // Stokes settling velocity (500 micron droplet in oil)
+      // mu_oil approx 5 cP
+      const mu_o_lb_fthr = 5.0 * 2.419088;
+      const d_drop_ft = 500e-6 * 3.28084;
+      const vt_fps = (32.174 * (rho_w - rho_o) * Math.pow(d_drop_ft, 2)) / (18.0 * (mu_o_lb_fthr / 3600.0));
+      const vt_in_min = vt_fps * 12.0 * 60.0;
+
+      // Update UI
+      resDia.textContent = D_in.toFixed(1) + ' in (' + D_ft.toFixed(2) + ' ft)';
+      resDiaSi.textContent = Math.round(D_in * 25.4).toLocaleString() + ' mm Shell ID';
+
+      resLen.textContent = Lss_ft.toFixed(1) + ' ft';
+      resLenSi.textContent = (Lss_ft * 0.3048).toFixed(2) + ' m (L/D = ' + LD.toFixed(2) + ')';
+
+      resVgas.textContent = Vgas_actual.toFixed(2) + ' ft/s';
+      const vgasPct = (Vgas_actual / Vmax) * 100;
+      resVgasMax.textContent = 'V_max = ' + Vmax.toFixed(2) + ' ft/s (' + vgasPct.toFixed(0) + '% loading)';
+      resVgas.style.color = vgasPct <= 100 ? '#10b981' : '#ef4444';
+
+      resWeir.textContent = 'Weir: ' + hWeir_in.toFixed(1) + ' in';
+      resInterface.textContent = 'Water Interface: ' + hInterface_in.toFixed(1) + ' in';
+
+      resStokes.textContent = vt_in_min.toFixed(2) + ' in/min';
+
+      resVol.textContent = Math.round(VL_bbl) + ' bbl Working Sump';
+      resVolBrk.textContent = 'Oil: ' + Math.round(Vo_cuft / 5.615) + ' bbl | Water: ' + Math.round(Vw_cuft / 5.615) + ' bbl';
+
+      // Update Audit Log
+      const auditText = 
+        '=======================================================\n' +
+        '   THREE-PHASE PRODUCTION SEPARATOR SIZING AUDIT      \n' +
+        '=======================================================\n' +
+        'Production Inflow Rates:   ' + Math.round(Qo).toLocaleString() + ' BOPD Oil (' + API + '°API, SGo = ' + SGo.toFixed(3) + ')\n' +
+        '                           ' + Math.round(Qw).toLocaleString() + ' BWPD Brine (SGw = ' + SGw.toFixed(2) + ')\n' +
+        '                           ' + Qg.toFixed(2) + ' MMSCFD Associated Gas (SGg = ' + SGg.toFixed(2) + ')\n' +
+        'Operating Parameters:      Pop = ' + Pop + ' psig (' + Pop_psia.toFixed(1) + ' psia), Top = ' + Top_F + '°F\n' +
+        'Retention Design:          tro = ' + tro + ' min (Oil Pad), trw = ' + trw + ' min (Water Pad)\n' +
+        '-------------------------------------------------------\n' +
+        'VESSEL SHELL GEOMETRY:     ' + D_in + '\" Inside Diameter × ' + Lss_ft.toFixed(1) + ' ft Seam-to-Seam Length\n' +
+        'Slenderness Ratio:         L/D = ' + LD.toFixed(2) + ' (Optimized for horizontal gravity settling)\n' +
+        'Gas Velocity Performance:  Vgas = ' + Vgas_actual.toFixed(2) + ' ft/s (Souders-Brown Vmax = ' + Vmax.toFixed(2) + ' ft/s at K = ' + K + ')\n' +
+        'Stokes Water Settling:     vt = ' + vt_in_min.toFixed(2) + ' in/min (For 500 μm droplet de-watering)\n' +
+        '-------------------------------------------------------\n' +
+        'INTERNAL LEVEL SETTINGS:   Oil Overflow Weir Height = ' + hWeir_in.toFixed(1) + '\" (' + ((hWeir_in/D_in)*100).toFixed(0) + '% ID)\n' +
+        '                           Water Interface Setpoint = ' + hInterface_in.toFixed(1) + '\"\n' +
+        'Working Liquid Volume:     ' + Math.round(VL_bbl) + ' bbl (' + Math.round(Vo_cuft / 5.615) + ' bbl oil + ' + Math.round(Vw_cuft / 5.615) + ' bbl water)\n' +
+        'Standards Compliance:      API Specification 12J & GPSA Engineering Data Book Sec 7\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      svgSubtitle.textContent = D_in + '\" ID × ' + Lss_ft.toFixed(1) + ' ft (L/D = ' + LD.toFixed(2) + ')';
+      renderSvg(D_in, Lss_ft, hWeir_in, hInterface_in);
+    }
+
+    function renderSvg(D_in, L_ft, hWeir, hInt) {
+      const w = 580;
+      const h = 240;
+      const padX = 40;
+      const padY = 30;
+      const vW = 500;
+      const vH = 150;
+      const weirX = padX + vW * 0.78;
+
+      let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="overflow:visible; font-family:sans-serif; font-size:11px;">';
+
+      // 2:1 Elliptical heads on vessel
+      const rHead = 25;
+      svg += '<path d="M ' + (padX + rHead) + ' ' + padY + ' L ' + (padX + vW - rHead) + ' ' + padY + ' A ' + rHead + ' ' + (vH/2) + ' 0 0 1 ' + (padX + vW - rHead) + ' ' + (padY + vH) + ' L ' + (padX + rHead) + ' ' + (padY + vH) + ' A ' + rHead + ' ' + (vH/2) + ' 0 0 1 ' + (padX + rHead) + ' ' + padY + ' Z" fill="#0f172a" stroke="#475569" stroke-width="3" />';
+
+      // Liquid layers
+      const weirFract = hWeir / D_in;
+      const intFract = hInt / D_in;
+
+      const yWeir = padY + vH - (vH * weirFract);
+      const yInt = padY + vH - (vH * intFract);
+
+      // Water layer (blue) up to yInt, from head to weir
+      svg += '<rect x="' + padX + '" y="' + yInt + '" width="' + (weirX - padX) + '" height="' + (padY + vH - yInt) + '" fill="#0284c7" fill-opacity="0.4" />';
+
+      // Oil layer (amber) between yWeir and yInt
+      svg += '<rect x="' + padX + '" y="' + yWeir + '" width="' + (weirX - padX) + '" height="' + (yInt - yWeir) + '" fill="#f59e0b" fill-opacity="0.4" />';
+
+      // Oil collection bucket (after weir)
+      const bucketOilY = yWeir + 15;
+      svg += '<rect x="' + weirX + '" y="' + bucketOilY + '" width="' + (padX + vW - weirX - 5) + '" height="' + (padY + vH - bucketOilY) + '" fill="#f59e0b" fill-opacity="0.5" />';
+
+      // Weir plate
+      svg += '<line x1="' + weirX + '" y1="' + yWeir + '" x2="' + weirX + '" y2="' + (padY + vH) + '" stroke="#94a3b8" stroke-width="4" />';
+      svg += '<text x="' + (weirX - 5) + '" y="' + (yWeir - 6) + '" fill="#94a3b8" font-size="10" text-anchor="end">Oil Overflow Weir</text>';
+
+      // Demister pad in gas dome
+      const demX = padX + vW * 0.70;
+      svg += '<rect x="' + demX + '" y="' + (padY + 6) + '" width="40" height="24" fill="#334155" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2,2" />';
+      svg += '<text x="' + (demX + 20) + '" y="' + (padY + 22) + '" fill="#38bdf8" font-size="9" text-anchor="middle">Demister</text>';
+
+      // Inlet momentum diverter
+      const inX = padX + 50;
+      svg += '<line x1="' + inX + '" y1="' + (padY - 15) + '" x2="' + inX + '" y2="' + (padY + 25) + '" stroke="#38bdf8" stroke-width="4" />';
+      svg += '<path d="M ' + (inX - 8) + ' ' + (padY + 25) + ' L ' + (inX + 16) + ' ' + (padY + 40) + '" stroke="#cbd5e1" stroke-width="3" fill="none" />';
+      svg += '<text x="' + inX + '" y="' + (padY - 18) + '" fill="#38bdf8" font-size="10" text-anchor="middle">Inlet Nozzle</text>';
+
+      // Gas outlet nozzle
+      svg += '<line x1="' + (demX + 20) + '" y1="' + padY + '" x2="' + (demX + 20) + '" y2="' + (padY - 15) + '" stroke="#94a3b8" stroke-width="4" />';
+      svg += '<text x="' + (demX + 20) + '" y="' + (padY - 18) + '" fill="#94a3b8" font-size="10" text-anchor="middle">Gas Out</text>';
+
+      // Water drain nozzle
+      const wOutX = padX + (weirX - padX) * 0.45;
+      svg += '<line x1="' + wOutX + '" y1="' + (padY + vH) + '" x2="' + wOutX + '" y2="' + (padY + vH + 15) + '" stroke="#0284c7" stroke-width="4" />';
+      svg += '<text x="' + wOutX + '" y="' + (padY + vH + 26) + '" fill="#0284c7" font-size="10" text-anchor="middle">Water Out</text>';
+
+      // Oil bucket drain nozzle
+      const oOutX = weirX + 25;
+      svg += '<line x1="' + oOutX + '" y1="' + (padY + vH) + '" x2="' + oOutX + '" y2="' + (padY + vH + 15) + '" stroke="#f59e0b" stroke-width="4" />';
+      svg += '<text x="' + oOutX + '" y="' + (padY + vH + 26) + '" fill="#f59e0b" font-size="10" text-anchor="middle">Oil Out</text>';
+
+      // Layer labels
+      svg += '<text x="' + (padX + 120) + '" y="' + (padY + 45) + '" fill="#94a3b8" font-size="11">Vapor Gas Dome</text>';
+      svg += '<text x="' + (padX + 120) + '" y="' + ((yWeir + yInt)/2 + 4) + '" fill="#fcd34d" font-size="11" font-weight="bold">Crude Oil Pad</text>';
+      svg += '<text x="' + (padX + 120) + '" y="' + ((yInt + padY + vH)/2 + 4) + '" fill="#38bdf8" font-size="11" font-weight="bold">Produced Water Pad</text>';
+
+      svg += '</svg>';
+      svgWrap.innerHTML = svg;
+    }
+
+    document.getElementById('copySepAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copySepAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied Separator Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    [oilRateInput, waterRateInput, gasRateInput, pressInput, tempInput, apiInput, sgwInput, sggInput, troInput, trwInput, ldInput, kfactorSelect].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'three-phase-separator-gravity-sizing-calculator.html'), renderTradePage({
+    title: "Three-Phase Separator Sizing Calculator | API 12J & GPSA Method",
+    metaDesc: "Calculate vessel diameter, seam-to-seam length, gas capacity, liquid retention time, water-oil droplet settling velocity, and weir height for horizontal three-phase production separators per API 12J and GPSA.",
+    canonical: `${DOMAIN}/calc/three-phase-separator-gravity-sizing-calculator`,
+    bodyContent: threePhaseSeparatorBody,
+    currentPath: '/calc/three-phase-separator-gravity-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the recommended retention time for a three-phase separator?",
+        "a": "API Specification 12J recommends 10 to 15 minutes of liquid retention time for medium crude oils (30° to 40° API) and up to 20 to 30 minutes for heavy crudes (<25° API) or cold production fluids. Water retention time typically matches oil retention to ensure produced brine discharges below statutory 29 to 42 ppm oil-in-water environmental limits."
+      },
+      {
+        "q": "How does the Souders-Brown K-factor govern horizontal separator diameter?",
+        "a": "The Souders-Brown equation sets the maximum allowable superficial gas velocity (Vmax = K × √[(ρL - ρg)/ρg]) to prevent gas flow from re-entraining liquid droplets sheared off the liquid surface. Standard wire-mesh demister pads use K = 0.35 ft/s, while high-efficiency vane packs permit up to K = 0.50 ft/s."
+      },
+      {
+        "q": "What is an emulsion rag layer and why is it dangerous in separators?",
+        "a": "A rag layer is an intermediate band of stable water-in-oil emulsion held together by asphaltenes, paraffin waxes, and fine solids at the liquid-liquid interface. If allowed to build, it bridges the interface, spilling wet emulsion over the oil weir into crude storage and sending unseparated oil out the water dump line."
+      },
+      {
+        "q": "Why are horizontal separators preferred over vertical separators for three-phase service?",
+        "a": "Horizontal vessels provide significantly larger interfacial contact area for liquid-liquid gravity settling and a longer horizontal travel path, allowing water droplets to settle downward while oil droplets rise concurrently. Vertical separators have smaller cross-sectional interfaces and are generally reserved for high gas-to-oil ratio (GOR) or heavy sand applications."
+      },
+      {
+        "q": "What is the purpose of an oil overflow weir in a three-phase separator?",
+        "a": "The oil overflow weir establishes a fixed liquid level in the primary settling compartment. Water settles to the bottom and is drained via an interface level controller, while clean oil overflows the crest of the weir into an isolated oil compartment (bucket), isolating oil dump valve cycling from water interface fluctuations."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 81: Air Cooled Heat Exchanger (Fin-Fan) Sizing Calculator (API 661 & ISO 13706)
+  // ==========================================
+  const finFanExchangerBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">API Standard 661</span>
+      <span class="calc-clean-badge">ISO 13706 Petroleum ACHE</span>
+      <span class="calc-clean-badge">Forced & Induced Draft Fin-Fan Rating</span>
+    </div>
+    <h1 class="calc-clean-title">Air Cooled Heat Exchanger (Fin-Fan) Sizing Calculator</h1>
+    <p class="calc-clean-desc">
+      Size industrial forced-draft and induced-draft air-cooled heat exchangers (ACHE / Fin-Fan) per API 661 and ISO 13706. Calculate bare and extended finned surface areas, LMTD crossflow correction factors, air temperature rise, fan airflow (ACFM), and motor brake horsepower.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Process Fluid Service -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_fluid">Process Fluid Service</label>
+        <select id="ff_fluid" class="calc-clean-select">
+          <option value="gas_condenser" selected>Hydrocarbon Gas Condenser (Ub ≈ 110 Btu/hr·ft²·°F)</option>
+          <option value="light_oil">Light Hydrocarbon / Gasoline (Ub ≈ 95 Btu/hr·ft²·°F)</option>
+          <option value="heavy_oil">Heavy Gas Oil / Residue (Ub ≈ 50 Btu/hr·ft²·°F)</option>
+          <option value="glycol_water">Water / Glycol (50/50 EGW, Ub ≈ 120 Btu/hr·ft²·°F)</option>
+          <option value="steam">Steam Condenser (Ub ≈ 140 Btu/hr·ft²·°F)</option>
+        </select>
+        <small class="calc-clean-help">Preloads typical overall bare-tube heat transfer coefficient (Ub)</small>
+      </div>
+
+      <!-- Process Heat Duty (Q) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_duty">Thermal Duty (Q)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ff_duty" class="calc-clean-input" value="15.0" min="0.5" max="300.0" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">MMBtu/hr</span>
+        </div>
+        <small class="calc-clean-help">Total heat duty to be rejected to ambient air</small>
+      </div>
+
+      <!-- Process Fluid Inlet Temp (T1) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_t1">Process Inlet Temp (T1)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ff_t1" class="calc-clean-input" value="210" min="80" max="600" step="5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Hot process fluid entering tube bundle</small>
+      </div>
+
+      <!-- Process Fluid Outlet Temp (T2) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_t2">Process Outlet Temp (T2)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ff_t2" class="calc-clean-input" value="130" min="60" max="450" step="5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Target cooled process fluid exit temperature</small>
+      </div>
+
+      <!-- Ambient Air Design Temp (t1) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_ambient">Ambient Design Temp (t1)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ff_ambient" class="calc-clean-input" value="100" min="40" max="130" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">ASHRAE 0.4% or 1% summer dry-bulb design temperature</small>
+      </div>
+
+      <!-- Draft Architecture -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_draft">Draft Configuration</label>
+        <select id="ff_draft" class="calc-clean-select">
+          <option value="forced" selected>Forced Draft (Fans below bundle, cooler motor environment)</option>
+          <option value="induced">Induced Draft (Fans above bundle, better air distribution)</option>
+        </select>
+        <small class="calc-clean-help">API 661 mechanical fan placement style</small>
+      </div>
+
+      <!-- Tube Length (L) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_tubeLength">Tube Length (L)</label>
+        <select id="ff_tubeLength" class="calc-clean-select">
+          <option value="20">20 ft (6.10 m)</option>
+          <option value="24">24 ft (7.32 m)</option>
+          <option value="30" selected>30 ft (9.14 m, Standard Refined Bay)</option>
+          <option value="36">36 ft (10.97 m)</option>
+          <option value="40">40 ft (12.19 m)</option>
+        </select>
+        <small class="calc-clean-help">Standard API 661 finned tube length</small>
+      </div>
+
+      <!-- Tube Rows Deep (Nrows) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_rows">Tube Rows in Bundle</label>
+        <select id="ff_rows" class="calc-clean-select">
+          <option value="4" selected>4 Rows Deep (Standard Low Pressure Drop)</option>
+          <option value="5">5 Rows Deep</option>
+          <option value="6">6 Rows Deep (Compact Footprint)</option>
+          <option value="8">8 Rows Deep (Deep Multi-Pass Service)</option>
+        </select>
+        <small class="calc-clean-help">Vertical depth of tubes in bundle</small>
+      </div>
+
+      <!-- Finned Tube Geometry -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_finType">Fin Geometry & Density</label>
+        <select id="ff_finType" class="calc-clean-select">
+          <option value="21.4" selected>10 FPI, 5/8" High Aluminum Fins (Area Ratio = 21.4)</option>
+          <option value="24.0">11 FPI, 5/8" High Aluminum Fins (Area Ratio = 24.0)</option>
+          <option value="17.2">10 FPI, 1/2" High Aluminum Fins (Area Ratio = 17.2)</option>
+          <option value="14.5">8 FPI Heavy Duty Fouling Fins (Area Ratio = 14.5)</option>
+        </select>
+        <small class="calc-clean-help">Ratio of extended finned surface to bare tube surface (Aext/Abare)</small>
+      </div>
+
+      <!-- Fouling Allowance -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ff_fouling">Process Fouling Factor (Rf)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ff_fouling" class="calc-clean-input" value="0.0010" min="0" max="0.0080" step="0.0005">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">hr·ft²·°F/Btu</span>
+        </div>
+        <small class="calc-clean-help">Inside tube process fluid fouling allowance</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Fin-Fan Sizing, Bay Geometry & Fan Airflow Ratings</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Total Extended Surface Area -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Total Extended Fin Area</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="ff_res_aext">55,240 sq ft</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ff_res_abare">Bare Tube: 2,581 sq ft (Ratio 21.4)</div>
+      </div>
+
+      <!-- Fan Volumetric Airflow -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Total Airflow (ACFM)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="ff_res_acfm">246,800 ACFM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ff_res_airmass">1,036,000 lb/hr Air (ΔT = 41.2°F)</div>
+      </div>
+
+      <!-- Bay Width & Tube Count -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Bay Width & Tubes</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ff_res_baywidth">13.2 ft Bay Width</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ff_res_tubecount">328 Tubes (1.0" OD × 30 ft)</div>
+      </div>
+
+      <!-- Fan Quantity & Motor Power -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Fan Motor Total Power</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ff_res_hp">48.5 BHP</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ff_res_fans">2 Fans × 11 ft Dia (25 HP Motors)</div>
+      </div>
+
+      <!-- Crossflow Corrected LMTD -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Corrected LMTD (MTD)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ff_res_lmtd">48.6°F</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ff_res_ft">Ft Factor: 0.94 (Crossflow)</div>
+      </div>
+
+      <!-- Air Face Velocity -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Air Face Velocity</div>
+        <div style="color: #10b981; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ff_res_fpm">623 FPM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ff_res_dpstatic">Static ΔP: 0.52 inH2O (Optimal)</div>
+      </div>
+    </div>
+
+    <!-- Interactive Fin-Fan Bay Isometric SVG Diagram -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">API 661 Fin-Fan Bay Architecture & Thermal Stratification</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;" id="ff_svg_subtitle">Forced Draft 2-Fan Bay Assembly</span>
+      </div>
+      <div id="ff_svg_wrap" style="width: 100%; overflow-x: auto; text-align: center;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copyFfAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy Fin-Fan Sizing Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per API Standard 661 & ISO 13706 Practice</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="ffAuditBox">Air-Cooled Exchanger Thermal Rating & Fan Power Log</label>
+      <textarea id="ffAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Thermal Design Principles of Air Cooled Exchangers (API 661)</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      Air-cooled heat exchangers reject process heat directly to atmospheric air, completely eliminating cooling tower water consumption, chemical treatment biocides, and thermal discharge plumes. Because air has a low volumetric heat capacity (\(\rho C_p \approx 0.018\) Btu/cu ft·°F vs 62.4 for water) and a poor convective film coefficient (\(h_{air} \approx 15 - 25\) Btu/hr·ft²·°F), extended aluminum fins are wrapped or extruded onto tubes to increase heat transfer area by a factor of <strong>15 to 25 times</strong>.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Fin Attachment Method</th>
+            <th style="padding: 10px;">Maximum Temperature</th>
+            <th style="padding: 10px;">Corrosion Protection</th>
+            <th style="padding: 10px;">Mechanical Resistance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Embedded G-Fin</td>
+            <td style="padding: 10px;">750°F (400°C)</td>
+            <td style="padding: 10px;">Moderate (groove exposed)</td>
+            <td style="padding: 10px; color: #10b981;">Excellent (fin mechanically peened into tube)</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Extruded Bimetallic</td>
+            <td style="padding: 10px;">550°F (288°C)</td>
+            <td style="padding: 10px; color: #10b981;">Highest (outer Al sleeve seals inner tube)</td>
+            <td style="padding: 10px; color: #10b981;">Superior (can be high-pressure water washed)</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">L-Foot Wrap-On</td>
+            <td style="padding: 10px;">260°F (127°C)</td>
+            <td style="padding: 10px;">Low to Moderate</td>
+            <td style="padding: 10px; color: #f59e0b;">Moderate (fin loosens if thermally cycled)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Cross-Flow Log Mean Temperature Difference (LMTD) Correction</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Air flows in cross-flow across the finned bundle while process fluid flows through multiple tube passes. The effective temperature driving force is calculated using counterflow LMTD adjusted by the crossflow correction factor \(F_t\):
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \Delta T_{lm} = \frac{(T_1 - t_2) - (T_2 - t_1)}{\ln \frac{T_1 - t_2}{T_2 - t_1}} \cdot F_t \\\\
+      P = \frac{t_2 - t_1}{T_1 - t_1} \qquad R = \frac{T_1 - T_2}{t_2 - t_1}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Per API 661 guidelines, the crossflow factor \(F_t\) must be <strong>greater than 0.80</strong> (preferably \(\ge 0.90\)) to prevent severe thermal inefficiency. If \(F_t < 0.80\), additional tube passes or multiple bays in series must be configured.
+    </p>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Fan Airflow and Motor Brake Horsepower</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      The total air mass required to absorb process duty \(Q\) dictates fan volumetric flow rate (ACFM at fan operating density) and fan static pressure drop:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      m_{air} = \frac{Q}{C_{p,air} \cdot (t_2 - t_1)} \\\\
+      BHP = \frac{ACFM \cdot \Delta P_{static}}{6356 \cdot \eta_{fan}}
+    </div>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Sizing a 15 MMBtu/hr Hydrocarbon Gas Cooler</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Size a forced-draft air-cooled heat exchanger bay to cool 15.0 MMBtu/hr of hydrocarbon gas from 210°F to 130°F against 100°F design summer ambient dry-bulb. The bay uses 1.0" OD carbon steel tubes \(\times\) 30 ft length with 10 FPI aluminium fins (5/8" high, Area Ratio 21.4), 4 rows deep, and an overall bare-tube coefficient \(U_b = 110\) Btu/hr·ft²·°F.
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Estimate Air Temperature Rise (\(\Delta t_{air}\)):</strong><br>
+        Average process temp = \((210 + 130)/2 = 170^\circ\text{F}\).<br>
+        Temperature difference to ambient = \(170 - 100 = 70^\circ\text{F}\).<br>
+        Optimized air rise: \(\Delta t_{air} = 41.2^\circ\text{F}\rightarrow\) Air exit temperature \(t_2 = 100 + 41.2 = \mathbf{141.2^\circ\text{F}}\).
+      </li>
+      <li>
+        <strong>Calculate Crossflow Corrected LMTD:</strong><br>
+        \(\Delta T_1 = 210 - 141.2 = 68.8^\circ\text{F}\); \(\Delta T_2 = 130 - 100 = 30.0^\circ\text{F}\).<br>
+        Uncorrected LMTD = \(\frac{68.8 - 30.0}{\ln(68.8 / 30.0)} = \frac{38.8}{0.830} = 46.7^\circ\text{F}\).<br>
+        With crossflow factor \(F_t = 0.94\), \(\Delta T_{lm} = 46.7 \times 0.94 = \mathbf{43.9^\circ\text{F}}\).
+      </li>
+      <li>
+        <strong>Determine Required Surface Areas:</strong><br>
+        Bare tube area: \(A_{bare} = \frac{15,000,000}{110 \times 43.9} = \mathbf{3,106\text{ sq ft}}\).<br>
+        Extended fin area: \(A_{ext} = 3,106 \times 21.4 = \mathbf{66,470\text{ sq ft}}\).
+      </li>
+      <li>
+        <strong>Tube Count & Bay Width:</strong><br>
+        Surface area per 30 ft tube: \(A_t = \pi \times (1.0 / 12) \times 30 = 7.854\) sq ft.<br>
+        Total tubes required: \(N_t = \frac{3,106}{7.854} = \mathbf{396\text{ tubes}}\).<br>
+        With 4 rows deep, tubes per row = \(396 / 4 = 99\) tubes.<br>
+        At 2.375" triangular tube pitch: Bay width \(W_{bay} = \frac{99 \times 2.375}{12} = \mathbf{19.6\text{ ft}}\).<br>
+        Bay Face Area = \(19.6 \times 30 = 588\) sq ft.
+      </li>
+      <li>
+        <strong>Fan Airflow & Horsepower Requirements:</strong><br>
+        Air mass: \(m_{air} = \frac{15,000,000}{0.24 \times 41.2} = 1,517,000\) lb/hr.<br>
+        Airflow: \(ACFM = \frac{1,517,000}{0.071 \times 60} = \mathbf{356,000\text{ ACFM}}\).<br>
+        Face velocity: \(V_{face} = \frac{356,000}{588} = \mathbf{605\text{ FPM}}\).<br>
+        Static pressure: \(\Delta P_{static} = 0.55\) inH2O.<br>
+        Total Fan Power: \(BHP = \frac{356,000 \times 0.55}{6356 \times 0.65} = \mathbf{47.4\text{ BHP}}\rightarrow\) Configure <strong>2 Fans × 25 HP Motors</strong>.
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Air Cooled Exchanger Operation</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. Summer Ambient Peak Under-Design Trap</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Designing for regional average summer temperatures (e.g. 85°F) instead of the statutory ASHRAE 0.4% maximum dry-bulb (e.g. 102°F) causes severe heat exchanger starvation on hot afternoons. Because LMTD shrinks by 30% to 50% when ambient air spikes, condensing pressure soars, tripping distillation reflux accumulators and derating refinery throughput by up to 25% during peak electricity tariff windows.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. Hot Plume Recirculation in Multi-Bay Banks</h3>
+      <p style="color: #f59e0b; line-height: 1.6; margin-bottom: 0;">
+        Placing multiple fin-fan bays side-by-side or adjacent to piperacks without adequate wind clearance creates severe aerodynamic recirculation. Strong crosswinds push hot exhaust air discharged from the top of the bundle downward around the perimeter, where intake fans pull it back in. Local entering air temperature jumps by <strong>10°F to 20°F above ambient</strong>, wiping out design thermal margin.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Winter Freeze-Up & Paraffin Wax Deposition</h3>
+      <p style="color: #10b981; line-height: 1.6; margin-bottom: 0;">
+        In cold winter climates (ambient temperatures below 32°F / 0°C), unthrottled airflow over-cools the tubes. For heavy crudes or diesel fuels, localized tube wall temperatures drop below the cloud point, precipitating thick paraffin wax that chokes tubes. For aqueous solutions, freezing bursts tube passes. Automated variable-frequency fan drives (VFDs) or automated warm-air recirculation louvers are essential.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. High-Density Fin Debris Blanketing</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Specifying ultra-dense fin geometries (11 to 12 FPI) in dusty or agricultural environments invites rapid fin fouling. Airborne cottonwood fuzz, poplar fluff, and industrial dust weave a fibrous mat across the lower fin tips. Airflow collapses by 40%, static pressure doubles, and fan motors overheat. In dusty environments, specify 8 to 9 FPI with high-pressure wash nozzles installed.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Fan Blade Aerodynamic Stall & Mechanical Fatigue</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        To compensate for dirty tubes, technicians frequently increase manual blade pitch angles beyond 16°–18°. At excessive pitch, the airflow separates from the blade surface, throwing the fan into aerodynamic stall. Blade lift collapses, air volume decreases, and intense turbulence induces severe low-frequency blade flutter that fatigues drive shafts, disintegrates bearings, and snaps fan blades.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const FLUIDS = {
+      gas_condenser: { ub: 110, name: 'Hydrocarbon Gas Condenser' },
+      light_oil: { ub: 95, name: 'Light Hydrocarbon / Gasoline' },
+      heavy_oil: { ub: 50, name: 'Heavy Gas Oil / Residue' },
+      glycol_water: { ub: 120, name: 'Water / Glycol (50/50 EGW)' },
+      steam: { ub: 140, name: 'Steam Condenser' }
+    };
+
+    const fluidSelect = document.getElementById('ff_fluid');
+    const dutyInput = document.getElementById('ff_duty');
+    const t1Input = document.getElementById('ff_t1');
+    const t2Input = document.getElementById('ff_t2');
+    const ambientInput = document.getElementById('ff_ambient');
+    const draftSelect = document.getElementById('ff_draft');
+    const lengthSelect = document.getElementById('ff_tubeLength');
+    const rowsSelect = document.getElementById('ff_rows');
+    const finSelect = document.getElementById('ff_finType');
+    const foulingInput = document.getElementById('ff_fouling');
+
+    const resAext = document.getElementById('ff_res_aext');
+    const resAbare = document.getElementById('ff_res_abare');
+    const resAcfm = document.getElementById('ff_res_acfm');
+    const resAirMass = document.getElementById('ff_res_airmass');
+    const resBayWidth = document.getElementById('ff_res_baywidth');
+    const resTubeCount = document.getElementById('ff_res_tubecount');
+    const resHp = document.getElementById('ff_res_hp');
+    const resFans = document.getElementById('ff_res_fans');
+    const resLmtd = document.getElementById('ff_res_lmtd');
+    const resFt = document.getElementById('ff_res_ft');
+    const resFpm = document.getElementById('ff_res_fpm');
+    const resDpStatic = document.getElementById('ff_res_dpstatic');
+    const auditBox = document.getElementById('ffAuditBox');
+    const svgWrap = document.getElementById('ff_svg_wrap');
+    const svgSubtitle = document.getElementById('ff_svg_subtitle');
+
+    function calculate() {
+      const fKey = fluidSelect.value;
+      const baseUb = FLUIDS[fKey] ? FLUIDS[fKey].ub : 100.0;
+      const Q_mmbtu = parseFloat(dutyInput.value) || 15.0;
+      const Q_btu = Q_mmbtu * 1e6;
+
+      const T1 = parseFloat(t1Input.value) || 210;
+      const T2 = parseFloat(t2Input.value) || 130;
+      const t1 = parseFloat(ambientInput.value) || 100;
+      const L_ft = parseFloat(lengthSelect.value) || 30;
+      const Nrows = parseInt(rowsSelect.value, 10) || 4;
+      const finRatio = parseFloat(finSelect.value) || 21.4;
+      const Rf = parseFloat(foulingInput.value) || 0.0010;
+      const isForced = draftSelect.value === 'forced';
+
+      if (T1 <= T2 || T2 <= t1 || Q_mmbtu <= 0) {
+        resAext.textContent = 'Invalid Temps';
+        return;
+      }
+
+      // Air temperature rise approximation
+      const Tmean = (T1 + T2) / 2.0;
+      let dtAir = Math.min(65.0, Math.max(25.0, 0.55 * (Tmean - t1)));
+      if (t1 + dtAir >= T2) dtAir = Math.max(15.0, (T2 - t1) * 0.85);
+      const t2 = t1 + dtAir;
+
+      // LMTD calculation
+      const dt1 = T1 - t2;
+      const dt2 = T2 - t1;
+      let lmtd_raw = (dt1 - dt2) / Math.log(dt1 / dt2);
+      if (isNaN(lmtd_raw) || lmtd_raw <= 0) lmtd_raw = Math.max(10, (dt1 + dt2) / 2);
+
+      // Crossflow correction factor Ft (typically 0.92 to 0.96 for 4+ rows)
+      const P = (t2 - t1) / Math.max(1.0, T1 - t1);
+      const R = (T1 - T2) / Math.max(1.0, t2 - t1);
+      const Ft = Math.max(0.85, Math.min(0.98, 1.0 - 0.08 * P * R));
+      const mtd = lmtd_raw * Ft;
+
+      // Overall bare-tube U adjusted for fouling
+      const Ub = 1.0 / (1.0 / baseUb + Rf);
+
+      // Bare and extended surface areas
+      const Abare_sqft = Q_btu / (Ub * mtd);
+      const Aext_sqft = Abare_sqft * finRatio;
+
+      // Tube count and bay dimensions (1.0" OD tube, 2.375" pitch)
+      const areaPerTube = Math.PI * (1.0 / 12.0) * L_ft; // 0.2618 * L
+      const numTubes = Math.ceil(Abare_sqft / areaPerTube);
+      const tubesPerRow = Math.ceil(numTubes / Nrows);
+      const tubePitch_in = 2.375;
+      const bayWidth_ft = (tubesPerRow * tubePitch_in) / 12.0;
+      const faceArea_sqft = bayWidth_ft * L_ft;
+
+      // Air mass flow and volumetric flow
+      const Cp_air = 0.240;
+      const mAir_lbhr = Q_btu / (Cp_air * dtAir);
+      const rho_air = 0.071; // lb/cu ft at ~105°F
+      const acfm = mAir_lbhr / (rho_air * 60.0);
+      const faceVel_fpm = faceArea_sqft > 0 ? (acfm / faceArea_sqft) : 600;
+
+      // Static pressure drop & Fan BHP
+      const deltaP_static = 0.35 + 0.05 * Nrows + 0.0003 * (faceVel_fpm - 500);
+      const fanEff = 0.65;
+      const totalBhp = (acfm * deltaP_static) / (6356.0 * fanEff);
+      const numFans = bayWidth_ft >= 16.0 ? 2 : (bayWidth_ft >= 8.0 ? 2 : 1);
+      const fanDia_ft = Math.min(14.0, Math.floor((bayWidth_ft * 0.90) / (numFans > 1 ? 2 : 1)));
+      const motorHpPerFan = Math.ceil((totalBhp / numFans) / 5.0) * 5.0;
+
+      // Update UI
+      resAext.textContent = Math.round(Aext_sqft).toLocaleString() + ' sq ft';
+      resAbare.textContent = 'Bare Tube: ' + Math.round(Abare_sqft).toLocaleString() + ' sq ft (Ratio ' + finRatio + ')';
+
+      resAcfm.textContent = Math.round(acfm).toLocaleString() + ' ACFM';
+      resAirMass.textContent = Math.round(mAir_lbhr).toLocaleString() + ' lb/hr Air (ΔT = ' + dtAir.toFixed(1) + '°F)';
+
+      resBayWidth.textContent = bayWidth_ft.toFixed(1) + ' ft Bay Width';
+      resTubeCount.textContent = numTubes + ' Tubes (1.0\" OD × ' + L_ft + ' ft)';
+
+      resHp.textContent = totalBhp.toFixed(1) + ' BHP';
+      resFans.textContent = numFans + ' Fans × ' + Math.max(8, fanDia_ft) + ' ft Dia (' + Math.max(15, motorHpPerFan) + ' HP Motors)';
+
+      resLmtd.textContent = mtd.toFixed(1) + '°F';
+      resFt.textContent = 'Ft Factor: ' + Ft.toFixed(2) + ' (Crossflow)';
+
+      resFpm.textContent = Math.round(faceVel_fpm) + ' FPM';
+      resDpStatic.textContent = 'Static ΔP: ' + deltaP_static.toFixed(2) + ' inH2O (Optimal)';
+
+      // Update Audit Log
+      const auditText = 
+        '=======================================================\n' +
+        '   AIR COOLED HEAT EXCHANGER (FIN-FAN) SIZING AUDIT   \n' +
+        '=======================================================\n' +
+        'Service Application:       ' + (FLUIDS[fKey] ? FLUIDS[fKey].name : 'Custom Fluid') + '\n' +
+        'Thermal Heat Duty:         ' + Q_mmbtu.toFixed(2) + ' MMBtu/hr (' + (Q_mmbtu * 0.293071).toFixed(2) + ' MW thermal)\n' +
+        'Process Temperature:       T1 = ' + T1 + '°F Inlet, T2 = ' + T2 + '°F Outlet (ΔT = ' + (T1 - T2) + '°F)\n' +
+        'Ambient Air Conditions:    t1 = ' + t1 + '°F Summer Design, t2 = ' + t2.toFixed(1) + '°F Exhaust (Δt = ' + dtAir.toFixed(1) + '°F)\n' +
+        'Crossflow MTD:             ' + mtd.toFixed(1) + '°F (Uncorrected LMTD = ' + lmtd_raw.toFixed(1) + '°F, Ft = ' + Ft.toFixed(2) + ')\n' +
+        '-------------------------------------------------------\n' +
+        'SURFACE AREA RATINGS:      Bare Tube Area: ' + Math.round(Abare_sqft).toLocaleString() + ' sq ft (Ub = ' + Math.round(Ub) + ' Btu/hr·ft²·°F)\n' +
+        '                           Extended Fin Area: ' + Math.round(Aext_sqft).toLocaleString() + ' sq ft (Fin Ratio = ' + finRatio + ')\n' +
+        'BAY GEOMETRY:              ' + bayWidth_ft.toFixed(1) + ' ft Width × ' + L_ft + ' ft Tube Length (' + Nrows + ' Rows Deep)\n' +
+        'Tube Bundle Assembly:      ' + numTubes + ' Tubes of 1.0\" OD (12 BWG Carbon Steel, 2.375\" pitch)\n' +
+        '-------------------------------------------------------\n' +
+        'FAN HYDRAULIC AIRFLOW:     ' + Math.round(acfm).toLocaleString() + ' ACFM (' + Math.round(mAir_lbhr).toLocaleString() + ' lb/hr mass flow)\n' +
+        'Air Face Velocity:         ' + Math.round(faceVel_fpm) + ' FPM (Static Head ΔP = ' + deltaP_static.toFixed(2) + ' inH2O)\n' +
+        'TOTAL BRAKE HORSEPOWER:    ' + totalBhp.toFixed(1) + ' BHP across ' + numFans + ' Axial Fans (Specify ' + Math.max(15, motorHpPerFan) + ' HP motors)\n' +
+        'Draft Configuration:       ' + (isForced ? 'Forced Draft (Blow-Through)' : 'Induced Draft (Draw-Through)') + '\n' +
+        'Standards Compliance:      API Standard 661 & ISO 13706 / ASME Section VIII Div 1\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      svgSubtitle.textContent = (isForced ? 'Forced Draft' : 'Induced Draft') + ' (' + bayWidth_ft.toFixed(1) + ' ft × ' + L_ft + ' ft, ' + numTubes + ' Tubes)';
+      renderSvg(isForced, numFans, T1, T2, t1, t2);
+    }
+
+    function renderSvg(isForced, numFans, T1, T2, t1, t2) {
+      const w = 580;
+      const h = 240;
+      const bayW = 460;
+      const bayH = 140;
+      const padX = 60;
+      const padY = 40;
+
+      let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="overflow:visible; font-family:sans-serif; font-size:11px;">';
+
+      // Structural steel legs
+      svg += '<line x1="' + padX + '" y1="' + (padY + bayH) + '" x2="' + padX + '" y2="' + (padY + bayH + 45) + '" stroke="#475569" stroke-width="5" />';
+      svg += '<line x1="' + (padX + bayW) + '" y1="' + (padY + bayH) + '" x2="' + (padX + bayW) + '" y2="' + (padY + bayH + 45) + '" stroke="#475569" stroke-width="5" />';
+      svg += '<line x1="' + (padX + bayW/2) + '" y1="' + (padY + bayH) + '" x2="' + (padX + bayW/2) + '" y2="' + (padY + bayH + 45) + '" stroke="#475569" stroke-width="4" />';
+
+      // Finned tube bundle in center
+      const bundleY = isForced ? (padY + 15) : (padY + 65);
+      const bundleH = 38;
+      svg += '<rect x="' + padX + '" y="' + bundleY + '" width="' + bayW + '" height="' + bundleH + '" fill="#0284c7" fill-opacity="0.3" stroke="#38bdf8" stroke-width="2" />';
+
+      // Horizontal finned tubes illustration
+      for (let i = 0; i < 4; i++) {
+        const ty = bundleY + 6 + i * 8;
+        svg += '<line x1="' + (padX + 5) + '" y1="' + ty + '" x2="' + (padX + bayW - 5) + '" y2="' + ty + '" stroke="#94a3b8" stroke-width="3" />';
+      }
+      svg += '<text x="' + (padX + bayW / 2) + '" y="' + (bundleY + 23) + '" fill="#ffffff" font-weight="bold" text-anchor="middle">FINNED TUBE BUNDLE (' + T1 + '°F → ' + T2 + '°F)</text>';
+
+      // Fans location (Forced: below bundle; Induced: above bundle)
+      const fanY = isForced ? (padY + 75) : (padY + 15);
+      const fanW = (bayW - 40) / 2;
+
+      for (let f = 0; f < 2; f++) {
+        const fx = padX + 20 + f * (fanW + 15);
+        // Fan plenum cone
+        if (isForced) {
+          svg += '<polygon points="' + fx + ',' + (bundleY + bundleH) + ' ' + (fx + fanW) + ',' + (bundleY + bundleH) + ' ' + (fx + fanW - 15) + ',' + (fanY + 30) + ' ' + (fx + 15) + ',' + (fanY + 30) + '" fill="#1e293b" stroke="#64748b" />';
+        } else {
+          svg += '<polygon points="' + (fx + 15) + ',' + (bundleY) + ' ' + (fx + fanW - 15) + ',' + (bundleY) + ' ' + (fx + fanW) + ',' + (fanY) + ' ' + fx + ',' + (fanY) + '" fill="#1e293b" stroke="#64748b" />';
+        }
+        // Fan ring and blades
+        svg += '<ellipse cx="' + (fx + fanW/2) + '" cy="' + (fanY + 15) + '" rx="' + (fanW/2 - 10) + '" ry="8" fill="#0f172a" stroke="#0284c7" stroke-width="2" />';
+        svg += '<circle cx="' + (fx + fanW/2) + '" cy="' + (fanY + 15) + '" r="5" fill="#38bdf8" />';
+      }
+
+      // Air flow arrows
+      // Cold air in
+      svg += '<text x="' + (padX + 10) + '" y="' + (padY + bayH + 35) + '" fill="#38bdf8" font-size="10">Ambient In ' + Math.round(t1) + '°F ↑</text>';
+      svg += '<text x="' + (padX + bayW - 90) + '" y="' + (padY + bayH + 35) + '" fill="#38bdf8" font-size="10">Ambient In ' + Math.round(t1) + '°F ↑</text>';
+
+      // Hot air out
+      svg += '<text x="' + (padX + 10) + '" y="' + (padY - 5) + '" fill="#f43f5e" font-size="10" font-weight="bold">Hot Air Out ' + Math.round(t2) + '°F ↑</text>';
+      svg += '<text x="' + (padX + bayW - 110) + '" y="' + (padY - 5) + '" fill="#f43f5e" font-size="10" font-weight="bold">Hot Air Out ' + Math.round(t2) + '°F ↑</text>';
+
+      svg += '</svg>';
+      svgWrap.innerHTML = svg;
+    }
+
+    document.getElementById('copyFfAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyFfAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied Fin-Fan Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    [fluidSelect, dutyInput, t1Input, t2Input, ambientInput, draftSelect, lengthSelect, rowsSelect, finSelect, foulingInput].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'air-cooled-heat-exchanger-fin-fan-calculator.html'), renderTradePage({
+    title: "Air Cooled Heat Exchanger (Fin-Fan) Sizing Calculator | API 661",
+    metaDesc: "Calculate thermal duty, log mean temperature difference (LMTD), bare vs extended finned surface area, air face velocity, air temperature rise, fan airflow (ACFM), and motor horsepower for industrial fin-fan coolers per API Standard 661 / ISO 13706.",
+    canonical: `${DOMAIN}/calc/air-cooled-heat-exchanger-fin-fan-calculator`,
+    bodyContent: finFanExchangerBody,
+    currentPath: '/calc/air-cooled-heat-exchanger-fin-fan-calculator',
+    faq: [
+      {
+        "q": "What is the difference between forced draft and induced draft air coolers?",
+        "a": "In forced draft units, fans are located below the finned tube bundle, blowing ambient air upward through the tubes. This keeps fan blades, bearings, and motors in cool ambient air, easing maintenance. In induced draft units, fans are located above the bundle, pulling air through. Induced draft provides more uniform air distribution across the bundle face and reduces hot air recirculation."
+      },
+      {
+        "q": "Why is the bare-to-extended finned surface area ratio so important?",
+        "a": "Because air is a poor heat transfer medium with a low convective heat transfer coefficient (15 to 25 Btu/hr·ft²·°F), aluminum fins are applied to multiply the external surface area by a factor of 15 to 25. This balances external air thermal resistance with internal liquid convection, allowing a compact tube bundle footprint."
+      },
+      {
+        "q": "What causes hot air recirculation in fin-fan cooler banks?",
+        "a": "Placing fin-fan bays too close together, near tall piperacks, or surrounded by high parapet walls causes the warm exhaust air discharged from the top of the unit to be pulled downward by wind vortices into the intake fans. Recirculation can raise entering air temperature by 10°F to 20°F, severely reducing cooling capacity."
+      },
+      {
+        "q": "How is winter freeze-up prevented in cold climates?",
+        "a": "In freezing climates, over-cooling can freeze aqueous solutions or precipitate heavy paraffin wax inside the tubes. Prevention methods include installing automated variable-pitch fan blades to throttle airflow, modulating variable frequency drives (VFDs), installing internal warm-air recirculation louvers, or utilizing co-current flow headers."
+      },
+      {
+        "q": "What is the maximum recommended air face velocity for API 661 exchangers?",
+        "a": "Standard API 661 design typically targets an air face velocity between 550 and 650 FPM (2.8 to 3.3 m/s). Lower velocities waste bundle footprint area, while velocities exceeding 700 FPM cause static pressure drop to increase exponentially, driving fan horsepower consumption beyond economic viability."
+      }
+    ]
+  }));
+
+
+
+// ==========================================
+// TOOL AI3: Pipeline Water Hammer & Joukowsky Surge Calculator
+// ==========================================
+const waterHammerJoukowskyBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Pipeline Water Hammer & Transient Surge Calculator</h1>
+    <p class="calc-desc">Calculate hydraulic transient shockwaves, acoustic celerity wave speed, peak surge pressure spikes, and critical valve closure times using the Joukowsky equation and ASME B31.3 / B31.4 allowable transient allowances.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">ENGINEERING APPLICATION PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyWHPreset('water_main')">💧 Municipal Water Main (Ductile Iron)</button>
+      <button type="button" class="btn-preset" onclick="applyWHPreset('power_plant')">⚡ Power Plant Cooling (Carbon Steel)</button>
+      <button type="button" class="btn-preset" onclick="applyWHPreset('oil_pipeline')">🛢️ Crude Export Pipeline (API 5L X65)</button>
+      <button type="button" class="btn-preset" onclick="applyWHPreset('hdpe_slurry')">🧪 Industrial Mining Slurry (HDPE SDR 11)</button>
+    </div>
+  </div>
+
+  <form id="whForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Pipe Specs -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>📏</span> Pipe Mechanical Properties
+        </h3>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="whPipeMaterial" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Pipe Material</label>
+          <select id="whPipeMaterial" class="form-control" onchange="onWHMaterialChange(); calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="steel" selected>Carbon Steel (E = 207 GPa / 30.0 Mpsi)</option>
+            <option value="ductile_iron">Ductile Iron (E = 170 GPa / 24.7 Mpsi)</option>
+            <option value="cast_iron">Cast Iron (E = 100 GPa / 14.5 Mpsi)</option>
+            <option value="stainless">Stainless Steel 316 (E = 193 GPa / 28.0 Mpsi)</option>
+            <option value="hdpe">HDPE Polyethylene (E = 0.80 GPa / 116 kpsi)</option>
+            <option value="pvc">Rigid PVC (E = 3.00 GPa / 435 kpsi)</option>
+            <option value="custom">Custom Modulus (E)</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="whYoungsModulus" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Elastic Modulus E (GPa)</label>
+            <input type="number" id="whYoungsModulus" class="form-control" value="207" step="any" min="0.1" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="whPoissonRatio" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Poisson's Ratio (&nu;)</label>
+            <input type="number" id="whPoissonRatio" class="form-control" value="0.30" step="0.01" min="0.05" max="0.5" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="whPipeID" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Internal Diameter D (mm)</label>
+            <input type="number" id="whPipeID" class="form-control" value="400" step="any" min="10" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="whWallThk" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Wall Thickness e (mm)</label>
+            <input type="number" id="whWallThk" class="form-control" value="9.52" step="any" min="0.5" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="whPipeLength" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Pipeline Length L (m)</label>
+            <input type="number" id="whPipeLength" class="form-control" value="1500" step="any" min="1" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="whRestraint" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Anchoring / Restraint</label>
+            <select id="whRestraint" class="form-control" onchange="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="anchored_axial" selected>Anchored against axial strain (c1 = 1 - &nu;&sup2;)</option>
+              <option value="anchored_upstream">Anchored upper end only (c1 = 1 - 0.5&nu;)</option>
+              <option value="expansion_joints">Expansion joints throughout (c1 = 1.0)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fluid & Flow Hydraulic Operating Parameters -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🌊</span> Fluid & Flow Transient Conditions
+        </h3>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="whFluidType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Liquid Medium</label>
+          <select id="whFluidType" class="form-control" onchange="onWHFluidChange(); calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="water20" selected>Water @ 20&deg;C (&rho; = 998 kg/m&sup3;, K = 2.19 GPa)</option>
+            <option value="water60">Hot Water @ 60&deg;C (&rho; = 983 kg/m&sup3;, K = 2.28 GPa)</option>
+            <option value="crude">Light Crude Oil 35&deg; API (&rho; = 850 kg/m&sup3;, K = 1.50 GPa)</option>
+            <option value="diesel">Diesel / Fuel Oil (&rho; = 830 kg/m&sup3;, K = 1.65 GPa)</option>
+            <option value="glycol">50% Water-Glycol Soln (&rho; = 1060 kg/m&sup3;, K = 2.80 GPa)</option>
+            <option value="custom">Custom Liquid Properties</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="whDensity" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Density &rho; (kg/m&sup3;)</label>
+            <input type="number" id="whDensity" class="form-control" value="998" step="any" min="100" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="whBulkModulus" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Bulk Modulus K (GPa)</label>
+            <input type="number" id="whBulkModulus" class="form-control" value="2.19" step="any" min="0.01" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="whInitialVelocity" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Initial Flow Velocity v<sub>0</sub> (m/s)</label>
+            <input type="number" id="whInitialVelocity" class="form-control" value="2.20" step="any" min="0.01" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="whFinalVelocity" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Final Velocity v<sub>f</sub> (m/s)</label>
+            <input type="number" id="whFinalVelocity" class="form-control" value="0.0" step="any" min="0" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="whOperatingPressure" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Operating Pressure P<sub>0</sub> (bar g)</label>
+            <input type="number" id="whOperatingPressure" class="form-control" value="8.0" step="any" min="0" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="whClosureTime" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Valve Closure Time t<sub>v</sub> (s)</label>
+            <input type="number" id="whClosureTime" class="form-control" value="1.50" step="any" min="0.01" oninput="calculateWaterHammer();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Transient Results Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">Transient Surge Analysis & Joukowsky Results</h2>
+      <div id="whRegimeBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#ef4444; color:#fff;">RAPID CLOSURE (FULL JOUKOWSKY SURGE)</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Wave Celerity Speed (c)</span>
+        <strong id="whWaveSpeed" style="font-size:1.4rem; color:#38bdf8;">1,185 m/s</strong>
+        <span id="whWaveSpeedFps" style="font-size:0.8rem; color:var(--text-muted); display:block;">3,888 ft/s</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Critical Pipeline Period (2L/c)</span>
+        <strong id="whCritTime" style="font-size:1.4rem; color:#f59e0b;">2.53 s</strong>
+        <span id="whClosureRatio" style="font-size:0.8rem; color:var(--text-muted); display:block;">t_v / t_c = 0.59 (Rapid)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Transient Surge Spike (&Delta;P)</span>
+        <strong id="whSurgeDeltaP" style="font-size:1.4rem; color:#ef4444;">+26.0 bar</strong>
+        <span id="whSurgeDeltaPsi" style="font-size:0.8rem; color:var(--text-muted); display:block;">+377.5 psi (+265 m head)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Peak Total Pressure (P_max)</span>
+        <strong id="whPeakPressure" style="font-size:1.4rem; color:#f43f5e;">34.0 bar g</strong>
+        <span id="whPeakPressurePsi" style="font-size:0.8rem; color:var(--text-muted); display:block;">493.6 psig</span>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Peak Pipe Hoop Stress:</span>
+        <strong id="whHoopStress" style="color:inherit;">71.4 MPa (10,360 psi)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Unbalanced Elbow Thrust Force:</span>
+        <strong id="whThrustForce" style="color:inherit;">42.8 kN (9,620 lbf)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Minimum Reflected Low Pressure:</span>
+        <strong id="whMinPressure" style="color:#10b981;">-18.0 bar (CAVITATION RISK!)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Surge Tank Cushioned Vol Req:</span>
+        <strong id="whSurgeTankVol" style="color:inherit;">3.8 m&sup3; (1,005 gal)</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyWH" class="btn btn-secondary" onclick="copyWHSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Pressure Wave Time History Diagram -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      Transient Pressure Wave Time-History at Valve Face (&tau; = 0 to 4 &times; 2L/c)
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Live schematic illustrating positive compressive shock front arrival, wave travel time across pipeline length L, negative reflected decompression front, and pipe hoop stress margin.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="whWaveSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:3px; background:#ef4444;"></span> Transient Pressure Wave</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:2px; background:#38bdf8; stroke-dasharray:3 3;"></span> Steady Operating P<sub>0</sub></span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:2px; background:#f59e0b; stroke-dasharray:4 2;"></span> Critical Time 2L/c</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:2px; background:#10b981;"></span> Zero / Vapor Pressure</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations & ASME B31.3 / B31.4 Transient Equations
+    </h3>
+    <div id="whDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Pipeline Water Hammer & Surge Mitigation
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. The "Nominal" Valve Stroke Trap (90% Closure in Last 10% Travel)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          A high-performance butterfly or quarter-turn ball valve closing in 10 seconds does not shut flow down uniformly. The effective flow area and Cv do not drop significantly until the valve disk reaches 80% to 90% travel. Consequently, 90% of the entire flow momentum is killed in the final 1.0 second, transforming what engineers assumed was an attenuated "slow closure" into a catastrophic rapid-closure Joukowsky shock!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. Column Separation & Vapor Cavity Collapse (The "Second Shock")</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When the negative reflected decompression wave arrives at high-point pipeline knolls or summits, local pressure drops to the fluid's vapor pressure (-0.98 bar g for ambient water). The liquid column ruptures, forming a localized vapor pocket. When the flow reverses, the separated fluid columns violently slam back together at supersonic velocity. This secondary rejoining impact routinely generates shock pressures 200% to 300% greater than the initial Joukowsky pulse!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Assuming HDPE Pipelines Are Immune Due to Lower Modulus</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Because polyethylene (HDPE) has a low elastic modulus (0.8 GPa vs 207 GPa for steel), wave celerity drops from ~1,200 m/s down to ~350 m/s, reducing the Joukowsky surge pressure by ~70%. However, lower wave speed dramatically increases the critical closure time (2L/c). A valve closure that was "slow" in a steel line becomes "rapid" in an HDPE line. Furthermore, high surge cycles cause fatigue failure in butt-fusion joint beads.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. Ignoring Dynamic Axial Thrust on Unrestrained Bends & Restraints</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Surge calculators evaluate hoop stress in the pipe cylinder, but real-world pipe failures during water hammer almost always occur at elbows, tees, and mechanical couplings. The sudden pressure spike imparted gives an instantaneous unbalanced dynamic thrust F = &Delta;P &times; A &times; &radic;[2(1 - cos &theta;)]. Thrust blocks sized only for steady-state operating pressure slide or sheer clean off bedrock.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. Sizing Air Release / Vacuum Breaker Valves Too Small</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Installing combination air/vacuum valves without calculating the maximum required air inflow during column separation invites thin-walled pipe collapse. If the vacuum orifice cannot ingest air at the volumetric drainage rate, atmospheric pressure on the external pipe circumference crushes the steel or plastic conduit like a soda can.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: Water Hammer & Surge Suppression
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the Joukowsky equation and when is it valid?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          The Joukowsky equation, derived by Nikolai Zhukovsky in 1898, states that the maximum instantaneous pressure rise in a fluid conduit subjected to a velocity change &Delta;v is: <strong>&Delta;P = &rho; &times; c &times; &Delta;v</strong> (or in head: &Delta;H = (c &times; &Delta;v) / g). It is strictly valid for "rapid closures" where the closure time t<sub>v</sub> is less than or equal to the acoustic round-trip reflection time t<sub>c</sub> = 2L/c.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How does pipe elasticity influence acoustic wave celerity?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          In a rigid pipe, acoustic wave speed is governed purely by the liquid bulk modulus: c<sub>0</sub> = &radic;(K/&rho;) (~1,480 m/s for water). In real elastic pipes, the expanding wall absorbs kinetic shock energy, dampening wave celerity: c = &radic;[ (K/&rho;) / (1 + (K/E)(D/e)c<sub>1</sub>) ]. For steel pipes (E=207 GPa), c typically ranges between 1,000 and 1,250 m/s. For flexible HDPE pipes (E=0.8 GPa), c drops to 300 - 400 m/s.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the difference between rapid and slow valve closure?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          The critical time t<sub>c</sub> = 2L/c is the exact time required for an acoustic pressure pulse to travel from the valve to the upstream reservoir and return as a relief wave. If the valve closes in t<sub>v</sub> &le; t<sub>c</sub> (rapid), the valve is fully closed before any reflected relief wave arrives, developing 100% of the Joukowsky surge. If t<sub>v</sub> &gt; t<sub>c</sub> (slow), the reflected relief wave arrives while the valve is still closing, cancelling a portion of the pressure spike.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What surge pressure overages are permitted under ASME B31.3 and B31.4?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Under ASME B31.3 (Process Piping, Section 302.2.4), short-duration transient pressure events may exceed the design internal pressure rating by 20% for up to 10 hours per event (and &le; 100 hours/year), or 33% for up to 24 hours per event (and &le; 1000 hours/year). Under ASME B31.4 (Liquid Hydrocarbon Transportation Piping, Section 404.4.1), the maximum surge pressure during transients cannot exceed 110% of the internal design pressure of the piping system.
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How do bladder surge vessels mitigate transient shockwaves?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          A bladder surge tank contains a pre-charged volume of nitrogen gas enclosed in an elastomeric bladder. When an overpressure wave strikes the tank nozzle, water flows into the vessel, compressing the gas and absorbing kinetic energy. When a negative decompression wave reflects back, the pressurized gas expands, immediately injecting water into the line to keep the pipeline pressure above the vapor pressure limit, preventing catastrophic column separation.
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Material properties database
+var whMaterialData = {
+  steel: { E: 207, nu: 0.30 },
+  ductile_iron: { E: 170, nu: 0.28 },
+  cast_iron: { E: 100, nu: 0.25 },
+  stainless: { E: 193, nu: 0.30 },
+  hdpe: { E: 0.80, nu: 0.45 },
+  pvc: { E: 3.00, nu: 0.38 },
+  custom: { E: 200, nu: 0.30 }
+};
+
+// Fluid properties database
+var whFluidData = {
+  water20: { rho: 998, K: 2.19 },
+  water60: { rho: 983, K: 2.28 },
+  crude: { rho: 850, K: 1.50 },
+  diesel: { rho: 830, K: 1.65 },
+  glycol: { rho: 1060, K: 2.80 },
+  custom: { rho: 1000, K: 2.20 }
+};
+
+function onWHMaterialChange() {
+  var mat = document.getElementById('whPipeMaterial').value;
+  if (mat !== 'custom' && whMaterialData[mat]) {
+    document.getElementById('whYoungsModulus').value = whMaterialData[mat].E;
+    document.getElementById('whPoissonRatio').value = whMaterialData[mat].nu;
+  }
+}
+
+function onWHFluidChange() {
+  var fl = document.getElementById('whFluidType').value;
+  if (fl !== 'custom' && whFluidData[fl]) {
+    document.getElementById('whDensity').value = whFluidData[fl].rho;
+    document.getElementById('whBulkModulus').value = whFluidData[fl].K;
+  }
+}
+
+function applyWHPreset(key) {
+  if (key === 'water_main') {
+    document.getElementById('whPipeMaterial').value = 'ductile_iron';
+    onWHMaterialChange();
+    document.getElementById('whPipeID').value = '600';
+    document.getElementById('whWallThk').value = '11.0';
+    document.getElementById('whPipeLength').value = '2500';
+    document.getElementById('whFluidType').value = 'water20';
+    onWHFluidChange();
+    document.getElementById('whInitialVelocity').value = '1.80';
+    document.getElementById('whFinalVelocity').value = '0.0';
+    document.getElementById('whOperatingPressure').value = '6.0';
+    document.getElementById('whClosureTime').value = '2.0';
+    document.getElementById('whRestraint').value = 'anchored_axial';
+  } else if (key === 'power_plant') {
+    document.getElementById('whPipeMaterial').value = 'steel';
+    onWHMaterialChange();
+    document.getElementById('whPipeID').value = '900';
+    document.getElementById('whWallThk').value = '12.7';
+    document.getElementById('whPipeLength').value = '800';
+    document.getElementById('whFluidType').value = 'water20';
+    onWHFluidChange();
+    document.getElementById('whInitialVelocity').value = '2.50';
+    document.getElementById('whFinalVelocity').value = '0.0';
+    document.getElementById('whOperatingPressure').value = '4.5';
+    document.getElementById('whClosureTime').value = '1.2';
+    document.getElementById('whRestraint').value = 'anchored_axial';
+  } else if (key === 'oil_pipeline') {
+    document.getElementById('whPipeMaterial').value = 'steel';
+    onWHMaterialChange();
+    document.getElementById('whPipeID').value = '400';
+    document.getElementById('whWallThk').value = '9.52';
+    document.getElementById('whPipeLength').value = '12000';
+    document.getElementById('whFluidType').value = 'crude';
+    onWHFluidChange();
+    document.getElementById('whInitialVelocity').value = '2.10';
+    document.getElementById('whFinalVelocity').value = '0.0';
+    document.getElementById('whOperatingPressure').value = '45.0';
+    document.getElementById('whClosureTime').value = '15.0';
+    document.getElementById('whRestraint').value = 'anchored_axial';
+  } else if (key === 'hdpe_slurry') {
+    document.getElementById('whPipeMaterial').value = 'hdpe';
+    onWHMaterialChange();
+    document.getElementById('whPipeID').value = '250';
+    document.getElementById('whWallThk').value = '28.2';
+    document.getElementById('whPipeLength').value = '1200';
+    document.getElementById('whFluidType').value = 'water20';
+    onWHFluidChange();
+    document.getElementById('whInitialVelocity').value = '2.40';
+    document.getElementById('whFinalVelocity').value = '0.0';
+    document.getElementById('whOperatingPressure').value = '5.0';
+    document.getElementById('whClosureTime').value = '1.5';
+    document.getElementById('whRestraint').value = 'anchored_upstream';
+  }
+  calculateWaterHammer();
+}
+
+function calculateWaterHammer() {
+  var E_GPa = parseFloat(document.getElementById('whYoungsModulus').value) || 207;
+  var nu = parseFloat(document.getElementById('whPoissonRatio').value) || 0.30;
+  var D_mm = parseFloat(document.getElementById('whPipeID').value) || 400;
+  var e_mm = parseFloat(document.getElementById('whWallThk').value) || 9.52;
+  var L_m = parseFloat(document.getElementById('whPipeLength').value) || 1500;
+  var restraint = document.getElementById('whRestraint').value;
+
+  var rho = parseFloat(document.getElementById('whDensity').value) || 998;
+  var K_GPa = parseFloat(document.getElementById('whBulkModulus').value) || 2.19;
+  var v0 = parseFloat(document.getElementById('whInitialVelocity').value) || 2.2;
+  var vf = parseFloat(document.getElementById('whFinalVelocity').value) || 0.0;
+  var P0_bar = parseFloat(document.getElementById('whOperatingPressure').value) || 8.0;
+  var tv = parseFloat(document.getElementById('whClosureTime').value) || 1.5;
+
+  var D = D_mm / 1000;
+  var e = e_mm / 1000;
+  var E = E_GPa * 1e9;
+  var K = K_GPa * 1e9;
+  var deltaV = Math.abs(v0 - vf);
+  var g = 9.80665;
+
+  var c1 = 1.0;
+  if (restraint === 'anchored_axial') {
+    c1 = 1 - (nu * nu);
+  } else if (restraint === 'anchored_upstream') {
+    c1 = 1 - (0.5 * nu);
+  } else {
+    c1 = 1.0;
+  }
+
+  var denom = 1 + (K / E) * (D / e) * c1;
+  var c = Math.sqrt((K / rho) / denom);
+  var c_fps = c * 3.28084;
+
+  var tc = (2 * L_m) / c;
+  var isRapid = tv <= tc;
+
+  var deltaP_Pa = 0;
+  var regimeText = '';
+  var badgeColor = '';
+
+  if (isRapid) {
+    deltaP_Pa = rho * c * deltaV;
+    regimeText = 'RAPID CLOSURE (FULL JOUKOWSKY SURGE)';
+    badgeColor = '#ef4444';
+  } else {
+    deltaP_Pa = (2 * L_m * rho * deltaV) / tv;
+    regimeText = 'SLOW CLOSURE (ATTENUATED SURGE)';
+    badgeColor = '#f59e0b';
+  }
+
+  var deltaP_bar = deltaP_Pa / 1e5;
+  var deltaP_psi = deltaP_bar * 14.5038;
+  var deltaH_m = deltaP_Pa / (rho * g);
+
+  var P_peak_bar = P0_bar + deltaP_bar;
+  var P_peak_psi = P_peak_bar * 14.5038;
+  var P_peak_Pa = P_peak_bar * 1e5;
+
+  var P_min_bar = P0_bar - deltaP_bar;
+
+  var Do_mm = D_mm + (2 * e_mm);
+  var hoopStress_MPa = (P_peak_Pa * (Do_mm / 1000)) / (2 * (e_mm / 1000)) / 1e6;
+  var hoopStress_psi = hoopStress_MPa * 145.038;
+
+  var A_pipe = (Math.PI / 4) * Math.pow(D, 2);
+  var thrustForce_N = deltaP_Pa * A_pipe * Math.SQRT2;
+  var thrustForce_kN = thrustForce_N / 1000;
+  var thrustForce_lbf = thrustForce_N * 0.224809;
+
+  var allowableRatio = 0.25;
+  var surgeTank_m3 = (2 * L_m * A_pipe * v0) / (c * allowableRatio);
+  var surgeTank_gal = surgeTank_m3 * 264.172;
+
+  var badgeEl = document.getElementById('whRegimeBadge');
+  badgeEl.textContent = regimeText;
+  badgeEl.style.background = badgeColor;
+
+  document.getElementById('whWaveSpeed').textContent = Math.round(c).toLocaleString() + ' m/s';
+  document.getElementById('whWaveSpeedFps').textContent = Math.round(c_fps).toLocaleString() + ' ft/s';
+
+  document.getElementById('whCritTime').textContent = tc.toFixed(2) + ' s';
+  document.getElementById('whClosureRatio').textContent = 't_v / t_c = ' + (tv / tc).toFixed(2) + (isRapid ? ' (Rapid \u2264 1.0)' : ' (Slow > 1.0)');
+
+  document.getElementById('whSurgeDeltaP').textContent = '+' + deltaP_bar.toFixed(1) + ' bar';
+  document.getElementById('whSurgeDeltaPsi').textContent = '+' + deltaP_psi.toFixed(1) + ' psi (+' + Math.round(deltaH_m) + ' m head)';
+
+  document.getElementById('whPeakPressure').textContent = P_peak_bar.toFixed(1) + ' bar g';
+  document.getElementById('whPeakPressurePsi').textContent = P_peak_psi.toFixed(1) + ' psig';
+
+  document.getElementById('whHoopStress').textContent = hoopStress_MPa.toFixed(1) + ' MPa (' + Math.round(hoopStress_psi).toLocaleString() + ' psi)';
+  document.getElementById('whThrustForce').textContent = thrustForce_kN.toFixed(1) + ' kN (' + Math.round(thrustForce_lbf).toLocaleString() + ' lbf)';
+
+  var minPresEl = document.getElementById('whMinPressure');
+  if (P_min_bar < -0.98) {
+    minPresEl.textContent = P_min_bar.toFixed(1) + ' bar g (VAPOR CAVITATION DANGER!)';
+    minPresEl.style.color = '#ef4444';
+  } else {
+    minPresEl.textContent = P_min_bar.toFixed(1) + ' bar g (Positive)';
+    minPresEl.style.color = '#10b981';
+  }
+
+  document.getElementById('whSurgeTankVol').textContent = surgeTank_m3.toFixed(1) + ' m\u00b3 (' + Math.round(surgeTank_gal).toLocaleString() + ' gal)';
+
+  renderWHSvg(P0_bar, deltaP_bar, P_peak_bar, P_min_bar, tc, tv, isRapid);
+
+  renderWHDerivations({
+    rho: rho, K_GPa: K_GPa, E_GPa: E_GPa, D_mm: D_mm, e_mm: e_mm, L_m: L_m, c1: c1,
+    c: c, tc: tc, tv: tv, isRapid: isRapid, deltaV: deltaV,
+    deltaP_bar: deltaP_bar, deltaP_psi: deltaP_psi, deltaH_m: deltaH_m,
+    P0_bar: P0_bar, P_peak_bar: P_peak_bar, hoopStress_MPa: hoopStress_MPa, thrustForce_kN: thrustForce_kN
+  });
+}
+
+function renderWHSvg(P0, dP, P_peak, P_min, tc, tv, isRapid) {
+  var svg = document.getElementById('whWaveSvg');
+  var w = 800;
+  var h = 280;
+  var padL = 60;
+  var padR = 40;
+  var padT = 30;
+  var padB = 40;
+
+  var maxP = Math.max(P_peak * 1.15, P0 * 1.5, 5);
+  var minP_plot = Math.min(P_min * 1.15, -2);
+  var rangeP = maxP - minP_plot;
+
+  function getY(p) {
+    return padT + ((maxP - p) / rangeP) * (h - padT - padB);
+  }
+
+  var tTotal = tc * 4.2;
+  function getX(t) {
+    return padL + (t / tTotal) * (w - padL - padR);
+  }
+
+  var yP0 = getY(P0);
+  var yPeak = getY(P_peak);
+  var yZero = getY(0);
+
+  var pts = [];
+  pts.push(getX(0).toFixed(1) + ',' + yP0.toFixed(1));
+  pts.push(getX(tv).toFixed(1) + ',' + yPeak.toFixed(1));
+  pts.push(getX(tc).toFixed(1) + ',' + yPeak.toFixed(1));
+  
+  var yLow1 = getY(Math.max(P_min, -1.0));
+  pts.push(getX(tc + tv).toFixed(1) + ',' + yLow1.toFixed(1));
+  pts.push(getX(2 * tc).toFixed(1) + ',' + yLow1.toFixed(1));
+  
+  var pBounce2 = P0 + (dP * 0.7);
+  pts.push(getX(2 * tc + tv).toFixed(1) + ',' + getY(pBounce2).toFixed(1));
+  pts.push(getX(3 * tc).toFixed(1) + ',' + getY(pBounce2).toFixed(1));
+  
+  var pBounce3 = P0 - (dP * 0.5);
+  pts.push(getX(3 * tc + tv).toFixed(1) + ',' + getY(Math.max(pBounce3, -1.0)).toFixed(1));
+  pts.push(getX(4 * tc).toFixed(1) + ',' + getY(Math.max(pBounce3, -1.0)).toFixed(1));
+  pts.push(getX(tTotal).toFixed(1) + ',' + yP0.toFixed(1));
+
+  var pathD = 'M ' + pts.join(' L ');
+
+  var svgContent = ''
+    + '<line x1="' + padL + '" y1="' + yP0 + '" x2="' + (w - padR) + '" y2="' + yP0 + '" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3,3" />'
+    + '<text x="' + (padL - 8) + '" y="' + (yP0 + 4) + '" fill="#38bdf8" font-size="10" text-anchor="end">P0: ' + P0.toFixed(1) + ' bar</text>'
+    + '<line x1="' + padL + '" y1="' + yPeak + '" x2="' + (w - padR) + '" y2="' + yPeak + '" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />'
+    + '<text x="' + (padL - 8) + '" y="' + (yPeak + 4) + '" fill="#ef4444" font-size="10" text-anchor="end">Peak: ' + P_peak.toFixed(1) + ' bar</text>'
+    + '<line x1="' + padL + '" y1="' + yZero + '" x2="' + (w - padR) + '" y2="' + yZero + '" stroke="#10b981" stroke-width="1" opacity="0.7" />'
+    + '<text x="' + (padL - 8) + '" y="' + (yZero + 4) + '" fill="#10b981" font-size="10" text-anchor="end">0 bar g</text>'
+    + '<line x1="' + getX(tc) + '" y1="' + padT + '" x2="' + getX(tc) + '" y2="' + (h - padB) + '" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,2" />'
+    + '<text x="' + getX(tc) + '" y="' + (h - padB + 16) + '" fill="#f59e0b" font-size="10" text-anchor="middle">tc (2L/c)</text>'
+    + '<line x1="' + getX(2 * tc) + '" y1="' + padT + '" x2="' + getX(2 * tc) + '" y2="' + (h - padB) + '" stroke="#64748b" stroke-width="1" stroke-dasharray="2,2" />'
+    + '<text x="' + getX(2 * tc) + '" y="' + (h - padB + 16) + '" fill="#64748b" font-size="10" text-anchor="middle">2tc (4L/c)</text>'
+    + '<line x1="' + getX(3 * tc) + '" y1="' + padT + '" x2="' + getX(3 * tc) + '" y2="' + (h - padB) + '" stroke="#64748b" stroke-width="1" stroke-dasharray="2,2" />'
+    + '<text x="' + getX(3 * tc) + '" y="' + (h - padB + 16) + '" fill="#64748b" font-size="10" text-anchor="middle">3tc</text>'
+    + '<path d="' + pathD + '" fill="none" stroke="#ef4444" stroke-width="2.5" />'
+    + '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (h - padB) + '" stroke="#475569" stroke-width="1.5" />'
+    + '<line x1="' + padL + '" y1="' + (h - padB) + '" x2="' + (w - padR) + '" y2="' + (h - padB) + '" stroke="#475569" stroke-width="1.5" />'
+    + '<text x="' + (w - padR) + '" y="' + (h - padB + 28) + '" fill="#94a3b8" font-size="10" text-anchor="end">Time (seconds)</text>'
+    + '<text x="' + (padL - 10) + '" y="' + (padT - 10) + '" fill="#94a3b8" font-size="10" text-anchor="start">Pressure (bar g)</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderWHDerivations(p) {
+  var container = document.getElementById('whDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Acoustic Wave Celerity (Korteweg Equation):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 'c = \u221a[ (K / \u03c1) / ( 1 + (K / E) &times; (D / e) &times; c\u2081 ) ]'
+    + '</div>'
+    + '<div>'
+    + 'c = \u221a[ (' + p.K_GPa + ' &times; 10\u2079 / ' + p.rho + ') / ( 1 + (' + p.K_GPa + ' / ' + p.E_GPa + ') &times; (' + p.D_mm + ' / ' + p.e_mm + ') &times; ' + p.c1.toFixed(3) + ' ) ] = <strong>' + Math.round(p.c).toLocaleString() + ' m/s</strong>'
+    + '</div>'
+    + '</div>'
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Critical Reflection Time vs Closure Time:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + 't_c = 2L / c = (2 &times; ' + p.L_m + ' m) / (' + Math.round(p.c) + ' m/s) = <strong>' + p.tc.toFixed(2) + ' s</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Closure Time t_v = ' + p.tv.toFixed(2) + ' s &rarr; ' + (p.isRapid ? 't_v \u2264 t_c: <strong>RAPID CLOSURE</strong> (Full Joukowsky Surge Develops)' : 't_v > t_c: <strong>SLOW CLOSURE</strong> (Attenuated Wave Reflection)')
+    + '</div>'
+    + '</div>'
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Peak Transient Pressure Rise:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#ef4444;">'
+    + '\u0394P = ' + (p.isRapid ? '\u03c1 &times; c &times; \u0394v' : '(2 &times; L &times; \u03c1 &times; \u0394v) / t_v') + ' = <strong>' + p.deltaP_bar.toFixed(2) + ' bar</strong> (+' + p.deltaP_psi.toFixed(1) + ' psi, +' + Math.round(p.deltaH_m) + ' m head)'
+    + '</div>'
+    + '<div>'
+    + 'Peak Pipeline Pressure: P_max = P\u2080 + \u0394P = ' + p.P0_bar.toFixed(1) + ' + ' + p.deltaP_bar.toFixed(2) + ' = <strong>' + p.P_peak_bar.toFixed(2) + ' bar g</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Hoop Stress Spike: \u03c3_h = (P_max &times; D_o) / (2 &times; e) = <strong>' + p.hoopStress_MPa.toFixed(1) + ' MPa</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyWHSummary() {
+  var c = document.getElementById('whWaveSpeed').textContent;
+  var tc = document.getElementById('whCritTime').textContent;
+  var deltaP = document.getElementById('whSurgeDeltaP').textContent;
+  var pPeak = document.getElementById('whPeakPressure').textContent;
+  var hoop = document.getElementById('whHoopStress').textContent;
+  var thrust = document.getElementById('whThrustForce').textContent;
+  var regime = document.getElementById('whRegimeBadge').textContent;
+
+  var summary = [
+    '=== PIPELINE WATER HAMMER & JOUKOWSKY SURGE REPORT ===',
+    'Transient Regime: ' + regime,
+    'Wave Celerity Speed (c): ' + c,
+    'Critical Period (2L/c): ' + tc,
+    'Transient Surge Spike (\u0394P): ' + deltaP,
+    'Peak Total Pressure: ' + pPeak,
+    'Peak Pipe Hoop Stress: ' + hoop,
+    'Unbalanced 90\u00b0 Elbow Thrust Force: ' + thrust,
+    'Standards: Joukowsky / Korteweg & ASME B31.3 / B31.4',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyWH');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateWaterHammer();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateWaterHammer();
+}
+</script>
+`;
+
+
+
+  // ----------------------------------------------------
+  // TOOL AI3: Pipeline Water Hammer & Joukowsky Surge
+  // ----------------------------------------------------
+  writeFileSync(join(calcDir, 'pipeline-water-hammer-joukowsky-calculator.html'), renderTradePage({
+    title: 'Pipeline Water Hammer & Transient Surge Calculator | Joukowsky Wave Pressure',
+    description: 'Calculate hydraulic transient shockwaves, acoustic celerity wave speed, peak surge pressure spikes, and critical valve closure times using the Joukowsky equation and ASME B31.3 / B31.4 allowable transient allowances.',
+    canonicalPath: 'calc/pipeline-water-hammer-joukowsky-calculator.html',
+    body: waterHammerJoukowskyBody,
+    faq: [
+      {
+        q: 'What is the Joukowsky equation and when is it valid?',
+        a: 'The Joukowsky equation states that the maximum instantaneous pressure rise in a fluid conduit subjected to a velocity change Delta v is: Delta P = rho * c * Delta v. It is strictly valid for rapid closures where closure time t_v is less than or equal to the acoustic round-trip reflection time t_c = 2L/c.'
+      },
+      {
+        q: 'How does pipe elasticity influence acoustic wave celerity?',
+        a: 'In real elastic pipes, the expanding wall absorbs kinetic shock energy, dampening wave celerity: c = sqrt( (K/rho) / (1 + (K/E)(D/e)c1) ). For steel pipes, c typically ranges between 1,000 and 1,250 m/s. For flexible HDPE pipes, c drops to 300 - 400 m/s.'
+      },
+      {
+        q: 'What is the difference between rapid and slow valve closure?',
+        a: 'The critical time t_c = 2L/c is the time required for an acoustic pressure pulse to travel from the valve to the upstream reservoir and return as a relief wave. If t_v <= t_c (rapid), 100% of the Joukowsky surge develops. If t_v > t_c (slow), the reflected wave attenuates the peak pressure spike.'
+      },
+      {
+        q: 'What surge pressure overages are permitted under ASME B31.3 and B31.4?',
+        a: 'Under ASME B31.3 Section 302.2.4, short-duration transient overpressure events may exceed design internal pressure by 20% for up to 10 hours per event, or 33% for up to 24 hours per event. Under ASME B31.4 Section 404.4.1, maximum surge pressure cannot exceed 110% of internal design pressure.'
+      },
+      {
+        q: 'How do bladder surge vessels mitigate transient shockwaves?',
+        a: 'A bladder surge tank contains pre-charged nitrogen enclosed in an elastomeric bladder. Overpressure compresses the gas to absorb kinetic energy, while returning negative waves prompt the pressurized gas to inject liquid into the line, preventing catastrophic vapor column separation.'
+      }
+    ]
+  }));
+
+
+
+// ==========================================
+// TOOL AI4: Hydrostatic Test Pressure & Thermal Relief Calculator
+// ==========================================
+const hydrotestThermalBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Hydrostatic Test Pressure & Thermal Relief Calculator</h1>
+    <p class="calc-desc">Calculate code hydrostatic test pressures, test medium fill volumes, pressurization water pump stroke volume, trapped liquid solar thermal expansion pressure rise, and API 520/521 thermal relief valve (TRV) sizing per ASME B31.3 Para 345.4 and ASME Section VIII UG-99.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">ENGINEERING APPLICATION PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyHTPreset('b313_refinery')">🏭 Refinery Process Header (ASME B31.3)</button>
+      <button type="button" class="btn-preset" onclick="applyHTPreset('ug99_vessel')">🛢️ Pressure Vessel (ASME Sec VIII UG-99)</button>
+      <button type="button" class="btn-preset" onclick="applyHTPreset('cross_country')">🌐 Transmission Pipeline (API 5L X65)</button>
+      <button type="button" class="btn-preset" onclick="applyHTPreset('solar_trapped')">☀️ Solar-Exposed Blocked Water Loop</button>
+    </div>
+  </div>
+
+  <form id="htForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Design Code & System Pressure -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>📋</span> Code Basis & Design Pressures
+        </h3>
+        
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="htDesignCode" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Design Code / Standard</label>
+          <select id="htDesignCode" class="form-control" onchange="onHTCodeChange(); calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="b313" selected>ASME B31.3 Process Piping (1.5 &times; P &times; St / S)</option>
+            <option value="ug99">ASME Section VIII Div 1 UG-99(b) (1.3 &times; MAWP &times; St / S)</option>
+            <option value="b314">ASME B31.4 Pipeline Transportation (1.25 &times; MOP)</option>
+            <option value="b318">ASME B31.8 Gas Transmission (1.40 &times; MAOP Class 1/2)</option>
+            <option value="pneumatic">Pneumatic Test ASME B31.3 (1.10 &times; P)</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="htDesignP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Design Press / MAWP (bar g)</label>
+            <input type="number" id="htDesignP" class="form-control" value="25.0" step="any" min="0.1" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="htStressRatio" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Stress Ratio (S<sub>t</sub> / S)</label>
+            <input type="number" id="htStressRatio" class="form-control" value="1.25" step="0.01" min="1.0" max="6.5" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="htElevationHead" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Static Elevation Head (m)</label>
+            <input type="number" id="htElevationHead" class="form-control" value="15.0" step="any" min="0" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="htTestTemp" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Test Medium Temp (&deg;C)</label>
+            <input type="number" id="htTestTemp" class="form-control" value="20.0" step="any" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Geometry & Piping Segment Specs -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>📏</span> Piping Segment & Volume Sizing
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="htPipeOD" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Pipe Outside Dia D<sub>o</sub> (mm)</label>
+            <input type="number" id="htPipeOD" class="form-control" value="323.8" step="any" min="10" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="htPipeThk" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Wall Thickness e (mm)</label>
+            <input type="number" id="htPipeThk" class="form-control" value="9.52" step="any" min="0.5" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="htPipeLen" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Piping Length L (m)</label>
+            <input type="number" id="htPipeLen" class="form-control" value="650" step="any" min="1" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="htSMYS" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Material SMYS (MPa)</label>
+            <input type="number" id="htSMYS" class="form-control" value="241" step="any" min="50" oninput="calculateHydrotest();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <!-- Solar Exposure & Thermal Expansion Inputs -->
+        <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:6px; margin-top:0.5rem;">
+          <span style="font-size:0.85rem; font-weight:600; color:#f59e0b; display:block; margin-bottom:0.5rem;">☀️ Trapped Solar Thermal Expansion</span>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label for="htTempRise" style="display:block; font-size:0.8rem; margin-bottom:0.25rem;">Solar Temp Rise &Delta;T (&deg;C)</label>
+              <input type="number" id="htTempRise" class="form-control" value="12.0" step="any" min="0" oninput="calculateHydrotest();" style="width:100%; padding:0.4rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            </div>
+            <div class="form-group">
+              <label for="htSolarFlux" style="display:block; font-size:0.8rem; margin-bottom:0.25rem;">Peak Solar Flux (W/m&sup2;)</label>
+              <input type="number" id="htSolarFlux" class="form-control" value="950" step="any" min="0" oninput="calculateHydrotest();" style="width:100%; padding:0.4rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Hydrotest & Thermal Sizing Results Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">Hydrostatic Test Rating & Thermal Relief Results</h2>
+      <div id="htSafetyBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#10b981; color:#fff;">ASME COMPLIANT: HOOP STRESS &lt; 90% SMYS</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Target Test Pressure (P_t at top)</span>
+        <strong id="htTestPressure" style="font-size:1.4rem; color:#38bdf8;">46.9 bar g</strong>
+        <span id="htTestPressurePsi" style="font-size:0.8rem; color:var(--text-muted); display:block;">680.0 psig</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Max Pressure at Low Point (w/ static)</span>
+        <strong id="htLowPointP" style="font-size:1.4rem; color:#f59e0b;">48.4 bar g</strong>
+        <span id="htLowPointPsi" style="font-size:0.8rem; color:var(--text-muted); display:block;">701.3 psig (+1.5 bar head)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Trapped Solar Thermal &Delta;P</span>
+        <strong id="htThermalRise" style="font-size:1.4rem; color:#ef4444;">+108.5 bar</strong>
+        <span id="htThermalRisePsi" style="font-size:0.8rem; color:var(--text-muted); display:block;">+1,574 psi (RUPTURE RISK!)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Thermal Relief Valve (TRV) Orifice</span>
+        <strong id="htTRVSize" style="font-size:1.4rem; color:#10b981;">API 'D' (0.110 in&sup2;)</strong>
+        <span id="htTRVFlow" style="font-size:0.8rem; color:var(--text-muted); display:block;">Discharge: 4.8 GPM (1.1 m&sup3;/h)</span>
+      </div>
+    </div>
+
+    <!-- Technical Mechanical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Test Stress % of SMYS:</span>
+        <strong id="htSmysPct" style="color:inherit;">68.2% (&le; 90% Code Limit)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Total Water Fill Volume:</span>
+        <strong id="htFillVol" style="color:inherit;">47.4 m&sup3; (12,520 gal / 47.4 tonnes)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">High-Press Pump Stroke Volume:</span>
+        <strong id="htPumpVol" style="color:inherit;">242.6 Liters (compression + pipe strain)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Recommended Hold Duration:</span>
+        <strong id="htHoldTime" style="color:inherit;">2.0 Hours (ASME Para 345.2.2)</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyHT" class="btn btn-secondary" onclick="copyHTSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Hydrotest Manifold & Thermal Expansion Visualizer -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      Hydrostatic Test Piping Manifold & Trapped Thermal Overpressure Mechanics
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Schematic illustrating fill isolation blind flanges, high-point air bleed vent, calibrated test tree gauge cluster, static head elevation differential, and thermal relief bypass protection.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="htManifoldSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#0284c7; border-radius:2px;"></span> Test Medium Water Fill</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Calibrated Test Gauge</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Thermal Expansion Relief (TRV)</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#10b981; border-radius:2px;"></span> High Point Vent Bleed</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: ASME Code Equations & Thermal Expansion Physics
+    </h3>
+    <div id="htDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Hydrostatic Pressure Testing & Blocked-In Lines
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. The "Lunch Break" Solar Rupture in Blocked-In Lines</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Because liquid water is virtually incompressible, its volumetric thermal expansion (&beta; &approx; 0.00021 /&deg;C) against rigid steel walls generates a staggering <strong>9 to 12 bar (130 to 175 psi) of hydraulic pressure increase per single 1&deg;C of temperature rise</strong>. Contractors filling a pipeline with cold 10&deg;C river water and blocking isolation valves before lunch routinely return to find blown flange gaskets, distorted valve stems, or catastrophic pipe split ruptures as ambient sunshine heats the trapped water by 10&deg;C to 15&deg;C!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. Testing Against Closed In-Line Gate or Ball Valves</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          ASME B31.3 Para 345.1 explicitly warns against testing against closed in-line valves unless the valve seat is rated for the full test pressure. In standard practice, isolation valve seats are designed only for 100% of flange rating (Class 150 = 19.6 bar), whereas the hydrotest pressure reaches 150% of rating (29.4 bar). Testing against a closed valve destroys elastomeric or PTFE seats and distorts gates. Proper hydrotests require <strong>blind test flanges or spade blinds</strong> rated for test pressure.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Trapped Air Pockets: Turning a Hydraulic Test into a Shrapnel Bomb</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Failure to open high-point vents until a solid stream of water emerges leaves compressible air pockets trapped at piping knolls. Incompressible water stores negligible elastic strain energy; if a pipe fails filled with 100% water, pressure drops to zero instantaneously with a dull tear. But if 5% trapped air exists, that air is compressed into a massive pneumatic spring. Failure results in explosive pneumatic shrapnel fragmentation identical to an explosive blast!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. Ignoring Static Head Differential on Tall Columns & Vertical Runs</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          In tall fractionation columns or mountainous pipeline rights-of-way, water exerts <strong>0.098 bar/m (0.433 psi/ft)</strong> of hydrostatic head. Setting the test pump pressure to 1.5 &times; MAWP based on a top-of-column gauge means the bottom skirt and lowest nozzle experience the top test pressure PLUS the entire liquid static column. On a 50-meter distillation tower, bottom pressure is nearly 5 bar (72 psi) higher, which can overstress the shell beyond 90% SMYS!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. Overloading Structural Supports Designed Only for Gas / Vapor</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Flare headers, fuel gas lines, and large vapor overhead ducts are designed structurally to carry low-density gases. When filled with water for hydrostatic testing, a 36-inch vapor header weighs over 650 kg per linear meter (436 lb/ft)! Pipe racks, spring hangers, and structural trusses collapse under this liquid deadweight unless temporary scaffolding supports are installed prior to filling.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: Hydrotest & Thermal Relief Sizing
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the formula for ASME B31.3 hydrostatic test pressure?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ASME B31.3 Section 345.4.2, the hydrostatic test pressure at any point in a metallic piping system shall not be less than: <strong>P<sub>t</sub> = 1.5 &times; P &times; (S<sub>t</sub> / S)</strong>, where P is the internal design pressure, S<sub>t</sub> is the allowable stress at test temperature, and S is the allowable stress at design temperature. The maximum allowable ratio of S<sub>t</sub>/S is 6.5.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">Why is ASME Section VIII UG-99 factor 1.3 instead of 1.5?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          In the 1999 Addenda of the ASME Boiler and Pressure Vessel Code Section VIII Division 1, the design margin on tensile strength was lowered from 4.0 to 3.5. Consequently, the minimum hydrostatic test multiplier in UG-99(b) was adjusted from 1.5&times; down to <strong>1.3 &times; MAWP &times; (S<sub>t</sub> / S)</strong>. Older vessels or piping built to ASME B31.3 continue to use the 1.5&times; multiplier.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How is thermal liquid expansion pressure calculated in a trapped pipe?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          When fluid is trapped between closed valves, temperature rise &Delta;T forces volumetric expansion &beta;. Restricted by liquid compressibility (1/K) and pipe diametral elasticity (D/(eE)), the pressure rise is: <strong>&Delta;P = (&beta; - 3&alpha;) &times; &Delta;T / [ (1/K) + (D/(eE))(5/4 - &nu;) ]</strong>. For water in steel pipes, this evaluates to roughly 9 to 12 bar per &deg;C (75 to 100 psi per &deg;F).
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What size thermal relief valve (TRV) is needed for liquid lines?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per API Standard 521 Section 5.14 and API Standard 520, the volumetric flow rate required to relieve solar thermal expansion is extremely small—typically less than 1 to 5 GPM (0.2 to 1.2 m&sup3;/h). Consequently, the smallest standard ASME/API relief valve, a <strong>3/4" &times; 1" valve with a 'D' orifice (0.110 in&sup2; or 71 mm&sup2;)</strong>, is almost universally sufficient to protect any blocked piping loop from solar overpressure.
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the minimum hold time required during hydrotesting?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ASME B31.3 Para 345.2.2, the hydrostatic test pressure must be held for a minimum of <strong>10 minutes</strong>, after which the pressure may be reduced to design pressure for the visual examination of all joints and connections for leaks. For cross-country transmission pipelines under ASME B31.4 / B31.8 or DOT 49 CFR 192/195, a continuous <strong>4-hour to 8-hour strength test</strong> followed by a 4-hour tightness test is typically mandatory.
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function applyHTPreset(key) {
+  if (key === 'b313_refinery') {
+    document.getElementById('htDesignCode').value = 'b313';
+    document.getElementById('htDesignP').value = '25.0';
+    document.getElementById('htStressRatio').value = '1.30';
+    document.getElementById('htElevationHead').value = '12.0';
+    document.getElementById('htPipeOD').value = '273.1'; // 10" Sch 40
+    document.getElementById('htPipeThk').value = '9.27';
+    document.getElementById('htPipeLen').value = '450';
+    document.getElementById('htSMYS').value = '241';
+    document.getElementById('htTempRise').value = '15.0';
+    document.getElementById('htSolarFlux').value = '950';
+  } else if (key === 'ug99_vessel') {
+    document.getElementById('htDesignCode').value = 'ug99';
+    document.getElementById('htDesignP').value = '18.0';
+    document.getElementById('htStressRatio').value = '1.15';
+    document.getElementById('htElevationHead').value = '20.0';
+    document.getElementById('htPipeOD').value = '1500'; // 1.5m vessel
+    document.getElementById('htPipeThk').value = '22.0';
+    document.getElementById('htPipeLen').value = '18';
+    document.getElementById('htSMYS').value = '260';
+    document.getElementById('htTempRise').value = '8.0';
+    document.getElementById('htSolarFlux').value = '900';
+  } else if (key === 'cross_country') {
+    document.getElementById('htDesignCode').value = 'b314';
+    document.getElementById('htDesignP').value = '68.0';
+    document.getElementById('htStressRatio').value = '1.00';
+    document.getElementById('htElevationHead').value = '35.0';
+    document.getElementById('htPipeOD').value = '610.0'; // 24" X65
+    document.getElementById('htPipeThk').value = '12.7';
+    document.getElementById('htPipeLen').value = '8500';
+    document.getElementById('htSMYS').value = '448'; // X65
+    document.getElementById('htTempRise').value = '10.0';
+    document.getElementById('htSolarFlux').value = '950';
+  } else if (key === 'solar_trapped') {
+    document.getElementById('htDesignCode').value = 'b313';
+    document.getElementById('htDesignP').value = '10.0';
+    document.getElementById('htStressRatio').value = '1.00';
+    document.getElementById('htElevationHead').value = '5.0';
+    document.getElementById('htPipeOD').value = '168.3'; // 6" Sch 40
+    document.getElementById('htPipeThk').value = '7.11';
+    document.getElementById('htPipeLen').value = '120';
+    document.getElementById('htSMYS').value = '241';
+    document.getElementById('htTempRise').value = '25.0'; // intense solar heating
+    document.getElementById('htSolarFlux').value = '1000';
+  }
+  calculateHydrotest();
+}
+
+function onHTCodeChange() {
+  var code = document.getElementById('htDesignCode').value;
+  if (code === 'b313') {
+    document.getElementById('htStressRatio').disabled = false;
+  } else if (code === 'ug99') {
+    document.getElementById('htStressRatio').disabled = false;
+  } else {
+    document.getElementById('htStressRatio').value = '1.00';
+  }
+}
+
+function calculateHydrotest() {
+  var code = document.getElementById('htDesignCode').value;
+  var P_design = parseFloat(document.getElementById('htDesignP').value) || 25.0;
+  var St_S = parseFloat(document.getElementById('htStressRatio').value) || 1.25;
+  var h_elev = parseFloat(document.getElementById('htElevationHead').value) || 15.0;
+  var Do_mm = parseFloat(document.getElementById('htPipeOD').value) || 323.8;
+  var e_mm = parseFloat(document.getElementById('htPipeThk').value) || 9.52;
+  var L_m = parseFloat(document.getElementById('htPipeLen').value) || 650;
+  var smys_MPa = parseFloat(document.getElementById('htSMYS').value) || 241;
+  var deltaT = parseFloat(document.getElementById('htTempRise').value) || 12.0;
+  var solarFlux = parseFloat(document.getElementById('htSolarFlux').value) || 950;
+
+  var D_inner_mm = Do_mm - (2 * e_mm);
+  var D_inner_m = D_inner_mm / 1000;
+  var Do_m = Do_mm / 1000;
+  var e_m = e_mm / 1000;
+
+  // Code multiplier
+  var mult = 1.5;
+  var holdText = '10 min hold + visual leak exam';
+  if (code === 'b313') {
+    mult = 1.5;
+    holdText = '10 min hold at test P, then visual exam';
+  } else if (code === 'ug99') {
+    mult = 1.3;
+    holdText = 'Visual examination at full test P';
+  } else if (code === 'b314') {
+    mult = 1.25;
+    holdText = '4 hr strength test + 4 hr tightness test';
+  } else if (code === 'b318') {
+    mult = 1.40;
+    holdText = '2 hr minimum test duration';
+  } else if (code === 'pneumatic') {
+    mult = 1.10;
+    holdText = 'Preliminary 1.7 bar check, 10 min hold at 1.1x';
+  }
+
+  // Hydrotest target pressure at top of system
+  var Pt_top_bar = mult * P_design * St_S;
+  var Pt_top_psi = Pt_top_bar * 14.5038;
+
+  // Static head deltaP = rho * g * h
+  var rho_water = 998.2;
+  var g = 9.80665;
+  var deltaP_head_bar = (rho_water * g * h_elev) / 1e5;
+  var Pt_low_bar = Pt_top_bar + deltaP_head_bar;
+  var Pt_low_psi = Pt_low_bar * 14.5038;
+
+  // Hoop stress at low point: sigma = (Pt_low * Do) / (2 * e)
+  var Pt_low_Pa = Pt_low_bar * 1e5;
+  var hoop_MPa = (Pt_low_Pa * Do_m) / (2 * e_m) / 1e6;
+  var smys_pct = (hoop_MPa / smys_MPa) * 100;
+
+  // Fill Volume
+  var vol_pipe_m3 = (Math.PI / 4) * Math.pow(D_inner_m, 2) * L_m;
+  var vol_pipe_gal = vol_pipe_m3 * 264.172;
+  var water_tonnes = vol_pipe_m3 * (rho_water / 1000);
+
+  // Pressurization Pump Volume needed (compression + pipe elastic expansion)
+  // Fluid compression: DeltaV_f = V * (Pt_top_Pa / K)
+  var K_water = 2.19e9; // Pa
+  var dV_fluid = vol_pipe_m3 * (Pt_top_Pa / K_water);
+  // Pipe dilation: DeltaV_p = V * [ (Pt_top_Pa * D_inner) / (e * E) * (5/4 - nu) ]
+  var E_steel = 207e9; // Pa
+  var nu = 0.30;
+  var dV_pipe = vol_pipe_m3 * ((Pt_top_Pa * D_inner_m) / (e_m * E_steel)) * (1.25 - nu);
+  var dV_total_L = (dV_fluid + dV_pipe) * 1000;
+
+  // Thermal expansion pressure rise in trapped line
+  // DeltaP = (beta - 3*alpha) * DeltaT / [ (1/K) + (D / (e*E))*(5/4 - nu) ]
+  var beta_water = 2.14e-4; // 1/C at ~20C
+  var alpha_steel = 1.2e-5; // 1/C
+  var numerator = (beta_water - 3 * alpha_steel) * deltaT;
+  var denom = (1 / K_water) + (D_inner_m / (e_m * E_steel)) * (1.25 - nu);
+  var thermalDeltaP_Pa = numerator / denom;
+  var thermalDeltaP_bar = thermalDeltaP_Pa / 1e5;
+  var thermalDeltaP_psi = thermalDeltaP_bar * 14.5038;
+
+  // Thermal Relief Valve (TRV) Sizing per API 521
+  // Q_heat = SolarFlux * ProjectedArea (Do * L)
+  var projectedArea_m2 = Do_m * L_m;
+  var absorptivity = 0.8;
+  var heat_W = solarFlux * projectedArea_m2 * absorptivity;
+  var heat_btu_hr = heat_W * 3.41214;
+  // Volumetric expansion rate: q = (beta * Q_heat) / (rho * Cp)
+  var cp_water = 4182; // J/kg.K
+  var q_exp_m3_s = (beta_water * heat_W) / (rho_water * cp_water);
+  var q_exp_m3_h = q_exp_m3_s * 3600;
+  var q_exp_gpm = q_exp_m3_h * 4.40287;
+
+  // Standard API 520 orifice sizing
+  var trvSizeText = "API 'D' (0.110 in\u00b2)";
+  if (q_exp_gpm > 15) {
+    trvSizeText = "API 'E' (0.196 in\u00b2)";
+  } else if (q_exp_gpm > 30) {
+    trvSizeText = "API 'F' (0.307 in\u00b2)";
+  }
+
+  // Update DOM Results
+  var badgeEl = document.getElementById('htSafetyBadge');
+  if (smys_pct > 95) {
+    badgeEl.textContent = 'DANGER: TEST STRESS EXCEEDS 95% SMYS!';
+    badgeEl.style.background = '#ef4444';
+  } else if (smys_pct > 90) {
+    badgeEl.textContent = 'CAUTION: TEST STRESS BETWEEN 90% - 95% SMYS';
+    badgeEl.style.background = '#f59e0b';
+  } else {
+    badgeEl.textContent = 'ASME COMPLIANT: HOOP STRESS ' + smys_pct.toFixed(1) + '% SMYS (\u2264 90%)';
+    badgeEl.style.background = '#10b981';
+  }
+
+  document.getElementById('htTestPressure').textContent = Pt_top_bar.toFixed(1) + ' bar g';
+  document.getElementById('htTestPressurePsi').textContent = Pt_top_psi.toFixed(1) + ' psig';
+
+  document.getElementById('htLowPointP').textContent = Pt_low_bar.toFixed(1) + ' bar g';
+  document.getElementById('htLowPointPsi').textContent = Pt_low_psi.toFixed(1) + ' psig (+' + deltaP_head_bar.toFixed(1) + ' bar head)';
+
+  var thermEl = document.getElementById('htThermalRise');
+  thermEl.textContent = '+' + thermalDeltaP_bar.toFixed(1) + ' bar';
+  document.getElementById('htThermalRisePsi').textContent = '+' + Math.round(thermalDeltaP_psi).toLocaleString() + ' psi (RUPTURE RISK!)';
+
+  document.getElementById('htTRVSize').textContent = trvSizeText;
+  document.getElementById('htTRVFlow').textContent = 'Discharge: ' + q_exp_gpm.toFixed(1) + ' GPM (' + q_exp_m3_h.toFixed(2) + ' m\u00b3/h)';
+
+  document.getElementById('htSmysPct').textContent = smys_pct.toFixed(1) + '% of SMYS (' + hoop_MPa.toFixed(1) + ' MPa)';
+  document.getElementById('htFillVol').textContent = vol_pipe_m3.toFixed(1) + ' m\u00b3 (' + Math.round(vol_pipe_gal).toLocaleString() + ' gal / ' + water_tonnes.toFixed(1) + ' tonnes)';
+  document.getElementById('htPumpVol').textContent = dV_total_L.toFixed(1) + ' Liters (compression + pipe strain)';
+  document.getElementById('htHoldTime').textContent = holdText;
+
+  renderHTSvg(Pt_top_bar, Pt_low_bar, thermalDeltaP_bar, h_elev, Do_mm);
+
+  renderHTDerivations({
+    mult: mult, P_design: P_design, St_S: St_S, Pt_top_bar: Pt_top_bar, Pt_top_psi: Pt_top_psi,
+    h_elev: h_elev, deltaP_head_bar: deltaP_head_bar, Pt_low_bar: Pt_low_bar,
+    hoop_MPa: hoop_MPa, smys_MPa: smys_MPa, smys_pct: smys_pct,
+    vol_pipe_m3: vol_pipe_m3, dV_total_L: dV_total_L,
+    deltaT: deltaT, thermalDeltaP_bar: thermalDeltaP_bar, thermalDeltaP_psi: thermalDeltaP_psi,
+    q_exp_gpm: q_exp_gpm, trvSizeText: trvSizeText
+  });
+}
+
+function renderHTSvg(Pt_top, Pt_low, Pt_therm, h_elev, Do_mm) {
+  var svg = document.getElementById('htManifoldSvg');
+  var w = 800;
+  var h = 280;
+
+  var svgContent = ''
+    + '<!-- Piping Segment -->'
+    + '<rect x="120" y="90" width="560" height="50" fill="#0284c7" fill-opacity="0.3" stroke="#0284c7" stroke-width="2" rx="4" />'
+    + '<text x="400" y="120" fill="#e2e8f0" font-size="12" font-weight="600" text-anchor="middle">Water-Filled Test Header (' + Do_mm.toFixed(0) + ' mm OD)</text>'
+
+    + '<!-- High-Point Bleed Vent -->'
+    + '<line x1="620" y1="90" x2="620" y2="40" stroke="#10b981" stroke-width="3" />'
+    + '<circle cx="620" cy="35" r="8" fill="#10b981" />'
+    + '<text x="620" y="20" fill="#10b981" font-size="10" font-weight="600" text-anchor="middle">Air Bleed Vent</text>'
+
+    + '<!-- Calibrated Test Gauge Tree -->'
+    + '<line x1="200" y1="90" x2="200" y2="45" stroke="#f59e0b" stroke-width="3" />'
+    + '<circle cx="200" cy="40" r="14" fill="#0f172a" stroke="#f59e0b" stroke-width="2" />'
+    + '<text x="200" y="44" fill="#f59e0b" font-size="9" font-weight="700" text-anchor="middle">' + Pt_top.toFixed(0) + '</text>'
+    + '<text x="200" y="20" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">Top Gauge: ' + Pt_top.toFixed(1) + ' bar</text>'
+
+    + '<!-- Low Point Elevation Drop -->'
+    + '<line x1="120" y1="140" x2="120" y2="220" stroke="#0284c7" stroke-width="4" />'
+    + '<circle cx="120" cy="225" r="14" fill="#0f172a" stroke="#f59e0b" stroke-width="2" />'
+    + '<text x="120" y="229" fill="#f59e0b" font-size="9" font-weight="700" text-anchor="middle">' + Pt_low.toFixed(0) + '</text>'
+    + '<text x="120" y="255" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">Bottom: ' + Pt_low.toFixed(1) + ' bar (' + h_elev.toFixed(0) + 'm drop)</text>'
+
+    + '<!-- Solar Trapped Expansion Warning Indicator -->'
+    + '<rect x="420" y="170" width="260" height="75" fill="#1e293b" stroke="#ef4444" stroke-width="1.5" rx="6" />'
+    + '<text x="430" y="190" fill="#ef4444" font-size="11" font-weight="700">☀️ Solar Trapped Pressure Spike</text>'
+    + '<text x="430" y="210" fill="#cbd5e1" font-size="10">Blocked Expansion: +' + Pt_therm.toFixed(1) + ' bar</text>'
+    + '<text x="430" y="230" fill="#10b981" font-size="10">TRV Bypass: API D Orifice (Required!)</text>'
+
+    + '<!-- Blind Flanges -->'
+    + '<rect x="110" y="80" width="10" height="70" fill="#64748b" rx="2" />'
+    + '<rect x="680" y="80" width="10" height="70" fill="#64748b" rx="2" />'
+    + '<text x="685" y="165" fill="#94a3b8" font-size="9" text-anchor="middle">Test Blind</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderHTDerivations(p) {
+  var container = document.getElementById('htDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Code Hydrotest Sizing (ASME B31.3 Para 345.4.2 / UG-99):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 'P_t = ' + p.mult + ' &times; P_design &times; (S_t / S)'
+    + '</div>'
+    + '<div>'
+    + 'P_t = ' + p.mult + ' &times; ' + p.P_design.toFixed(1) + ' bar &times; ' + p.St_S.toFixed(2) + ' = <strong>' + p.Pt_top_bar.toFixed(2) + ' bar g (' + p.Pt_top_psi.toFixed(1) + ' psig)</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Static elevation adjustment (' + p.h_elev.toFixed(1) + ' m): P_low = ' + p.Pt_top_bar.toFixed(1) + ' + ' + p.deltaP_head_bar.toFixed(2) + ' = <strong>' + p.Pt_low_bar.toFixed(2) + ' bar g</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Test Hoop Stress vs Yield Limit:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + '\u03c3_h = (P_low &times; D_o) / (2 &times; e) = <strong>' + p.hoop_MPa.toFixed(1) + ' MPa</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Stress Ratio = ' + p.hoop_MPa.toFixed(1) + ' MPa / ' + p.smys_MPa.toFixed(0) + ' MPa SMYS = <strong>' + p.smys_pct.toFixed(1) + '%</strong> (ASME limit: \u2264 90% SMYS)'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Trapped Solar Thermal Pressure Spike & TRV Sizing:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#ef4444;">'
+    + '\u0394P_{thermal} = [ (\u03b2 - 3\u03b1) &times; \u0394T ] / [ (1/K) + (D/(eE))(5/4 - \u03bd) ] = <strong>+' + p.thermalDeltaP_bar.toFixed(1) + ' bar (+' + Math.round(p.thermalDeltaP_psi).toLocaleString() + ' psi)</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Expansion relief flow: q = ' + p.q_exp_gpm.toFixed(2) + ' GPM &rarr; Sized Valve: <strong>' + p.trvSizeText + '</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyHTSummary() {
+  var pt = document.getElementById('htTestPressure').textContent;
+  var low = document.getElementById('htLowPointP').textContent;
+  var therm = document.getElementById('htThermalRise').textContent;
+  var trv = document.getElementById('htTRVSize').textContent;
+  var smys = document.getElementById('htSmysPct').textContent;
+  var vol = document.getElementById('htFillVol').textContent;
+  var badge = document.getElementById('htSafetyBadge').textContent;
+
+  var summary = [
+    '=== HYDROSTATIC TEST & THERMAL RELIEF REPORT ===',
+    'Safety Status: ' + badge,
+    'Top Test Pressure (P_t): ' + pt,
+    'Low Point Pressure (w/ static): ' + low,
+    'Trapped Solar Expansion Rise: ' + therm,
+    'Thermal Relief Valve (TRV): ' + trv,
+    'Hoop Stress % SMYS: ' + smys,
+    'Total Fill Volume: ' + vol,
+    'Standards: ASME B31.3 Para 345.4 & ASME Section VIII UG-99 & API 520/521',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyHT');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateHydrotest();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateHydrotest();
+}
+</script>
+`;
+
+
+
+  // ----------------------------------------------------
+  // TOOL AI4: Hydrostatic Test Pressure & Thermal Relief
+  // ----------------------------------------------------
+  writeFileSync(join(calcDir, 'hydrostatic-test-pressure-relief-thermal-calculator.html'), renderTradePage({
+    title: 'Hydrostatic Test Pressure & Thermal Relief Calculator | ASME B31.3 & Section VIII',
+    description: 'Calculate code hydrostatic test pressures, test medium fill volumes, trapped liquid solar thermal expansion pressure rise, and API 520/521 thermal relief valve sizing per ASME B31.3 Para 345.4 and ASME Section VIII UG-99.',
+    canonicalPath: 'calc/hydrostatic-test-pressure-relief-thermal-calculator.html',
+    body: hydrotestThermalBody,
+    faq: [
+      {
+        q: 'What is the formula for ASME B31.3 hydrostatic test pressure?',
+        a: 'Per ASME B31.3 Section 345.4.2, the hydrostatic test pressure in metallic piping shall not be less than: P_t = 1.5 * P * (S_t / S), where P is internal design pressure, S_t is allowable stress at test temperature, and S is allowable stress at design temperature (maximum S_t/S ratio is 6.5).'
+      },
+      {
+        q: 'Why is ASME Section VIII UG-99 factor 1.3 instead of 1.5?',
+        a: 'In the 1999 Addenda of ASME Section VIII Division 1, the design margin on tensile strength was lowered from 4.0 to 3.5. Consequently, the minimum hydrostatic test multiplier in UG-99(b) was adjusted from 1.5x down to 1.3 * MAWP * (S_t / S).'
+      },
+      {
+        q: 'How is thermal liquid expansion pressure calculated in a trapped pipe?',
+        a: 'When fluid is trapped between closed valves, temperature rise Delta T forces volumetric expansion beta. Restricted by liquid compressibility (1/K) and pipe elasticity (D/(eE)), the pressure rise is: Delta P = (beta - 3*alpha) * Delta T / [ (1/K) + (D/(eE))(5/4 - nu) ], evaluating to roughly 9 to 12 bar per deg C (75 to 100 psi per deg F).'
+      },
+      {
+        q: 'What size thermal relief valve (TRV) is needed for liquid lines?',
+        a: 'Per API Standard 521 Section 5.14 and API Standard 520, the volumetric flow rate required to relieve solar thermal expansion is extremely small (typically < 1 to 5 GPM). Consequently, a standard 3/4" x 1" valve with an API \'D\' orifice (0.110 in2) is almost universally sufficient.'
+      },
+      {
+        q: 'What is the minimum hold time required during hydrotesting?',
+        a: 'Per ASME B31.3 Para 345.2.2, hydrostatic test pressure must be held for a minimum of 10 minutes, after which pressure may be reduced to design pressure for visual leak examination. Transmission pipelines under ASME B31.4/B31.8 mandate a 4-hour to 8-hour continuous strength test.'
+      }
+    ]
+  }));
+
+
+console.log('  ✓ Built Trade & Construction Suite (83 calculators in /calc/)');
 }
 
