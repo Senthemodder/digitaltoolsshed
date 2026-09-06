@@ -10267,6 +10267,2042 @@ export function buildTradeTools() {
   }));
 
 
+    // ─────────────────────────────────────────────────────────────────────────────
+  // RETAINING WALL CALCULATOR & GEOTECHNICAL STABILITY ENGINE
+  // ─────────────────────────────────────────────────────────────────────────────
+  const retainingWallBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Retaining Wall Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Retaining Wall Block, Geogrid & Drainage Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate concrete segmental retaining wall (SRW) blocks, capstones, geogrid reinforcement layers, 3/4" clean drainage gravel backfill, and Rankine lateral earth pressure stability (overturning & sliding factors of safety).
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><line x1=\"3\" y1=\"9\" x2=\"21\" y2=\"9\"/><line x1=\"3\" y1=\"15\" x2=\"21\" y2=\"15\"/><line x1=\"9\" y1=\"9\" x2=\"9\" y2=\"15\"/><line x1=\"15\" y1=\"9\" x2=\"15\" y2=\"15\"/></svg>
+        Wall Dimensions & Soil
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rwHeight">Total Wall Height (ft)</label>
+          <input type="number" id="rwHeight" value="4.0" min="1.0" max="15.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">From base to top (exposed + buried)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rwLength">Total Wall Length (ft)</label>
+          <input type="number" id="rwLength" value="30.0" min="2.0" max="500.0" step="1.0" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Continuous linear run</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rwBlockType">Block Face Size</label>
+          <select id="rwBlockType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+            <option value="18x6x12" selected>Standard Large (18"L x 6"H x 12"D ~75 lbs)</option>
+            <option value="16x8x12">Commercial (16"L x 8"H x 12"D ~85 lbs)</option>
+            <option value="12x4x8">Garden / Mini (12"L x 4"H x 8"D ~25 lbs)</option>
+            <option value="12x6x8">Intermediate (12"L x 6"H x 8"D ~40 lbs)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rwWaste">Waste / Cut Allowance</label>
+          <select id="rwWaste" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+            <option value="0.05" selected>5% (Straight run)</option>
+            <option value="0.10">10% (Curves, steps, corners)</option>
+            <option value="0.15">15% (Tight serpentine layout)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rwSoilType">Retained Backfill Soil Type</label>
+        <select id="rwSoilType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="sand_gravel" selected>Clean Sand & Gravel (&phi; = 34&deg;, 125 pcf) &mdash; Best Drainage</option>
+          <option value="silty_sand">Silty Sand / Loam (&phi; = 30&deg;, 120 pcf) &mdash; Typical Backyard</option>
+          <option value="stiff_clay">Stiff / Sandy Clay (&phi; = 26&deg;, 115 pcf) &mdash; Poor Drainage</option>
+          <option value="soft_clay">Soft Wet Clay (&phi; = 20&deg;, 110 pcf) &mdash; Severe Swelling</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rwSlope">Backfill Backslope</label>
+          <select id="rwSlope" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+            <option value="0" selected>Flat / Level (0&deg;)</option>
+            <option value="10">Gentle 6:1 Slope (9.5&deg;)</option>
+            <option value="18">Moderate 3:1 Slope (18.4&deg;)</option>
+            <option value="26">Steep 2:1 Slope (26.6&deg;)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rwSurcharge">Surface Surcharge</label>
+          <select id="rwSurcharge" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+            <option value="0" selected>None (Lawn / Planting)</option>
+            <option value="50">Light Traffic / Mower (50 psf)</option>
+            <option value="100">Residential Driveway (100 psf)</option>
+            <option value="250">Commercial / Truck Parking (250 psf)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
+        <input type="checkbox" id="rwIncludeCaps" checked style="width:18px;height:18px;accent-color:#3b82f6;">
+        <label for="rwIncludeCaps" style="font-size:0.875rem;font-weight:600;cursor:pointer;">Include Universal Capstone Course on Top</label>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Materials & Stability Spec
+          </h2>
+          <button id="copyRwBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Bill of Materials</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Blocks to Order</span>
+            <span id="rwTotalBlocks" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:var(--fg);display:block;">168 Units</span>
+            <span id="rwCoursesInfo" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">8 Courses (1 Buried)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Drainage Stone (3/4")</span>
+            <span id="rwDrainStoneTons" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">6.1 Tons</span>
+            <span id="rwDrainStoneCuYd" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">4.5 Cu Yds Backfill</span>
+          </div>
+        </div>
+
+        <!-- COMPONENT BREAKDOWN -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Capstones Required:</span>
+            <strong id="rwCapsTotal" style="font-family:var(--mono);">21 Caps (30 Lin Ft)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Geogrid Reinforcement:</span>
+            <strong id="rwGeogridInfo" style="font-family:var(--mono);color:#10b981;">2 Layers (28 Sq Yds)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Base Leveling Gravel (Crushed):</span>
+            <strong id="rwBaseGravel" style="font-family:var(--mono);">1.5 Tons (1.1 Cu Yd)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Perforated Drain Pipe & Fabric:</span>
+            <strong id="rwDrainPipe" style="font-family:var(--mono);">30 Ft (4" Pipe) + 18 Sq Yd</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Overturning Safety Factor (FS):</span>
+            <strong id="rwSafetyFactor" style="font-family:var(--mono);">FS = 2.14 (Safe &ge; 1.50)</strong>
+          </div>
+        </div>
+
+        <!-- STRUCTURAL STATUS BADGE -->
+        <div id="rwStabilityBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG RETAINING WALL ELEVATION & STABILITY SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Cross-Section Schematic: Drainage Chimney & Geogrid Tiebacks</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector engineering cross-section showing buried embedment depth, 12" free-draining angular stone zone, perforated collector pipe, geogrid embedment length ($L \\ge 0.70 H$), and lateral earth pressure triangle.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="rwSchematicSvg" viewBox="0 0 800 360" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & RANKINE PRESSURE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Geotechnical Physics: Rankine Lateral Earth Pressure & Factor of Safety</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Retaining walls resist the active lateral thrust of retained soils and surcharges. Without engineered drainage, hydrostatic ground water pressure adds $62.4\\text{ lb/ft}^3$ of fluid pressure, quickly causing structural failure.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Rankine Active Earth Pressure Coefficient (K_a):</strong><br>
+      K_a = \\tan^2\\left(45^\\circ - \\frac{\\phi}{2}\\right)<br><br>
+      <strong>2. Total Lateral Soil Thrust per Linear Foot (P_a):</strong><br>
+      P_a = \\frac{1}{2} K_a \\gamma H^2 + K_a q_{\\text{surcharge}} H<br><br>
+      <strong>3. Overturning Moment About Wall Toe (M_{OT}):</strong><br>
+      M_{OT} = \\left(\\frac{1}{2} K_a \\gamma H^2\\right) \\cdot \\frac{H}{3} + (K_a q H) \\cdot \\frac{H}{2}<br><br>
+      <strong>4. Resisting Moment from Wall Weight & Batter (M_R):</strong><br>
+      M_R = W_{\\text{blocks}} \\cdot d_{\\text{cg}} + W_{\\text{soil heel}} \\cdot d_{\\text{heel}}<br><br>
+      <strong>5. Overturning Factor of Safety (FS_{OT}):</strong><br>
+      FS_{OT} = \\frac{M_R}{M_{OT}} \\ge 1.50 \\quad (\\text{Geogrid mandatory if } H > 4\\text{ ft or } FS < 1.50)<br><br>
+      <strong>6. Geogrid Minimum Embedment Length:</strong><br>
+      L_{\\text{grid}} = \\max\\left(4.0\\text{ ft}, 0.70 \\times H\\right)
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL RETAINING WALL PITFALLS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Retaining Wall Engineering & Building Traps</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The Hydrostatic Pressure Blowout</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Water weighs $62.4\\text{ lb/ft}^3$&mdash;more than half the weight of dense soil. Omitting a minimum 12-inch wide vertical chimney of clean 3/4" angular gravel and a daylighted 4" perforated drain pipe turns the backfill into a hydraulic ram that pushes the wall over after the first heavy rainstorm.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Zero Embedment Base Kick-Out</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Placing the bottom course of blocks directly on top of the ground or a thin layer of topsoil causes lateral base slip. Building code mandates burying at least 1 inch of block per 8 inches of wall height (minimum 6 inches buried) into a compacted crushed aggregate leveling pad.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. The 4-Foot Unreinforced Death Zone</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Segmental concrete blocks rely solely on deadweight gravity up to 4 feet. Once a wall exceeds 48 inches (or 36 inches with back-slopes or vehicle traffic), lateral overturning force overwhelms block friction, causing mid-wall belly bulges and catastrophic collapse without geogrid tieback mesh.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Backfilling with Native Swelling Clay</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Contractors often cut costs by pushing excavated native clay back against the block face. Expansive clays absorb water, swell up to 300%, and generate lateral pressures exceeding $2,000\\text{ psf}$, shearing retaining pins and toppling heavy commercial blocks.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Ignoring Vehicle & Slope Surcharges</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          A driveway, parking area, or ascending hillside above a wall exerts a continuous surcharge thrust that multiplies total overturning moment by 2x to 3x. Retaining walls supporting vehicle traffic must be designed with geogrid extending deep under the driveway sub-base.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      var soilParams = {
+        sand_gravel: { phi: 34, gamma: 125, name: 'Clean Sand & Gravel' },
+        silty_sand: { phi: 30, gamma: 120, name: 'Silty Sand / Loam' },
+        stiff_clay: { phi: 26, gamma: 115, name: 'Stiff Sandy Clay' },
+        soft_clay: { phi: 20, gamma: 110, name: 'Soft Wet Clay' }
+      };
+
+      var blockSpecs = {
+        '18x6x12': { lengthIn: 18, heightIn: 6, depthIn: 12, weightLb: 75, capLengthIn: 18 },
+        '16x8x12': { lengthIn: 16, heightIn: 8, depthIn: 12, weightLb: 85, capLengthIn: 16 },
+        '12x4x8': { lengthIn: 12, heightIn: 4, depthIn: 8, weightLb: 25, capLengthIn: 12 },
+        '12x6x8': { lengthIn: 12, heightIn: 6, depthIn: 8, weightLb: 40, capLengthIn: 12 }
+      };
+
+      function calcRetainingWall() {
+        var H_ft = parseFloat(document.getElementById('rwHeight').value) || 4.0;
+        var L_ft = parseFloat(document.getElementById('rwLength').value) || 30.0;
+        var blockTypeKey = document.getElementById('rwBlockType').value;
+        var wastePct = parseFloat(document.getElementById('rwWaste').value) || 0.05;
+        var soilKey = document.getElementById('rwSoilType').value;
+        var slopeDeg = parseFloat(document.getElementById('rwSlope').value) || 0;
+        var surchargePsf = parseFloat(document.getElementById('rwSurcharge').value) || 0;
+        var includeCaps = document.getElementById('rwIncludeCaps').checked;
+
+        var bSpec = blockSpecs[blockTypeKey] || blockSpecs['18x6x12'];
+        var sData = soilParams[soilKey] || soilParams['silty_sand'];
+
+        // Embedment depth: min 6 inches, or H/8
+        var embedInches = Math.max(6, (H_ft * 12) / 8);
+        var embedCourses = Math.max(1, Math.round(embedInches / bSpec.heightIn));
+        var totalCourses = Math.max(embedCourses + 1, Math.ceil((H_ft * 12) / bSpec.heightIn));
+        var actualHeightFt = (totalCourses * bSpec.heightIn) / 12;
+
+        // Blocks per course
+        var blocksPerCourse = Math.ceil((L_ft * 12) / bSpec.lengthIn);
+        var baseBlockCount = blocksPerCourse * totalCourses;
+        var totalBlocks = Math.ceil(baseBlockCount * (1 + wastePct));
+
+        // Capstones
+        var totalCaps = 0;
+        if (includeCaps) {
+          var capsPerRun = Math.ceil((L_ft * 12) / bSpec.capLengthIn);
+          totalCaps = Math.ceil(capsPerRun * (1 + wastePct));
+        }
+
+        // Drainage 3/4" gravel: 12" wide chimney behind wall + 6" deep x 24" wide leveling pad
+        var exposedHeightFt = ((totalCourses - embedCourses) * bSpec.heightIn) / 12;
+        var chimneyVolCuFt = L_ft * 1.0 * actualHeightFt; // 1 ft wide gravel column
+        var padVolCuFt = L_ft * 2.0 * 0.5; // 2 ft wide by 0.5 ft deep pad
+        var totalGravelCuFt = chimneyVolCuFt + padVolCuFt;
+        var totalGravelCuYd = totalGravelCuFt / 27;
+        var totalGravelTons = totalGravelCuYd * 1.35; // ~1.35 tons per cu yd crushed aggregate
+
+        var basePadCuYd = padVolCuFt / 27;
+        var basePadTons = basePadCuYd * 1.35;
+        var drainStoneCuYd = chimneyVolCuFt / 27;
+        var drainStoneTons = drainStoneCuYd * 1.35;
+
+        // Geogrid reinforcement: required if actualHeightFt > 4 ft or slope > 0 or surcharge > 0
+        var needsGeogrid = actualHeightFt > 3.5 || slopeDeg > 10 || surchargePsf > 0;
+        var geogridLayers = 0;
+        var geogridLengthFt = Math.max(4.0, 0.70 * actualHeightFt);
+        var totalGeogridSqYd = 0;
+
+        if (needsGeogrid) {
+          // Typically every 2 courses starting at course 2 or 3
+          geogridLayers = Math.max(1, Math.floor((totalCourses - embedCourses) / 2));
+          var totalGeogridSqFt = geogridLayers * (L_ft * geogridLengthFt);
+          totalGeogridSqYd = Math.ceil(totalGeogridSqFt / 9 * 1.10); // 10% overlap waste
+        }
+
+        // Rankine active earth pressure
+        var phiRad = (sData.phi * Math.PI) / 180;
+        var Ka = Math.pow(Math.tan((Math.PI / 4) - (phiRad / 2)), 2);
+
+        // Account for backslope beta if present
+        if (slopeDeg > 0) {
+          var betaRad = (slopeDeg * Math.PI) / 180;
+          if (betaRad < phiRad) {
+            var cosBeta = Math.cos(betaRad);
+            var num = cosBeta - Math.sqrt(Math.max(0, cosBeta * cosBeta - Math.cos(phiRad) * Math.cos(phiRad)));
+            var den = cosBeta + Math.sqrt(Math.max(0, cosBeta * cosBeta - Math.cos(phiRad) * Math.cos(phiRad)));
+            Ka = cosBeta * (num / den);
+          }
+        }
+
+        // Lateral earth thrust per lin ft (P_a)
+        var Pa_soil = 0.5 * Ka * sData.gamma * Math.pow(actualHeightFt, 2);
+        var Pa_surch = Ka * surchargePsf * actualHeightFt;
+        var Pa_total = Pa_soil + Pa_surch;
+
+        // Overturning moment per lin ft about toe
+        var Mot = (Pa_soil * (actualHeightFt / 3)) + (Pa_surch * (actualHeightFt / 2));
+
+        // Resisting moment: wall weight * arm (approx depth / 2)
+        var wallWeightPerLinFt = (totalCourses * (bSpec.weightLb / (bSpec.lengthIn / 12)));
+        var armFt = (bSpec.depthIn / 12) * 0.5;
+        // With 1" setback per foot (approx 4.7 deg batter), add batter arm bonus
+        armFt += (actualHeightFt * 0.08) * 0.5;
+        var Mr = wallWeightPerLinFt * armFt;
+
+        var safetyFactor = Mot > 0 ? (Mr / Mot) : 9.99;
+        if (geogridLayers > 0) {
+          // Geogrid stabilizes against overturning dramatically
+          safetyFactor += (geogridLayers * 0.65);
+        }
+
+        // DOM Updates
+        document.getElementById('rwTotalBlocks').textContent = totalBlocks + ' Units';
+        document.getElementById('rwCoursesInfo').textContent = totalCourses + ' Courses (' + embedCourses + ' Buried, ' + (totalCourses - embedCourses) + ' Exposed)';
+        document.getElementById('rwDrainStoneTons').textContent = drainStoneTons.toFixed(1) + ' Tons';
+        document.getElementById('rwDrainStoneCuYd').textContent = drainStoneCuYd.toFixed(1) + ' Cu Yds Backfill';
+
+        if (includeCaps) {
+          document.getElementById('rwCapsTotal').textContent = totalCaps + ' Caps (' + Math.round(L_ft) + ' Lin Ft)';
+        } else {
+          document.getElementById('rwCapsTotal').textContent = 'None (Standard Blocks to Top)';
+        }
+
+        if (geogridLayers > 0) {
+          document.getElementById('rwGeogridInfo').textContent = geogridLayers + ' Layers (' + totalGeogridSqYd + ' Sq Yds @ ' + geogridLengthFt.toFixed(1) + ' ft deep)';
+        } else {
+          document.getElementById('rwGeogridInfo').textContent = 'Not Required (Under 4 ft Gravity)';
+        }
+
+        document.getElementById('rwBaseGravel').textContent = basePadTons.toFixed(1) + ' Tons (' + basePadCuYd.toFixed(1) + ' Cu Yd Crushed 3/4")';
+        document.getElementById('rwDrainPipe').textContent = Math.round(L_ft) + ' Ft (4" Perf Pipe) + ' + Math.ceil((L_ft * actualHeightFt * 1.5) / 9) + ' Sq Yd Fabric';
+        document.getElementById('rwSafetyFactor').textContent = 'FS = ' + safetyFactor.toFixed(2) + (safetyFactor >= 1.5 ? ' (Safe \u2265 1.50)' : ' (Caution < 1.50)');
+
+        // Stability Badge
+        var badge = document.getElementById('rwStabilityBadge');
+        if (safetyFactor >= 1.50 && (!needsGeogrid || geogridLayers > 0)) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' +
+              'Structurally Stable & Code Compliant' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Overturning Safety Factor ' + safetyFactor.toFixed(2) + ' exceeds 1.50 threshold. ' +
+              (geogridLayers > 0 ? 'Engineered geogrid tiebacks (' + geogridLayers + ' layers) provide tension anchorage.' : 'Gravity block deadweight is sufficient for this height.') +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+              'Geotechnical Overturning Warning (FS = ' + safetyFactor.toFixed(2) + ')' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Lateral soil thrust exceeds standard safety margins. Deepen embedment or install professional geogrid reinforcement sheets.' +
+            '</div>';
+        }
+
+        renderSchematic(actualHeightFt, totalCourses, embedCourses, geogridLayers, geogridLengthFt);
+      }
+
+      function renderSchematic(hFt, totalCourses, embedCourses, gridLayers, gridLenFt) {
+        var svg = document.getElementById('rwSchematicSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 360;
+        var baseGroundY = 270;
+        var wallStartX = 180;
+        var blockDepthPx = 45;
+        var blockHeightPx = Math.max(14, Math.min(26, (svgH - 120) / totalCourses));
+
+        var svgHtml = '';
+
+        // Ground line (front)
+        svgHtml += '<line x1="30" y1="' + baseGroundY + '" x2="' + wallStartX + '" y2="' + baseGroundY + '" stroke="#64748b" stroke-width="3"/>';
+        svgHtml += '<text x="90" y="' + (baseGroundY + 20) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">Existing Grade</text>';
+
+        // Base leveling pad (gravel 6" deep x 24" wide)
+        var padTopY = baseGroundY + (embedCourses * blockHeightPx);
+        svgHtml += '<rect x="' + (wallStartX - 20) + '" y="' + padTopY + '" width="' + (blockDepthPx + 40) + '" height="24" fill="#94a3b8" opacity="0.4" stroke="#64748b" stroke-dasharray="4,2"/>';
+        svgHtml += '<text x="' + (wallStartX + blockDepthPx/2) + '" y="' + (padTopY + 16) + '" fill="var(--fg)" font-size="10" text-anchor="middle">Leveling Pad (3/4" Crushed)</text>';
+
+        // Draw blocks stacked with setback
+        var batterStepPx = 2.0; // Setback per course
+        for (var c = 0; c < totalCourses; c++) {
+          var bY = padTopY - ((c + 1) * blockHeightPx);
+          var bX = wallStartX + (c * batterStepPx);
+          var isBuried = c < embedCourses;
+          var fillCol = isBuried ? '#64748b' : '#3b82f6';
+          var opacity = isBuried ? '0.6' : '0.85';
+
+          svgHtml += '<rect x="' + bX + '" y="' + bY + '" width="' + blockDepthPx + '" height="' + (blockHeightPx - 1) + '" rx="2" fill="' + fillCol + '" opacity="' + opacity + '" stroke="#1e293b" stroke-width="1.5"/>';
+        }
+
+        // Capstone on top
+        var capY = padTopY - ((totalCourses + 0.5) * blockHeightPx);
+        var capX = wallStartX + (totalCourses * batterStepPx) - 4;
+        svgHtml += '<rect x="' + capX + '" y="' + capY + '" width="' + (blockDepthPx + 8) + '" height="' + (blockHeightPx * 0.7) + '" rx="2" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>';
+
+        // Drainage chimney (12" wide gravel behind wall)
+        var chimneyStartX = wallStartX + blockDepthPx;
+        var chimneyW = 55;
+        svgHtml += '<rect x="' + chimneyStartX + '" y="' + (capY + blockHeightPx*0.7) + '" width="' + chimneyW + '" height="' + (padTopY - capY) + '" fill="#f59e0b" opacity="0.25" stroke="#f59e0b" stroke-dasharray="3,3"/>';
+        svgHtml += '<text x="' + (chimneyStartX + chimneyW/2) + '" y="' + (baseGroundY - 40) + '" fill="#d97706" font-size="10" font-weight="bold" text-anchor="middle" transform="rotate(-90 ' + (chimneyStartX + chimneyW/2) + ' ' + (baseGroundY - 40) + ')">12" Clear Drainage Stone</text>';
+
+        // Perforated drain pipe at heel
+        var pipeX = chimneyStartX + 18;
+        var pipeY = padTopY - 12;
+        svgHtml += '<circle cx="' + pipeX + '" cy="' + pipeY + '" r="10" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>';
+        svgHtml += '<circle cx="' + pipeX + '" cy="' + pipeY + '" r="4" fill="#3b82f6"/>';
+        svgHtml += '<text x="' + (pipeX + 18) + '" y="' + (pipeY + 4) + '" fill="#3b82f6" font-size="10" font-weight="bold">4" Perf Pipe</text>';
+
+        // Geogrid layers
+        if (gridLayers > 0) {
+          var gridWidthPx = Math.min(380, gridLenFt * 28);
+          for (var g = 0; g < gridLayers; g++) {
+            var gCourse = Math.floor(embedCourses + (g + 1) * ((totalCourses - embedCourses) / (gridLayers + 1)));
+            var gY = padTopY - (gCourse * blockHeightPx);
+            var gX = wallStartX + (gCourse * batterStepPx) + blockDepthPx;
+            svgHtml += '<line x1="' + (gX - 15) + '" y1="' + gY + '" x2="' + (gX + gridWidthPx) + '" y2="' + gY + '" stroke="#10b981" stroke-width="3" stroke-dasharray="6,3"/>';
+            svgHtml += '<text x="' + (gX + gridWidthPx + 8) + '" y="' + (gY + 4) + '" fill="#10b981" font-size="10" font-weight="bold">Geogrid (L = ' + gridLenFt.toFixed(1) + '\')</text>';
+          }
+        }
+
+        // Earth pressure triangle arrows
+        var arrowStartX = svgW - 60;
+        svgHtml += '<polygon points="' + arrowStartX + ',' + capY + ' ' + arrowStartX + ',' + padTopY + ' ' + (arrowStartX - 80) + ',' + padTopY + '" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-dasharray="4,2"/>';
+        svgHtml += '<text x="' + (arrowStartX - 40) + '" y="' + (padTopY + 18) + '" fill="#ef4444" font-size="10" font-weight="bold" text-anchor="middle">Rankine Lateral Pressure (P_a)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyBillOfMaterials() {
+        var blocks = document.getElementById('rwTotalBlocks').textContent;
+        var courses = document.getElementById('rwCoursesInfo').textContent;
+        var stone = document.getElementById('rwDrainStoneTons').textContent;
+        var caps = document.getElementById('rwCapsTotal').textContent;
+        var geogrid = document.getElementById('rwGeogridInfo').textContent;
+        var pad = document.getElementById('rwBaseGravel').textContent;
+        var pipe = document.getElementById('rwDrainPipe').textContent;
+        var sf = document.getElementById('rwSafetyFactor').textContent;
+
+        var text = '🧱 Retaining Wall Bill of Materials & Structural Summary\\n' +
+          '• Total Wall Height: ' + document.getElementById('rwHeight').value + ' ft | Length: ' + document.getElementById('rwLength').value + ' ft\\n' +
+          '• Standard SRW Blocks: ' + blocks + ' (' + courses + ')\\n' +
+          '• Universal Capstones: ' + caps + '\\n' +
+          '• 3/4" Clean Drainage Stone: ' + stone + '\\n' +
+          '• Compacted Base Leveling Pad: ' + pad + '\\n' +
+          '• Geogrid Reinforcement: ' + geogrid + '\\n' +
+          '• Collector Drain Pipe: ' + pipe + '\\n' +
+          '• Overturning Stability: ' + sf + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/retaining-wall-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyRwBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Bill of Materials!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['rwHeight', 'rwLength', 'rwBlockType', 'rwWaste', 'rwSoilType', 'rwSlope', 'rwSurcharge', 'rwIncludeCaps'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcRetainingWall);
+          el.addEventListener('change', calcRetainingWall);
+        }
+      });
+
+      document.getElementById('copyRwBtn').addEventListener('click', copyBillOfMaterials);
+
+      calcRetainingWall();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'retaining-wall-calculator.html'), renderTradePage({
+    title: "Retaining Wall Calculator: Blocks, Geogrid & Drainage Gravel | Digital Tools Shed",
+    metaDesc: "Calculate segmental concrete retaining wall blocks, capstones, geogrid tiebacks, 3/4\" drainage gravel backfill, and Rankine lateral earth pressure safety factors.",
+    canonical: `${DOMAIN}/calc/retaining-wall-calculator`,
+    bodyContent: retainingWallBody,
+    currentPath: '/calc/retaining-wall-calculator',
+    faq: [
+      {
+        "q": "How many retaining wall blocks do I need?",
+        "a": "Calculate the total wall square footage (Length × Total Height including buried base embedment). Divide by the square footage of a single block face (for standard 18\"L × 6\"H blocks, each block is 0.75 sq ft). Add 5% to 10% for cuts, corners, and stepped foundation slopes."
+      },
+      {
+        "q": "How deep should a retaining wall base be buried?",
+        "a": "As a rule of thumb for segmental retaining walls, bury at least 1 inch of block for every 8 inches of wall height, with an absolute minimum of 6 inches buried below finished grade. For slopes or heavy soils, bury a full block course (6\" to 8\") into a compacted 6-inch crushed aggregate leveling trench."
+      },
+      {
+        "q": "At what height does a retaining wall require geogrid reinforcement?",
+        "a": "Most municipal building codes and block manufacturers (Allan Block, Keystone, Belgard) require geogrid reinforcement for any retaining wall taller than 4.0 feet (48 inches). However, if there is an ascending slope above the wall, heavy clay soil, or vehicle surcharge (like a driveway), geogrid is required on walls as short as 3.0 feet."
+      },
+      {
+        "q": "Why is drainage stone required behind a retaining wall?",
+        "a": "Water trapped behind a wall exerts massive hydrostatic pressure ($62.4\\text{ lb/ft}^3$), multiplying lateral overturning force by over 200%. A minimum 12-inch vertical column of clean, angular 3/4\" crushed stone wrapped in non-woven filter fabric combined with a 4\" perforated daylight drain pipe prevents hydrostatic pressure build-up and prevents wall blowouts."
+      },
+      {
+        "q": "What is the factor of safety against wall overturning?",
+        "a": "Civil engineering standards (IBC Section 1807.2) require an overturning factor of safety (FS) of at least 1.50. This means the resisting moment created by the wall's deadweight, setback batter angle, and geogrid soil matrix must be at least 1.5 times greater than the active lateral earth pressure moment."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // HEAT LOSS CALCULATOR & MANUAL J BUILDING ENVELOPE ENGINE
+  // ─────────────────────────────────────────────────────────────────────────────
+  const heatLossBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Heat Loss Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Heat Loss Calculator (Manual J HVAC Load Engine)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate whole-house and room heating loads in BTU/hr and kW using ACCA Manual J building physics. Analyzes conductive transmission (walls, ceiling, windows, slab edge) and sensible air infiltration leakage.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2v20\"/><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"/></svg>
+        Design Temperatures & Space
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlTin">Indoor Setpoint (&deg;F)</label>
+          <input type="number" id="hlTin" value="70" min="55" max="80" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Standard ASHRAE: 70&deg;F</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlTout">Outdoor 99% Design (&deg;F)</label>
+          <input type="number" id="hlTout" value="10" min="-40" max="60" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Winter 99% design dry-bulb</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlFloorArea">Conditioned Floor Area (sq ft)</label>
+          <input type="number" id="hlFloorArea" value="2000" min="100" max="15000" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlCeilingHeight">Ceiling Height (ft)</label>
+          <input type="number" id="hlCeilingHeight" value="9.0" min="7.0" max="25.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Envelope Assemblies</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlWallInsul">Exterior Walls</label>
+          <select id="hlWallInsul" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="9.5">Uninsulated 2x4 (Eff. R-9.5)</option>
+            <option value="13" selected>Standard 2x4 (Eff. R-13)</option>
+            <option value="19">Standard 2x6 (Eff. R-19)</option>
+            <option value="26">Advanced 2x6 + Cont. Foam (R-26)</option>
+            <option value="35">Double Stud / Passive House (R-35)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlAtticInsul">Ceiling / Attic</label>
+          <select id="hlAtticInsul" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="19">Minimal / Old (R-19)</option>
+            <option value="30">Code Baseline (R-30)</option>
+            <option value="38" selected>Standard Blow (R-38)</option>
+            <option value="49">Modern High-Eff (R-49)</option>
+            <option value="60">Extreme Cold Climate (R-60)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlWindowArea">Window / Glass Area (sq ft)</label>
+          <input type="number" id="hlWindowArea" value="280" min="20" max="2000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlWindowType">Window Glazing U-Factor</label>
+          <select id="hlWindowType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="1.10">Single Pane (U = 1.10, R-0.9)</option>
+            <option value="0.48">Double Pane Clear (U = 0.48, R-2.1)</option>
+            <option value="0.30" selected>Double Low-E Argon (U = 0.30, R-3.3)</option>
+            <option value="0.18">Triple Pane Low-E (U = 0.18, R-5.5)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlInfil">Air Infiltration Tightness</label>
+          <select id="hlInfil" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="1.00">Leaky Pre-1980 Home (1.0 ACH)</option>
+            <option value="0.50" selected>Average Standard Code (0.50 ACH)</option>
+            <option value="0.25">Energy Star / Sealed (0.25 ACH)</option>
+            <option value="0.10">Airtight Passive / HRV (0.10 ACH)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hlFoundation">Foundation Edge / Floor</label>
+          <select id="hlFoundation" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="0.52" selected>Uninsulated Slab Edge (F = 0.52)</option>
+            <option value="0.38">R-5 Perimeter Insulated (F = 0.38)</option>
+            <option value="0.20">Conditioned Basement (Eff. U = 0.05)</option>
+            <option value="0.10">Radiant Floor R-10 Under-Slab</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Heating Load & Equipment Spec
+          </h2>
+          <button id="copyHlBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Manual J Summary</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Peak Heat Loss</span>
+            <span id="hlTotalBtu" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#ef4444;display:block;">42,150 BTU/h</span>
+            <span id="hlTotalKw" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">12.35 kW Output</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Furnace / Heat Pump Size</span>
+            <span id="hlEquipSize" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">3.5 Tons</span>
+            <span id="hlManualS" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Manual S Factor: 1.15x</span>
+          </div>
+        </div>
+
+        <!-- LOAD BREAKDOWN -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Design Temperature Delta (&Delta;T):</span>
+            <strong id="hlDeltaT" style="font-family:var(--mono);">60.0 &deg;F (70&deg;F - 10&deg;F)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Infiltration Airflow & Loss:</span>
+            <strong id="hlInfilBtu" style="font-family:var(--mono);color:#f59e0b;">150 CFM (9,720 BTU/h)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Windows & Glazing Loss:</span>
+            <strong id="hlWindowBtu" style="font-family:var(--mono);">5,040 BTU/h (12.0%)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Exterior Walls Transmission:</span>
+            <strong id="hlWallBtu" style="font-family:var(--mono);">10,246 BTU/h (24.3%)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Ceiling / Attic Transmission:</span>
+            <strong id="hlAtticBtu" style="font-family:var(--mono);">3,158 BTU/h (7.5%)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Slab Edge / Ground Loss:</span>
+            <strong id="hlFoundationBtu" style="font-family:var(--mono);">5,616 BTU/h (13.3%)</strong>
+          </div>
+        </div>
+
+        <!-- SIZING STATUS BADGE -->
+        <div id="hlBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG HEAT LOSS COMPONENT BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Building Envelope Heat Loss Distribution</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Proportional distribution of thermal energy transmission through the building envelope and infiltration air changes.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="hlChartSvg" viewBox="0 0 800 280" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ACCA MANUAL J PHYSICS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Building Science Physics: ACCA Manual J Load Derivations</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Heat flows down thermal gradients via conduction, convection, and radiation. Manual J calculates conductive transmission loss across each assembly plus sensible infiltration enthalpy.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Design Temperature Difference:</strong><br>
+      \\Delta T = T_{\\text{indoor}} - T_{\\text{outdoor, 99\\%}}<br><br>
+      <strong>2. Conductive Transmission Loss (Fourier's Law):</strong><br>
+      Q_{\\text{cond}} = U \\cdot A \\cdot \\Delta T = \\frac{A \\cdot \\Delta T}{R_{\\text{effective}}} \\quad (\\text{BTU/h})<br><br>
+      <strong>3. Sensible Air Infiltration Loss (Enthalpy Transfer):</strong><br>
+      \\text{CFM} = \\frac{\\text{Volume (cu ft)} \\times \\text{ACH}_{\\text{natural}}}{60}<br>
+      Q_{\\text{infil}} = 1.08 \\times \\text{CFM} \\times \\Delta T \\quad (1.08 = \\rho_{\\text{air}} \\cdot c_p \\cdot 60)<br><br>
+      <strong>4. Slab Edge Perimeter Loss:</strong><br>
+      Q_{\\text{slab}} = F_{\\text{factor}} \\cdot P_{\\text{perimeter}} \\cdot \\Delta T<br><br>
+      <strong>5. Equipment Sizing Factor (Manual S):</strong><br>
+      \\text{Furnace Output} = 1.15 \\times Q_{\\text{total}} \\quad \\Big(1\\text{ Ton Heat Pump} = 12,000\\text{ BTU/h}\\Big)
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL HVAC & HEAT LOSS PITFALLS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical HVAC Sizing & Building Science Traps</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The 500-Sq-Ft-Per-Ton Oversizing Disaster</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Contractors using archaic square-foot rules install 4-ton furnaces in tight 2,000 sq ft modern homes that only need 2 tons. Oversized equipment blasts hot air for 4 minutes, short-cycles, creates violent temperature swings, and cracks the heat exchanger within 7 years.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. The Stud Cavity Thermal Bridging Illusion</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Stuffing R-13 fiberglass batts into 2x4 framing does NOT give you an R-13 wall. Wood framing studs constitute 25% of exterior wall area and have an R-value of only R-4.4. Whole-wall assembly performance drops to R-9.5 unless continuous exterior rigid foam is added.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Underestimating Window Glazing U-Factors</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Windows typically occupy only 10% to 15% of wall area but account for 30% to 50% of total conductive heat loss. Single-pane glass has a pathetic U-factor of 1.10 (R-0.9), conducting heat out of a room 15 times faster than an insulated ceiling.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Chimney Stack Effect Air Leakage</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Warm buoyant air rises and escapes through unsealed can lights, bath fan penetrations, and attic top plates, sucking frigid air through rim joists and crawlspaces. Infiltration frequently represents 25% to 40% of total winter heating load. Air sealing beats adding insulation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. The Heat Pump Strip Heat Cliff</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Air-source heat pumps lose heating capacity as outdoor temperatures plunge. If a home's thermal balance point is $25^\\circ\\text{F}$, dropping to $0^\\circ\\text{F}$ kicks on 10 kW to 15 kW of auxiliary electric resistance strips, spinning your electric meter and causing shocking $600 monthly utility bills.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcHeatLoss() {
+        var Tin = parseFloat(document.getElementById('hlTin').value) || 70;
+        var Tout = parseFloat(document.getElementById('hlTout').value) || 10;
+        var floorArea = parseFloat(document.getElementById('hlFloorArea').value) || 2000;
+        var ceilingH = parseFloat(document.getElementById('hlCeilingHeight').value) || 9.0;
+        var wallR = parseFloat(document.getElementById('hlWallInsul').value) || 13;
+        var atticR = parseFloat(document.getElementById('hlAtticInsul').value) || 38;
+        var windowArea = parseFloat(document.getElementById('hlWindowArea').value) || 280;
+        var windowU = parseFloat(document.getElementById('hlWindowType').value) || 0.30;
+        var ach = parseFloat(document.getElementById('hlInfil').value) || 0.50;
+        var foundationF = parseFloat(document.getElementById('hlFoundation').value) || 0.52;
+
+        var deltaT = Math.max(1, Tin - Tout);
+
+        // Building geometry approximations
+        // Perimeter for roughly rectangular house
+        var aspect = 1.3; // length / width
+        var width = Math.sqrt(floorArea / aspect);
+        var length = width * aspect;
+        var perimeter = 2 * (width + length);
+
+        // Gross wall area
+        var grossWallArea = perimeter * ceilingH;
+        var netWallArea = Math.max(0, grossWallArea - windowArea - 40); // 40 sq ft doors
+
+        // Conductive Losses
+        // 1. Ceiling / Attic
+        var Q_attic = (floorArea / atticR) * deltaT;
+
+        // 2. Net Exterior Walls
+        var Q_walls = (netWallArea / wallR) * deltaT;
+
+        // 3. Windows & Glazing
+        var Q_windows = windowArea * windowU * deltaT;
+
+        // 4. Doors (assuming 40 sq ft insulated fiberglass R-6)
+        var Q_doors = (40 / 6.0) * deltaT;
+
+        // 5. Slab / Foundation Edge (F-factor * perimeter * deltaT)
+        var Q_foundation = foundationF * perimeter * deltaT;
+
+        // 6. Infiltration
+        var houseVolume = floorArea * ceilingH;
+        var cfm = (houseVolume * ach) / 60;
+        var Q_infil = 1.08 * cfm * deltaT;
+
+        // Total
+        var totalBtu = Q_attic + Q_walls + Q_windows + Q_doors + Q_foundation + Q_infil;
+        var totalKw = (totalBtu * 0.000293071);
+
+        // Sizing
+        var furnaceOutputBtu = totalBtu * 1.15; // Manual S 15% safety factor
+        var heatPumpTons = totalBtu / 12000;
+        var roundTons = Math.ceil(heatPumpTons * 2) / 2; // nearest 0.5 ton
+
+        // DOM updates
+        document.getElementById('hlDeltaT').textContent = deltaT.toFixed(1) + ' \u00B0F (' + Tin + '\u00B0F - ' + Tout + '\u00B0F)';
+        document.getElementById('hlTotalBtu').textContent = Math.round(totalBtu).toLocaleString() + ' BTU/h';
+        document.getElementById('hlTotalKw').textContent = totalKw.toFixed(2) + ' kW Output';
+        document.getElementById('hlEquipSize').textContent = roundTons.toFixed(1) + ' Tons (' + Math.round(furnaceOutputBtu).toLocaleString() + ' BTU/h)';
+
+        document.getElementById('hlInfilBtu').textContent = Math.round(cfm) + ' CFM (' + Math.round(Q_infil).toLocaleString() + ' BTU/h)';
+        document.getElementById('hlWindowBtu').textContent = Math.round(Q_windows).toLocaleString() + ' BTU/h (' + ((Q_windows / totalBtu) * 100).toFixed(1) + '%)';
+        document.getElementById('hlWallBtu').textContent = Math.round(Q_walls).toLocaleString() + ' BTU/h (' + ((Q_walls / totalBtu) * 100).toFixed(1) + '%)';
+        document.getElementById('hlAtticBtu').textContent = Math.round(Q_attic).toLocaleString() + ' BTU/h (' + ((Q_attic / totalBtu) * 100).toFixed(1) + '%)';
+        document.getElementById('hlFoundationBtu').textContent = Math.round(Q_foundation).toLocaleString() + ' BTU/h (' + ((Q_foundation / totalBtu) * 100).toFixed(1) + '%)';
+
+        // Badge
+        var badge = document.getElementById('hlBadge');
+        var btuPerSqFt = totalBtu / floorArea;
+        badge.style.background = 'rgba(59, 130, 246, 0.1)';
+        badge.style.border = '1px solid #3b82f6';
+        badge.style.color = '#3b82f6';
+        badge.innerHTML =
+          '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
+            'HVAC Sizing Metric: ' + btuPerSqFt.toFixed(1) + ' BTU/h per sq ft' +
+          '</div>' +
+          '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+            (btuPerSqFt < 20 ? 'High efficiency thermal envelope (Passive/Modern Energy Star standard).' :
+             btuPerSqFt < 30 ? 'Standard modern code construction.' :
+             'High heat loss older home. Targeted attic air sealing and low-E glazing upgrades will slash equipment sizing.') +
+          '</div>';
+
+        renderChart(Q_attic, Q_walls, Q_windows, Q_foundation, Q_infil, totalBtu);
+      }
+
+      function renderChart(attic, walls, windows, foundation, infil, total) {
+        var svg = document.getElementById('hlChartSvg');
+        if (!svg) return;
+
+        var items = [
+          { label: 'Infiltration (Air Leakage)', val: infil, col: '#f59e0b' },
+          { label: 'Exterior Walls', val: walls, col: '#3b82f6' },
+          { label: 'Windows & Glazing', val: windows, col: '#ef4444' },
+          { label: 'Slab / Foundation Edge', val: foundation, col: '#8b5cf6' },
+          { label: 'Ceiling / Attic', val: attic, col: '#10b981' }
+        ];
+
+        // Sort descending
+        items.sort(function(a, b) { return b.val - a.val; });
+
+        var svgW = 800;
+        var startY = 30;
+        var barH = 28;
+        var gap = 16;
+        var maxBarW = 420;
+
+        var svgHtml = '';
+
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          var pct = total > 0 ? (it.val / total) : 0;
+          var barW = Math.max(4, pct * maxBarW);
+          var y = startY + i * (barH + gap);
+
+          // Label
+          svgHtml += '<text x="230" y="' + (y + 19) + '" fill="var(--fg)" font-size="12" font-weight="600" text-anchor="end">' + it.label + '</text>';
+
+          // Background track
+          svgHtml += '<rect x="245" y="' + y + '" width="' + maxBarW + '" height="' + barH + '" rx="5" fill="var(--bg)" stroke="var(--border)" stroke-width="1"/>';
+
+          // Colored fill bar
+          svgHtml += '<rect x="245" y="' + y + '" width="' + barW + '" height="' + barH + '" rx="5" fill="' + it.col + '"/>';
+
+          // Value and percentage
+          svgHtml += '<text x="' + (255 + barW + 10) + '" y="' + (y + 19) + '" fill="var(--fg)" font-size="11" font-weight="bold">' + Math.round(it.val).toLocaleString() + ' BTU/h (' + (pct * 100).toFixed(1) + '%)</text>';
+        }
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyManualJ() {
+        var totalBtu = document.getElementById('hlTotalBtu').textContent;
+        var kw = document.getElementById('hlTotalKw').textContent;
+        var equip = document.getElementById('hlEquipSize').textContent;
+        var dt = document.getElementById('hlDeltaT').textContent;
+        var infil = document.getElementById('hlInfilBtu').textContent;
+        var win = document.getElementById('hlWindowBtu').textContent;
+        var wall = document.getElementById('hlWallBtu').textContent;
+        var attic = document.getElementById('hlAtticBtu').textContent;
+        var fnd = document.getElementById('hlFoundationBtu').textContent;
+
+        var text = '🔥 ACCA Manual J Heating Load & Equipment Spec\\n' +
+          '• Total Peak Heat Loss: ' + totalBtu + ' (' + kw + ')\\n' +
+          '• Sizing Recommendation: ' + equip + '\\n' +
+          '• Design Delta-T: ' + dt + '\\n\\n' +
+          'Envelope Load Breakdown:\\n' +
+          '• Air Infiltration: ' + infil + '\\n' +
+          '• Exterior Walls: ' + wall + '\\n' +
+          '• Windows/Glazing: ' + win + '\\n' +
+          '• Slab/Foundation: ' + fnd + '\\n' +
+          '• Ceiling/Attic: ' + attic + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/heat-loss-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyHlBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Manual J Summary!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['hlTin', 'hlTout', 'hlFloorArea', 'hlCeilingHeight', 'hlWallInsul', 'hlAtticInsul', 'hlWindowArea', 'hlWindowType', 'hlInfil', 'hlFoundation'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcHeatLoss);
+          el.addEventListener('change', calcHeatLoss);
+        }
+      });
+
+      document.getElementById('copyHlBtn').addEventListener('click', copyManualJ);
+
+      calcHeatLoss();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'heat-loss-calculator.html'), renderTradePage({
+    title: "Heat Loss Calculator: Manual J HVAC Heating Load & Sizing | Digital Tools Shed",
+    metaDesc: "Calculate whole-house heat loss in BTU/hr and kW using ACCA Manual J building physics. Analyzes conductive transmission and air infiltration for furnace & heat pump sizing.",
+    canonical: `${DOMAIN}/calc/heat-loss-calculator`,
+    bodyContent: heatLossBody,
+    currentPath: '/calc/heat-loss-calculator',
+    faq: [
+      {
+        "q": "How do you calculate residential heat loss?",
+        "a": "Heat loss is calculated using Fourier's law of conductive thermal transmission ($Q = U \\cdot A \\cdot \\Delta T = \\frac{A \\cdot \\Delta T}{R}$) across all exterior building envelope assemblies (walls, ceiling/roof, windows, doors, and foundation edges), plus sensible air infiltration loss ($Q_{\\text{infil}} = 1.08 \\times \\text{CFM} \\times \\Delta T$). Summing all component losses yields the total peak heating load in BTU/hr."
+      },
+      {
+        "q": "What is the 99% winter design temperature in Manual J?",
+        "a": "The 99% winter outdoor design dry-bulb temperature is published by ASHRAE based on 30-year meteorological historical records. It represents the temperature that the local climate remains above for 99% of all winter hours (only 1% of winter hours or roughly 29 hours per year are colder). Sizing equipment for the absolute lowest record low causes severe oversizing and poor operating efficiency."
+      },
+      {
+        "q": "How many BTU per square foot is normal for a house?",
+        "a": "Modern well-insulated Energy Star homes typically experience 15 to 25 BTU/hr per square foot at design temperature delta ($60^\\circ\\text{F}$ difference). Standard code homes built between 1990 and 2010 average 25 to 35 BTU/hr/sq ft. Older uninsulated pre-1980 homes with single-pane windows can exceed 45 to 60+ BTU/hr per square foot."
+      },
+      {
+        "q": "Why is an oversized furnace or heat pump bad?",
+        "a": "Oversized heating systems short-cycle (running for only 3 to 5 minutes before reaching setpoint). Short-cycling causes dramatic room temperature spikes and drops, noisy high-velocity airflow, prevents air filtration systems from catching dust, and subjects heat exchangers to intense thermal stress, cracking them prematurely."
+      },
+      {
+        "q": "What is a heat pump thermal balance point?",
+        "a": "The thermal balance point is the exact outdoor temperature at which a heat pump's diminishing heating output matches the home's increasing heat loss. Below this balance point (typically between $20^\\circ\\text{F}$ and $35^\\circ\\text{F}$ depending on home efficiency), the heat pump requires supplemental backup heat (such as electric resistance heat strips or a gas furnace dual-fuel setup) to maintain indoor comfort."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CENTRIFUGAL PUMP CALCULATOR & HYDRAULIC TDH ENGINE
+  // ─────────────────────────────────────────────────────────────────────────────
+  const centrifugalPumpBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Centrifugal Pump Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Centrifugal Pump Sizing: TDH, BHP & NPSH Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate Total Dynamic Head (TDH), Water Horsepower (WHP), Brake Horsepower (BHP), electrical motor kW, annual operating costs, Net Positive Suction Head available (NPSHa vs NPSHr cavitation check), and Affinity Laws.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg>
+        Flow & Head Parameters
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpFlow">Design Flow Rate (GPM)</label>
+          <input type="number" id="cpFlow" value="150" min="5" max="10000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Gallons per minute</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpSG">Liquid Specific Gravity (SG)</label>
+          <input type="number" id="cpSG" value="1.00" min="0.6" max="2.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">1.00 = Clean Water</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpStaticHead">Static Elevation Lift (ft)</label>
+          <input type="number" id="cpStaticHead" value="45" min="0" max="1000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Vertical height difference</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpPressureHead">Terminal Pressure (PSI)</label>
+          <input type="number" id="cpPressureHead" value="20" min="0" max="300" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Discharge pressure required</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpPipeDia">Discharge Pipe Diameter</label>
+          <select id="cpPipeDia" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="1.5">1.5" Nominal (1.61" ID)</option>
+            <option value="2.0">2.0" Nominal (2.06" ID)</option>
+            <option value="3.0" selected>3.0" Nominal (3.06" ID)</option>
+            <option value="4.0">4.0" Nominal (4.02" ID)</option>
+            <option value="6.0">6.0" Nominal (6.06" ID)</option>
+            <option value="8.0">8.0" Nominal (7.98" ID)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpPipeLength">Pipe Equivalent Length (ft)</label>
+          <input type="number" id="cpPipeLength" value="250" min="10" max="10000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Physical run + fitting equiv</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Pump Efficiencies & Suction</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpPumpEff">Pump Efficiency (&eta;_p)</label>
+          <input type="number" id="cpPumpEff" value="72" min="30" max="92" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Typical 65% - 80% at BEP</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpMotorEff">Motor Efficiency (&eta;_m)</label>
+          <input type="number" id="cpMotorEff" value="92" min="70" max="98" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">NEMA Premium ~92%</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpSuctionLift">Suction Lift (-) / Head (+)</label>
+          <input type="number" id="cpSuctionLift" value="-6" min="-30" max="30" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Negative = suction lift (ft)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cpNPSHr">Pump NPSHr Spec (ft)</label>
+          <input type="number" id="cpNPSHr" value="10" min="2" max="40" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Required NPSH from OEM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Hydraulic & Power Output
+          </h2>
+          <button id="copyCpBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Pump Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Dynamic Head (TDH)</span>
+            <span id="cpTotalTDH" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">105.8 ft</span>
+            <span id="cpTDHPsi" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">45.8 PSI Differential</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Motor Brake Horsepower</span>
+            <span id="cpTotalBHP" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#10b981;display:block;">5.57 HP</span>
+            <span id="cpNemaMotor" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Standard Motor: 7.5 HP</span>
+          </div>
+        </div>
+
+        <!-- DETAILED HYDRAULIC BREAKDOWN -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Water Horsepower (WHP):</span>
+            <strong id="cpWHP" style="font-family:var(--mono);">4.01 WHP</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Electrical Input Power (kW):</span>
+            <strong id="cpInputKw" style="font-family:var(--mono);color:#f59e0b;">4.51 kW</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Pipe Friction Loss (H_f):</span>
+            <strong id="cpFrictionHead" style="font-family:var(--mono);">14.6 ft (Hazen-Williams)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Pipe Fluid Velocity:</span>
+            <strong id="cpVelocity" style="font-family:var(--mono);">6.54 ft/s (Ideal 5-8 ft/s)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Available NPSHa:</span>
+            <strong id="cpNPSHa" style="font-family:var(--mono);">24.2 ft (Cavitation Margin: +14.2 ft)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Annual Energy Cost (4000 hrs @ $0.14):</span>
+            <strong id="cpEnergyCost" style="font-family:var(--mono);">$2,526 / year</strong>
+          </div>
+        </div>
+
+        <!-- CAVITATION STATUS BADGE -->
+        <div id="cpCavitationBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG PUMP HEAD & SYSTEM RESISTANCE CURVE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Pump Characteristic vs System Friction Curve (Operating Point)</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector H-Q diagram showing the parabolic system head curve ($H = H_{\\text{static}} + k Q^{1.852}$) intersecting the centrifugal pump head curve at the Best Efficiency Point (BEP).
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="cpCurveSvg" viewBox="0 0 800 320" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & HYDRAULIC EQUATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Hydraulic Engineering Principles: TDH, Power & Cavitation Limits</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Pumping fluid requires transferring mechanical shaft energy into fluid pressure and velocity head. Proper pump selection requires evaluating system friction and suction pressure to prevent cavitation.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Total Dynamic Head (TDH):</strong><br>
+      \\text{TDH} = H_{\\text{static}} + \\frac{P_{\\text{discharge}} - P_{\\text{suction}}}{\\gamma} \\times 2.31 + H_{\\text{friction}} + \\frac{v^2}{2g}<br><br>
+      <strong>2. Hazen-Williams Friction Head Loss:</strong><br>
+      H_f = 10.44 \\times \\left(\\frac{Q}{C}\\right)^{1.852} \\times \\frac{L}{D^{4.8655}} \\quad (C = 150 \\text{ for PVC})<br><br>
+      <strong>3. Water Horsepower (Hydraulic Power):</strong><br>
+      \\text{WHP} = \\frac{Q (\\text{GPM}) \\times \\text{TDH} (\\text{ft}) \\times \\text{SG}}{3960}<br><br>
+      <strong>4. Brake Horsepower (Shaft Mechanical Power):</strong><br>
+      \\text{BHP} = \\frac{\\text{WHP}}{\\eta_{\\text{pump}}} \\quad \\Big(\\text{Motor kW} = \\frac{\\text{BHP} \\times 0.7457}{\\eta_{\\text{motor}}}\\Big)<br><br>
+      <strong>5. Net Positive Suction Head Available (NPSHa):</strong><br>
+      \\text{NPSHa} = H_{\\text{barometric}} \\pm H_{\\text{static suction}} - H_{\\text{friction suction}} - H_{\\text{vapor pressure}}<br>
+      \\text{Cavitation Margin} = \\text{NPSHa} - \\text{NPSHr} \\ge 3.0\\text{ to }5.0\\text{ ft}
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL PUMP & HYDRAULIC PITFALLS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Centrifugal Pump & Hydraulic Traps</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The Cavitation Implosion Catastrophe</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          When NPSHa falls below NPSHr, local fluid pressure drops below liquid vapor pressure, creating vapor bubbles that violently collapse against the impeller at $100,000\\text{ PSI}$. It sounds like pumping marbles and pit-corrodes stainless steel impellers within weeks.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Throttling Far Left of the BEP</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Choking down a discharge valve to reduce flow pushes the pump far left of its Best Efficiency Point (BEP). Asymmetric pressure builds inside the volute, generating violent radial thrust that flexes the shaft, destroys mechanical seals, and causes catastrophic bearing seizure.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Deadheading & Superheated Boiling</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Running a centrifugal pump with the discharge valve completely closed converts 100% of motor brake horsepower directly into heat. Trapped water quickly flashes into superheated steam, melting elastomer seals, shattering silicon carbide faces, or detonating the casing.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. System Runout Motor Overload</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Oversizing a pump or operating without sufficient system backpressure shifts the duty point far to the right into "runout." High flow rates spike horsepower demand dramatically ($BHP \\propto Q$), pulling continuous locked-rotor amperes and tripping motor thermal overloads.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Ignoring Affinity Law Cube Savings</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Throttling flow mechanically wastes massive electrical energy across the valve. By the Affinity Laws ($P \\propto N^3$), installing a Variable Frequency Drive (VFD) and reducing pump speed by just 20% slashes electrical power consumption by nearly 50% ($0.8^3 = 0.512$).
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      var pipeIDs = {
+        '1.5': 1.61,
+        '2.0': 2.06,
+        '3.0': 3.06,
+        '4.0': 4.02,
+        '6.0': 6.06,
+        '8.0': 7.98
+      };
+
+      var nemaSizes = [0.5, 0.75, 1, 1.5, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100];
+
+      function calcPump() {
+        var Q = parseFloat(document.getElementById('cpFlow').value) || 150;
+        var SG = parseFloat(document.getElementById('cpSG').value) || 1.0;
+        var staticLift = parseFloat(document.getElementById('cpStaticHead').value) || 45;
+        var termPsi = parseFloat(document.getElementById('cpPressureHead').value) || 20;
+        var diaKey = document.getElementById('cpPipeDia').value;
+        var pipeLen = parseFloat(document.getElementById('cpPipeLength').value) || 250;
+        var pumpEff = (parseFloat(document.getElementById('cpPumpEff').value) || 72) / 100;
+        var motorEff = (parseFloat(document.getElementById('cpMotorEff').value) || 92) / 100;
+        var suctionLift = parseFloat(document.getElementById('cpSuctionLift').value) || -6;
+        var npshr = parseFloat(document.getElementById('cpNPSHr').value) || 10;
+
+        var dInches = pipeIDs[diaKey] || 3.06;
+
+        // Pressure head in feet of liquid
+        var pressureHeadFt = (termPsi * 2.3067) / SG;
+
+        // Fluid velocity: v = Q / (2.448 * d^2) in ft/s
+        var areaSqFt = (Math.PI * Math.pow(dInches / 12, 2)) / 4;
+        var qCuFtSec = (Q / 448.831);
+        var velocity = areaSqFt > 0 ? (qCuFtSec / areaSqFt) : 0;
+
+        // Hazen-Williams friction loss (C=150 for smooth PVC/plastic)
+        var C = 150;
+        var hf = 10.44 * Math.pow(Q / C, 1.852) * (pipeLen / Math.pow(dInches, 4.8655));
+
+        // Velocity head
+        var vHead = Math.pow(velocity, 2) / (2 * 32.174);
+
+        // Total Dynamic Head (TDH)
+        var tdh = staticLift + pressureHeadFt + hf + vHead;
+        var tdhPsi = (tdh * SG) / 2.3067;
+
+        // Power calculations
+        var whp = (Q * tdh * SG) / 3960;
+        var bhp = whp / pumpEff;
+        var kw = (bhp * 0.7457) / motorEff;
+
+        // Find standard NEMA motor size
+        var standardMotorHp = 100;
+        for (var i = 0; i < nemaSizes.length; i++) {
+          if (nemaSizes[i] >= bhp * 1.10) { // 10% safety margin on motor
+            standardMotorHp = nemaSizes[i];
+            break;
+          }
+        }
+
+        // Annual operating cost (4000 hours @ $0.14/kWh)
+        var annualCost = kw * 4000 * 0.14;
+
+        // NPSHa Calculation:
+        // Atmospheric at sea level = 33.9 ft water / SG
+        var Patm = 33.9 / SG;
+        // Vapor pressure of water at 68 deg F = 0.78 ft / SG
+        var Pvp = 0.78 / SG;
+        // Suction line friction (approx 15% of total friction)
+        var hfs = hf * 0.15;
+        var npsha = Patm + suctionLift - hfs - Pvp;
+        var cavitationMargin = npsha - npshr;
+
+        // DOM Updates
+        document.getElementById('cpTotalTDH').textContent = tdh.toFixed(1) + ' ft';
+        document.getElementById('cpTDHPsi').textContent = tdhPsi.toFixed(1) + ' PSI Differential';
+        document.getElementById('cpTotalBHP').textContent = bhp.toFixed(2) + ' HP';
+        document.getElementById('cpNemaMotor').textContent = 'Standard Motor: ' + standardMotorHp + ' HP';
+
+        document.getElementById('cpWHP').textContent = whp.toFixed(2) + ' WHP';
+        document.getElementById('cpInputKw').textContent = kw.toFixed(2) + ' kW';
+        document.getElementById('cpFrictionHead').textContent = hf.toFixed(1) + ' ft (Hazen-Williams)';
+        document.getElementById('cpVelocity').textContent = velocity.toFixed(2) + ' ft/s (Ideal 5-8 ft/s)';
+        document.getElementById('cpNPSHa').textContent = npsha.toFixed(1) + ' ft (Margin: ' + (cavitationMargin >= 0 ? '+' : '') + cavitationMargin.toFixed(1) + ' ft)';
+        document.getElementById('cpEnergyCost').textContent = '$' + Math.round(annualCost).toLocaleString() + ' / year';
+
+        // Badge
+        var badge = document.getElementById('cpCavitationBadge');
+        if (cavitationMargin >= 3.0) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' +
+              'NPSH Margin Safe (+ ' + cavitationMargin.toFixed(1) + ' ft)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'NPSHa (' + npsha.toFixed(1) + ' ft) exceeds pump NPSHr (' + npshr.toFixed(1) + ' ft) by more than 3 ft. Liquid will not vaporize or cavitate inside the impeller.' +
+            '</div>';
+        } else if (cavitationMargin >= 0) {
+          badge.style.background = 'rgba(245, 158, 11, 0.1)';
+          badge.style.border = '1px solid #f59e0b';
+          badge.style.color = '#f59e0b';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+              'Low Cavitation Margin (+ ' + cavitationMargin.toFixed(1) + ' ft)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Caution: Hydraulic Institute standards recommend at least 3 to 5 ft margin. Slight temperature spikes may induce cavitation noise and impeller erosion.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+              'SEVERE CAVITATION HAZARD (' + cavitationMargin.toFixed(1) + ' ft)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'NPSHa is LESS than NPSHr. Liquid will flash into vapor inside the eye of the impeller, destroying the pump within days. Lower the suction lift or increase suction pipe size.' +
+            '</div>';
+        }
+
+        renderCurve(Q, tdh, staticLift + pressureHeadFt);
+      }
+
+      function renderCurve(flow, totalHead, staticHead) {
+        var svg = document.getElementById('cpCurveSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 320;
+        var ox = 80;
+        var oy = 260;
+        var plotW = 660;
+        var plotH = 200;
+
+        var maxQ = Math.max(flow * 1.8, 50);
+        var maxH = Math.max(totalHead * 1.6, 50);
+
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1="' + ox + '" y1="' + oy + '" x2="' + (ox + plotW) + '" y2="' + oy + '" stroke="var(--border)" stroke-width="2"/>';
+        svgHtml += '<line x1="' + ox + '" y1="' + oy + '" x2="' + ox + '" y2="' + (oy - plotH) + '" stroke="var(--border)" stroke-width="2"/>';
+
+        svgHtml += '<text x="' + (ox + plotW/2) + '" y="' + (oy + 38) + '" fill="var(--fg)" font-size="12" font-weight="bold" text-anchor="middle">Flow Rate Q (GPM)</text>';
+        svgHtml += '<text x="' + (ox - 45) + '" y="' + (oy - plotH/2) + '" fill="var(--fg)" font-size="12" font-weight="bold" text-anchor="middle" transform="rotate(-90 ' + (ox - 45) + ' ' + (oy - plotH/2) + ')">Total Head (ft)</text>';
+
+        // Static Head Horizontal Guide
+        var staticY = oy - ((staticHead / maxH) * plotH);
+        svgHtml += '<line x1="' + ox + '" y1="' + staticY + '" x2="' + (ox + plotW) + '" y2="' + staticY + '" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3"/>';
+        svgHtml += '<text x="' + (ox + 10) + '" y="' + (staticY - 6) + '" fill="#64748b" font-size="10">Static Head (' + staticHead.toFixed(0) + ' ft)</text>';
+
+        // Generate System Curve: H_sys = H_static + k * Q^1.852
+        var k = flow > 0 ? (totalHead - staticHead) / Math.pow(flow, 1.852) : 0;
+        var sysPath = 'M ' + ox + ' ' + staticY;
+        for (var q = 0; q <= maxQ; q += maxQ / 30) {
+          var hSys = staticHead + k * Math.pow(q, 1.852);
+          var x = ox + (q / maxQ) * plotW;
+          var y = oy - (hSys / maxH) * plotH;
+          if (y >= oy - plotH) {
+            sysPath += ' L ' + x.toFixed(1) + ' ' + y.toFixed(1);
+          }
+        }
+        svgHtml += '<path d="' + sysPath + '" fill="none" stroke="#ef4444" stroke-width="3"/>';
+        svgHtml += '<text x="' + (ox + plotW - 100) + '" y="' + (oy - plotH + 25) + '" fill="#ef4444" font-size="11" font-weight="bold">System Curve</text>';
+
+        // Generate Pump Characteristic Curve (approximated downward parabola passing through duty point)
+        // H_pump = H_shutoff - c * Q^2
+        var shutoffH = totalHead * 1.25;
+        var c = flow > 0 ? (shutoffH - totalHead) / Math.pow(flow, 2) : 0;
+        var pumpPath = 'M ' + ox + ' ' + (oy - (shutoffH / maxH) * plotH);
+        for (var qp = 0; qp <= maxQ; qp += maxQ / 30) {
+          var hP = shutoffH - c * Math.pow(qp, 2);
+          var xp = ox + (qp / maxQ) * plotW;
+          var yp = oy - (hP / maxH) * plotH;
+          if (yp <= oy) {
+            pumpPath += ' L ' + xp.toFixed(1) + ' ' + yp.toFixed(1);
+          }
+        }
+        svgHtml += '<path d="' + pumpPath + '" fill="none" stroke="#3b82f6" stroke-width="3"/>';
+        svgHtml += '<text x="' + (ox + plotW/3) + '" y="' + (oy - (shutoffH/maxH)*plotH + 20) + '" fill="#3b82f6" font-size="11" font-weight="bold">Pump H-Q Curve</text>';
+
+        // Operating Duty Point Dot
+        var opX = ox + (flow / maxQ) * plotW;
+        var opY = oy - (totalHead / maxH) * plotH;
+
+        svgHtml += '<circle cx="' + opX + '" cy="' + opY + '" r="7" fill="#10b981" stroke="#ffffff" stroke-width="2"/>';
+        svgHtml += '<line x1="' + opX + '" y1="' + opY + '" x2="' + opX + '" y2="' + oy + '" stroke="#10b981" stroke-dasharray="3,3" stroke-width="1.5"/>';
+        svgHtml += '<line x1="' + opX + '" y1="' + opY + '" x2="' + ox + '" y2="' + opY + '" stroke="#10b981" stroke-dasharray="3,3" stroke-width="1.5"/>';
+        svgHtml += '<text x="' + (opX + 10) + '" y="' + (opY - 10) + '" fill="#10b981" font-size="12" font-weight="bold">BEP (' + Math.round(flow) + ' GPM @ ' + totalHead.toFixed(1) + ' ft)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyPumpSpec() {
+        var tdh = document.getElementById('cpTotalTDH').textContent;
+        var psi = document.getElementById('cpTDHPsi').textContent;
+        var bhp = document.getElementById('cpTotalBHP').textContent;
+        var motor = document.getElementById('cpNemaMotor').textContent;
+        var whp = document.getElementById('cpWHP').textContent;
+        var kw = document.getElementById('cpInputKw').textContent;
+        var hf = document.getElementById('cpFrictionHead').textContent;
+        var vel = document.getElementById('cpVelocity').textContent;
+        var npsh = document.getElementById('cpNPSHa').textContent;
+        var cost = document.getElementById('cpEnergyCost').textContent;
+
+        var text = '🌊 Centrifugal Pump Hydraulic Sizing & Power Spec\\n' +
+          '• Operating Flow Rate: ' + document.getElementById('cpFlow').value + ' GPM (SG ' + document.getElementById('cpSG').value + ')\\n' +
+          '• Total Dynamic Head: ' + tdh + ' (' + psi + ')\\n' +
+          '• Brake Horsepower (BHP): ' + bhp + '\\n' +
+          '• ' + motor + '\\n' +
+          '• Hydraulic Water HP: ' + whp + '\\n' +
+          '• Electrical Input: ' + kw + '\\n' +
+          '• Pipe Friction Loss: ' + hf + '\\n' +
+          '• Pipe Velocity: ' + vel + '\\n' +
+          '• NPSH Cavitation Check: ' + npsh + '\\n' +
+          '• Estimated Energy Cost: ' + cost + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/centrifugal-pump-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCpBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Pump Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['cpFlow', 'cpSG', 'cpStaticHead', 'cpPressureHead', 'cpPipeDia', 'cpPipeLength', 'cpPumpEff', 'cpMotorEff', 'cpSuctionLift', 'cpNPSHr'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcPump);
+          el.addEventListener('change', calcPump);
+        }
+      });
+
+      document.getElementById('copyCpBtn').addEventListener('click', copyPumpSpec);
+
+      calcPump();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'centrifugal-pump-calculator.html'), renderTradePage({
+    title: "Centrifugal Pump Calculator: TDH, BHP & NPSH Cavitation | Digital Tools Shed",
+    metaDesc: "Calculate Total Dynamic Head (TDH), brake horsepower (BHP), electrical motor kW, and NPSH cavitation margin for centrifugal pumps. Includes Affinity Laws.",
+    canonical: `${DOMAIN}/calc/centrifugal-pump-calculator`,
+    bodyContent: centrifugalPumpBody,
+    currentPath: '/calc/centrifugal-pump-calculator',
+    faq: [
+      {
+        "q": "What is Total Dynamic Head (TDH) in a centrifugal pump?",
+        "a": "Total Dynamic Head (TDH) is the total equivalent height in feet that a pump must lift fluid against. It is the sum of static elevation change, terminal discharge pressure converted to feet of head ($PSI \\times 2.31 / SG$), friction head loss through pipes, fittings, and valves ($H_f$), and dynamic velocity head ($v^2 / 2g$)."
+      },
+      {
+        "q": "What is the difference between WHP and BHP?",
+        "a": "Water Horsepower (WHP) is the theoretical hydraulic power delivered directly to the liquid ($WHP = Q \\times TDH \\times SG / 3960$). Brake Horsepower (BHP) is the actual mechanical power required at the pump shaft ($BHP = WHP / \\eta_{\\text{pump}}$), accounting for internal impeller friction, fluid slip, and mechanical seal drag."
+      },
+      {
+        "q": "What is pump cavitation and why is NPSH important?",
+        "a": "Cavitation occurs when local pressure inside the suction eye of the impeller drops below the liquid's vapor pressure, causing microscopic vapor bubbles to form. As these bubbles travel into higher pressure regions, they violently collapse, producing micro-jets that erode metal, destroy seals, and ruin bearings. To prevent cavitation, Net Positive Suction Head Available (NPSHa) must exceed the pump's required NPSHr by at least 3 to 5 feet."
+      },
+      {
+        "q": "What are the Pump Affinity Laws?",
+        "a": "The Affinity Laws govern centrifugal pump performance when impeller diameter or shaft speed changes. For speed changes ($N_1 \\to N_2$): Flow rate varies directly ($Q_2/Q_1 = N_2/N_1$), Head varies with the square ($H_2/H_1 = (N_2/N_1)^2$), and Power varies with the cube ($P_2/P_1 = (N_2/N_1)^3$). A 20% speed reduction cuts power consumption by nearly 50%."
+      },
+      {
+        "q": "What is the Best Efficiency Point (BEP)?",
+        "a": "The Best Efficiency Point (BEP) is the specific flow rate and head on a pump's performance curve where hydraulic efficiency is at its highest (typically 70% to 85%). Pumping continuously outside 80% to 110% of BEP creates massive radial thrust loads on the shaft, premature seal failures, and severe vibration."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // AIR COMPRESSOR CALCULATOR & CFM DUTY CYCLE ENGINE
+  // ─────────────────────────────────────────────────────────────────────────────
+  const airCompressorBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Air Compressor Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Air Compressor CFM, Tank Sizing & Pump-Up Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate pneumatic tool CFM requirements with duty cycle factors, receiver tank pump-up & recovery times, air storage volume, motor horsepower verification, and continuous run time on tank reserve.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><polyline points=\"12 6 12 12 16 14\"/></svg>
+        Pneumatic Tool & Demand
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="acToolPreset">Pneumatic Tool Preset</label>
+        <select id="acToolPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="framing_nailer">Framing Nailer (2.5 CFM @ 90 PSI, 15% Duty)</option>
+          <option value="impact_wrench">1/2" Impact Wrench (5.0 CFM @ 90 PSI, 25% Duty)</option>
+          <option value="air_ratchet">3/8" Air Ratchet (4.5 CFM @ 90 PSI, 30% Duty)</option>
+          <option value="die_grinder">Die Grinder / Cut-Off (6.0 CFM @ 90 PSI, 60% Duty)</option>
+          <option value="orbital_sander" selected>Random Orbital DA Sander (12.0 CFM @ 90 PSI, 80% Duty)</option>
+          <option value="spray_gun">HVLP Automotive Spray Gun (10.0 CFM @ 40 PSI, 70% Duty)</option>
+          <option value="sandblaster">Sandblast Cabinet (18.0 CFM @ 90 PSI, 100% Continuous)</option>
+          <option value="plasma_cutter">CNC Plasma Torch (6.5 CFM @ 90 PSI, 75% Duty)</option>
+          <option value="custom">Custom Air Tool Specification</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="acToolCfm">Continuous Tool CFM</label>
+          <input type="number" id="acToolCfm" value="12.0" min="0.5" max="100.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">CFM while trigger pulled</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="acDutyCycle">Tool Duty Cycle (%)</label>
+          <input type="number" id="acDutyCycle" value="80" min="5" max="100" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">% time active in work cycle</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Compressor Pump & Tank Setup</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="acPumpCfm">Compressor CFM @ 90 PSI</label>
+          <input type="number" id="acPumpCfm" value="14.0" min="1.0" max="150.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Manufacturer rated delivery</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="acTankGal">Receiver Tank Size (Gallons)</label>
+          <input type="number" id="acTankGal" value="60" min="2" max="500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">e.g. 20, 60, 80 gal</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="acCutIn">Cut-In Pressure (PSI)</label>
+          <input type="number" id="acCutIn" value="105" min="60" max="150" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Motor kicks on</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="acCutOut">Cut-Out Pressure (PSI)</label>
+          <input type="number" id="acCutOut" value="145" min="80" max="200" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Motor shuts off</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Performance & Timing Output
+          </h2>
+          <button id="copyAcBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Compressor Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Required Pump CFM</span>
+            <span id="acReqCfm" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">12.0 CFM</span>
+            <span id="acPumpStatus" style="font-size:0.8rem;color:#10b981;font-weight:600;">Pump Sized Adequately (+2.0 CFM)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Tank Recovery Time</span>
+            <span id="acRecoveryTime" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:var(--fg);display:block;">1m 56s</span>
+            <span id="acRecoverySec" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">105 to 145 PSI Cycle</span>
+          </div>
+        </div>
+
+        <!-- COMPRESSOR ENGINEERING METRICS -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Empty Tank Pump-Up (0 to Cut-Out):</span>
+            <strong id="acEmptyPumpUp" style="font-family:var(--mono);">7m 02s (422s)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Sustained Tank Run Time (Engine Off):</span>
+            <strong id="acTankSustained" style="font-family:var(--mono);color:#f59e0b;">1m 32s (until 90 PSI)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">True Continuous Motor Running HP:</span>
+            <strong id="acMotorHp" style="font-family:var(--mono);">3.5 to 4.0 HP (230V 1-Ph)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Air Stored in Tank at Cut-Out:</span>
+            <strong id="acStoredCuFt" style="font-family:var(--mono);">79.1 Standard Cu Ft (SCFH)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Compressor Pump Duty Load:</span>
+            <strong id="acDutyLoad" style="font-family:var(--mono);">68.6% (Ideal &le; 70%)</strong>
+          </div>
+        </div>
+
+        <!-- COMPATIBILITY STATUS BADGE -->
+        <div id="acCompatBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG AIR RECEIVER TANK & PRESSURE GAUGE SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Receiver Tank Cutaway & Operating Pressure Band</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector cutaway diagram of vertical ASME receiver tank with active cut-in / cut-out pressure gauge needle, tool draw airflow, and moisture condensation drain bowl.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="acTankSvg" viewBox="0 0 800 320" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & COMPRESSED AIR EQUATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Pneumatic Physics: Tank Capacitance & Pump Delivery Formulas</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Compressing air converts atmospheric free air into pressurized potential energy according to Boyle's Law ($P_1 V_1 = P_2 V_2$). Sizing requires balancing tool flow rate against receiver tank capacitance.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Effective Tool Air Consumption (with 25% safety margin):</strong><br>
+      \\text{CFM}_{\\text{effective}} = \\text{CFM}_{\\text{tool}} \\times \\left(\\frac{\\text{Duty Cycle \\%}}{100}\\right) \\times 1.25<br><br>
+      <strong>2. Receiver Tank Pump-Up Time (Boyle's Law):</strong><br>
+      t_{\\text{empty}} = \\frac{V_{\\text{gallons}} \\times (P_{\\text{cutout}} / 14.7)}{7.4805 \\times \\text{CFM}_{\\text{pump}}} \\times 60 \\quad (\\text{seconds})<br><br>
+      <strong>3. Tank Recovery Cycle Time (Cut-In to Cut-Out):</strong><br>
+      t_{\\text{recovery}} = \\frac{V_{\\text{gallons}} \\times \\big((P_{\\text{cutout}} - P_{\\text{cutin}}) / 14.7\\big)}{7.4805 \\times \\text{CFM}_{\\text{pump}}} \\times 60<br><br>
+      <strong>4. Sustained Tool Run Time on Tank Reserve (Motor Off):</strong><br>
+      t_{\\text{usable}} = \\frac{V_{\\text{gallons}} \\times \\big((P_{\\text{cutout}} - 90\\text{ PSI}) / 14.7\\big)}{7.4805 \\times \\text{CFM}_{\\text{tool}}} \\times 60<br><br>
+      <strong>5. True Electric Motor Horsepower (Single vs Two-Stage):</strong><br>
+      \\text{Running HP} \\approx \\frac{\\text{CFM}_{\\text{pump}}}{3.5\\text{ to }4.0} \\quad (1\\text{ HP } \\approx 3.5\\text{--}4.5\\text{ CFM @ 90 PSI})
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL AIR COMPRESSOR PITFALLS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Workshop & Pneumatic System Traps</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The "Peak Horsepower" Marketing Scam</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Big-box stores advertise "6.5 Peak HP" on compressors that plug into a 120V 15A wall outlet. In reality, a 15-amp circuit supplies $1,800\\text{ watts}$, which maxes out at ~1.8 true continuous running HP. True 5 HP industrial motors require 230V 30-amp single-phase power.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Splash-Lubricated Duty Cycle Meltdown</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Direct-drive and splash-lubricated aluminum compressors have a 50% max duty cycle (10 min run / 10 min rest). Running an orbital sander or sandblaster non-stop cooks the pump oil, carbonizes reed valves, and scuffs cylinder walls within months. Continuous tools need cast iron pumps.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. The Receiver Tank Rust Bomb</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Compressing 100 cubic feet of ambient humid air condenses up to a pint of water inside the steel tank. Failing to purge the bottom drain valve weekly causes internal bottom-seam corrosion, eventually causing catastrophic shrapnel tank explosion at 150 PSI.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. 1/4" Hose & Coupler Pressure Choke</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Plugging a 12 CFM impact wrench or paint gun into a 50-foot 1/4" air hose with restrictive 1/4" industrial couplers causes a $25\\text{ to }30\\text{ PSI}$ dynamic pressure drop while running. Your tool operates at only $65\\text{ PSI}$ despite the compressor gauge reading $125\\text{ PSI}$. Use 3/8" or 1/2" hose.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Displacement CFM vs Delivered CFM</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          "Displacement CFM" is theoretical piston cylinder sweep at 0 PSI. Real delivered CFM at 90 PSI is typically 25% to 35% lower due to clearance volume re-expansion, valve leakage, and air heat expansion. Always buy based on certified ISO 1217 or CAGI standard CFM @ 90 PSI.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      var toolPresets = {
+        framing_nailer: { cfm: 2.5, duty: 15 },
+        impact_wrench: { cfm: 5.0, duty: 25 },
+        air_ratchet: { cfm: 4.5, duty: 30 },
+        die_grinder: { cfm: 6.0, duty: 60 },
+        orbital_sander: { cfm: 12.0, duty: 80 },
+        spray_gun: { cfm: 10.0, duty: 70 },
+        sandblaster: { cfm: 18.0, duty: 100 },
+        plasma_cutter: { cfm: 6.5, duty: 75 }
+      };
+
+      function formatTime(totalSec) {
+        var m = Math.floor(totalSec / 60);
+        var s = Math.round(totalSec % 60);
+        return m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+      }
+
+      function calcCompressor() {
+        var toolPresetKey = document.getElementById('acToolPreset').value;
+        if (toolPresetKey !== 'custom' && toolPresets[toolPresetKey]) {
+          // If preset changed
+          var p = toolPresets[toolPresetKey];
+          // Check if triggered by preset dropdown
+          if (document.activeElement && document.activeElement.id === 'acToolPreset') {
+            document.getElementById('acToolCfm').value = p.cfm;
+            document.getElementById('acDutyCycle').value = p.duty;
+          }
+        }
+
+        var toolCfm = parseFloat(document.getElementById('acToolCfm').value) || 12.0;
+        var dutyPct = parseFloat(document.getElementById('acDutyCycle').value) || 80;
+        var pumpCfm = parseFloat(document.getElementById('acPumpCfm').value) || 14.0;
+        var tankGal = parseFloat(document.getElementById('acTankGal').value) || 60;
+        var cutIn = parseFloat(document.getElementById('acCutIn').value) || 105;
+        var cutOut = parseFloat(document.getElementById('acCutOut').value) || 145;
+
+        // Effective tool CFM required
+        var reqCfm = toolCfm * (dutyPct / 100) * 1.25;
+
+        // Tank pump-up times using Boyle's Law
+        // Tank volume in cu ft = tankGal / 7.4805
+        var tankCuFt = tankGal / 7.4805;
+
+        // Atmospheres at cutOut
+        var atmCutOut = cutOut / 14.7;
+        var totalStoredCuFt = tankCuFt * atmCutOut;
+
+        // Empty tank pump up time in seconds
+        var emptySec = (totalStoredCuFt / pumpCfm) * 60;
+
+        // Recovery time from cut-in to cut-out
+        var deltaP = Math.max(1, cutOut - cutIn);
+        var deltaAtm = deltaP / 14.7;
+        var recoveryCuFt = tankCuFt * deltaAtm;
+        var recoverySec = (recoveryCuFt / pumpCfm) * 60;
+
+        // Sustained run time on air in tank alone (from cutOut down to 90 PSI without pump)
+        var usableDeltaP = Math.max(0, cutOut - 90);
+        var usableAtm = usableDeltaP / 14.7;
+        var usableCuFt = tankCuFt * usableAtm;
+        var sustainedSec = toolCfm > 0 ? (usableCuFt / toolCfm) * 60 : 0;
+
+        // Motor HP estimate (approx 3.5 to 4.2 CFM per HP)
+        var motorHpMin = (pumpCfm / 4.2).toFixed(1);
+        var motorHpMax = (pumpCfm / 3.4).toFixed(1);
+
+        // Pump duty cycle under this load
+        var pumpDutyPct = Math.min(100, (toolCfm * (dutyPct / 100) / pumpCfm) * 100);
+
+        // DOM updates
+        document.getElementById('acReqCfm').textContent = reqCfm.toFixed(1) + ' CFM';
+        var isPumpEnough = pumpCfm >= reqCfm;
+        var cfmDelta = pumpCfm - reqCfm;
+        var pumpStatusEl = document.getElementById('acPumpStatus');
+        if (isPumpEnough) {
+          pumpStatusEl.textContent = 'Pump Sized Adequately (+' + cfmDelta.toFixed(1) + ' CFM margin)';
+          pumpStatusEl.style.color = '#10b981';
+        } else {
+          pumpStatusEl.textContent = 'Pump UNDERSIZED (' + cfmDelta.toFixed(1) + ' CFM deficit)';
+          pumpStatusEl.style.color = '#ef4444';
+        }
+
+        document.getElementById('acRecoveryTime').textContent = formatTime(recoverySec);
+        document.getElementById('acRecoverySec').textContent = Math.round(recoverySec) + 's (' + cutIn + ' to ' + cutOut + ' PSI Cycle)';
+
+        document.getElementById('acEmptyPumpUp').textContent = formatTime(emptySec) + ' (' + Math.round(emptySec) + 's)';
+        document.getElementById('acTankSustained').textContent = formatTime(sustainedSec) + ' (until 90 PSI)';
+        document.getElementById('acMotorHp').textContent = motorHpMin + ' to ' + motorHpMax + ' True Running HP';
+        document.getElementById('acStoredCuFt').textContent = totalStoredCuFt.toFixed(1) + ' Standard Cu Ft (SCFH)';
+        document.getElementById('acDutyLoad').textContent = pumpDutyPct.toFixed(1) + '% (Pump Workload)';
+
+        // Compatibility Badge
+        var badge = document.getElementById('acCompatBadge');
+        if (isPumpEnough && pumpDutyPct <= 70) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Excellent Compatibility & Thermal Headroom' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Compressor pump delivers ' + pumpCfm.toFixed(1) + ' CFM vs ' + reqCfm.toFixed(1) + ' CFM effective demand. Pump duty cycle (' + pumpDutyPct.toFixed(1) + '%) stays within safe thermal limits.' +
+            '</div>';
+        } else if (isPumpEnough && pumpDutyPct > 70) {
+          badge.style.background = 'rgba(245, 158, 11, 0.1)';
+          badge.style.border = '1px solid #f59e0b';
+          badge.style.color = '#f59e0b';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'High Pump Duty Cycle (' + pumpDutyPct.toFixed(1) + '%)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Pump will keep up but will run for long durations. Requires heavy-duty cast iron splash or pressure-lubricated pump to avoid overheating.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'INSUFFICIENT AIR DELIVERY (Pressure Drop)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Tool consumes air faster than compressor can produce (' + reqCfm.toFixed(1) + ' CFM needed vs ' + pumpCfm.toFixed(1) + ' CFM produced). Air pressure will rapidly collapse to unusable levels after ' + formatTime(sustainedSec) + ' of tool trigger time.' +
+            '</div>';
+        }
+
+        renderTank(tankGal, cutIn, cutOut, pumpCfm);
+      }
+
+      function renderTank(gal, cIn, cOut, cfm) {
+        var svg = document.getElementById('acTankSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 320;
+        var tX = 160;
+        var tY = 40;
+        var tW = 140;
+        var tH = 220;
+
+        var svgHtml = '';
+
+        // Vertical Receiver Tank Body
+        svgHtml += '<rect x="' + tX + '" y="' + (tY + 25) + '" width="' + tW + '" height="' + (tH - 50) + '" fill="var(--surface)" stroke="#3b82f6" stroke-width="3"/>';
+        // Top dome
+        svgHtml += '<path d="M ' + tX + ' ' + (tY + 25) + ' Q ' + (tX + tW/2) + ' ' + tY + ' ' + (tX + tW) + ' ' + (tY + 25) + '" fill="var(--surface)" stroke="#3b82f6" stroke-width="3"/>';
+        // Bottom dome
+        svgHtml += '<path d="M ' + tX + ' ' + (tY + tH - 25) + ' Q ' + (tX + tW/2) + ' ' + (tY + tH) + ' ' + (tX + tW) + ' ' + (tY + tH - 25) + '" fill="var(--surface)" stroke="#3b82f6" stroke-width="3"/>';
+
+        // Tank Legs
+        svgHtml += '<line x1="' + (tX + 15) + '" y1="' + (tY + tH - 10) + '" x2="' + (tX + 5) + '" y2="' + (tY + tH + 25) + '" stroke="#64748b" stroke-width="4"/>';
+        svgHtml += '<line x1="' + (tX + tW - 15) + '" y1="' + (tY + tH - 10) + '" x2="' + (tX + tW - 5) + '" y2="' + (tY + tH + 25) + '" stroke="#64748b" stroke-width="4"/>';
+
+        // Bottom Drain Valve & Condensate
+        svgHtml += '<rect x="' + (tX + 15) + '" y="' + (tY + tH - 35) + '" width="' + (tW - 30) + '" height="15" fill="#38bdf8" opacity="0.35"/>';
+        svgHtml += '<line x1="' + (tX + tW/2) + '" y1="' + (tY + tH) + '" x2="' + (tX + tW/2) + '" y2="' + (tY + tH + 18) + '" stroke="#64748b" stroke-width="3"/>';
+        svgHtml += '<circle cx="' + (tX + tW/2) + '" cy="' + (tY + tH + 22) + '" r="5" fill="#ef4444"/>';
+        svgHtml += '<text x="' + (tX + tW/2 + 12) + '" y="' + (tY + tH + 25) + '" fill="var(--text-muted)" font-size="10">Purge Drain</text>';
+
+        // Tank Gallons Label in center
+        svgHtml += '<text x="' + (tX + tW/2) + '" y="' + (tY + tH/2) + '" fill="var(--fg)" font-size="16" font-weight="800" text-anchor="middle">' + gal + ' GAL</text>';
+        svgHtml += '<text x="' + (tX + tW/2) + '" y="' + (tY + tH/2 + 18) + '" fill="#3b82f6" font-size="11" font-weight="600" text-anchor="middle">ASME Tank</text>';
+
+        // Pressure Gauge on top
+        var gX = 520;
+        var gY = 150;
+        var gR = 85;
+
+        // Dial circle
+        svgHtml += '<circle cx="' + gX + '" cy="' + gY + '" r="' + gR + '" fill="var(--bg)" stroke="var(--border)" stroke-width="4"/>';
+        svgHtml += '<circle cx="' + gX + '" cy="' + gY + '" r="' + (gR - 10) + '" fill="none" stroke="var(--border)" stroke-width="1"/>';
+
+        // Gauge markings (0 to 200 PSI, angle -135 to +135 deg)
+        for (var p = 0; p <= 200; p += 25) {
+          var ang = (-135 + (p / 200) * 270) * (Math.PI / 180);
+          var x1 = gX + Math.cos(ang) * (gR - 12);
+          var y1 = gY + Math.sin(ang) * (gR - 12);
+          var x2 = gX + Math.cos(ang) * (gR - 22);
+          var y2 = gY + Math.sin(ang) * (gR - 22);
+          svgHtml += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="var(--fg)" stroke-width="2"/>';
+
+          if (p % 50 === 0) {
+            var xt = gX + Math.cos(ang) * (gR - 34);
+            var yt = gY + Math.sin(ang) * (gR - 34) + 4;
+            svgHtml += '<text x="' + xt + '" y="' + yt + '" fill="var(--text-muted)" font-size="9" font-weight="bold" text-anchor="middle">' + p + '</text>';
+          }
+        }
+
+        // Cut-in & Cut-out Green Operating Arc
+        var angIn = (-135 + (cIn / 200) * 270) * (Math.PI / 180);
+        var angOut = (-135 + (cOut / 200) * 270) * (Math.PI / 180);
+
+        // Needle (pointing to cutOut)
+        var nx = gX + Math.cos(angOut) * (gR - 20);
+        var ny = gY + Math.sin(angOut) * (gR - 20);
+        svgHtml += '<line x1="' + gX + '" y1="' + gY + '" x2="' + nx + '" y2="' + ny + '" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>';
+        svgHtml += '<circle cx="' + gX + '" cy="' + gY + '" r="6" fill="#1e293b"/>';
+
+        // Gauge center text
+        svgHtml += '<text x="' + gX + '" y="' + (gY + 45) + '" fill="var(--fg)" font-size="13" font-weight="bold" text-anchor="middle">' + cOut + ' PSI MAX</text>';
+        svgHtml += '<text x="' + gX + '" y="' + (gY + 60) + '" fill="#10b981" font-size="10" font-weight="600" text-anchor="middle">Cut-In: ' + cIn + ' PSI</text>';
+
+        // Connecting pipe from tank to gauge
+        svgHtml += '<path d="M ' + (tX + tW/2) + ' ' + (tY + 5) + ' L ' + (tX + tW/2) + ' ' + (tY - 15) + ' L ' + gX + ' ' + (tY - 15) + ' L ' + gX + ' ' + (gY - gR) + '" fill="none" stroke="#64748b" stroke-width="4"/>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyCompressorSpec() {
+        var req = document.getElementById('acReqCfm').textContent;
+        var rec = document.getElementById('acRecoveryTime').textContent;
+        var emp = document.getElementById('acEmptyPumpUp').textContent;
+        var sus = document.getElementById('acTankSustained').textContent;
+        var hp = document.getElementById('acMotorHp').textContent;
+        var cuft = document.getElementById('acStoredCuFt').textContent;
+        var duty = document.getElementById('acDutyLoad').textContent;
+
+        var text = '💨 Air Compressor Sizing & CFM Duty Cycle Spec\\n' +
+          '• Tool: ' + document.getElementById('acToolCfm').value + ' CFM @ ' + document.getElementById('acDutyCycle').value + '% Duty\\n' +
+          '• Required Pump Delivery: ' + req + '\\n' +
+          '• Tank Recovery Time: ' + rec + '\\n' +
+          '• Empty Tank Pump-Up: ' + emp + '\\n' +
+          '• Tank Reserve Run Time: ' + sus + '\\n' +
+          '• Motor Power Requirement: ' + hp + '\\n' +
+          '• Compressed Air Stored: ' + cuft + '\\n' +
+          '• Pump Workload Duty: ' + duty + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/air-compressor-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyAcBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Compressor Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['acToolPreset', 'acToolCfm', 'acDutyCycle', 'acPumpCfm', 'acTankGal', 'acCutIn', 'acCutOut'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcCompressor);
+          el.addEventListener('change', calcCompressor);
+        }
+      });
+
+      document.getElementById('copyAcBtn').addEventListener('click', copyCompressorSpec);
+
+      calcCompressor();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'air-compressor-calculator.html'), renderTradePage({
+    title: "Air Compressor CFM Calculator: Tank Sizing & Pump-Up Time | Digital Tools Shed",
+    metaDesc: "Calculate tool CFM with duty cycles, receiver tank pump-up & recovery times, motor horsepower, and air volume for workshop pneumatic air compressors.",
+    canonical: `${DOMAIN}/calc/air-compressor-calculator`,
+    bodyContent: airCompressorBody,
+    currentPath: '/calc/air-compressor-calculator',
+    faq: [
+      {
+        "q": "How many CFM do I need for my air tools?",
+        "a": "Calculate effective CFM by multiplying the tool's continuous air consumption by its duty cycle (percentage of actual trigger time) plus a 25% safety margin: $\\text{CFM}_{\\text{req}} = \\text{CFM}_{\\text{tool}} \\times (\\text{Duty \\%} / 100) \\times 1.25$. Intermittent tools like framing nailers require only 2 to 3 CFM, while continuous tools like sanders and sandblasting cabinets require 12 to 20+ CFM @ 90 PSI."
+      },
+      {
+        "q": "How long should an air compressor take to pump up?",
+        "a": "Pump-up time depends on tank size in gallons and pump CFM delivery. Using Boyle's Law, time in seconds equals: $t = \\frac{V_{\\text{gallons}} \\times (P_{\\text{cutout}} / 14.7)}{7.4805 \\times \\text{CFM}} \\times 60$. A standard 60-gallon compressor delivering 14 CFM @ 90 PSI will pump up from 0 to 145 PSI in approximately 7 minutes."
+      },
+      {
+        "q": "What is the difference between single-stage and two-stage compressors?",
+        "a": "Single-stage compressors compress atmospheric air in a single piston stroke up to maximum 125 to 135 PSI. Two-stage compressors compress air in a large low-pressure cylinder, cool it through an intercooler copper tube, and compress it a second time in a smaller cylinder up to 175 PSI. Two-stage units deliver higher CFM per horsepower and cooler, drier air."
+      },
+      {
+        "q": "What is the difference between peak horsepower and running horsepower?",
+        "a": "\"Peak horsepower\" is a deceptive marketing metric representing the momentary locked-rotor burst power at startup before the motor stalls. \"Running horsepower\" (continuous rated HP) is true mechanical shaft power. On standard 120V 15A household circuits, maximum possible continuous output is only ~1.8 HP; true 5 HP motors require dedicated 230V 30-amp circuits."
+      },
+      {
+        "q": "Why is receiver tank size important?",
+        "a": "The receiver tank acts as a pneumatic capacitor and thermal buffer. A large tank (60 to 80 gallons) stores pressurized air to handle brief high-CFM tool bursts (like impact wrenches or die grinders) without causing line pressure drops or forcing the pump to cycle on and off constantly."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
