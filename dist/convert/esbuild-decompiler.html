@@ -1030,28 +1030,34 @@
       <p>Reverse-engineer, unminify, unpack bundler IIFEs, expand comma expressions, and restore readable ES6+ JavaScript code.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 950px; margin: 1.5rem 0;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="tool-workspace" style="max-width: 950px; margin: 1.5rem auto;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
         <div>
           <label style="font-family: var(--serif); font-weight: bold; margin-bottom: 0.5rem; display: block;">Minified JS / ESBuild Bundle</label>
-          <textarea id="jsInput" style="width: 100%; height: 320px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem;" placeholder='(()=>{"use strict";var __defProp=Object.defineProperty;var __getOwnPropDesc=Object.getOwnPropertyDescriptor;var __getOwnPropNames=Object.getOwnPropertyNames;var __export=(target,all)=>{for(var name in all)__defProp(target,name,{get:all[name],enumerable:!0})};var a=1,b=2,c=function(x){return x>0?(console.log("\x44\x6f\x6e\x65"),x*2):0};window.app={compute:c};})();'></textarea>
+          <textarea id="jsInput" style="width: 100%; height: 320px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; line-height: 1.5;" placeholder='(()=>{"use strict";var __defProp=Object.defineProperty;var __getOwnPropDesc=Object.getOwnPropertyDescriptor;var __getOwnPropNames=Object.getOwnPropertyNames;var __export=(target,all)=>{for(var name in all)__defProp(target,name,{get:all[name],enumerable:!0})};var a=1,b=2,c=function(x){return x>0?(console.log("\\x44\\x6f\\x6e\\x65"),x*2):0};window.app={compute:c};})();'></textarea>
         </div>
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
             <label style="font-family: var(--serif); font-weight: bold;">Decompiled & Formatted JS</label>
             <span id="jsStats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Lines: 0</span>
           </div>
-          <textarea id="jsOutput" style="width: 100%; height: 320px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem;" readonly placeholder="Decompiled and syntax-restored code will appear here..."></textarea>
+          <textarea id="jsOutput" style="width: 100%; height: 320px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; line-height: 1.5;" readonly placeholder="Decompiled and syntax-restored code will appear here..."></textarea>
         </div>
       </div>
 
+      <!-- Inline Warning Banner (Zero alert) -->
+      <div id="jsAlertMsg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1.5rem; align-items: center; justify-content: space-between;">
+        <span id="jsAlertText">Please enter or paste minified JavaScript code.</span>
+        <button type="button" onclick="document.getElementById('jsAlertMsg').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
+      </div>
+
       <!-- Decompiler Configuration Options -->
-      <div style="border: 1px solid var(--border); background: var(--surface-alt); padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="border: 1px solid var(--border); background: var(--surface-alt); padding: 1.25rem; margin-bottom: 1.5rem; border-radius: 6px;">
         <div style="font-family: var(--serif); font-weight: bold; margin-bottom: 0.75rem;">Decompilation & Unpacking Pipeline:</div>
         <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
           <label style="display: flex; align-items: center; gap: 0.4rem; font-family: var(--serif); cursor: pointer;">
             <input type="checkbox" id="optDecodeHexStrings" checked />
-            <span>Decode Hex & Unicode Escapes (\x44 -> "D")</span>
+            <span>Decode Hex & Unicode Escapes (\\x44 &rarr; "D")</span>
           </label>
           <label style="display: flex; align-items: center; gap: 0.4rem; font-family: var(--serif); cursor: pointer;">
             <input type="checkbox" id="optUnpackBundlers" checked />
@@ -1068,16 +1074,199 @@
         </div>
       </div>
 
-      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-        <button id="btnDecompile" class="btn-primary">DECOMPILE & UNMINIFY</button>
-        <button id="btnCopyJs" class="btn-secondary">COPY CODE</button>
-        <button id="btnDownloadJs" class="btn-secondary">EXPORT .JS FILE</button>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 2rem;">
+        <button id="btnDecompile" class="btn-primary" style="padding: 0.75rem 1.75rem; font-weight: bold;">DECOMPILE & UNMINIFY</button>
+        <button id="btnCopyJs" class="btn-secondary" style="padding: 0.75rem 1.25rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+          <span id="btnCopyJsText">COPY CODE</span>
+        </button>
+        <button id="btnDownloadJs" class="btn-secondary" style="padding: 0.75rem 1.25rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>EXPORT .JS FILE</span>
+        </button>
+      </div>
+
+      <!-- Decompilation Architecture & AST Derivations -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">AST Reverse Engineering & Bundler Decompilation Architecture</h2>
+          <button id="copyJsSpecsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span id="copyJsSpecsText">Copy AST Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>Modern JavaScript bundlers (ESBuild, Webpack, Rollup) transform modular source code into heavily minified IIFE closures. Understanding Abstract Syntax Tree (AST) node generation, hex escape decoding, and bundler dispatch helpers allows comprehensive reverse engineering.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Bundler Helper Transformation</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              __defProp &rarr; Object.defineProperty()<br>
+              __export &rarr; ES6 Getter Property Dispatcher<br>
+              __toESM &rarr; CommonJS Interop Shim<br>
+              __commonJS &rarr; Lazy Memoized Closure Cache
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">AST Reformatter Pipeline</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Indentation: 2 spaces &bull; Brace Style: collapse<br>
+              Hex Decoder: \\x[0-9a-f]{2} &rarr; UTF-8 glyph<br>
+              Comma Splitting: var a=1,b=2 &rarr; Separate statements<br>
+              Scope Normalization: IIFE Unwrapping
+            </div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Bundler Mechanism</th>
+              <th style="padding: 0.5rem 0.75rem;">Minified Pattern</th>
+              <th style="padding: 0.5rem 0.75rem;">Decompiled Output</th>
+              <th style="padding: 0.5rem 0.75rem;">Readability Gain</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Property Obfuscation</td>
+              <td style="padding: 0.5rem 0.75rem;">\\x44\\x6f\\x6e\\x6e</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">"Done" (Decoded ASCII)</td>
+              <td style="padding: 0.5rem 0.75rem;">Instant Semantic Clarification</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">ESM Export Shim</td>
+              <td style="padding: 0.5rem 0.75rem;">var __export=(t,a)=>{...}</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">function exportModule(target, all)</td>
+              <td style="padding: 0.5rem 0.75rem;">Modular Architecture Visibility</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Comma Sequences</td>
+              <td style="padding: 0.5rem 0.75rem;">return a(),b(),c</td>
+              <td style="padding: 0.5rem 0.75rem; color: #f59e0b;">a(); b(); return c;</td>
+              <td style="padding: 0.5rem 0.75rem;">Debugger Step-Through Control</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Minified Bundle IIFE</td>
+              <td style="padding: 0.5rem 0.75rem;">(()=>{"use strict";...})()</td>
+              <td style="padding: 0.5rem 0.75rem; color: #8b5cf6;">Beautified AST Scoped Block</td>
+              <td style="padding: 0.5rem 0.75rem;">Clean Top-Level Code Flow</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & ENGINEERING PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical JavaScript Decompilation Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. The Irreversible Variable Identifier Fallacy</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Terser and ESBuild mangle descriptive identifiers (e.g. <code>userAccountBalance</code>) into single-character symbols (<code>a</code>, <code>b</code>, <code>c</code>). Without the original <code>.map</code> source map file, original variable names cannot be algorithmically recovered. Beware of tools promising "100% original source restoration"; true deminification reconstitutes syntactic structure and AST clarity, not lost semantic names.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. Short-Circuit Conditionals with Mutation Side Effects</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Minified code heavily utilizes short-circuit logical operators (<code>ready && init()</code>) and ternary operators (<code>test ? ok() : fail()</code>) instead of <code>if</code> statements. Blindly expanding these into blocks without respecting evaluation short-circuits can accidentally trigger eager function execution or reorder parameter mutations.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. Regex Literal vs Division Slash Ambiguities</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            In minified JavaScript, whitespace between operators is eliminated (e.g. <code>a=b/c/d;</code>). Naive regular expression preprocessors often mistake division operators for regular expression literals (<code>/c/</code>). High-precision AST formatting libraries like JS-Beautify track lexer token states to ensure arithmetic slashes are never misparsed as RegExp patterns.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. Strict Mode Scope Hoisting & Variable Shadowing</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Bundlers wrap modules into immediately invoked function expressions with <code>"use strict";</code>. Inside these closures, variables are hoisted according to strict lexical scoping. Unwrapping IIFEs into the global scope without accounting for duplicated minified variable names (e.g. multiple modules using <code>var e</code>) creates global namespace collisions that crash code execution.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. Memory Overhead on Multi-Megabyte Vendor Bundles</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Decompiling a single monolithic 15 MB production bundle with thousands of functions can freeze the browser UI thread if AST line wrapping calculations run synchronously. We recommend decompiling isolated module chunks or using modern developer tools to split bundles before formatting.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: ESBuild & JavaScript Decompiler</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>What does this JavaScript decompiler do?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            It transforms compressed, minified, and obfuscated JavaScript into clean, indented, and readable source code. It unescapes hex string obfuscation, unpacks ESBuild and Webpack helper wrappers, expands multi-variable comma declarations, and beautifies code structure.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can this tool restore the original variable names?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            No. When code is compiled for production, variable names like "customerEmail" are permanently replaced with "a" or "b". Unless the original .map file (source map) is available on the server, the original names do not exist in the compiled bundle.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Are my code snippets or proprietary scripts sent to external servers?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Never. The decompiler runs 100% client-side inside your browser memory using an integrated JavaScript beautifier engine. Your code is never transmitted across the network or logged anywhere.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Does this decompiler handle Webpack and Vite bundles as well?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. While optimized with pattern recognizers for ESBuild output, it decompiles and beautifies JavaScript produced by Webpack, Rollup, Vite, Terser, UglifyJS, and SWC.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I export the decompiled code directly as a .js file?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. Click the "EXPORT .JS FILE" button to generate a clean local blob file that downloads straight to your Downloads directory.
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- JS-BEAUTIFY CDN FOR ROBUST AST FORMATTING -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
     <script>
+      const jsAlertMsg = document.getElementById('jsAlertMsg');
+      const jsAlertText = document.getElementById('jsAlertText');
+      const btnCopyJsText = document.getElementById('btnCopyJsText');
+
+      function showJsAlert(msg) {
+        jsAlertText.innerText = msg;
+        jsAlertMsg.style.display = 'flex';
+      }
+
       function decodeHexAndUnicode(code) {
         return code.replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
           return String.fromCharCode(parseInt(hex, 16));
@@ -1133,27 +1322,37 @@
       }
 
       document.getElementById('btnDecompile').addEventListener('click', () => {
+        jsAlertMsg.style.display = 'none';
         const raw = document.getElementById('jsInput').value.trim();
         if (!raw) {
-          alert('Please enter or paste minified JavaScript code.');
+          showJsAlert('Please enter or paste minified JavaScript code to decompile.');
           return;
         }
 
-        const decompiled = decompileJs(raw);
-        document.getElementById('jsOutput').value = decompiled;
+        try {
+          const decompiled = decompileJs(raw);
+          document.getElementById('jsOutput').value = decompiled;
 
-        const lines = decompiled.split('\n').length;
-        const bytes = new Blob([decompiled]).size;
-        document.getElementById('jsStats').innerText = lines + ' Lines | ' + (bytes / 1024).toFixed(2) + ' KB';
+          const lines = decompiled.split('\n').length;
+          const bytes = new Blob([decompiled]).size;
+          document.getElementById('jsStats').innerText = lines + ' Lines | ' + (bytes / 1024).toFixed(2) + ' KB';
+        } catch(err) {
+          showJsAlert('Decompilation error: ' + (err.message || 'Syntax parsing error.'));
+        }
       });
 
+      // In-place Copy Code
       document.getElementById('btnCopyJs').addEventListener('click', () => {
         const out = document.getElementById('jsOutput').value;
         if (!out) return;
-        navigator.clipboard.writeText(out);
-        alert('Decompiled JS code copied to clipboard!');
+        navigator.clipboard.writeText(out).then(() => {
+          const orig = btnCopyJsText.innerText;
+          btnCopyJsText.innerText = '✓ Code Copied!';
+          setTimeout(() => { btnCopyJsText.innerText = orig; }, 2000);
+        });
       });
 
+      // Export .JS File
       document.getElementById('btnDownloadJs').addEventListener('click', () => {
         const out = document.getElementById('jsOutput').value;
         if (!out) return;
@@ -1162,6 +1361,26 @@
         a.href = URL.createObjectURL(blob);
         a.download = 'decompiled_bundle.js';
         a.click();
+      });
+
+      // Copy AST Specifications
+      document.getElementById('copyJsSpecsBtn').addEventListener('click', () => {
+        const specs = [
+          '=== JAVASCRIPT AST DECOMPILER SPECIFICATIONS ===',
+          'Supported Bundlers: ESBuild, Webpack 5, Rollup, Vite, Terser',
+          'AST Beautifier Engine: js-beautify v1.14 (ECMAScript 2023+)',
+          'Hex & Unicode Decoder: \\x[0-9a-f]{2} and \\u[0-9a-f]{4} Unescaper',
+          'Bundler Helper Handlers: __defProp, __export, __toESM, __commonJS',
+          'Execution Mode: 100% In-Browser Client Memory Execution',
+          'Target Environment: ES6+ Standard'
+        ].join('\n');
+
+        navigator.clipboard.writeText(specs).then(() => {
+          const txt = document.getElementById('copyJsSpecsText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Specs Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
+        });
       });
     </script>
   
