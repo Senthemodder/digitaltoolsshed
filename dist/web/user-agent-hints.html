@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "It matches incoming signatures against official crawler token dictionaries including Googlebot, Bingbot, Applebot, GPTBot, and ClaudeBot."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What does GREASE stand for in Sec-CH-UA brands?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "GREASE stands for Generate Random Extensions And Sustain Extensibility. Chrome injects randomized dummy brands (e.g. \"Not A;Brand\", \"Chromium\") to prevent web servers from building brittle hardcoded browser whitelists."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Windows 11 report Windows NT 10.0 in the User-Agent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Under the User-Agent Reduction initiative, major browser engines froze the platform token to Windows NT 10.0 for all Windows 10 and Windows 11 devices to eliminate fingerprinting entropy. To detect Windows 11, servers must query the Sec-CH-UA-Platform-Version client hint (where version &ge; 13.0.0 represents Windows 11)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can my backend server request high-entropy Client Hints?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The server must send the Accept-CH HTTP response header listing desired hints (e.g. Accept-CH: Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List). Cross-origin iframes additionally require explicit delegation via the Permissions-Policy header."
+      }
     }
   ]
 }
@@ -1099,38 +1123,93 @@
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; User-Agent Dissector</nav>
         <div class="wb-header">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-blue">W3C Client Hints</span>
-            <span class="wb-badge badge-green">Live Detection</span>
-          </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">User-Agent & Client Hints Dissector</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Detect your browser's genuine User-Agent and modern Sec-CH-UA client hints, or paste any arbitrary string to classify browsers, operating systems, and bots.
+          <h1 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem;">User-Agent &amp; Client Hints Dissector</h1>
+          <p style="color:var(--text-muted); font-size:0.95rem;">
+            Analyze browser UA strings, frozen platform tokens, search bot signatures, and modern W3C <code>Sec-CH-UA</code> Client Hints.
           </p>
         </div>
 
-        <div class="wb-card">
-          <label class="field-label">User-Agent String</label>
-          <textarea id="ua-input" class="code-input" style="height:90px;" oninput="dissectUa()"></textarea>
-          <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-            <button class="btn-sec" onclick="loadMyUa()">Detect My Browser UA</button>
-            <button class="btn-sec" onclick="loadBotPreset('google')">Preset: Googlebot Smartphone</button>
-            <button class="btn-sec" onclick="loadBotPreset('iphone')">Preset: Mobile Safari iPhone</button>
+        <div class="wb-card" style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <label style="font-weight:600; font-size:0.9rem;">Raw User-Agent String:</label>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="loadMyUa()">Load My Browser UA</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="loadBotPreset('google')">Preset: Googlebot</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="loadBotPreset('iphone')">Preset: iOS Safari</button>
+            </div>
+          </div>
+          <textarea id="ua-input" class="wb-input" style="font-family:var(--mono); font-size:0.85rem; height:80px; margin-bottom:1rem;" oninput="dissectUa()"></textarea>
+
+          <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+            <button class="wb-btn" id="btnCopyUaAudit" onclick="copyUaAudit()">📋 Copy Dissection Report</button>
+          </div>
+
+          <div class="grid-3" style="margin-bottom:1.5rem;">
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Detected Browser</div>
+              <div id="ua-browser" style="font-family:var(--serif); font-size:1.4rem; font-weight:700;">--</div>
+            </div>
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Operating System</div>
+              <div id="ua-os" style="font-family:var(--serif); font-size:1.4rem; font-weight:700;">--</div>
+            </div>
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Client Type</div>
+              <div id="ua-bot" style="font-family:var(--serif); font-size:1.4rem; font-weight:700;">--</div>
+            </div>
+          </div>
+
+          <div class="wb-card" style="background:var(--bg);">
+            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Client Hints (navigator.userAgentData) Status</h3>
+            <div id="ua-ch-data" style="font-family:var(--mono); font-size:0.85rem; line-height:1.6;">
+              <!-- Client hints status -->
+            </div>
           </div>
         </div>
 
-        <div class="grid-3">
-          <div class="wb-card">
-            <span class="field-label">Browser & Engine</span>
-            <div id="ua-browser" style="font-size:1.2rem; font-weight:bold; color:#60a5fa; margin-top:0.25rem;">--</div>
+        <!-- Mathematical & Fingerprint Entropy Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Shannon Entropy &amp; User-Agent Reduction Formulations</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            The W3C and Chromium User-Agent Reduction initiative was engineered to systematically compress passive fingerprinting entropy:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Shannon Entropy of User-Agent Fingerprint:</strong></div>
+            <div>&nbsp;&nbsp;H(X) = -&Sigma;<sub>i=1</sub><sup>n</sup> P(x<sub>i</sub>) &middot; log<sub>2</sub> P(x<sub>i</sub>)</div>
+            <div>&nbsp;&nbsp;Legacy UA Strings: H(X) &asymp; 35 - 42 bits (identifying 1 in 34 billion users).</div>
+            <div>&nbsp;&nbsp;Modern Frozen UA: H(X) &le; 9.5 bits (identifying at most 1 in 724 users without explicit permission).</div>
+            <div><strong>2. GREASE Injection Brand Generation:</strong></div>
+            <div>&nbsp;&nbsp;Chrome injects arbitrary pseudorandom ASCII brands into navigator.userAgentData.brands to prevent vendor lock-in.</div>
           </div>
-          <div class="wb-card">
-            <span class="field-label">Operating System</span>
-            <div id="ua-os" style="font-size:1.2rem; font-weight:bold; color:var(--fg); margin-top:0.25rem;">--</div>
+        </div>
+
+        <!-- 5 Fatal Traps in User-Agent & Device Detection -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in User-Agent &amp; Client Hints Engineering</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Inaccurate Windows 11 Detection via Frozen UA Tokens</strong>
+            Chromium intentionally frozen the platform token to <code>Windows NT 10.0</code> on all Windows 11 machines. Codebases using regex like <code>/Windows NT 11/</code> will never match a single Windows 11 user on Earth. Detecting Windows 11 requires requesting the high-entropy <code>Sec-CH-UA-Platform-Version</code> Client Hint, where a major version &ge; 13 corresponds to Windows 11.
           </div>
-          <div class="wb-card">
-            <span class="field-label">Bot / Crawler Classification</span>
-            <div id="ua-bot" style="font-size:1.2rem; font-weight:bold; color:#10b981; margin-top:0.25rem;">HUMAN VISITOR</div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Brittle Whitelist Parsers Failing on GREASE Brands</strong>
+            Chromium regularly injects randomized GREASE brands (e.g. <code>&quot;Not=A?Brand&quot;;v=&quot;24&quot;</code>) into <code>Sec-CH-UA</code> headers. Parsers that strictly validate brands against rigid static lists or assert that all brands must be recognizable will crash or fail requests for legitimate Chrome users.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Naive &quot;Safari&quot; Substring Matching in Chrome UA</strong>
+            Chrome's desktop User-Agent string includes the token <code>Safari/537.36</code> for legacy compatibility. Any naive inspection doing <code>navigator.userAgent.includes('Safari')</code> without checking for <code>Chrome</code> first will falsely categorize every single Google Chrome user as running Apple Safari.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Missing Accept-CH Server Headers for High-Entropy Hints</strong>
+            Browsers never send detailed client hints (such as <code>Sec-CH-UA-Model</code> or exact device hardware specs) by default. The server must explicitly respond with an <code>Accept-CH: Sec-CH-UA-Model, Sec-CH-UA-Platform-Version</code> header. Furthermore, cross-origin iframes cannot access these hints without an explicit <code>Permissions-Policy</code> delegation.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. User-Agent Cloaking Triggering Googlebot Cloaking Penalties</strong>
+            Serving radically different DOM trees, styling, or link graphs to crawlers based on detecting <code>Googlebot</code> or <code>Bingbot</code> in the User-Agent violates Google Search Essentials guidelines against Cloaking, resulting in immediate algorithmic or manual demotion from search indexes.
           </div>
         </div>
       </div>
@@ -1151,30 +1230,31 @@
         }
 
         function dissectUa() {
-          var ua = document.getElementById('ua-input').value.trim();
-          if (!ua) return;
-
+          var ua = document.getElementById('ua-input').value;
           var browser = 'Unknown Browser';
           var os = 'Unknown OS';
           var isBot = false;
 
-          if (/Googlebot/i.test(ua)) { isBot = true; browser = 'Googlebot Crawler'; }
-          else if (/bingbot/i.test(ua)) { isBot = true; browser = 'Microsoft Bingbot'; }
-          else if (/Applebot/i.test(ua)) { isBot = true; browser = 'Applebot'; }
-          else if (/GPTBot/i.test(ua)) { isBot = true; browser = 'OpenAI GPTBot'; }
-          else if (/ClaudeBot/i.test(ua)) { isBot = true; browser = 'Anthropic ClaudeBot'; }
-          else {
-            if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Google Chrome (Blink)';
-            else if (/Edg/i.test(ua)) browser = 'Microsoft Edge (Blink)';
-            else if (/Firefox/i.test(ua)) browser = 'Mozilla Firefox (Gecko)';
-            else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Apple Safari (WebKit)';
+          // Bot check
+          if (/googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest/0.|pinterestbot|applebot/i.test(ua)) {
+            isBot = true;
           }
 
-          if (/Windows NT 10.0/i.test(ua)) os = 'Windows 10 / 11 (x64)';
-          else if (/Mac OS X/i.test(ua)) os = 'macOS';
-          else if (/Android/i.test(ua)) os = 'Google Android';
-          else if (/iPhone|iPad/i.test(ua)) os = 'Apple iOS';
-          else if (/Linux/i.test(ua)) os = 'GNU/Linux';
+          // Browser check
+          if (/edg//i.test(ua)) browser = 'Microsoft Edge';
+          else if (/opr/|opera/i.test(ua)) browser = 'Opera';
+          else if (/chrome|crios/i.test(ua)) browser = 'Google Chrome';
+          else if (/firefox|fxios/i.test(ua)) browser = 'Mozilla Firefox';
+          else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = 'Apple Safari';
+
+          // OS check
+          if (/windows nt 10.0/i.test(ua)) os = 'Windows 10 / 11';
+          else if (/windows nt 6.3/i.test(ua)) os = 'Windows 8.1';
+          else if (/windows nt 6.1/i.test(ua)) os = 'Windows 7';
+          else if (/macintosh|mac os x/i.test(ua)) os = 'macOS';
+          else if (/iphone|ipad|ipod/i.test(ua)) os = 'iOS';
+          else if (/android/i.test(ua)) os = 'Android';
+          else if (/linux/i.test(ua)) os = 'Linux';
 
           document.getElementById('ua-browser').textContent = browser;
           document.getElementById('ua-os').textContent = os;
@@ -1186,6 +1266,49 @@
             botEl.textContent = 'HUMAN BROWSER';
             botEl.style.color = '#10b981';
           }
+
+          var chBox = document.getElementById('ua-ch-data');
+          if (navigator.userAgentData) {
+            var brands = navigator.userAgentData.brands ? navigator.userAgentData.brands.map(function(b){ return b.brand + ' (' + b.version + ')'; }).join(', ') : 'None';
+            chBox.innerHTML = '<div><strong>navigator.userAgentData:</strong> Supported in this browser</div>' +
+              '<div><strong>Mobile Flag:</strong> ' + (navigator.userAgentData.mobile ? 'TRUE' : 'FALSE') + '</div>' +
+              '<div><strong>Active Brands (with GREASE):</strong> ' + brands + '</div>' +
+              '<div><strong>Platform:</strong> ' + (navigator.userAgentData.platform || 'Not specified') + '</div>';
+          } else {
+            chBox.innerHTML = '<span style="color:var(--text-muted);">navigator.userAgentData is not supported by this engine (Safari and Firefox rely exclusively on reduced User-Agent strings).</span>';
+          }
+        }
+
+        function copyUaAudit() {
+          var ua = document.getElementById('ua-input').value;
+          var browser = document.getElementById('ua-browser').textContent;
+          var os = document.getElementById('ua-os').textContent;
+          var bot = document.getElementById('ua-bot').textContent;
+
+          var report = '=== User-Agent & Client Hints Dissection Report ===
+' +
+            'User-Agent: ' + ua + '
+' +
+            'Browser: ' + browser + '
+' +
+            'Operating System: ' + os + '
+' +
+            'Classification: ' + bot + '
+' +
+            'Generated by Digital Tools Shed (https://digitaltoolsshed.com/web/user-agent-hints)';
+
+          var btn = document.getElementById('btnCopyUaAudit');
+          navigator.clipboard.writeText(report).then(function() {
+            btn.textContent = '✓ Dissection Report Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = '📋 Copy Dissection Report';
+              btn.style.color = '';
+            }, 2000);
+          }).catch(function() {
+            btn.textContent = '✓ Copied!';
+            setTimeout(function() { btn.textContent = '📋 Copy Dissection Report'; }, 2000);
+          });
         }
 
         window.addEventListener('DOMContentLoaded', loadMyUa);
@@ -1203,6 +1326,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>How does this tool detect search bots?</span><span>+</span></div>
             <div class="faq-a">It matches incoming signatures against official crawler token dictionaries including Googlebot, Bingbot, Applebot, GPTBot, and ClaudeBot.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What does GREASE stand for in Sec-CH-UA brands?</span><span>+</span></div>
+            <div class="faq-a">GREASE stands for Generate Random Extensions And Sustain Extensibility. Chrome injects randomized dummy brands (e.g. "Not A;Brand", "Chromium") to prevent web servers from building brittle hardcoded browser whitelists.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why does Windows 11 report Windows NT 10.0 in the User-Agent?</span><span>+</span></div>
+            <div class="faq-a">Under the User-Agent Reduction initiative, major browser engines froze the platform token to Windows NT 10.0 for all Windows 10 and Windows 11 devices to eliminate fingerprinting entropy. To detect Windows 11, servers must query the Sec-CH-UA-Platform-Version client hint (where version &ge; 13.0.0 represents Windows 11).</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How can my backend server request high-entropy Client Hints?</span><span>+</span></div>
+            <div class="faq-a">The server must send the Accept-CH HTTP response header listing desired hints (e.g. Accept-CH: Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List). Cross-origin iframes additionally require explicit delegation via the Permissions-Policy header.</div>
           </div>
         
       </div>

@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "For normal body text (16px regular weight), APCA recommends an Lc (Lightness Contrast) value of at least 75 Lc (preferably 90 Lc for enhanced reading comfort)."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between positive and negative Lc scores?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Positive Lc numbers denote dark text on a lighter background (positive contrast). Negative Lc numbers denote light text on a darker background (negative contrast / dark mode)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does WCAG 2.1 fail for dark mode interfaces?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WCAG 2.1 calculates (L1 + 0.05)/(L2 + 0.05), yielding identical numbers regardless of polarity. However, human eyes suffer from halation and rod saturation when viewing bright text against pure black, meaning dark mode requires lower contrast to prevent visual fatigue."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does APCA replace WCAG 2.1 legally today?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "While WCAG 2.1 and WCAG 2.2 remain the statutory benchmarks under laws like ADA and European EN 301 549, APCA serves as the underlying scientific candidate for future WCAG 3 (Silver) guidelines. Leading design systems use APCA to fine-tune typography readability while meeting WCAG 2.2 minimum ratios."
+      }
     }
   ]
 }
@@ -1099,57 +1123,103 @@
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; APCA Color Contrast</nav>
         <div class="wb-header">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-green">WCAG 2.2 & APCA</span>
-            <span class="wb-badge badge-purple">Spatial Frequency</span>
-          </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">WCAG 2.2 & APCA Color Contrast Studio</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Evaluate color pairs against traditional WCAG 2.1 mathematical ratios and modern W3C APCA perceptual curves across different font weights.
+          <h1 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem;">APCA &amp; WCAG 2.2 Color Contrast Studio</h1>
+          <p style="color:var(--text-muted); font-size:0.95rem;">
+            Evaluate accessible typography pairing modern W3C Silver APCA (Advanced Perceptual Contrast Algorithm) with legacy WCAG 2.2 standards.
           </p>
         </div>
 
-        <div class="wb-card">
-          <div class="grid-2">
+        <div class="wb-card" style="margin-bottom:1.5rem;">
+          <div class="grid-2" style="margin-bottom:1rem;">
             <div>
-              <label class="field-label">Foreground / Text Color</label>
-              <div style="display:flex; gap:0.5rem;">
-                <input type="color" id="clr-fg-pick" value="#60a5fa" oninput="syncColor('fg', this.value)" style="height:40px; width:50px; cursor:pointer;" />
-                <input type="text" id="clr-fg-text" class="text-input" value="#60a5fa" oninput="syncColor('fg', this.value)" />
+              <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Text / Foreground Color:</label>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <input type="color" id="clr-fg-pick" value="#111827" style="border:none; width:44px; height:38px; cursor:pointer; background:none;" oninput="syncColor('fg', this.value)" />
+                <input type="text" id="clr-fg-text" class="wb-input" value="#111827" style="font-family:var(--mono); text-transform:uppercase;" oninput="syncColor('fg', this.value)" />
               </div>
             </div>
             <div>
-              <label class="field-label">Background Color</label>
-              <div style="display:flex; gap:0.5rem;">
-                <input type="color" id="clr-bg-pick" value="#0f172a" oninput="syncColor('bg', this.value)" style="height:40px; width:50px; cursor:pointer;" />
-                <input type="text" id="clr-bg-text" class="text-input" value="#0f172a" oninput="syncColor('bg', this.value)" />
+              <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Background Color:</label>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <input type="color" id="clr-bg-pick" value="#ffffff" style="border:none; width:44px; height:38px; cursor:pointer; background:none;" oninput="syncColor('bg', this.value)" />
+                <input type="text" id="clr-bg-text" class="wb-input" value="#ffffff" style="font-family:var(--mono); text-transform:uppercase;" oninput="syncColor('bg', this.value)" />
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="grid-2">
-          <div class="wb-card" style="text-align:center;">
-            <span class="field-label">Legacy WCAG 2.1 Ratio</span>
-            <div id="wcag-ratio" style="font-size:2.2rem; font-family:var(--mono); font-weight:bold; color:#10b981; margin:0.4rem 0;">7.8:1</div>
-            <span id="wcag-badge" class="wb-badge badge-green">PASS AAA (Normal Text)</span>
+          <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+            <button class="wb-btn" id="btnCopyContrastReport" onclick="copyContrastReport()">📋 Copy Contrast Report</button>
           </div>
 
-          <div class="wb-card" style="text-align:center;">
-            <span class="field-label">APCA Lightness Contrast (Lc)</span>
-            <div id="apca-score" style="font-size:2.2rem; font-family:var(--mono); font-weight:bold; color:#10b981; margin:0.4rem 0;">+84.2 Lc</div>
-            <span id="apca-badge" class="wb-badge badge-green">BODY TEXT SUITABLE</span>
-          </div>
-        </div>
-
-        <div class="wb-card">
-          <label class="field-label">Typography Readability Preview</label>
-          <div id="contrast-preview" style="padding:1.5rem; border-radius:6px; background:#0f172a; color:#60a5fa;">
-            <h2 style="margin:0 0 0.5rem 0; font-size:1.8rem; font-weight:700;">Headline 24px Bold</h2>
-            <p style="margin:0 0 0.75rem 0; font-size:1rem; line-height:1.6;">
-              Body text 16px regular. Clean perceptual contrast ensures comfortable sustained reading without ocular strain across OLED and LCD screens.
+          <!-- Live Typography Preview Canvas -->
+          <div id="contrast-preview-box" style="padding:1.5rem; border-radius:4px; border:1px solid var(--border); margin-bottom:1.5rem; background:#ffffff; color:#111827;">
+            <h2 id="prev-h2" style="font-family:var(--serif); margin-top:0; margin-bottom:0.5rem; font-size:1.75rem;">Perceptual Legibility &amp; Spatial Frequency</h2>
+            <p id="prev-p" style="font-size:1rem; line-height:1.6; margin-bottom:0.5rem;">
+              The Advanced Perceptual Contrast Algorithm (APCA) models human retinal cone response, ambient adaptation, and spatial frequency. This paragraph simulates standard 16px body copy at normal 400 font weight.
             </p>
-            <span style="font-size:0.75rem; font-family:var(--mono); opacity:0.8;">Caption 12px Monospace</span>
+            <span id="prev-caption" style="font-size:0.8rem; font-style:italic;">Subtle caption text at 12px secondary emphasis</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Legacy WCAG 2.1 Ratio</div>
+              <div id="wcag-ratio" style="font-family:var(--serif); font-size:2rem; font-weight:700;">21.0:1</div>
+              <div id="wcag-badge" class="wb-badge badge-green" style="margin-top:0.5rem;">AAA PASS</div>
+            </div>
+
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Modern APCA Lightness Contrast (Lc)</div>
+              <div id="apca-lc" style="font-family:var(--serif); font-size:2rem; font-weight:700;">+106 Lc</div>
+              <div id="apca-badge" class="wb-badge badge-green" style="margin-top:0.5rem;">BODY TEXT APPROVED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mathematical & APCA Algorithm Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">SAPC &amp; APCA Mathematical Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Unlike legacy WCAG 2.1 which uses naive linear ratios, APCA (SAPC-0.0.98G) executes non-linear power curve psychophysics:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. sRGB Transfer Function Decompression:</strong></div>
+            <div>&nbsp;&nbsp;V<sub>lin</sub> = (V &le; 0.04045) ? (V / 12.92) : ((V + 0.055) / 1.055)<sup>2.4</sup></div>
+            <div>&nbsp;&nbsp;Luminance Y = 0.21267 &middot; R<sub>lin</sub> + 0.71515 &middot; G<sub>lin</sub> + 0.07218 &middot; B<sub>lin</sub></div>
+            <div><strong>2. Retinal Power-Law Softening:</strong></div>
+            <div>&nbsp;&nbsp;Dark on Light (Positive Polarity): &nbsp; L<sub>c</sub> = (Y<sub>bg</sub><sup>0.56</sup> - Y<sub>txt</sub><sup>0.57</sup>) &times; 1.14154 &times; 100</div>
+            <div>&nbsp;&nbsp;Light on Dark (Negative Polarity): &nbsp; L<sub>c</sub> = (Y<sub>bg</sub><sup>0.65</sup> - Y<sub>txt</sub><sup>0.62</sup>) &times; 1.14154 &times; 100</div>
+            <div><strong>3. Recommended APCA Thresholds:</strong></div>
+            <div>&nbsp;&nbsp;|L<sub>c</sub>| &ge; 90: Preferred Body Text | |L<sub>c</sub>| &ge; 75: Minimum Body Text | |L<sub>c</sub>| &ge; 60: Headlines &ge; 24px</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Accessible Contrast Engineering -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Accessible Contrast &amp; Typography Design</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. WCAG 2.1 Polarity Blindness in Dark Mode</strong>
+            Legacy WCAG 2.1 calculates <code>(L1 + 0.05) / (L2 + 0.05)</code>, yielding the exact same 4.5:1 ratio whether black text sits on white or white text sits on black. In human visual physiology, white text on black background produces strong optical halation and photoreceptor flare. APCA uses distinct power exponents (0.56 vs 0.65) to accurately reflect perceived contrast.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Ignoring Spatial Frequency &amp; Font Thinness</strong>
+            A 4.5:1 ratio on an ultra-light font weight (e.g. 100 or 200 weight Helvetica) is completely illegible for low-vision readers, while bold 700-weight typography at 3.5:1 is easily readable. WCAG 2.1 completely ignores font weight for body copy; APCA explicitly pairs Lightness Contrast ($L_c$) with font weight and px sizing.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Subpixel Font Smoothing Blurring Real Contrast</strong>
+            Subpixel antialiasing blends font edges with surrounding background pixels, diluting real-world contrast by 15% to 30% on non-retina displays. Designing right at the razor edge of 4.5:1 causes rendered text to fail in the real world.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Over-Contrasted Pure Black on Pure White Fatigue</strong>
+            Pairing pure #000000 text on pure #ffffff creates maximum contrast (+106 Lc), which can trigger severe eye strain, astigmatic distortion, and reading difficulties for dyslexic users. Slightly softening either background (e.g. #f9fafb) or foreground (e.g. #111827) enhances readability.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Linear RGB Math Distorting Mid-Tones</strong>
+            Attempting to compute contrast directly from raw 0-255 RGB values without applying gamma decompression ($V^{2.4}$) severely miscalculates luminance by over 200% in mid-tone shades, producing completely false compliance scores.
           </div>
         </div>
       </div>
@@ -1181,56 +1251,110 @@
           evaluateContrast();
         }
 
+        function calculateApca(txtRgb, bgRgb) {
+          var yTxt = getLuminance(txtRgb.r, txtRgb.g, txtRgb.b);
+          var yBg = getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+
+          var sapc = 0;
+          if (yBg > yTxt) {
+            // Dark text on light bg (positive contrast)
+            sapc = (Math.pow(yBg, 0.56) - Math.pow(yTxt, 0.57)) * 1.14154;
+          } else {
+            // Light text on dark bg (negative contrast)
+            sapc = (Math.pow(yBg, 0.65) - Math.pow(yTxt, 0.62)) * 1.14154;
+          }
+          return sapc * 100;
+        }
+
         function evaluateContrast() {
-          var fgHex = document.getElementById('clr-fg-text').value;
-          var bgHex = document.getElementById('clr-bg-text').value;
+          var fg = document.getElementById('clr-fg-text').value;
+          var bg = document.getElementById('clr-bg-text').value;
 
-          var fg = hexToRgb(fgHex);
-          var bg = hexToRgb(bgHex);
+          if (!/^#[0-9A-Fa-f]{6}$/.test(fg) || !/^#[0-9A-Fa-f]{6}$/.test(bg)) return;
 
-          var prev = document.getElementById('contrast-preview');
-          prev.style.backgroundColor = bgHex;
-          prev.style.color = fgHex;
+          var box = document.getElementById('contrast-preview-box');
+          box.style.color = fg;
+          box.style.backgroundColor = bg;
 
-          var l1 = getLuminance(fg.r, fg.g, fg.b);
-          var l2 = getLuminance(bg.r, bg.g, bg.b);
+          var fgRgb = hexToRgb(fg);
+          var bgRgb = hexToRgb(bg);
 
-          var ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+          // Legacy WCAG 2.1
+          var l1 = getLuminance(fgRgb.r, fgRgb.g, fgRgb.b);
+          var l2 = getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+          var lighter = Math.max(l1, l2);
+          var darker = Math.min(l1, l2);
+          var ratio = (lighter + 0.05) / (darker + 0.05);
+
           var rEl = document.getElementById('wcag-ratio');
           var rBadge = document.getElementById('wcag-badge');
           rEl.textContent = ratio.toFixed(1) + ':1';
-
-          if (ratio >= 7.0) {
-            rEl.style.color = '#10b981';
+          if (ratio >= 7) {
             rBadge.className = 'wb-badge badge-green';
-            rBadge.textContent = 'PASS AAA';
+            rBadge.textContent = 'AAA PASS';
           } else if (ratio >= 4.5) {
-            rEl.style.color = '#60a5fa';
-            rBadge.className = 'wb-badge badge-blue';
-            rBadge.textContent = 'PASS AA';
-          } else if (ratio >= 3.0) {
-            rEl.style.color = '#f59e0b';
+            rBadge.className = 'wb-badge badge-green';
+            rBadge.textContent = 'AA PASS';
+          } else if (ratio >= 3) {
             rBadge.className = 'wb-badge badge-amber';
-            rBadge.textContent = 'LARGE TEXT ONLY';
+            rBadge.textContent = 'LARGE TEXT ONLY (3:1)';
           } else {
-            rEl.style.color = '#ef4444';
             rBadge.className = 'wb-badge badge-red';
             rBadge.textContent = 'FAIL';
           }
 
-          var apca = (l1 - l2) * 100;
-          var aEl = document.getElementById('apca-score');
+          // Modern APCA
+          var apca = calculateApca(fgRgb, bgRgb);
+          var aEl = document.getElementById('apca-lc');
           var aBadge = document.getElementById('apca-badge');
           aEl.textContent = (apca >= 0 ? '+' : '') + apca.toFixed(1) + ' Lc';
           if (Math.abs(apca) >= 75) {
             aEl.style.color = '#10b981';
             aBadge.className = 'wb-badge badge-green';
             aBadge.textContent = 'BODY TEXT APPROVED';
+          } else if (Math.abs(apca) >= 60) {
+            aEl.style.color = '#3b82f6';
+            aBadge.className = 'wb-badge badge-blue';
+            aBadge.textContent = 'HEADLINES &gt;= 24px';
           } else {
             aEl.style.color = '#f59e0b';
             aBadge.className = 'wb-badge badge-amber';
-            aBadge.textContent = 'HEADLINE ONLY';
+            aBadge.textContent = 'NON-TEXT / DECORATIVE ONLY';
           }
+        }
+
+        function copyContrastReport() {
+          var fg = document.getElementById('clr-fg-text').value;
+          var bg = document.getElementById('clr-bg-text').value;
+          var wcag = document.getElementById('wcag-ratio').textContent;
+          var wcagBadge = document.getElementById('wcag-badge').textContent;
+          var apca = document.getElementById('apca-lc').textContent;
+          var apcaBadge = document.getElementById('apca-badge').textContent;
+
+          var report = '=== Color Contrast & Accessibility Report ===
+' +
+            'Foreground (Text): ' + fg + '
+' +
+            'Background: ' + bg + '
+' +
+            'Legacy WCAG 2.1: ' + wcag + ' (' + wcagBadge + ')
+' +
+            'Modern APCA (W3C Silver): ' + apca + ' (' + apcaBadge + ')
+' +
+            'Generated by Digital Tools Shed (https://digitaltoolsshed.com/web/color-contrast-apca)';
+
+          var btn = document.getElementById('btnCopyContrastReport');
+          navigator.clipboard.writeText(report).then(function() {
+            btn.textContent = '✓ Contrast Report Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = '📋 Copy Contrast Report';
+              btn.style.color = '';
+            }, 2000);
+          }).catch(function() {
+            btn.textContent = '✓ Copied!';
+            setTimeout(function() { btn.textContent = '📋 Copy Contrast Report'; }, 2000);
+          });
         }
 
         window.addEventListener('DOMContentLoaded', evaluateContrast);
@@ -1248,6 +1372,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>What is a passing APCA score for body text?</span><span>+</span></div>
             <div class="faq-a">For normal body text (16px regular weight), APCA recommends an Lc (Lightness Contrast) value of at least 75 Lc (preferably 90 Lc for enhanced reading comfort).</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between positive and negative Lc scores?</span><span>+</span></div>
+            <div class="faq-a">Positive Lc numbers denote dark text on a lighter background (positive contrast). Negative Lc numbers denote light text on a darker background (negative contrast / dark mode).</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why does WCAG 2.1 fail for dark mode interfaces?</span><span>+</span></div>
+            <div class="faq-a">WCAG 2.1 calculates (L1 + 0.05)/(L2 + 0.05), yielding identical numbers regardless of polarity. However, human eyes suffer from halation and rod saturation when viewing bright text against pure black, meaning dark mode requires lower contrast to prevent visual fatigue.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Does APCA replace WCAG 2.1 legally today?</span><span>+</span></div>
+            <div class="faq-a">While WCAG 2.1 and WCAG 2.2 remain the statutory benchmarks under laws like ADA and European EN 301 549, APCA serves as the underlying scientific candidate for future WCAG 3 (Silver) guidelines. Leading design systems use APCA to fine-tune typography readability while meeting WCAG 2.2 minimum ratios.</div>
           </div>
         
       </div>

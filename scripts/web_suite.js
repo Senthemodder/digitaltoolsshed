@@ -2383,64 +2383,117 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     category: 'Web Engineering',
     keywords: 'webcrypto key generator, subtlecrypto rsa keypair, ecdsa key generator online, generate pem key in browser, hmac signature verifier',
     faqs: [
-      { q: 'Is it safe to generate cryptographic keys in a browser tool?', a: 'Yes, because this tool relies strictly on the native W3C Web Cryptography API (window.crypto.subtle) running in isolated browser memory. Zero private keys or signatures are ever sent over a network.' },
-      { q: 'What is the difference between SPKI and PKCS#8?', a: 'SubjectPublicKeyInfo (SPKI) is the standard format for encoding Public Keys in PEM. PKCS#8 is the standard container for encoding Private Keys.' }
+      { q: 'Is it safe to generate cryptographic keys in a browser tool?', a: 'Yes, because this tool relies strictly on the native W3C Web Cryptography API (window.crypto.subtle) running in isolated browser memory. Zero private keys, seeds, or signatures are ever transmitted over a network.' },
+      { q: 'What is the difference between SPKI and PKCS#8?', a: 'SubjectPublicKeyInfo (SPKI) is the standard format for encoding Public Keys in PEM format. PKCS#8 is the standard container for encoding Private Keys with optional encryption wrapping.' },
+      { q: 'Why does WebCrypto forbid synchronous crypto operations?', a: 'Asymmetric operations such as 4096-bit RSA key generation or modular exponentiation require billions of CPU cycles. Running them synchronously would freeze the browser UI thread. WebCrypto enforces asynchronous Promises to keep user interfaces fluid.' },
+      { q: 'What is the difference between JWK (JSON Web Key) and PEM formatting?', a: 'PEM (Privacy-Enhanced Mail) encodes binary DER ASN.1 structures in Base64 with header/footer armor. JWK (RFC 7517) represents cryptographic keys as native JSON objects with standardized properties (kty, crv, x, y, n, e).' },
+      { q: 'When should I choose ECDSA over RSA?', a: 'ECDSA (e.g. P-256) provides 128-bit security with only 256-bit keys, resulting in vastly smaller payload sizes, faster key generation, and reduced network overhead compared to equivalent 3072-bit RSA keys.' }
     ],
     html: `
       ${sharedStyle}
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; WebCrypto Key Studio</nav>
         <div class="wb-header">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-green">W3C WebCrypto API</span>
-            <span class="wb-badge badge-blue">Zero-Dependency</span>
-          </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">WebCrypto Keypair & HMAC Studio</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Generate cryptographically secure RSA-OAEP, RSA-PSS, and ECDSA keypairs, export PKCS#8/SPKI PEMs, and sign HMAC payloads in sub-millisecond hardware time.
+          <h1 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem;">WebCrypto Keypair &amp; HMAC Studio</h1>
+          <p style="color:var(--text-muted); font-size:0.95rem;">
+            Generate cryptographically authenticated RSA, ECDSA, and HMAC keys directly in browser memory using W3C <code>SubtleCrypto</code>. Zero network transmissions, zero external dependencies.
           </p>
         </div>
 
-        <div class="wb-card">
-          <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Algorithm Selection</h3>
-          <div class="grid-3">
-            <div>
-              <label class="field-label">Cryptographic Algorithm</label>
-              <select id="crypto-algo" class="text-input" onchange="generateKeyPair()">
-                <option value="RSA-OAEP-2048">RSA-OAEP (2048-bit)</option>
-                <option value="RSA-PSS-2048">RSA-PSS (2048-bit)</option>
-                <option value="ECDSA-P256">ECDSA (NIST P-256 Curve)</option>
-                <option value="ECDSA-P384">ECDSA (NIST P-384 Curve)</option>
+        <div class="wb-card" style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <label style="font-weight:600; font-size:0.9rem;">Algorithm:</label>
+              <select id="crypto-algo" class="wb-input" style="width:auto;" onchange="generateKeyPair()">
+                <optgroup label="RSA (Asymmetric)">
+                  <option value="RSA-OAEP-2048" selected>RSA-OAEP (2048-bit, SHA-256)</option>
+                  <option value="RSA-OAEP-4096">RSA-OAEP (4096-bit, SHA-256)</option>
+                  <option value="RSA-PSS-2048">RSA-PSS Sign (2048-bit, SHA-256)</option>
+                </optgroup>
+                <optgroup label="Elliptic Curve (ECDSA)">
+                  <option value="ECDSA-P256">ECDSA P-256 (secp256r1, SHA-256)</option>
+                  <option value="ECDSA-P384">ECDSA P-384 (secp384r1, SHA-384)</option>
+                  <option value="ECDSA-P521">ECDSA P-521 (secp521r1, SHA-512)</option>
+                </optgroup>
+                <optgroup label="Symmetric / PRF">
+                  <option value="HMAC-SHA256">HMAC-SHA256 (256-bit secret)</option>
+                  <option value="HMAC-SHA512">HMAC-SHA512 (512-bit secret)</option>
+                </optgroup>
               </select>
             </div>
-            <div>
-              <label class="field-label">Export Format</label>
-              <select id="crypto-fmt" class="text-input" onchange="renderKeys()">
-                <option value="pem">PEM Format (SPKI / PKCS#8)</option>
+            <div style="display:flex; gap:0.5rem;">
+              <select id="crypto-format" class="wb-input" style="width:auto;" onchange="renderKeyFormats()">
+                <option value="pem" selected>PEM (SPKI / PKCS#8)</option>
                 <option value="jwk">JWK (JSON Web Key)</option>
               </select>
+              <button class="wb-btn" onclick="generateKeyPair()">⚡ Regenerate Keys</button>
             </div>
-            <div style="display:flex; align-items:flex-end;">
-              <button class="btn-primary" style="width:100%;" onclick="generateKeyPair()">⚡ Regenerate Keypair</button>
+          </div>
+
+          <div id="crypto-error-banner" style="display:none; background:#fee2e2; border:1px solid #ef4444; color:#b91c1c; padding:0.75rem; border-radius:4px; margin-bottom:1rem; font-size:0.85rem;"></div>
+
+          <div class="grid-2">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                <label style="font-weight:600; font-size:0.85rem;">Public Key / Verification Token</label>
+                <button class="wb-btn" id="btnCopyPub" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copyKey('pub')">📋 Copy Public</button>
+              </div>
+              <textarea id="crypto-pub" class="wb-input" style="font-family:var(--mono); font-size:0.75rem; height:240px; resize:vertical;" readonly></textarea>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                <label style="font-weight:600; font-size:0.85rem; color:#b91c1c;">Private Key / Secret Seed</label>
+                <button class="wb-btn" id="btnCopyPriv" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copyKey('priv')">📋 Copy Private</button>
+              </div>
+              <textarea id="crypto-priv" class="wb-input" style="font-family:var(--mono); font-size:0.75rem; height:240px; resize:vertical;" readonly></textarea>
             </div>
           </div>
         </div>
 
-        <div class="grid-2">
-          <div class="wb-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-              <label class="field-label" style="margin:0;">Public Key</label>
-              <button class="btn-sec" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copyKey('pub')">Copy</button>
-            </div>
-            <textarea id="crypto-pub" class="code-input" style="height:210px;" readonly></textarea>
+        <!-- Mathematical & Cryptographic Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Cryptographic Primality &amp; Elliptic Curve Formulations</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            WebCrypto leverages hardware CSPRNG entropy and native C++ engine routines to guarantee mathematical security bounds:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. RSA Factorization Modulus &amp; Bit Entropy:</strong></div>
+            <div>&nbsp;&nbsp;N = p &times; q, &nbsp; &phi;(N) = (p - 1)(q - 1), &nbsp; e &middot; d &equiv; 1 (mod &phi;(N))</div>
+            <div>&nbsp;&nbsp;Entropy H = log<sub>2</sub>(N) &ge; 2048 bits &rarr; Security level &asymp; 112 bits (NIST SP 800-57)</div>
+            <div><strong>2. ECDSA Point Multiplication over Weierstrass Curves:</strong></div>
+            <div>&nbsp;&nbsp;y<sup>2</sup> &equiv; x<sup>3</sup> - 3x + b (mod p) &nbsp;&rarr;&nbsp; Public Key Q = d &middot; G</div>
+            <div><strong>3. HMAC Key Transformation PRF:</strong></div>
+            <div>&nbsp;&nbsp;HMAC(K, m) = H((K' &oplus; opad) || H((K' &oplus; ipad) || m))</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Browser Cryptography -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Web Cryptography &amp; Key Management</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Storing Unencrypted Private Keys in localStorage</strong>
+            <code>localStorage</code> and <code>sessionStorage</code> are completely unencrypted and accessible synchronously to any JavaScript executing in the document origin. A single minor XSS vulnerability, rogue third-party CDN script, or compromised NPM bundle can instantly read and exfiltrate all stored private keys. Always wrap private keys with AES-GCM or store non-extractable keys in IndexedDB.
           </div>
 
-          <div class="wb-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-              <label class="field-label" style="margin:0;">Private Key (PKCS#8)</label>
-              <button class="btn-sec" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copyKey('priv')">Copy</button>
-            </div>
-            <textarea id="crypto-priv" class="code-input" style="height:210px; color:#f87171;" readonly></textarea>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Non-Extractable Keys Wiped on Session Refresh</strong>
+            Setting <code>extractable: false</code> when invoking <code>crypto.subtle.generateKey()</code> provides excellent defense-in-depth against memory scraping. However, if the <code>CryptoKey</code> object is not explicitly persisted to IndexedDB using structured cloning, a simple page refresh will irrevocably destroy the keypair forever.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. ECDSA Ephemeral Nonce Reuse Catastrophe</strong>
+            ECDSA signing requires a cryptographically random, uniform ephemeral integer <em>k</em> for every single signature. Reusing the exact same nonce <em>k</em> across two distinct messages enables an observer to recover the private key <em>d</em> through elementary modular division: <code>d = (s1&middot;m2 - s2&middot;m1) / (r&middot;(s2 - s1)) mod n</code>. WebCrypto prevents this by generating nonces internally via CSPRNG.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Cross-Protocol Key Confusion (RSA-OAEP vs RSA-PSS)</strong>
+            Reusing the same underlying RSA modulus and private exponent for both decryption (RSA-OAEP) and digital signatures (RSA-PSS) creates catastrophic cross-protocol chosen-ciphertext vulnerabilities. WebCrypto strictly enforces key usage separation (<code>decrypt</code> vs <code>sign</code>) at the engine level.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Deprecated RSA Key Lengths Below 2048 Bits</strong>
+            Generating 1024-bit RSA keys provides less than 80 bits of symmetric equivalence, making them vulnerable to distributed cloud factorizations using Number Field Sieve (NFS) algorithms. Modern security standards mandate a minimum of 2048 bits (112-bit security) or preferably 4096 bits / ECDSA P-256 (128-bit security).
           </div>
         </div>
       </div>
@@ -2461,64 +2514,104 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
 
         async function generateKeyPair() {
           var sel = document.getElementById('crypto-algo').value;
+          var errBanner = document.getElementById('crypto-error-banner');
+          errBanner.style.display = 'none';
           document.getElementById('crypto-pub').value = '// Generating cryptographic entropy...';
           document.getElementById('crypto-priv').value = '// Generating cryptographic entropy...';
 
           try {
             if (sel.startsWith('RSA')) {
-              var isPss = sel.indexOf('PSS') > -1;
-              currentKeyPair = await window.crypto.subtle.generateKey(
-                {
-                  name: isPss ? "RSA-PSS" : "RSA-OAEP",
-                  modulusLength: 2048,
-                  publicExponent: new Uint8Array([1, 0, 1]),
-                  hash: "SHA-256"
-                },
+              var isPss = sel.indexOf('PSS') !== -1;
+              var bits = sel.indexOf('4096') !== -1 ? 4096 : 2048;
+              var algo = {
+                name: isPss ? 'RSA-PSS' : 'RSA-OAEP',
+                modulusLength: bits,
+                publicExponent: new Uint8Array([1, 0, 1]),
+                hash: 'SHA-256'
+              };
+              var usages = isPss ? ['sign', 'verify'] : ['encrypt', 'decrypt'];
+              currentKeyPair = await window.crypto.subtle.generateKey(algo, true, usages);
+            } else if (sel.startsWith('ECDSA')) {
+              var crv = sel.indexOf('P384') !== -1 ? 'P-384' : (sel.indexOf('P521') !== -1 ? 'P-521' : 'P-256');
+              var eAlgo = { name: 'ECDSA', namedCurve: crv };
+              currentKeyPair = await window.crypto.subtle.generateKey(eAlgo, true, ['sign', 'verify']);
+            } else if (sel.startsWith('HMAC')) {
+              var hHash = sel.indexOf('512') !== -1 ? 'SHA-512' : 'SHA-256';
+              var hmKey = await window.crypto.subtle.generateKey(
+                { name: 'HMAC', hash: hHash },
                 true,
-                isPss ? ["sign", "verify"] : ["encrypt", "decrypt"]
+                ['sign', 'verify']
               );
-            } else {
-              var curve = sel.indexOf('P384') > -1 ? "P-384" : "P-256";
-              currentKeyPair = await window.crypto.subtle.generateKey(
-                { name: "ECDSA", namedCurve: curve },
-                true,
-                ["sign", "verify"]
-              );
+              currentKeyPair = { publicKey: null, privateKey: hmKey };
             }
-            renderKeys();
-          } catch(e) {
-            alert('Crypto Error: ' + e.message);
+            await renderKeyFormats();
+          } catch (e) {
+            errBanner.textContent = 'Cryptographic Engine Error: ' + (e.message || e.toString());
+            errBanner.style.display = 'block';
+            document.getElementById('crypto-pub').value = '// Error generating key';
+            document.getElementById('crypto-priv').value = '// Error generating key';
           }
         }
 
-        async function renderKeys() {
+        async function renderKeyFormats() {
           if (!currentKeyPair) return;
-          var fmt = document.getElementById('crypto-fmt').value;
+          var fmt = document.getElementById('crypto-format').value;
 
-          if (fmt === 'pem') {
-            var spki = await window.crypto.subtle.exportKey("spki", currentKeyPair.publicKey);
-            var pkcs8 = await window.crypto.subtle.exportKey("pkcs8", currentKeyPair.privateKey);
+          try {
+            if (fmt === 'pem') {
+              if (currentKeyPair.publicKey) {
+                var spki = await window.crypto.subtle.exportKey('spki', currentKeyPair.publicKey);
+                var b64Pub = arrayBufferToBase64(spki);
+                exportedPub = '-----BEGIN PUBLIC KEY-----\n' + b64Pub.match(/.{1,64}/g).join('\n') + '\n-----END PUBLIC KEY-----';
+              } else {
+                exportedPub = '// HMAC is a symmetric algorithm; there is no separate public key.';
+              }
 
-            var b64Pub = arrayBufferToBase64(spki).match(/.{1,64}/g).join('\\n');
-            var b64Priv = arrayBufferToBase64(pkcs8).match(/.{1,64}/g).join('\\n');
+              if (currentKeyPair.privateKey.algorithm.name === 'HMAC') {
+                var raw = await window.crypto.subtle.exportKey('raw', currentKeyPair.privateKey);
+                var b64Raw = arrayBufferToBase64(raw);
+                exportedPriv = '-----BEGIN HMAC SECRET KEY-----\n' + b64Raw.match(/.{1,64}/g).join('\n') + '\n-----END HMAC SECRET KEY-----';
+              } else {
+                var pkcs8 = await window.crypto.subtle.exportKey('pkcs8', currentKeyPair.privateKey);
+                var b64Priv = arrayBufferToBase64(pkcs8);
+                exportedPriv = '-----BEGIN PRIVATE KEY-----\n' + b64Priv.match(/.{1,64}/g).join('\n') + '\n-----END PRIVATE KEY-----';
+              }
+            } else {
+              // JWK format
+              if (currentKeyPair.publicKey) {
+                var jwkPub = await window.crypto.subtle.exportKey('jwk', currentKeyPair.publicKey);
+                exportedPub = JSON.stringify(jwkPub, null, 2);
+              } else {
+                exportedPub = '// HMAC symmetric key does not possess a public JWK representation.';
+              }
 
-            exportedPub = '-----BEGIN PUBLIC KEY-----\\n' + b64Pub + '\\n-----END PUBLIC KEY-----';
-            exportedPriv = '-----BEGIN PRIVATE KEY-----\\n' + b64Priv + '\\n-----END PRIVATE KEY-----';
-          } else {
-            var jwkPub = await window.crypto.subtle.exportKey("jwk", currentKeyPair.publicKey);
-            var jwkPriv = await window.crypto.subtle.exportKey("jwk", currentKeyPair.privateKey);
-            exportedPub = JSON.stringify(jwkPub, null, 2);
-            exportedPriv = JSON.stringify(jwkPriv, null, 2);
+              var jwkPriv = await window.crypto.subtle.exportKey('jwk', currentKeyPair.privateKey);
+              exportedPriv = JSON.stringify(jwkPriv, null, 2);
+            }
+
+            document.getElementById('crypto-pub').value = exportedPub;
+            document.getElementById('crypto-priv').value = exportedPriv;
+          } catch (e) {
+            console.error('Export error', e);
           }
-
-          document.getElementById('crypto-pub').value = exportedPub;
-          document.getElementById('crypto-priv').value = exportedPriv;
         }
 
         function copyKey(type) {
           var val = type === 'pub' ? exportedPub : exportedPriv;
-          navigator.clipboard.writeText(val);
-          alert('Key copied to clipboard!');
+          var btnId = type === 'pub' ? 'btnCopyPub' : 'btnCopyPriv';
+          var btn = document.getElementById(btnId);
+          var origText = type === 'pub' ? '📋 Copy Public' : '📋 Copy Private';
+          navigator.clipboard.writeText(val).then(function() {
+            btn.textContent = '✓ Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = origText;
+              btn.style.color = '';
+            }, 2000);
+          }).catch(function() {
+            btn.textContent = '✓ Copied!';
+            setTimeout(function() { btn.textContent = origText; }, 2000);
+          });
         }
 
         window.addEventListener('DOMContentLoaded', generateKeyPair);
@@ -2526,7 +2619,7 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     `
   };
 
-  // 12. HTTP Cookie Dissector
+  // 12. RFC 6265bis HTTP Cookie Inspector
   const cookieTool = {
     slug: 'cookie-inspector',
     title: 'HTTP Cookie & Set-Cookie Header Dissector [Privacy & Security Audit]',
@@ -2535,42 +2628,106 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'set-cookie header parser, cookie security inspector, samesite cookie tester, chips partitioned cookie, safari itp audit',
     faqs: [
       { q: 'What is the Partitioned (CHIPS) cookie attribute?', a: 'Cookies Having Independent Partitioned State (CHIPS) allows third-party cookies to be partitioned by the top-level site you are visiting, preventing cross-site tracking while keeping embedded widgets and authentication functional.' },
-      { q: 'Why is SameSite=None without Secure rejected by browsers?', a: 'Modern browsers enforce that any cookie marked SameSite=None must also include the Secure flag, preventing transmission over unencrypted HTTP.' }
+      { q: 'Why is SameSite=None without Secure rejected by browsers?', a: 'Modern browsers enforce that any cookie marked SameSite=None must also include the Secure flag, preventing transmission over unencrypted HTTP and defending against man-in-the-middle network interception.' },
+      { q: 'What is the difference between __Secure- and __Host- cookie prefixes?', a: 'The __Secure- prefix requires the cookie to be transmitted via HTTPS. The __Host- prefix goes further: it requires HTTPS, must have Path=/, and MUST NOT specify a Domain attribute, locking the cookie strictly to the origin host and preventing subdomain shadowing attacks.' },
+      { q: 'How does Safari ITP impact cookie expiration?', a: 'Apple Safari Intelligent Tracking Prevention (ITP) caps the lifetime of all cookies set via client-side JavaScript (document.cookie) to a maximum of 7 days (or 24 hours if incoming tracking parameters like fbclid or gclid are present). Server-set HTTP cookies via Set-Cookie remain unconstrained.' },
+      { q: 'What is the practical difference between SameSite=Lax and SameSite=Strict?', a: 'SameSite=Strict prevents the cookie from being sent on any cross-site request, including top-level URL navigations (e.g. clicking an external link to your site leaves the user logged out). SameSite=Lax permits the cookie on top-level safe GET navigations while withholding it on cross-origin POST requests.' }
     ],
     html: `
       ${sharedStyle}
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; Cookie Dissector</nav>
         <div class="wb-header">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-blue">RFC 6265bis</span>
-            <span class="wb-badge badge-green">Privacy Shield</span>
-          </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">HTTP Cookie & Set-Cookie Header Dissector</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Audit HTTP response cookie attributes against modern Safari ITP, Firefox ETP, and Chrome Third-Party Cookie deprecation standards.
+          <h1 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem;">HTTP Cookie &amp; Set-Cookie Dissector</h1>
+          <p style="color:var(--text-muted); font-size:0.95rem;">
+            Audit RFC 6265bis security attributes, SameSite policies, privacy compliance, and modern Chrome CHIPS Partitioning rules.
           </p>
         </div>
 
-        <div class="wb-card">
-          <label class="field-label">Raw Set-Cookie Header String</label>
-          <input type="text" id="cookie-input" class="code-input" value="session_token=d98a21f8a8bc; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=86400; Partitioned" oninput="dissectCookie()" />
-          <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-            <button class="btn-sec" onclick="setCookiePreset('secure_session')">Preset: Secure Session</button>
-            <button class="btn-sec" onclick="setCookiePreset('cross_site')">Preset: Cross-Site Embed</button>
-            <button class="btn-sec" onclick="setCookiePreset('vulnerable')">Preset: Vulnerable Cookie</button>
+        <div class="wb-card" style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <label style="font-weight:600; font-size:0.9rem;">Raw Set-Cookie Header String:</label>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="setCookiePreset('secure_session')">Example: Host Session</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="setCookiePreset('cross_site')">Example: CHIPS Widget</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="setCookiePreset('vulnerable')">Example: Insecure Cookie</button>
+            </div>
+          </div>
+          <input type="text" id="cookie-input" class="wb-input" style="font-family:var(--mono); font-size:0.85rem; margin-bottom:1rem;" value="__Host-session=9821a89c; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=3600" oninput="dissectCookie()" />
+
+          <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+            <button class="wb-btn" id="btnCopyCookieAudit" onclick="copyCookieAudit()">📋 Copy Diagnostic Audit</button>
+          </div>
+
+          <div class="grid-2">
+            <div class="wb-card" style="background:var(--bg);">
+              <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Parsed Attributes</h3>
+              <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Name</td><td id="ck-name" style="font-family:var(--mono); font-weight:600; text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Value</td><td id="ck-val" style="font-family:var(--mono); text-align:right; max-width:200px; word-break:break-all;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">SameSite</td><td id="ck-samesite" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Secure Flag</td><td id="ck-secure" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">HttpOnly Flag</td><td id="ck-httponly" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Partitioned (CHIPS)</td><td id="ck-partitioned" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Domain Scope</td><td id="ck-domain" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr><td style="padding:0.4rem 0; color:var(--text-muted);">Path Scope</td><td id="ck-path" style="font-family:var(--mono); text-align:right;">--</td></tr>
+              </table>
+            </div>
+
+            <div class="wb-card" style="background:var(--bg);">
+              <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Security &amp; Privacy Audit</h3>
+              <ul id="cookie-audit-list" style="margin:0; padding-left:1.2rem; font-size:0.85rem; line-height:1.7;">
+                <!-- Dynamically filled -->
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div class="wb-card">
-          <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Parsed Security Attributes</h3>
-          <div class="grid-4" id="cookie-attributes-grid">
+        <!-- Mathematical & RFC 6265bis Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 6265bis Cookie Scope &amp; CHIPS Partition Key Architecture</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Modern user agents compute cookie isolation boundaries using strict canonical domain matching and double-keyed partition maps:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Canonical Domain-Match Predicate:</strong></div>
+            <div>&nbsp;&nbsp;DomainMatch(H, D) &equiv; (H = D) &or; (EndsWith(H, &quot;.&quot; + D) &and; &not;IsIPv4orIPv6(H))</div>
+            <div><strong>2. CHIPS Double-Keyed Storage Key:</strong></div>
+            <div>&nbsp;&nbsp;PartitionKey = (TopLevelSite, OriginHost)</div>
+            <div>&nbsp;&nbsp;Prevents cross-site tracking across embedder contexts A.com and B.com.</div>
+            <div><strong>3. ITP Client-Side Expiration Clamping:</strong></div>
+            <div>&nbsp;&nbsp;Max-Age<sub>effective</sub> = min(Max-Age<sub>declared</sub>, 7 days [604,800s]) &nbsp;(or 24h if ad-click param present)</div>
           </div>
         </div>
 
-        <div class="wb-card" id="cookie-audit-card">
-          <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Browser Privacy & Security Audit</h3>
-          <ul id="cookie-audit-list" style="margin:0; padding-left:1.2rem; font-size:0.88rem; line-height:1.6;"></ul>
+        <!-- 5 Fatal Traps in Cookie Security -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in HTTP Cookie Security &amp; Privacy Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. SameSite=None Without the Secure Flag</strong>
+            Modern engines (Google Chrome 80+, Safari 13+, Firefox 69+) unconditionally discard any incoming <code>Set-Cookie</code> header that declares <code>SameSite=None</code> without simultaneously including the <code>Secure</code> directive. This ensures cookies transmitted across cross-site boundaries are never exposed over plaintext unencrypted HTTP.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Broad Domain Scoping Exposing Session Tokens to Subdomains</strong>
+            Explicitly declaring <code>Domain=.example.com</code> scopes the cookie to the apex domain and all current and future subdomains (e.g. <code>staging.example.com</code>, <code>cdn.example.com</code>). If an attacker compromises a single neglected subdomain or XSS is present on an internal tool, they can silently harvest authentication cookies. Omit the <code>Domain</code> attribute entirely to lock cookies strictly to the origin host.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Omitting the __Host- Prefix Defense</strong>
+            Standard cookies can be overwritten or shadowed by malicious subdomains. Adopting the RFC 6265bis <code>__Host-</code> prefix guarantees that the browser enforces three strict invariants: 1) the cookie must be <code>Secure</code>, 2) it must have <code>Path=/</code>, and 3) it must NOT include any <code>Domain</code> attribute.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Omitting HttpOnly on Sensitive Authentication Cookies</strong>
+            Failing to attach <code>HttpOnly</code> makes cookies readable via <code>document.cookie</code> in client JavaScript. If any cross-site scripting (XSS) vulnerability exists—even in an auxiliary analytics script or third-party tag manager—attackers can immediately exfiltrate full session tokens without needing network interception.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Silent Dropping of Third-Party State in Iframes</strong>
+            Third-party unpartitioned cookies are completely disabled in Safari (ITP) and increasingly blocked in Chrome. Embedded widgets, payment iframes, and cross-domain authentication modules that do not declare <code>Partitioned</code> (CHIPS) will fail to persist state, causing silent authentication loops.
+          </div>
         </div>
       </div>
 
@@ -2592,43 +2749,92 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           if (!raw) return;
 
           var parts = raw.split(';').map(function(s){ return s.trim(); });
-          var first = parts[0];
-          var attrs = parts.slice(1);
-          var eqIdx = first.indexOf('=');
-          var name = eqIdx > -1 ? first.slice(0, eqIdx) : first;
-          var val = eqIdx > -1 ? first.slice(eqIdx + 1) : '';
+          var nameVal = parts[0].split('=');
+          var name = nameVal[0];
+          var val = nameVal.slice(1).join('=');
 
           var attrMap = {};
-          attrs.forEach(function(a) {
-            var idx = a.indexOf('=');
-            if (idx > -1) attrMap[a.slice(0, idx).toLowerCase()] = a.slice(idx + 1);
-            else attrMap[a.toLowerCase()] = true;
-          });
+          for (var i = 1; i < parts.length; i++) {
+            var p = parts[i].split('=');
+            attrMap[p[0].toLowerCase()] = p.length > 1 ? p.slice(1).join('=') : true;
+          }
 
-          var grid = document.getElementById('cookie-attributes-grid');
-          grid.innerHTML = '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">Name</span><strong style="color:var(--fg); font-family:var(--mono);">' + name + '</strong></div>' +
-            '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">HttpOnly</span><strong style="color:' + (attrMap['httponly'] ? '#10b981' : '#ef4444') + '; font-family:var(--mono);">' + (attrMap['httponly'] ? 'TRUE' : 'FALSE') + '</strong></div>' +
-            '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">Secure</span><strong style="color:' + (attrMap['secure'] ? '#10b981' : '#ef4444') + '; font-family:var(--mono);">' + (attrMap['secure'] ? 'TRUE' : 'FALSE') + '</strong></div>' +
-            '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">SameSite</span><strong style="color:var(--fg); font-family:var(--mono);">' + (attrMap['samesite'] || 'Default (Lax)') + '</strong></div>';
+          document.getElementById('ck-name').textContent = name;
+          document.getElementById('ck-val').textContent = val || '(empty)';
+          document.getElementById('ck-samesite').textContent = attrMap['samesite'] || 'Default (Lax)';
+          document.getElementById('ck-secure').textContent = attrMap['secure'] ? 'TRUE' : 'FALSE';
+          document.getElementById('ck-httponly').textContent = attrMap['httponly'] ? 'TRUE' : 'FALSE';
+          document.getElementById('ck-partitioned').textContent = attrMap['partitioned'] ? 'TRUE' : 'FALSE';
+          document.getElementById('ck-domain').textContent = attrMap['domain'] || 'Host-Only (Origin)';
+          document.getElementById('ck-path').textContent = attrMap['path'] || '/';
 
           var auditList = document.getElementById('cookie-audit-list');
           auditList.innerHTML = '';
 
-          if (!attrMap['secure']) {
-            auditList.innerHTML += '<li style="color:#ef4444;">⚠️ <strong>Missing Secure Flag:</strong> Cookie transmits over unencrypted HTTP, vulnerable to man-in-the-middle sniffing.</li>';
-          } else {
-            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>Secure Flag Active:</strong> Only transmitted over encrypted TLS/HTTPS.</li>';
+          if (name.startsWith('__Host-')) {
+            if (attrMap['secure'] && attrMap['path'] === '/' && !attrMap['domain']) {
+              auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>__Host- Prefix Valid:</strong> Fully isolated against subdomain shadowing.</li>';
+            } else {
+              auditList.innerHTML += '<li style="color:#ef4444;">❌ <strong>__Host- Prefix Broken:</strong> Must have Secure, Path=/, and NO Domain attribute!</li>';
+            }
+          }
+
+          if (attrMap['samesite'] && attrMap['samesite'].toLowerCase() === 'none') {
+            if (!attrMap['secure']) {
+              auditList.innerHTML += '<li style="color:#ef4444;">❌ <strong>Fatal:</strong> SameSite=None without Secure will be rejected by Chrome &amp; Safari.</li>';
+            } else {
+              auditList.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Cross-Site Exposure:</strong> SameSite=None permits cross-site transmission.</li>';
+            }
           }
 
           if (!attrMap['httponly']) {
-            auditList.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Missing HttpOnly:</strong> Accessible via JavaScript document.cookie, exposing sessions to XSS theft.</li>';
+            auditList.innerHTML += '<li style="color:#ef4444;">❌ <strong>Vulnerable to XSS:</strong> Lacks HttpOnly; JavaScript can access this cookie.</li>';
           } else {
-            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>HttpOnly Protected:</strong> Inaccessible to malicious DOM scripts.</li>';
+            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>HttpOnly Protected:</strong> Inaccessible to DOM JavaScript scripts.</li>';
           }
 
           if (attrMap['partitioned']) {
-            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>CHIPS Partitioned:</strong> Compliant with Google Chrome 3rd-party cookie deprecation.</li>';
+            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>CHIPS Partitioned:</strong> Compliant with Chrome 3rd-party cookie privacy rules.</li>';
           }
+
+          if (attrMap['domain']) {
+            auditList.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Subdomain Exposure:</strong> Domain=' + attrMap['domain'] + ' exposes cookie to subdomains.</li>';
+          }
+        }
+
+        function copyCookieAudit() {
+          var raw = document.getElementById('cookie-input').value.trim();
+          var name = document.getElementById('ck-name').textContent;
+          var samesite = document.getElementById('ck-samesite').textContent;
+          var secure = document.getElementById('ck-secure').textContent;
+          var httponly = document.getElementById('ck-httponly').textContent;
+          var partitioned = document.getElementById('ck-partitioned').textContent;
+          var domain = document.getElementById('ck-domain').textContent;
+          var path = document.getElementById('ck-path').textContent;
+
+          var report = '=== RFC 6265bis Cookie Diagnostic Audit ===\n' +
+            'Raw Cookie: ' + raw + '\n' +
+            'Name: ' + name + '\n' +
+            'SameSite: ' + samesite + '\n' +
+            'Secure: ' + secure + '\n' +
+            'HttpOnly: ' + httponly + '\n' +
+            'Partitioned: ' + partitioned + '\n' +
+            'Domain Scope: ' + domain + '\n' +
+            'Path Scope: ' + path + '\n' +
+            'Generated by Digital Tools Shed (https://digitaltoolsshed.com/web/cookie-inspector)';
+
+          var btn = document.getElementById('btnCopyCookieAudit');
+          navigator.clipboard.writeText(report).then(function() {
+            btn.textContent = '✓ Diagnostic Audit Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = '📋 Copy Diagnostic Audit';
+              btn.style.color = '';
+            }, 2000);
+          }).catch(function() {
+            btn.textContent = '✓ Copied!';
+            setTimeout(function() { btn.textContent = '📋 Copy Diagnostic Audit'; }, 2000);
+          });
         }
 
         window.addEventListener('DOMContentLoaded', dissectCookie);
@@ -2636,7 +2842,7 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     `
   };
 
-  // 13. User-Agent & Client Hints Dissector
+  // 13. User-Agent Reduction & Client Hints Debugger
   const uaTool = {
     slug: 'user-agent-hints',
     title: 'User-Agent & Client Hints (Sec-CH-UA) Dissector [Browser Fingerprint]',
@@ -2645,45 +2851,103 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'user agent parser, client hints dissector, sec-ch-ua parser, detect browser crawler bot online',
     faqs: [
       { q: 'Why are browsers replacing User-Agent with Client Hints?', a: 'Legacy User-Agent strings were historically bloated with arbitrary tokens and easily exploited for cross-site browser fingerprinting. The W3C Client Hints standard shares device details only on demand via granular Sec-CH-UA headers.' },
-      { q: 'How does this tool detect search bots?', a: 'It matches incoming signatures against official crawler token dictionaries including Googlebot, Bingbot, Applebot, GPTBot, and ClaudeBot.' }
+      { q: 'How does this tool detect search bots?', a: 'It matches incoming signatures against official crawler token dictionaries including Googlebot, Bingbot, Applebot, GPTBot, and ClaudeBot.' },
+      { q: 'What does GREASE stand for in Sec-CH-UA brands?', a: 'GREASE stands for Generate Random Extensions And Sustain Extensibility. Chrome injects randomized dummy brands (e.g. \"Not A;Brand\", \"Chromium\") to prevent web servers from building brittle hardcoded browser whitelists.' },
+      { q: 'Why does Windows 11 report Windows NT 10.0 in the User-Agent?', a: 'Under the User-Agent Reduction initiative, major browser engines froze the platform token to Windows NT 10.0 for all Windows 10 and Windows 11 devices to eliminate fingerprinting entropy. To detect Windows 11, servers must query the Sec-CH-UA-Platform-Version client hint (where version &ge; 13.0.0 represents Windows 11).' },
+      { q: 'How can my backend server request high-entropy Client Hints?', a: 'The server must send the Accept-CH HTTP response header listing desired hints (e.g. Accept-CH: Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List). Cross-origin iframes additionally require explicit delegation via the Permissions-Policy header.' }
     ],
     html: `
       ${sharedStyle}
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; User-Agent Dissector</nav>
         <div class="wb-header">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-blue">W3C Client Hints</span>
-            <span class="wb-badge badge-green">Live Detection</span>
-          </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">User-Agent & Client Hints Dissector</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Detect your browser's genuine User-Agent and modern Sec-CH-UA client hints, or paste any arbitrary string to classify browsers, operating systems, and bots.
+          <h1 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem;">User-Agent &amp; Client Hints Dissector</h1>
+          <p style="color:var(--text-muted); font-size:0.95rem;">
+            Analyze browser UA strings, frozen platform tokens, search bot signatures, and modern W3C <code>Sec-CH-UA</code> Client Hints.
           </p>
         </div>
 
-        <div class="wb-card">
-          <label class="field-label">User-Agent String</label>
-          <textarea id="ua-input" class="code-input" style="height:90px;" oninput="dissectUa()"></textarea>
-          <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-            <button class="btn-sec" onclick="loadMyUa()">Detect My Browser UA</button>
-            <button class="btn-sec" onclick="loadBotPreset('google')">Preset: Googlebot Smartphone</button>
-            <button class="btn-sec" onclick="loadBotPreset('iphone')">Preset: Mobile Safari iPhone</button>
+        <div class="wb-card" style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <label style="font-weight:600; font-size:0.9rem;">Raw User-Agent String:</label>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="loadMyUa()">Load My Browser UA</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="loadBotPreset('google')">Preset: Googlebot</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="loadBotPreset('iphone')">Preset: iOS Safari</button>
+            </div>
+          </div>
+          <textarea id="ua-input" class="wb-input" style="font-family:var(--mono); font-size:0.85rem; height:80px; margin-bottom:1rem;" oninput="dissectUa()"></textarea>
+
+          <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+            <button class="wb-btn" id="btnCopyUaAudit" onclick="copyUaAudit()">📋 Copy Dissection Report</button>
+          </div>
+
+          <div class="grid-3" style="margin-bottom:1.5rem;">
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Detected Browser</div>
+              <div id="ua-browser" style="font-family:var(--serif); font-size:1.4rem; font-weight:700;">--</div>
+            </div>
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Operating System</div>
+              <div id="ua-os" style="font-family:var(--serif); font-size:1.4rem; font-weight:700;">--</div>
+            </div>
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Client Type</div>
+              <div id="ua-bot" style="font-family:var(--serif); font-size:1.4rem; font-weight:700;">--</div>
+            </div>
+          </div>
+
+          <div class="wb-card" style="background:var(--bg);">
+            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Client Hints (navigator.userAgentData) Status</h3>
+            <div id="ua-ch-data" style="font-family:var(--mono); font-size:0.85rem; line-height:1.6;">
+              <!-- Client hints status -->
+            </div>
           </div>
         </div>
 
-        <div class="grid-3">
-          <div class="wb-card">
-            <span class="field-label">Browser & Engine</span>
-            <div id="ua-browser" style="font-size:1.2rem; font-weight:bold; color:#60a5fa; margin-top:0.25rem;">--</div>
+        <!-- Mathematical & Fingerprint Entropy Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Shannon Entropy &amp; User-Agent Reduction Formulations</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            The W3C and Chromium User-Agent Reduction initiative was engineered to systematically compress passive fingerprinting entropy:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Shannon Entropy of User-Agent Fingerprint:</strong></div>
+            <div>&nbsp;&nbsp;H(X) = -&Sigma;<sub>i=1</sub><sup>n</sup> P(x<sub>i</sub>) &middot; log<sub>2</sub> P(x<sub>i</sub>)</div>
+            <div>&nbsp;&nbsp;Legacy UA Strings: H(X) &asymp; 35 - 42 bits (identifying 1 in 34 billion users).</div>
+            <div>&nbsp;&nbsp;Modern Frozen UA: H(X) &le; 9.5 bits (identifying at most 1 in 724 users without explicit permission).</div>
+            <div><strong>2. GREASE Injection Brand Generation:</strong></div>
+            <div>&nbsp;&nbsp;Chrome injects arbitrary pseudorandom ASCII brands into navigator.userAgentData.brands to prevent vendor lock-in.</div>
           </div>
-          <div class="wb-card">
-            <span class="field-label">Operating System</span>
-            <div id="ua-os" style="font-size:1.2rem; font-weight:bold; color:var(--fg); margin-top:0.25rem;">--</div>
+        </div>
+
+        <!-- 5 Fatal Traps in User-Agent & Device Detection -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in User-Agent &amp; Client Hints Engineering</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Inaccurate Windows 11 Detection via Frozen UA Tokens</strong>
+            Chromium intentionally frozen the platform token to <code>Windows NT 10.0</code> on all Windows 11 machines. Codebases using regex like <code>/Windows NT 11/</code> will never match a single Windows 11 user on Earth. Detecting Windows 11 requires requesting the high-entropy <code>Sec-CH-UA-Platform-Version</code> Client Hint, where a major version &ge; 13 corresponds to Windows 11.
           </div>
-          <div class="wb-card">
-            <span class="field-label">Bot / Crawler Classification</span>
-            <div id="ua-bot" style="font-size:1.2rem; font-weight:bold; color:#10b981; margin-top:0.25rem;">HUMAN VISITOR</div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Brittle Whitelist Parsers Failing on GREASE Brands</strong>
+            Chromium regularly injects randomized GREASE brands (e.g. <code>&quot;Not=A?Brand&quot;;v=&quot;24&quot;</code>) into <code>Sec-CH-UA</code> headers. Parsers that strictly validate brands against rigid static lists or assert that all brands must be recognizable will crash or fail requests for legitimate Chrome users.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Naive &quot;Safari&quot; Substring Matching in Chrome UA</strong>
+            Chrome's desktop User-Agent string includes the token <code>Safari/537.36</code> for legacy compatibility. Any naive inspection doing <code>navigator.userAgent.includes('Safari')</code> without checking for <code>Chrome</code> first will falsely categorize every single Google Chrome user as running Apple Safari.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Missing Accept-CH Server Headers for High-Entropy Hints</strong>
+            Browsers never send detailed client hints (such as <code>Sec-CH-UA-Model</code> or exact device hardware specs) by default. The server must explicitly respond with an <code>Accept-CH: Sec-CH-UA-Model, Sec-CH-UA-Platform-Version</code> header. Furthermore, cross-origin iframes cannot access these hints without an explicit <code>Permissions-Policy</code> delegation.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. User-Agent Cloaking Triggering Googlebot Cloaking Penalties</strong>
+            Serving radically different DOM trees, styling, or link graphs to crawlers based on detecting <code>Googlebot</code> or <code>Bingbot</code> in the User-Agent violates Google Search Essentials guidelines against Cloaking, resulting in immediate algorithmic or manual demotion from search indexes.
           </div>
         </div>
       </div>
@@ -2704,30 +2968,31 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         }
 
         function dissectUa() {
-          var ua = document.getElementById('ua-input').value.trim();
-          if (!ua) return;
-
+          var ua = document.getElementById('ua-input').value;
           var browser = 'Unknown Browser';
           var os = 'Unknown OS';
           var isBot = false;
 
-          if (/Googlebot/i.test(ua)) { isBot = true; browser = 'Googlebot Crawler'; }
-          else if (/bingbot/i.test(ua)) { isBot = true; browser = 'Microsoft Bingbot'; }
-          else if (/Applebot/i.test(ua)) { isBot = true; browser = 'Applebot'; }
-          else if (/GPTBot/i.test(ua)) { isBot = true; browser = 'OpenAI GPTBot'; }
-          else if (/ClaudeBot/i.test(ua)) { isBot = true; browser = 'Anthropic ClaudeBot'; }
-          else {
-            if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Google Chrome (Blink)';
-            else if (/Edg/i.test(ua)) browser = 'Microsoft Edge (Blink)';
-            else if (/Firefox/i.test(ua)) browser = 'Mozilla Firefox (Gecko)';
-            else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Apple Safari (WebKit)';
+          // Bot check
+          if (/googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest/0.|pinterestbot|applebot/i.test(ua)) {
+            isBot = true;
           }
 
-          if (/Windows NT 10.0/i.test(ua)) os = 'Windows 10 / 11 (x64)';
-          else if (/Mac OS X/i.test(ua)) os = 'macOS';
-          else if (/Android/i.test(ua)) os = 'Google Android';
-          else if (/iPhone|iPad/i.test(ua)) os = 'Apple iOS';
-          else if (/Linux/i.test(ua)) os = 'GNU/Linux';
+          // Browser check
+          if (/edg//i.test(ua)) browser = 'Microsoft Edge';
+          else if (/opr/|opera/i.test(ua)) browser = 'Opera';
+          else if (/chrome|crios/i.test(ua)) browser = 'Google Chrome';
+          else if (/firefox|fxios/i.test(ua)) browser = 'Mozilla Firefox';
+          else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = 'Apple Safari';
+
+          // OS check
+          if (/windows nt 10.0/i.test(ua)) os = 'Windows 10 / 11';
+          else if (/windows nt 6.3/i.test(ua)) os = 'Windows 8.1';
+          else if (/windows nt 6.1/i.test(ua)) os = 'Windows 7';
+          else if (/macintosh|mac os x/i.test(ua)) os = 'macOS';
+          else if (/iphone|ipad|ipod/i.test(ua)) os = 'iOS';
+          else if (/android/i.test(ua)) os = 'Android';
+          else if (/linux/i.test(ua)) os = 'Linux';
 
           document.getElementById('ua-browser').textContent = browser;
           document.getElementById('ua-os').textContent = os;
@@ -2739,6 +3004,44 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             botEl.textContent = 'HUMAN BROWSER';
             botEl.style.color = '#10b981';
           }
+
+          var chBox = document.getElementById('ua-ch-data');
+          if (navigator.userAgentData) {
+            var brands = navigator.userAgentData.brands ? navigator.userAgentData.brands.map(function(b){ return b.brand + ' (' + b.version + ')'; }).join(', ') : 'None';
+            chBox.innerHTML = '<div><strong>navigator.userAgentData:</strong> Supported in this browser</div>' +
+              '<div><strong>Mobile Flag:</strong> ' + (navigator.userAgentData.mobile ? 'TRUE' : 'FALSE') + '</div>' +
+              '<div><strong>Active Brands (with GREASE):</strong> ' + brands + '</div>' +
+              '<div><strong>Platform:</strong> ' + (navigator.userAgentData.platform || 'Not specified') + '</div>';
+          } else {
+            chBox.innerHTML = '<span style="color:var(--text-muted);">navigator.userAgentData is not supported by this engine (Safari and Firefox rely exclusively on reduced User-Agent strings).</span>';
+          }
+        }
+
+        function copyUaAudit() {
+          var ua = document.getElementById('ua-input').value;
+          var browser = document.getElementById('ua-browser').textContent;
+          var os = document.getElementById('ua-os').textContent;
+          var bot = document.getElementById('ua-bot').textContent;
+
+          var report = '=== User-Agent & Client Hints Dissection Report ===\n' +
+            'User-Agent: ' + ua + '\n' +
+            'Browser: ' + browser + '\n' +
+            'Operating System: ' + os + '\n' +
+            'Classification: ' + bot + '\n' +
+            'Generated by Digital Tools Shed (https://digitaltoolsshed.com/web/user-agent-hints)';
+
+          var btn = document.getElementById('btnCopyUaAudit');
+          navigator.clipboard.writeText(report).then(function() {
+            btn.textContent = '✓ Dissection Report Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = '📋 Copy Dissection Report';
+              btn.style.color = '';
+            }, 2000);
+          }).catch(function() {
+            btn.textContent = '✓ Copied!';
+            setTimeout(function() { btn.textContent = '📋 Copy Dissection Report'; }, 2000);
+          });
         }
 
         window.addEventListener('DOMContentLoaded', loadMyUa);
@@ -2746,7 +3049,7 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     `
   };
 
-  // 14. WCAG 2.2 & APCA Color Contrast Studio
+  // 14. APCA / WCAG 3 Color Contrast Calculator
   const contrastTool = {
     slug: 'color-contrast-apca',
     title: 'WCAG 2.2 & APCA Color Contrast Studio [Accessible Typography Matrix]',
@@ -2755,64 +3058,113 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'apca contrast calculator, wcag 2.2 contrast checker, accessible typography color, color contrast ratio studio',
     faqs: [
       { q: 'Why is APCA superior to legacy WCAG 2.1 contrast math?', a: 'WCAG 2.1 uses a simple mathematical ratio that ignores spatial frequency (how thin a font is) and background polarity (dark-on-light versus light-on-dark). APCA factors in human retinal neurobiology, font weight, and ambient luminance.' },
-      { q: 'What is a passing APCA score for body text?', a: 'For normal body text (16px regular weight), APCA recommends an Lc (Lightness Contrast) value of at least 75 Lc (preferably 90 Lc for enhanced reading comfort).' }
+      { q: 'What is a passing APCA score for body text?', a: 'For normal body text (16px regular weight), APCA recommends an Lc (Lightness Contrast) value of at least 75 Lc (preferably 90 Lc for enhanced reading comfort).' },
+      { q: 'What is the difference between positive and negative Lc scores?', a: 'Positive Lc numbers denote dark text on a lighter background (positive contrast). Negative Lc numbers denote light text on a darker background (negative contrast / dark mode).' },
+      { q: 'Why does WCAG 2.1 fail for dark mode interfaces?', a: 'WCAG 2.1 calculates (L1 + 0.05)/(L2 + 0.05), yielding identical numbers regardless of polarity. However, human eyes suffer from halation and rod saturation when viewing bright text against pure black, meaning dark mode requires lower contrast to prevent visual fatigue.' },
+      { q: 'Does APCA replace WCAG 2.1 legally today?', a: 'While WCAG 2.1 and WCAG 2.2 remain the statutory benchmarks under laws like ADA and European EN 301 549, APCA serves as the underlying scientific candidate for future WCAG 3 (Silver) guidelines. Leading design systems use APCA to fine-tune typography readability while meeting WCAG 2.2 minimum ratios.' }
     ],
     html: `
       ${sharedStyle}
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; APCA Color Contrast</nav>
         <div class="wb-header">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-green">WCAG 2.2 & APCA</span>
-            <span class="wb-badge badge-purple">Spatial Frequency</span>
-          </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">WCAG 2.2 & APCA Color Contrast Studio</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Evaluate color pairs against traditional WCAG 2.1 mathematical ratios and modern W3C APCA perceptual curves across different font weights.
+          <h1 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem;">APCA &amp; WCAG 2.2 Color Contrast Studio</h1>
+          <p style="color:var(--text-muted); font-size:0.95rem;">
+            Evaluate accessible typography pairing modern W3C Silver APCA (Advanced Perceptual Contrast Algorithm) with legacy WCAG 2.2 standards.
           </p>
         </div>
 
-        <div class="wb-card">
-          <div class="grid-2">
+        <div class="wb-card" style="margin-bottom:1.5rem;">
+          <div class="grid-2" style="margin-bottom:1rem;">
             <div>
-              <label class="field-label">Foreground / Text Color</label>
-              <div style="display:flex; gap:0.5rem;">
-                <input type="color" id="clr-fg-pick" value="#60a5fa" oninput="syncColor('fg', this.value)" style="height:40px; width:50px; cursor:pointer;" />
-                <input type="text" id="clr-fg-text" class="text-input" value="#60a5fa" oninput="syncColor('fg', this.value)" />
+              <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Text / Foreground Color:</label>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <input type="color" id="clr-fg-pick" value="#111827" style="border:none; width:44px; height:38px; cursor:pointer; background:none;" oninput="syncColor('fg', this.value)" />
+                <input type="text" id="clr-fg-text" class="wb-input" value="#111827" style="font-family:var(--mono); text-transform:uppercase;" oninput="syncColor('fg', this.value)" />
               </div>
             </div>
             <div>
-              <label class="field-label">Background Color</label>
-              <div style="display:flex; gap:0.5rem;">
-                <input type="color" id="clr-bg-pick" value="#0f172a" oninput="syncColor('bg', this.value)" style="height:40px; width:50px; cursor:pointer;" />
-                <input type="text" id="clr-bg-text" class="text-input" value="#0f172a" oninput="syncColor('bg', this.value)" />
+              <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Background Color:</label>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <input type="color" id="clr-bg-pick" value="#ffffff" style="border:none; width:44px; height:38px; cursor:pointer; background:none;" oninput="syncColor('bg', this.value)" />
+                <input type="text" id="clr-bg-text" class="wb-input" value="#ffffff" style="font-family:var(--mono); text-transform:uppercase;" oninput="syncColor('bg', this.value)" />
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="grid-2">
-          <div class="wb-card" style="text-align:center;">
-            <span class="field-label">Legacy WCAG 2.1 Ratio</span>
-            <div id="wcag-ratio" style="font-size:2.2rem; font-family:var(--mono); font-weight:bold; color:#10b981; margin:0.4rem 0;">7.8:1</div>
-            <span id="wcag-badge" class="wb-badge badge-green">PASS AAA (Normal Text)</span>
+          <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+            <button class="wb-btn" id="btnCopyContrastReport" onclick="copyContrastReport()">📋 Copy Contrast Report</button>
           </div>
 
-          <div class="wb-card" style="text-align:center;">
-            <span class="field-label">APCA Lightness Contrast (Lc)</span>
-            <div id="apca-score" style="font-size:2.2rem; font-family:var(--mono); font-weight:bold; color:#10b981; margin:0.4rem 0;">+84.2 Lc</div>
-            <span id="apca-badge" class="wb-badge badge-green">BODY TEXT SUITABLE</span>
-          </div>
-        </div>
-
-        <div class="wb-card">
-          <label class="field-label">Typography Readability Preview</label>
-          <div id="contrast-preview" style="padding:1.5rem; border-radius:6px; background:#0f172a; color:#60a5fa;">
-            <h2 style="margin:0 0 0.5rem 0; font-size:1.8rem; font-weight:700;">Headline 24px Bold</h2>
-            <p style="margin:0 0 0.75rem 0; font-size:1rem; line-height:1.6;">
-              Body text 16px regular. Clean perceptual contrast ensures comfortable sustained reading without ocular strain across OLED and LCD screens.
+          <!-- Live Typography Preview Canvas -->
+          <div id="contrast-preview-box" style="padding:1.5rem; border-radius:4px; border:1px solid var(--border); margin-bottom:1.5rem; background:#ffffff; color:#111827;">
+            <h2 id="prev-h2" style="font-family:var(--serif); margin-top:0; margin-bottom:0.5rem; font-size:1.75rem;">Perceptual Legibility &amp; Spatial Frequency</h2>
+            <p id="prev-p" style="font-size:1rem; line-height:1.6; margin-bottom:0.5rem;">
+              The Advanced Perceptual Contrast Algorithm (APCA) models human retinal cone response, ambient adaptation, and spatial frequency. This paragraph simulates standard 16px body copy at normal 400 font weight.
             </p>
-            <span style="font-size:0.75rem; font-family:var(--mono); opacity:0.8;">Caption 12px Monospace</span>
+            <span id="prev-caption" style="font-size:0.8rem; font-style:italic;">Subtle caption text at 12px secondary emphasis</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Legacy WCAG 2.1 Ratio</div>
+              <div id="wcag-ratio" style="font-family:var(--serif); font-size:2rem; font-weight:700;">21.0:1</div>
+              <div id="wcag-badge" class="wb-badge badge-green" style="margin-top:0.5rem;">AAA PASS</div>
+            </div>
+
+            <div class="wb-card" style="background:var(--bg); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.25rem;">Modern APCA Lightness Contrast (Lc)</div>
+              <div id="apca-lc" style="font-family:var(--serif); font-size:2rem; font-weight:700;">+106 Lc</div>
+              <div id="apca-badge" class="wb-badge badge-green" style="margin-top:0.5rem;">BODY TEXT APPROVED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mathematical & APCA Algorithm Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">SAPC &amp; APCA Mathematical Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Unlike legacy WCAG 2.1 which uses naive linear ratios, APCA (SAPC-0.0.98G) executes non-linear power curve psychophysics:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. sRGB Transfer Function Decompression:</strong></div>
+            <div>&nbsp;&nbsp;V<sub>lin</sub> = (V &le; 0.04045) ? (V / 12.92) : ((V + 0.055) / 1.055)<sup>2.4</sup></div>
+            <div>&nbsp;&nbsp;Luminance Y = 0.21267 &middot; R<sub>lin</sub> + 0.71515 &middot; G<sub>lin</sub> + 0.07218 &middot; B<sub>lin</sub></div>
+            <div><strong>2. Retinal Power-Law Softening:</strong></div>
+            <div>&nbsp;&nbsp;Dark on Light (Positive Polarity): &nbsp; L<sub>c</sub> = (Y<sub>bg</sub><sup>0.56</sup> - Y<sub>txt</sub><sup>0.57</sup>) &times; 1.14154 &times; 100</div>
+            <div>&nbsp;&nbsp;Light on Dark (Negative Polarity): &nbsp; L<sub>c</sub> = (Y<sub>bg</sub><sup>0.65</sup> - Y<sub>txt</sub><sup>0.62</sup>) &times; 1.14154 &times; 100</div>
+            <div><strong>3. Recommended APCA Thresholds:</strong></div>
+            <div>&nbsp;&nbsp;|L<sub>c</sub>| &ge; 90: Preferred Body Text | |L<sub>c</sub>| &ge; 75: Minimum Body Text | |L<sub>c</sub>| &ge; 60: Headlines &ge; 24px</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Accessible Contrast Engineering -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Accessible Contrast &amp; Typography Design</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. WCAG 2.1 Polarity Blindness in Dark Mode</strong>
+            Legacy WCAG 2.1 calculates <code>(L1 + 0.05) / (L2 + 0.05)</code>, yielding the exact same 4.5:1 ratio whether black text sits on white or white text sits on black. In human visual physiology, white text on black background produces strong optical halation and photoreceptor flare. APCA uses distinct power exponents (0.56 vs 0.65) to accurately reflect perceived contrast.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Ignoring Spatial Frequency &amp; Font Thinness</strong>
+            A 4.5:1 ratio on an ultra-light font weight (e.g. 100 or 200 weight Helvetica) is completely illegible for low-vision readers, while bold 700-weight typography at 3.5:1 is easily readable. WCAG 2.1 completely ignores font weight for body copy; APCA explicitly pairs Lightness Contrast ($L_c$) with font weight and px sizing.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Subpixel Font Smoothing Blurring Real Contrast</strong>
+            Subpixel antialiasing blends font edges with surrounding background pixels, diluting real-world contrast by 15% to 30% on non-retina displays. Designing right at the razor edge of 4.5:1 causes rendered text to fail in the real world.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Over-Contrasted Pure Black on Pure White Fatigue</strong>
+            Pairing pure #000000 text on pure #ffffff creates maximum contrast (+106 Lc), which can trigger severe eye strain, astigmatic distortion, and reading difficulties for dyslexic users. Slightly softening either background (e.g. #f9fafb) or foreground (e.g. #111827) enhances readability.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Linear RGB Math Distorting Mid-Tones</strong>
+            Attempting to compute contrast directly from raw 0-255 RGB values without applying gamma decompression ($V^{2.4}$) severely miscalculates luminance by over 200% in mid-tone shades, producing completely false compliance scores.
           </div>
         </div>
       </div>
@@ -2844,56 +3196,105 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           evaluateContrast();
         }
 
+        function calculateApca(txtRgb, bgRgb) {
+          var yTxt = getLuminance(txtRgb.r, txtRgb.g, txtRgb.b);
+          var yBg = getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+
+          var sapc = 0;
+          if (yBg > yTxt) {
+            // Dark text on light bg (positive contrast)
+            sapc = (Math.pow(yBg, 0.56) - Math.pow(yTxt, 0.57)) * 1.14154;
+          } else {
+            // Light text on dark bg (negative contrast)
+            sapc = (Math.pow(yBg, 0.65) - Math.pow(yTxt, 0.62)) * 1.14154;
+          }
+          return sapc * 100;
+        }
+
         function evaluateContrast() {
-          var fgHex = document.getElementById('clr-fg-text').value;
-          var bgHex = document.getElementById('clr-bg-text').value;
+          var fg = document.getElementById('clr-fg-text').value;
+          var bg = document.getElementById('clr-bg-text').value;
 
-          var fg = hexToRgb(fgHex);
-          var bg = hexToRgb(bgHex);
+          if (!/^#[0-9A-Fa-f]{6}$/.test(fg) || !/^#[0-9A-Fa-f]{6}$/.test(bg)) return;
 
-          var prev = document.getElementById('contrast-preview');
-          prev.style.backgroundColor = bgHex;
-          prev.style.color = fgHex;
+          var box = document.getElementById('contrast-preview-box');
+          box.style.color = fg;
+          box.style.backgroundColor = bg;
 
-          var l1 = getLuminance(fg.r, fg.g, fg.b);
-          var l2 = getLuminance(bg.r, bg.g, bg.b);
+          var fgRgb = hexToRgb(fg);
+          var bgRgb = hexToRgb(bg);
 
-          var ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+          // Legacy WCAG 2.1
+          var l1 = getLuminance(fgRgb.r, fgRgb.g, fgRgb.b);
+          var l2 = getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+          var lighter = Math.max(l1, l2);
+          var darker = Math.min(l1, l2);
+          var ratio = (lighter + 0.05) / (darker + 0.05);
+
           var rEl = document.getElementById('wcag-ratio');
           var rBadge = document.getElementById('wcag-badge');
           rEl.textContent = ratio.toFixed(1) + ':1';
-
-          if (ratio >= 7.0) {
-            rEl.style.color = '#10b981';
+          if (ratio >= 7) {
             rBadge.className = 'wb-badge badge-green';
-            rBadge.textContent = 'PASS AAA';
+            rBadge.textContent = 'AAA PASS';
           } else if (ratio >= 4.5) {
-            rEl.style.color = '#60a5fa';
-            rBadge.className = 'wb-badge badge-blue';
-            rBadge.textContent = 'PASS AA';
-          } else if (ratio >= 3.0) {
-            rEl.style.color = '#f59e0b';
+            rBadge.className = 'wb-badge badge-green';
+            rBadge.textContent = 'AA PASS';
+          } else if (ratio >= 3) {
             rBadge.className = 'wb-badge badge-amber';
-            rBadge.textContent = 'LARGE TEXT ONLY';
+            rBadge.textContent = 'LARGE TEXT ONLY (3:1)';
           } else {
-            rEl.style.color = '#ef4444';
             rBadge.className = 'wb-badge badge-red';
             rBadge.textContent = 'FAIL';
           }
 
-          var apca = (l1 - l2) * 100;
-          var aEl = document.getElementById('apca-score');
+          // Modern APCA
+          var apca = calculateApca(fgRgb, bgRgb);
+          var aEl = document.getElementById('apca-lc');
           var aBadge = document.getElementById('apca-badge');
           aEl.textContent = (apca >= 0 ? '+' : '') + apca.toFixed(1) + ' Lc';
           if (Math.abs(apca) >= 75) {
             aEl.style.color = '#10b981';
             aBadge.className = 'wb-badge badge-green';
             aBadge.textContent = 'BODY TEXT APPROVED';
+          } else if (Math.abs(apca) >= 60) {
+            aEl.style.color = '#3b82f6';
+            aBadge.className = 'wb-badge badge-blue';
+            aBadge.textContent = 'HEADLINES &gt;= 24px';
           } else {
             aEl.style.color = '#f59e0b';
             aBadge.className = 'wb-badge badge-amber';
-            aBadge.textContent = 'HEADLINE ONLY';
+            aBadge.textContent = 'NON-TEXT / DECORATIVE ONLY';
           }
+        }
+
+        function copyContrastReport() {
+          var fg = document.getElementById('clr-fg-text').value;
+          var bg = document.getElementById('clr-bg-text').value;
+          var wcag = document.getElementById('wcag-ratio').textContent;
+          var wcagBadge = document.getElementById('wcag-badge').textContent;
+          var apca = document.getElementById('apca-lc').textContent;
+          var apcaBadge = document.getElementById('apca-badge').textContent;
+
+          var report = '=== Color Contrast & Accessibility Report ===\n' +
+            'Foreground (Text): ' + fg + '\n' +
+            'Background: ' + bg + '\n' +
+            'Legacy WCAG 2.1: ' + wcag + ' (' + wcagBadge + ')\n' +
+            'Modern APCA (W3C Silver): ' + apca + ' (' + apcaBadge + ')\n' +
+            'Generated by Digital Tools Shed (https://digitaltoolsshed.com/web/color-contrast-apca)';
+
+          var btn = document.getElementById('btnCopyContrastReport');
+          navigator.clipboard.writeText(report).then(function() {
+            btn.textContent = '✓ Contrast Report Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = '📋 Copy Contrast Report';
+              btn.style.color = '';
+            }, 2000);
+          }).catch(function() {
+            btn.textContent = '✓ Copied!';
+            setTimeout(function() { btn.textContent = '📋 Copy Contrast Report'; }, 2000);
+          });
         }
 
         window.addEventListener('DOMContentLoaded', evaluateContrast);

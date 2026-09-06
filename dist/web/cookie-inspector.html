@@ -160,7 +160,31 @@
       "name": "Why is SameSite=None without Secure rejected by browsers?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Modern browsers enforce that any cookie marked SameSite=None must also include the Secure flag, preventing transmission over unencrypted HTTP."
+        "text": "Modern browsers enforce that any cookie marked SameSite=None must also include the Secure flag, preventing transmission over unencrypted HTTP and defending against man-in-the-middle network interception."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between __Secure- and __Host- cookie prefixes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The __Secure- prefix requires the cookie to be transmitted via HTTPS. The __Host- prefix goes further: it requires HTTPS, must have Path=/, and MUST NOT specify a Domain attribute, locking the cookie strictly to the origin host and preventing subdomain shadowing attacks."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Safari ITP impact cookie expiration?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Apple Safari Intelligent Tracking Prevention (ITP) caps the lifetime of all cookies set via client-side JavaScript (document.cookie) to a maximum of 7 days (or 24 hours if incoming tracking parameters like fbclid or gclid are present). Server-set HTTP cookies via Set-Cookie remain unconstrained."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the practical difference between SameSite=Lax and SameSite=Strict?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "SameSite=Strict prevents the cookie from being sent on any cross-site request, including top-level URL navigations (e.g. clicking an external link to your site leaves the user logged out). SameSite=Lax permits the cookie on top-level safe GET navigations while withholding it on cross-origin POST requests."
       }
     }
   ]
@@ -1099,35 +1123,96 @@
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; Cookie Dissector</nav>
         <div class="wb-header">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-blue">RFC 6265bis</span>
-            <span class="wb-badge badge-green">Privacy Shield</span>
-          </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">HTTP Cookie & Set-Cookie Header Dissector</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Audit HTTP response cookie attributes against modern Safari ITP, Firefox ETP, and Chrome Third-Party Cookie deprecation standards.
+          <h1 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem;">HTTP Cookie &amp; Set-Cookie Dissector</h1>
+          <p style="color:var(--text-muted); font-size:0.95rem;">
+            Audit RFC 6265bis security attributes, SameSite policies, privacy compliance, and modern Chrome CHIPS Partitioning rules.
           </p>
         </div>
 
-        <div class="wb-card">
-          <label class="field-label">Raw Set-Cookie Header String</label>
-          <input type="text" id="cookie-input" class="code-input" value="session_token=d98a21f8a8bc; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=86400; Partitioned" oninput="dissectCookie()" />
-          <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-            <button class="btn-sec" onclick="setCookiePreset('secure_session')">Preset: Secure Session</button>
-            <button class="btn-sec" onclick="setCookiePreset('cross_site')">Preset: Cross-Site Embed</button>
-            <button class="btn-sec" onclick="setCookiePreset('vulnerable')">Preset: Vulnerable Cookie</button>
+        <div class="wb-card" style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <label style="font-weight:600; font-size:0.9rem;">Raw Set-Cookie Header String:</label>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="setCookiePreset('secure_session')">Example: Host Session</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="setCookiePreset('cross_site')">Example: CHIPS Widget</button>
+              <button class="wb-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="setCookiePreset('vulnerable')">Example: Insecure Cookie</button>
+            </div>
+          </div>
+          <input type="text" id="cookie-input" class="wb-input" style="font-family:var(--mono); font-size:0.85rem; margin-bottom:1rem;" value="__Host-session=9821a89c; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=3600" oninput="dissectCookie()" />
+
+          <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+            <button class="wb-btn" id="btnCopyCookieAudit" onclick="copyCookieAudit()">📋 Copy Diagnostic Audit</button>
+          </div>
+
+          <div class="grid-2">
+            <div class="wb-card" style="background:var(--bg);">
+              <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Parsed Attributes</h3>
+              <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Name</td><td id="ck-name" style="font-family:var(--mono); font-weight:600; text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Value</td><td id="ck-val" style="font-family:var(--mono); text-align:right; max-width:200px; word-break:break-all;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">SameSite</td><td id="ck-samesite" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Secure Flag</td><td id="ck-secure" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">HttpOnly Flag</td><td id="ck-httponly" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Partitioned (CHIPS)</td><td id="ck-partitioned" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:0.4rem 0; color:var(--text-muted);">Domain Scope</td><td id="ck-domain" style="font-family:var(--mono); text-align:right;">--</td></tr>
+                <tr><td style="padding:0.4rem 0; color:var(--text-muted);">Path Scope</td><td id="ck-path" style="font-family:var(--mono); text-align:right;">--</td></tr>
+              </table>
+            </div>
+
+            <div class="wb-card" style="background:var(--bg);">
+              <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Security &amp; Privacy Audit</h3>
+              <ul id="cookie-audit-list" style="margin:0; padding-left:1.2rem; font-size:0.85rem; line-height:1.7;">
+                <!-- Dynamically filled -->
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div class="wb-card">
-          <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Parsed Security Attributes</h3>
-          <div class="grid-4" id="cookie-attributes-grid">
+        <!-- Mathematical & RFC 6265bis Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 6265bis Cookie Scope &amp; CHIPS Partition Key Architecture</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Modern user agents compute cookie isolation boundaries using strict canonical domain matching and double-keyed partition maps:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Canonical Domain-Match Predicate:</strong></div>
+            <div>&nbsp;&nbsp;DomainMatch(H, D) &equiv; (H = D) &or; (EndsWith(H, &quot;.&quot; + D) &and; &not;IsIPv4orIPv6(H))</div>
+            <div><strong>2. CHIPS Double-Keyed Storage Key:</strong></div>
+            <div>&nbsp;&nbsp;PartitionKey = (TopLevelSite, OriginHost)</div>
+            <div>&nbsp;&nbsp;Prevents cross-site tracking across embedder contexts A.com and B.com.</div>
+            <div><strong>3. ITP Client-Side Expiration Clamping:</strong></div>
+            <div>&nbsp;&nbsp;Max-Age<sub>effective</sub> = min(Max-Age<sub>declared</sub>, 7 days [604,800s]) &nbsp;(or 24h if ad-click param present)</div>
           </div>
         </div>
 
-        <div class="wb-card" id="cookie-audit-card">
-          <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Browser Privacy & Security Audit</h3>
-          <ul id="cookie-audit-list" style="margin:0; padding-left:1.2rem; font-size:0.88rem; line-height:1.6;"></ul>
+        <!-- 5 Fatal Traps in Cookie Security -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in HTTP Cookie Security &amp; Privacy Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. SameSite=None Without the Secure Flag</strong>
+            Modern engines (Google Chrome 80+, Safari 13+, Firefox 69+) unconditionally discard any incoming <code>Set-Cookie</code> header that declares <code>SameSite=None</code> without simultaneously including the <code>Secure</code> directive. This ensures cookies transmitted across cross-site boundaries are never exposed over plaintext unencrypted HTTP.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Broad Domain Scoping Exposing Session Tokens to Subdomains</strong>
+            Explicitly declaring <code>Domain=.example.com</code> scopes the cookie to the apex domain and all current and future subdomains (e.g. <code>staging.example.com</code>, <code>cdn.example.com</code>). If an attacker compromises a single neglected subdomain or XSS is present on an internal tool, they can silently harvest authentication cookies. Omit the <code>Domain</code> attribute entirely to lock cookies strictly to the origin host.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Omitting the __Host- Prefix Defense</strong>
+            Standard cookies can be overwritten or shadowed by malicious subdomains. Adopting the RFC 6265bis <code>__Host-</code> prefix guarantees that the browser enforces three strict invariants: 1) the cookie must be <code>Secure</code>, 2) it must have <code>Path=/</code>, and 3) it must NOT include any <code>Domain</code> attribute.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Omitting HttpOnly on Sensitive Authentication Cookies</strong>
+            Failing to attach <code>HttpOnly</code> makes cookies readable via <code>document.cookie</code> in client JavaScript. If any cross-site scripting (XSS) vulnerability exists—even in an auxiliary analytics script or third-party tag manager—attackers can immediately exfiltrate full session tokens without needing network interception.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Silent Dropping of Third-Party State in Iframes</strong>
+            Third-party unpartitioned cookies are completely disabled in Safari (ITP) and increasingly blocked in Chrome. Embedded widgets, payment iframes, and cross-domain authentication modules that do not declare <code>Partitioned</code> (CHIPS) will fail to persist state, causing silent authentication loops.
+          </div>
         </div>
       </div>
 
@@ -1149,43 +1234,101 @@
           if (!raw) return;
 
           var parts = raw.split(';').map(function(s){ return s.trim(); });
-          var first = parts[0];
-          var attrs = parts.slice(1);
-          var eqIdx = first.indexOf('=');
-          var name = eqIdx > -1 ? first.slice(0, eqIdx) : first;
-          var val = eqIdx > -1 ? first.slice(eqIdx + 1) : '';
+          var nameVal = parts[0].split('=');
+          var name = nameVal[0];
+          var val = nameVal.slice(1).join('=');
 
           var attrMap = {};
-          attrs.forEach(function(a) {
-            var idx = a.indexOf('=');
-            if (idx > -1) attrMap[a.slice(0, idx).toLowerCase()] = a.slice(idx + 1);
-            else attrMap[a.toLowerCase()] = true;
-          });
+          for (var i = 1; i < parts.length; i++) {
+            var p = parts[i].split('=');
+            attrMap[p[0].toLowerCase()] = p.length > 1 ? p.slice(1).join('=') : true;
+          }
 
-          var grid = document.getElementById('cookie-attributes-grid');
-          grid.innerHTML = '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">Name</span><strong style="color:var(--fg); font-family:var(--mono);">' + name + '</strong></div>' +
-            '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">HttpOnly</span><strong style="color:' + (attrMap['httponly'] ? '#10b981' : '#ef4444') + '; font-family:var(--mono);">' + (attrMap['httponly'] ? 'TRUE' : 'FALSE') + '</strong></div>' +
-            '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">Secure</span><strong style="color:' + (attrMap['secure'] ? '#10b981' : '#ef4444') + '; font-family:var(--mono);">' + (attrMap['secure'] ? 'TRUE' : 'FALSE') + '</strong></div>' +
-            '<div style="background:var(--bg); padding:0.75rem; border-radius:4px; border:1px solid var(--border);"><span class="field-label">SameSite</span><strong style="color:var(--fg); font-family:var(--mono);">' + (attrMap['samesite'] || 'Default (Lax)') + '</strong></div>';
+          document.getElementById('ck-name').textContent = name;
+          document.getElementById('ck-val').textContent = val || '(empty)';
+          document.getElementById('ck-samesite').textContent = attrMap['samesite'] || 'Default (Lax)';
+          document.getElementById('ck-secure').textContent = attrMap['secure'] ? 'TRUE' : 'FALSE';
+          document.getElementById('ck-httponly').textContent = attrMap['httponly'] ? 'TRUE' : 'FALSE';
+          document.getElementById('ck-partitioned').textContent = attrMap['partitioned'] ? 'TRUE' : 'FALSE';
+          document.getElementById('ck-domain').textContent = attrMap['domain'] || 'Host-Only (Origin)';
+          document.getElementById('ck-path').textContent = attrMap['path'] || '/';
 
           var auditList = document.getElementById('cookie-audit-list');
           auditList.innerHTML = '';
 
-          if (!attrMap['secure']) {
-            auditList.innerHTML += '<li style="color:#ef4444;">⚠️ <strong>Missing Secure Flag:</strong> Cookie transmits over unencrypted HTTP, vulnerable to man-in-the-middle sniffing.</li>';
-          } else {
-            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>Secure Flag Active:</strong> Only transmitted over encrypted TLS/HTTPS.</li>';
+          if (name.startsWith('__Host-')) {
+            if (attrMap['secure'] && attrMap['path'] === '/' && !attrMap['domain']) {
+              auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>__Host- Prefix Valid:</strong> Fully isolated against subdomain shadowing.</li>';
+            } else {
+              auditList.innerHTML += '<li style="color:#ef4444;">❌ <strong>__Host- Prefix Broken:</strong> Must have Secure, Path=/, and NO Domain attribute!</li>';
+            }
+          }
+
+          if (attrMap['samesite'] && attrMap['samesite'].toLowerCase() === 'none') {
+            if (!attrMap['secure']) {
+              auditList.innerHTML += '<li style="color:#ef4444;">❌ <strong>Fatal:</strong> SameSite=None without Secure will be rejected by Chrome &amp; Safari.</li>';
+            } else {
+              auditList.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Cross-Site Exposure:</strong> SameSite=None permits cross-site transmission.</li>';
+            }
           }
 
           if (!attrMap['httponly']) {
-            auditList.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Missing HttpOnly:</strong> Accessible via JavaScript document.cookie, exposing sessions to XSS theft.</li>';
+            auditList.innerHTML += '<li style="color:#ef4444;">❌ <strong>Vulnerable to XSS:</strong> Lacks HttpOnly; JavaScript can access this cookie.</li>';
           } else {
-            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>HttpOnly Protected:</strong> Inaccessible to malicious DOM scripts.</li>';
+            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>HttpOnly Protected:</strong> Inaccessible to DOM JavaScript scripts.</li>';
           }
 
           if (attrMap['partitioned']) {
-            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>CHIPS Partitioned:</strong> Compliant with Google Chrome 3rd-party cookie deprecation.</li>';
+            auditList.innerHTML += '<li style="color:#10b981;">✓ <strong>CHIPS Partitioned:</strong> Compliant with Chrome 3rd-party cookie privacy rules.</li>';
           }
+
+          if (attrMap['domain']) {
+            auditList.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Subdomain Exposure:</strong> Domain=' + attrMap['domain'] + ' exposes cookie to subdomains.</li>';
+          }
+        }
+
+        function copyCookieAudit() {
+          var raw = document.getElementById('cookie-input').value.trim();
+          var name = document.getElementById('ck-name').textContent;
+          var samesite = document.getElementById('ck-samesite').textContent;
+          var secure = document.getElementById('ck-secure').textContent;
+          var httponly = document.getElementById('ck-httponly').textContent;
+          var partitioned = document.getElementById('ck-partitioned').textContent;
+          var domain = document.getElementById('ck-domain').textContent;
+          var path = document.getElementById('ck-path').textContent;
+
+          var report = '=== RFC 6265bis Cookie Diagnostic Audit ===
+' +
+            'Raw Cookie: ' + raw + '
+' +
+            'Name: ' + name + '
+' +
+            'SameSite: ' + samesite + '
+' +
+            'Secure: ' + secure + '
+' +
+            'HttpOnly: ' + httponly + '
+' +
+            'Partitioned: ' + partitioned + '
+' +
+            'Domain Scope: ' + domain + '
+' +
+            'Path Scope: ' + path + '
+' +
+            'Generated by Digital Tools Shed (https://digitaltoolsshed.com/web/cookie-inspector)';
+
+          var btn = document.getElementById('btnCopyCookieAudit');
+          navigator.clipboard.writeText(report).then(function() {
+            btn.textContent = '✓ Diagnostic Audit Copied!';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.textContent = '📋 Copy Diagnostic Audit';
+              btn.style.color = '';
+            }, 2000);
+          }).catch(function() {
+            btn.textContent = '✓ Copied!';
+            setTimeout(function() { btn.textContent = '📋 Copy Diagnostic Audit'; }, 2000);
+          });
         }
 
         window.addEventListener('DOMContentLoaded', dissectCookie);
@@ -1202,7 +1345,22 @@
         
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>Why is SameSite=None without Secure rejected by browsers?</span><span>+</span></div>
-            <div class="faq-a">Modern browsers enforce that any cookie marked SameSite=None must also include the Secure flag, preventing transmission over unencrypted HTTP.</div>
+            <div class="faq-a">Modern browsers enforce that any cookie marked SameSite=None must also include the Secure flag, preventing transmission over unencrypted HTTP and defending against man-in-the-middle network interception.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between __Secure- and __Host- cookie prefixes?</span><span>+</span></div>
+            <div class="faq-a">The __Secure- prefix requires the cookie to be transmitted via HTTPS. The __Host- prefix goes further: it requires HTTPS, must have Path=/, and MUST NOT specify a Domain attribute, locking the cookie strictly to the origin host and preventing subdomain shadowing attacks.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How does Safari ITP impact cookie expiration?</span><span>+</span></div>
+            <div class="faq-a">Apple Safari Intelligent Tracking Prevention (ITP) caps the lifetime of all cookies set via client-side JavaScript (document.cookie) to a maximum of 7 days (or 24 hours if incoming tracking parameters like fbclid or gclid are present). Server-set HTTP cookies via Set-Cookie remain unconstrained.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the practical difference between SameSite=Lax and SameSite=Strict?</span><span>+</span></div>
+            <div class="faq-a">SameSite=Strict prevents the cookie from being sent on any cross-site request, including top-level URL navigations (e.g. clicking an external link to your site leaves the user logged out). SameSite=Lax permits the cookie on top-level safe GET navigations while withholding it on cross-origin POST requests.</div>
           </div>
         
       </div>
