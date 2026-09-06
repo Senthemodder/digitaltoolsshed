@@ -1231,6 +1231,51 @@ function buildUnitCalcSuite() {
           </div>
         </div>
 
+        <!-- 5 Fatal Traps Section -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Metrology & Dimensional Analysis Traps</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+            Unit conversion errors have historically caused catastrophic aerospace accidents, structural overloads, and pharmacological dosage failures. Watch out for these 5 traps:
+          </p>
+
+          <div style="display: grid; gap: 1rem;">
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #ef4444; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">1. The Multi-Dimensional Exponent Trap (L² & L³ Scaling)</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Linear conversions do not scale linearly into area or volume. While 1 meter = 100 centimeters, 1 square meter = 10,000 cm² (100²), and 1 cubic meter = 1,000,000 cm³ (100³). Applying linear conversion ratios to surface area, HVAC ductwork, or tank volume causes severe 100× to 1,000× estimation errors.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #f59e0b; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">2. US Customary vs. Imperial Gallon & Fluid Ounce Divergence</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                US fluid ounces (29.57 mL) and British Imperial fluid ounces (28.41 mL) are different. Even more drastically, a US liquid gallon is 128 US fl oz (3.785 L), while a UK Imperial gallon is 160 UK fl oz (4.546 L)—a massive 20.1% volume discrepancy that causes critical miscalculations in aviation fueling and chemical synthesis.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #10b981; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">3. Temperature Scale Offset vs. Temperature Differential (ΔT)</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Standard formulas (°F = °C × 1.8 + 32) apply strictly to absolute scale readings. When converting temperature <em>differentials</em> or temperature changes (ΔT), the +32 offset MUST be omitted: a temperature change of 1°C equals a change of exactly 1.8°F. Adding 32 to heat pump delta-T metrics, building insulation R-values, or thermal expansion calculations corrupts engineering calculations.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">4. Binary (IEC 1024) vs. Decimal (SI 1000) Data Storage Discrepancy</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Hardware manufacturers sell storage in decimal SI prefixes (1 GB = 1,000,000,000 bytes = 10⁹), whereas operating systems like Windows calculate filesystem allocation in binary IEC prefixes (1 GiB = 1,073,741,824 bytes = 2³⁰). This causes a 1 TB drive to register as approximately 931 GB in OS file explorers, leading to unexpected disk partition shortfalls.
+              </p>
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; border-radius: 6px; padding: 1rem 1.25rem;">
+              <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">5. Premature Intermediate Rounding & Precision Decay</strong>
+              <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                Truncating decimal places during intermediate conversion steps compounds floating-point error across multi-stage formulas. In aerospace telemetry, CNC metal fabrication, or pharmaceutical microgram compounding, conversions must retain full IEEE 754 64-bit double precision until final display formatting.
+              </p>
+            </div>
+          </div>
+        </div>
+
         ${relatedCards ? `
           <div style="margin: 2rem 0; max-width: 850px;">
             <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Related ${cat.label} Converters</h3>
@@ -1245,10 +1290,11 @@ function buildUnitCalcSuite() {
         </script>
       `;
 
-      // Auto-generate FAQ for SEO rich snippets
+      // Auto-generate FAQ for SEO rich snippets (Guaranteed minimum 5 FAQs)
       const faqData = [
         { q: `How do I convert ${fromUnit.label} to ${toUnit.label}?`, a: `To convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}), ${cat.custom ? 'use the thermodynamic conversion formula shown above' : `multiply the value by ${parseFloat(factor.toFixed(6))}`}. For example, 10 ${fromUnit.abbr} = ${formatNumber(getConversionValue(catKey, fromKey, toKey, 10, factor))} ${toUnit.abbr}.` },
         { q: `How many ${toUnit.label} are in 1 ${fromUnit.label.replace(/s$/, '')}?`, a: `1 ${fromUnit.label.replace(/s$/, '')} (${fromUnit.abbr}) is equal to ${formatNumber(getConversionValue(catKey, fromKey, toKey, 1, factor))} ${toUnit.label} (${toUnit.abbr}).` },
+        { q: `What is the exact mathematical conversion formula for ${fromUnit.abbr} to ${toUnit.abbr}?`, a: `${cat.custom ? 'Exact temperature conversions require specific offset formulas as detailed in the derivation guide above.' : `The exact mathematical formula is: <strong>${toUnit.abbr} = ${fromUnit.abbr} × ${parseFloat(factor.toFixed(8))}</strong> (or conversely <strong>${fromUnit.abbr} = ${toUnit.abbr} ÷ ${parseFloat(factor.toFixed(8))}</strong>). Calculations are computed in full IEEE 754 64-bit double precision.`}` },
         { q: `Is this ${fromUnit.abbr} to ${toUnit.abbr} converter accurate?`, a: `Yes. This converter uses exact conversion factors and performs real-time calculations client-side in your browser with zero rounding until display. It also supports cooking fractions (like 1/2, 2 1/2) and decimals.` },
         { q: `Can I convert ${toUnit.label} back to ${fromUnit.label}?`, a: `Yes! This is a two-way converter. Simply type a value in the ${toUnit.label} field and the ${fromUnit.label} result will update instantly.` }
       ];
