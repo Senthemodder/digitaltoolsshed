@@ -180334,6 +180334,2305 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (279 calculators in /calc/)');
+  
+  // ─── TOOL CG1: MECHANICAL VAPOR RECOMPRESSION (MVR) EVAPORATOR SIZING CALCULATOR ───
+  (() => {
+    const slug = 'mechanical-vapor-recompression-mvr-evaporator-sizing-calculator';
+    const title = 'Mechanical Vapor Recompression (MVR) Evaporator Sizing Calculator | Turbo-Compressor Engine';
+    const desc = 'Industrial Mechanical Vapor Recompression (MVR) evaporator sizing calculator. Calculate centrifugal vapor turbo-compressor shaft power (kW), saturation temperature lift (dT), specific energy consumption (kWh/tonne), calandria heat transfer area, and Coefficient of Performance (COP).';
+
+    const faqs = [
+      {
+        q: 'How does a Mechanical Vapor Recompression (MVR) evaporator achieve COP values of 30 to 50?',
+        a: 'Conventional multi-effect evaporators condense water vapor using external boiler steam, discarding latent heat in each effect. In contrast, an MVR evaporator acts as an open-loop heat pump: overhead vapor generated in the boiling chamber is compressed by an electrically driven centrifugal turbo-fan or Roots blower by 4 to 12 deg C in saturation temperature. Because the latent heat of water vapor is massive (~2,300 kJ/kg), compressing 1 kg of vapor requires only 60 to 120 kJ of electrical compressor shaft work. The recompressed hot vapor is returned directly to the shell side of the calandria, where it condenses completely, transferring 100% of its latent heat back into the boiling liquid. This produces extraordinary Coefficient of Performance (COP) values of 25 to 50, slashing energy consumption by up to 90% compared to traditional steam-driven evaporation.'
+      },
+      {
+        q: 'What is Boiling Point Elevation (BPE) and why is it the primary physical constraint on MVR systems?',
+        a: 'Boiling Point Elevation (BPE) is the increase in the boiling temperature of a solution caused by dissolved non-volatile solutes (salts, sugars, or caustics) according to Raoult law. The effective temperature driving force across the evaporator calandria is $\\Delta T_{eff} = \\Delta T_{lift} - \\text{BPE}$. If a concentrated salt brine exhibits a BPE of 7 deg C and the compressor delivers a saturation lift of 10 deg C, the net thermal driving force is reduced to only 3 deg C, requiring huge heat exchanger surface areas. When BPE exceeds 12 to 15 deg C, the pressure ratio and compression work required escalate to the point where multi-effect thermal evaporation or TVR becomes more economically viable than MVR.'
+      },
+      {
+        q: 'Why is de-superheating water injection strictly required downstream of the MVR compressor?',
+        a: 'During vapor compression, isentropic inefficiencies and compression work heat the vapor above its new saturation temperature, creating 20 to 50 deg C of superheat. Superheated vapor is an exceptionally poor heat transfer medium; it behaves as an insulating dry gas until cooled to its dew point. To prevent calandria heat transfer rates from collapsing, a precisely metered spray of demineralized condensate (de-superheating quench water) is injected into the compressor discharge duct. The quench water evaporates instantly, cooling the vapor to exact saturation while augmenting total mass flow returning to the calandria.'
+      },
+      {
+        q: 'What are typical specific energy consumption (SEC) metrics for industrial MVR evaporators?',
+        a: 'State-of-the-art MVR falling film evaporators achieve specific energy consumption (SEC) rates of 15 to 28 kWh per metric tonne of evaporated water (equivalent to 54 to 100 kJ/kg). In contrast, a single-effect steam evaporator consumes ~700 kWh equivalent of thermal heat per tonne, a 3-effect evaporator consumes ~240 kWh/t, and a 6-effect evaporator consumes ~125 kWh/t. MVR delivers the lowest operating cost of any industrial evaporation technology wherever electricity is reasonably priced.'
+      },
+      {
+        q: 'How do high-speed centrifugal turbo-fans compare with positive-displacement Roots blowers?',
+        a: 'Single-stage and multi-stage high-speed centrifugal turbo-fans (operating with titanium or duplex stainless impellers at 8,000 to 22,000 RPM via high-frequency variable speed drives or integrated gearboxes) handle large volumetric vapor flows (5,000 to 150,000 m3/h) with isentropic efficiencies of 78% to 84% and temperature lifts of 6 to 9 deg C per stage. Positive-displacement Roots blowers operate at lower rotational speeds (1,000 to 3,000 RPM), handle lower volumetric flows (<15,000 m3/h), achieve higher single-stage pressure ratios (up to 15 deg C lift), but operate with lower isentropic efficiencies (65% to 72%) and higher mechanical noise.'
+      }
+    ];
+
+    const content = `<style>
+      .mvr-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .mvr-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .mvr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .mvr-group { margin-bottom: 16px; }
+      .mvr-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .mvr-group select, .mvr-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .mvr-group select:focus, .mvr-group input:focus { border-color: #0284c7; outline: none; ring: 2px ring #7dd3fc; }
+      .mvr-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-teal { background: #f0fdfa; color: #0d9488; }
+      .mvr-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .mvr-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .mvr-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .mvr-res-sub { font-size: 0.8rem; color: #64748b; }
+      .mvr-btn { background: #0d9488; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .mvr-btn:hover { background: #0f766e; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="mvr-wrap">
+      <div class="mvr-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Mechanical Vapor Recompression (MVR) Evaporator Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Centrifugal turbo-compressor shaft power, saturation lift, specific energy consumption (SEC), and calandria surface area.</p>
+          </div>
+          <span class="mvr-badge badge-teal">AIChE & Zero Liquid Discharge (ZLD)</span>
+        </div>
+
+        <div class="mvr-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Evaporation Rate & Solution Properties</h3>
+            <div class="mvr-group">
+              <label for="mvr_evap_rate">Water Evaporation Capacity</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="mvr_evap_rate" value="12.5" min="0.5" max="250.0" step="0.5">
+                <select id="mvr_evap_unit" style="width:130px;">
+                  <option value="tonnes_h" selected>tonnes/h</option>
+                  <option value="kg_h">kg/h</option>
+                  <option value="lb_h">lb/h</option>
+                </select>
+              </div>
+            </div>
+            <div class="mvr-group">
+              <label for="mvr_boil_temp">Flash Vessel Boiling Temp (deg C)</label>
+              <input type="number" id="mvr_boil_temp" value="80" min="45" max="102" step="1">
+              <small style="color:#64748b;">Typical vacuum evaporation: 70 to 85 deg C.</small>
+            </div>
+            <div class="mvr-group">
+              <label for="mvr_bpe">Boiling Point Elevation (BPE, deg C)</label>
+              <input type="number" id="mvr_bpe" value="3.2" min="0.0" max="18.0" step="0.2">
+              <small style="color:#64748b;">E.g. Clean water: 0C; Dairy: 1.5C; Wastewater ZLD: 4-10C.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Turbo-Compressor Aerodynamics</h3>
+            <div class="mvr-group">
+              <label for="mvr_temp_lift">Saturation Temperature Lift ($Delta T_{lift}$, deg C)</label>
+              <input type="number" id="mvr_temp_lift" value="9.0" min="4.0" max="20.0" step="0.5">
+              <small style="color:#64748b;">Typically 6 to 10 deg C per single-stage fan.</small>
+            </div>
+            <div class="mvr-group">
+              <label for="mvr_comp_type">Compressor Machinery Type</label>
+              <select id="mvr_comp_type">
+                <option value="centrifugal" selected>High-Speed Centrifugal Turbo-Fan (80% isentropic)</option>
+                <option value="roots">Roots Positive Displacement Blower (68% isentropic)</option>
+                <option value="twostage">Two-Stage Centrifugal Turbo-Compressor (82% isentropic)</option>
+              </select>
+            </div>
+            <div class="mvr-group">
+              <label for="mvr_eta_motor">Motor & VFD Electrical Efficiency (%)</label>
+              <input type="number" id="mvr_eta_motor" value="94" min="85" max="98" step="1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Calandria Heat Transfer & Economics</h3>
+            <div class="mvr-group">
+              <label for="mvr_u_coeff">Calandria Heat Transfer Coeff ($U$, W/m2*K)</label>
+              <input type="number" id="mvr_u_coeff" value="2200" min="1000" max="4000" step="100">
+              <small style="color:#64748b;">Falling film: 2,000-2,600; Forced circulation: 1,400-1,800.</small>
+            </div>
+            <div class="mvr-group">
+              <label for="mvr_elec_cost">Electricity Tariff ($/kWh)</label>
+              <input type="number" id="mvr_elec_cost" value="0.09" min="0.02" max="0.40" step="0.01">
+            </div>
+            <div class="mvr-group">
+              <label for="mvr_hours">Annual Operating Hours</label>
+              <input type="number" id="mvr_hours" value="8000" min="1000" max="8760" step="100">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="mvr-btn" id="mvr_calc_btn">Calculate MVR Power & Calandria Surface Area</button>
+        </div>
+      </div>
+
+      <div class="mvr-card" id="mvr_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Compressor Power & Thermodynamic Performance</h2>
+          <button class="copy-btn" id="mvr_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="mvr_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="mvr-res-grid">
+          <div class="mvr-res-card">
+            <div class="mvr-res-sub">Compressor Motor Power</div>
+            <div class="mvr-res-val" id="res_motor_kw">0 kW</div>
+            <div class="mvr-res-sub" id="res_shaft_kw">Shaft: 0 kW</div>
+          </div>
+          <div class="mvr-res-card">
+            <div class="mvr-res-sub">Specific Energy Consumption</div>
+            <div class="mvr-res-val" id="res_sec">0.0 kWh / t</div>
+            <div class="mvr-res-sub" id="res_sec_sub">per tonne water evaporated</div>
+          </div>
+          <div class="mvr-res-card">
+            <div class="mvr-res-sub">Coefficient of Performance (COP)</div>
+            <div class="mvr-res-val" id="res_cop">0.0</div>
+            <div class="mvr-res-sub" id="res_cop_sub">Thermal Heat Pump COP</div>
+          </div>
+          <div class="mvr-res-card">
+            <div class="mvr-res-sub">Calandria Tube Surface Area</div>
+            <div class="mvr-res-val" id="res_heat_area">0 m2</div>
+            <div class="mvr-res-sub" id="res_heat_area_ft2">0 ft2 Tube Surface</div>
+          </div>
+          <div class="mvr-res-card">
+            <div class="mvr-res-sub">Compression Pressure Ratio</div>
+            <div class="mvr-res-val" id="res_press_ratio">1.00</div>
+            <div class="mvr-res-sub" id="res_delta_p">Delta P: 0 kPa</div>
+          </div>
+          <div class="mvr-res-card">
+            <div class="mvr-res-sub">Annual Energy Cost Savings</div>
+            <div class="mvr-res-val" id="res_annual_savings">$0 / yr</div>
+            <div class="mvr-res-sub" id="res_savings_sub">vs 3-Effect Steam Evaporator</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Thermal & Aerodynamic Balance</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Net Thermal Driving Force ($Delta T_{eff}$): <strong id="res_eff_dt">0.0 deg C</strong></div>
+            <div>Calandria Latent Heat Duty: <strong id="res_calandria_mw">0.0 MW</strong></div>
+            <div>Volumetric Vapor Flow to Fan: <strong id="res_suction_m3h">0 m3/h</strong></div>
+            <div>De-Superheating Water Injection: <strong id="res_quench_flow">0 kg/h</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Mechanical Vapor Recompression (MVR) Dynamic Cycle Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Flash vessel boiling chamber, suction mist eliminator, high-speed centrifugal vapor compressor, de-superheating quench nozzle, falling film calandria, and condensate extraction pump.</p>
+          <div class="anim-box">
+            <canvas id="mvr_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="mvr-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. BPE Salinity Spikes & Severe Compressor Surge Choking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">Centrifugal MVR turbo-fans operate on a steep aerodynamic curve. If upstream crystallization or feed composition spikes increase dissolved solids unexpectedly, Boiling Point Elevation (BPE) surges from 3 deg C to 8 deg C. The net effective thermal driving force drops to near zero, calandria condensation halts, and the compressor backpressure rises above its surge line. The compressor plunges into violent aerodynamic stall and rotating surge, tripping on high shaft vibration.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Droplet Carryover & High-Speed Titanium Impeller Erosion</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">MVR compressors ingest steam at tip speeds exceeding 300 to 450 m/s (Mach 0.7 to 0.9). If the vapor-liquid separator demister pad fouls or if foaming occurs in the flash chamber, liquid brine droplets are carried into the compressor suction duct. High-velocity saline droplets impact the rotating titanium or duplex stainless impeller blades like bullets, causing rapid leading-edge erosion, pitting, and unbalancing that destroys bearings within months.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Superheated Vapor Calandria Blanketing from Failed Quench</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Compressor discharge vapor emerges with 25 to 45 deg C of superheat. If the de-superheating water quench injection nozzle plugs or if the quench pump loses prime, dry superheated gas enters the shell of the calandria. Because dry superheated gas has a heat transfer coefficient 50 times lower than condensing vapor, heat transfer plummets instantly. Boiling ceases in the tubes, causing the entire evaporation system to stall.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Falling Film Liquid Maldistribution & Tube Baking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">In vertical falling film MVR calandrias, recirculating slurry must wet 100% of the internal tube perimeter continuously. If the top distributor tray is not perfectly leveled or if feed nozzles clog, liquid films dry out midway down individual tubes. Without liquid cooling, tube wall temperature rises to the steam temperature, baking hard scale into the dry tube surface. Once baked, tubes lose thermal conductivity and cannot be cleaned without hydro-blasting.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Shell-Side Non-Condensable Gas (NCG) Air Blanketing</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">In vacuum MVR systems, atmospheric air continually enters through flange gaskets, pump mechanical seals, and dissolved air in the feed. Flashed steam condenses on the calandria tubes, but non-condensable air cannot condense; it concentrates at the bottom of the calandria shell. Without continuous vacuum deaeration vent extraction, an inert air cushion blankets the lower 30% of the tube bundle, cutting evaporator capacity by a third.</p>
+        </div>
+      </div>
+
+      <div class="mvr-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">MVR Thermodynamic & Compression Power Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>isentropic compression power ($P_{is}$)</strong> for water vapor treated as a real gas is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$P_{shaft} = \frac{\dot{m}_v \cdot c_{p,v} \cdot T_{suct}}{\eta_{is}} \left[ \left( \frac{P_{disch}}{P_{suct}} \right)^{\frac{k-1}{k}} - 1 \right]$$
+          </div>
+          <p>Where $k \approx 1.33$ is the isentropic expansion coefficient for water vapor, and $T_{disch,sat} = T_{boil} + \Delta T_{lift}$.</p>
+          <p>The <strong>effective thermal driving force ($\Delta T_{eff}$)</strong> across the calandria is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\Delta T_{eff} = \Delta T_{lift} - \text{BPE}, \qquad A_{calandria} = \frac{\dot{m}_v \cdot h_{fg}}{U \cdot \Delta T_{eff}}$$
+          </div>
+          <p>The <strong>Coefficient of Performance (COP)</strong> and Specific Energy Consumption (SEC) are:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{COP} = \frac{\dot{Q}_{thermal}}{P_{electric}} = \frac{\dot{m}_v \cdot h_{fg}}{P_{motor}}, \qquad \text{SEC} = \frac{P_{motor}}{\dot{m}_{v,tonnes}} \quad \left[ \frac{\text{kWh}}{\text{tonne}} \right]$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var evapRateInput = document.getElementById('mvr_evap_rate');
+        var evapUnitSel = document.getElementById('mvr_evap_unit');
+        var boilTempInput = document.getElementById('mvr_boil_temp');
+        var bpeInput = document.getElementById('mvr_bpe');
+        var tempLiftInput = document.getElementById('mvr_temp_lift');
+        var compTypeSel = document.getElementById('mvr_comp_type');
+        var etaMotorInput = document.getElementById('mvr_eta_motor');
+        var uCoeffInput = document.getElementById('mvr_u_coeff');
+        var elecCostInput = document.getElementById('mvr_elec_cost');
+        var hoursInput = document.getElementById('mvr_hours');
+        var calcBtn = document.getElementById('mvr_calc_btn');
+        var copyBtn = document.getElementById('mvr_copy_btn');
+        var copyMsg = document.getElementById('mvr_copy_msg');
+
+        var resMotorKw = document.getElementById('res_motor_kw');
+        var resShaftKw = document.getElementById('res_shaft_kw');
+        var resSec = document.getElementById('res_sec');
+        var resSecSub = document.getElementById('res_sec_sub');
+        var resCop = document.getElementById('res_cop');
+        var resCopSub = document.getElementById('res_cop_sub');
+        var resHeatArea = document.getElementById('res_heat_area');
+        var resHeatAreaFt2 = document.getElementById('res_heat_area_ft2');
+        var resPressRatio = document.getElementById('res_press_ratio');
+        var resDeltaP = document.getElementById('res_delta_p');
+        var resAnnualSavings = document.getElementById('res_annual_savings');
+        var resSavingsSub = document.getElementById('res_savings_sub');
+
+        var resEffDt = document.getElementById('res_eff_dt');
+        var resCalandriaMw = document.getElementById('res_calandria_mw');
+        var resSuctionM3h = document.getElementById('res_suction_m3h');
+        var resQuenchFlow = document.getElementById('res_quench_flow');
+
+        var canvas = document.getElementById('mvr_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // Antoine saturation vapor pressure for water (kPa)
+        function getWaterSatPress(TC) {
+          var TK = TC + 273.15;
+          // Antoine: log10(P_bar) = 5.20389 - 1733.926 / (TK - 39.485)
+          var logPbar = 5.20389 - (1733.926 / (TK - 39.485));
+          return Math.pow(10, logPbar) * 100.0; // kPa
+        }
+
+        function calculate() {
+          var rawEvap = parseFloat(evapRateInput.value) || 12.5;
+          var unit = evapUnitSel.value;
+          var tBoilC = parseFloat(boilTempInput.value) || 80;
+          var bpeC = parseFloat(bpeInput.value) || 3.2;
+          var deltaTLiftC = parseFloat(tempLiftInput.value) || 9.0;
+          var compType = compTypeSel.value;
+          var etaMotor = (parseFloat(etaMotorInput.value) || 94) / 100.0;
+          var uCoeff = parseFloat(uCoeffInput.value) || 2200; // W/m2*K
+          var tariff = parseFloat(elecCostInput.value) || 0.09;
+          var opHours = parseFloat(hoursInput.value) || 8000;
+
+          // Convert evaporation rate to tonnes/h and kg/s
+          var evapTonnesH = rawEvap;
+          if (unit === 'kg_h') evapTonnesH = rawEvap / 1000.0;
+          else if (unit === 'lb_h') evapTonnesH = (rawEvap * 0.453592) / 1000.0;
+
+          var evapKgS = (evapTonnesH * 1000.0) / 3600.0;
+
+          // Latent heat of vaporization at boiling temp (kJ/kg)
+          var hfg = 2501.0 - 2.37 * tBoilC;
+          var qThermalKw = evapKgS * hfg;
+          var qThermalMw = qThermalKw / 1000.0;
+
+          // Pressures: P1 (suction) at T_boil; P2 (discharge) at T_cond = T_boil + deltaTLift
+          var p1KPa = getWaterSatPress(tBoilC);
+          var tCondC = tBoilC + deltaTLiftC;
+          var p2KPa = getWaterSatPress(tCondC);
+          var pressRatio = p2KPa / p1KPa;
+          var deltaPKPa = p2KPa - p1KPa;
+
+          // Compressor isentropic efficiency
+          var etaIs = 0.80; // Centrifugal
+          if (compType === 'roots') etaIs = 0.68;
+          else if (compType === 'twostage') etaIs = 0.82;
+
+          // Isentropic compression power
+          // Specific heat of water vapor cp ~ 2.05 kJ/(kg*K), k = 1.33
+          var cpVapor = 2.05;
+          var k = 1.33;
+          var expTerm = (k - 1.0) / k; // ~ 0.248
+          var tSuctK = tBoilC + 273.15;
+
+          // Theoretical adiabatic temperature rise: T_is = T1 * (P2/P1)^expTerm
+          var isentropicHeadKj = (k / (k - 1.0)) * 0.4615 * tSuctK * (Math.pow(pressRatio, expTerm) - 1.0);
+          var shaftPowerKw = (evapKgS * isentropicHeadKj) / etaIs;
+          var motorPowerKw = shaftPowerKw / etaMotor;
+
+          // Specific Energy Consumption SEC (kWh / tonne)
+          var secKwhPerTonne = motorPowerKw / evapTonnesH;
+
+          // Coefficient of Performance (COP)
+          var cop = qThermalKw / motorPowerKw;
+
+          // Effective thermal driving force across Calandria
+          var deltaTEff = Math.max(1.0, deltaTLiftC - bpeC);
+
+          // Calandria surface area (m2)
+          var areaM2 = (qThermalKw * 1000.0) / (uCoeff * deltaTEff);
+          var areaFt2 = areaM2 * 10.7639;
+
+          // Suction volumetric flow rate (m3/h)
+          // Vapor density rho_v = P / (R * T)
+          var rhoV = p1KPa / (0.4615 * tSuctK);
+          var suctionM3H = (evapKgS / rhoV) * 3600.0;
+
+          // De-superheating quench water (kg/h): cools actual discharge vapor to T_cond saturation
+          var actualTDischK = tSuctK * (1.0 + (Math.pow(pressRatio, expTerm) - 1.0) / etaIs);
+          var deltaTSuperheat = Math.max(0, (actualTDischK - 273.15) - tCondC);
+          var quenchKgH = (evapTonnesH * 1000.0 * cpVapor * deltaTSuperheat) / hfg;
+
+          // Annual electricity cost
+          var annualElecCost = motorPowerKw * tariff * opHours;
+
+          // Steam comparison: 3-effect steam evaporator requires ~0.35 tonnes steam per tonne water
+          // Steam cost ~$28 / tonne
+          var steamCostPerTonneWater = 0.35 * 28.0; // ~$9.80 / tonne
+          var annualSteamCost = evapTonnesH * steamCostPerTonneWater * opHours;
+          var annualSavings = Math.max(0, annualSteamCost - annualElecCost);
+
+          // Update UI
+          resMotorKw.innerText = Math.round(motorPowerKw).toLocaleString() + ' kW';
+          resShaftKw.innerText = 'Shaft: ' + Math.round(shaftPowerKw).toLocaleString() + ' kW (' + Math.round(motorPowerKw * 1.341) + ' HP)';
+          resSec.innerText = secKwhPerTonne.toFixed(1) + ' kWh / t';
+          resSecSub.innerText = 'Total SEC (' + (secKwhPerTonne * 3.6).toFixed(0) + ' kJ/kg evaporated)';
+          resCop.innerText = cop.toFixed(1);
+          resCopSub.innerText = 'Energy Multiplier: ' + cop.toFixed(1) + 'x Thermal Lift';
+          resHeatArea.innerText = Math.round(areaM2).toLocaleString() + ' m2';
+          resHeatAreaFt2.innerText = Math.round(areaFt2).toLocaleString() + ' ft2 (dT_eff: ' + deltaTEff.toFixed(1) + 'C)';
+          resPressRatio.innerText = pressRatio.toFixed(2) + 'x';
+          resDeltaP.innerText = 'Delta P: ' + deltaPKPa.toFixed(1) + ' kPa lift';
+          resAnnualSavings.innerText = '$' + Math.round(annualSavings).toLocaleString() + ' / yr';
+          resSavingsSub.innerText = 'Saves ' + Math.round((1 - annualElecCost/annualSteamCost)*100) + '% vs 3-Effect Steam';
+
+          resEffDt.innerText = deltaTEff.toFixed(1) + ' deg C (Lift ' + deltaTLiftC + 'C - BPE ' + bpeC + 'C)';
+          resCalandriaMw.innerText = qThermalMw.toFixed(2) + ' MW Thermal';
+          resSuctionM3h.innerText = Math.round(suctionM3H).toLocaleString() + ' m3/h';
+          resQuenchFlow.innerText = Math.round(quenchKgH).toLocaleString() + ' kg/h Condensate';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // MVR Evaporation Loop Flowsheet
+          // 1. Vertical Falling Film Calandria (Left)
+          var calX = 60, calY = 40, calW = 80, calH = 180;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(calX, calY, calW, calH, 8); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('FALLING FILM', calX + calW/2, calY + 22);
+          ctx.fillText('CALANDRIA', calX + calW/2, calY + 35);
+
+          // Tube lines inside Calandria
+          ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
+          for (var t = 0; t < 3; t++) {
+            var tx = calX + 20 + t * 20;
+            ctx.beginPath(); ctx.moveTo(tx, calY + 45); ctx.lineTo(tx, calY + calH - 20); ctx.stroke();
+          }
+
+          // 2. Vapor-Liquid Separator Flash Chamber (Directly below or adjacent)
+          var sepX = 175, sepY = 120, sepW = 85, sepH = 130;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(sepX, sepY, sepW, sepH, 10); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif';
+          ctx.fillText('SEPARATOR', sepX + sepW/2, sepY + 25);
+          ctx.fillStyle = '#94a3b8'; ctx.font = '8px sans-serif';
+          ctx.fillText(boilTempInput.value + ' deg C', sepX + sepW/2, sepY + 38);
+
+          // Boiling Liquid Sump at bottom of Separator
+          ctx.fillStyle = 'rgba(2, 132, 199, 0.45)';
+          ctx.fillRect(sepX + 2, sepY + sepH - 35, sepW - 4, 33);
+
+          // Calandria discharge into Separator
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(calX + calW, calY + calH - 15);
+          ctx.lineTo(sepX, sepY + 50);
+          ctx.stroke();
+
+          // 3. Centrifugal Vapor Turbo-Compressor (Top Center)
+          var compX = 305, compY = 40, compR = 38;
+          ctx.fillStyle = '#0f172a'; ctx.strokeStyle = '#0d9488'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(compX, compY + 15, compR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#2dd4bf'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('MVR TURBO', compX, compY + 10);
+          ctx.fillText('FAN', compX, compY + 24);
+          ctx.fillStyle = '#ffffff'; ctx.font = '8px sans-serif';
+          ctx.fillText(resMotorKw.innerText, compX, compY + 38);
+
+          // Overhead vapor suction line: Separator -> Compressor
+          ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(sepX + sepW/2, sepY);
+          ctx.lineTo(sepX + sepW/2, compY + 15);
+          ctx.lineTo(compX - compR, compY + 15);
+          ctx.stroke();
+          ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('COLD VAPOR', (sepX + sepW/2 + compX - compR)/2, compY + 8);
+
+          // Recompressed Hot Vapor Line: Compressor -> Calandria Shell
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(compX, compY - compR + 15);
+          ctx.lineTo(compX, compY - 15);
+          ctx.lineTo(calX + calW/2, compY - 15);
+          ctx.lineTo(calX + calW/2, calY);
+          ctx.stroke();
+
+          ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('HOT RECOMPRESSED STEAM (+ ' + tempLiftInput.value + 'C)', (compX + calX + calW/2)/2, compY - 20);
+
+          // De-superheating Quench Spray Nozzle
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(compX - 60, compY - 18, 6, 6);
+          ctx.fillStyle = '#38bdf8'; ctx.font = '7px sans-serif';
+          ctx.fillText('QUENCH', compX - 60, compY - 5);
+
+          // Animated Vapor & Liquid Particles
+          ctx.fillStyle = '#38bdf8';
+          for (var p = 0; p < 4; p++) {
+            var py = sepY - ((animStep * 2 + p * 30) % (sepY - compY));
+            ctx.beginPath(); ctx.arc(sepX + sepW/2, py, 2.5, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Falling Film Concentrate Recirculation Line (Bottom Separator -> Top Calandria)
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(sepX + sepW/2, sepY + sepH);
+          ctx.lineTo(sepX + sepW/2, 285);
+          ctx.lineTo(calX - 25, 285);
+          ctx.lineTo(calX - 25, calY + 15);
+          ctx.lineTo(calX, calY + 15);
+          ctx.stroke();
+
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('RECIRCULATION PUMP', (sepX + calX)/2, 298);
+
+          // Right: Comprehensive Technical Telemetry Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('MVR THERMODYNAMIC COMPRESSION TELEMETRY', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Compressor Motor Rating: ' + resMotorKw.innerText + ' (' + resShaftKw.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Specific Energy Consumption (SEC): ' + resSec.innerText + ' (' + resSecSub.innerText + ')', dX + 20, dY + 76);
+          ctx.fillText('Coefficient of Performance (COP): ' + resCop.innerText + ' (' + resCopSub.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Pressure Ratio: ' + resPressRatio.innerText + ' (' + resDeltaP.innerText + ')', dX + 20, dY + 118);
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Calandria Surface Area: ' + resHeatArea.innerText + ' (' + resHeatAreaFt2.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Net Thermal Driving Force: ' + resEffDt.innerText, dX + 20, dY + 165);
+          ctx.fillText('Calandria Heat Duty: ' + resCalandriaMw.innerText + ' | Suction Flow: ' + resSuctionM3h.innerText, dX + 20, dY + 186);
+          ctx.fillText('De-Superheating Quench Demand: ' + resQuenchFlow.innerText, dX + 20, dY + 207);
+
+          ctx.fillStyle = '#10b981';
+          ctx.fillText('Annual Energy Cost Savings: ' + resAnnualSavings.innerText + ' (' + resSavingsSub.innerText + ')', dX + 20, dY + 233);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Surge Margin: Operating stably above aerodynamic stall threshold', dX + 20, dY + 258);
+          ctx.fillText('Standards: AIChE Evaporation Standards & ASME PTC 10 Compressors', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== MVR EVAPORATOR SIZING REPORT ===',
+            'Water Evaporation Rate: ' + evapRateInput.value + ' ' + evapUnitSel.value + ' @ ' + boilTempInput.value + ' deg C',
+            'Boiling Point Elevation (BPE): ' + bpeInput.value + ' deg C | Saturation Lift: ' + tempLiftInput.value + ' deg C',
+            'Net Effective Driving Force (dT_eff): ' + resEffDt.innerText,
+            'Compressor Machine: ' + compTypeSel.options[compTypeSel.selectedIndex].text,
+            'Motor Power Rating: ' + resMotorKw.innerText + ' (' + resShaftKw.innerText + ')',
+            'Specific Energy Consumption: ' + resSec.innerText + ' (' + resSecSub.innerText + ')',
+            'Coefficient of Performance (COP): ' + resCop.innerText,
+            'Calandria Surface Area: ' + resHeatArea.innerText + ' (' + resHeatAreaFt2.innerText + ')',
+            'Compression Ratio: ' + resPressRatio.innerText + ' (' + resDeltaP.innerText + ')',
+            'Annual Cost Savings: ' + resAnnualSavings.innerText + ' (' + resSavingsSub.innerText + ')',
+            'Standards: AIChE Evaporator Design Standards & ASME PTC 10'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [evapRateInput, evapUnitSel, boilTempInput, bpeInput, tempLiftInput, compTypeSel, etaMotorInput, uCoeffInput, elecCostInput, hoursInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CG2: CENTRIFUGAL PUMP MINIMUM CONTINUOUS STABLE FLOW (MCSF) CALCULATOR ───
+  (() => {
+    const slug = 'centrifugal-pump-minimum-continuous-stable-flow-mcsf-calculator';
+    const title = 'Centrifugal Pump Minimum Continuous Stable Flow (MCSF) Calculator | API 610 Engine';
+    const desc = 'Industrial Centrifugal Pump Minimum Continuous Stable Flow (MCSF) and Thermal Flow (MCTF) calculator. Calculate suction specific speed (Nss), internal flow recirculation limits, casing temperature rise, automatic recirculation control (ARC) bypass sizing, and radial thrust loads per API 610.';
+
+    const faqs = [
+      {
+        q: 'What is the fundamental difference between Minimum Continuous Thermal Flow (MCTF) and Minimum Continuous Stable Flow (MCSF)?',
+        a: 'Minimum Continuous Thermal Flow (MCTF) is the absolute minimum flow required strictly to prevent the pumped liquid from boiling or flashing into vapor inside the casing due to hydraulic friction and inefficiency. MCTF is typically low (5% to 15% of BEP). Minimum Continuous Stable Flow (MCSF), defined by API 610, is the lowest flow at which the pump can operate continuously without exceeding vibration limits, bearing life derating, shaft deflection, noise, or severe internal suction/discharge recirculation cavitation. MCSF is substantially higher than MCTF (typically 25% to 55% of BEP).'
+      },
+      {
+        q: 'How does Suction Specific Speed (Nss) govern the onset of internal recirculation?',
+        a: 'Suction Specific Speed ($N_{ss} = N \\cdot \\sqrt{Q} / NPSH_R^{0.75}$) is a dimensionless metric of impeller eye design. Pumps with high $N_{ss}$ (>11,000 to 12,000 in US units) have large impeller eye diameters engineered to achieve very low $NPSH_R$. However, a large impeller eye causes flow recirculation to begin at much higher flow rates (often at 70% to 80% of BEP). API 610 strongly cautions against specifying $N_{ss} > 11,000$ (213 metric) because such pumps suffer from severe hydraulic instability, high vibration, and narrowed operating windows.'
+      },
+      {
+        q: 'Why does radial thrust force escalate exponentially at low flow rates?',
+        a: 'In a volute pump, static pressure around the impeller perimeter is uniform only at the Best Efficiency Point (BEP). As flow is throttled down toward shutoff, the velocity distribution inside the volute becomes highly asymmetric, creating a severe non-uniform static pressure field. Per the Stepanoff and Agostinelli correlations, the radial thrust force ($F_r$) on the impeller can increase by 300% to 600% at 20% of BEP. This immense lateral load deflects the shaft, rapidly wearing mechanical seal faces and causing premature failure of radial ball or roller bearings.'
+      },
+      {
+        q: 'What is the difference between suction recirculation and discharge recirculation?',
+        a: 'Suction recirculation occurs at the impeller eye inlet when forward flow velocity falls below the rotational tip speed of the vanes; fluid backflows along the outer casing wall into the suction pipe, creating intense vortex cavitation that pits the hidden pressure side of the impeller blades. Discharge recirculation occurs at the impeller outer tip when high-velocity eddies reverse between the impeller shroud and the stationary volute cutwater (tongue), causing severe vane-pass pulsation, pipe shaking, and mechanical seal face chipping.'
+      },
+      {
+        q: 'How does an Automatic Recirculation Control (ARC) valve protect the pump?',
+        a: 'An Automatic Recirculation Control (ARC) valve is a self-contained, mechanical non-return check valve and modulating bypass installed directly on the pump discharge. As process flow demand falls toward the designated MCSF setpoint, the internal disc shifts, automatically opening a high-pressure breakdown multi-stage orifice bypass that diverts the required minimum flow back to the suction tank or deaerator. ARC valves eliminate the risk of deadheading during closed discharge valve conditions without requiring external PLC instruments or electric actuators.'
+      }
+    ];
+
+    const content = `<style>
+      .pump-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .pump-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .pump-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .pump-group { margin-bottom: 16px; }
+      .pump-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .pump-group select, .pump-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .pump-group select:focus, .pump-group input:focus { border-color: #dc2626; outline: none; ring: 2px ring #fca5a5; }
+      .pump-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-red { background: #fef2f2; color: #dc2626; }
+      .pump-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .pump-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .pump-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .pump-res-sub { font-size: 0.8rem; color: #64748b; }
+      .pump-btn { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .pump-btn:hover { background: #b91c1c; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="pump-wrap">
+      <div class="pump-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Centrifugal Pump Minimum Continuous Stable Flow (MCSF) Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">API 610 hydraulic stability, suction specific speed (Nss), internal recirculation onset, casing thermal rise, and ARC bypass sizing.</p>
+          </div>
+          <span class="pump-badge badge-red">API 610 (12th Edition) & HI 9.6.3</span>
+        </div>
+
+        <div class="pump-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Pump BEP Rating & Hydraulics</h3>
+            <div class="pump-group">
+              <label for="pump_bep_flow">BEP Flow Rate ($Q_{BEP}$)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="pump_bep_flow" value="350" min="10" max="15000" step="10">
+                <select id="pump_flow_unit" style="width:130px;">
+                  <option value="m3_h" selected>m3/h</option>
+                  <option value="gpm">GPM (US)</option>
+                </select>
+              </div>
+            </div>
+            <div class="pump-group">
+              <label for="pump_bep_head">BEP Total Dynamic Head (meters)</label>
+              <input type="number" id="pump_bep_head" value="85" min="5" max="1200" step="5">
+            </div>
+            <div class="pump-group">
+              <label for="pump_speed">Rotational Speed ($N$, RPM)</label>
+              <input type="number" id="pump_speed" value="2950" min="500" max="6000" step="50">
+              <small style="color:#64748b;">E.g. 2950 RPM (50 Hz) or 3550 RPM (60 Hz 2-pole).</small>
+            </div>
+            <div class="pump-group">
+              <label for="pump_eta_bep">BEP Hydraulic Efficiency (%)</label>
+              <input type="number" id="pump_eta_bep" value="76" min="40" max="92" step="1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Suction & Cavitation Parameters</h3>
+            <div class="pump-group">
+              <label for="pump_npshr">NPSH Required at BEP ($NPSH_R$, meters)</label>
+              <input type="number" id="pump_npshr" value="4.2" min="0.5" max="25.0" step="0.1">
+            </div>
+            <div class="pump-group">
+              <label for="pump_npsha">NPSH Available ($NPSH_A$, meters)</label>
+              <input type="number" id="pump_npsha" value="6.5" min="1.0" max="40.0" step="0.2">
+              <small style="color:#64748b;">Must exceed NPSH_R with margin.</small>
+            </div>
+            <div class="pump-group">
+              <label for="pump_type">API 610 Pump Construction</label>
+              <select id="pump_type">
+                <option value="oh2" selected>OH2 (Overhung Single-Stage, Centerline Mounted)</option>
+                <option value="bb2">BB2 (Between-Bearings 1- or 2-Stage)</option>
+                <option value="bb3">BB3 (Multi-Stage Axially Split High Pressure)</option>
+                <option value="vs4">VS4 / VS1 (Vertical Suspended Sump Pump)</option>
+              </select>
+            </div>
+            <div class="pump-group">
+              <label for="pump_service">Service Severity & Fluid</label>
+              <select id="pump_service">
+                <option value="hydrocarbon" selected>Process Hydrocarbon / Chemical (Standard)</option>
+                <option value="boiler_feed">Boiler Feed Water (High Energy > 200 kW/stage)</option>
+                <option value="water">Clean Water / Utility Service</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Thermal & Recirculation Limits</h3>
+            <div class="pump-group">
+              <label for="pump_max_temp_rise">Allowable Temperature Rise ($Delta T$, deg C)</label>
+              <input type="number" id="pump_max_temp_rise" value="6.0" min="2.0" max="15.0" step="0.5">
+              <small style="color:#64748b;">Typically 5 to 8 deg C to prevent flashing.</small>
+            </div>
+            <div class="pump-group">
+              <label for="pump_density">Fluid Density (kg/m3)</label>
+              <input type="number" id="pump_density" value="820" min="450" max="1500" step="10">
+              <small style="color:#64748b;">E.g. Light hydrocarbon: 700-850; Water: 990 kg/m3.</small>
+            </div>
+            <div class="pump-group">
+              <label for="pump_shutoff_head_factor">Shutoff Head Factor ($H_0 / H_{BEP}$)</label>
+              <input type="number" id="pump_shutoff_head_factor" value="1.18" min="1.05" max="1.35" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="pump-btn" id="pump_calc_btn">Calculate MCSF, Thermal Limits & Radial Thrust</button>
+        </div>
+      </div>
+
+      <div class="pump-card" id="pump_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Hydrodynamic Limits & Minimum Flow Analysis</h2>
+          <button class="copy-btn" id="pump_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="pump_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="pump-res-grid">
+          <div class="pump-res-card">
+            <div class="pump-res-sub">Minimum Continuous Stable Flow (MCSF)</div>
+            <div class="pump-res-val" id="res_mcsf_flow">0 m3/h</div>
+            <div class="pump-res-sub" id="res_mcsf_pct">0.0% of BEP Flow</div>
+          </div>
+          <div class="pump-res-card">
+            <div class="pump-res-sub">Minimum Thermal Flow (MCTF)</div>
+            <div class="pump-res-val" id="res_mctf_flow">0 m3/h</div>
+            <div class="pump-res-sub" id="res_mctf_pct">0.0% of BEP Flow</div>
+          </div>
+          <div class="pump-res-card">
+            <div class="pump-res-sub">Suction Specific Speed ($N_{ss}$)</div>
+            <div class="pump-res-val" id="res_nss_us">0 US</div>
+            <div class="pump-res-sub" id="res_nss_status">API 610 Compliant (<11,000)</div>
+          </div>
+          <div class="pump-res-card">
+            <div class="pump-res-sub">Radial Thrust Multiplier</div>
+            <div class="pump-res-val" id="res_radial_thrust">0.0x</div>
+            <div class="pump-res-sub" id="res_thrust_sub">vs BEP Force at MCSF</div>
+          </div>
+          <div class="pump-res-card">
+            <div class="pump-res-sub">ARC Bypass Orifice Diameter</div>
+            <div class="pump-res-val" id="res_bypass_dia">0.0 mm</div>
+            <div class="pump-res-sub" id="res_bypass_inch">0.00 inches ID</div>
+          </div>
+          <div class="pump-res-card">
+            <div class="pump-res-sub">Shutoff Temperature Rise Rate</div>
+            <div class="pump-res-val" id="res_temp_rate">0.0 C / min</div>
+            <div class="pump-res-sub" id="res_deadhead_time">Deadhead limit: 0 s</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Hydraulic Recirculation & Energy Breakdown</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Suction Recirculation Inception ($Q_{SR}$): <strong id="res_q_sr">0 m3/h</strong></div>
+            <div>Discharge Recirculation Inception ($Q_{DR}$): <strong id="res_q_dr">0 m3/h</strong></div>
+            <div>BEP Shaft Power: <strong id="res_bep_power">0 kW</strong></div>
+            <div>Shutoff Power Absorbed: <strong id="res_shutoff_power">0 kW</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Centrifugal Impeller Internal Recirculation & ARC Bypass Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Centrifugal casing, impeller eye suction streamlines, onset of backflow recirculation vortices at sub-MCSF operation, and ARC automatic bypass protection line.</p>
+          <div class="anim-box">
+            <canvas id="pump_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="pump-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Confusing Thermal Flow (MCTF) with Stable Flow (MCSF)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">Engineers frequently set the minimum flow bypass line to 10% of BEP because "the liquid doesn't overheat". While 10% flow satisfies thermal heat balance (MCTF), the pump is operating far below its hydrodynamic stability limit (MCSF ~35%). At 10% flow, massive internal suction recirculation creates violent low-frequency acoustic pulsations and cavitation that destroys carbon-graphite mechanical seal faces, snaps shafts in fatigue, and wrecks bearings within weeks.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. High Suction Specific Speed ($N_{ss} > 12,000$) Narrow Operating Band</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">To reduce civil tank elevation costs, purchasers specify impellers with exceptionally low $NPSH_R$, pushing $N_{ss}$ above 12,000 US (235 metric). Such impellers feature oversized, flared suction eyes. The onset of suction recirculation ($Q_{SR}$) shifts from 45% of BEP up to 75% or 80% of BEP. Operating at 70% of design throughput causes loud gravel-like rattling and intense hydraulic surging that trips vibration monitors.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Deadhead Flashing Casing Rupture</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Operating with closed discharge and closed bypass converts 100% of motor shaft power into thermal heat transferred directly into the small liquid volume trapped inside the pump casing. In a 75 kW pump containing 40 liters of water, fluid temperature surges by 20 deg C per minute. Within 3 to 5 minutes, liquid reaches boiling temperature and flashes into high-pressure steam, blowing out mechanical seals, warping the casing, or causing catastrophic explosive casing rupture.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. ARC Valve Bypass Pressure Breakdown Cavitation</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">In high-pressure services (e.g. 100 bar boiler feed or pipeline injection), bypass water drops from 100 bar to suction pressure (~3 bar). If a standard single-stage orifice plate is used instead of a multi-stage tortuous-path pressure breakdown trim, cavitation index ($\\sigma$) plummets into severe cavitation. Violent micro-jet implosions erode stainless steel pipe walls downstream of the bypass valve, causing pipe wall rupture within months.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Radial Thrust Bearing Overload in Single-Volute Pumps</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">In single-volute casings, the radial force ($F_r$) reaches minimum at BEP but skyrockets by a factor of 4.5x at 15% flow. At 3500 RPM, continuous low-flow operation deflects the shaft by several thousandths of an inch at the seal faces. The high lateral load causes ball bearing skidding, cage fracture, and excessive frictional heating that melts bearing lubricant, triggering catastrophic bearing seizure.</p>
+        </div>
+      </div>
+
+      <div class="pump-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">API 610 Hydraulic Stability & Thermal Balance Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>Suction Specific Speed ($N_{ss}$)</strong> in US customary units ($N$ in RPM, $Q$ in GPM at BEP, $NPSH_R$ in ft) is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$N_{ss,US} = \frac{N \sqrt{Q_{BEP,gpm}}}{NPSH_{R,ft}^{0.75}}, \qquad N_{ss,metric} = \frac{N \sqrt{Q_{BEP,m^3/s}}}{NPSH_{R,m}^{0.75}} = \frac{N_{ss,US}}{51.64}$$
+          </div>
+          <p>The <strong>Minimum Continuous Thermal Flow (MCTF)</strong> based on maximum allowable temperature rise ($\Delta T_{allow}$) is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Q_{MCTF} = \frac{P_{so} \cdot (1 - \eta_{so})}{\rho \cdot c_p \cdot \Delta T_{allow}}$$
+          </div>
+          <p>Where $P_{so}$ is shutoff power. The <strong>Minimum Continuous Stable Flow (MCSF)</strong> per Hydraulic Institute and API 610 correlates with $N_{ss}$ and pump geometry:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Q_{MCSF} = Q_{BEP} \cdot \left[ 0.15 + 0.000025 \cdot N_{ss,US} \right] \cdot K_{type}$$
+          </div>
+          <p>The <strong>Radial Thrust Force ($F_r$)</strong> across the flow range (Stepanoff formula) is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$F_r = K_r \cdot \rho \cdot g \cdot H \cdot D_2 \cdot b_2, \qquad K_r = 0.36 \left[ 1 - \left( \frac{Q}{Q_{BEP}} \right)^2 \right]$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var bepFlowInput = document.getElementById('pump_bep_flow');
+        var flowUnitSel = document.getElementById('pump_flow_unit');
+        var bepHeadInput = document.getElementById('pump_bep_head');
+        var speedInput = document.getElementById('pump_speed');
+        var etaBepInput = document.getElementById('pump_eta_bep');
+        var npshrInput = document.getElementById('pump_npshr');
+        var npshaInput = document.getElementById('pump_npsha');
+        var pumpTypeSel = document.getElementById('pump_type');
+        var serviceSel = document.getElementById('pump_service');
+        var maxTempRiseInput = document.getElementById('pump_max_temp_rise');
+        var densityInput = document.getElementById('pump_density');
+        var shutoffFactorInput = document.getElementById('pump_shutoff_head_factor');
+        var calcBtn = document.getElementById('pump_calc_btn');
+        var copyBtn = document.getElementById('pump_copy_btn');
+        var copyMsg = document.getElementById('pump_copy_msg');
+
+        var resMcsfFlow = document.getElementById('res_mcsf_flow');
+        var resMcsfPct = document.getElementById('res_mcsf_pct');
+        var resMctfFlow = document.getElementById('res_mctf_flow');
+        var resMctfPct = document.getElementById('res_mctf_pct');
+        var resNssUs = document.getElementById('res_nss_us');
+        var resNssStatus = document.getElementById('res_nss_status');
+        var resRadialThrust = document.getElementById('res_radial_thrust');
+        var resThrustSub = document.getElementById('res_thrust_sub');
+        var resBypassDia = document.getElementById('res_bypass_dia');
+        var resBypassInch = document.getElementById('res_bypass_inch');
+        var resTempRate = document.getElementById('res_temp_rate');
+        var resDeadheadTime = document.getElementById('res_deadhead_time');
+
+        var resQSr = document.getElementById('res_q_sr');
+        var resQDr = document.getElementById('res_q_dr');
+        var resBepPower = document.getElementById('res_bep_power');
+        var resShutoffPower = document.getElementById('res_shutoff_power');
+
+        var canvas = document.getElementById('pump_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var rawFlow = parseFloat(bepFlowInput.value) || 350;
+          var unit = flowUnitSel.value;
+          var headM = parseFloat(bepHeadInput.value) || 85;
+          var rpm = parseFloat(speedInput.value) || 2950;
+          var etaBep = (parseFloat(etaBepInput.value) || 76) / 100.0;
+          var npshrM = parseFloat(npshrInput.value) || 4.2;
+          var npshaM = parseFloat(npshaInput.value) || 6.5;
+          var pType = pumpTypeSel.value;
+          var service = serviceSel.value;
+          var maxDt = parseFloat(maxTempRiseInput.value) || 6.0;
+          var rho = parseFloat(densityInput.value) || 820;
+          var h0Factor = parseFloat(shutoffFactorInput.value) || 1.18;
+
+          // Convert flow to m3/h and GPM
+          var bepFlowM3H = rawFlow;
+          if (unit === 'gpm') bepFlowM3H = rawFlow * 0.227125;
+          var bepFlowGpm = bepFlowM3H * 4.40287;
+          var bepFlowM3S = bepFlowM3H / 3600.0;
+
+          // NPSH in feet
+          var npshrFt = npshrM * 3.28084;
+
+          // 1. Suction Specific Speed Nss
+          // Nss (US) = RPM * sqrt(GPM) / (NPSHr_ft)^0.75
+          var nssUs = (rpm * Math.sqrt(bepFlowGpm)) / Math.pow(npshrFt, 0.75);
+          var nssMetric = nssUs / 51.64;
+
+          // 2. Power at BEP and Shutoff
+          var g = 9.80665;
+          // Hydraulic power (kW) = rho * g * Q * H / 1000
+          var hydPowerKw = (rho * g * bepFlowM3S * headM) / 1000.0;
+          var bepShaftPowerKw = hydPowerKw / etaBep;
+
+          // Shutoff power is typically 40% to 55% of BEP power for radial/Francis pumps
+          var shutoffPowerFraction = 0.45;
+          if (pType === 'bb3') shutoffPowerFraction = 0.52;
+          var shutoffPowerKw = bepShaftPowerKw * shutoffPowerFraction;
+
+          // 3. Minimum Continuous Thermal Flow (MCTF)
+          // Q_mctf (m3/s) = P_shutoff / (rho * cp * deltaT)
+          // Specific heat cp ~ 2.2 kJ/kg*K for hydrocarbon, 4.18 for water
+          var cpFluid = (service === 'water' || service === 'boiler_feed') ? 4.184 : 2.20;
+          var qMctfM3S = shutoffPowerKw / (rho * cpFluid * maxDt);
+          var qMctfM3H = qMctfM3S * 3600.0;
+          var mctfPct = (qMctfM3H / bepFlowM3H) * 100.0;
+
+          // 4. Minimum Continuous Stable Flow (MCSF) per API 610
+          // Correlates with Nss and pump architecture
+          var kTypeFactor = 1.0;
+          if (pType === 'oh2') kTypeFactor = 1.05;
+          else if (pType === 'bb2') kTypeFactor = 0.95;
+          else if (pType === 'bb3') kTypeFactor = 1.15;
+          else if (pType === 'vs4') kTypeFactor = 1.20;
+
+          // Base factor increases with Nss
+          var baseMcsfFraction = 0.16 + (nssUs / 10000.0) * 0.18;
+          if (baseMcsfFraction < 0.22) baseMcsfFraction = 0.22;
+          if (baseMcsfFraction > 0.60) baseMcsfFraction = 0.60;
+
+          var mcsfFraction = baseMcsfFraction * kTypeFactor;
+          var qMcsfM3H = bepFlowM3H * mcsfFraction;
+          var mcsfPct = mcsfFraction * 100.0;
+
+          // Suction Recirculation Onset Q_SR and Discharge Recirculation Q_DR
+          var qSrM3H = bepFlowM3H * Math.min(0.85, 0.40 + (nssUs / 10000.0) * 0.25);
+          var qDrM3H = bepFlowM3H * 0.65;
+
+          // 5. Radial Thrust Force Multiplier at MCSF vs BEP
+          // Kr = 0.36 * [1 - (Q/Q_bep)^2]
+          var krBep = 0.08; // Baseline residual at BEP
+          var krMcsf = 0.36 * (1.0 - Math.pow(mcsfFraction, 2));
+          var thrustMultiplier = krMcsf / krBep;
+
+          // 6. ARC Bypass Orifice Sizing
+          // deltaP across bypass = Discharge Head at MCSF - Suction Head ~ Head * h0Factor
+          var bypassHeadM = headM * h0Factor;
+          var deltaPBypassPa = rho * g * bypassHeadM;
+          // Orifice equation: Q = Cd * A * sqrt(2 * deltaP / rho), Cd ~ 0.62
+          var qBypassM3S = (qMcsfM3H * 1.05) / 3600.0; // 5% design margin on ARC
+          var cd = 0.62;
+          var orificeAreaM2 = qBypassM3S / (cd * Math.sqrt(2.0 * deltaPBypassPa / rho));
+          var orificeDiaM = Math.sqrt((4.0 * orificeAreaM2) / Math.PI);
+          var orificeDiaMm = orificeDiaM * 1000.0;
+          var orificeDiaInch = orificeDiaM * 39.37;
+
+          // 7. Shutoff Temperature Rise Rate (Deadheading in Casing)
+          // Estimated internal casing liquid volume V_casing ~ 0.12 * Q_bep_m3/h (liters ~ 120 * m3/h / 1000)
+          var casingVolLiters = Math.max(15.0, bepFlowM3H * 0.25);
+          var casingMassKg = casingVolLiters * (rho / 1000.0);
+          // Rate (C / sec) = P_shutoff (kW) / (m_casing * cp)
+          var tempRiseRateSec = shutoffPowerKw / (casingMassKg * cpFluid);
+          var tempRiseRateMin = tempRiseRateSec * 60.0;
+          var secondsToBoil = (maxDt / tempRiseRateSec);
+
+          // Update UI
+          resMcsfFlow.innerText = Math.round(qMcsfM3H) + ' m3/h';
+          resMcsfPct.innerText = mcsfPct.toFixed(1) + '% of BEP Flow (' + Math.round(qMcsfM3H * 4.403) + ' GPM)';
+          resMctfFlow.innerText = Math.round(qMctfM3H) + ' m3/h';
+          resMctfPct.innerText = mctfPct.toFixed(1) + '% of BEP Flow (' + Math.round(qMctfM3H * 4.403) + ' GPM)';
+
+          resNssUs.innerText = Math.round(nssUs).toLocaleString() + ' US';
+          if (nssUs <= 11000) {
+            resNssStatus.innerText = 'API 610 Compliant (Stable Eye, Nss < 11,000)';
+            resNssStatus.style.color = '#10b981';
+          } else if (nssUs <= 13000) {
+            resNssStatus.innerText = 'CAUTION: Elevated Nss (Narrow Operating Band)';
+            resNssStatus.style.color = '#f59e0b';
+          } else {
+            resNssStatus.innerText = 'API 610 ALERT: Severe Recirculation Risk (>13,000)';
+            resNssStatus.style.color = '#ef4444';
+          }
+
+          resRadialThrust.innerText = thrustMultiplier.toFixed(1) + 'x';
+          resThrustSub.innerText = 'Radial bearing load vs BEP @ MCSF';
+          resBypassDia.innerText = orificeDiaMm.toFixed(1) + ' mm';
+          resBypassInch.innerText = orificeDiaInch.toFixed(2) + ' in Orifice (ARC Line)';
+          resTempRate.innerText = '+' + tempRiseRateMin.toFixed(1) + ' C / min';
+          resDeadheadTime.innerText = 'Reaches ' + maxDt + 'C limit in ' + Math.round(secondsToBoil) + ' seconds';
+
+          resQSr.innerText = Math.round(qSrM3H) + ' m3/h (' + Math.round(qSrM3H/bepFlowM3H*100) + '% BEP)';
+          resQDr.innerText = Math.round(qDrM3H) + ' m3/h (' + Math.round(qDrM3H/bepFlowM3H*100) + '% BEP)';
+          resBepPower.innerText = Math.round(bepShaftPowerKw) + ' kW';
+          resShutoffPower.innerText = Math.round(shutoffPowerKw) + ' kW @ Deadhead';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Centrifugal Pump Casing & ARC Bypass Flowsheet
+          // 1. Pump Casing Volute (Left Center)
+          var pX = 160, pY = 160, pR = 60;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(pX, pY, pR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+          // Impeller Eye & Vanes inside
+          ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(pX, pY, 20, 0, Math.PI * 2); ctx.stroke();
+          for (var v = 0; v < 5; v++) {
+            var ang = (animStep * 0.05 + (v * Math.PI * 2 / 5));
+            ctx.beginPath();
+            ctx.moveTo(pX + Math.cos(ang) * 20, pY + Math.sin(ang) * 20);
+            ctx.lineTo(pX + Math.cos(ang + 0.6) * (pR - 8), pY + Math.sin(ang + 0.6) * (pR - 8));
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('IMPELLER', pX, pY - 5);
+          ctx.fillText(speedInput.value + ' RPM', pX, pY + 8);
+
+          // Suction Nozzle (Horizontal from Left into Eye)
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(40, pY); ctx.lineTo(pX - pR, pY); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'right';
+          ctx.fillText('SUCTION IN ->', 35, pY + 3);
+
+          // Discharge Nozzle (Vertical Top from Casing)
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(pX, pY - pR); ctx.lineTo(pX, 40); ctx.stroke();
+          ctx.fillStyle = '#ef4444'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('DISCHARGE HIGH-P', pX + 8, 48);
+
+          // 2. Automatic Recirculation Control (ARC) Valve on Discharge
+          var arcX = pX - 12, arcY = 75, arcW = 24, arcH = 24;
+          ctx.fillStyle = '#451a03'; ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.rect(arcX, arcY, arcW, arcH); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('ARC VALVE', arcX + 30, arcY + 16);
+
+          // ARC Minimum Flow Bypass Line (Returning to Suction Source)
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(arcX, arcY + 12);
+          ctx.lineTo(80, arcY + 12);
+          ctx.lineTo(80, pY - 30);
+          ctx.lineTo(40, pY - 30);
+          ctx.stroke();
+          ctx.fillStyle = '#fbbf24'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('MCSF BYPASS (' + resMcsfFlow.innerText + ')', 95, arcY + 28);
+
+          // Suction Recirculation Vortices (Animated Eddies at Impeller Eye Inlet)
+          ctx.strokeStyle = '#f87171'; ctx.lineWidth = 2;
+          for (var e = 0; e < 2; e++) {
+            var ey = pY - 14 + e * 28;
+            ctx.beginPath();
+            ctx.arc(pX - pR - 15, ey, 8, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          ctx.fillStyle = '#f87171'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('RECIRCULATION EDDIES', pX - pR - 20, pY + pR + 15);
+
+          // Animated Flow Particles
+          ctx.fillStyle = '#38bdf8';
+          for (var p = 0; p < 4; p++) {
+            var px = 40 + ((animStep * 2 + p * 30) % (pX - pR - 40));
+            ctx.beginPath(); ctx.arc(px, pY, 2.5, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Right: Comprehensive Technical Telemetry Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('API 610 HYDRAULIC & STABILITY TELEMETRY', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#ef4444';
+          ctx.fillText('Minimum Continuous Stable Flow: ' + resMcsfFlow.innerText + ' (' + resMcsfPct.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Minimum Continuous Thermal Flow: ' + resMctfFlow.innerText + ' (' + resMctfPct.innerText + ')', dX + 20, dY + 76);
+          ctx.fillText('Suction Specific Speed: ' + resNssUs.innerText + ' (' + resNssStatus.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Radial Thrust Force Load: ' + resRadialThrust.innerText + ' (' + resThrustSub.innerText + ')', dX + 20, dY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('ARC Bypass Orifice: ' + resBypassDia.innerText + ' (' + resBypassInch.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Suction Recirculation Onset: ' + resQSr.innerText + ' | Discharge: ' + resQDr.innerText, dX + 20, dY + 165);
+          ctx.fillText('Shaft Power at BEP: ' + resBepPower.innerText + ' | Shutoff: ' + resShutoffPower.innerText, dX + 20, dY + 186);
+          ctx.fillText('Deadhead Heating Rate: ' + resTempRate.innerText + ' (' + resDeadheadTime.innerText + ')', dX + 20, dY + 207);
+
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Pump Configuration: ' + pumpTypeSel.options[pumpTypeSel.selectedIndex].text.split('(')[0], dX + 20, dY + 233);
+          ctx.fillText('Hydraulic Risk: Operating below ' + resMcsfFlow.innerText + ' causes cavitation erosion & seal failure', dX + 20, dY + 258);
+          ctx.fillText('Standards: API 610 Centrifugal Pumps for Petroleum & HI 9.6.3 Guideline', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== CENTRIFUGAL PUMP MINIMUM FLOW (MCSF) REPORT ===',
+            'BEP Design Flow: ' + bepFlowInput.value + ' ' + flowUnitSel.value + ' @ ' + bepHeadInput.value + ' m (' + speedInput.value + ' RPM)',
+            'Minimum Continuous Stable Flow (MCSF): ' + resMcsfFlow.innerText + ' (' + resMcsfPct.innerText + ')',
+            'Minimum Continuous Thermal Flow (MCTF): ' + resMctfFlow.innerText + ' (' + resMctfPct.innerText + ')',
+            'Suction Specific Speed (Nss): ' + resNssUs.innerText + ' (' + resNssStatus.innerText + ')',
+            'Suction Recirculation Inception (Q_sr): ' + resQSr.innerText,
+            'Discharge Recirculation Inception (Q_dr): ' + resQDr.innerText,
+            'Radial Thrust Multiplier: ' + resRadialThrust.innerText + ' vs BEP',
+            'ARC Bypass Line Orifice: ' + resBypassDia.innerText + ' (' + resBypassInch.innerText + ')',
+            'Deadhead Casing Heating Rate: ' + resTempRate.innerText + ' (' + resDeadheadTime.innerText + ')',
+            'Pump Construction: ' + pumpTypeSel.options[pumpTypeSel.selectedIndex].text,
+            'Standards: API 610 (12th Edition) & Hydraulic Institute HI 9.6.3'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [bepFlowInput, flowUnitSel, bepHeadInput, speedInput, etaBepInput, npshrInput, npshaInput, pumpTypeSel, serviceSel, maxTempRiseInput, densityInput, shutoffFactorInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CG3: CSTR THERMAL RUNAWAY & SEMENOV CRITERIA CALCULATOR ───
+  (() => {
+    const slug = 'cstr-thermal-runaway-semenov-criteria-calculator';
+    const title = 'CSTR Thermal Runaway & Semenov Criteria Calculator | AIChE Process Safety Engine';
+    const desc = 'Industrial Continuous Stirred Tank Reactor (CSTR) thermal runaway and process safety calculator. Calculate Semenov number (psi), critical runaway temperature, adiabatic temperature rise (dT_ad), time to maximum rate (TMR_ad), and jacket cooling failure limits.';
+
+    const faqs = [
+      {
+        q: 'What is a thermal runaway reaction in a chemical reactor?',
+        a: 'A thermal runaway occurs in an exothermic reaction when the rate of heat generation by the chemical reaction increases exponentially with temperature (following the Arrhenius law, $k \\propto \\exp(-E_a / RT)$) faster than the rate of heat removal by the cooling jacket (which increases only linearly with temperature, $q_r = U A (T - T_c)$). As temperature rises, the reaction accelerates, releasing even more heat in a positive feedback loop. Without intervention, reaction temperature and pressure escalate exponentially within seconds or minutes, leading to rapid solvent boiling, gas release, and catastrophic vessel rupture.'
+      },
+      {
+        q: 'How does the Semenov criterion evaluate reactor thermal stability?',
+        a: 'The Semenov criterion (developed by Nobel laureate Nikolay Semenov) evaluates thermal stability in well-mixed systems where internal thermal gradients are negligible. The dimensionless Semenov number is defined as $\\psi = [V_r \\cdot (-\\Delta H_{rxn}) \\cdot r_0 \\cdot E_a] / [U \\cdot A_j \\cdot R \\cdot T_0^2]$. The critical boundary is $\\psi_{crit} = 1/e \\approx 0.368$. When $\\psi < 0.368$, heat removal can safely balance heat generation, maintaining a stable steady state. When $\\psi > 0.368$, heat removal cannot keep pace with reaction acceleration, triggering an inevitable thermal explosion.'
+      },
+      {
+        q: 'What is the Adiabatic Temperature Rise (dT_ad) and why does it define worst-case severity?',
+        a: 'The Adiabatic Temperature Rise ($\\Delta T_{ad}$) is the maximum possible temperature increase that the reactor fluid would experience if cooling failed completely and 100% of the remaining unreacted reagents converted without any heat loss to the surroundings: $\\Delta T_{ad} = [C_A \\cdot (-\\Delta H_{rxn})] / [\\rho \\cdot c_p]$. The maximum adiabatic temperature is $T_{max,ad} = T_0 + \\Delta T_{ad}$. If $T_{max,ad}$ exceeds the boiling point of the solvent or the thermal decomposition onset of reaction intermediates, the process is classified as high-risk under AIChE DIERS guidelines.'
+      },
+      {
+        q: 'What is Time to Maximum Rate (TMR_ad) and how does it affect emergency response?',
+        a: 'Time to Maximum Rate under adiabatic conditions ($TMR_{ad}$) is the time required for a runaway reaction to reach its maximum self-heating rate following a total cooling failure. A $TMR_{ad} > 24 \\text{ hours}$ indicates low immediate operational risk, allowing plant operators ample time to diagnose faults or deploy quench systems. A $TMR_{ad} < 1 \\text{ hour}$ represents an imminent catastrophe; operators must initiate automated emergency chemical short-stopping (reaction inhibitor injection) or dump the reactor contents into an emergency quench tank.'
+      },
+      {
+        q: 'Why does reactor scale-up from pilot lab to commercial scale drastically increase runaway risk?',
+        a: 'During scale-up, reactor volume (and therefore total exothermic heat generation) scales with the cube of the linear dimension ($V \\propto L^3$), whereas the reactor vessel surface area available for jacket cooling scales only with the square of the dimension ($A \\propto L^2$). A 10-liter pilot reactor has a massive surface-to-volume ratio of ~35 m2/m3, easily shedding heat. A 10,000-liter commercial CSTR has a surface-to-volume ratio of only ~3 to 4 m2/m3. A reaction that was completely docile in the laboratory can easily become violently uncontrollable and explode when scaled to commercial size.'
+      }
+    ];
+
+    const content = `<style>
+      .cstr-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .cstr-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .cstr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .cstr-group { margin-bottom: 16px; }
+      .cstr-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .cstr-group select, .cstr-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .cstr-group select:focus, .cstr-group input:focus { border-color: #e11d48; outline: none; ring: 2px ring #fda4af; }
+      .cstr-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-rose { background: #fff1f2; color: #e11d48; }
+      .cstr-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .cstr-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .cstr-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .cstr-res-sub { font-size: 0.8rem; color: #64748b; }
+      .cstr-btn { background: #e11d48; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .cstr-btn:hover { background: #be123c; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="cstr-wrap">
+      <div class="cstr-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">CSTR Thermal Runaway & Semenov Criteria Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Semenov stability number (psi), critical runaway temperature, adiabatic rise (dT_ad), and cooling failure kinetics.</p>
+          </div>
+          <span class="cstr-badge badge-rose">AIChE DIERS & CCPS Process Safety</span>
+        </div>
+
+        <div class="cstr-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Reactor Conditions & Reaction</h3>
+            <div class="cstr-group">
+              <label for="cstr_vol">Reactor Fluid Volume ($V_r$, m3)</label>
+              <input type="number" id="cstr_vol" value="4.5" min="0.05" max="100.0" step="0.5">
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_temp">Operating Temperature ($T_0$, deg C)</label>
+              <input type="number" id="cstr_temp" value="75" min="20" max="250" step="1">
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_conc_a">Reactant Concentration ($C_{A0}$, kmol/m3)</label>
+              <input type="number" id="cstr_conc_a" value="2.2" min="0.1" max="15.0" step="0.1">
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_delta_h">Heat of Reaction ($-Delta H_{rxn}$, kJ/mol)</label>
+              <input type="number" id="cstr_delta_h" value="85.0" min="10.0" max="400.0" step="5.0">
+              <small style="color:#64748b;">Exothermic enthalpy released per mole of A.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Arrhenius Reaction Kinetics</h3>
+            <div class="cstr-group">
+              <label for="cstr_ea">Activation Energy ($E_a$, kJ/mol)</label>
+              <input type="number" id="cstr_ea" value="82.0" min="30.0" max="200.0" step="2.0">
+              <small style="color:#64748b;">Typically 60 to 120 kJ/mol for organics.</small>
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_k0">Reaction Rate Constant at $T_0$ ($k_0$, 1/s)</label>
+              <input type="number" id="cstr_k0" value="0.00085" min="0.00001" max="0.10000" step="0.00005">
+              <small style="color:#64748b;">Pseudo-first-order rate constant at $T_0$.</small>
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_density">Fluid Density ($ho$, kg/m3)</label>
+              <input type="number" id="cstr_density" value="950" min="600" max="1400" step="25">
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_cp">Fluid Specific Heat ($c_p$, kJ/kg*K)</label>
+              <input type="number" id="cstr_cp" value="2.15" min="1.00" max="4.50" step="0.05">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Cooling Jacket & Heat Removal</h3>
+            <div class="cstr-group">
+              <label for="cstr_area_j">Jacket Heat Transfer Area ($A_j$, m2)</label>
+              <input type="number" id="cstr_area_j" value="12.0" min="0.5" max="150.0" step="0.5">
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_u_coeff">Overall Heat Transfer Coeff ($U$, W/m2*K)</label>
+              <input type="number" id="cstr_u_coeff" value="450" min="50" max="1500" step="25">
+              <small style="color:#64748b;">Jacketed vessel benchmark: 300 to 600 W/m2*K.</small>
+            </div>
+            <div class="cstr-group">
+              <label for="cstr_coolant_t">Coolant Inlet Temperature ($T_c$, deg C)</label>
+              <input type="number" id="cstr_coolant_t" value="25" min="0" max="60" step="1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="cstr-btn" id="cstr_calc_btn">Run Thermal Runaway Stability Analysis</button>
+        </div>
+      </div>
+
+      <div class="cstr-card" id="cstr_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Reactor Thermal Stability & Safety Limits</h2>
+          <button class="copy-btn" id="cstr_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="cstr_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="cstr-res-grid">
+          <div class="cstr-res-card">
+            <div class="cstr-res-sub">Semenov Number ($psi$)</div>
+            <div class="cstr-res-val" id="res_semenov_psi">0.000</div>
+            <div class="cstr-res-sub" id="res_semenov_status">Crit: 0.368 (1/e)</div>
+          </div>
+          <div class="cstr-res-card">
+            <div class="cstr-res-sub">Thermal Runaway Status</div>
+            <div class="cstr-res-val" id="res_runaway_state">STABLE</div>
+            <div class="cstr-res-sub" id="res_runaway_sub">Heat Removal Dominates</div>
+          </div>
+          <div class="cstr-res-card">
+            <div class="cstr-res-sub">Critical Runaway Temp ($T_{crit}$)</div>
+            <div class="cstr-res-val" id="res_tcrit">0.0 deg C</div>
+            <div class="cstr-res-sub" id="res_temp_margin">Margin: +0.0 C</div>
+          </div>
+          <div class="cstr-res-card">
+            <div class="cstr-res-sub">Adiabatic Temperature Rise ($Delta T_{ad}$)</div>
+            <div class="cstr-res-val" id="res_dt_ad">+0.0 deg C</div>
+            <div class="cstr-res-sub" id="res_tmax_ad">Tmax: 0.0 deg C (No Cooling)</div>
+          </div>
+          <div class="cstr-res-card">
+            <div class="cstr-res-sub">Time to Maximum Rate ($TMR_{ad}$)</div>
+            <div class="cstr-res-val" id="res_tmr">0.0 hrs</div>
+            <div class="cstr-res-sub" id="res_tmr_urgency">Safe Window</div>
+          </div>
+          <div class="cstr-res-card">
+            <div class="cstr-res-sub">Heat Generation vs Removal</div>
+            <div class="cstr-res-val" id="res_heat_gen">0.0 kW</div>
+            <div class="cstr-res-sub" id="res_heat_rem">Removal: 0.0 kW</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Kinetic & Heat Transfer Telemetry</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Surface-to-Volume Ratio ($A/V$): <strong id="res_av_ratio">0.0 m2/m3</strong></div>
+            <div>Exothermic Generation Density: <strong id="res_gen_density">0.0 kW/m3</strong></div>
+            <div>Cooling Safety Margin: <strong id="res_cooling_margin">0.0x</strong></div>
+            <div>Self-Heating Rate ($dT/dt$ at $T_0$): <strong id="res_self_heating">0.0 C/min</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Semenov Thermal Explosion & CSTR Reaction Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Jacketed CSTR with internal cooling, paired with Semenov diagram plotting the exponential Arrhenius Heat Generation curve Qg(T) against the linear Heat Removal line Qr(T).</p>
+          <div class="anim-box">
+            <canvas id="cstr_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="cstr-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Agitator Stoppage & Undissipated Reagent Layering</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">If the reactor agitator motor trips or shears a drive coupling while feed addition continues, unmixed reactants pool into dense stratified layers. Heat transfer coefficient ($U$) immediately collapses by 85% due to stagnant boundary layers. When an operator notices the motor trip and restarts the agitator without cooling down first, the entire accumulated reagent pool mixes instantaneously. The resulting explosion releases all accumulated enthalpy in seconds, overpressurizing and blowing off the reactor top head.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Scale-Up Surface Area Starvation ($V propto L^3$ vs $A propto L^2$)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">A reaction operating safely in a 50-liter pilot reactor has an $A/V$ ratio of 18 m2/m3, easily staying below the Semenov limit ($\\psi = 0.08$). When scaled directly to a 25 m3 commercial reactor, the $A/V$ ratio drops to 2.4 m2/m3 (an 87% reduction in cooling capability per unit volume). The Semenov number surges past $\\psi_{crit} = 0.368$, transforming an apparently docile recipe into an uncontrollable runaway bomb on its very first plant production run.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Late Catalyst Charge into Accumulated Cold Reagents</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">In batch or semi-batch processes, if catalyst dosing fails to start or if initial temperature is too low to initiate reaction, unreacted raw materials silently accumulate in the vessel. If operators troubleshoot by adding extra catalyst or ramping jacket temperature to "force ignition", the full reagent charge reacts simultaneously. Heat generation outstrips jacket cooling by a factor of 10x, sending self-heating rates above 50 deg C per minute.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Gaseous Decomposition Product Choking Vent Sizing</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Many runaway reactions do not merely boil solvent; they trigger secondary thermal decompositions that liberate non-condensable gases ($CO_2$, $N_2$, $NO_x$, $CH_4$). Sizing emergency rupture disks or relief valves based solely on vapor-liquid venting without accounting for two-phase bubbly foam-flow and rapid non-condensable gas generation leads to undersized vents. The vessel ruptures violently before the pressure relief valve can relieve the expanding foam.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Jacket Coolant Evaporation & Cavitation Loss</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">During initial temperature excursions, heat transfer to the cooling jacket can cause cooling water to boil inside the jacket passages. Steam pockets form, creating vapor lock and causing the jacket circulation pump to cavitate and lose prime. Coolant circulation halts precisely when heat removal demand is at its absolute maximum, converting a manageable temperature transient into an irrevocable catastrophic explosion.</p>
+        </div>
+      </div>
+
+      <div class="cstr-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Semenov Thermal Ignition Theory & Runaway Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>Semenov dimensionless stability criterion ($psi$)</strong> balances Arrhenius heat generation with linear Newton heat removal:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\psi = \frac{V_r \cdot (-\Delta H_{rxn}) \cdot k_0 \cdot C_A \cdot E_a}{U \cdot A_j \cdot R \cdot (T_0 + 273.15)^2} \le \frac{1}{e} \approx 0.3679$$
+          </div>
+          <p>Where $R = 8.314$ J/(mol*K). When $psi > 1/e$, the heat generation curve is strictly steeper than the heat removal line, causing <strong>irreversible thermal ignition</strong>.</p>
+          <p>The <strong>Critical Runaway Temperature ($T_{crit}$)</strong> above which thermal runaway becomes inevitable is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$T_{crit} = T_c + \frac{R \cdot (T_c + 273.15)^2}{E_a}$$
+          </div>
+          <p>The <strong>Adiabatic Temperature Rise ($Delta T_{ad}$)</strong> and Time to Maximum Rate ($TMR_{ad}$) are:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\Delta T_{ad} = \frac{C_A \cdot (-\Delta H_{rxn})}{\rho \cdot c_p}, \qquad TMR_{ad} \approx \frac{c_p \cdot R \cdot (T_0 + 273.15)^2}{\left( \frac{q_g}{V_r \rho} \right) \cdot E_a}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var volInput = document.getElementById('cstr_vol');
+        var tempInput = document.getElementById('cstr_temp');
+        var concAInput = document.getElementById('cstr_conc_a');
+        var deltaHInput = document.getElementById('cstr_delta_h');
+        var eaInput = document.getElementById('cstr_ea');
+        var k0Input = document.getElementById('cstr_k0');
+        var densityInput = document.getElementById('cstr_density');
+        var cpInput = document.getElementById('cstr_cp');
+        var areaJInput = document.getElementById('cstr_area_j');
+        var uCoeffInput = document.getElementById('cstr_u_coeff');
+        var coolantTInput = document.getElementById('cstr_coolant_t');
+        var calcBtn = document.getElementById('cstr_calc_btn');
+        var copyBtn = document.getElementById('cstr_copy_btn');
+        var copyMsg = document.getElementById('cstr_copy_msg');
+
+        var resSemenovPsi = document.getElementById('res_semenov_psi');
+        var resSemenovStatus = document.getElementById('res_semenov_status');
+        var resRunawayState = document.getElementById('res_runaway_state');
+        var resRunawaySub = document.getElementById('res_runaway_sub');
+        var resTcrit = document.getElementById('res_tcrit');
+        var resTempMargin = document.getElementById('res_temp_margin');
+        var resDtAd = document.getElementById('res_dt_ad');
+        var resTmaxAd = document.getElementById('res_tmax_ad');
+        var resTmr = document.getElementById('res_tmr');
+        var resTmrUrgency = document.getElementById('res_tmr_urgency');
+        var resHeatGen = document.getElementById('res_heat_gen');
+        var resHeatRem = document.getElementById('res_heat_rem');
+
+        var resAvRatio = document.getElementById('res_av_ratio');
+        var resGenDensity = document.getElementById('res_gen_density');
+        var resCoolingMargin = document.getElementById('res_cooling_margin');
+        var resSelfHeating = document.getElementById('res_self_heating');
+
+        var canvas = document.getElementById('cstr_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var vr = parseFloat(volInput.value) || 4.5;
+          var t0C = parseFloat(tempInput.value) || 75;
+          var ca0 = parseFloat(concAInput.value) || 2.2; // kmol/m3
+          var deltaHKjMol = parseFloat(deltaHInput.value) || 85.0; // kJ/mol = MJ/kmol
+          var eaKjMol = parseFloat(eaInput.value) || 82.0; // kJ/mol
+          var k0 = parseFloat(k0Input.value) || 0.00085; // 1/s
+          var rho = parseFloat(densityInput.value) || 950;
+          var cp = parseFloat(cpInput.value) || 2.15; // kJ/kg*K
+          var aj = parseFloat(areaJInput.value) || 12.0;
+          var uCoeff = parseFloat(uCoeffInput.value) || 450; // W/m2*K
+          var tcC = parseFloat(coolantTInput.value) || 25;
+
+          var rGas = 8.314; // J/(mol*K)
+          var t0K = t0C + 273.15;
+          var tcK = tcC + 273.15;
+          var eaJ = eaKjMol * 1000.0;
+          var deltaHJ = deltaHKjMol * 1e6; // J/kmol
+
+          // 1. Reaction rate at T0 (kmol / (m3 * s))
+          var r0 = k0 * ca0;
+
+          // Heat generation rate at T0 (Watts and kW)
+          var qGenWatts = vr * r0 * deltaHJ;
+          var qGenKw = qGenWatts / 1000.0;
+
+          // Heat removal rate by jacket at T0 (Watts and kW)
+          var deltaTCooling = Math.max(0.1, t0C - tcC);
+          var qRemWatts = uCoeff * aj * deltaTCooling;
+          var qRemKw = qRemWatts / 1000.0;
+
+          // 2. Semenov Number: psi = [Vr * (-deltaH) * r0 * Ea] / [U * Aj * R * T0^2]
+          var psiNumerator = vr * deltaHJ * r0 * eaJ;
+          var psiDenominator = (uCoeff * aj) * rGas * Math.pow(t0K, 2);
+          var psi = psiNumerator / psiDenominator;
+          var psiCrit = 1.0 / Math.E; // ~0.36788
+
+          // 3. Critical Runaway Temperature (deg C)
+          var deltaTcritK = (rGas * Math.pow(tcK, 2)) / eaJ;
+          var tCritC = tcC + deltaTcritK;
+          var tempMarginC = tCritC - t0C;
+
+          // 4. Adiabatic Temperature Rise (dT_ad)
+          // deltaT_ad = [CA * (-deltaH)] / [rho * cp]
+          // CA * deltaH in kJ/m3: ca0 * deltaHKjMol * 1000
+          var deltaTad = (ca0 * deltaHKjMol * 1000.0) / (rho * cp);
+          var tMaxAd = t0C + deltaTad;
+
+          // 5. Time to Maximum Rate (TMR_ad)
+          // Specific heat generation rate q_ad = qGenWatts / (Vr * rho) in W/kg
+          var qSpecificWkg = qGenWatts / (vr * rho); // J/(kg*s)
+          // TMR_ad (sec) ~ [cp * R * T0^2] / [q_specific * Ea]
+          var tmrSec = (cp * 1000.0 * rGas * Math.pow(t0K, 2)) / (qSpecificWkg * eaJ);
+          var tmrHours = tmrSec / 3600.0;
+
+          // 6. Metrics
+          var avRatio = aj / vr;
+          var genDensity = qGenKw / vr;
+          var coolingMargin = qRemKw / qGenKw;
+          var selfHeatingRateCMin = (qGenWatts / (vr * rho * cp * 1000.0)) * 60.0;
+
+          // Update UI
+          resSemenovPsi.innerText = psi.toFixed(3);
+          if (psi < 0.30) {
+            resSemenovStatus.innerText = 'Safe (psi < 0.368 crit)';
+            resSemenovStatus.style.color = '#10b981';
+            resRunawayState.innerText = 'THERMALLY STABLE';
+            resRunawayState.style.color = '#10b981';
+            resRunawaySub.innerText = 'Heat Removal Dominates';
+          } else if (psi <= 0.368) {
+            resSemenovStatus.innerText = 'MARGINAL (Near 0.368 boundary)';
+            resSemenovStatus.style.color = '#f59e0b';
+            resRunawayState.innerText = 'METASTABLE';
+            resRunawayState.style.color = '#f59e0b';
+            resRunawaySub.innerText = 'High Sensitivity to Cooling Glitch';
+          } else {
+            resSemenovStatus.innerText = 'UNSTABLE (psi > 0.368 limit)';
+            resSemenovStatus.style.color = '#ef4444';
+            resRunawayState.innerText = 'CRITICAL RUNAWAY';
+            resRunawayState.style.color = '#ef4444';
+            resRunawaySub.innerText = 'Reaction Accelerates Inevitably';
+          }
+
+          resTcrit.innerText = tCritC.toFixed(1) + ' deg C';
+          resTempMargin.innerText = (tempMarginC >= 0) ? 'Safety Margin: +' + tempMarginC.toFixed(1) + ' C' : 'EXCEEDED by ' + Math.abs(tempMarginC).toFixed(1) + ' C';
+          resTempMargin.style.color = (tempMarginC >= 0) ? '#10b981' : '#ef4444';
+
+          resDtAd.innerText = '+' + Math.round(deltaTad) + ' deg C';
+          resTmaxAd.innerText = 'Tmax,ad: ' + Math.round(tMaxAd) + ' deg C (Worst Case)';
+
+          if (tmrHours < 0.5) {
+            resTmr.innerText = (tmrHours * 60).toFixed(0) + ' min';
+            resTmrUrgency.innerText = 'IMMINENT RUNAWAY (<30 min)';
+            resTmrUrgency.style.color = '#ef4444';
+          } else if (tmrHours < 4.0) {
+            resTmr.innerText = tmrHours.toFixed(1) + ' hrs';
+            resTmrUrgency.innerText = 'URGENT: Deploy Quench (<4 hrs)';
+            resTmrUrgency.style.color = '#f59e0b';
+          } else {
+            resTmr.innerText = tmrHours.toFixed(1) + ' hrs';
+            resTmrUrgency.innerText = 'Sufficient Operator Buffer (>4 hrs)';
+            resTmrUrgency.style.color = '#10b981';
+          }
+
+          resHeatGen.innerText = qGenKw.toFixed(1) + ' kW';
+          resHeatRem.innerText = 'Removal: ' + qRemKw.toFixed(1) + ' kW';
+          resAvRatio.innerText = avRatio.toFixed(1) + ' m2/m3';
+          resGenDensity.innerText = genDensity.toFixed(1) + ' kW/m3';
+          resCoolingMargin.innerText = coolingMargin.toFixed(2) + 'x Removal Capacity';
+          resSelfHeating.innerText = '+' + selfHeatingRateCMin.toFixed(2) + ' C / min';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Left: Jacketed CSTR Vessel Cross-Section
+          var vX = 140, vY = 160, vR = 65;
+          // Cooling Jacket Shell (Outer)
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.arc(vX, vY, vR + 14, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+          // Reactor Vessel (Inner)
+          ctx.fillStyle = '#0f172a'; ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(vX, vY, vR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+          // Agitator Impeller & Shaft
+          ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(vX, vY - vR - 25); ctx.lineTo(vX, vY + 20); ctx.stroke();
+          // Blades
+          for (var b = 0; b < 4; b++) {
+            var bang = animStep * 0.08 + (b * Math.PI / 2);
+            ctx.beginPath();
+            ctx.moveTo(vX, vY + 20);
+            ctx.lineTo(vX + Math.cos(bang) * 28, vY + 20 + Math.sin(bang) * 10);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('EXOTHERMIC CSTR', vX, vY - 15);
+          ctx.fillStyle = '#f43f5e'; ctx.font = '9px sans-serif';
+          ctx.fillText(tempInput.value + ' deg C', vX, vY);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Jacket: ' + coolantTInput.value + 'C', vX, vY + 45);
+
+          // Animated Swirl Fluid in Reactor
+          ctx.fillStyle = 'rgba(244, 63, 94, 0.4)';
+          for (var p = 0; p < 6; p++) {
+            var pang = animStep * 0.05 + p;
+            var pr = 20 + (p * 6);
+            ctx.beginPath();
+            ctx.arc(vX + Math.cos(pang) * pr, vY + Math.sin(pang) * pr, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Coolant in / out arrows on jacket
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(vX - vR - 40, vY - 30); ctx.lineTo(vX - vR - 14, vY - 30); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'right';
+          ctx.fillText('COOLANT IN ->', vX - vR - 45, vY - 27);
+
+          ctx.beginPath(); ctx.moveTo(vX + vR + 14, vY + 30); ctx.lineTo(vX + vR + 40, vY + 30); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('-> COOLANT OUT', vX + vR + 45, vY + 33);
+
+          // Right: Semenov Thermal Explosion Diagram (Qg vs Qr)
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('SEMENOV THERMAL RUNAWAY DIAGRAM (Qg vs Qr)', dX + 20, dY + 26);
+
+          // Mini plot inside telemetry card
+          var gX = dX + 25, gY = dY + 50, gW = 220, gH = 150;
+          ctx.fillStyle = '#0f172a'; ctx.strokeStyle = '#475569'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.rect(gX, gY, gW, gH); ctx.fill(); ctx.stroke();
+
+          // Axis labels
+          ctx.fillStyle = '#94a3b8'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('Temperature (T)', gX + gW/2, gY + gH + 12);
+          ctx.save(); ctx.translate(gX - 10, gY + gH/2); ctx.rotate(-Math.PI/2);
+          ctx.fillText('Heat Rate Q', 0, 0); ctx.restore();
+
+          // Linear Heat Removal Line Qr (Blue line)
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(gX + 20, gY + gH - 10);
+          ctx.lineTo(gX + gW - 20, gY + 20);
+          ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 8px sans-serif';
+          ctx.fillText('Qr (Jacket)', gX + gW - 35, gY + 15);
+
+          // S-shaped / Exponential Heat Generation Curve Qg (Red/Rose curve)
+          ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          for (var px = 0; px <= gW - 40; px += 5) {
+            var tNorm = px / (gW - 40);
+            var qVal = Math.exp(tNorm * 4.0 - 1.5) / Math.exp(2.5);
+            var py = (gY + gH - 10) - (qVal * (gH - 30));
+            if (px === 0) ctx.moveTo(gX + 20 + px, py);
+            else ctx.lineTo(gX + 20 + px, py);
+          }
+          ctx.stroke();
+          ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 8px sans-serif';
+          ctx.fillText('Qg (Arrhenius)', gX + gW - 40, gY + 65);
+
+          // Metrics summary on right side of telemetry panel
+          var mX = gX + gW + 20;
+          ctx.textAlign = 'left';
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillText('Semenov Stability: ' + resSemenovPsi.innerText + ' (' + resRunawayState.innerText + ')', mX, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Critical Boundary (1/e): 0.368', mX, dY + 76);
+          ctx.fillText('Runaway Ignition Temp: ' + resTcrit.innerText, mX, dY + 97);
+          ctx.fillText(resTempMargin.innerText, mX, dY + 118);
+
+          ctx.fillStyle = '#fb7185';
+          ctx.fillText('Adiabatic Rise (dT_ad): ' + resDtAd.innerText, mX, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(resTmaxAd.innerText, mX, dY + 165);
+          ctx.fillText('Time to Max Rate: ' + resTmr.innerText + ' (' + resTmrUrgency.innerText + ')', mX, dY + 186);
+
+          // Bottom telemetry
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Heat Balance: Gen ' + resHeatGen.innerText + ' vs ' + resHeatRem.innerText, dX + 20, dY + 233);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Self-Heating Rate: ' + resSelfHeating.innerText + ' | Area/Vol: ' + resAvRatio.innerText, dX + 20, dY + 258);
+          ctx.fillText('Standards: AIChE DIERS & CCPS Guidelines for Chemical Reactivity', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== CSTR THERMAL RUNAWAY & SEMENOV REPORT ===',
+            'Reactor Volume: ' + volInput.value + ' m3 @ ' + tempInput.value + ' deg C (Coolant: ' + coolantTInput.value + ' deg C)',
+            'Reactant Concentration: ' + concAInput.value + ' kmol/m3 | -dH: ' + deltaHInput.value + ' kJ/mol',
+            'Semenov Number (psi): ' + resSemenovPsi.innerText + ' (Critical Limit: 0.368)',
+            'Thermal Stability Status: ' + resRunawayState.innerText + ' (' + resRunawaySub.innerText + ')',
+            'Critical Runaway Temperature (Tcrit): ' + resTcrit.innerText + ' (' + resTempMargin.innerText + ')',
+            'Adiabatic Temperature Rise (dT_ad): ' + resDtAd.innerText + ' (' + resTmaxAd.innerText + ')',
+            'Time to Maximum Rate (TMR_ad): ' + resTmr.innerText + ' (' + resTmrUrgency.innerText + ')',
+            'Heat Rates: Generated ' + resHeatGen.innerText + ' vs Removed ' + resHeatRem.innerText,
+            'Self-Heating Rate: ' + resSelfHeating.innerText + ' (A/V Ratio: ' + resAvRatio.innerText + ')',
+            'Standards: AIChE DIERS & CCPS Process Safety Guidelines'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [volInput, tempInput, concAInput, deltaHInput, eaInput, k0Input, densityInput, cpInput, areaJInput, uCoeffInput, coolantTInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CG4: FLUIDIZED BED HYDRODYNAMICS & MINIMUM FLUIDIZATION VELOCITY (Umf) CALCULATOR ───
+  (() => {
+    const slug = 'fluidized-bed-minimum-fluidization-velocity-umf-calculator';
+    const title = 'Fluidized Bed Hydrodynamics & Minimum Fluidization Velocity (Umf) Calculator | Ergun & Wen-Yu Engine';
+    const desc = 'Industrial Fluidized Bed hydrodynamics calculator. Calculate Minimum Fluidization Velocity (Umf), Terminal Settling Velocity (Ut), Geldart particle group classification (A, B, C, D), Ergun equation bed pressure drop, and bubbling bed expansion.';
+
+    const faqs = [
+      {
+        q: 'What is the Minimum Fluidization Velocity (Umf) and how is it defined?',
+        a: 'The Minimum Fluidization Velocity ($U_{mf}$) is the superficial gas velocity at which the upward hydrodynamic drag force exerted by the fluidizing gas exactly balances the net buoyant gravitational weight of the solid particles in the bed. Below $U_{mf}$, the particles remain stationary as a fixed packed bed, and pressure drop increases linearly with gas velocity per the Ergun equation. Exactly at $U_{mf}$, the bed unlocks and expands slightly; beyond $U_{mf}$, the bed behaves like a boiling liquid with constant overall pressure drop equal to the bed weight divided by cross-sectional area.'
+      },
+      {
+        q: 'How do the Wen & Yu and Ergun equations calculate Umf?',
+        a: 'The Ergun equation balances viscous and kinetic pressure drop across packed spheres. At the point of fluidization, equating Ergun pressure drop to the bed buoyant weight yields a quadratic in Reynolds number: $150 \\frac{1 - \\epsilon_{mf}}{\\phi_s^2 \\epsilon_{mf}^3} Re_{mf} + \\frac{1.75}{\\phi_s \\epsilon_{mf}^3} Re_{mf}^2 = Ar$, where $Ar$ is the dimensionless Archimedes number. In 1966, Wen and Yu empirically simplified this relationship across thousands of experimental runs, showing that for common spherical and near-spherical particles, $Re_{mf} = \\sqrt{33.7^2 + 0.0408 \\cdot Ar} - 33.7$, from which $U_{mf} = (Re_{mf} \\cdot \\mu_g) / (d_p \\cdot \\rho_g)$.'
+      },
+      {
+        q: 'What are the four Geldart particle groups (A, B, C, D)?',
+        a: 'Derek Geldart (1973) classified solid particles into four distinct fluidization behavioral categories based on mean particle diameter ($d_p$) and solid-fluid density difference ($(\\rho_s - \\rho_g)$): (1) Group A (Aeratable, 30-100 um, e.g. FCC catalyst): expands smoothly before forming tiny bubbles, slow deaeration; (2) Group B (Sand-like, 100-800 um, e.g. silica sand): bubbles form immediately at $U_{mf}$ with rapid rise; (3) Group C (Cohesive / Ultrafine, <30 um, e.g. flour, talc): strong interparticle Van der Waals forces cause gas channeling, cracks, and rat-holing without fluidizing smoothly; and (4) Group D (Spoutable / Coarse, >1,000 um, e.g. coffee beans, gravel): deep gas penetration and severe gas spouting.'
+      },
+      {
+        q: 'What is Terminal Velocity (Ut) and why does it set the upper fluidization velocity limit?',
+        a: 'Terminal Velocity ($U_t$) is the free-falling steady-state settling velocity of an isolated single particle in an infinite gas medium. If superficial gas velocity ($U_0$) exceeds $U_{t}$, hydrodynamic drag overcomes gravity and particles are rapidly elutriated (blown out of the bed into cyclones and freeboard). The operating fluidization velocity window is strictly bounded: $U_{mf} < U_0 < U_t$. In bubbling fluidized beds, $U_0$ is typically maintained at $2 \\cdot U_{mf}$ to $6 \\cdot U_{mf}$ (well below $0.5 \\cdot U_t$). In circulating fluidized beds (CFB), $U_0 > U_t$ with 100% solids recycling via external high-efficiency cyclones.'
+      },
+      {
+        q: 'Why must the gas distributor grid have a pressure drop of at least 20% to 30% of bed pressure drop?',
+        a: 'A fluidized bed operates as a dynamic liquid with localized bubble voids that produce fluctuating hydrostatic head across the base. If the distributor grid pressure drop ($\\Delta P_d$) is too low (<15% of bed pressure drop $\\Delta P_{bed}$), rising gas channels through the path of least resistance where the bed is momentarily thinner. The rest of the distributor experiences stagnant gas flow, causing solid particles to defluidize, defall into windboxes, and sinter together. Per Zuiderweg criteria, sizing $\\Delta P_d \\ge 0.25 \\cdot \\Delta P_{bed}$ guarantees uniform gas distribution across the entire bed cross-section.'
+      }
+    ];
+
+    const content = `<style>
+      .fb-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .fb-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .fb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .fb-group { margin-bottom: 16px; }
+      .fb-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .fb-group select, .fb-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .fb-group select:focus, .fb-group input:focus { border-color: #f59e0b; outline: none; ring: 2px ring #fde68a; }
+      .fb-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-amber { background: #fffbeb; color: #d97706; }
+      .fb-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .fb-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .fb-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .fb-res-sub { font-size: 0.8rem; color: #64748b; }
+      .fb-btn { background: #d97706; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .fb-btn:hover { background: #b45309; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="fb-wrap">
+      <div class="fb-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Fluidized Bed Hydrodynamics & Minimum Velocity (Umf) Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Wen-Yu & Ergun equations, Geldart particle classification, terminal velocity (Ut), and bed expansion ratio.</p>
+          </div>
+          <span class="fb-badge badge-amber">AIChE Particle Technology & FCC</span>
+        </div>
+
+        <div class="fb-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Solid Particle Specifications</h3>
+            <div class="fb-group">
+              <label for="fb_dp">Mean Particle Diameter ($d_p$, microns)</label>
+              <input type="number" id="fb_dp" value="180" min="5" max="5000" step="10">
+              <small style="color:#64748b;">E.g. FCC catalyst: 70 um; Sand: 150-350 um; Biomass: 1000 um.</small>
+            </div>
+            <div class="fb-group">
+              <label for="fb_rho_s">Solid Particle Density ($ho_s$, kg/m3)</label>
+              <input type="number" id="fb_rho_s" value="2600" min="600" max="8000" step="50">
+              <small style="color:#64748b;">Silica Sand: 2600; FCC: 1450; Glass: 2500; Steel: 7800.</small>
+            </div>
+            <div class="fb-group">
+              <label for="fb_sphericity">Particle Sphericity ($phi_s$)</label>
+              <input type="number" id="fb_sphericity" value="0.86" min="0.50" max="1.00" step="0.02">
+              <small style="color:#64748b;">Spheres = 1.0; Rounded sand = 0.86; Crushed rock = 0.65.</small>
+            </div>
+            <div class="fb-group">
+              <label for="fb_voidage_mf">Fixed Bed Voidage ($epsilon_{mf}$)</label>
+              <input type="number" id="fb_voidage_mf" value="0.42" min="0.35" max="0.65" step="0.01">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Fluidizing Gas & Operating Conditions</h3>
+            <div class="fb-group">
+              <label for="fb_gas_type">Fluidizing Gas Type</label>
+              <select id="fb_gas_type">
+                <option value="air" selected>Air (MW: 28.96)</option>
+                <option value="nitrogen">Nitrogen (MW: 28.01)</option>
+                <option value="flue_gas">Flue Gas / Combustion Air (MW: 30.2)</option>
+                <option value="hydrogen">Hydrogen (MW: 2.016, Ultra-low density)</option>
+                <option value="syngas">Syngas / Methane (MW: 18.0)</option>
+              </select>
+            </div>
+            <div class="fb-group">
+              <label for="fb_temp">Operating Temperature (deg C)</label>
+              <input type="number" id="fb_temp" value="25" min="-20" max="1100" step="25">
+              <small style="color:#64748b;">High temp dramatically increases gas viscosity.</small>
+            </div>
+            <div class="fb-group">
+              <label for="fb_press">Operating Pressure (bar absolute)</label>
+              <input type="number" id="fb_press" value="1.013" min="0.500" max="50.000" step="0.5">
+            </div>
+            <div class="fb-group">
+              <label for="fb_superficial_u">Superficial Gas Velocity ($U_0$, m/s)</label>
+              <input type="number" id="fb_superficial_u" value="0.25" min="0.001" max="15.000" step="0.01">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Bed Geometry & Static Inventory</h3>
+            <div class="fb-group">
+              <label for="fb_bed_dia">Column Internal Diameter ($D_{bed}$, m)</label>
+              <input type="number" id="fb_bed_dia" value="1.20" min="0.05" max="12.00" step="0.10">
+            </div>
+            <div class="fb-group">
+              <label for="fb_static_h">Static Settled Bed Height ($H_0$, m)</label>
+              <input type="number" id="fb_static_h" value="1.50" min="0.10" max="15.00" step="0.10">
+            </div>
+            <div class="fb-group">
+              <label for="fb_distributor_type">Gas Distributor Nozzle Style</label>
+              <select id="fb_distributor_type">
+                <option value="perforated" selected>Perforated Plate Grid (Standard)</option>
+                <option value="bubble_caps">Bubble Cap / Tuyere Nozzles (High weeping resist)</option>
+                <option value="pipe_sparger">Pipe Sparger Lateral Header</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="fb-btn" id="fb_calc_btn">Calculate Fluidization Velocities & Hydrodynamics</button>
+        </div>
+      </div>
+
+      <div class="fb-card" id="fb_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Fluidization Hydrodynamics & Regimes</h2>
+          <button class="copy-btn" id="fb_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="fb_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="fb-res-grid">
+          <div class="fb-res-card">
+            <div class="fb-res-sub">Minimum Fluidization Velocity ($U_{mf}$)</div>
+            <div class="fb-res-val" id="res_umf">0.000 m/s</div>
+            <div class="fb-res-sub" id="res_umf_wen">Wen-Yu Correlation</div>
+          </div>
+          <div class="fb-res-card">
+            <div class="fb-res-sub">Terminal Settling Velocity ($U_t$)</div>
+            <div class="fb-res-val" id="res_ut">0.00 m/s</div>
+            <div class="fb-res-sub" id="res_elutriation_margin">Elutriation Limit</div>
+          </div>
+          <div class="fb-res-card">
+            <div class="fb-res-sub">Geldart Particle Group</div>
+            <div class="fb-res-val" id="res_geldart_group">Group B</div>
+            <div class="fb-res-sub" id="res_geldart_desc">Sand-like Bubbling</div>
+          </div>
+          <div class="fb-res-card">
+            <div class="fb-res-sub">Operating Velocity Ratio</div>
+            <div class="fb-res-val" id="res_u_ratio">0.0x Umf</div>
+            <div class="fb-res-sub" id="res_operating_regime">Bubbling Bed Regime</div>
+          </div>
+          <div class="fb-res-card">
+            <div class="fb-res-sub">Total Bed Pressure Drop ($Delta P$)</div>
+            <div class="fb-res-val" id="res_bed_dp">0.0 kPa</div>
+            <div class="fb-res-sub" id="res_bed_dp_mbar">0 mbar (Buoyant Weight)</div>
+          </div>
+          <div class="fb-res-card">
+            <div class="fb-res-sub">Expanded Bed Height ($H_{exp}$)</div>
+            <div class="fb-res-val" id="res_h_exp">0.00 m</div>
+            <div class="fb-res-sub" id="res_exp_ratio">Expansion: 0.0x H0</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Dimensionless Numbers & Distributor Telemetry</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Archimedes Number ($Ar$): <strong id="res_ar">0</strong></div>
+            <div>Reynolds at $U_{mf}$ ($Re_{mf}$): <strong id="res_remf">0.000</strong></div>
+            <div>Gas Density: <strong id="res_gas_density">0.00 kg/m3</strong></div>
+            <div>Distributor Grid Target $Delta P_d$: <strong id="res_dist_dp">0.0 kPa (>=25% Pbed)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Fluidized Bed Dynamic Multiphase Bubbling Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Gas windbox, distributor nozzle plate, dense emulsion phase with rising gas bubbles, particle solids splashing, and disengagement freeboard.</p>
+          <div class="anim-box">
+            <canvas id="fb_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="fb-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. High-Velocity Attrition & Cyclone Dust Flooding ($U_0 > 0.6 U_t$)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">When superficial gas velocity is ramped too high in an attempt to boost throughput, small particles in the size distribution cross their individual terminal settling velocities ($U_t$). Furthermore, high-velocity jet collisions at distributor tuyeres pulverize fragile catalyst or mineral beads into sub-10 micron fines (attrition). These fines blow out of the bed into primary and secondary cyclones, overloading diplegs and choking dust filters.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Distributor Grid Weeping & Bed Defluidization</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">If the distributor plate pressure drop is undersized ($Delta P_d < 0.20 Delta P_{bed}$) or if gas flow drops below 70% during turndown, gas momentum through grid holes becomes insufficient to support the solid column. Hot particles weep downward through grid orifices into the bottom plenum chamber (windbox), filling the gas duct. Deprived of uniform gas sweep, entire sections of the fluidized bed collapse into stagnant dead zones.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. High-Temperature Sintering & Clinker Defluidization</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">In fluidized bed combustors and gasifiers operating at 800 to 950 deg C, alkali metals (potassium, sodium) in biomass or coal react with silica sand to form low-melting-point eutectic silicate glasses. If bed temperature spikes locally by even 40 deg C due to poor gas mixing, particle surfaces melt into sticky glue. Particles agglomerate into massive clinkers ("bed rocks") that sink to the distributor plate, causing total bed freeze and emergency shutdown.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Deep Bed Slugging & Vessel Structural Vibration ($H / D > 3$)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">In tall, narrow fluidized beds where the settled height-to-diameter ratio exceeds $H_0 / D_{bed} > 2.5$, rising gas bubbles coalesce until bubble diameter approaches column diameter. The bubble transforms into a gas slug spanning the entire vessel width, lifting massive solid plugs of material upward like pistons. When slugs collapse at the surface, shock waves exert severe cyclical dynamic loads that crack support skirts and tear internal cooling tube coils off their mounts.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Group C Cohesive Channeling & Rat-Holing</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Attempting to fluidize Geldart Group C powders ($d_p < 30 mu	ext{m}$, such as titania, cement, or pulverized starch) fails when using standard gas distributor designs. Interparticle Van der Waals cohesive forces exceed gravitational and drag forces. The gas simply bores narrow bypass chimneys ("rat holes") straight through the bed without fluidizing the bulk solid. Mechanical vibration, ultrasonic agitation, or micro-jet stirring are mandatory to break cohesive agglomerates.</p>
+        </div>
+      </div>
+
+      <div class="fb-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Wen-Yu & Ergun Hydrodynamic Fluidization Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>dimensionless Archimedes number ($Ar$)</strong> characterizes the ratio of gravitational buoyant forces to viscous drag forces:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Ar = \frac{d_p^3 \cdot \rho_g (\rho_s - \rho_g) g}{\mu_g^2}$$
+          </div>
+          <p>The <strong>Reynolds number at minimum fluidization ($Re_{mf}$)</strong> is calculated via the <strong>Wen & Yu empirical correlation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Re_{mf} = \sqrt{33.7^2 + 0.0408 \cdot Ar} - 33.7, \qquad U_{mf} = \frac{Re_{mf} \cdot \mu_g}{d_p \cdot \rho_g}$$
+          </div>
+          <p>The <strong>Total Fluidized Bed Pressure Drop ($Delta P_{bed}$)</strong> equals the buoyant bed weight per unit area:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\Delta P_{bed} = (1 - \epsilon_{mf}) (\rho_s - \rho_g) g H_0$$
+          </div>
+          <p>The <strong>Terminal Velocity ($U_t$)</strong> of an isolated particle is calculated via the <strong>Haider-Levenspiel correlation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$d_* = d_p \left[ \frac{\rho_g (\rho_s - \rho_g) g}{\mu_g^2} \right]^{1/3}, \qquad u_* = \left[ \frac{18}{d_*^2} + \frac{2.335 - 1.744 \phi_s}{d_*^{0.5}} \right]^{-1}, \qquad U_t = u_* \left[ \frac{\mu_g (\rho_s - \rho_g) g}{\rho_g^2} \right]^{1/3}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var dpInput = document.getElementById('fb_dp');
+        var rhoSInput = document.getElementById('fb_rho_s');
+        var sphericityInput = document.getElementById('fb_sphericity');
+        var voidageMfInput = document.getElementById('fb_voidage_mf');
+        var gasTypeSel = document.getElementById('fb_gas_type');
+        var tempInput = document.getElementById('fb_temp');
+        var pressInput = document.getElementById('fb_press');
+        var superUInput = document.getElementById('fb_superficial_u');
+        var bedDiaInput = document.getElementById('fb_bed_dia');
+        var staticHInput = document.getElementById('fb_static_h');
+        var distTypeSel = document.getElementById('fb_distributor_type');
+        var calcBtn = document.getElementById('fb_calc_btn');
+        var copyBtn = document.getElementById('fb_copy_btn');
+        var copyMsg = document.getElementById('fb_copy_msg');
+
+        var resUmf = document.getElementById('res_umf');
+        var resUmfWen = document.getElementById('res_umf_wen');
+        var resUt = document.getElementById('res_ut');
+        var resElutriationMargin = document.getElementById('res_elutriation_margin');
+        var resGeldartGroup = document.getElementById('res_geldart_group');
+        var resGeldartDesc = document.getElementById('res_geldart_desc');
+        var resURatio = document.getElementById('res_u_ratio');
+        var resOperatingRegime = document.getElementById('res_operating_regime');
+        var resBedDp = document.getElementById('res_bed_dp');
+        var resBedDpMbar = document.getElementById('res_bed_dp_mbar');
+        var resHExp = document.getElementById('res_h_exp');
+        var resExpRatio = document.getElementById('res_exp_ratio');
+
+        var resAr = document.getElementById('res_ar');
+        var resRemf = document.getElementById('res_remf');
+        var resGasDensity = document.getElementById('res_gas_density');
+        var resDistDp = document.getElementById('res_dist_dp');
+
+        var canvas = document.getElementById('fb_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // Gas molecular weight database
+        var gasMW = {
+          air: 28.96,
+          nitrogen: 28.01,
+          flue_gas: 30.20,
+          hydrogen: 2.016,
+          syngas: 18.00
+        };
+
+        // Sutherland viscosity formula for gases (Pa*s)
+        function getGasViscosity(gType, TK) {
+          // Sutherland constants for air
+          var mu0 = 1.716e-5; // Pa*s at T0=273.15K
+          var T0 = 273.15;
+          var S = 110.4;
+          if (gType === 'hydrogen') {
+            mu0 = 8.4e-6; S = 97.0;
+          } else if (gType === 'nitrogen') {
+            mu0 = 1.66e-5; S = 107.0;
+          }
+          return mu0 * Math.pow(TK / T0, 1.5) * ((T0 + S) / (TK + S));
+        }
+
+        function calculate() {
+          var dpMicrons = parseFloat(dpInput.value) || 180;
+          var rhoS = parseFloat(rhoSInput.value) || 2600;
+          var phiS = parseFloat(sphericityInput.value) || 0.86;
+          var epsMf = parseFloat(voidageMfInput.value) || 0.42;
+          var gKey = gasTypeSel.value;
+          var tC = parseFloat(tempInput.value) || 25;
+          var pBar = parseFloat(pressInput.value) || 1.013;
+          var u0 = parseFloat(superUInput.value) || 0.25;
+          var dBedM = parseFloat(bedDiaInput.value) || 1.20;
+          var h0M = parseFloat(staticHInput.value) || 1.50;
+
+          var dpM = dpMicrons / 1000000.0;
+          var tK = tC + 273.15;
+          var pPa = pBar * 100000.0;
+          var mw = gasMW[gKey] || 28.96;
+          var rGas = 8314.5; // J/(kmol*K)
+
+          // Gas density: rho_g = P * MW / (R * T)
+          var rhoG = (pPa * mw) / (rGas * tK);
+          var muG = getGasViscosity(gKey, tK); // Pa*s
+
+          var g = 9.80665;
+          var deltaRho = Math.max(10.0, rhoS - rhoG);
+
+          // 1. Archimedes Number
+          var ar = (Math.pow(dpM, 3) * rhoG * deltaRho * g) / Math.pow(muG, 2);
+
+          // 2. Wen & Yu Minimum Fluidization Velocity Umf
+          // Re_mf = sqrt(33.7^2 + 0.0408 * Ar) - 33.7
+          var reMf = Math.sqrt(Math.pow(33.7, 2) + 0.0408 * ar) - 33.7;
+          var uMf = (reMf * muG) / (dpM * rhoG);
+
+          // 3. Terminal Settling Velocity Ut via Haider-Levenspiel
+          var dStar = dpM * Math.pow((rhoG * deltaRho * g) / Math.pow(muG, 2), 1.0 / 3.0);
+          var uStar = 1.0 / ( (18.0 / Math.pow(dStar, 2)) + ((2.335 - 1.744 * phiS) / Math.sqrt(dStar)) );
+          var ut = uStar * Math.pow((muG * deltaRho * g) / Math.pow(rhoG, 2), 1.0 / 3.0);
+
+          // 4. Geldart Classification
+          // Criteria based on dp (microns) and deltaRho (g/cm3)
+          var deltaRhoGcm3 = deltaRho / 1000.0;
+          var geldartGroup = 'Group B';
+          var geldartDesc = 'Sand-like Bubbling';
+
+          if (dpMicrons < 30 || (dpMicrons < 40 && deltaRhoGcm3 < 1.5)) {
+            geldartGroup = 'Group C';
+            geldartDesc = 'Cohesive Fine Powder (Prone to Channeling)';
+          } else if (dpMicrons <= 120 && deltaRhoGcm3 <= 2.5) {
+            geldartGroup = 'Group A';
+            geldartDesc = 'Aeratable / FCC Catalyst (Smooth Expansion)';
+          } else if (dpMicrons >= 1000 || (dpMicrons >= 600 && deltaRhoGcm3 > 3.0)) {
+            geldartGroup = 'Group D';
+            geldartDesc = 'Spoutable Coarse Solids';
+          } else {
+            geldartGroup = 'Group B';
+            geldartDesc = 'Sand-like Bubbling (Bubbles form at Umf)';
+          }
+
+          // 5. Operating Velocity Ratio & Regime
+          var uRatio = u0 / uMf;
+          var regime = 'Bubbling Fluidized Bed';
+          if (u0 < uMf) {
+            regime = 'Fixed Packed Bed (Unfluidized)';
+          } else if (u0 >= ut) {
+            regime = 'Pneumatic Transport / Fast CFB (High Elutriation)';
+          } else if (u0 > ut * 0.5) {
+            regime = 'Turbulent / Entrained Bed';
+          } else if (uRatio > 1.0 && geldartGroup === 'Group A' && uRatio < 2.0) {
+            regime = 'Particulate Homogeneous Expansion';
+          }
+
+          // 6. Bed Pressure Drop (kPa and mbar)
+          var deltaPBedPa = (1.0 - epsMf) * deltaRho * g * h0M;
+          var deltaPBedKPa = deltaPBedPa / 1000.0;
+          var deltaPBedMbar = deltaPBedPa / 100.0;
+
+          // Distributor Grid Pressure Drop (Zuiderweg criterion: 25% of bed dP)
+          var deltaPDistKPa = deltaPBedKPa * 0.25;
+
+          // 7. Expanded Bed Height (Babu / Davidson model for bubbling beds)
+          var expansionFactor = 1.0;
+          if (u0 > uMf && u0 < ut) {
+            // Expansion fraction: eps_b ~ 0.25 * (u0 - uMf)^0.35
+            var bubbleFrac = Math.min(0.55, 0.22 * Math.pow(Math.max(0, u0 - uMf), 0.35));
+            expansionFactor = 1.0 / (1.0 - bubbleFrac);
+          }
+          var hExpM = h0M * expansionFactor;
+
+          // Update UI
+          resUmf.innerText = (uMf < 0.001) ? uMf.toExponential(3) + ' m/s' : uMf.toFixed(4) + ' m/s';
+          resUmfWen.innerText = 'Umf: ' + (uMf * 100).toFixed(2) + ' cm/s (Wen-Yu)';
+          resUt.innerText = ut.toFixed(2) + ' m/s';
+          resElutriationMargin.innerText = 'Elutriation limit (' + (u0/ut*100).toFixed(1) + '% Ut)';
+
+          resGeldartGroup.innerText = geldartGroup;
+          resGeldartDesc.innerText = geldartDesc;
+
+          resURatio.innerText = uRatio.toFixed(2) + 'x Umf';
+          resOperatingRegime.innerText = regime;
+          if (u0 < uMf) {
+            resOperatingRegime.style.color = '#ef4444';
+          } else if (u0 >= ut) {
+            resOperatingRegime.style.color = '#f59e0b';
+          } else {
+            resOperatingRegime.style.color = '#10b981';
+          }
+
+          resBedDp.innerText = deltaPBedKPa.toFixed(2) + ' kPa';
+          resBedDpMbar.innerText = Math.round(deltaPBedMbar) + ' mbar (Buoyant Weight)';
+          resHExp.innerText = hExpM.toFixed(2) + ' m';
+          resExpRatio.innerText = 'Expansion: ' + expansionFactor.toFixed(2) + 'x H0 (' + Math.round((expansionFactor - 1)*100) + '%)';
+
+          resAr.innerText = Math.round(ar).toLocaleString();
+          resRemf.innerText = reMf.toFixed(4);
+          resGasDensity.innerText = rhoG.toFixed(3) + ' kg/m3';
+          resDistDp.innerText = deltaPDistKPa.toFixed(2) + ' kPa (>=25% Pbed)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Fluidized Bed Column Cross-Section (Left)
+          var cX = 180, cY = 30, cW = 120, cH = 280;
+          ctx.strokeStyle = '#64748b'; ctx.lineWidth = 3;
+          // Column Walls
+          ctx.beginPath();
+          ctx.moveTo(cX - cW/2, cY); ctx.lineTo(cX - cW/2, cY + cH);
+          ctx.moveTo(cX + cW/2, cY); ctx.lineTo(cX + cW/2, cY + cH);
+          ctx.stroke();
+
+          // Bottom Windbox / Plenum
+          var gridY = cY + cH - 35;
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(cX - cW/2, gridY, cW, 35);
+
+          // Gas Distributor Grid Plate (Yellow dotted line)
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(cX - cW/2, gridY); ctx.lineTo(cX + cW/2, gridY); ctx.stroke();
+          ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('DISTRIBUTOR GRID', cX, gridY + 12);
+
+          // Fluidizing Gas Inlet Nozzle at bottom of windbox
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(cX, cY + cH); ctx.lineTo(cX, cY + cH + 20); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 8px sans-serif';
+          ctx.fillText('GAS INLET (U0: ' + superUInput.value + ' m/s)', cX, cY + cH + 32);
+
+          // Dense Emulsion Phase Bed (Amber/Orange particle slurry)
+          var bedTopY = gridY - 140;
+          ctx.fillStyle = 'rgba(217, 119, 6, 0.35)';
+          ctx.fillRect(cX - cW/2 + 2, bedTopY, cW - 4, gridY - bedTopY);
+
+          // Gas Bubbles rising through emulsion bed
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          for (var b = 0; b < 4; b++) {
+            var bFrac = ((animStep * 2 + b * 55) % 130) / 130;
+            var by = gridY - 10 - (bFrac * 120);
+            var bx = cX - 30 + (b * 20) + Math.sin(animStep * 0.1 + b) * 8;
+            var bRadius = 5 + bFrac * 10;
+            ctx.beginPath(); ctx.arc(bx, by, bRadius, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Dancing Fluidized Solid Particles
+          ctx.fillStyle = '#fbbf24';
+          for (var p = 0; p < 25; p++) {
+            var px = cX - cW/2 + 10 + (p * 4) % (cW - 20);
+            var py = gridY - 5 - ((animStep * 1.5 + p * 18) % 135);
+            ctx.beginPath(); ctx.arc(px, py, 1.8, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Splashing Freeboard Zone (Particles erupting from burst bubbles)
+          ctx.fillStyle = '#f59e0b';
+          for (var s = 0; s < 8; s++) {
+            var sy = bedTopY - 5 - (Math.sin(animStep * 0.2 + s) * 20);
+            var sx = cX - 35 + s * 10;
+            ctx.beginPath(); ctx.arc(sx, sy, 1.5, 0, Math.PI * 2); ctx.fill();
+          }
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('FREEBOARD ZONE', cX, bedTopY - 35);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillText('BUBBLING BED (Hexp: ' + resHExp.innerText + ')', cX, bedTopY + 25);
+
+          // Right: Comprehensive Technical Telemetry Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('FLUIDIZED BED HYDRODYNAMIC TELEMETRY', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillText('Min Fluidization Velocity (Umf): ' + resUmf.innerText + ' (' + resUmfWen.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Terminal Settling Velocity (Ut): ' + resUt.innerText + ' (' + resElutriationMargin.innerText + ')', dX + 20, dY + 76);
+          ctx.fillText('Geldart Classification: ' + resGeldartGroup.innerText + ' (' + resGeldartDesc.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Operating Regime: ' + resURatio.innerText + ' (' + resOperatingRegime.innerText + ')', dX + 20, dY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Bed Pressure Drop: ' + resBedDp.innerText + ' (' + resBedDpMbar.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Expanded Bed Height: ' + resHExp.innerText + ' (' + resExpRatio.innerText + ')', dX + 20, dY + 165);
+          ctx.fillText('Distributor Target Delta P: ' + resDistDp.innerText + ' (Prevents Grid Weeping)', dX + 20, dY + 186);
+          ctx.fillText('Dimensionless Numbers: Ar = ' + resAr.innerText + ' | Remf = ' + resRemf.innerText, dX + 20, dY + 207);
+
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Elutriation Safety: U0 is ' + (parseFloat(superUInput.value) < parseFloat(resUt.innerText) * 0.5 ? 'well below' : 'close to') + ' elutriation limit', dX + 20, dY + 233);
+          ctx.fillText('Distributor Integrity: ' + distTypeSel.options[distTypeSel.selectedIndex].text.split('(')[0] + ' recommended', dX + 20, dY + 258);
+          ctx.fillText('Standards: AIChE Particle Technology & Kunii-Levenspiel Fluidization', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== FLUIDIZED BED HYDRODYNAMICS REPORT ===',
+            'Mean Particle Diameter: ' + dpInput.value + ' um | Solid Density: ' + rhoSInput.value + ' kg/m3',
+            'Gas Medium: ' + gasTypeSel.options[gasTypeSel.selectedIndex].text + ' @ ' + tempInput.value + ' deg C, ' + pressInput.value + ' bar abs',
+            'Superficial Velocity: ' + superUInput.value + ' m/s (' + resURatio.innerText + ')',
+            'Min Fluidization Velocity (Umf): ' + resUmf.innerText + ' (' + resUmfWen.innerText + ')',
+            'Terminal Velocity (Ut): ' + resUt.innerText + ' (' + resElutriationMargin.innerText + ')',
+            'Geldart Particle Group: ' + resGeldartGroup.innerText + ' (' + resGeldartDesc.innerText + ')',
+            'Fluidization Regime: ' + resOperatingRegime.innerText,
+            'Bed Pressure Drop: ' + resBedDp.innerText + ' (' + resBedDpMbar.innerText + ')',
+            'Expanded Bed Height: ' + resHExp.innerText + ' (' + resExpRatio.innerText + ')',
+            'Distributor Grid Min Delta P: ' + resDistDp.innerText,
+            'Standards: AIChE Particle Technology & Kunii-Levenspiel Fluidization Engineering'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [dpInput, rhoSInput, sphericityInput, voidageMfInput, gasTypeSel, tempInput, pressInput, superUInput, bedDiaInput, staticHInput, distTypeSel].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (283 calculators in /calc/)');
 }
 
