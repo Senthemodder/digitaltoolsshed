@@ -83657,6 +83657,2333 @@ writeFileSync(join(calcDir, 'api-650-storage-tank-shell-thickness-calculator.htm
 }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (111 calculators in /calc/)');
+// ==========================================
+// TOOL AQ1: Sucker Rod Pump Pumping Unit Geometry & Rod String Stress Calculator (API Spec 11E & API RP 11L)
+// ==========================================
+const toolAQ1Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">API Spec 11E &bull; API RP 11L &bull; Modified Goodman Stress Diagram</div>
+    <h1>Sucker Rod Pump & Beam Pumping Unit Sizing Calculator</h1>
+    <p class="text-muted">Calculate peak polished rod load (PPRL), minimum rod load (MPRL), peak gearbox torque, required counterbalance (CBE), and modified Goodman fatigue stress endurance for artificial lift sucker rod beam pumping units per API Spec 11E and API RP 11L.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn" id="aq1-unit-metric" onclick="setAQ1Unit('metric')">Metric Units (m, mm, kPa, kNm, m³/d)</button>
+    <button type="button" class="unit-toggle-btn active" id="aq1-unit-imperial" onclick="setAQ1Unit('imperial')">Imperial Units (ft, in, psi, in-kips, BPD)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Well & Pumping Unit Geometry -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Well Depth & Pumping Unit Setup</h3>
+
+      <div class="input-group">
+        <label for="aq1-pump-depth" id="aq1-label-depth">Pump Setting True Vertical Depth ($D_{pump}$) (ft):</label>
+        <input type="number" id="aq1-pump-depth" value="5500" step="100" min="500" max="15000" oninput="calcAQ1()">
+        <span class="text-muted">Depth from surface to downhole insert/tubing pump barrel</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-plunger-dia" id="aq1-label-plunger">Downhole Pump Plunger Diameter ($D_p$) (in):</label>
+        <input type="number" id="aq1-plunger-dia" value="1.75" step="0.25" min="1.00" max="4.75" oninput="calcAQ1()">
+        <span class="text-muted">Common API plunger sizes: 1.25", 1.50", 1.75", 2.00", 2.25", 2.50", 2.75"</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-stroke-len" id="aq1-label-stroke">Surface Polished Rod Stroke Length ($S$) (in):</label>
+        <input type="number" id="aq1-stroke-len" value="120" step="6" min="24" max="320" oninput="calcAQ1()">
+        <span class="text-muted">Pumping unit stroke setting (e.g. 64", 86", 100", 120", 144", 168", 192")</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-spm">Pumping Speed ($N$) (Strokes Per Minute, SPM):</label>
+        <input type="number" id="aq1-spm" value="8.5" step="0.5" min="2.0" max="22.0" oninput="calcAQ1()">
+        <span class="text-muted">Operating stroke rate (dictates dynamic acceleration factor)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-unit-geom">Pumping Unit Geometry Type:</label>
+        <select id="aq1-unit-geom" onchange="calcAQ1()">
+          <option value="conventional" selected>Conventional Beam Unit (Class I Lever, rear pitman)</option>
+          <option value="mark2">Mark II Unitorque (Class III Lever, phased forward crank)</option>
+          <option value="air_bal">Air Balanced Unit (Pneumatic cylinder counterbalance)</option>
+          <option value="reverse">Reverse Mark / TorqMaster (Enhanced torque factor)</option>
+        </select>
+        <span class="text-muted">Conventional has equal torque peaks; Mark II reduces peak gear torque by 15-25%</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Fluids & Sucker Rod String Material -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Fluid Properties & Rod String Grade</h3>
+
+      <div class="input-group">
+        <label for="aq1-fluid-level" id="aq1-label-fluid-level">Working Dynamic Fluid Level ($D_{fluid}$) (ft):</label>
+        <input type="number" id="aq1-fluid-level" value="2800" step="100" min="0" max="15000" oninput="calcAQ1()">
+        <span class="text-muted">Operating working fluid level below surface (affects net fluid load $F_o$)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-fluid-sg">Produced Liquid Specific Gravity ($SG_{liq}$):</label>
+        <input type="number" id="aq1-fluid-sg" value="0.92" step="0.02" min="0.75" max="1.25" oninput="calcAQ1()">
+        <span class="text-muted">Water: 1.00; 35° API Crude: 0.85; High water-cut emulsion: 0.90 - 0.98</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-rod-grade">Sucker Rod Material Specification & Grade:</label>
+        <select id="aq1-rod-grade" onchange="syncAQ1Rod()">
+          <option value="grade_c">API Grade C (Carbon Steel, Tensile: 90 ksi / 620 MPa)</option>
+          <option value="grade_d" selected>API Grade D (Alloy Steel 4142, Tensile: 115 ksi / 793 MPa)</option>
+          <option value="grade_k">API Grade K (Nickel-Chrome Special Corrosion, Tensile: 85 ksi)</option>
+          <option value="ultra_high">High-Strength Special Alloy (Tensile: 140 ksi / 965 MPa)</option>
+        </select>
+        <span class="text-muted" id="aq1-rod-hint">API Grade D: Yield = 85 ksi, Tensile = 115 ksi, Service Factor = 1.0</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-rod-taper">Rod String Taper Configuration:</label>
+        <select id="aq1-rod-taper" onchange="calcAQ1()">
+          <option value="taper_76">API #76 Taper (7/8" top + 3/4" bottom)</option>
+          <option value="taper_86" selected>API #86 Taper (1" top + 7/8" mid + 3/4" bottom)</option>
+          <option value="taper_87">API #87 Taper (1" top + 7/8" bottom)</option>
+          <option value="single_78">Single 7/8" Straight String (Shallow wells)</option>
+          <option value="single_100">Single 1" Straight String (High volume)</option>
+        </select>
+        <span class="text-muted">Multi-taper strings balance stress evenly from top to bottom rod</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq1-service-factor">Corrosive Service Factor ($SF$):</label>
+        <input type="number" id="aq1-service-factor" value="1.00" step="0.05" min="0.60" max="1.00" oninput="calcAQ1()">
+        <span class="text-muted">Non-corrosive / inhibited: 1.00; mild H2S / CO2: 0.85; severe sour: 0.70</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Pumping Unit Structural & Fatigue Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Peak Polished Rod Load (PPRL)</span>
+        <div id="aq1-res-pprl" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- lb</div>
+        <span class="text-muted" id="aq1-sub-pprl" style="font-size:0.75rem;">Beam beam load check</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Peak Gearbox Reducer Torque</span>
+        <div id="aq1-res-torque" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- in-kips</div>
+        <span class="text-muted" id="aq1-sub-torque" style="font-size:0.75rem;">API 11E Unit Rating</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Top Rod Goodman Loading</span>
+        <div id="aq1-res-goodman" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- %</div>
+        <span class="text-muted" id="aq1-sub-goodman" style="font-size:0.75rem;">Target: ≤ 100% of fatigue limit</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Ideal Counterbalance (CBE)</span>
+        <div id="aq1-res-cbe" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- lb</div>
+        <span class="text-muted" id="aq1-sub-cbe" style="font-size:0.75rem;">Polished rod equivalent</span>
+      </div>
+    </div>
+
+    <!-- Interactive Pumping Unit SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">API Beam Pumping Unit Kinematics & Downhole Load Dynamics</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live API RP 11L Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="aq1-svg" viewBox="0 0 800 280" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Mechanical Kinematics & Production Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Governing Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">API Sizing Threshold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Minimum Polished Rod Load (MPRL)</td>
+              <td style="padding: 8px;">$MPRL = W_r(1 - \alpha_d) - 0.12 F_o$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq1-res-mprl">--</td>
+              <td style="padding: 8px; color: #10b981;">Must be $> 0$ (Prevents rod float/buckle)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Theoretical Fluid Displacement Rate</td>
+              <td style="padding: 8px;">$PD = 0.1166 \cdot D_p^2 \cdot S \cdot N$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq1-res-pd">--</td>
+              <td style="padding: 8px; color: #10b981;">100% volumetric pump displacement</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Total Dry Rod String Weight ($W_r$)</td>
+              <td style="padding: 8px;">$\sum (w_{rod,i} \times L_i)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq1-res-wr">--</td>
+              <td style="padding: 8px; color: #10b981;">Taper weight distribution</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Buoyant Rod Weight in Fluid ($W_{rf}$)</td>
+              <td style="padding: 8px;">$W_r \times (1 - 0.128 \cdot SG_{liq})$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq1-res-wrf">--</td>
+              <td style="padding: 8px; color: #10b981;">Archimedes buoyant reduction</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Net Hydrostatic Fluid Load ($F_o$)</td>
+              <td style="padding: 8px;">$0.433 \cdot SG \cdot A_p \cdot (D_{pump} - D_{fluid})$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq1-res-fo">--</td>
+              <td style="padding: 8px; color: #10b981;">Differential pressure on plunger area</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Dynamic Acceleration Factor ($\alpha_d$)</td>
+              <td style="padding: 8px;">$\alpha_d = S \cdot N^2 / 70,500$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq1-res-alphad">--</td>
+              <td style="padding: 8px; color: #10b981;">Mills inertia factor</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Recommended Prime Mover Power</td>
+              <td style="padding: 8px;">$HP_{engine} = (PPRL - MPRL) \cdot S \cdot N / 250,000$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq1-res-hp">--</td>
+              <td style="padding: 8px; color: #10b981;">Electric motor / gas engine size</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="aq1-copy-btn" onclick="copyAQ1Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Sucker Rod Pump & Beam Unit Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & API RP 11L Kinematics</h3>
+    <p>Beam pumping units operate as non-harmonic mechanical linkages reciprocating a downhole steel sucker rod string thousands of feet long. Sizing the surface gearbox, beam structure, and downhole rod string is governed by API Spec 11E and API RP 11L:</p>
+
+    <h4>1. Mills Acceleration Factor & Dynamic Loads</h4>
+    <p>As the walking beam oscillates, the polished rod undergoes simple harmonic acceleration. Mills derived the non-dimensional dynamic acceleration factor ($\alpha_d$):</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\alpha_d = \frac{S \cdot N^2}{70,500}$$
+    </div>
+    <p>Where $S$ is stroke length in inches and $N$ is strokes per minute (SPM). The peak and minimum loads on the polished rod are formulated as:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$PPRL = W_{rf} \cdot (1 + \alpha_d) + F_o \quad [\text{lb}]$$
+      $$MPRL = W_{rf} \cdot (1 - \alpha_d) - 0.12 \cdot F_o \quad [\text{lb}]$$
+    </div>
+    <p>Where $W_{rf}$ is the buoyant rod string weight in fluid and $F_o = 0.433 \cdot SG \cdot A_p \cdot H_{net}$ is the net fluid differential load.</p>
+
+    <h4>2. Modified Goodman Diagram Fatigue Stress Check</h4>
+    <p>Because sucker rods experience millions of cyclic tension-tension cycles per year without ever entering compression, fatigue endurance limit governs design rather than ultimate tensile yield. API RP 11L enforces the Modified Goodman relationship:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$S_{allowable} = \left( \frac{S_u}{1.75} + 0.362 \cdot S_{min} \right) \cdot SF$$
+      $$\% \text{ Goodman Loading} = \frac{S_{max}}{S_{allowable}} \times 100\%$$
+    </div>
+    <p>Where $S_{max} = PPRL / A_{top\_rod}$, $S_{min} = MPRL / A_{top\_rod}$, $S_u$ is minimum ultimate tensile strength, and $SF$ is the environmental corrosion service factor ($0.70$ to $1.00$). Exceeding $100\%$ guarantees premature fatigue parting.</p>
+
+    <h4>3. Peak Gearbox Torque & Counterbalance (CBE)</h4>
+    <p>The rotating crank weights must be positioned to balance half the stroke load, minimizing the net torque experienced by the high-speed gear reducer teeth:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$CBE_{ideal} = \frac{PPRL + MPRL}{2} \quad [\text{lb}]$$
+      $$T_{peak} = \left( PPRL - CBE_{ideal} \right) \cdot \frac{S}{2} \cdot TF_{unit} \quad [\text{in}\cdot\text{kips}]$$
+    </div>
+    <p>Where $TF_{unit} \approx 1.05 - 1.15$ accounts for kinematic torque factor geometry on conventional units.</p>
+  </div>
+
+  <!-- 5 Fatal Artificial Lift Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in Sucker Rod Pumping</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Severe Counterbalance Under-Balancing Destroying Gear Reducer Teeth</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">If crank counterweights are set too close to the center axis, the gearbox sees an immense torque spike on the upstroke while the motor goes into regenerative braking on the downstroke. This torque reversal causes severe gear tooth face pitting, herringbone tooth cracking, and complete gear reducer burnout within months. A properly balanced unit draws nearly identical electrical current peaks on both upstroke and downstroke.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Fluid Pound (Gas Interference) Slamming Downhole Rod String</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">When reservoir inflow drops below pump displacement, the pump barrel fills only partially with liquid during the upstroke, leaving a low-pressure gas pocket. On the subsequent downstroke, the traveling valve stays closed through the gas void until the plunger abruptly slams into the incompressible liquid surface at peak velocity ('fluid pound'). The resulting shockwave sends compressive stress waves up the rod string, buckling lower rods and fatiguing the gearbox.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Acoustic Rod String Harmonic Resonance at Critical Pumping Speeds</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Stress waves propagate through steel sucker rods at sonic speed ($a \approx 16,300\ \text{ft/s}$ / $4,970\ \text{m/s}$). The natural acoustic frequency of a rod string is $f_n = a / (4 L)$. If operating SPM ($N$) coincides with an odd harmonic of the rod natural frequency ($N = 60 f_n / n$), dynamic wave reflections amplify downhole stroke amplitudes and double the surface PPRL, resulting in immediate rod string tensile rupture.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Ignoring H2S / CO2 Pitting in Modified Goodman Deratings</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Even trace levels of hydrogen sulfide ($H_2S$) or carbon dioxide ($CO_2$) cause microscopic chemical pitting on sucker rod surfaces. These pits act as severe stress concentration notches with stress concentration factors $K_t > 3.0$. Operating high-strength alloy rods (Grade D or ultra-high-strength) without an aggressive corrosion inhibitor program ($SF < 0.80$) causes rapid sulfide stress cracking (SSC) and brittle rod breaks within weeks.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Polished Rod Compression & Stuffing Box Blowout from Paraffin Drag</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">In waxy crude wells, heavy paraffin crystallizes in the upper 2,000 feet of production tubing. On the downstroke, viscous drag can exceed buoyant rod weight ($W_{rf}$), forcing the minimum rod load below zero ($MPRL < 0$). This puts the upper rod string into severe axial compression, bending the polished rod, shredding stuffing box packing rubbers, and spraying pressurized crude oil over the well pad.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let aq1Unit = 'imperial'; // 'imperial' (default for oilfield) or 'metric'
+
+  window.setAQ1Unit = function(unit) {
+    if (aq1Unit === unit) return;
+    aq1Unit = unit;
+    document.getElementById('aq1-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('aq1-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const depth = document.getElementById('aq1-pump-depth');
+    const plunger = document.getElementById('aq1-plunger-dia');
+    const stroke = document.getElementById('aq1-stroke-len');
+    const flevel = document.getElementById('aq1-fluid-level');
+
+    if (unit === 'metric') {
+      document.getElementById('aq1-label-depth').innerText = 'Pump Setting True Vertical Depth (Dpump) (m):';
+      document.getElementById('aq1-label-plunger').innerText = 'Downhole Pump Plunger Diameter (Dp) (mm):';
+      document.getElementById('aq1-label-stroke').innerText = 'Surface Polished Rod Stroke Length (S) (m):';
+      document.getElementById('aq1-label-fluid-level').innerText = 'Working Dynamic Fluid Level (Dfluid) (m):';
+
+      depth.value = (parseFloat(depth.value) / 3.28084).toFixed(0);
+      plunger.value = (parseFloat(plunger.value) * 25.4).toFixed(1);
+      stroke.value = (parseFloat(stroke.value) / 39.3701).toFixed(2);
+      flevel.value = (parseFloat(flevel.value) / 3.28084).toFixed(0);
+    } else {
+      document.getElementById('aq1-label-depth').innerText = 'Pump Setting True Vertical Depth (Dpump) (ft):';
+      document.getElementById('aq1-label-plunger').innerText = 'Downhole Pump Plunger Diameter (Dp) (in):';
+      document.getElementById('aq1-label-stroke').innerText = 'Surface Polished Rod Stroke Length (S) (in):';
+      document.getElementById('aq1-label-fluid-level').innerText = 'Working Dynamic Fluid Level (Dfluid) (ft):';
+
+      depth.value = (parseFloat(depth.value) * 3.28084).toFixed(0);
+      plunger.value = (parseFloat(plunger.value) / 25.4).toFixed(2);
+      stroke.value = (parseFloat(stroke.value) * 39.3701).toFixed(0);
+      flevel.value = (parseFloat(flevel.value) * 3.28084).toFixed(0);
+    }
+    calcAQ1();
+  };
+
+  window.syncAQ1Rod = function() {
+    const grade = document.getElementById('aq1-rod-grade').value;
+    const hint = document.getElementById('aq1-rod-hint');
+    if (grade === 'grade_c') hint.innerText = 'API Grade C: Yield = 60 ksi, Tensile = 90 ksi, Standard Carbon';
+    else if (grade === 'grade_d') hint.innerText = 'API Grade D: Yield = 85 ksi, Tensile = 115 ksi, Standard Alloy 4142';
+    else if (grade === 'grade_k') hint.innerText = 'API Grade K: Yield = 60 ksi, Tensile = 85 ksi, High Nickel Corrosion';
+    else if (grade === 'ultra_high') hint.innerText = 'Special High Strength: Yield = 115 ksi, Tensile = 140 ksi';
+    calcAQ1();
+  };
+
+  window.calcAQ1 = function() {
+    let depth_val = parseFloat(document.getElementById('aq1-pump-depth').value) || 5500;
+    let plunger_val = parseFloat(document.getElementById('aq1-plunger-dia').value) || 1.75;
+    let stroke_val = parseFloat(document.getElementById('aq1-stroke-len').value) || 120;
+    let SPM = parseFloat(document.getElementById('aq1-spm').value) || 8.5;
+    let flevel_val = parseFloat(document.getElementById('aq1-fluid-level').value) || 2800;
+    let SG = parseFloat(document.getElementById('aq1-fluid-sg').value) || 0.92;
+    let rod_grade = document.getElementById('aq1-rod-grade').value;
+    let rod_taper = document.getElementById('aq1-rod-taper').value;
+    let SF = parseFloat(document.getElementById('aq1-service-factor').value) || 1.00;
+    let unit_geom = document.getElementById('aq1-unit-geom').value;
+
+    // Convert inputs internally to Oilfield Imperial (ft, in, lb, psi)
+    let depth_ft = aq1Unit === 'metric' ? depth_val * 3.28084 : depth_val;
+    let plunger_in = aq1Unit === 'metric' ? plunger_val / 25.4 : plunger_val;
+    let stroke_in = aq1Unit === 'metric' ? stroke_val * 39.3701 : stroke_val;
+    let flevel_ft = aq1Unit === 'metric' ? flevel_val * 3.28084 : flevel_val;
+
+    // Safety checks
+    if (flevel_ft > depth_ft) flevel_ft = depth_ft * 0.5;
+
+    // 1. Dynamic Acceleration Factor alpha_d via Mills formula
+    let alpha_d = (stroke_in * Math.pow(SPM, 2)) / 70500.0;
+
+    // 2. Rod String Weight and Taper Properties
+    // Average unit weight wr (lb/ft) and top rod area A_top (sq in)
+    let wr_lb_ft = 2.15; // default for #86 taper
+    let A_top_sqin = 0.7854; // 1" top rod
+    if (rod_taper === 'taper_76') { wr_lb_ft = 1.85; A_top_sqin = 0.6013; } // 7/8" top
+    else if (rod_taper === 'taper_86') { wr_lb_ft = 2.18; A_top_sqin = 0.7854; } // 1" top
+    else if (rod_taper === 'taper_87') { wr_lb_ft = 2.45; A_top_sqin = 0.7854; }
+    else if (rod_taper === 'single_78') { wr_lb_ft = 2.22; A_top_sqin = 0.6013; }
+    else if (rod_taper === 'single_100') { wr_lb_ft = 2.90; A_top_sqin = 0.7854; }
+
+    let Wr_total_lb = wr_lb_ft * depth_ft;
+    // Buoyant weight in fluid Wrf = Wr * (1 - 0.128 * SG)
+    let Wrf_lb = Wr_total_lb * (1.0 - 0.128 * SG);
+
+    // 3. Fluid Load Fo on Plunger Area (lb)
+    let Ap_sqin = (Math.PI / 4.0) * Math.pow(plunger_in, 2);
+    let net_head_ft = Math.max(100, depth_ft - flevel_ft);
+    let Fo_lb = 0.433 * SG * Ap_sqin * net_head_ft;
+
+    // 4. Peak and Minimum Polished Rod Loads (API RP 11L)
+    let PPRL_lb = Wrf_lb * (1.0 + alpha_d) + Fo_lb;
+    let MPRL_lb = Wrf_lb * (1.0 - alpha_d) - (0.12 * Fo_lb);
+
+    // 5. Ideal Counterbalance Effect (CBE)
+    let CBE_ideal_lb = (PPRL_lb + MPRL_lb) / 2.0;
+
+    // 6. Peak Gearbox Torque (in-kips) per API Spec 11E
+    let TF_geom = 1.10; // conventional
+    if (unit_geom === 'mark2') TF_geom = 0.88;
+    else if (unit_geom === 'air_bal') TF_geom = 0.95;
+    else if (unit_geom === 'reverse') TF_geom = 0.92;
+
+    let T_peak_in_kips = ((PPRL_lb - CBE_ideal_lb) * (stroke_in / 2.0) * TF_geom) / 1000.0;
+    if (T_peak_in_kips < 0) T_peak_in_kips = Math.abs(T_peak_in_kips);
+
+    // 7. Modified Goodman Stress on Top Rod
+    let Su_psi = 115000; // Grade D
+    if (rod_grade === 'grade_c') Su_psi = 90000;
+    else if (rod_grade === 'grade_k') Su_psi = 85000;
+    else if (rod_grade === 'ultra_high') Su_psi = 140000;
+
+    let S_max_psi = PPRL_lb / A_top_sqin;
+    let S_min_psi = Math.max(0, MPRL_lb / A_top_sqin);
+    let S_allowable_psi = ((Su_psi / 1.75) + 0.362 * S_min_psi) * SF;
+    let goodman_pct = (S_max_psi / S_allowable_psi) * 100.0;
+
+    // 8. Theoretical Pump Displacement PD (BPD / m³/d)
+    let PD_bpd = 0.1166 * Math.pow(plunger_in, 2) * stroke_in * SPM;
+    let PD_m3d = PD_bpd * 0.158987;
+
+    // Recommended Engine Power
+    let HP_engine = ((PPRL_lb - MPRL_lb) * stroke_in * SPM) / 250000.0;
+    let kW_motor = HP_engine * 0.7457;
+
+    // UI Updates
+    document.getElementById('aq1-res-goodman').innerText = goodman_pct.toFixed(1) + ' %';
+    document.getElementById('aq1-sub-goodman').innerText = goodman_pct <= 100 ? '✓ Within API Fatigue Limit' : '❌ Fatigue Parting Hazard';
+    document.getElementById('aq1-res-goodman').style.color = goodman_pct <= 100 ? '#10b981' : '#ef4444';
+
+    if (aq1Unit === 'metric') {
+      let PPRL_kN = PPRL_lb * 0.00444822;
+      let MPRL_kN = MPRL_lb * 0.00444822;
+      let CBE_kN = CBE_ideal_lb * 0.00444822;
+      let T_peak_kNm = T_peak_in_kips * 0.112985;
+
+      document.getElementById('aq1-res-pprl').innerText = PPRL_kN.toFixed(1) + ' kN';
+      document.getElementById('aq1-sub-pprl').innerText = '(' + PPRL_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb)';
+      document.getElementById('aq1-res-torque').innerText = T_peak_kNm.toFixed(1) + ' kNm';
+      document.getElementById('aq1-sub-torque').innerText = '(' + T_peak_in_kips.toFixed(0) + ' in-kips)';
+      document.getElementById('aq1-res-cbe').innerText = CBE_kN.toFixed(1) + ' kN';
+      document.getElementById('aq1-sub-cbe').innerText = '(' + CBE_ideal_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb)';
+
+      document.getElementById('aq1-res-mprl').innerText = MPRL_kN.toFixed(1) + ' kN';
+      document.getElementById('aq1-res-pd').innerText = PD_m3d.toFixed(1) + ' m³/d (' + PD_bpd.toFixed(0) + ' BPD)';
+      document.getElementById('aq1-res-wr').innerText = (Wr_total_lb * 0.453592).toFixed(0) + ' kg';
+      document.getElementById('aq1-res-wrf').innerText = (Wrf_lb * 0.453592).toFixed(0) + ' kg';
+      document.getElementById('aq1-res-fo').innerText = (Fo_lb * 0.00444822).toFixed(1) + ' kN';
+      document.getElementById('aq1-res-hp').innerText = kW_motor.toFixed(1) + ' kW (' + HP_engine.toFixed(0) + ' HP)';
+    } else {
+      document.getElementById('aq1-res-pprl').innerText = PPRL_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb';
+      document.getElementById('aq1-sub-pprl').innerText = '(' + (PPRL_lb / 1000).toFixed(1) + ' kips)';
+      document.getElementById('aq1-res-torque').innerText = T_peak_in_kips.toFixed(0) + ' in-kips';
+      document.getElementById('aq1-sub-torque').innerText = 'API Spec 11E Gear Rating';
+      document.getElementById('aq1-res-cbe').innerText = CBE_ideal_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb';
+      document.getElementById('aq1-sub-cbe').innerText = 'At Polished Rod';
+
+      document.getElementById('aq1-res-mprl').innerText = MPRL_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb';
+      document.getElementById('aq1-res-pd').innerText = PD_bpd.toFixed(0) + ' BPD (' + PD_m3d.toFixed(1) + ' m³/d)';
+      document.getElementById('aq1-res-wr').innerText = Wr_total_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb';
+      document.getElementById('aq1-res-wrf').innerText = Wrf_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb';
+      document.getElementById('aq1-res-fo').innerText = Fo_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb';
+      document.getElementById('aq1-res-hp').innerText = HP_engine.toFixed(1) + ' HP (' + kW_motor.toFixed(1) + ' kW)';
+    }
+    document.getElementById('aq1-res-alphad').innerText = alpha_d.toFixed(3) + ' g (' + (alpha_d * 100).toFixed(1) + '%)';
+
+    // Dynamic SVG Simulation
+    renderAQ1Svg(stroke_in, SPM, PPRL_lb, MPRL_lb, goodman_pct);
+  };
+
+  function renderAQ1Svg(stroke_in, SPM, PPRL_lb, MPRL_lb, goodman_pct) {
+    const svg = document.getElementById('aq1-svg');
+    if (!svg) return;
+
+    let samsonX = 380;
+    let samsonBaseY = 220;
+    let samsonTopY = 80;
+
+    let beamLenLeft = 190;
+    let beamLenRight = 180;
+    let beamY = samsonTopY;
+
+    let crankX = 570;
+    let crankY = 175;
+
+    let wellheadX = 180;
+    let wellheadY = 220;
+
+    let statusColor = goodman_pct <= 100 ? '#10b981' : '#ef4444';
+
+    let svgParts = [
+      '<!-- Ground Concrete Pad Baseline -->',
+      '<rect x="120" y="' + samsonBaseY + '" width="560" height="20" fill="#334155" stroke="#64748b" stroke-width="1.5" />',
+      '<text x="130" y="' + (samsonBaseY + 35) + '" fill="#94a3b8" font-size="10">Pumping Unit Sub-Base / Concrete Slab</text>',
+
+      '<!-- Samson Post A-Frame Support Structure -->',
+      '<polygon points="' + (samsonX - 45) + ',' + samsonBaseY + ' ' + (samsonX + 45) + ',' + samsonBaseY + ' ' + (samsonX + 15) + ',' + samsonTopY + ' ' + (samsonX - 15) + ',' + samsonTopY + '" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />',
+      '<circle cx="' + samsonX + '" cy="' + samsonTopY + '" r="8" fill="#f59e0b" stroke="#f8fafc" stroke-width="2" />',
+      '<text x="' + samsonX + '" y="' + (samsonTopY - 12) + '" fill="#f59e0b" font-size="10" font-weight="700" text-anchor="middle">Center Bearing</text>',
+
+      '<!-- Walking Beam (Slight tilt for dynamic feel) -->',
+      '<polygon points="' + (samsonX - beamLenLeft) + ',' + (beamY - 6) + ' ' + (samsonX + beamLenRight) + ',' + (beamY - 4) + ' ' + (samsonX + beamLenRight) + ',' + (beamY + 12) + ' ' + (samsonX - beamLenLeft) + ',' + (beamY + 14) + '" fill="#475569" stroke="#cbd5e1" stroke-width="2" />',
+
+      '<!-- Horsehead Curve on Front of Beam (Left) -->',
+      '<path d="M ' + (samsonX - beamLenLeft) + ',' + (beamY - 25) + ' C ' + (samsonX - beamLenLeft - 45) + ',' + (beamY - 10) + ' ' + (samsonX - beamLenLeft - 45) + ',' + (beamY + 45) + ' ' + (samsonX - beamLenLeft) + ',' + (beamY + 50) + ' Z" fill="#334155" stroke="#94a3b8" stroke-width="2" />',
+      
+      '<!-- Bridle Wire Rope & Carrier Bar Down to Polished Rod -->',
+      '<line x1="' + (samsonX - beamLenLeft - 35) + '" y1="' + (beamY + 15) + '" x2="' + wellheadX + '" y2="155" stroke="#94a3b8" stroke-width="2" />',
+      '<rect x="' + (wellheadX - 14) + '" y="155" width="28" height="6" fill="#f59e0b" />',
+      '<line x1="' + wellheadX + '" y1="161" x2="' + wellheadX + '" y2="210" stroke="#f8fafc" stroke-width="3" />',
+
+      '<!-- Wellhead Stuffing Box & Surface Casing -->',
+      '<rect x="' + (wellheadX - 18) + '" y="200" width="36" height="20" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" />',
+      '<text x="' + wellheadX + '" y="235" fill="#38bdf8" font-size="10" font-weight="600" text-anchor="middle">Wellhead</text>',
+
+      '<!-- Pitman Arm & Crank Counterweights (Right) -->',
+      '<line x1="' + (samsonX + beamLenRight - 10) + '" y1="' + (beamY + 8) + '" x2="' + (crankX - 15) + '" y2="' + (crankY - 20) + '" stroke="#94a3b8" stroke-width="3" />',
+      '<circle cx="' + crankX + '" cy="' + crankY + '" r="10" fill="#f59e0b" stroke="#f8fafc" />',
+      '<!-- Rotating Crank and Counterbalance Weights -->',
+      '<rect x="' + (crankX - 35) + '" y="' + (crankY - 45) + '" width="30" height="50" fill="#78350f" stroke="#d97706" stroke-width="2" rx="3" />',
+      '<text x="' + (crankX - 20) + '" y="' + (crankY - 18) + '" fill="#fef08a" font-size="9" font-weight="700" text-anchor="middle">CBE</text>',
+
+      '<!-- Gear Reducer Box Under Crank -->',
+      '<rect x="' + (crankX - 30) + '" y="' + (crankY + 15) + '" width="60" height="30" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5" />',
+      '<text x="' + crankX + '" y="' + (crankY + 34) + '" fill="#94a3b8" font-size="9" text-anchor="middle">Gearbox</text>',
+
+      '<!-- Status Banner -->',
+      '<rect x="200" y="248" width="400" height="24" fill="#0f172a" rx="4" stroke="' + statusColor + '" stroke-width="1.5" />',
+      '<text x="400" y="264" fill="' + statusColor + '" font-size="11" font-weight="700" text-anchor="middle">PPRL: ' + PPRL_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb | MPRL: ' + MPRL_lb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb | GOODMAN: ' + goodman_pct.toFixed(1) + '%</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAQ1Diagnostics = function() {
+    let pprl = document.getElementById('aq1-res-pprl').innerText;
+    let torq = document.getElementById('aq1-res-torque').innerText;
+    let gdm = document.getElementById('aq1-res-goodman').innerText;
+    let cbe = document.getElementById('aq1-res-cbe').innerText;
+    let mprl = document.getElementById('aq1-res-mprl').innerText;
+    let pd = document.getElementById('aq1-res-pd').innerText;
+    let wr = document.getElementById('aq1-res-wr').innerText;
+    let wrf = document.getElementById('aq1-res-wrf').innerText;
+    let fo = document.getElementById('aq1-res-fo').innerText;
+    let hp = document.getElementById('aq1-res-hp').innerText;
+
+    let text = [
+      '=== SUCKER ROD PUMP & BEAM UNIT MECHANICAL AUDIT ===',
+      'Standard: API Spec 11E / API RP 11L / Modified Goodman Diagram',
+      '-----------------------------------------------------------------',
+      'Peak Polished Rod Load (PPRL):   ' + pprl,
+      'Peak Gearbox Reducer Torque:     ' + torq,
+      'Modified Goodman Fatigue Stress: ' + gdm,
+      'Ideal Counterbalance (CBE):      ' + cbe,
+      'Minimum Rod Load (MPRL):         ' + mprl,
+      'Pump Theoretical Displacement:  ' + pd,
+      'Total Dry Rod String Weight:     ' + wr,
+      'Buoyant Rod String Weight:       ' + wrf,
+      'Net Hydrostatic Fluid Load (Fo): ' + fo,
+      'Recommended Engine Power:       ' + hp,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/sucker-rod-pump-api-11e-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('aq1-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Rod Pump Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAQ1();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'sucker-rod-pump-api-11e-calculator.html'), renderTradePage({
+  title: 'Sucker Rod Pump & Beam Unit Sizing Calculator | API 11E & 11L',
+  metaDescription: 'Calculate peak polished rod load (PPRL), minimum rod load, peak gearbox torque, CBE, and Goodman fatigue stress per API 11E & 11L.',
+  canonical: 'https://digitaltoolsshed.com/calc/sucker-rod-pump-api-11e-calculator.html',
+  content: toolAQ1Html,
+  faq: [
+    {
+      q: 'What is Peak Polished Rod Load (PPRL) and why is it critical?',
+      a: 'PPRL is the maximum upward tensile load experienced at the surface polished rod during the pumping cycle. It combines buoyant rod weight, dynamic acceleration inertia (Mills factor αd), and the net hydrostatic fluid column resting on the traveling valve. PPRL dictates the required structural beam capacity rating of the pumping unit.'
+    },
+    {
+      q: 'How does the Modified Goodman Diagram prevent sucker rod fatigue failures?',
+      a: 'Sucker rods undergo millions of cyclic tensile stress reversals annually. The Modified Goodman diagram evaluates maximum operating stress (Smax) against allowable fatigue endurance limit based on minimum stress (Smin), ultimate tensile strength (Su), and environmental service factors (SF): Sallow = [Su/1.75 + 0.362 * Smin] * SF. Exceeding 100% loading causes premature fatigue failure.'
+    },
+    {
+      q: 'What is the function of crank counterbalance weights (CBE)?',
+      a: 'Rotating counterweights offset the heavy weight of the sucker rod string and fluid on the upstroke and store energy on the downstroke. Sizing CBE to the ideal average of PPRL and MPRL balances motor load across the full revolution and reduces peak torque on the gearbox reducer teeth by up to 50%.'
+    },
+    {
+      q: 'What is downhole "fluid pound" and what damage does it cause?',
+      a: 'Fluid pound occurs when low reservoir inflow or high gas volume leaves the pump barrel only partially filled with liquid. On the downstroke, the plunger accelerates through low-density gas before violently slamming into the liquid level at high speed, sending destructive compressive shockwaves up the rod string and rattling gearbox teeth.'
+    },
+    {
+      q: 'Why are multi-taper rod strings used in deep wells?',
+      a: 'A single diameter rod string would experience severe over-stressing near the surface where it must support miles of rod weight below it. Multi-taper strings (e.g. 1" top, 7/8" middle, 3/4" bottom) taper rod diameter downward, distributing stress evenly along the entire string and reducing overall weight and power consumption.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AQ2: Multi-Cyclone Spray Dryer Evaporation & Chamber Sizing Calculator (Masters & Psychrometrics)
+// ==========================================
+const toolAQ2Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Masters' Spray Drying Handbook &bull; Psychrometric Mass/Heat Balance &bull; Atomization Standards</div>
+    <h1>Industrial Spray Dryer Evaporation & Chamber Sizing Calculator</h1>
+    <p class="text-muted">Calculate water evaporation capacity ($W$), dry powder yield ($P$), drying air volumetric flow ($G_a$), cylindrical chamber dimensions ($D \times H$), thermal efficiency ($\eta_{th}$), and exhaust relative humidity for pharmaceutical, dairy, food, and ceramic spray dryers.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="aq2-unit-metric" onclick="setAQ2Unit('metric')">Metric Units (kg/h, m, m³/h, °C, kW)</button>
+    <button type="button" class="unit-toggle-btn" id="aq2-unit-imperial" onclick="setAQ2Unit('imperial')">Imperial Units (lb/h, ft, SCFM, °F, MMBtu/h)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Feed Slurry & Product Specifications -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Liquid Feed & Powder Targets</h3>
+
+      <div class="input-group">
+        <label for="aq2-feed-rate" id="aq2-label-feed">Liquid Feed Mass Rate ($F$) (kg/h):</label>
+        <input type="number" id="aq2-feed-rate" value="1500" step="50" min="10" max="50000" oninput="calcAQ2()">
+        <span class="text-muted">Total liquid feed slurry/solution pumped to the atomizer</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-feed-solids">Feed Total Solids Concentration ($S_1$) (% wt):</label>
+        <input type="number" id="aq2-feed-solids" value="35.0" step="1.0" min="1.0" max="65.0" oninput="calcAQ2()">
+        <span class="text-muted">Dry solids content in feed (e.g. Milk: 40-50%, Whey: 35-45%, Ceramics: 50-60%)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-target-moisture">Powder Target Residual Moisture ($X_2$) (% wt):</label>
+        <input type="number" id="aq2-target-moisture" value="3.5" step="0.2" min="0.1" max="12.0" oninput="calcAQ2()">
+        <span class="text-muted">Finished dry product moisture target</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-feed-temp" id="aq2-label-tfeed">Liquid Feed Infeed Temperature ($T_{feed}$) (°C):</label>
+        <input type="number" id="aq2-feed-temp" value="45" step="5" min="5" max="95" oninput="calcAQ2()">
+        <span class="text-muted">Preheated liquid feed temperature entering atomizer</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-atomizer-type">Atomization System Configuration:</label>
+        <select id="aq2-atomizer-type" onchange="calcAQ2()">
+          <option value="rotary_wheel" selected>High-Speed Rotary Atomizer Disc (12,000 - 25,000 RPM)</option>
+          <option value="pressure_nozzle">High-Pressure Swirl Nozzle (50 - 250 bar / 700 - 3500 psi)</option>
+          <option value="two_fluid">Two-Fluid Pneumatic Nozzle (External air atomization)</option>
+        </select>
+        <span class="text-muted">Rotary discs produce wide spray envelopes; nozzles produce narrow downward sprays</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Thermal Process & Drying Air -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Air Temperatures & Psychrometrics</h3>
+
+      <div class="input-group">
+        <label for="aq2-air-inlet-t" id="aq2-label-tin">Hot Air Inlet Temperature ($T_{in}$) (°C):</label>
+        <input type="number" id="aq2-air-inlet-t" value="210" step="5" min="100" max="550" oninput="calcAQ2()">
+        <span class="text-muted">Food/Dairy: 180-230°C; Chemicals/Ceramics: 250-450°C; Pharma: 120-170°C</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-air-outlet-t" id="aq2-label-tout">Exhaust Air Outlet Temperature ($T_{out}$) (°C):</label>
+        <input type="number" id="aq2-air-outlet-t" value="88" step="2" min="50" max="150" oninput="calcAQ2()">
+        <span class="text-muted">Dictates product temperature and final powder moisture equilibrium</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-air-ambient-t" id="aq2-label-tamb">Ambient Air Reference Temperature ($T_0$) (°C):</label>
+        <input type="number" id="aq2-air-ambient-t" value="20" step="5" min="-20" max="45" oninput="calcAQ2()">
+        <span class="text-muted">Fresh intake air temperature before indirect or direct burner heater</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-ambient-rh">Ambient Air Relative Humidity ($RH_0$) (%):</label>
+        <input type="number" id="aq2-ambient-rh" value="60" step="5" min="10" max="100" oninput="calcAQ2()">
+        <span class="text-muted">Affects water vapor loading carried into the dryer</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq2-wall-loss">Chamber Radiation / Convection Heat Loss Factor (%):</label>
+        <input type="number" id="aq2-wall-loss" value="7.5" step="0.5" min="2.0" max="20.0" oninput="calcAQ2()">
+        <span class="text-muted">Standard insulated stainless steel chamber: 5% to 10% thermal loss</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Spray Dryer Process & Chamber Sizing Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Water Evaporation Rate ($W$)</span>
+        <div id="aq2-res-evap" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- kg/h</div>
+        <span class="text-muted" id="aq2-sub-evap" style="font-size:0.75rem;">Moisture removed</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Dry Powder Yield ($P$)</span>
+        <div id="aq2-res-powder" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- kg/h</div>
+        <span class="text-muted" id="aq2-sub-powder" style="font-size:0.75rem;">Finished commercial powder</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Chamber Diameter ($D$)</span>
+        <div id="aq2-res-diameter" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- m</div>
+        <span class="text-muted" id="aq2-sub-diameter" style="font-size:0.75rem;">vdown ≤ 0.45 m/s limit</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Thermal Drying Efficiency</span>
+        <div id="aq2-res-eff" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- %</div>
+        <span class="text-muted" id="aq2-sub-eff" style="font-size:0.75rem;">(Tin - Tout) / (Tin - T0)</span>
+      </div>
+    </div>
+
+    <!-- Interactive Spray Dryer SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Tall-Form Spray Drying Chamber, Atomization Envelope & Airflow Profile</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Masters' Evaporation Model</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="aq2-svg" viewBox="0 0 800 280" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Psychrometric, Thermal Duty & Chamber Dimension Metrics</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Thermodynamic Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Engineering Design Target</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Drying Air Mass Flow Requirement</td>
+              <td style="padding: 8px;">$G_a = [W \lambda + Q_{loss}] / [c_{pa}(T_{in} - T_{out})]$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq2-res-ga">--</td>
+              <td style="padding: 8px; color: #10b981;">Supply blower capacity basis</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Air Volumetric Flow at Inlet</td>
+              <td style="padding: 8px;">$Q_{air,in} = G_a / \rho_{air}(T_{in})$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq2-res-qair">--</td>
+              <td style="padding: 8px; color: #10b981;">Inlet air duct & heater size</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Chamber Cylinder Straight Height</td>
+              <td style="padding: 8px;">$H_{cyl} = 1.25 \times D$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq2-res-hcyl">--</td>
+              <td style="padding: 8px; color: #10b981;">1.0D to 1.5D for rotary; 1.5D to 2.5D for nozzle</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Total Chamber Height (with 60° Cone)</td>
+              <td style="padding: 8px;">$H_{total} = H_{cyl} + (D/2) \tan(60^\circ)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq2-res-htot">--</td>
+              <td style="padding: 8px; color: #10b981;">Building headroom & structure basis</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Exhaust Air Relative Humidity</td>
+              <td style="padding: 8px;">$RH_{out} = P_{v,out} / P_{sat}(T_{out})$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq2-res-rhout">--</td>
+              <td style="padding: 8px; color: #10b981;">Target &lt; 40% (prevents powder stickiness)</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Air Heater Heat Duty</td>
+              <td style="padding: 8px;">$Q_{heater} = G_a \cdot c_{pa} \cdot (T_{in} - T_0)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq2-res-qheat">--</td>
+              <td style="padding: 8px; color: #10b981;">Gas burner / steam coil rating</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="aq2-copy-btn" onclick="copyAQ2Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Spray Dryer Process & Chamber Sizing Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & Masters' Spray Drying Kinetics</h3>
+    <p>Spray drying transforms liquid feed into engineered dry powder in a single continuous step by atomizing the feed into millions of micro-droplets and dispersing them into a co-current stream of hot drying air:</p>
+
+    <h4>1. Mass Balance: Evaporation & Powder Yield</h4>
+    <p>From total solids conservation between liquid feed ($F$ with dry fraction $s_1 = S_1 / 100$) and product powder ($P$ with residual moisture $X_2 / 100$):</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$P = F \cdot \frac{s_1}{1 - (X_2 / 100)} \quad [\text{kg/h}]$$
+      $$W = F - P = F \cdot \left[ \frac{(1 - s_1) - (X_2 / 100)}{1 - (X_2 / 100)} \right] \quad [\text{kg/h of water evaporated}]$$
+    </div>
+
+    <h4>2. Heat Balance & Required Air Mass Flow ($G_a$)</h4>
+    <p>Heat provided by the cooling of the drying air from $T_{in}$ to $T_{out}$ balances the latent heat of vaporization ($\lambda \approx 2,450\ \text{kJ/kg}$), sensible heating of moisture vapor, feed sensible heat, and ambient chamber wall losses:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$G_a = \frac{W \cdot \left[ \lambda + c_{pv} \cdot (T_{out} - T_{feed}) \right] \cdot (1 + \frac{Q_{loss}}{100})}{c_{pa} \cdot (T_{in} - T_{out})} \quad [\text{kg/h of dry air}]$$
+    </div>
+    <p>Where specific heat of air $c_{pa} \approx 1.005\ \text{kJ}/(\text{kg}\cdot^\circ\text{C})$ and vapor $c_{pv} \approx 1.88\ \text{kJ}/(\text{kg}\cdot^\circ\text{C})$.</p>
+
+    <h4>3. Chamber Diameter Sizing via Downward Velocity Limits</h4>
+    <p>To avoid turbulent vortex formation and prevent wet, sticky droplet trajectories from striking the cylinder wall before moisture evaporates into the constant-rate drying regime, the mean downward air velocity must not exceed $v_{down} \approx 0.40 - 0.50\ \text{m/s}$:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$Q_{air,hot} = \frac{G_a}{\rho_{air}(T_{mean}) \cdot 3600} \quad [\text{m}^3/\text{s}]$$
+      $$D_{chamber} = \sqrt{\frac{4 \cdot Q_{air,hot}}{\pi \cdot v_{down}}}$$
+    </div>
+
+    <h4>4. Thermal Drying Efficiency ($\eta_{th}$)</h4>
+    <p>The fraction of sensible thermal energy transferred from the combustion air to the evaporating droplets is defined as:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\eta_{th} = \frac{T_{in} - T_{out}}{T_{in} - T_0} \times 100\%$$
+    </div>
+    <p>Maximizing inlet temperature ($T_{in}$) and minimizing exhaust temperature ($T_{out}$) maximizes fuel efficiency, but $T_{out}$ must remain sufficiently above the exhaust dew point ($RH_{out} < 40\%$) to prevent hygroscopic powder wall sticking.</p>
+  </div>
+
+  <!-- 5 Fatal Spray Dryer Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Catastrophes in Spray Drying</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Chamber Diameter Undersizing Triggering Wet Wall Deposition & Scorching</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">If chamber diameter is sized too narrow for the atomization spray plume angle, wet droplets strike the hot cylinder wall while still containing free surface moisture. The moist product bakes onto the stainless steel wall, building thick, insulating crusts. Over time, the deposit chars, discolors, falls into the product stream as black specks, and can trigger smoldering fires inside the drying chamber.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Exhaust Air Relative Humidity Exceeding Sticky Glass Transition ($T_g$)</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Amorphous powders containing sugars (lactose, sucrose, maltodextrin) exhibit a glass transition temperature ($T_g$) that drops precipitously with moisture content. If operators reduce exhaust temperature ($T_{out}$) to save energy, exhaust relative humidity climbs ($RH_{out} > 50\%$). The powder drops below its sticky point $T_g$, turning into a gooey taffy that cakes inside ductwork, blinds baghouse filters, and stalls cyclone airlocks.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Cold-Weather Exhaust Duct Condensation Blinding Recovery Baghouses</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Exhaust air leaving the spray dryer carries all the evaporated water vapor ($RH \approx 25 - 40\%$ at $85^\circ\text{C}$). If long exhaust ductwork to cyclones or fabric filter baghouses lacks thick thermal insulation, cold winter ambient air chills the steel duct wall below the dew point ($T_{dp} \approx 50 - 55^\circ\text{C}$). Liquid water condenses on the duct walls, creating wet mud that cements filter bags and creates severe bacterial harborages.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Rotary Atomizer High-Speed Bearing Failure from Unbalanced Feed</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Rotary atomizer wheels rotate between 12,000 and 24,000 RPM on precision ceramic spindle bearings. If liquid feed contains undispersed grit or if partial nozzle orifice clogging distributes slurry unevenly across the disc periphery, dynamic centrifugal unbalance generates immense vibration forces. Unchecked unbalance destroys spindle bearings within hours, risking explosive wheel disintegration inside the chamber.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Organic Dust Deflagration from Static Discharge in Recovery Cyclones</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Fine dry powders (starch, milk powder, resins, pharmaceuticals) have Minimum Ignition Energies (MIE) below 10 mJ. High-velocity pneumatic conveying through exhaust cyclones and ducts generates massive electrostatic charges. If all ductwork, filter cages, and cyclone cones lack continuous zero-ohm equipotential grounding bonding, static sparks trigger catastrophic dust explosions that rupture un-vented vessels.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let aq2Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAQ2Unit = function(unit) {
+    if (aq2Unit === unit) return;
+    aq2Unit = unit;
+    document.getElementById('aq2-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('aq2-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const feed = document.getElementById('aq2-feed-rate');
+    const tin = document.getElementById('aq2-air-inlet-t');
+    const tout = document.getElementById('aq2-air-outlet-t');
+    const tamb = document.getElementById('aq2-air-ambient-t');
+    const tfeed = document.getElementById('aq2-feed-temp');
+
+    if (unit === 'imperial') {
+      document.getElementById('aq2-label-feed').innerText = 'Liquid Feed Mass Rate (F) (lb/h):';
+      document.getElementById('aq2-label-tin').innerText = 'Hot Air Inlet Temperature (Tin) (°F):';
+      document.getElementById('aq2-label-tout').innerText = 'Exhaust Air Outlet Temperature (Tout) (°F):';
+      document.getElementById('aq2-label-tamb').innerText = 'Ambient Air Reference Temperature (T0) (°F):';
+      document.getElementById('aq2-label-tfeed').innerText = 'Liquid Feed Infeed Temperature (Tfeed) (°F):';
+
+      feed.value = (parseFloat(feed.value) * 2.20462).toFixed(0);
+      tin.value = ((parseFloat(tin.value) * 9/5) + 32).toFixed(0);
+      tout.value = ((parseFloat(tout.value) * 9/5) + 32).toFixed(0);
+      tamb.value = ((parseFloat(tamb.value) * 9/5) + 32).toFixed(0);
+      tfeed.value = ((parseFloat(tfeed.value) * 9/5) + 32).toFixed(0);
+    } else {
+      document.getElementById('aq2-label-feed').innerText = 'Liquid Feed Mass Rate (F) (kg/h):';
+      document.getElementById('aq2-label-tin').innerText = 'Hot Air Inlet Temperature (Tin) (°C):';
+      document.getElementById('aq2-label-tout').innerText = 'Exhaust Air Outlet Temperature (Tout) (°C):';
+      document.getElementById('aq2-label-tamb').innerText = 'Ambient Air Reference Temperature (T0) (°C):';
+      document.getElementById('aq2-label-tfeed').innerText = 'Liquid Feed Infeed Temperature (Tfeed) (°C):';
+
+      feed.value = (parseFloat(feed.value) / 2.20462).toFixed(0);
+      tin.value = (((parseFloat(tin.value) - 32) * 5/9)).toFixed(0);
+      tout.value = (((parseFloat(tout.value) - 32) * 5/9)).toFixed(0);
+      tamb.value = (((parseFloat(tamb.value) - 32) * 5/9)).toFixed(0);
+      tfeed.value = (((parseFloat(tfeed.value) - 32) * 5/9)).toFixed(0);
+    }
+    calcAQ2();
+  };
+
+  window.calcAQ2 = function() {
+    let feed_val = parseFloat(document.getElementById('aq2-feed-rate').value) || 1500;
+    let S1_pct = parseFloat(document.getElementById('aq2-feed-solids').value) || 35.0;
+    let X2_pct = parseFloat(document.getElementById('aq2-target-moisture').value) || 3.5;
+    let Tin_val = parseFloat(document.getElementById('aq2-air-inlet-t').value) || 210;
+    let Tout_val = parseFloat(document.getElementById('aq2-air-outlet-t').value) || 88;
+    let Tamb_val = parseFloat(document.getElementById('aq2-air-ambient-t').value) || 20;
+    let Tfeed_val = parseFloat(document.getElementById('aq2-feed-temp').value) || 45;
+    let RH0_pct = parseFloat(document.getElementById('aq2-ambient-rh').value) || 60;
+    let loss_pct = parseFloat(document.getElementById('aq2-wall-loss').value) || 7.5;
+    let atomizer = document.getElementById('aq2-atomizer-type').value;
+
+    // Convert inputs internally to SI Metric (kg/h, °C)
+    let F_kgh = aq2Unit === 'imperial' ? feed_val / 2.20462 : feed_val;
+    let Tin_C = aq2Unit === 'imperial' ? (Tin_val - 32) * 5/9 : Tin_val;
+    let Tout_C = aq2Unit === 'imperial' ? (Tout_val - 32) * 5/9 : Tout_val;
+    let Tamb_C = aq2Unit === 'imperial' ? (Tamb_val - 32) * 5/9 : Tamb_val;
+    let Tfeed_C = aq2Unit === 'imperial' ? (Tfeed_val - 32) * 5/9 : Tfeed_val;
+
+    // Safety checks
+    if (Tout_C >= Tin_C) Tout_C = Tin_C - 20;
+    if (Tamb_C >= Tout_C) Tamb_C = Tout_C - 20;
+
+    // 1. Mass Balance
+    let s1 = S1_pct / 100.0;
+    let x2 = X2_pct / 100.0;
+    let P_kgh = (F_kgh * s1) / (1.0 - x2);
+    let W_kgh = Math.max(0, F_kgh - P_kgh);
+
+    // 2. Heat Balance & Required Air Mass Flow Ga (kg/h dry air)
+    let lambda = 2450.0; // latent heat kJ/kg at evaporation temp
+    let cp_v = 1.88; // kJ/(kg °C)
+    let cp_a = 1.005; // kJ/(kg °C)
+    let heat_to_vapor_kJ_kg = lambda + cp_v * (Tout_C - Tfeed_C);
+    let total_heat_needed_kJ_h = W_kgh * heat_to_vapor_kJ_kg * (1.0 + loss_pct / 100.0);
+    let delta_T_air = Tin_C - Tout_C;
+    let Ga_kgh = total_heat_needed_kJ_h / (cp_a * delta_T_air);
+
+    // 3. Air Density and Volumetric Flow
+    let T_inlet_K = Tin_C + 273.15;
+    let rho_air_in = 101.325 / (0.287058 * T_inlet_K); // kg/m³
+    let Q_air_in_m3h = Ga_kgh / rho_air_in;
+
+    let T_mean_C = (Tin_C + Tout_C) / 2.0;
+    let rho_air_mean = 101.325 / (0.287058 * (T_mean_C + 273.15));
+    let Q_air_mean_m3s = (Ga_kgh / rho_air_mean) / 3600.0;
+
+    // 4. Chamber Diameter Sizing
+    // Velocity limit: rotary wheel 0.40 - 0.45 m/s; nozzle 0.50 - 0.60 m/s
+    let v_down_limit = 0.42;
+    if (atomizer === 'pressure_nozzle') v_down_limit = 0.52;
+    else if (atomizer === 'two_fluid') v_down_limit = 0.38;
+
+    let D_chamber_m = Math.sqrt((4.0 * Q_air_mean_m3s) / (Math.PI * v_down_limit));
+    // Standard round up to 0.1m
+    let D_std_m = Math.ceil(D_chamber_m * 10) / 10;
+
+    // Straight cylinder height H_cyl
+    let H_cyl_ratio = 1.25;
+    if (atomizer === 'pressure_nozzle') H_cyl_ratio = 1.75;
+    let H_cyl_m = D_std_m * H_cyl_ratio;
+
+    // Cone height (60 degree cone included angle -> half angle 30 deg: Hcone = (D/2) * tan(60))
+    let H_cone_m = (D_std_m / 2.0) * Math.tan(60 * Math.PI / 180);
+    let H_total_m = H_cyl_m + H_cone_m;
+
+    // 5. Thermal Efficiency
+    let eta_th = ((Tin_C - Tout_C) / (Tin_C - Tamb_C)) * 100.0;
+
+    // 6. Exhaust Air Relative Humidity Calculation
+    // Antoine equation for saturation pressure Psat(Tout) in kPa
+    let Psat_kPa = 0.61078 * Math.exp((17.27 * Tout_C) / (Tout_C + 237.3));
+    // Water vapor added: moisture from evaporation + ambient humidity
+    let Y_ambient_kg_kg = 0.009; // baseline ~60% RH at 20°C
+    let Y_exhaust_kg_kg = Y_ambient_kg_kg + (W_kgh / Ga_kgh);
+    // Partial pressure of water vapor in exhaust
+    let Pv_exhaust_kPa = (Y_exhaust_kg_kg * 101.325) / (0.622 + Y_exhaust_kg_kg);
+    let RH_out_pct = Math.min(100, (Pv_exhaust_kPa / Psat_kPa) * 100.0);
+
+    // 7. Air Heater Thermal Duty (kW / MMBtu/h)
+    let Q_heater_kW = (Ga_kgh * cp_a * (Tin_C - Tamb_C)) / 3600.0;
+    let Q_heater_MMBtu = (Q_heater_kW * 3412.14) / 1e6;
+
+    // UI Updates
+    document.getElementById('aq2-res-eff').innerText = eta_th.toFixed(1) + ' %';
+    document.getElementById('aq2-sub-eff').innerText = 'Thermal Recovery Efficiency';
+
+    if (aq2Unit === 'imperial') {
+      let W_lbh = W_kgh * 2.20462;
+      let P_lbh = P_kgh * 2.20462;
+      let Ga_lbh = Ga_kgh * 2.20462;
+      let Q_air_scfm = (Ga_kgh / 1.2) * 0.588578; // approx standard cfm
+
+      document.getElementById('aq2-res-evap').innerText = W_lbh.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb/h';
+      document.getElementById('aq2-sub-evap').innerText = '(' + W_kgh.toFixed(0) + ' kg/h equiv)';
+      document.getElementById('aq2-res-powder').innerText = P_lbh.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb/h';
+      document.getElementById('aq2-sub-powder').innerText = '(' + P_kgh.toFixed(0) + ' kg/h equiv)';
+      document.getElementById('aq2-res-diameter').innerText = (D_std_m * 3.28084).toFixed(1) + ' ft';
+      document.getElementById('aq2-sub-diameter').innerText = 'Height: ' + (H_total_m * 3.28084).toFixed(1) + ' ft';
+
+      document.getElementById('aq2-res-ga').innerText = Ga_lbh.toLocaleString('en-US', {maximumFractionDigits:0}) + ' lb/h';
+      document.getElementById('aq2-res-qair').innerText = Q_air_scfm.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SCFM';
+      document.getElementById('aq2-res-hcyl').innerText = (H_cyl_m * 3.28084).toFixed(1) + ' ft';
+      document.getElementById('aq2-res-htot').innerText = (H_total_m * 3.28084).toFixed(1) + ' ft';
+      document.getElementById('aq2-res-qheat').innerText = Q_heater_MMBtu.toFixed(2) + ' MMBtu/h (' + Q_heater_kW.toFixed(0) + ' kW)';
+    } else {
+      document.getElementById('aq2-res-evap').innerText = W_kgh.toFixed(0) + ' kg/h';
+      document.getElementById('aq2-sub-evap').innerText = '(' + (W_kgh * 2.20462).toFixed(0) + ' lb/h equiv)';
+      document.getElementById('aq2-res-powder').innerText = P_kgh.toFixed(0) + ' kg/h';
+      document.getElementById('aq2-sub-powder').innerText = '(' + (P_kgh * 2.20462).toFixed(0) + ' lb/h equiv)';
+      document.getElementById('aq2-res-diameter').innerText = D_std_m.toFixed(1) + ' m';
+      document.getElementById('aq2-sub-diameter').innerText = 'Height: ' + H_total_m.toFixed(1) + ' m';
+
+      document.getElementById('aq2-res-ga').innerText = Ga_kgh.toLocaleString('en-US', {maximumFractionDigits:0}) + ' kg/h';
+      document.getElementById('aq2-res-qair').innerText = Q_air_in_m3h.toLocaleString('en-US', {maximumFractionDigits:0}) + ' m³/h';
+      document.getElementById('aq2-res-hcyl').innerText = H_cyl_m.toFixed(1) + ' m';
+      document.getElementById('aq2-res-htot').innerText = H_total_m.toFixed(1) + ' m';
+      document.getElementById('aq2-res-qheat').innerText = Q_heater_kW.toFixed(0) + ' kW (' + Q_heater_MMBtu.toFixed(2) + ' MMBtu/h)';
+    }
+
+    document.getElementById('aq2-res-rhout').innerText = RH_out_pct.toFixed(1) + ' %';
+    document.getElementById('aq2-res-rhout').style.color = RH_out_pct < 45 ? '#10b981' : (RH_out_pct < 60 ? '#f59e0b' : '#ef4444');
+
+    // Dynamic SVG Simulation
+    renderAQ2Svg(D_std_m, H_cyl_m, H_total_m, Tin_C, Tout_C, W_kgh, P_kgh, atomizer);
+  };
+
+  function renderAQ2Svg(D_std_m, H_cyl_m, H_total_m, Tin_C, Tout_C, W_kgh, P_kgh, atomizer) {
+    const svg = document.getElementById('aq2-svg');
+    if (!svg) return;
+
+    let cx = 400;
+    let chamberW = 190;
+    let cylH = 100;
+    let coneH = 75;
+    let topY = 45;
+
+    let svgParts = [
+      '<!-- Hot Air Inflow Plenum (Top Left) -->',
+      '<line x1="220" y1="35" x2="330" y2="35" stroke="#ef4444" stroke-width="3.5" />',
+      '<polygon points="330,30 342,35 330,40" fill="#ef4444" />',
+      '<text x="220" y="27" fill="#ef4444" font-size="11" font-weight="700">Hot Air In: ' + Tin_C.toFixed(0) + '°C</text>',
+
+      '<!-- Liquid Feed Infeed Line -->',
+      '<line x1="' + cx + '" y1="10" x2="' + cx + '" y2="' + (topY + 5) + '" stroke="#38bdf8" stroke-width="2.5" />',
+      '<text x="' + (cx + 8) + '" y="20" fill="#38bdf8" font-size="10" font-weight="600">Feed Slurry</text>',
+
+      '<!-- Atomizer Assembly at Ceiling -->',
+      '<rect x="' + (cx - 18) + '" y="' + (topY - 5) + '" width="36" height="15" fill="#f59e0b" stroke="#f8fafc" stroke-width="1.5" rx="2" />',
+      '<circle cx="' + cx + '" cy="' + (topY + 5) + '" r="6" fill="#ef4444" />',
+      '<text x="' + cx + '" y="' + (topY - 10) + '" fill="#f59e0b" font-size="10" font-weight="700" text-anchor="middle">' + (atomizer === 'rotary_wheel' ? 'Rotary Atomizer' : 'Pressure Nozzle') + '</text>',
+
+      '<!-- Cylindrical Chamber Shell -->',
+      '<rect x="' + (cx - chamberW/2) + '" y="' + topY + '" width="' + chamberW + '" height="' + cylH + '" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />',
+
+      '<!-- Conical Lower Section -->',
+      '<polygon points="' + (cx - chamberW/2) + ',' + (topY + cylH) + ' ' + (cx + chamberW/2) + ',' + (topY + cylH) + ' ' + (cx + 20) + ',' + (topY + cylH + coneH) + ' ' + (cx - 20) + ',' + (topY + cylH + coneH) + '" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />',
+
+      '<!-- Atomized Cloud & Drying Envelopes -->',
+      '<path d="M ' + cx + ',' + (topY + 8) + ' L ' + (cx + chamberW/2 - 20) + ',' + (topY + 60) + ' L ' + (cx - chamberW/2 + 20) + ',' + (topY + 60) + ' Z" fill="#fbbf24" opacity="0.35" />',
+      '<circle cx="' + (cx - 30) + '" cy="' + (topY + 35) + '" r="2" fill="#fef08a" />',
+      '<circle cx="' + (cx + 25) + '" cy="' + (topY + 45) + '" r="2" fill="#fef08a" />',
+      '<circle cx="' + (cx - 15) + '" cy="' + (topY + 70) + '" r="2" fill="#fef08a" />',
+      '<circle cx="' + (cx + 40) + '" cy="' + (topY + 80) + '" r="2" fill="#fef08a" />',
+
+      '<!-- Exhaust Air Duct (Side Exit) -->',
+      '<rect x="' + (cx + chamberW/2) + '" y="' + (topY + cylH - 25) + '" width="90" height="26" fill="#334155" stroke="#94a3b8" stroke-width="1.5" />',
+      '<line x1="' + (cx + chamberW/2 + 10) + '" y1="' + (topY + cylH - 12) + '" x2="' + (cx + chamberW/2 + 80) + '" y2="' + (topY + cylH - 12) + '" stroke="#60a5fa" stroke-width="2.5" />',
+      '<polygon points="' + (cx + chamberW/2 + 80) + ',' + (topY + cylH - 16) + ' ' + (cx + chamberW/2 + 90) + ',' + (topY + cylH - 12) + ' ' + (cx + chamberW/2 + 80) + ',' + (topY + cylH - 8) + '" fill="#60a5fa" />',
+      '<text x="' + (cx + chamberW/2 + 98) + '" y="' + (topY + cylH - 8) + '" fill="#60a5fa" font-size="10" font-weight="700">To Cyclone (' + Tout_C.toFixed(0) + '°C)</text>',
+
+      '<!-- Bottom Powder Discharge Rotary Airlock -->',
+      '<rect x="' + (cx - 15) + '" y="' + (topY + cylH + coneH) + '" width="30" height="22" fill="#f59e0b" stroke="#f8fafc" stroke-width="1.5" rx="2" />',
+      '<line x1="' + cx + '" y1="' + (topY + cylH + coneH + 22) + '" x2="' + cx + '" y2="' + (topY + cylH + coneH + 42) + '" stroke="#10b981" stroke-width="2.5" />',
+      '<polygon points="' + (cx - 4) + ',' + (topY + cylH + coneH + 42) + ' ' + cx + ',' + (topY + cylH + coneH + 48) + ' ' + (cx + 4) + ',' + (topY + cylH + coneH + 42) + '" fill="#10b981" />',
+      '<text x="' + cx + '" y="' + (topY + cylH + coneH + 58) + '" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">Dry Powder (' + P_kgh.toFixed(0) + ' kg/h)</text>',
+
+      '<!-- Status Banner -->',
+      '<rect x="180" y="248" width="440" height="24" fill="#0f172a" rx="4" stroke="#10b981" stroke-width="1.5" />',
+      '<text x="400" y="264" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">CHAMBER: ' + D_std_m.toFixed(1) + 'm DIA × ' + H_total_m.toFixed(1) + 'm H | EVAP: ' + W_kgh.toFixed(0) + ' kg/h WATER</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAQ2Diagnostics = function() {
+    let evap = document.getElementById('aq2-res-evap').innerText;
+    let pwd = document.getElementById('aq2-res-powder').innerText;
+    let dia = document.getElementById('aq2-res-diameter').innerText;
+    let eff = document.getElementById('aq2-res-eff').innerText;
+    let ga = document.getElementById('aq2-res-ga').innerText;
+    let qa = document.getElementById('aq2-res-qair').innerText;
+    let hcyl = document.getElementById('aq2-res-hcyl').innerText;
+    let htot = document.getElementById('aq2-res-htot').innerText;
+    let rh = document.getElementById('aq2-res-rhout').innerText;
+    let qh = document.getElementById('aq2-res-qheat').innerText;
+
+    let text = [
+      '=== SPRAY DRYER PROCESS & CHAMBER SIZING AUDIT ===',
+      'Standard: Masters Spray Drying Handbook & Psychrometric Mass/Heat Balance',
+      '-----------------------------------------------------------------',
+      'Water Evaporation Rate (W):       ' + evap,
+      'Dry Powder Production (P):        ' + pwd,
+      'Chamber Diameter (D):             ' + dia,
+      'Thermal Drying Efficiency:        ' + eff,
+      'Drying Air Mass Flow (Ga):        ' + ga,
+      'Inlet Air Volumetric Flow:        ' + qa,
+      'Straight Cylinder Height (Hcyl):  ' + hcyl,
+      'Total Chamber Height (Htotal):    ' + htot,
+      'Exhaust Air Relative Humidity:    ' + rh,
+      'Air Heater Thermal Duty:          ' + qh,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/spray-dryer-evaporation-chamber-sizing-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('aq2-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Spray Dryer Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAQ2();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'spray-dryer-evaporation-chamber-sizing-calculator.html'), renderTradePage({
+  title: 'Spray Dryer Sizing & Evaporation Calculator | Masters Model',
+  metaDescription: 'Calculate spray dryer water evaporation rate, dry powder yield, airflow, chamber diameter, and thermal efficiency per Masters handbook.',
+  canonical: 'https://digitaltoolsshed.com/calc/spray-dryer-evaporation-chamber-sizing-calculator.html',
+  content: toolAQ2Html,
+  faq: [
+    {
+      q: 'How is water evaporation capacity calculated in industrial spray drying?',
+      a: 'Evaporation capacity (W) is derived by mass balance between liquid feed rate (F) and finished dry powder yield (P): P = F * (s1 / [1 - x2]) and W = F - P, where s1 is feed dry solids fraction and x2 is finished powder target moisture fraction.'
+    },
+    {
+      q: 'Why is downward air velocity limited when sizing the spray dryer chamber diameter?',
+      a: 'Mean downward air velocity inside the cylindrical chamber is limited to 0.40 to 0.50 m/s (80 to 100 ft/min). Exceeding this velocity induces recirculation eddies that carry wet, partially dried droplets into the cylinder walls, causing severe product wall deposition, scorching, and powder fires.'
+    },
+    {
+      q: 'What is the significance of the exhaust air relative humidity (RHout)?',
+      a: 'Exhaust relative humidity dictates whether powder reaches its sticky glass transition point (Tg). If exhaust air RH exceeds 45% to 50%, hygroscopic amorphous sugars absorb moisture from the air, turning sticky and clogging ductwork, cyclones, and baghouses.'
+    },
+    {
+      q: 'What is the difference between rotary atomizers and high-pressure swirl nozzles?',
+      a: 'Rotary atomizers use a high-speed rotating disc (12,000 to 25,000 RPM) to fling droplets outward, creating a wide, horizontal spray cloud ideal for wide-body chambers. Pressure nozzles force slurry through carbide orifices at 100 to 250 bar, creating a narrow, downward spray plume suited for tall-form tower dryers.'
+    },
+    {
+      q: 'How does inlet drying air temperature affect thermal efficiency?',
+      a: 'Thermal drying efficiency is defined as ηth = (Tin - Tout) / (Tin - T0). Increasing inlet air temperature from 180°C to 280°C significantly boosts thermal efficiency (from ~55% to over 75%), reducing required air volume and fuel consumption per kilogram of water evaporated.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AQ3: Hydrostatic Extrusion & Tube Cold Drawing Drawbench Pull Force Calculator (Avitzur & Siebel)
+// ==========================================
+const toolAQ3Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Avitzur Upper Bound &bull; Siebel Plastic Deformation &bull; Cold Drawing Standards</div>
+    <h1>Tube & Wire Cold Drawing Drawbench Pull Force Calculator</h1>
+    <p class="text-muted">Calculate drawbench pull force ($F_{draw}$), drawing stress ($\sigma_{draw}$), plastic logarithmic strain, optimum die semi-angle ($\alpha_{opt}$), and tensile necking limits for solid bar, wire, and hollow tube drawing per Avitzur's upper-bound model and Siebel's deformation work balance.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="aq3-unit-metric" onclick="setAQ3Unit('metric')">Metric Units (mm, kN, MPa, m/min, kW)</button>
+    <button type="button" class="unit-toggle-btn" id="aq3-unit-imperial" onclick="setAQ3Unit('imperial')">Imperial Units (in, kips, ksi, ft/min, HP)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Workpiece Dimensions & Process Geometry -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Workpiece Dimensions & Die Geometry</h3>
+
+      <div class="input-group">
+        <label for="aq3-draw-type">Workpiece Drawing Cross-Section:</label>
+        <select id="aq3-draw-type" onchange="syncAQ3Type()">
+          <option value="solid_bar" selected>Solid Round Bar / Wire Drawing</option>
+          <option value="tube_sinking">Hollow Tube Sinking (No internal mandrel / plug)</option>
+          <option value="tube_mandrel">Hollow Tube Drawing over Fixed / Floating Plug</option>
+        </select>
+        <span class="text-muted" id="aq3-type-hint">Solid bar reduction through conical carbide die</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-initial-dia" id="aq3-label-d0">Initial Workpiece Diameter ($D_0$) (mm):</label>
+        <input type="number" id="aq3-initial-dia" value="38.0" step="0.5" min="1.0" max="250.0" oninput="calcAQ3()">
+        <span class="text-muted">Outer diameter of incoming annealed tube / wire</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-final-dia" id="aq3-label-df">Final Drawn Outer Diameter ($D_f$) (mm):</label>
+        <input type="number" id="aq3-final-dia" value="30.0" step="0.5" min="0.5" max="240.0" oninput="calcAQ3()">
+        <span class="text-muted">Die exit bearing caliber orifice diameter</span>
+      </div>
+
+      <div class="input-group" id="aq3-group-wall" style="display:none;">
+        <label for="aq3-initial-wall" id="aq3-label-t0">Initial Wall Thickness ($t_0$) (mm):</label>
+        <input type="number" id="aq3-initial-wall" value="3.5" step="0.1" min="0.2" max="30.0" oninput="calcAQ3()">
+        <span class="text-muted">Incoming hollow shell wall thickness</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-die-angle">Conical Die Semi-Angle ($\alpha$) (degrees):</label>
+        <input type="number" id="aq3-die-angle" value="12.0" step="0.5" min="4.0" max="30.0" oninput="calcAQ3()">
+        <span class="text-muted">Half-angle of die reduction cone (included angle = $2\alpha = 24^\circ$)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-draw-speed" id="aq3-label-vdraw">Drawbench Linear Carriage Speed ($v_{draw}$) (m/min):</label>
+        <input type="number" id="aq3-draw-speed" value="18.0" step="1.0" min="1.0" max="150.0" oninput="calcAQ3()">
+        <span class="text-muted">Chain or hydraulic draw carriage pull velocity</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Material Properties & Lubrication -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Material Flow Stress & Friction</h3>
+
+      <div class="input-group">
+        <label for="aq3-material-type">Alloy Material Specification:</label>
+        <select id="aq3-material-type" onchange="syncAQ3Material()">
+          <option value="carbon_steel" selected>Low Carbon Steel (AISI 1018 / 1020, K = 650 MPa, n = 0.18)</option>
+          <option value="alloy_steel">Alloy Steel (AISI 4140 / 4340 Annealed, K = 950 MPa, n = 0.15)</option>
+          <option value="stainless">Austenitic Stainless (SS 304 / 316, K = 1250 MPa, n = 0.40)</option>
+          <option value="copper">Commercial Copper / Brass (C11000 / C26000, K = 450 MPa, n = 0.28)</option>
+          <option value="aluminum">Aluminum Alloy (6061-O / 7075-O, K = 380 MPa, n = 0.20)</option>
+          <option value="titanium">Titanium Grade 5 (Ti-6Al-4V, K = 1100 MPa, n = 0.10)</option>
+        </select>
+        <span class="text-muted" id="aq3-mat-hint">Hollomon: K = 650 MPa, Strain hardening exponent n = 0.18</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-yield-stress" id="aq3-label-yield">Initial Annealed Yield Strength ($\sigma_{y0}$) (MPa):</label>
+        <input type="number" id="aq3-yield-stress" value="310" step="10" min="50" max="1200" oninput="calcAQ3()">
+        <span class="text-muted">Material yield strength before entering the die</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-friction-mu">Die-Workpiece Interface Friction ($\mu$):</label>
+        <input type="number" id="aq3-friction-mu" value="0.06" step="0.01" min="0.01" max="0.25" oninput="calcAQ3()">
+        <span class="text-muted">Phosphate + soap coating: 0.03 - 0.06; boundary oil: 0.08 - 0.12; dry: > 0.15</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-back-pull" id="aq3-label-back">Back Tension Stress ($\sigma_{back}$) (MPa):</label>
+        <input type="number" id="aq3-back-pull" value="0.0" step="5" min="0.0" max="300.0" oninput="calcAQ3()">
+        <span class="text-muted">Back-pull applied by pay-off uncoiler capstan (if applicable)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq3-bench-eff">Drawbench Mechanical Drive Efficiency ($\eta$):</label>
+        <input type="number" id="aq3-bench-eff" value="0.85" step="0.02" min="0.65" max="0.95" oninput="calcAQ3()">
+        <span class="text-muted">Sprocket chain / hydraulic cylinder mechanical transmission efficiency</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Drawbench Pull Force & Deformation Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Total Drawing Pull Force ($F_{draw}$)</span>
+        <div id="aq3-res-force" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- kN</div>
+        <span class="text-muted" id="aq3-sub-force" style="font-size:0.75rem;">Carriage draw load</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Drawing Tensile Stress ($\sigma_{draw}$)</span>
+        <div id="aq3-res-stress" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- MPa</div>
+        <span class="text-muted" id="aq3-sub-stress" style="font-size:0.75rem;">At die exit point</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Optimum Die Semi-Angle ($\alpha_{opt}$)</span>
+        <div id="aq3-res-opt-angle" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- &deg;</div>
+        <span class="text-muted" id="aq3-sub-opt-angle" style="font-size:0.75rem;">Minimizes draw force</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Tensile Fracture Margin</span>
+        <div id="aq3-res-margin" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- %</div>
+        <span class="text-muted" id="aq3-sub-margin" style="font-size:0.75rem;">$\sigma_{draw} / \sigma_{yield,drawn}$</span>
+      </div>
+    </div>
+
+    <!-- Interactive Drawing Die Cross-Section SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Tungsten Carbide Conical Die Stress & Plastic Flow Deformation Zone</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Avitzur Upper-Bound Vector Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="aq3-svg" viewBox="0 0 800 270" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Plastic Mechanics & Power Requirement Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Governing Equation</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Manufacturing Limit Threshold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Cross-Sectional Area Reduction</td>
+              <td style="padding: 8px;">$r = (1 - A_f / A_0) \times 100\%$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq3-res-red">--</td>
+              <td style="padding: 8px; color: #10b981;">Max practical single-pass limit: ~35% - 45%</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">True Logarithmic Plastic Strain</td>
+              <td style="padding: 8px;">$\varepsilon = \ln(A_0 / A_f)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq3-res-strain">--</td>
+              <td style="padding: 8px; color: #10b981;">Work-hardening cumulative strain</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Average Deformation Flow Stress</td>
+              <td style="padding: 8px;">$\bar{\sigma} = K \cdot \varepsilon^n / (n + 1)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq3-res-flow">--</td>
+              <td style="padding: 8px; color: #10b981;">Hollomon material flow curve</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Frictional Drag Stress Component</td>
+              <td style="padding: 8px;">$\sigma_{fric} = \bar{\sigma} (\mu / \tan \alpha) \varepsilon$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq3-res-sfric">--</td>
+              <td style="padding: 8px; color: #10b981;">Dominates at shallow die angles</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Redundant Internal Shear Stress</td>
+              <td style="padding: 8px;">$\sigma_{red} = \frac{4}{3\sqrt{3}} \bar{\sigma} \tan \alpha$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq3-res-sred">--</td>
+              <td style="padding: 8px; color: #10b981;">Dominates at steep die angles</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Drawbench Drive Motor Power</td>
+              <td style="padding: 8px;">$P = F_{draw} \cdot v_{draw} / (60 \cdot \eta)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq3-res-power">--</td>
+              <td style="padding: 8px; color: #10b981;">Electric motor drive rating</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="aq3-copy-btn" onclick="copyAQ3Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Drawbench Pull Force & Plasticity Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & Avitzur Upper-Bound Mechanics</h3>
+    <p>Cold drawing pulls a metal bar, wire, or tube through a converging tungsten carbide die to reduce its cross-sectional area, increase tensile strength via strain hardening, and establish precision dimensional tolerances:</p>
+
+    <h4>1. Total Drawing Stress ($\sigma_{draw}$) Breakdown</h4>
+    <p>According to Avitzur's upper-bound theorem and Siebel's work balance, the total drawing stress required to pull metal through a conical die consists of three distinct physical components minus any applied back-pull:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\sigma_{draw} = \sigma_{ideal} + \sigma_{friction} + \sigma_{redundant} - \sigma_{back}$$
+      $$\sigma_{draw} = \bar{\sigma} \cdot \left[ \left( 1 + \frac{\mu}{\tan \alpha} \right) \ln\left( \frac{A_0}{A_f} \right) + \frac{4}{3\sqrt{3}} \tan \alpha \right] - \sigma_{back}$$
+    </div>
+    <p>Where:</p>
+    <ul>
+      <li>$\sigma_{ideal} = \bar{\sigma} \ln(A_0 / A_f)$ = Theoretical work required for homogeneous plastic deformation</li>
+      <li>$\sigma_{friction} = \bar{\sigma} \left( \frac{\mu}{\tan \alpha} \right) \ln(A_0 / A_f)$ = Work consumed by Coulomb friction sliding against the conical die wall</li>
+      <li>$\sigma_{redundant} = \frac{4}{3\sqrt{3}} \bar{\sigma} \tan \alpha$ = Internal distortion work as metal shear-strain vectors deflect at the die inlet and outlet boundaries</li>
+    </ul>
+
+    <h4>2. Analytical Derivation of Optimum Die Semi-Angle ($\alpha_{opt}$)</h4>
+    <p>Notice that as die semi-angle $\alpha$ increases, friction decreases (shorter contact length) while redundant shear work increases. Differentiating total drawing stress with respect to $\alpha$ and setting $\frac{\partial \sigma_{draw}}{\partial \alpha} = 0$ yields the famous Avitzur optimum die angle:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\alpha_{opt} = \sqrt{ \frac{3\sqrt{3}}{4} \cdot \mu \cdot \ln\left(\frac{A_0}{A_f}\right) } \quad [\text{radians}]$$
+    </div>
+    <p>Operating exactly at $\alpha_{opt}$ minimizes total drawbench pull force and minimizes centerburst chevron defect susceptibility.</p>
+
+    <h4>3. Maximum Theoretical Reduction Limit Per Pass</h4>
+    <p>Because the drawn product exiting the die must pull the material behind it through the die, the drawing stress cannot exceed the work-hardened yield strength of the drawn material ($\sigma_{draw} < \sigma_{yield,drawn}$). For an ideal frictionless process with non-hardening material, the maximum theoretical reduction per pass is:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\ln\left(\frac{A_0}{A_f}\right)_{max} = 1.0 \implies r_{max} = 1 - e^{-1} = 63.2\%$$
+    </div>
+    <p>With realistic industrial friction ($\mu \approx 0.05 - 0.08$) and redundant shear, maximum safe reduction drops to $30\%$ to $45\%$ per pass.</p>
+  </div>
+
+  <!-- 5 Fatal Cold Drawing Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in Cold Drawing</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Tensile Necking & Wire Snap from Exceeding Maximum Reduction Limit</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">When tooling designers specify too aggressive an area reduction in a single pass ($r > 42\%$), the required drawing stress exceeds the yield strength of the exiting wire ($\sigma_{draw} / \sigma_{yield} > 0.90$). The drawn wire necks down plastically immediately past the die bearing land and snaps violently, whipping through the drawbench and halting continuous production.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Centerburst (Chevron Cracking) from Excessive Die Semi-Angle</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Operating with a steep die angle ($\alpha > 18^\circ$) at modest reductions creates an inhomogeneous deformation zone with a high shape factor ($\Delta = \frac{\alpha}{r} > 2.5$). Severe redundant internal shear generates hydrostatic tensile stress along the centerline of the workpiece. Microscopic voids nucleate and coalesce into internal arrow-shaped cracks ('chevrons'). Because chevron cracks are entirely internal, defective parts escape visual inspection and catastrophically fail in service.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Hydrodynamic Lubricant Film Breakdown & Galling Pickup on Carbide Die</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">High draw speeds and heavy reductions generate extreme deformation heat, raising die-metal interface temperatures above $250^\circ\text{C}$. If the pre-coat conversion layer (zinc phosphate) or extreme-pressure drawing soap breaks down, direct metal-to-carbide contact occurs. Steel particles weld to the tungsten carbide bearing land, creating severe axial scoring scratches and ruining surface finish.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Die Semi-Angle Far Below Optimum Causing Excessive Frictional Heat & Chattering</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Using an overly shallow die semi-angle ($\alpha < 6^\circ$) drastically extends the conical contact surface length ($L_c = (D_0 - D_f) / [2 \sin \alpha]$). The frictional drag stress component spikes, requiring massive carriage pull tonnage. The extreme friction induces stick-slip vibration ('draw chatter'), creating periodic annular banding rings across the drawn tube surface.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Delayed Stress Corrosion Cracking from High Residual Tensile Hoop Stresses</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Cold tube sinking (drawing hollow tubes without an internal plug) leaves high residual tensile hoop stresses on the outer surface due to unconstrained inward bending. In copper alloys, stainless steels, and aluminum, exposure to humid atmospheric ammonia or chlorides triggers delayed season cracking. Sunk tubes must undergo sub-critical stress-relief annealing or rotary cross-roll straightening immediately after drawing.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let aq3Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAQ3Unit = function(unit) {
+    if (aq3Unit === unit) return;
+    aq3Unit = unit;
+    document.getElementById('aq3-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('aq3-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const d0 = document.getElementById('aq3-initial-dia');
+    const df = document.getElementById('aq3-final-dia');
+    const t0 = document.getElementById('aq3-initial-wall');
+    const vdraw = document.getElementById('aq3-draw-speed');
+    const sy = document.getElementById('aq3-yield-stress');
+    const sback = document.getElementById('aq3-back-pull');
+
+    if (unit === 'imperial') {
+      document.getElementById('aq3-label-d0').innerText = 'Initial Workpiece Diameter (D0) (in):';
+      document.getElementById('aq3-label-df').innerText = 'Final Drawn Outer Diameter (Df) (in):';
+      document.getElementById('aq3-label-t0').innerText = 'Initial Wall Thickness (t0) (in):';
+      document.getElementById('aq3-label-vdraw').innerText = 'Drawbench Linear Carriage Speed (vdraw) (ft/min):';
+      document.getElementById('aq3-label-yield').innerText = 'Initial Annealed Yield Strength (σy0) (ksi):';
+      document.getElementById('aq3-label-back').innerText = 'Back Tension Stress (σback) (ksi):';
+
+      d0.value = (parseFloat(d0.value) / 25.4).toFixed(3);
+      df.value = (parseFloat(df.value) / 25.4).toFixed(3);
+      t0.value = (parseFloat(t0.value) / 25.4).toFixed(3);
+      vdraw.value = (parseFloat(vdraw.value) * 3.28084).toFixed(1);
+      sy.value = (parseFloat(sy.value) * 0.145038).toFixed(1);
+      sback.value = (parseFloat(sback.value) * 0.145038).toFixed(1);
+    } else {
+      document.getElementById('aq3-label-d0').innerText = 'Initial Workpiece Diameter (D0) (mm):';
+      document.getElementById('aq3-label-df').innerText = 'Final Drawn Outer Diameter (Df) (mm):';
+      document.getElementById('aq3-label-t0').innerText = 'Initial Wall Thickness (t0) (mm):';
+      document.getElementById('aq3-label-vdraw').innerText = 'Drawbench Linear Carriage Speed (vdraw) (m/min):';
+      document.getElementById('aq3-label-yield').innerText = 'Initial Annealed Yield Strength (σy0) (MPa):';
+      document.getElementById('aq3-label-back').innerText = 'Back Tension Stress (σback) (MPa):';
+
+      d0.value = (parseFloat(d0.value) * 25.4).toFixed(1);
+      df.value = (parseFloat(df.value) * 25.4).toFixed(1);
+      t0.value = (parseFloat(t0.value) * 25.4).toFixed(1);
+      vdraw.value = (parseFloat(vdraw.value) / 3.28084).toFixed(1);
+      sy.value = (parseFloat(sy.value) / 0.145038).toFixed(0);
+      sback.value = (parseFloat(sback.value) / 0.145038).toFixed(0);
+    }
+    calcAQ3();
+  };
+
+  window.syncAQ3Type = function() {
+    const dtype = document.getElementById('aq3-draw-type').value;
+    const wallGroup = document.getElementById('aq3-group-wall');
+    const hint = document.getElementById('aq3-type-hint');
+    if (dtype === 'solid_bar') {
+      wallGroup.style.display = 'none';
+      hint.innerText = 'Solid round bar / wire reduction through conical carbide die';
+    } else if (dtype === 'tube_sinking') {
+      wallGroup.style.display = 'block';
+      hint.innerText = 'Hollow tube sinking: outer diameter reduction without internal mandrel support';
+    } else if (dtype === 'tube_mandrel') {
+      wallGroup.style.display = 'block';
+      hint.innerText = 'Hollow tube drawing over fixed cylindrical plug or floating mandrel';
+    }
+    calcAQ3();
+  };
+
+  window.syncAQ3Material = function() {
+    const mat = document.getElementById('aq3-material-type').value;
+    const hint = document.getElementById('aq3-mat-hint');
+    const syInput = document.getElementById('aq3-yield-stress');
+
+    if (mat === 'carbon_steel') {
+      hint.innerText = 'Hollomon: K = 650 MPa, n = 0.18 (AISI 1018 / 1020)';
+      syInput.value = aq3Unit === 'imperial' ? (310 * 0.145038).toFixed(1) : '310';
+    } else if (mat === 'alloy_steel') {
+      hint.innerText = 'Hollomon: K = 950 MPa, n = 0.15 (AISI 4140 / 4340)';
+      syInput.value = aq3Unit === 'imperial' ? (480 * 0.145038).toFixed(1) : '480';
+    } else if (mat === 'stainless') {
+      hint.innerText = 'Hollomon: K = 1250 MPa, n = 0.40 (Austenitic 304 / 316, strong work hardening)';
+      syInput.value = aq3Unit === 'imperial' ? (290 * 0.145038).toFixed(1) : '290';
+    } else if (mat === 'copper') {
+      hint.innerText = 'Hollomon: K = 450 MPa, n = 0.28 (C11000 / C26000 Brass)';
+      syInput.value = aq3Unit === 'imperial' ? (150 * 0.145038).toFixed(1) : '150';
+    } else if (mat === 'aluminum') {
+      hint.innerText = 'Hollomon: K = 380 MPa, n = 0.20 (6061-O / 7075-O)';
+      syInput.value = aq3Unit === 'imperial' ? (120 * 0.145038).toFixed(1) : '120';
+    } else if (mat === 'titanium') {
+      hint.innerText = 'Hollomon: K = 1100 MPa, n = 0.10 (Ti-6Al-4V)';
+      syInput.value = aq3Unit === 'imperial' ? (880 * 0.145038).toFixed(1) : '880';
+    }
+    calcAQ3();
+  };
+
+  window.calcAQ3 = function() {
+    let d0_val = parseFloat(document.getElementById('aq3-initial-dia').value) || 38.0;
+    let df_val = parseFloat(document.getElementById('aq3-final-dia').value) || 30.0;
+    let t0_val = parseFloat(document.getElementById('aq3-initial-wall').value) || 3.5;
+    let alpha_deg = parseFloat(document.getElementById('aq3-die-angle').value) || 12.0;
+    let vdraw_val = parseFloat(document.getElementById('aq3-draw-speed').value) || 18.0;
+    let sy0_val = parseFloat(document.getElementById('aq3-yield-stress').value) || 310;
+    let mu = parseFloat(document.getElementById('aq3-friction-mu').value) || 0.06;
+    let sback_val = parseFloat(document.getElementById('aq3-back-pull').value) || 0.0;
+    let eta_bench = parseFloat(document.getElementById('aq3-bench-eff').value) || 0.85;
+    let dtype = document.getElementById('aq3-draw-type').value;
+    let mat = document.getElementById('aq3-material-type').value;
+
+    // Convert inputs internally to SI Metric (mm, MPa, m/min)
+    let d0_mm = aq3Unit === 'imperial' ? d0_val * 25.4 : d0_val;
+    let df_mm = aq3Unit === 'imperial' ? df_val * 25.4 : df_val;
+    let t0_mm = aq3Unit === 'imperial' ? t0_val * 25.4 : t0_val;
+    let vdraw_m_min = aq3Unit === 'imperial' ? vdraw_val / 3.28084 : vdraw_val;
+    let sy0_MPa = aq3Unit === 'imperial' ? sy0_val / 0.145038 : sy0_val;
+    let sback_MPa = aq3Unit === 'imperial' ? sback_val / 0.145038 : sback_val;
+
+    // Safety checks
+    if (df_mm >= d0_mm) df_mm = d0_mm * 0.95;
+
+    // Cross-sectional areas
+    let A0_mm2 = 0;
+    let Af_mm2 = 0;
+
+    if (dtype === 'solid_bar') {
+      A0_mm2 = (Math.PI / 4.0) * Math.pow(d0_mm, 2);
+      Af_mm2 = (Math.PI / 4.0) * Math.pow(df_mm, 2);
+    } else {
+      // Hollow tube
+      let tf_mm = t0_mm * Math.sqrt(df_mm / d0_mm); // empirical sinking thinning
+      if (dtype === 'tube_mandrel') tf_mm = t0_mm * 0.88; // mandrel reduction
+      A0_mm2 = (Math.PI / 4.0) * (Math.pow(d0_mm, 2) - Math.pow(d0_mm - 2 * t0_mm, 2));
+      Af_mm2 = (Math.PI / 4.0) * (Math.pow(df_mm, 2) - Math.pow(df_mm - 2 * tf_mm, 2));
+    }
+
+    // 1. Area reduction & true strain
+    let reduction_pct = (1.0 - (Af_mm2 / A0_mm2)) * 100.0;
+    let true_strain = Math.log(A0_mm2 / Af_mm2);
+
+    // 2. Material flow stress via Hollomon equation K * eps^n
+    let K_MPa = 650;
+    let n_exp = 0.18;
+    if (mat === 'alloy_steel') { K_MPa = 950; n_exp = 0.15; }
+    else if (mat === 'stainless') { K_MPa = 1250; n_exp = 0.40; }
+    else if (mat === 'copper') { K_MPa = 450; n_exp = 0.28; }
+    else if (mat === 'aluminum') { K_MPa = 380; n_exp = 0.20; }
+    else if (mat === 'titanium') { K_MPa = 1100; n_exp = 0.10; }
+
+    let sigma_flow_avg_MPa = (K_MPa * Math.pow(Math.max(0.01, true_strain), n_exp)) / (n_exp + 1.0);
+    // Include base yield
+    sigma_flow_avg_MPa = Math.max(sy0_MPa, sigma_flow_avg_MPa);
+
+    // Work-hardened drawn exit yield strength
+    let sigma_yield_drawn_MPa = K_MPa * Math.pow(Math.max(0.05, true_strain), n_exp);
+
+    // 3. Optimum Die Semi-Angle via Avitzur
+    let alpha_rad = (alpha_deg * Math.PI) / 180.0;
+    let alpha_opt_rad = Math.sqrt(((3.0 * Math.sqrt(3)) / 4.0) * mu * true_strain);
+    let alpha_opt_deg = (alpha_opt_rad * 180.0) / Math.PI;
+
+    // 4. Drawing Stress Components (Siebel & Avitzur)
+    let s_ideal_MPa = sigma_flow_avg_MPa * true_strain;
+    let s_fric_MPa = sigma_flow_avg_MPa * (mu / Math.tan(alpha_rad)) * true_strain;
+    let s_red_MPa = (4.0 / (3.0 * Math.sqrt(3.0))) * sigma_flow_avg_MPa * Math.tan(alpha_rad);
+
+    let sigma_draw_MPa = s_ideal_MPa + s_fric_MPa + s_red_MPa - sback_MPa;
+
+    // 5. Total Draw Force (kN / kips)
+    let F_draw_N = (Af_mm2 * 1e-6) * (sigma_draw_MPa * 1e6);
+    let F_draw_kN = F_draw_N / 1000.0;
+    let F_draw_kips = F_draw_kN * 0.224809;
+
+    // 6. Tensile Necking Margin
+    let draw_stress_ratio_pct = (sigma_draw_MPa / sigma_yield_drawn_MPa) * 100.0;
+    let is_safe_draw = draw_stress_ratio_pct <= 80.0;
+
+    // 7. Drawbench Motor Power
+    let vdraw_ms = vdraw_m_min / 60.0;
+    let P_motor_kW = (F_draw_kN * vdraw_ms) / eta_bench;
+    let P_motor_HP = P_motor_kW * 1.34102;
+
+    // UI Updates
+    document.getElementById('aq3-res-opt-angle').innerText = alpha_opt_deg.toFixed(1) + ' °';
+    document.getElementById('aq3-sub-opt-angle').innerText = 'Avitzur Optimum (Operating: ' + alpha_deg.toFixed(1) + '°)';
+
+    document.getElementById('aq3-res-margin').innerText = draw_stress_ratio_pct.toFixed(1) + ' %';
+    document.getElementById('aq3-sub-margin').innerText = is_safe_draw ? '✓ Safe from Necking (≤ 80%)' : '❌ Wire Fracture Risk (> 80%)';
+    document.getElementById('aq3-res-margin').style.color = is_safe_draw ? '#10b981' : '#ef4444';
+
+    if (aq3Unit === 'imperial') {
+      let s_draw_ksi = sigma_draw_MPa * 0.145038;
+      let s_fric_ksi = s_fric_MPa * 0.145038;
+      let s_red_ksi = s_red_MPa * 0.145038;
+      let s_flow_ksi = sigma_flow_avg_MPa * 0.145038;
+
+      document.getElementById('aq3-res-force').innerText = F_draw_kips.toFixed(1) + ' kips';
+      document.getElementById('aq3-sub-force').innerText = '(' + F_draw_kN.toFixed(1) + ' kN equiv)';
+      document.getElementById('aq3-res-stress').innerText = s_draw_ksi.toFixed(1) + ' ksi';
+      document.getElementById('aq3-sub-stress').innerText = '(' + sigma_draw_MPa.toFixed(0) + ' MPa)';
+
+      document.getElementById('aq3-res-red').innerText = reduction_pct.toFixed(1) + ' %';
+      document.getElementById('aq3-res-strain').innerText = true_strain.toFixed(3);
+      document.getElementById('aq3-res-flow').innerText = s_flow_ksi.toFixed(1) + ' ksi';
+      document.getElementById('aq3-res-sfric').innerText = s_fric_ksi.toFixed(1) + ' ksi';
+      document.getElementById('aq3-res-sred').innerText = s_red_ksi.toFixed(1) + ' ksi';
+      document.getElementById('aq3-res-power').innerText = P_motor_HP.toFixed(1) + ' HP (' + P_motor_kW.toFixed(1) + ' kW)';
+    } else {
+      document.getElementById('aq3-res-force').innerText = F_draw_kN.toFixed(1) + ' kN';
+      document.getElementById('aq3-sub-force').innerText = '(' + F_draw_kips.toFixed(1) + ' kips equiv)';
+      document.getElementById('aq3-res-stress').innerText = sigma_draw_MPa.toFixed(1) + ' MPa';
+      document.getElementById('aq3-sub-stress').innerText = '(' + (sigma_draw_MPa * 0.145038).toFixed(1) + ' ksi)';
+
+      document.getElementById('aq3-res-red').innerText = reduction_pct.toFixed(1) + ' %';
+      document.getElementById('aq3-res-strain').innerText = true_strain.toFixed(3);
+      document.getElementById('aq3-res-flow').innerText = sigma_flow_avg_MPa.toFixed(0) + ' MPa';
+      document.getElementById('aq3-res-sfric').innerText = s_fric_MPa.toFixed(1) + ' MPa';
+      document.getElementById('aq3-res-sred').innerText = s_red_MPa.toFixed(1) + ' MPa';
+      document.getElementById('aq3-res-power').innerText = P_motor_kW.toFixed(1) + ' kW (' + P_motor_HP.toFixed(0) + ' HP)';
+    }
+
+    // Dynamic SVG Simulation
+    renderAQ3Svg(d0_mm, df_mm, alpha_deg, F_draw_kN, sigma_draw_MPa, is_safe_draw);
+  };
+
+  function renderAQ3Svg(d0_mm, df_mm, alpha_deg, F_draw_kN, sigma_draw_MPa, is_safe_draw) {
+    const svg = document.getElementById('aq3-svg');
+    if (!svg) return;
+
+    let cx = 400;
+    let cy = 135;
+
+    let r0 = 45;
+    let rf = 30;
+    let dieW = 90;
+    let dieX0 = cx - dieW/2;
+    let dieX1 = cx + dieW/2;
+
+    let statusColor = is_safe_draw ? '#10b981' : '#ef4444';
+
+    let svgParts = [
+      '<!-- Top Tungsten Carbide Die Block (Upper Half) -->',
+      '<polygon points="' + (dieX0 - 40) + ',25 ' + (dieX1 + 40) + ',25 ' + (dieX1 + 40) + ',' + (cy - rf) + ' ' + (dieX1) + ',' + (cy - rf) + ' ' + (dieX0) + ',' + (cy - r0) + ' ' + (dieX0 - 40) + ',' + (cy - r0) + '" fill="#334155" stroke="#94a3b8" stroke-width="2" />',
+      
+      '<!-- Bottom Tungsten Carbide Die Block (Lower Half) -->',
+      '<polygon points="' + (dieX0 - 40) + ',245 ' + (dieX1 + 40) + ',245 ' + (dieX1 + 40) + ',' + (cy + rf) + ' ' + (dieX1) + ',' + (cy + rf) + ' ' + (dieX0) + ',' + (cy + r0) + ' ' + (dieX0 - 40) + ',' + (cy + r0) + '" fill="#334155" stroke="#94a3b8" stroke-width="2" />',
+
+      '<!-- Workpiece Before Die (Left) -->',
+      '<rect x="60" y="' + (cy - r0) + '" width="' + (dieX0 - 60) + '" height="' + (2 * r0) + '" fill="#64748b" stroke="#cbd5e1" stroke-width="1.5" />',
+      '<text x="140" y="' + (cy + 4) + '" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">Initial D0 (' + d0_mm.toFixed(1) + 'mm)</text>',
+
+      '<!-- Plastic Deformation Zone Inside Die Cone -->',
+      '<polygon points="' + dieX0 + ',' + (cy - r0) + ' ' + dieX1 + ',' + (cy - rf) + ' ' + dieX1 + ',' + (cy + rf) + ' ' + dieX0 + ',' + (cy + r0) + '" fill="#f59e0b" opacity="0.75" stroke="#d97706" stroke-width="1.5" />',
+      '<text x="' + cx + '" y="' + (cy + 4) + '" fill="#78350f" font-size="10" font-weight="700" text-anchor="middle">Cone Zone (α=' + alpha_deg.toFixed(1) + '°)</text>',
+
+      '<!-- Drawn Workpiece Exiting Die (Right) -->',
+      '<rect x="' + dieX1 + '" y="' + (cy - rf) + '" width="220" height="' + (2 * rf) + '" fill="#10b981" opacity="0.6" stroke="#10b981" stroke-width="2" />',
+      '<text x="' + (dieX1 + 90) + '" y="' + (cy + 4) + '" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">Drawn Df (' + df_mm.toFixed(1) + 'mm)</text>',
+
+      '<!-- Draw Pull Carriage Force Vector (Arrow pointing Right) -->',
+      '<line x1="' + (dieX1 + 180) + '" y1="' + cy + '" x2="' + (dieX1 + 270) + '" y2="' + cy + '" stroke="#ef4444" stroke-width="3.5" />',
+      '<polygon points="' + (dieX1 + 270) + ',' + (cy - 6) + ' ' + (dieX1 + 285) + ',' + cy + ' ' + (dieX1 + 270) + ',' + (cy + 6) + '" fill="#ef4444" />',
+      '<text x="' + (dieX1 + 230) + '" y="' + (cy - 12) + '" fill="#ef4444" font-size="12" font-weight="700">Fdraw (' + F_draw_kN.toFixed(1) + ' kN)</text>',
+
+      '<!-- Bearing Land Callout -->',
+      '<line x1="' + dieX1 + '" y1="' + (cy - rf - 2) + '" x2="' + (dieX1 + 35) + '" y2="' + (cy - rf - 2) + '" stroke="#38bdf8" stroke-width="2" />',
+      '<text x="' + (dieX1 + 45) + '" y="' + (cy - rf - 8) + '" fill="#38bdf8" font-size="10" font-weight="600">Bearing Land</text>',
+
+      '<!-- Status Banner -->',
+      '<rect x="200" y="248" width="400" height="24" fill="#0f172a" rx="4" stroke="' + statusColor + '" stroke-width="1.5" />',
+      '<text x="400" y="264" fill="' + statusColor + '" font-size="11" font-weight="700" text-anchor="middle">DRAW STRESS: ' + sigma_draw_MPa.toFixed(0) + ' MPa | FORCE: ' + F_draw_kN.toFixed(1) + ' kN (' + (is_safe_draw ? 'SAFE' : 'TENSILE RUPTURE RISK') + ')</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAQ3Diagnostics = function() {
+    let f = document.getElementById('aq3-res-force').innerText;
+    let s = document.getElementById('aq3-res-stress').innerText;
+    let aopt = document.getElementById('aq3-res-opt-angle').innerText;
+    let mr = document.getElementById('aq3-res-margin').innerText;
+    let red = document.getElementById('aq3-res-red').innerText;
+    let str = document.getElementById('aq3-res-strain').innerText;
+    let flw = document.getElementById('aq3-res-flow').innerText;
+    let sfr = document.getElementById('aq3-res-sfric').innerText;
+    let srd = document.getElementById('aq3-res-sred').innerText;
+    let pwr = document.getElementById('aq3-res-power').innerText;
+
+    let text = [
+      '=== TUBE & WIRE DRAWING MECHANICAL AUDIT ===',
+      'Standard: Avitzur Upper-Bound Theorem & Siebel Deformation Work Balance',
+      '-----------------------------------------------------------------',
+      'Total Drawing Pull Force (Fdraw): ' + f,
+      'Drawing Tensile Stress (σdraw):   ' + s,
+      'Avitzur Optimum Die Angle (αopt): ' + aopt,
+      'Tensile Fracture Margin:          ' + mr,
+      'Cross-Sectional Area Reduction:   ' + red,
+      'True Logarithmic Plastic Strain:  ' + str,
+      'Average Deformation Flow Stress:  ' + flw,
+      'Frictional Drag Stress:           ' + sfr,
+      'Redundant Shear Stress:           ' + srd,
+      'Drawbench Motor Drive Power:      ' + pwr,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/tube-drawing-drawbench-pull-force-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('aq3-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Drawing Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAQ3();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'tube-drawing-drawbench-pull-force-calculator.html'), renderTradePage({
+  title: 'Tube Drawing & Drawbench Pull Force Calculator | Avitzur Model',
+  metaDescription: 'Calculate drawbench pull force, drawing tensile stress, optimum die angle, plastic strain, and necking limits per Avitzur upper-bound theory.',
+  canonical: 'https://digitaltoolsshed.com/calc/tube-drawing-drawbench-pull-force-calculator.html',
+  content: toolAQ3Html,
+  faq: [
+    {
+      q: 'How is drawing pull force calculated in cold drawing?',
+      a: 'Drawing pull force is calculated by multiplying the drawn workpiece exit area (Af) by the total drawing stress: Fdraw = Af * σdraw. The drawing stress combines ideal deformation work, die-workpiece friction, and redundant internal shear: σdraw = σflow * [(1 + μ/tan α) * ln(A0/Af) + (4 / 3√3) * tan α] - σback.'
+    },
+    {
+      q: 'What is the Avitzur optimum die semi-angle (αopt)?',
+      a: 'The optimum die semi-angle is the exact cone angle that minimizes total drawing force by perfectly balancing frictional drag (which decreases at steeper angles due to shorter contact length) against redundant shear deformation (which increases at steeper angles). It is formulated as αopt = √[(3√3 / 4) * μ * ln(A0 / Af)].'
+    },
+    {
+      q: 'What causes "chevron cracking" (centerburst) in drawn wire and bar?',
+      a: 'Centerburst occurs when drawing through an excessively steep die angle (α > 15°-20°) at modest area reductions. Non-homogeneous plastic deformation creates large internal redundant shears that induce intense triaxial hydrostatic tension along the centerline, nucleating internal arrowhead-shaped cracks.'
+    },
+    {
+      q: 'What is the theoretical maximum area reduction per single drawing pass?',
+      a: 'Because the drawn section leaving the die must pull the material through without necking, drawing stress cannot exceed the work-hardened yield strength (σdraw < σyield). For ideal frictionless drawing, the maximum reduction is 63.2% [ln(A0/Af) = 1.0]. Under real industrial friction, practical single-pass reductions are limited to 30% to 45%.'
+    },
+    {
+      q: 'Why are sunken tubes susceptible to delayed season cracking?',
+      a: 'Tube sinking (drawing a hollow tube without an internal plug or mandrel) leaves high residual tensile hoop stresses on the outer surface because the tube undergoes unconstrained radial bending. In brasses, copper alloys, and stainless steels, these residual stresses trigger delayed intergranular stress corrosion cracking unless relieved by prompt annealing.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AQ4: Hydraulic Transient Surge Tank Sizing & Water Hammer Oscillations Calculator (Jaeger & Calame-Gaden)
+// ==========================================
+const toolAQ4Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Jaeger's Hydraulic Transients &bull; Thoma Stability Criterion &bull; Calame-Gaden Formulations</div>
+    <h1>Hydraulic Surge Tank Sizing & Mass Oscillation Calculator</h1>
+    <p class="text-muted">Calculate maximum water upsurge ($Z_{max}$), downsurge draw ($Z_{min}$), natural mass oscillation period ($T$), and Thoma dynamic stability area for hydroelectric power plant surge shafts and pipeline surge tanks per Jaeger and Calame-Gaden transient formulations.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="aq4-unit-metric" onclick="setAQ4Unit('metric')">Metric Units (m, m³/s, kPa, s)</button>
+    <button type="button" class="unit-toggle-btn" id="aq4-unit-imperial" onclick="setAQ4Unit('imperial')">Imperial Units (ft, cfs, psi, s)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Waterway Conduit & Surge Tank Dimensions -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Headrace Tunnel & Surge Tank Geometry</h3>
+
+      <div class="input-group">
+        <label for="aq4-tunnel-len" id="aq4-label-tlen">Headrace Tunnel Length ($L$) (m):</label>
+        <input type="number" id="aq4-tunnel-len" value="3200" step="100" min="100" max="25000" oninput="calcAQ4()">
+        <span class="text-muted">Length from reservoir intake trash rack to surge tank centerline</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-tunnel-dia" id="aq4-label-tdia">Headrace Tunnel Inside Diameter ($D_t$) (m):</label>
+        <input type="number" id="aq4-tunnel-dia" value="4.8" step="0.2" min="1.0" max="15.0" oninput="calcAQ4()">
+        <span class="text-muted">Concrete-lined or steel-lined low-pressure water tunnel</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-tank-dia" id="aq4-label-sdia">Surge Tank Inside Diameter ($D_s$) (m):</label>
+        <input type="number" id="aq4-tank-dia" value="12.0" step="0.5" min="2.0" max="40.0" oninput="calcAQ4()">
+        <span class="text-muted">Vertical cylindrical surge shaft or chamber diameter</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-gross-head" id="aq4-label-ghead">Gross Reservoir Static Head ($H_0$) (m):</label>
+        <input type="number" id="aq4-gross-head" value="185" step="5" min="15" max="1500" oninput="calcAQ4()">
+        <span class="text-muted">Reservoir surface elevation above powerhouse turbine centerline</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-tank-type">Surge Tank Internal Configuration:</label>
+        <select id="aq4-tank-type" onchange="calcAQ4()">
+          <option value="simple" selected>Simple Open Cylindrical Surge Tank</option>
+          <option value="throttled">Restricted Orifice Throttled Surge Tank</option>
+          <option value="differential">Johnson Differential Surge Tank (Internal riser)</option>
+        </select>
+        <span class="text-muted">Throttled and differential tanks damp oscillations 35-50% faster</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Flow Velocity & Hydraulic Roughness -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Flow Discharge & Hydraulic Friction</h3>
+
+      <div class="input-group">
+        <label for="aq4-discharge" id="aq4-label-flow">Full-Load Turbine Flow Rate ($Q_0$) (m³/s):</label>
+        <input type="number" id="aq4-discharge" value="45.0" step="1.0" min="1.0" max="500.0" oninput="calcAQ4()">
+        <span class="text-muted">Rated total plant turbine discharge at full generation capacity</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-darcy-f">Tunnel Darcy-Weisbach Friction Factor ($f$):</label>
+        <input type="number" id="aq4-darcy-f" value="0.016" step="0.002" min="0.010" max="0.045" oninput="calcAQ4()">
+        <span class="text-muted">Smooth concrete: 0.014 - 0.018; unlined rock: 0.025 - 0.040</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-closure-time">Turbine Emergency Gate Closure Time ($t_c$) (s):</label>
+        <input type="number" id="aq4-closure-time" value="6.0" step="0.5" min="1.0" max="30.0" oninput="calcAQ4()">
+        <span class="text-muted">Wicket gate / governor full shut-off duration</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-thoma-sf">Thoma Safety Factor Multiplier ($SF_{thoma}$):</label>
+        <input type="number" id="aq4-thoma-sf" value="1.50" step="0.05" min="1.20" max="2.20" oninput="calcAQ4()">
+        <span class="text-muted">Frank & Schüller / Jaeger standard: $1.50$ to $1.80$ multiplier</span>
+      </div>
+
+      <div class="input-group">
+        <label for="aq4-wave-speed" id="aq4-label-wavespd">Penstock Acoustic Wave Speed ($a$) (m/s):</label>
+        <input type="number" id="aq4-wave-speed" value="1050" step="50" min="700" max="1400" oninput="calcAQ4()">
+        <span class="text-muted">Elastic pressure wave speed in steel penstock pipe</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Mass Oscillation & Transient Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Maximum Upsurge ($Z_{max}$)</span>
+        <div id="aq4-res-zmax" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- m</div>
+        <span class="text-muted" id="aq4-sub-zmax" style="font-size:0.75rem;">Above reservoir level</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Maximum Downsurge ($Z_{min}$)</span>
+        <div id="aq4-res-zmin" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- m</div>
+        <span class="text-muted" id="aq4-sub-zmin" style="font-size:0.75rem;">Below reservoir level</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Thoma Stability Ratio</span>
+        <div id="aq4-res-thoma-ratio" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">--</div>
+        <span class="text-muted" id="aq4-sub-thoma-ratio" style="font-size:0.75rem;">As / Athoma (Min: 1.50)</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Mass Oscillation Period ($T$)</span>
+        <div id="aq4-res-period" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- s</div>
+        <span class="text-muted" id="aq4-sub-period" style="font-size:0.75rem;">Natural surge cycle</span>
+      </div>
+    </div>
+
+    <!-- Interactive Surge Tank SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Hydroelectric Waterway Profile, Surge Waveform & Thoma Envelopes</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Calame-Gaden Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="aq4-svg" viewBox="0 0 800 280" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Transient Hydraulic Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Governing Equation</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Design Safety Criterion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Initial Headrace Flow Velocity</td>
+              <td style="padding: 8px;">$v_0 = Q_0 / (\frac{\pi}{4} D_t^2)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq4-res-v0">--</td>
+              <td style="padding: 8px; color: #10b981;">Economic range: 2.0 to 3.5 m/s</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Headrace Steady Friction Loss</td>
+              <td style="padding: 8px;">$h_{f0} = f (L / D_t) (v_0^2 / 2g)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq4-res-hf0">--</td>
+              <td style="padding: 8px; color: #10b981;">Initial hydraulic gradient offset</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Theoretical Undamped Upsurge</td>
+              <td style="padding: 8px;">$Z_* = v_0 \sqrt{L A_t / (g A_s)}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq4-res-zstar">--</td>
+              <td style="padding: 8px; color: #10b981;">Calame-Gaden frictionless datum</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Thoma Theoretical Minimum Area</td>
+              <td style="padding: 8px;">$A_{thoma} = \frac{L A_t}{2 g C_f (H_0 - h_{f0})}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq4-res-athoma">--</td>
+              <td style="padding: 8px; color: #10b981;">Absolute boundary against hunting</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Required Stable Tank Diameter</td>
+              <td style="padding: 8px;">$D_{s,min} = \sqrt{4 (A_{thoma} \cdot SF) / \pi}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq4-res-dsmin">--</td>
+              <td style="padding: 8px; color: #10b981;">Minimum diameter with safety factor</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Penstock Joukowsky Hammer Head</td>
+              <td style="padding: 8px;">$\Delta H_{wh} = a \cdot v_0 / g$</td>
+              <td style="padding: 8px; font-weight: 600;" id="aq4-res-wh">--</td>
+              <td style="padding: 8px; color: #10b981;">Absorbed by free water surface</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="aq4-copy-btn" onclick="copyAQ4Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Hydraulic Surge Tank Transient Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & Hydro Transient Kinematics</h3>
+    <p>A surge tank functions as a free-surface hydraulic flywheel located at the junction between a long, low-pressure headrace tunnel and steep high-pressure penstocks. When turbines trip, it intercepts the moving water column, transforming high-frequency acoustic water hammer into slow, safe mass oscillations:</p>
+
+    <h4>1. Fundamental Differential Equations of Mass Oscillation</h4>
+    <p>Assuming the water column in the headrace tunnel behaves as an incompressible slug of mass $M = \rho A_t L$, Newton's second law and continuity govern the water level $Z(t)$ in the surge tank:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\frac{L}{g} \frac{dv}{dt} + Z + C_f \cdot v \cdot |v| = 0$$
+      $$A_s \frac{dZ}{dt} = A_t \cdot v - Q_{turbine}(t)$$
+    </div>
+    <p>Where $Z$ is water level relative to reservoir surface, $v$ is tunnel velocity, and $C_f = h_{f0} / v_0^2$ is the tunnel friction resistance coefficient.</p>
+
+    <h4>2. Maximum Upsurge ($Z_{max}$) & Downsurge ($Z_{min}$) via Calame-Gaden</h4>
+    <p>For an instantaneous full load rejection ($Q_{turbine} \to 0$), integrating the non-linear differential equation yields the maximum upsurge elevation:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$Z_* = v_0 \sqrt{\frac{L \cdot A_t}{g \cdot A_s}} \quad [\text{Undamped surge amplitude}]$$
+      $$Z_{max} = Z_* \cdot \exp\left( - \frac{\pi \cdot h_{f0}}{4 Z_*} \right) - h_{f0} \quad [\text{m}]$$
+      $$Z_{min} = -Z_* - h_{f0} \quad [\text{m, maximum drawdown on full turbine startup}]$$
+    </div>
+
+    <h4>3. The Thoma Stability Criterion for Governor-Coupled Systems</h4>
+    <p>Modern hydroelectric turbines are controlled by speed governors operating at constant power ($P = \gamma Q H \eta = \text{constant}$). If turbine power is held constant while head fluctuates, a downward surge increases flow demand, which draws water level down further. Dieter Thoma derived the mathematical condition for small-perturbation stability:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$A_{thoma} = \frac{L \cdot A_t}{2 \cdot g \cdot C_f \cdot (H_0 - h_{f0})} \quad [\text{m}^2]$$
+    </div>
+    <p>If actual tank area $A_s < A_{thoma}$, mass oscillations amplify spontaneously until the plant experiences continuous power surging. International standards enforce a safety multiplier: $A_s \ge (1.50 \text{ to } 1.80) \times A_{thoma}$.</p>
+  </div>
+
+  <!-- 5 Fatal Surge Tank Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Catastrophes in Surge Tanks</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Violating the Thoma Criterion Triggering Unstable Grid Frequency Hunting</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">If civil designers size a surge tank strictly for upsurge volume without verifying Thoma stability ($A_s < A_{thoma}$), the governor feedback loop goes dynamically unstable. During normal grid frequency regulation, small load variations excite continuous, undamped water level oscillations in the surge shaft. This causes megawatts of electrical generation to surge up and down cyclically, destabilizing the regional high-voltage transmission grid.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Catastrophic Shaft Overtopping During Back-to-Back Load Rejections</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Surge tanks are designed for single trip events, but during grid synchronization faults, turbines frequently trip, restart, and trip again within half an oscillation period ($t \approx T/2$). If the second rejection occurs exactly when the returning water column reaches peak upward velocity, constructive wave superposition doubles the upsurge height ($Z \approx 1.8 Z_{max}$). Water violently overtops the open shaft, causing massive hillside landslides and washing out switchyards.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Penstock Vacuum Collapse from Downsurge Water Column Separation</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">When multiple turbines start up simultaneously under black-start grid restoration, water accelerates rapidly out of the surge tank. If the downsurge ($Z_{min}$) drops below the top of the penstock intake portal, air is sucked into the high-pressure steel pipe, or water column separation occurs. The sub-atmospheric vacuum crushes thin-walled steel penstocks in a catastrophic inward buckling collapse.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Severe Secondary Water Hammer from Over-Throttling Orifice Ports</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Restricted orifice surge tanks incorporate a choked throttle plate at the shaft entrance to damp mass oscillations. However, if the orifice is choked too tightly to minimize shaft diameter, the incoming acoustic pressure wave cannot enter the free-surface tank. The orifice reflects the wave back as a rigid boundary, generating severe secondary acoustic water hammer that ruptures headrace tunnel expansion joints.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Exposed Alpine Surge Shaft Surface Freezing Choking Free Oscillation</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">In high-altitude hydroelectric schemes in the Rockies, Alps, or Andes, sub-zero winter temperatures freeze a thick ice cap across the top of open surge tanks. This rigid ice plug converts the free-surface tank into a closed vessel. When a trip occurs, the incompressible water strikes the ice ceiling, generating immense acoustic water hammer that destroys the tunnel lining.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let aq4Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAQ4Unit = function(unit) {
+    if (aq4Unit === unit) return;
+    aq4Unit = unit;
+    document.getElementById('aq4-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('aq4-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const tlen = document.getElementById('aq4-tunnel-len');
+    const tdia = document.getElementById('aq4-tunnel-dia');
+    const sdia = document.getElementById('aq4-tank-dia');
+    const ghead = document.getElementById('aq4-gross-head');
+    const flow = document.getElementById('aq4-discharge');
+    const wspd = document.getElementById('aq4-wave-speed');
+
+    if (unit === 'imperial') {
+      document.getElementById('aq4-label-tlen').innerText = 'Headrace Tunnel Length (L) (ft):';
+      document.getElementById('aq4-label-tdia').innerText = 'Headrace Tunnel Inside Diameter (Dt) (ft):';
+      document.getElementById('aq4-label-sdia').innerText = 'Surge Tank Inside Diameter (Ds) (ft):';
+      document.getElementById('aq4-label-ghead').innerText = 'Gross Reservoir Static Head (H0) (ft):';
+      document.getElementById('aq4-label-flow').innerText = 'Full-Load Turbine Flow Rate (Q0) (cfs):';
+      document.getElementById('aq4-label-wavespd').innerText = 'Penstock Acoustic Wave Speed (a) (ft/s):';
+
+      tlen.value = (parseFloat(tlen.value) * 3.28084).toFixed(0);
+      tdia.value = (parseFloat(tdia.value) * 3.28084).toFixed(1);
+      sdia.value = (parseFloat(sdia.value) * 3.28084).toFixed(1);
+      ghead.value = (parseFloat(ghead.value) * 3.28084).toFixed(0);
+      flow.value = (parseFloat(flow.value) * 35.3147).toFixed(0);
+      wspd.value = (parseFloat(wspd.value) * 3.28084).toFixed(0);
+    } else {
+      document.getElementById('aq4-label-tlen').innerText = 'Headrace Tunnel Length (L) (m):';
+      document.getElementById('aq4-label-tdia').innerText = 'Headrace Tunnel Inside Diameter (Dt) (m):';
+      document.getElementById('aq4-label-sdia').innerText = 'Surge Tank Inside Diameter (Ds) (m):';
+      document.getElementById('aq4-label-ghead').innerText = 'Gross Reservoir Static Head (H0) (m):';
+      document.getElementById('aq4-label-flow').innerText = 'Full-Load Turbine Flow Rate (Q0) (m³/s):';
+      document.getElementById('aq4-label-wavespd').innerText = 'Penstock Acoustic Wave Speed (a) (m/s):';
+
+      tlen.value = (parseFloat(tlen.value) / 3.28084).toFixed(0);
+      tdia.value = (parseFloat(tdia.value) / 3.28084).toFixed(1);
+      sdia.value = (parseFloat(sdia.value) / 3.28084).toFixed(1);
+      ghead.value = (parseFloat(ghead.value) / 3.28084).toFixed(0);
+      flow.value = (parseFloat(flow.value) / 35.3147).toFixed(1);
+      wspd.value = (parseFloat(wspd.value) / 3.28084).toFixed(0);
+    }
+    calcAQ4();
+  };
+
+  window.calcAQ4 = function() {
+    let L_val = parseFloat(document.getElementById('aq4-tunnel-len').value) || 3200;
+    let Dt_val = parseFloat(document.getElementById('aq4-tunnel-dia').value) || 4.8;
+    let Ds_val = parseFloat(document.getElementById('aq4-tank-dia').value) || 12.0;
+    let H0_val = parseFloat(document.getElementById('aq4-gross-head').value) || 185;
+    let Q0_val = parseFloat(document.getElementById('aq4-discharge').value) || 45.0;
+    let f_darcy = parseFloat(document.getElementById('aq4-darcy-f').value) || 0.016;
+    let tc_s = parseFloat(document.getElementById('aq4-closure-time').value) || 6.0;
+    let SF_thoma = parseFloat(document.getElementById('aq4-thoma-sf').value) || 1.50;
+    let a_wspd_val = parseFloat(document.getElementById('aq4-wave-speed').value) || 1050;
+    let tank_type = document.getElementById('aq4-tank-type').value;
+
+    // Convert inputs internally to SI Metric (m, m³/s, m/s)
+    let L_m = aq4Unit === 'imperial' ? L_val / 3.28084 : L_val;
+    let Dt_m = aq4Unit === 'imperial' ? Dt_val / 3.28084 : Dt_val;
+    let Ds_m = aq4Unit === 'imperial' ? Ds_val / 3.28084 : Ds_val;
+    let H0_m = aq4Unit === 'imperial' ? H0_val / 3.28084 : H0_val;
+    let Q0_m3s = aq4Unit === 'imperial' ? Q0_val / 35.3147 : Q0_val;
+    let a_ms = aq4Unit === 'imperial' ? a_wspd_val / 3.28084 : a_wspd_val;
+
+    // 1. Headrace Tunnel Cross-Section and Flow Velocity
+    let At_m2 = (Math.PI / 4.0) * Math.pow(Dt_m, 2);
+    let v0_ms = Q0_m3s / At_m2;
+
+    // Surge tank area
+    let As_m2 = (Math.PI / 4.0) * Math.pow(Ds_m, 2);
+
+    // 2. Steady Headrace Tunnel Friction Head Loss hf0 (m)
+    let g = 9.80665;
+    let hf0_m = f_darcy * (L_m / Dt_m) * (Math.pow(v0_ms, 2) / (2.0 * g));
+    let Cf = hf0_m / Math.pow(v0_ms, 2);
+
+    // 3. Calame-Gaden Undamped Surge Amplitude Z* (m)
+    let Z_star_m = v0_ms * Math.sqrt((L_m * At_m2) / (g * As_m2));
+
+    // Damped Maximum Upsurge Zmax (Jaeger equation)
+    // Throttle damping multiplier
+    let throttle_damp = 1.0;
+    if (tank_type === 'throttled') throttle_damp = 0.88;
+    else if (tank_type === 'differential') throttle_damp = 0.78;
+
+    let Z_max_m = (Z_star_m * Math.exp(- (Math.PI * hf0_m) / (4.0 * Math.max(1, Z_star_m))) - hf0_m) * throttle_damp;
+    if (Z_max_m < 1.0) Z_max_m = 1.0;
+
+    // Maximum Downsurge Zmin (m below reservoir level)
+    let Z_min_m = (Z_star_m + hf0_m) * throttle_damp;
+
+    // 4. Natural Mass Oscillation Period T (seconds)
+    let T_period_s = 2.0 * Math.PI * Math.sqrt((L_m * As_m2) / (g * At_m2));
+
+    // 5. Thoma Stability Criterion (Athoma)
+    // Athoma = (L * At) / [2 * g * Cf * (H0 - hf0)]
+    let H_net_m = Math.max(10, H0_m - hf0_m);
+    let A_thoma_m2 = (L_m * At_m2) / (2.0 * g * Cf * H_net_m);
+    let thoma_ratio = As_m2 / A_thoma_m2;
+    let is_thoma_stable = thoma_ratio >= SF_thoma;
+
+    let D_thoma_min_m = Math.sqrt((4.0 * A_thoma_m2 * SF_thoma) / Math.PI);
+
+    // 6. Penstock Joukowsky Water Hammer Pressure Head (m)
+    let dH_joukowsky_m = (a_ms * v0_ms) / g;
+
+    // UI Updates
+    document.getElementById('aq4-res-period').innerText = T_period_s.toFixed(1) + ' s';
+    document.getElementById('aq4-sub-period').innerText = '(' + (T_period_s / 60.0).toFixed(2) + ' min per cycle)';
+
+    document.getElementById('aq4-res-thoma-ratio').innerText = thoma_ratio.toFixed(2);
+    document.getElementById('aq4-sub-thoma-ratio').innerText = is_thoma_stable ? ('✓ Stable (≥ ' + SF_thoma.toFixed(2) + ')') : '❌ Unstable Hunting Hazard';
+    document.getElementById('aq4-res-thoma-ratio').style.color = is_thoma_stable ? '#10b981' : '#ef4444';
+
+    if (aq4Unit === 'imperial') {
+      let Z_max_ft = Z_max_m * 3.28084;
+      let Z_min_ft = Z_min_m * 3.28084;
+
+      document.getElementById('aq4-res-zmax').innerText = '+' + Z_max_ft.toFixed(1) + ' ft';
+      document.getElementById('aq4-sub-zmax').innerText = '(+' + Z_max_m.toFixed(1) + ' m above pool)';
+      document.getElementById('aq4-res-zmin').innerText = '-' + Z_min_ft.toFixed(1) + ' ft';
+      document.getElementById('aq4-sub-zmin').innerText = '(-' + Z_min_m.toFixed(1) + ' m below pool)';
+
+      document.getElementById('aq4-res-v0').innerText = (v0_ms * 3.28084).toFixed(2) + ' ft/s';
+      document.getElementById('aq4-res-hf0').innerText = (hf0_m * 3.28084).toFixed(1) + ' ft';
+      document.getElementById('aq4-res-zstar').innerText = (Z_star_m * 3.28084).toFixed(1) + ' ft';
+      document.getElementById('aq4-res-athoma').innerText = (A_thoma_m2 * 10.7639).toFixed(0) + ' ft²';
+      document.getElementById('aq4-res-dsmin').innerText = (D_thoma_min_m * 3.28084).toFixed(1) + ' ft';
+      document.getElementById('aq4-res-wh').innerText = (dH_joukowsky_m * 3.28084).toFixed(0) + ' ft (' + (dH_joukowsky_m * 0.4335).toFixed(0) + ' psi)';
+    } else {
+      document.getElementById('aq4-res-zmax').innerText = '+' + Z_max_m.toFixed(1) + ' m';
+      document.getElementById('aq4-sub-zmax').innerText = '(+' + (Z_max_m * 3.28084).toFixed(1) + ' ft above pool)';
+      document.getElementById('aq4-res-zmin').innerText = '-' + Z_min_m.toFixed(1) + ' m';
+      document.getElementById('aq4-sub-zmin').innerText = '(-' + (Z_min_m * 3.28084).toFixed(1) + ' ft below pool)';
+
+      document.getElementById('aq4-res-v0').innerText = v0_ms.toFixed(2) + ' m/s';
+      document.getElementById('aq4-res-hf0').innerText = hf0_m.toFixed(2) + ' m';
+      document.getElementById('aq4-res-zstar').innerText = Z_star_m.toFixed(2) + ' m';
+      document.getElementById('aq4-res-athoma').innerText = A_thoma_m2.toFixed(1) + ' m²';
+      document.getElementById('aq4-res-dsmin').innerText = D_thoma_min_m.toFixed(2) + ' m';
+      document.getElementById('aq4-res-wh').innerText = dH_joukowsky_m.toFixed(0) + ' m (' + (dH_joukowsky_m * 9.80665).toFixed(0) + ' kPa)';
+    }
+
+    // Dynamic SVG Simulation
+    renderAQ4Svg(L_m, Dt_m, Ds_m, H0_m, Z_max_m, Z_min_m, hf0_m, is_thoma_stable);
+  };
+
+  function renderAQ4Svg(L_m, Dt_m, Ds_m, H0_m, Z_max_m, Z_min_m, hf0_m, is_thoma_stable) {
+    const svg = document.getElementById('aq4-svg');
+    if (!svg) return;
+
+    let resX = 100;
+    let resY = 100;
+    let tankX = 420;
+    let tankW = 55;
+    let tunnelY = 180;
+    let powerX = 680;
+    let powerY = 240;
+
+    let statusColor = is_thoma_stable ? '#10b981' : '#ef4444';
+
+    let svgParts = [
+      '<!-- Upstream Reservoir Pool -->',
+      '<rect x="40" y="' + resY + '" width="110" height="95" fill="#0284c7" opacity="0.35" />',
+      '<line x1="30" y1="' + resY + '" x2="160" y2="' + resY + '" stroke="#38bdf8" stroke-width="2.5" />',
+      '<text x="90" y="' + (resY - 10) + '" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="middle">Reservoir Pool</text>',
+
+      '<!-- Low-Pressure Headrace Tunnel (Left to Right) -->',
+      '<rect x="150" y="' + (tunnelY - 10) + '" width="' + (tankX - 150) + '" height="20" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />',
+      '<line x1="170" y1="' + tunnelY + '" x2="' + (tankX - 20) + '" y2="' + tunnelY + '" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,2" />',
+      '<text x="' + ((150 + tankX)/2) + '" y="' + (tunnelY + 26) + '" fill="#94a3b8" font-size="10" text-anchor="middle">Headrace Tunnel (L = ' + L_m.toFixed(0) + 'm)</text>',
+
+      '<!-- Vertical Cylindrical Surge Shaft -->',
+      '<rect x="' + (tankX - tankW/2) + '" y="30" width="' + tankW + '" height="160" fill="#0f172a" stroke="#f8fafc" stroke-width="2" />',
+
+      '<!-- Dynamic Water Level in Surge Tank (Upsurge & Downsurge Lines) -->',
+      '<!-- Static Reservoir Level Datum -->',
+      '<line x1="' + (tankX - tankW/2 - 15) + '" y1="' + resY + '" x2="' + (tankX + tankW/2 + 15) + '" y2="' + resY + '" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3" />',
+      '<text x="' + (tankX + tankW/2 + 20) + '" y="' + (resY + 4) + '" fill="#94a3b8" font-size="10">Datum (H0)</text>',
+
+      '<!-- Maximum Upsurge Water Level (Green) -->',
+      '<line x1="' + (tankX - tankW/2) + '" y1="45" x2="' + (tankX + tankW/2) + '" y2="45" stroke="#10b981" stroke-width="3" />',
+      '<text x="' + (tankX + tankW/2 + 8) + '" y="49" fill="#10b981" font-size="11" font-weight="700">+Zmax (+' + Z_max_m.toFixed(1) + 'm)</text>',
+
+      '<!-- Maximum Downsurge Water Level (Red) -->',
+      '<line x1="' + (tankX - tankW/2) + '" y1="140" x2="' + (tankX + tankW/2) + '" y2="140" stroke="#ef4444" stroke-width="2.5" />',
+      '<text x="' + (tankX + tankW/2 + 8) + '" y="144" fill="#ef4444" font-size="11" font-weight="700">-Zmin (-' + Z_min_m.toFixed(1) + 'm)</text>',
+
+      '<!-- Water Body Inside Surge Tank -->',
+      '<rect x="' + (tankX - tankW/2 + 2) + '" y="45" width="' + (tankW - 4) + '" height="145" fill="#0284c7" opacity="0.4" />',
+
+      '<!-- High-Pressure Steel Penstock (Descending Right) -->',
+      '<line x1="' + (tankX + tankW/2) + '" y1="' + tunnelY + '" x2="' + (powerX - 10) + '" y2="' + powerY + '" stroke="#475569" stroke-width="12" />',
+      '<line x1="' + (tankX + tankW/2) + '" y1="' + tunnelY + '" x2="' + (powerX - 10) + '" y2="' + powerY + '" stroke="#94a3b8" stroke-width="8" />',
+      '<text x="' + ((tankX + powerX)/2) + '" y="' + ((tunnelY + powerY)/2 - 12) + '" fill="#94a3b8" font-size="10">High-Pressure Penstock</text>',
+
+      '<!-- Powerhouse & Wicket Gate Valve -->',
+      '<rect x="' + powerX + '" y="' + (powerY - 20) + '" width="45" height="35" fill="#334155" stroke="#f59e0b" stroke-width="2" rx="3" />',
+      '<text x="' + (powerX + 22) + '" y="' + (powerY + 2) + '" fill="#fef08a" font-size="9" font-weight="700" text-anchor="middle">Turbine</text>',
+
+      '<!-- Status Banner -->',
+      '<rect x="200" y="248" width="400" height="24" fill="#0f172a" rx="4" stroke="' + statusColor + '" stroke-width="1.5" />',
+      '<text x="400" y="264" fill="' + statusColor + '" font-size="11" font-weight="700" text-anchor="middle">UPSURGE: +' + Z_max_m.toFixed(1) + 'm | DOWNSURGE: -' + Z_min_m.toFixed(1) + 'm (' + (is_thoma_stable ? 'THOMA STABLE' : 'UNSTABLE HUNTING') + ')</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAQ4Diagnostics = function() {
+    let zm = document.getElementById('aq4-res-zmax').innerText;
+    let zn = document.getElementById('aq4-res-zmin').innerText;
+    let tr = document.getElementById('aq4-res-thoma-ratio').innerText;
+    let tp = document.getElementById('aq4-res-period').innerText;
+    let v0 = document.getElementById('aq4-res-v0').innerText;
+    let hf = document.getElementById('aq4-res-hf0').innerText;
+    let zs = document.getElementById('aq4-res-zstar').innerText;
+    let at = document.getElementById('aq4-res-athoma').innerText;
+    let ds = document.getElementById('aq4-res-dsmin').innerText;
+    let wh = document.getElementById('aq4-res-wh').innerText;
+
+    let text = [
+      '=== HYDRAULIC SURGE TANK & TRANSIENT AUDIT ===',
+      'Standard: Jaeger Hydraulic Transients / Thoma Criterion / Calame-Gaden',
+      '-----------------------------------------------------------------',
+      'Maximum Water Upsurge (Zmax):    ' + zm,
+      'Maximum Water Downsurge (Zmin):  ' + zn,
+      'Thoma Dynamic Stability Ratio:   ' + tr,
+      'Mass Oscillation Period (T):     ' + tp,
+      'Tunnel Initial Velocity (v0):    ' + v0,
+      'Tunnel Friction Head Loss (hf0): ' + hf,
+      'Undamped Surge Datum (Z*):       ' + zs,
+      'Thoma Minimum Required Area:     ' + at,
+      'Minimum Stable Tank Diameter:    ' + ds,
+      'Penstock Joukowsky Hammer Head:  ' + wh,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/hydraulic-surge-tank-mass-oscillation-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('aq4-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Surge Tank Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAQ4();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'hydraulic-surge-tank-mass-oscillation-calculator.html'), renderTradePage({
+  title: 'Hydraulic Surge Tank Sizing Calculator | Thoma & Jaeger Model',
+  metaDescription: 'Calculate surge tank upsurge (Zmax), downsurge, mass oscillation period, and Thoma dynamic stability area per Jaeger and Calame-Gaden.',
+  canonical: 'https://digitaltoolsshed.com/calc/hydraulic-surge-tank-mass-oscillation-calculator.html',
+  content: toolAQ4Html,
+  faq: [
+    {
+      q: 'What is the purpose of a surge tank in a hydroelectric power scheme?',
+      a: 'A surge tank acts as an open hydraulic flywheel between a long low-pressure headrace tunnel and steep high-pressure penstocks. When turbines trip, it intercepts the moving water column, transforming high-speed destructive acoustic water hammer into slow, safe mass oscillations with a free water surface.'
+    },
+    {
+      q: 'What is the Thoma stability criterion and why must it be satisfied?',
+      a: 'Under constant-power governor control, water level drawdowns induce governors to open turbine gates further, which can destabilize mass oscillations into continuous power hunting. The Thoma criterion defines the absolute minimum cross-sectional area (Athoma = [L * At] / [2 * g * Cf * Hnet]) required for oscillations to damp out naturally. Standards enforce a safety margin of 1.50 to 1.80.'
+    },
+    {
+      q: 'How is maximum upsurge (Zmax) calculated following an emergency turbine trip?',
+      a: 'Upsurge is calculated via Calame-Gaden and Jaeger formulations: Zmax = Z* * exp(-π * hf0 / [4 * Z*]) - hf0, where Z* = v0 * √(L * At / [g * As]) represents the theoretical undamped potential surge and hf0 accounts for tunnel friction dissipation.'
+    },
+    {
+      q: 'Why is downsurge (Zmin) critical during rapid plant startup?',
+      a: 'When turbines ramp up rapidly from zero to full load, water is pulled from the surge tank faster than the headrace tunnel can accelerate. If the downsurge water level drops below the penstock intake portal, air is sucked into the penstock or column separation occurs, risking catastrophic inward vacuum buckling of the steel pipe.'
+    },
+    {
+      q: 'What is the benefit of a restricted orifice throttled surge tank?',
+      a: 'A restricted orifice introduces a concentrated head loss throttle port at the base of the surge shaft. This creates an immediate counter-pressure head that decelerates the tunnel water column faster, reducing maximum upsurge and downsurge by 15% to 30% and significantly cutting construction shaft volume.'
+    }
+  ]
+}));
+
+
+console.log('  ✓ Built Trade & Construction Suite (115 calculators in /calc/)');
 }
 
