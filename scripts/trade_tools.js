@@ -12303,6 +12303,1942 @@ export function buildTradeTools() {
   }));
 
 
+    // ─────────────────────────────────────────────────────────────────────────────
+  // STRUCTURAL STEEL WEIGHT & SECTION MODULUS CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const structuralSteelBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Structural Steel Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Structural Steel Weight, Section Modulus & Beam Sizing Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate unit weight, total tonnage, elastic section modulus (S_x), plastic modulus (Z_x), and allowable bending moment capacity across AISC standard W-Beams, HSS Rectangular/Square Tubing, C-Channels, Angle Iron, and Steel Plates.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2.18\" ry=\"2.18\"/><line x1=\"7\" y1=\"2\" x2=\"7\" y2=\"22\"/><line x1=\"17\" y1=\"2\" x2=\"17\" y2=\"22\"/><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"/></svg>
+        Steel Profile & Dimensions
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssCategory">Profile Category</label>
+        <select id="ssCategory" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="w_beam" selected>Wide Flange I-Beam (AISC W-Shape)</option>
+          <option value="hss_rect">HSS Rectangular / Square Tubing</option>
+          <option value="c_channel">Structural C-Channel</option>
+          <option value="angle">Equal & Unequal Angle Iron (L-Shape)</option>
+          <option value="plate">Steel Plate / Flat Bar</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:1.25rem;" id="ssPresetGroup">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssPreset">Standard AISC Designation</label>
+        <select id="ssPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+
+      <div id="ssPlateCustom" style="display:none;margin-bottom:1.25rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssPlateWidth">Plate Width (in)</label>
+            <input type="number" id="ssPlateWidth" value="12.0" min="0.5" max="120" step="0.25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssPlateThick">Thickness (in)</label>
+            <input type="number" id="ssPlateThick" value="0.5" min="0.0625" max="6.0" step="0.0625" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssLength">Total Length per Piece (ft)</label>
+          <input type="number" id="ssLength" value="20.0" min="0.5" max="100.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssQuantity">Quantity (Pieces)</label>
+          <input type="number" id="ssQuantity" value="1" min="1" max="1000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssGrade">Steel Grade & Yield (F_y)</label>
+          <select id="ssGrade" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="50" selected>ASTM A992 / A572 (F_y = 50 ksi)</option>
+            <option value="36">ASTM A36 (F_y = 36 ksi)</option>
+            <option value="46">ASTM A500 Grade B (F_y = 46 ksi)</option>
+            <option value="65">High-Strength A514 (F_y = 65 ksi)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssPriceLb">Steel Price per lb ($)</label>
+          <input type="number" id="ssPriceLb" value="0.95" min="0.10" max="10.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Weight & Section Properties
+          </h2>
+          <button id="copySsBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Steel Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Weight</span>
+            <span id="ssTotalWeight" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:var(--fg);display:block;">620 lbs</span>
+            <span id="ssTons" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">0.31 Short Tons (281 kg)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Unit Weight</span>
+            <span id="ssUnitWeight" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">31.0 lbs/ft</span>
+            <span id="ssMetricUnit" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">46.1 kg/m</span>
+          </div>
+        </div>
+
+        <!-- STRUCTURAL SECTION MODULUS & CAPACITY -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Elastic Section Modulus (S_x):</span>
+            <strong id="ssSx" style="font-family:var(--mono);">34.0 in&sup3;</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Moment of Inertia (I_x):</span>
+            <strong id="ssIx" style="font-family:var(--mono);">170.0 in&sup4;</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Allowable Bending Moment (M_a):</span>
+            <strong id="ssMa" style="font-family:var(--mono);color:#10b981;">93.5 kip-ft (ASD)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Allowable Uniform Load (20 ft span):</span>
+            <strong id="ssWallow" style="font-family:var(--mono);">1,870 lbs/ft</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Estimated Raw Material Cost:</span>
+            <strong id="ssTotalCost" style="font-family:var(--mono);">$589.00 ($0.95/lb)</strong>
+          </div>
+        </div>
+
+        <!-- RIGGING & TRANSPORT STATUS BADGE -->
+        <div id="ssRiggingBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG PROFILE CROSS-SECTION SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Structural Cross-Section Geometry & Dimension Callouts</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Proportional vector section showing flange width ($b_f$), total depth ($d$), web thickness ($t_w$), and neutral axis of bending ($X-X$).
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="ssProfileSvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & AISC ASD CAPACITY -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Structural Mechanics: Section Modulus & Flexural Strength (AISC 360)</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Steel beam bending capacity is governed by elastic section modulus ($S_x$) and yield stress ($F_y$). Allowable Stress Design (ASD) limits bending stress to $0.66 F_y$ for compact, laterally braced sections.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Elastic Section Modulus (Strong Axis):</strong><br>
+      S_x = \\frac{I_x}{c} = \\frac{I_x}{d / 2} \\quad (\\text{in}^3)<br><br>
+      <strong>2. Allowable Bending Moment Capacity (AISC ASD):</strong><br>
+      M_a = 0.66 \\times F_y \\times S_x \\quad (\\text{in-kips}) = \\frac{0.66 \\times F_y \\times S_x}{12} \\quad (\\text{kip-ft})<br><br>
+      <strong>3. Maximum Uniform Distributed Load (Simply Supported):</strong><br>
+      W_{\\text{allow}} = \\frac{8 \\times M_a}{L^2} \\times 1000 \\quad (\\text{lbs per foot of span})<br><br>
+      <strong>4. Standard Carbon Steel Density:</strong><br>
+      \\rho_{\\text{steel}} = 0.2836\\text{ lb/in}^3 = 490\\text{ lb/ft}^3 = 7,850\\text{ kg/m}^3
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL STRUCTURAL STEEL TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The Nominal vs Actual Depth Trap</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        A W10x12 has an actual depth of 9.87", while a heavy W10x112 measures 11.36" deep. Assuming all "W10" beams are 10 inches tall causes disastrous mechanical clash with ceiling HVAC ducts, plumbing pipes, and finished ceiling heights.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Weak-Axis Lateral Torsional Buckling</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Wide-flange beams have high vertical stiffness ($I_x$) but pathetic lateral torsional resistance ($I_y$). Loading a beam without adequate top-flange lateral bracing causes it to twist and snap sideways under a fraction of its rated capacity.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Forgetting Beam Self-Weight Deflection</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        A W24x68 spanning 35 feet weighs 2,380 lbs just sitting there. Engineers who calculate load capacity without including the beam's own deadweight will exceed the L/360 architectural deflection limit, causing plaster cracking and jamming doors.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Hot-Dip Galvanizing Weight Penalty</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Specifying hot-dip zinc coating adds 3% to 6% extra weight. On large highway overpasses or industrial mezzanine frames, ignoring galvanizing weight overloads flatbed trucks and exceeds crane rigging capacity.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Legacy A36 vs Modern A992 Steel</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Old drawings call for A36 steel ($F_y = 36\\text{ ksi}$). Modern AISC wide-flange shapes are universally produced from ASTM A992 ($F_y = 50\\text{ ksi}$). Using A36 formulas on modern beams underestimates strength by 28%; using A992 formulas on salvaged A36 beams causes dangerous overloads.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      var steelDatabase = {
+        w_beam: [
+          { name: 'W6 x 9', wt: 9.0, d: 5.90, bf: 3.94, tf: 0.215, tw: 0.170, sx: 5.56, ix: 16.4 },
+          { name: 'W8 x 10', wt: 10.0, d: 7.89, bf: 3.94, tf: 0.205, tw: 0.170, sx: 7.81, ix: 30.8 },
+          { name: 'W8 x 24', wt: 24.0, d: 7.93, bf: 6.50, tf: 0.400, tw: 0.245, sx: 20.9, ix: 82.7 },
+          { name: 'W10 x 19', wt: 19.0, d: 10.24, bf: 4.02, tf: 0.395, tw: 0.250, sx: 18.8, ix: 96.3 },
+          { name: 'W10 x 30', wt: 30.0, d: 10.47, bf: 5.81, tf: 0.510, tw: 0.300, sx: 32.4, ix: 170.0 },
+          { name: 'W12 x 26', wt: 26.0, d: 12.22, bf: 6.49, tf: 0.380, tw: 0.230, sx: 33.4, ix: 204.0 },
+          { name: 'W12 x 40', wt: 40.0, d: 11.94, bf: 8.01, tf: 0.515, tw: 0.295, sx: 51.9, ix: 310.0 },
+          { name: 'W14 x 30', wt: 30.0, d: 13.84, bf: 6.73, tf: 0.385, tw: 0.270, sx: 42.0, ix: 291.0 },
+          { name: 'W16 x 31', wt: 31.0, d: 15.88, bf: 5.53, tf: 0.440, tw: 0.275, sx: 47.2, ix: 375.0 },
+          { name: 'W18 x 50', wt: 50.0, d: 17.99, bf: 7.50, tf: 0.570, tw: 0.355, sx: 88.9, ix: 800.0 },
+          { name: 'W24 x 68', wt: 68.0, d: 23.73, bf: 8.97, tf: 0.585, tw: 0.415, sx: 154.0, ix: 1830.0 }
+        ],
+        hss_rect: [
+          { name: 'HSS 2 x 2 x 1/8', wt: 3.05, d: 2.0, bf: 2.0, tf: 0.116, tw: 0.116, sx: 0.68, ix: 0.68 },
+          { name: 'HSS 3 x 3 x 3/16', wt: 6.87, d: 3.0, bf: 3.0, tf: 0.174, tw: 0.174, sx: 2.03, ix: 3.05 },
+          { name: 'HSS 4 x 4 x 1/4', wt: 12.21, d: 4.0, bf: 4.0, tf: 0.233, tw: 0.233, sx: 4.88, ix: 9.76 },
+          { name: 'HSS 6 x 4 x 1/4', wt: 15.62, d: 6.0, bf: 4.0, tf: 0.233, tw: 0.233, sx: 9.42, ix: 28.3 },
+          { name: 'HSS 6 x 6 x 3/8', wt: 27.48, d: 6.0, bf: 6.0, tf: 0.349, tw: 0.349, sx: 17.8, ix: 53.4 },
+          { name: 'HSS 8 x 4 x 3/8', wt: 27.48, d: 8.0, bf: 4.0, tf: 0.349, tw: 0.349, sx: 20.3, ix: 81.2 },
+          { name: 'HSS 8 x 8 x 1/2', wt: 47.35, d: 8.0, bf: 8.0, tf: 0.465, tw: 0.465, sx: 41.5, ix: 166.0 }
+        ],
+        c_channel: [
+          { name: 'C 3 x 4.1', wt: 4.1, d: 3.0, bf: 1.41, tf: 0.273, tw: 0.170, sx: 1.10, ix: 1.65 },
+          { name: 'C 4 x 5.4', wt: 5.4, d: 4.0, bf: 1.58, tf: 0.296, tw: 0.184, sx: 1.93, ix: 3.85 },
+          { name: 'C 6 x 8.2', wt: 8.2, d: 6.0, bf: 1.92, tf: 0.343, tw: 0.200, sx: 4.38, ix: 13.1 },
+          { name: 'C 8 x 11.5', wt: 11.5, d: 8.0, bf: 2.26, tf: 0.390, tw: 0.220, sx: 8.14, ix: 32.6 },
+          { name: 'C 10 x 15.3', wt: 15.3, d: 10.0, bf: 2.60, tf: 0.436, tw: 0.240, sx: 13.5, ix: 67.4 },
+          { name: 'C 12 x 20.7', wt: 20.7, d: 12.0, bf: 2.94, tf: 0.501, tw: 0.282, sx: 21.5, ix: 129.0 }
+        ],
+        angle: [
+          { name: 'L 2 x 2 x 1/8', wt: 1.65, d: 2.0, bf: 2.0, tf: 0.125, tw: 0.125, sx: 0.19, ix: 0.19 },
+          { name: 'L 2.5 x 2.5 x 3/16', wt: 3.07, d: 2.5, bf: 2.5, tf: 0.188, tw: 0.188, sx: 0.44, ix: 0.44 },
+          { name: 'L 3 x 3 x 1/4', wt: 4.90, d: 3.0, bf: 3.0, tf: 0.250, tw: 0.250, sx: 0.83, ix: 1.24 },
+          { name: 'L 4 x 4 x 3/8', wt: 9.80, d: 4.0, bf: 4.0, tf: 0.375, tw: 0.375, sx: 2.27, ix: 4.36 },
+          { name: 'L 6 x 6 x 1/2', wt: 19.6, d: 6.0, bf: 6.0, tf: 0.500, tw: 0.500, sx: 7.67, ix: 23.0 }
+        ]
+      };
+
+      function updatePresets() {
+        var cat = document.getElementById('ssCategory').value;
+        var pGroup = document.getElementById('ssPresetGroup');
+        var plateCustom = document.getElementById('ssPlateCustom');
+        var select = document.getElementById('ssPreset');
+
+        if (cat === 'plate') {
+          pGroup.style.display = 'none';
+          plateCustom.style.display = 'block';
+        } else {
+          pGroup.style.display = 'block';
+          plateCustom.style.display = 'none';
+          select.innerHTML = '';
+          var items = steelDatabase[cat] || [];
+          for (var i = 0; i < items.length; i++) {
+            var opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = items[i].name + ' (' + items[i].wt.toFixed(1) + ' lbs/ft)';
+            if (i === 4 || (i === 0 && items.length <= 4)) opt.selected = true;
+            select.appendChild(opt);
+          }
+        }
+        calcSteel();
+      }
+
+      function calcSteel() {
+        var cat = document.getElementById('ssCategory').value;
+        var lenFt = parseFloat(document.getElementById('ssLength').value) || 20.0;
+        var qty = parseInt(document.getElementById('ssQuantity').value, 10) || 1;
+        var fyKsi = parseFloat(document.getElementById('ssGrade').value) || 50;
+        var priceLb = parseFloat(document.getElementById('ssPriceLb').value) || 0.95;
+
+        var unitWeight = 0;
+        var sx = 0;
+        var ix = 0;
+        var d = 0;
+        var bf = 0;
+
+        if (cat === 'plate') {
+          var pWidth = parseFloat(document.getElementById('ssPlateWidth').value) || 12.0;
+          var pThick = parseFloat(document.getElementById('ssPlateThick').value) || 0.5;
+          // Steel density: 0.2836 lb/cu in
+          unitWeight = pWidth * pThick * 12 * 0.2836;
+          // Bending about strong axis: I_x = (thick * width^3) / 12
+          ix = (pThick * Math.pow(pWidth, 3)) / 12;
+          sx = ix / (pWidth / 2);
+          d = pWidth;
+          bf = pThick;
+        } else {
+          var items = steelDatabase[cat] || [];
+          var idx = parseInt(document.getElementById('ssPreset').value, 10) || 0;
+          if (idx >= items.length) idx = 0;
+          var p = items[idx] || items[0];
+          if (p) {
+            unitWeight = p.wt;
+            sx = p.sx;
+            ix = p.ix;
+            d = p.d;
+            bf = p.bf;
+          }
+        }
+
+        var totalWeight = unitWeight * lenFt * qty;
+        var totalTons = totalWeight / 2000;
+        var totalKg = totalWeight * 0.453592;
+        var metricUnit = unitWeight * 1.48816; // lbs/ft to kg/m
+
+        // Allowable Bending Moment (ASD): M_a = 0.66 * F_y * S_x / 12 (kip-ft)
+        var maKipFt = (0.66 * fyKsi * sx) / 12;
+
+        // Allowable uniform load (lbs/ft) for simply supported span: W = (8 * M_a) / L^2 * 1000
+        var wAllow = lenFt > 0 ? (8 * maKipFt * 1000) / Math.pow(lenFt, 2) : 0;
+
+        // Total cost
+        var totalCost = totalWeight * priceLb;
+
+        // DOM updates
+        document.getElementById('ssTotalWeight').textContent = Math.round(totalWeight).toLocaleString() + ' lbs';
+        document.getElementById('ssTons').textContent = totalTons.toFixed(2) + ' Short Tons (' + Math.round(totalKg).toLocaleString() + ' kg)';
+        document.getElementById('ssUnitWeight').textContent = unitWeight.toFixed(1) + ' lbs/ft';
+        document.getElementById('ssMetricUnit').textContent = metricUnit.toFixed(1) + ' kg/m';
+
+        document.getElementById('ssSx').textContent = sx.toFixed(1) + ' in\u00B3';
+        document.getElementById('ssIx').textContent = ix.toFixed(1) + ' in\u2074';
+        document.getElementById('ssMa').textContent = maKipFt.toFixed(1) + ' kip-ft (ASD)';
+        document.getElementById('ssWallow').textContent = Math.round(wAllow).toLocaleString() + ' lbs/ft (' + lenFt + ' ft span)';
+        document.getElementById('ssTotalCost').textContent = '$' + totalCost.toFixed(2) + ' ($' + priceLb.toFixed(2) + '/lb)';
+
+        // Rigging badge
+        var badge = document.getElementById('ssRiggingBadge');
+        if (totalWeight < 1000) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Lightweight Component (' + Math.round(totalWeight) + ' lbs)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Easily transported via standard pickup truck or lightweight trailer. Suitable for forklift or light shop hoist lifting.' +
+            '</div>';
+        } else if (totalWeight < 10000) {
+          badge.style.background = 'rgba(59, 130, 246, 0.1)';
+          badge.style.border = '1px solid #3b82f6';
+          badge.style.color = '#3b82f6';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Medium Freight (' + totalTons.toFixed(2) + ' Tons)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Requires commercial flatbed freight trailer and certified crane or telehandler rigging for jobsite offloading.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Heavy Structural Tonnage (' + totalTons.toFixed(2) + ' Tons)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Heavy freight shipment. Ensure DOT legal axle weights and verify site crane boom radius charts before delivery.' +
+            '</div>';
+        }
+
+        renderProfile(cat, d, bf);
+      }
+
+      function renderProfile(cat, d, bf) {
+        var svg = document.getElementById('ssProfileSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 300;
+        var cx = svgW / 2;
+        var cy = svgH / 2;
+
+        var svgHtml = '';
+
+        if (cat === 'w_beam') {
+          var pH = 180;
+          var pW = Math.max(90, Math.min(180, (bf / d) * pH));
+          var tf = 16;
+          var tw = 14;
+
+          var top = cy - pH/2;
+          var bot = cy + pH/2;
+          var left = cx - pW/2;
+          var right = cx + pW/2;
+
+          // Top flange
+          svgHtml += '<rect x=\"' + left + '\" y=\"' + top + '\" width=\"' + pW + '\" height=\"' + tf + '\" fill=\"var(--surface)\" stroke=\"#3b82f6\" stroke-width=\"2.5\"/>';
+          // Bottom flange
+          svgHtml += '<rect x=\"' + left + '\" y=\"' + (bot - tf) + '\" width=\"' + pW + '\" height=\"' + tf + '\" fill=\"var(--surface)\" stroke=\"#3b82f6\" stroke-width=\"2.5\"/>';
+          // Web
+          svgHtml += '<rect x=\"' + (cx - tw/2) + '\" y=\"' + (top + tf - 1) + '\" width=\"' + tw + '\" height=\"' + (pH - 2*tf + 2) + '\" fill=\"var(--surface)\" stroke=\"#3b82f6\" stroke-width=\"2.5\"/>';
+
+          // Neutral axis X-X
+          svgHtml += '<line x1=\"' + (left - 50) + '\" y1=\"' + cy + '\" x2=\"' + (right + 50) + '\" y2=\"' + cy + '\" stroke=\"#ef4444\" stroke-width=\"2\" stroke-dasharray=\"6,3\"/>';
+          svgHtml += '<text x=\"' + (right + 58) + '\" y=\"' + (cy + 4) + '\" fill=\"#ef4444\" font-size=\"11\" font-weight=\"bold\">X - X (Neutral Axis)</text>';
+
+          // Dimension calls
+          svgHtml += '<line x1=\"' + (left - 25) + '\" y1=\"' + top + '\" x2=\"' + (left - 25) + '\" y2=\"' + bot + '\" stroke=\"var(--fg)\" stroke-width=\"1.5\"/>';
+          svgHtml += '<text x=\"' + (left - 32) + '\" y=\"' + (cy + 4) + '\" fill=\"var(--fg)\" font-size=\"11\" text-anchor=\"end\" font-weight=\"bold\">d = ' + d.toFixed(2) + '\\\"</text>';
+
+          svgHtml += '<line x1=\"' + left + '\" y1=\"' + (top - 18) + '\" x2=\"' + right + '\" y2=\"' + (top - 18) + '\" stroke=\"var(--fg)\" stroke-width=\"1.5\"/>';
+          svgHtml += '<text x=\"' + cx + '\" y=\"' + (top - 24) + '\" fill=\"var(--fg)\" font-size=\"11\" text-anchor=\"middle\" font-weight=\"bold\">b_f = ' + bf.toFixed(2) + '\\\"</text>';
+
+        } else if (cat === 'hss_rect') {
+          var hssH = 160;
+          var hssW = 120;
+          var wall = 14;
+
+          svgHtml += '<rect x=\"' + (cx - hssW/2) + '\" y=\"' + (cy - hssH/2) + '\" width=\"' + hssW + '\" height=\"' + hssH + '\" rx=\"8\" fill=\"none\" stroke=\"#3b82f6\" stroke-width=\"' + wall + '\"/>';
+          svgHtml += '<line x1=\"' + (cx - hssW/2 - 40) + '\" y1=\"' + cy + '\" x2=\"' + (cx + hssW/2 + 40) + '\" y2=\"' + cy + '\" stroke=\"#ef4444\" stroke-width=\"2\" stroke-dasharray=\"6,3\"/>';
+          svgHtml += '<text x=\"' + cx + '\" y=\"' + (cy + 5) + '\" fill=\"#ef4444\" font-size=\"11\" text-anchor=\"middle\" font-weight=\"bold\">HSS Tubular Section</text>';
+
+        } else {
+          // General plate/channel profile
+          svgHtml += '<rect x=\"' + (cx - 100) + '\" y=\"' + (cy - 70) + '\" width=\"200\" height=\"140\" rx=\"4\" fill=\"var(--surface)\" stroke=\"#3b82f6\" stroke-width=\"3\"/>';
+          svgHtml += '<line x1=\"' + (cx - 140) + '\" y1=\"' + cy + '\" x2=\"' + (cx + 140) + '\" y2=\"' + cy + '\" stroke=\"#ef4444\" stroke-width=\"2\" stroke-dasharray=\"6,3\"/>';
+          svgHtml += '<text x=\"' + cx + '\" y=\"' + (cy + 5) + '\" fill=\"var(--fg)\" font-size=\"12\" text-anchor=\"middle\" font-weight=\"bold\">Structural Shape</text>';
+        }
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copySteelSpec() {
+        var cat = document.getElementById('ssCategory').value;
+        var name = cat === 'plate' ? 'Steel Plate ' + document.getElementById('ssPlateWidth').value + '" x ' + document.getElementById('ssPlateThick').value + '"' : document.getElementById('ssPreset').options[document.getElementById('ssPreset').selectedIndex].text;
+        var totalWt = document.getElementById('ssTotalWeight').textContent;
+        var tons = document.getElementById('ssTons').textContent;
+        var unitWt = document.getElementById('ssUnitWeight').textContent;
+        var sx = document.getElementById('ssSx').textContent;
+        var ix = document.getElementById('ssIx').textContent;
+        var ma = document.getElementById('ssMa').textContent;
+        var cost = document.getElementById('ssTotalCost').textContent;
+
+        var text = '🏗️ Structural Steel Material Spec & Capacity\\n' +
+          '• Designation: ' + name + '\\n' +
+          '• Length: ' + document.getElementById('ssLength').value + ' ft x ' + document.getElementById('ssQuantity').value + ' Qty\\n' +
+          '• Unit Weight: ' + unitWt + '\\n' +
+          '• Total Weight: ' + totalWt + ' (' + tons + ')\\n' +
+          '• Elastic Section Modulus (S_x): ' + sx + '\\n' +
+          '• Moment of Inertia (I_x): ' + ix + '\\n' +
+          '• Allowable Bending Moment (M_a): ' + ma + '\\n' +
+          '• Estimated Cost: ' + cost + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/structural-steel-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copySsBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Steel Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      document.getElementById('ssCategory').addEventListener('change', updatePresets);
+
+      var inputs = ['ssPreset', 'ssPlateWidth', 'ssPlateThick', 'ssLength', 'ssQuantity', 'ssGrade', 'ssPriceLb'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcSteel);
+          el.addEventListener('change', calcSteel);
+        }
+      });
+
+      document.getElementById('copySsBtn').addEventListener('click', copySteelSpec);
+
+      updatePresets();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'structural-steel-calculator.html'), renderTradePage({
+    title: "Structural Steel Calculator: Weight, Section Modulus & Beam Sizing | Digital Tools Shed",
+    metaDesc: "Calculate structural steel weight, tonnage, elastic section modulus (S_x), and allowable bending moment capacity across AISC W-beams, HSS tubes, channels, and plates.",
+    canonical: `${DOMAIN}/calc/structural-steel-calculator`,
+    bodyContent: structuralSteelBody,
+    currentPath: '/calc/structural-steel-calculator',
+    faq: [
+      {
+        "q": "How do you calculate structural steel weight?",
+        "a": "Structural steel weight is calculated based on steel's standard density of $0.2836\\text{ lb/in}^3$ ($490\\text{ lb/ft}^3$ or $7,850\\text{ kg/m}^3$). For standard AISC shapes (W-beams, channels, angles), unit weight in pounds per linear foot is part of the designation (e.g. W12x26 weighs exactly 26.0 lbs/ft). Multiply unit weight by total length and quantity."
+      },
+      {
+        "q": "What is elastic section modulus (S_x)?",
+        "a": "The elastic section modulus ($S_x = I_x / c$) measures a cross-section's geometric resistance to bending about its primary axis ($X-X$). Higher section modulus values allow a beam to support greater bending moments ($M = \\sigma \\cdot S$) before reaching structural steel yield stress ($F_y$)."
+      },
+      {
+        "q": "What is the difference between A36 and A992 steel?",
+        "a": "ASTM A36 is legacy carbon structural steel with a minimum yield strength of $36\\text{ ksi}$ (used primarily for plates, angles, and channels). ASTM A992 is the modern structural standard for wide-flange W-beams, offering a minimum yield strength of $50\\text{ ksi}$ and superior seismic weldability."
+      },
+      {
+        "q": "What is lateral torsional buckling?",
+        "a": "When a beam bends about its strong axis, the top flange experiences high compressive stress. If the top flange lacks adequate lateral bracing along its span, it will buckle sideways while the tension flange remains straight, causing catastrophic twisting and sudden structural collapse."
+      },
+      {
+        "q": "What is the allowable bending moment (M_a) in AISC ASD?",
+        "a": "Under AISC 360 Allowable Stress Design (ASD), allowable bending moment for compact, fully laterally braced steel members is: $M_a = 0.66 \\times F_y \\times S_x$ (in-kips). Dividing by 12 converts the allowable moment to kip-feet."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // WIRE AMPACITY CALCULATOR & NEC DERATING ENGINE
+  // ─────────────────────────────────────────────────────────────────────────────
+  const wireAmpacityBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Wire Ampacity Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Wire Ampacity Calculator: NEC 310.16 Derating Engine</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate National Electrical Code (NEC 2023/2026) conductor allowable ampacity with ambient temperature correction (Table 310.15(B)(1)), conduit bundling adjustments (Table 310.15(C)(1)), terminal ratings (NEC 110.14(C)), and small conductor OCPD limits (NEC 240.4(D)).
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/></svg>
+        Conductor & Environment
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="waGauge">Wire Gauge (AWG / kcmil)</label>
+          <select id="waGauge" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="14">14 AWG</option>
+            <option value="12" selected>12 AWG</option>
+            <option value="10">10 AWG</option>
+            <option value="8">8 AWG</option>
+            <option value="6">6 AWG</option>
+            <option value="4">4 AWG</option>
+            <option value="3">3 AWG</option>
+            <option value="2">2 AWG</option>
+            <option value="1">1 AWG</option>
+            <option value="1/0">1/0 AWG</option>
+            <option value="2/0">2/0 AWG</option>
+            <option value="3/0">3/0 AWG</option>
+            <option value="4/0">4/0 AWG</option>
+            <option value="250">250 kcmil</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="waMetal">Conductor Material</label>
+          <select id="waMetal" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+            <option value="cu" selected>Copper (Cu)</option>
+            <option value="al">Aluminum / Copper-Clad (Al)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="waInsul">Insulation Rating (&deg;C)</label>
+          <select id="waInsul" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="90" selected>90&deg;C (THHN, THWN-2, XHHW-2)</option>
+            <option value="75">75&deg;C (THW, THWN, SE)</option>
+            <option value="60">60&deg;C (TW, UF-B, NM-B sheath)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="waTerminal">Equipment Terminal Rating</label>
+          <select id="waTerminal" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="75" selected>75&deg;C (Standard Breaker / Lug)</option>
+            <option value="60">60&deg;C (Older &le;100A Breakers)</option>
+            <option value="90">90&deg;C (Special Industrial Equipment)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="waAmbient">Ambient Temperature (&deg;F)</label>
+          <input type="number" id="waAmbient" value="86" min="50" max="160" step="2" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Standard 86&deg;F (30&deg;C); Attics ~120-140&deg;F</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="waBundled">Conductors in Raceway</label>
+          <input type="number" id="waBundled" value="3" min="1" max="40" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Current-carrying conductors</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
+        <input type="checkbox" id="waContinuous" checked style="width:18px;height:18px;accent-color:#3b82f6;">
+        <label for="waContinuous" style="font-size:0.875rem;font-weight:600;cursor:pointer;">Continuous Load (Runs &ge; 3 hours &mdash; 80% Rule)</label>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            NEC Ampacity Output
+          </h2>
+          <button id="copyWaBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Ampacity Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Final Allowable Ampacity</span>
+            <span id="waFinalAmpacity" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#10b981;display:block;">20.0 Amps</span>
+            <span id="waBreakerLimit" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Max 20A Circuit Breaker</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Max Continuous Load</span>
+            <span id="waContinuousAmp" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">16.0 Amps</span>
+            <span id="waContinuousPct" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">80% Continuous Limit</span>
+          </div>
+        </div>
+
+        <!-- DERATING COEFFICIENT BREAKDOWN -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">NEC 310.16 Base Ampacity:</span>
+            <strong id="waBaseAmp" style="font-family:var(--mono);">30 Amps (90&deg;C Column)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Ambient Temp Factor (Table 310.15(B)(1)):</span>
+            <strong id="waTempFactor" style="font-family:var(--mono);color:#f59e0b;">1.00 (86&deg;F Baseline)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Bundling Factor (Table 310.15(C)(1)):</span>
+            <strong id="waBundleFactor" style="font-family:var(--mono);">1.00 (1-3 Conductors)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Terminal Ceiling (NEC 110.14(C)):</span>
+            <strong id="waTerminalCeiling" style="font-family:var(--mono);">25 Amps (75&deg;C Lug Limit)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Small Conductor Rule (NEC 240.4(D)):</span>
+            <strong id="waSmallRule" style="font-family:var(--mono);color:#ef4444;">Applies: Max 20A OCPD</strong>
+          </div>
+        </div>
+
+        <!-- STATUS BADGE -->
+        <div id="waBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG CONDUIT CROSS-SECTION & THERMOMETER SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Conduit Bundling Thermal Gradient & Ampacity Gauge</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector cross-section displaying conductor fill geometry, mutual heating derating threshold, and allowable current gauge.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="waConduitSvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & NEC FORMULAS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">National Electrical Code Principles: Ampacity Derating Physics</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Electrical current flowing through a conductor generates $I^2 R$ resistive joule heating. Conductor ampacity is strictly limited by the thermal breakdown of insulation and connected breaker terminals.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Derated Conductor Ampacity:</strong><br>
+      I_{\\text{derated}} = I_{\\text{base, 90}^\\circ\\text{C}} \\times K_{\\text{temperature}} \\times K_{\\text{bundling}}<br><br>
+      <strong>2. Terminal Temperature Rating Override (NEC 110.14(C)):</strong><br>
+      I_{\\text{allowable}} = \\min\\big(I_{\\text{derated}}, I_{\\text{terminal, 75}^\\circ\\text{C}}\\big)<br><br>
+      <strong>3. Small Conductor Overcurrent Protection (NEC 240.4(D)):</strong><br>
+      14\\text{ AWG Cu} \\le 15\\text{A} \\quad | \\quad 12\\text{ AWG Cu} \\le 20\\text{A} \\quad | \\quad 10\\text{ AWG Cu} \\le 30\\text{A}<br><br>
+      <strong>4. Continuous Duty 80% Rule (NEC 210.19 / 215.2):</strong><br>
+      I_{\\text{continuous max}} = 0.80 \\times I_{\\text{allowable}}
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL NEC AMPACITY TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The 90&deg;C Terminal Rating Delusion</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Just because THHN wire has a 90&deg;C insulation rating does NOT mean you can run 12 AWG copper at 30 amps! Circuit breaker lugs and receptacles are rated at 75&deg;C (or 60&deg;C). Under NEC 110.14(C), the conductor cannot exceed the terminal temperature rating at full operating load.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. The Scorched Attic Temperature Trap</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Attics in summer easily reach 130&deg;F to 140&deg;F. At 135&deg;F, NEC Table 310.15(B)(1) slashes allowable ampacity to 0.71 of baseline. Running unadjusted circuits through hot attics bakes the PVC insulation, causing embrittlement and arc faults.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Conduit Bundling Thermal Choke</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Pulling 10 current-carrying conductors through a single EMT conduit drops ampacity by 50% under Table 310.15(C)(1). Without this adjustment, heat cannot dissipate through the conduit wall, cooking all wires simultaneously.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Neutral Conductor Harmonic Counting Error</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        In typical balanced 3-phase circuits, neutrals carry zero net current. But for non-linear electronic loads (computers, LED drivers, variable speed drives), triplen harmonics add in the neutral, making it a current-carrying conductor that MUST be counted for derating.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Aluminum Lug Creep & Galvanic Fires</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Terminating aluminum wire on lugs rated only for copper (or failing to torque to manufacturer spec with a calibrated torque screwdriver) causes thermal expansion mismatch, oxidation, and loose high-resistance arcing joints that start electrical fires.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      // NEC Table 310.16 Base Ampacities
+      var necTable = {
+        cu: {
+          '14': { c60: 15, c75: 20, c90: 25, smallMax: 15 },
+          '12': { c60: 20, c75: 25, c90: 30, smallMax: 20 },
+          '10': { c60: 30, c75: 35, c90: 40, smallMax: 30 },
+          '8':  { c60: 40, c75: 50, c90: 55, smallMax: null },
+          '6':  { c60: 55, c75: 65, c90: 75, smallMax: null },
+          '4':  { c60: 70, c75: 85, c90: 95, smallMax: null },
+          '3':  { c60: 85, c75: 100, c90: 115, smallMax: null },
+          '2':  { c60: 95, c75: 115, c90: 130, smallMax: null },
+          '1':  { c60: 110, c75: 130, c90: 145, smallMax: null },
+          '1/0': { c60: 125, c75: 150, c90: 170, smallMax: null },
+          '2/0': { c60: 145, c75: 175, c90: 195, smallMax: null },
+          '3/0': { c60: 165, c75: 200, c90: 225, smallMax: null },
+          '4/0': { c60: 195, c75: 230, c90: 260, smallMax: null },
+          '250': { c60: 215, c75: 255, c90: 290, smallMax: null }
+        },
+        al: {
+          '12': { c60: 15, c75: 20, c90: 25, smallMax: 15 },
+          '10': { c60: 25, c75: 30, c90: 35, smallMax: 25 },
+          '8':  { c60: 35, c75: 40, c90: 45, smallMax: null },
+          '6':  { c60: 45, c75: 50, c90: 60, smallMax: null },
+          '4':  { c60: 55, c75: 65, c90: 75, smallMax: null },
+          '3':  { c60: 65, c75: 75, c90: 85, smallMax: null },
+          '2':  { c60: 75, c75: 90, c90: 100, smallMax: null },
+          '1':  { c60: 85, c75: 100, c90: 115, smallMax: null },
+          '1/0': { c60: 100, c75: 120, c90: 135, smallMax: null },
+          '2/0': { c60: 115, c75: 135, c90: 150, smallMax: null },
+          '3/0': { c60: 130, c75: 155, c90: 175, smallMax: null },
+          '4/0': { c60: 150, c75: 180, c90: 205, smallMax: null },
+          '250': { c60: 170, c75: 205, c90: 230, smallMax: null }
+        }
+      };
+
+      // Table 310.15(B)(1) Ambient Temperature Derating (30 deg C / 86 deg F baseline)
+      function getTempFactor(tempF, rating) {
+        if (rating === '90') {
+          if (tempF <= 70) return 1.08;
+          if (tempF <= 86) return 1.00;
+          if (tempF <= 95) return 0.96;
+          if (tempF <= 104) return 0.91;
+          if (tempF <= 113) return 0.87;
+          if (tempF <= 122) return 0.82;
+          if (tempF <= 131) return 0.76;
+          if (tempF <= 140) return 0.71;
+          if (tempF <= 158) return 0.58;
+          return 0.41;
+        } else if (rating === '75') {
+          if (tempF <= 70) return 1.11;
+          if (tempF <= 86) return 1.00;
+          if (tempF <= 95) return 0.94;
+          if (tempF <= 104) return 0.88;
+          if (tempF <= 113) return 0.82;
+          if (tempF <= 122) return 0.75;
+          if (tempF <= 131) return 0.67;
+          if (tempF <= 140) return 0.58;
+          if (tempF <= 158) return 0.33;
+          return 0.00;
+        } else {
+          // 60C
+          if (tempF <= 70) return 1.15;
+          if (tempF <= 86) return 1.00;
+          if (tempF <= 95) return 0.91;
+          if (tempF <= 104) return 0.82;
+          if (tempF <= 113) return 0.71;
+          if (tempF <= 122) return 0.58;
+          if (tempF <= 131) return 0.41;
+          return 0.00;
+        }
+      }
+
+      // Table 310.15(C)(1) Bundling adjustment factor
+      function getBundleFactor(n) {
+        if (n <= 3) return 1.00;
+        if (n <= 6) return 0.80;
+        if (n <= 9) return 0.70;
+        if (n <= 20) return 0.50;
+        if (n <= 30) return 0.45;
+        return 0.35;
+      }
+
+      function calcAmpacity() {
+        var gauge = document.getElementById('waGauge').value;
+        var metal = document.getElementById('waMetal').value;
+        var insul = document.getElementById('waInsul').value;
+        var terminal = document.getElementById('waTerminal').value;
+        var ambientF = parseFloat(document.getElementById('waAmbient').value) || 86;
+        var bundled = parseInt(document.getElementById('waBundled').value, 10) || 3;
+        var isContinuous = document.getElementById('waContinuous').checked;
+
+        var metalData = necTable[metal] || necTable.cu;
+        var wireData = metalData[gauge];
+        if (!wireData) {
+          // Fallback to Cu if Al doesn't have 14 AWG
+          metalData = necTable.cu;
+          wireData = metalData[gauge] || metalData['12'];
+        }
+
+        // Base ampacity from selected insulation column
+        var baseAmp = insul === '90' ? wireData.c90 : insul === '75' ? wireData.c75 : wireData.c60;
+
+        // Derating factors
+        var tempFactor = getTempFactor(ambientF, insul);
+        var bundleFactor = getBundleFactor(bundled);
+
+        // Derated ampacity starting from insulation column
+        var deratedAmp = baseAmp * tempFactor * bundleFactor;
+
+        // Terminal ceiling check: ampacity cannot exceed terminal rating at standard ambient
+        var terminalLimit = terminal === '90' ? wireData.c90 : terminal === '75' ? wireData.c75 : wireData.c60;
+        var allowableAmp = Math.min(deratedAmp, terminalLimit);
+
+        // Small conductor rule check (NEC 240.4(D))
+        var finalAmp = allowableAmp;
+        var smallRuleApplies = false;
+        if (wireData.smallMax !== null && wireData.smallMax < allowableAmp) {
+          finalAmp = wireData.smallMax;
+          smallRuleApplies = true;
+        }
+
+        // Continuous load (80% rule)
+        var maxContinuous = isContinuous ? (finalAmp * 0.80) : finalAmp;
+
+        // DOM updates
+        document.getElementById('waFinalAmpacity').textContent = finalAmp.toFixed(1) + ' Amps';
+        document.getElementById('waBreakerLimit').textContent = 'Max ' + Math.floor(finalAmp) + 'A Overcurrent Device';
+        document.getElementById('waContinuousAmp').textContent = maxContinuous.toFixed(1) + ' Amps';
+        document.getElementById('waContinuousPct').textContent = isContinuous ? '80% Continuous Duty Rating' : '100% Non-Continuous Duty';
+
+        document.getElementById('waBaseAmp').textContent = baseAmp + ' Amps (' + insul + '\u00B0C Table 310.16)';
+        document.getElementById('waTempFactor').textContent = tempFactor.toFixed(2) + ' (' + ambientF + '\u00B0F Ambient)';
+        document.getElementById('waBundleFactor').textContent = bundleFactor.toFixed(2) + ' (' + bundled + ' Conductors in Raceway)';
+        document.getElementById('waTerminalCeiling').textContent = terminalLimit + ' Amps (' + terminal + '\u00B0C Terminal Cap)';
+
+        if (smallRuleApplies) {
+          document.getElementById('waSmallRule').textContent = 'MANDATORY: Max ' + wireData.smallMax + 'A OCPD';
+          document.getElementById('waSmallRule').style.color = '#ef4444';
+        } else {
+          document.getElementById('waSmallRule').textContent = 'Not Applicable (>10 AWG)';
+          document.getElementById('waSmallRule').style.color = '#10b981';
+        }
+
+        // Badge
+        var badge = document.getElementById('waBadge');
+        var pctOfBase = (finalAmp / baseAmp) * 100;
+        if (pctOfBase >= 85) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'High Thermal Efficiency (' + pctOfBase.toFixed(0) + '% of Table Ampacity)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Conductor is operating with minimal thermal penalty. Adequate conduit sizing and moderate ambient conditions preserve cable life.' +
+            '</div>';
+        } else if (pctOfBase >= 60) {
+          badge.style.background = 'rgba(245, 158, 11, 0.1)';
+          badge.style.border = '1px solid #f59e0b';
+          badge.style.color = '#f59e0b';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Moderate Derating Penalty (' + pctOfBase.toFixed(0) + '% of Base)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Ambient heat or conductor bundling has derated available ampacity. Consider upsizing wire gauge if higher load current is needed.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'SEVERE DERATING PENALTY (' + pctOfBase.toFixed(0) + '% of Base)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Extreme ambient heat or excessive conduit packing has slashed conductor capacity by more than 40%. Split conductors into separate raceways or reroute away from heat.' +
+            '</div>';
+        }
+
+        renderConduit(bundled, ambientF, finalAmp);
+      }
+
+      function renderConduit(n, tempF, amp) {
+        var svg = document.getElementById('waConduitSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 300;
+        var cx = 220;
+        var cy = 150;
+        var conduitR = 85;
+
+        var svgHtml = '';
+
+        // Ambient heat background halo
+        var heatCol = tempF > 115 ? 'rgba(239, 68, 68, 0.15)' : tempF > 95 ? 'rgba(245, 158, 11, 0.12)' : 'rgba(59, 130, 246, 0.08)';
+        svgHtml += '<circle cx=\"' + cx + '\" cy=\"' + cy + '\" r=\"' + (conduitR + 35) + '\" fill=\"' + heatCol + '\" stroke=\"none\"/>';
+
+        // Conduit outer ring (EMT steel)
+        svgHtml += '<circle cx=\"' + cx + '\" cy=\"' + cy + '\" r=\"' + conduitR + '\" fill=\"var(--surface)\" stroke=\"#64748b\" stroke-width=\"4\"/>';
+        svgHtml += '<text x=\"' + cx + '\" y=\"' + (cy + conduitR + 25) + '\" fill=\"var(--text-muted)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Raceway Raceway (' + n + ' Conductors)</text>';
+
+        // Draw individual conductors
+        var displayN = Math.min(n, 12);
+        var wireR = Math.max(8, Math.min(18, 50 / Math.sqrt(displayN)));
+        for (var i = 0; i < displayN; i++) {
+          var ang = (i / displayN) * 2 * Math.PI;
+          var rDist = displayN === 1 ? 0 : conduitR * 0.52;
+          var wx = cx + Math.cos(ang) * rDist;
+          var wy = cy + Math.sin(ang) * rDist;
+
+          var copperCol = '#f97316';
+          var insulCol = i % 3 === 0 ? '#1e293b' : i % 3 === 1 ? '#ef4444' : '#3b82f6';
+
+          // Insulation jacket
+          svgHtml += '<circle cx=\"' + wx + '\" cy=\"' + wy + '\" r=\"' + wireR + '\" fill=\"' + insulCol + '\" stroke=\"#ffffff\" stroke-width=\"1.5\"/>';
+          // Copper core
+          svgHtml += '<circle cx=\"' + wx + '\" cy=\"' + wy + '\" r=\"' + (wireR * 0.6) + '\" fill=\"' + copperCol + '\"/>';
+        }
+
+        // Thermometer / Gauge on the right
+        var thX = 540;
+        var thY = 50;
+        var thW = 28;
+        var thH = 180;
+
+        svgHtml += '<rect x=\"' + thX + '\" y=\"' + thY + '\" width=\"' + thW + '\" height=\"' + thH + '\" rx=\"14\" fill=\"var(--bg)\" stroke=\"var(--border)\" stroke-width=\"2\"/>';
+        var fillH = Math.min(thH - 10, (amp / 100) * (thH - 10));
+        svgHtml += '<rect x=\"' + (thX + 4) + '\" y=\"' + (thY + thH - fillH - 4) + '\" width=\"' + (thW - 8) + '\" height=\"' + fillH + '\" rx=\"10\" fill=\"#10b981\"/>';
+
+        svgHtml += '<text x=\"' + (thX + thW + 20) + '\" y=\"' + (thY + 25) + '\" fill=\"var(--fg)\" font-size=\"14\" font-weight=\"800\">' + amp.toFixed(1) + ' A</text>';
+        svgHtml += '<text x=\"' + (thX + thW + 20) + '\" y=\"' + (thY + 45) + '\" fill=\"var(--text-muted)\" font-size=\"11\">Continuous Safe Limit</text>';
+
+        svgHtml += '<text x=\"' + (thX + thW + 20) + '\" y=\"' + (thY + 90) + '\" fill=\"#f59e0b\" font-size=\"12\" font-weight=\"bold\">' + tempF + '&deg;F Ambient</text>';
+        svgHtml += '<text x=\"' + (thX + thW + 20) + '\" y=\"' + (thY + 110) + '\" fill=\"var(--text-muted)\" font-size=\"11\">Surrounding Temperature</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyAmpacitySpec() {
+        var finalAmp = document.getElementById('waFinalAmpacity').textContent;
+        var breaker = document.getElementById('waBreakerLimit').textContent;
+        var cont = document.getElementById('waContinuousAmp').textContent;
+        var base = document.getElementById('waBaseAmp').textContent;
+        var tempF = document.getElementById('waTempFactor').textContent;
+        var bndl = document.getElementById('waBundleFactor').textContent;
+        var term = document.getElementById('waTerminalCeiling').textContent;
+        var small = document.getElementById('waSmallRule').textContent;
+
+        var text = '⚡ NEC Conductor Ampacity & Derating Spec\\n' +
+          '• Wire: ' + document.getElementById('waGauge').value + ' ' + (document.getElementById('waMetal').value === 'cu' ? 'Copper' : 'Aluminum') + ' (' + document.getElementById('waInsul').value + '°C)\\n' +
+          '• Final Allowable Ampacity: ' + finalAmp + ' (' + breaker + ')\\n' +
+          '• Max Continuous Duty Load: ' + cont + '\\n\\n' +
+          'NEC Derating Calculations:\\n' +
+          '• Base Ampacity (Table 310.16): ' + base + '\\n' +
+          '• Ambient Temp Factor: ' + tempF + '\\n' +
+          '• Bundling Factor: ' + bndl + '\\n' +
+          '• Terminal Rating Cap: ' + term + '\\n' +
+          '• Small Conductor 240.4(D): ' + small + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/wire-ampacity-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyWaBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Ampacity Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['waGauge', 'waMetal', 'waInsul', 'waTerminal', 'waAmbient', 'waBundled', 'waContinuous'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcAmpacity);
+          el.addEventListener('change', calcAmpacity);
+        }
+      });
+
+      document.getElementById('copyWaBtn').addEventListener('click', copyAmpacitySpec);
+
+      calcAmpacity();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'wire-ampacity-calculator.html'), renderTradePage({
+    title: "Wire Ampacity Calculator: NEC 310.16 Derating & Table | Digital Tools Shed",
+    metaDesc: "Calculate allowable conductor ampacity under NEC 2023/2026 with ambient temperature correction (Table 310.15(B)(1)), conduit bundling, and 110.14(C) terminal ratings.",
+    canonical: `${DOMAIN}/calc/wire-ampacity-calculator`,
+    bodyContent: wireAmpacityBody,
+    currentPath: '/calc/wire-ampacity-calculator',
+    faq: [
+      {
+        "q": "How do you calculate wire ampacity?",
+        "a": "Look up the conductor's baseline ampacity in NEC Table 310.16 based on wire gauge, metal (copper or aluminum), and insulation temperature rating (60°C, 75°C, or 90°C). Then multiply by ambient temperature correction factors ($K_{\\text{temp}}$ from Table 310.15(B)(1)) and raceway bundling adjustment factors ($K_{\\text{bundle}}$ from Table 310.15(C)(1)). The final ampacity cannot exceed the temperature rating of the connected circuit breaker terminals (NEC 110.14(C))."
+      },
+      {
+        "q": "What is the NEC Small Conductor Rule (240.4(D))?",
+        "a": "Section 240.4(D) of the National Electrical Code sets hard upper limits on overcurrent protection devices (circuit breakers and fuses) for small copper conductors regardless of derated ampacity: 14 AWG is limited to a maximum 15A breaker, 12 AWG is limited to a maximum 20A breaker, and 10 AWG is limited to a maximum 30A breaker."
+      },
+      {
+        "q": "Can I use the 90°C column for THHN wire?",
+        "a": "Yes, but ONLY as the starting point for derating calculations. Under NEC 110.14(C), the final allowable ampacity after applying temperature and bundling derating cannot exceed the conductor's ampacity at the rating of the terminal lugs (which are almost universally rated at 75°C on modern circuit breakers, or 60°C on older equipment rated 100A or less)."
+      },
+      {
+        "q": "What is the 80% continuous load rule?",
+        "a": "Under NEC 210.19(A) and 215.2(A), a continuous load is defined as any load where maximum current is expected to continue for 3 hours or more (such as electric vehicle chargers, commercial lighting, or electric resistance heaters). Branch circuit conductors and overcurrent devices must be sized at 125% of the continuous load (meaning a standard breaker cannot be loaded beyond 80% of its rated capacity)."
+      },
+      {
+        "q": "How does conduit bundling affect wire temperature?",
+        "a": "When multiple current-carrying conductors are installed together in a raceway or cable bundle, mutual thermal radiation prevents heat from escaping. As a result, NEC Table 310.15(C)(1) mandates derating factors: 4 to 6 conductors must be derated to 80%, 7 to 9 conductors to 70%, and 10 to 20 conductors to 50% of rated ampacity."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // REFRIGERANT CHARGE & LINESET ADDER CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const refrigerantChargeBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Refrigerant Charge Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Refrigerant Charge & Lineset Adder Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate total weighed-in system refrigerant charge (lbs, oz & grams) for R-410A, R-454B (Opteon XL41), R-32, and R-22. Includes liquid line length adjustments, factory 15-ft credit, evaporator coil match deltas, and scale tare targets.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M8 12h8\"/><path d=\"M12 8v8\"/></svg>
+        Equipment & Lineset Specs
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rcRefrigerant">Refrigerant Type</label>
+        <select id="rcRefrigerant" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="R410A" selected>R-410A (Puron / HFC Standard)</option>
+          <option value="R454B">R-454B (Opteon XL41 / Low-GWP A2L Transition)</option>
+          <option value="R32">R-32 (Pure A2L HFC)</option>
+          <option value="R22">R-22 (Freon / Legacy HCFC)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rcFactoryLbs">Factory Nameplate (lbs)</label>
+          <input type="number" id="rcFactoryLbs" value="5" min="0" max="50" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Condenser data plate lbs</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rcFactoryOz">Factory Nameplate (oz)</label>
+          <input type="number" id="rcFactoryOz" value="8" min="0" max="15.9" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Additional ounces</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rcLiquidDia">Liquid Line OD (Inches)</label>
+          <select id="rcLiquidDia" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="1/4">1/4" OD (Mini-Split / Micro)</option>
+            <option value="5/16">5/16" OD (Compact)</option>
+            <option value="3/8" selected>3/8" OD (Standard Residential 1.5 - 5 Ton)</option>
+            <option value="1/2">1/2" OD (Large Commercial 5+ Ton)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rcLinesetLen">Total Lineset Length (ft)</label>
+          <input type="number" id="rcLinesetLen" value="45" min="5" max="300" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">One-way tubing distance</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rcPrechargeCredit">Factory Precharge (ft)</label>
+          <input type="number" id="rcPrechargeCredit" value="15" min="0" max="50" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Standard 15 ft factory credit</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rcCoilDelta">Indoor Coil Delta (oz)</label>
+          <input type="number" id="rcCoilDelta" value="0" min="-30" max="50" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Non-matched coil adjustment</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
+        <input type="checkbox" id="rcFilterDrier" checked style="width:18px;height:18px;accent-color:#3b82f6;">
+        <label for="rcFilterDrier" style="font-size:0.875rem;font-weight:600;cursor:pointer;">Add Liquid Line Filter Drier Allowance (+1.5 oz)</label>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Weighed-In Target Charge
+          </h2>
+          <button id="copyRcBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Charge Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total System Target Charge</span>
+            <span id="rcTotalTarget" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#10b981;display:block;">6 lbs 9.5 oz</span>
+            <span id="rcTotalGrams" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">2,991 Grams (6.59 lbs)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Field Add-On Charge</span>
+            <span id="rcFieldAddOn" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">+17.5 oz</span>
+            <span id="rcAddOnSub" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">1 lb 1.5 oz Added</span>
+          </div>
+        </div>
+
+        <!-- DETAILED CHARGE DERIVATIONS -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Net Adjust Length (After 15' Credit):</span>
+            <strong id="rcNetLength" style="font-family:var(--mono);">+30.0 ft (45' - 15')</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Liquid Line Adder Rate:</span>
+            <strong id="rcLineRate" style="font-family:var(--mono);color:#f59e0b;">0.60 oz / ft (3/8" OD)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Liquid Line Total Adder:</span>
+            <strong id="rcLiquidAdder" style="font-family:var(--mono);">+18.0 oz</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Filter Drier & Coil Adjustment:</span>
+            <strong id="rcAccessories" style="font-family:var(--mono);">+1.5 oz</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Target Subcooling (TXV Mode):</span>
+            <strong id="rcTargetSC" style="font-family:var(--mono);">10&deg;F - 12&deg;F &plusmn; 2&deg;F</strong>
+          </div>
+        </div>
+
+        <!-- STATUS BADGE -->
+        <div id="rcBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG SPLIT SYSTEM CHARGING SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Split System Refrigerant Loop & Digital Charging Scale</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector schematic illustrating the outdoor condensing unit, copper lineset run, indoor A-coil, and precision refrigerant cylinder on a digital scale.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="rcSchematicSvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & CHARGING PHYSICS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Thermodynamic Physics: Weighed-In Charge & Liquid Density</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Refrigerant circulating systems must maintain an exact mass inventory. The liquid line contains subcooled liquid with high density (~$65\\text{ lb/ft}^3$), requiring strict oz/foot linear adjustments.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Net Adjustment Lineset Length:</strong><br>
+      L_{\\text{net}} = L_{\\text{installed}} - L_{\\text{factory credit}} \\quad (\\text{standard } 15\\text{ ft})<br><br>
+      <strong>2. Linear Liquid Line Charge Adder:</strong><br>
+      \\Delta W_{\\text{line}} = L_{\\text{net}} \\times R_{\\text{liquid}} \\quad (\\text{ounces})<br><br>
+      <strong>3. Total System Mass Charge:</strong><br>
+      W_{\\text{total}} = W_{\\text{factory}} + \\Delta W_{\\text{line}} + \\Delta W_{\\text{coil}} + W_{\\text{drier}}<br><br>
+      <strong>4. Standard Liquid Line Multipliers (R-410A / R-454B):</strong><br>
+      1/4'' \\text{ OD} = 0.25\\text{ oz/ft} \\quad | \\quad 5/16'' \\text{ OD} = 0.43\\text{ oz/ft} \\quad | \\quad 3/8'' \\text{ OD} = 0.60\\text{ oz/ft} \\quad | \\quad 1/2'' \\text{ OD} = 1.20\\text{ oz/ft}
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL REFRIGERANT CHARGING TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. Charging A2L (R-454B) as a Vapor</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Next-gen low-GWP R-454B (Opteon XL41) is a zeotropic blend (68.9% R-32 / 31.1% R-1234yf) with temperature glide. Charging as a vapor boils off the lighter R-32 component first, permanently altering the chemical composition in the cylinder and reducing system capacity. ALWAYS charge liquid!
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. The 15-Foot Factory Pre-Charge Assumption</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Residential condensers ship pre-charged for exactly 15 feet of lineset. Installing a 50-foot run without adding the required 21 oz of refrigerant starves the evaporator, causes coil freeze-up, and burns out the compressor motor from lack of cool suction gas.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Charging Fixed Orifice Systems by Subcooling</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Subcooling is ONLY valid for systems with a Thermal Expansion Valve (TXV). Fixed-orifice piston metering devices do not modulate; they MUST be charged using target superheat calculated from indoor wet-bulb and outdoor dry-bulb temperatures.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Overcharging Until the Suction Sweats</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        The archaic beer-can cold method has destroyed millions of compressors. Adding refrigerant until the suction line sweats floods liquid into the compressor crankcase, diluting POE lubricating oil and causing catastrophic hydraulic slugging.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Long Vertical Rise Oil Trapping</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        When linesets rise more than 20 vertical feet (e.g. ground condenser to attic air handler), refrigerant vapor velocity slows down. Omitting an inverted oil trap every 20 feet traps compressor oil in the evaporator, resulting in seized compressor bearings.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      // Linear ounces per foot of liquid line for different refrigerants
+      var chargeRates = {
+        R410A: { '1/4': 0.25, '5/16': 0.43, '3/8': 0.60, '1/2': 1.20 },
+        R454B: { '1/4': 0.23, '5/16': 0.40, '3/8': 0.57, '1/2': 1.15 },
+        R32:   { '1/4': 0.22, '5/16': 0.38, '3/8': 0.54, '1/2': 1.10 },
+        R22:   { '1/4': 0.26, '5/16': 0.45, '3/8': 0.63, '1/2': 1.25 }
+      };
+
+      function calcCharge() {
+        var ref = document.getElementById('rcRefrigerant').value;
+        var fLbs = parseFloat(document.getElementById('rcFactoryLbs').value) || 0;
+        var fOz = parseFloat(document.getElementById('rcFactoryOz').value) || 0;
+        var diaKey = document.getElementById('rcLiquidDia').value;
+        var totalLen = parseFloat(document.getElementById('rcLinesetLen').value) || 0;
+        var creditLen = parseFloat(document.getElementById('rcPrechargeCredit').value) || 0;
+        var coilDelta = parseFloat(document.getElementById('rcCoilDelta').value) || 0;
+        var hasDrier = document.getElementById('rcFilterDrier').checked;
+
+        var drierOz = hasDrier ? 1.5 : 0;
+        var netLen = totalLen - creditLen;
+
+        var refTable = chargeRates[ref] || chargeRates.R410A;
+        var rateOzPerFt = refTable[diaKey] || 0.60;
+
+        var lineAdderOz = netLen * rateOzPerFt;
+        var fieldAddOnOz = lineAdderOz + coilDelta + drierOz;
+
+        var baseTotalOz = (fLbs * 16) + fOz;
+        var finalTotalOz = baseTotalOz + fieldAddOnOz;
+
+        if (finalTotalOz < 0) finalTotalOz = 0;
+
+        var finalLbs = Math.floor(finalTotalOz / 16);
+        var finalOzRemainder = finalTotalOz % 16;
+        var totalGrams = finalTotalOz * 28.3495;
+
+        // DOM updates
+        document.getElementById('rcTotalTarget').textContent = finalLbs + ' lbs ' + finalOzRemainder.toFixed(1) + ' oz';
+        document.getElementById('rcTotalGrams').textContent = Math.round(totalGrams).toLocaleString() + ' Grams (' + (finalTotalOz / 16).toFixed(2) + ' lbs)';
+
+        var addSign = fieldAddOnOz >= 0 ? '+' : '';
+        document.getElementById('rcFieldAddOn').textContent = addSign + fieldAddOnOz.toFixed(1) + ' oz';
+        var addLbs = Math.floor(Math.abs(fieldAddOnOz) / 16);
+        var addOz = Math.abs(fieldAddOnOz) % 16;
+        document.getElementById('rcAddOnSub').textContent = (fieldAddOnOz >= 0 ? 'Add ' : 'Remove ') + addLbs + ' lb ' + addOz.toFixed(1) + ' oz into System';
+
+        document.getElementById('rcNetLength').textContent = (netLen >= 0 ? '+' : '') + netLen.toFixed(1) + ' ft (' + totalLen + '\' - ' + creditLen + '\' credit)';
+        document.getElementById('rcLineRate').textContent = rateOzPerFt.toFixed(2) + ' oz / ft (' + diaKey + '" OD)';
+        document.getElementById('rcLiquidAdder').textContent = (lineAdderOz >= 0 ? '+' : '') + lineAdderOz.toFixed(1) + ' oz';
+        document.getElementById('rcAccessories').textContent = (coilDelta + drierOz >= 0 ? '+' : '') + (coilDelta + drierOz).toFixed(1) + ' oz (Coil ' + coilDelta + ', Drier ' + drierOz + ')';
+
+        // Badge
+        var badge = document.getElementById('rcBadge');
+        if (fieldAddOnOz > 0) {
+          badge.style.background = 'rgba(59, 130, 246, 0.1)';
+          badge.style.border = '1px solid #3b82f6';
+          badge.style.color = '#3b82f6';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Field Refrigerant Addition Required' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Lineset exceeds factory pre-charge allowance. Place refrigerant cylinder on digital scale, zero scale, and throttle in ' + fieldAddOnOz.toFixed(1) + ' oz as liquid.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Factory Charge Sufficient' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Lineset is within factory pre-charge credit. Open service valves and verify target subcooling under full load.' +
+            '</div>';
+        }
+
+        renderSchematic(totalLen, finalLbs, finalOzRemainder);
+      }
+
+      function renderSchematic(len, lbs, oz) {
+        var svg = document.getElementById('rcSchematicSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 300;
+
+        var svgHtml = '';
+
+        // Outdoor Unit (Condenser) on left
+        svgHtml += '<rect x=\"60\" y=\"110\" width=\"120\" height=\"130\" rx=\"6\" fill=\"var(--surface)\" stroke=\"#3b82f6\" stroke-width=\"3\"/>';
+        svgHtml += '<circle cx=\"120\" cy=\"170\" r=\"35\" fill=\"none\" stroke=\"#3b82f6\" stroke-width=\"2\" stroke-dasharray=\"4,3\"/>';
+        svgHtml += '<text x=\"120\" y=\"145\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Condenser</text>';
+        svgHtml += '<text x=\"120\" y=\"205\" fill=\"#3b82f6\" font-size=\"10\" font-weight=\"600\" text-anchor=\"middle\">Compressor</text>';
+
+        // Indoor Unit (A-Coil) on right
+        svgHtml += '<rect x=\"620\" y=\"80\" width=\"110\" height=\"160\" rx=\"6\" fill=\"var(--surface)\" stroke=\"#10b981\" stroke-width=\"3\"/>';
+        svgHtml += '<path d=\"M 645 200 L 675 120 L 705 200\" fill=\"none\" stroke=\"#10b981\" stroke-width=\"3\"/>';
+        svgHtml += '<text x=\"675\" y=\"110\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Indoor A-Coil</text>';
+        svgHtml += '<text x=\"675\" y=\"225\" fill=\"#10b981\" font-size=\"10\" font-weight=\"600\" text-anchor=\"middle\">TXV Valve</text>';
+
+        // Connecting Lineset
+        // Liquid Line (Red/Copper high pressure liquid)
+        svgHtml += '<path d=\"M 180 180 L 620 180\" fill=\"none\" stroke=\"#ef4444\" stroke-width=\"3\"/>';
+        svgHtml += '<text x=\"400\" y=\"172\" fill=\"#ef4444\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">3/8\" High Pressure Liquid Line (' + len + ' ft)</text>';
+
+        // Suction Line (Blue insulated low pressure vapor)
+        svgHtml += '<path d=\"M 180 150 L 620 150\" fill=\"none\" stroke=\"#3b82f6\" stroke-width=\"6\"/>';
+        svgHtml += '<text x=\"400\" y=\"140\" fill=\"#3b82f6\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">3/4\" Insulated Suction Vapor Line</text>';
+
+        // Charging Scale & Tank below
+        var scaleX = 400;
+        var scaleY = 240;
+        svgHtml += '<rect x=\"' + (scaleX - 60) + '\" y=\"' + scaleY + '\" width=\"120\" height=\"24\" rx=\"4\" fill=\"var(--surface)\" stroke=\"var(--border)\" stroke-width=\"2\"/>';
+        svgHtml += '<rect x=\"' + (scaleX - 45) + '\" y=\"' + (scaleY + 4) + '\" width=\"90\" height=\"16\" rx=\"2\" fill=\"#0284c7\"/>';
+        svgHtml += '<text x=\"' + scaleX + '\" y=\"' + (scaleY + 16) + '\" fill=\"#ffffff\" font-size=\"11\" font-family=\"var(--mono)\" font-weight=\"bold\" text-anchor=\"middle\">' + lbs + ' lb ' + oz.toFixed(1) + ' oz</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyChargeSpec() {
+        var ref = document.getElementById('rcRefrigerant').value;
+        var total = document.getElementById('rcTotalTarget').textContent;
+        var grams = document.getElementById('rcTotalGrams').textContent;
+        var field = document.getElementById('rcFieldAddOn').textContent;
+        var netL = document.getElementById('rcNetLength').textContent;
+        var rate = document.getElementById('rcLineRate').textContent;
+        var sub = document.getElementById('rcTargetSC').textContent;
+
+        var text = '❄️ HVAC Refrigerant Charge & Weigh-In Spec\\n' +
+          '• Refrigerant: ' + ref + '\\n' +
+          '• Total Target System Charge: ' + total + ' (' + grams + ')\\n' +
+          '• Field Add-On Required: ' + field + '\\n' +
+          '• Lineset Length: ' + document.getElementById('rcLinesetLen').value + ' ft (Net: ' + netL + ')\\n' +
+          '• Liquid Line Size: ' + document.getElementById('rcLiquidDia').value + ' (' + rate + ')\\n' +
+          '• Target Subcooling: ' + sub + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/refrigerant-charge-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyRcBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Charge Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['rcRefrigerant', 'rcFactoryLbs', 'rcFactoryOz', 'rcLiquidDia', 'rcLinesetLen', 'rcPrechargeCredit', 'rcCoilDelta', 'rcFilterDrier'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcCharge);
+          el.addEventListener('change', calcCharge);
+        }
+      });
+
+      document.getElementById('copyRcBtn').addEventListener('click', copyChargeSpec);
+
+      calcCharge();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'refrigerant-charge-calculator.html'), renderTradePage({
+    title: "Refrigerant Charge Calculator: Lineset Adder & Weigh-In Target | Digital Tools Shed",
+    metaDesc: "Calculate total system weighed-in refrigerant charge in lbs and oz for R-410A, R-454B, R-32, and R-22. Includes lineset length adjustments and factory 15-ft credit.",
+    canonical: `${DOMAIN}/calc/refrigerant-charge-calculator`,
+    bodyContent: refrigerantChargeBody,
+    currentPath: '/calc/refrigerant-charge-calculator',
+    faq: [
+      {
+        "q": "How do you calculate additional refrigerant for long linesets?",
+        "a": "Subtract the manufacturer's factory pre-charge credit (typically 15 feet) from total installed lineset length to get net length. Multiply net length by the refrigerant liquid line multiplier in ounces per foot (for standard 3/8\" liquid line with R-410A or R-454B, the adder rate is 0.60 oz per foot). Add any evaporator coil mismatch delta or filter drier volume to determine total field add-on charge."
+      },
+      {
+        "q": "Why must R-454B be charged as a liquid?",
+        "a": "R-454B (Opteon XL41) is a zeotropic blend containing 68.9% R-32 and 31.1% R-1234yf. Because the two chemicals have different boiling points (temperature glide), charging from the vapor phase causes the more volatile R-32 to flash off first, fractionating the blend in the tank and destroying system thermal capacity. Liquid charging preserves exact manufacturer chemical stoichiometry."
+      },
+      {
+        "q": "What is the factory pre-charge allowance?",
+        "a": "Most split-system residential condensing units ship from the factory pre-charged with sufficient refrigerant for the outdoor unit, a standard matched indoor coil, and exactly 15 feet of interconnecting lineset tubing. Any lineset run longer than 15 feet requires weighing in additional refrigerant on a digital charging scale."
+      },
+      {
+        "q": "What is target subcooling in a TXV system?",
+        "a": "Subcooling is the temperature drop of liquid refrigerant below its saturation condensing temperature ($SC = T_{\\text{sat}} - T_{\\text{liquid}}$). For systems equipped with a Thermal Expansion Valve (TXV), standard target subcooling is typically $10^\\circ\\text{F}$ to $12^\\circ\\text{F}$ (check the outdoor unit data plate). Subcooling verifies that a solid column of liquid reaches the expansion valve."
+      },
+      {
+        "q": "What happens if a system is undercharged?",
+        "a": "An undercharged system suffers from low evaporator pressure, causing moisture in the air to freeze across the indoor coil into a block of ice. Because suction vapor density is reduced, the compressor motor runs hotter due to insufficient cooling gas, while energy consumption increases and cooling capacity plummets."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BOILER EFFICIENCY & COMBUSTION ROI CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const boilerEfficiencyBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Boiler Efficiency Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Boiler Efficiency & Fuel Savings Calculator (ASME PTC 4)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate steady-state combustion efficiency, dry stack flue gas heat loss, excess air percentage from O_2/CO_2 analysis, annual fuel cost savings, and upgrade payback period between standard and high-efficiency condensing boilers.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2v20\"/><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"/></svg>
+        Combustion & Flue Gas Specs
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beFuelType">Combustion Fuel Type</label>
+        <select id="beFuelType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="nat_gas" selected>Natural Gas (Methane CH4 &mdash; $1.20/therm)</option>
+          <option value="propane">Propane / LPG (HD-5 &mdash; $2.60/gal)</option>
+          <option value="oil2">#2 Heating Oil (Distillate &mdash; $3.80/gal)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beStackTemp">Gross Stack Temp (&deg;F)</label>
+          <input type="number" id="beStackTemp" value="380" min="100" max="800" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Flue gas thermometer</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beAmbientTemp">Combustion Air Temp (&deg;F)</label>
+          <input type="number" id="beAmbientTemp" value="70" min="30" max="110" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Boiler room air</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beFlueO2">Flue Gas O_2 (%)</label>
+          <input type="number" id="beFlueO2" value="4.5" min="1.0" max="15.0" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Analyzer reading (Ideal 3-5%)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beInputBtu">Boiler Input Rating (BTU/h)</label>
+          <input type="number" id="beInputBtu" value="250000" min="20000" max="10000000" step="10000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Firing rate capacity</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Operational & Upgrade ROI</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beRunHours">Annual Firing Hours</label>
+          <input type="number" id="beRunHours" value="2200" min="200" max="8760" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Typical heating season ~2,000 hrs</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beNewEff">Upgrade Boiler Efficiency (%)</label>
+          <input type="number" id="beNewEff" value="95.0" min="80.0" max="99.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">High-efficiency condensing AFUE</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beUpgradeCost">Installed Boiler Upgrade Cost ($)</label>
+        <input type="number" id="beUpgradeCost" value="12500" min="1000" max="250000" step="500" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Combustion & Financial Output
+          </h2>
+          <button id="copyBeBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Boiler Audit</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Current Operating Efficiency</span>
+            <span id="beCurrentEff" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#ef4444;display:block;">81.2%</span>
+            <span id="beNetStack" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Net Stack: 310&deg;F &Delta;T</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Annual Upgrade Savings</span>
+            <span id="beAnnualSavings" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#10b981;display:block;">$1,054 / yr</span>
+            <span id="bePayback" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Payback: 11.9 Years</span>
+          </div>
+        </div>
+
+        <!-- DETAILED COMBUSTION ANALYSIS -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Calculated Excess Air:</span>
+            <strong id="beExcessAir" style="font-family:var(--mono);">27.4% (Ideal 15% - 25%)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Dry Flue Gas Heat Loss:</span>
+            <strong id="beDryLoss" style="font-family:var(--mono);color:#f59e0b;">8.4% (ASME PTC 4)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Moisture / Latent Hydrogen Loss:</span>
+            <strong id="beMoistLoss" style="font-family:var(--mono);">9.8% (Methane Combustion)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Current Annual Fuel Expense:</span>
+            <strong id="beCurrentFuelCost" style="font-family:var(--mono);">$7,240 / year</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Projected Fuel Expense @ 95%:</span>
+            <strong id="beNewFuelCost" style="font-family:var(--mono);color:#3b82f6;">$6,186 / year</strong>
+          </div>
+        </div>
+
+        <!-- EFFICIENCY STATUS BADGE -->
+        <div id="beBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG BOILER ENERGY BALANCE SANKEY SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Boiler Energy Balance & Thermal Distribution</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Proportional energy flow showing total chemical fuel input entering the burner, useful hydronic heating output, dry flue gas loss, and latent moisture loss.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="beSankeySvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ASME PTC 4 FORMULAS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Combustion Thermodynamics: ASME PTC 4 Flue Gas Loss Equations</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Boiler efficiency evaluates the fraction of chemical fuel enthalpy transferred into hydronic water or steam. Heat escaping via dry flue gases and water vapor accounts for nearly all system losses.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Excess Air from Oxygen Analysis:</strong><br>
+      \\text{Excess Air \\%} = \\frac{O_2}{20.9 - O_2} \\times 100<br><br>
+      <strong>2. Net Stack Temperature Rise:</strong><br>
+      \\Delta T_{\\text{net}} = T_{\\text{flue stack}} - T_{\\text{combustion air ambient}}<br><br>
+      <strong>3. Dry Flue Gas Sensible Heat Loss (Siegert Formula):</strong><br>
+      L_{\\text{dry}} = K_1 \\times \\frac{\\Delta T_{\\text{net}}}{20.9 - O_2} \\quad (K_1 \\approx 0.38 \\text{ for Natural Gas})<br><br>
+      <strong>4. Latent Moisture Loss (Combustion of Hydrogen in Fuel):</strong><br>
+      L_{\\text{moisture}} = \\frac{9 \\times H_2 \\times (h_{g} - h_f)}{\\text{HHV}} \\approx 9.5\\%\\text{ to }10.0\\% \\text{ for Natural Gas}<br><br>
+      <strong>5. Annual Fuel Savings from Efficiency Upgrade:</strong><br>
+      \\text{Savings} = \\text{Annual Cost}_{\\text{current}} \\times \\left(1 - \\frac{\\eta_{\\text{current}}}{\\eta_{\\text{upgrade}}}\\right)<br><br>
+      <strong>6. Simple Payback Period:</strong><br>
+      \\text{Payback (Years)} = \\frac{\\text{Installed Upgrade Cost}}{\\text{Annual Savings}}
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL BOILER EFFICIENCY TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The 95% Condensing Myth with High-Temp Baseboards</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Water vapor in natural gas exhaust only condenses to release its 10% latent heat bonus if return water from radiators is colder than the 130&deg;F dew point. Hooking a 96% condensing boiler to old 180&deg;F high-temperature fin-tube baseboards prevents condensation entirely, dropping real efficiency to ~86%.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Excess Air Chimney Heat Robbery</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Running a burner at 8% to 10% O_2 (60% to 90% excess air) draws hundreds of cubic feet of cold outside air into the burner, heats it to 400&deg;F, and blows it directly out the chimney. Tuning the burner to 3.5% to 4.5% O_2 instantly recovers 4% to 6% fuel efficiency.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Flue Gas Condensation in Cast-Iron Boilers</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Setting the aquastat temperature too low on standard non-condensing cast-iron boilers causes flue gases to condense inside the cast-iron heat exchanger and steel flue pipe. The resulting acidic liquid eats through cast iron sections, rotting the boiler in under 3 years.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Combustion Efficiency vs Annual AFUE</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        A flue gas analyzer measures steady-state combustion efficiency while the burner is actively firing. It does NOT measure jacket radiation heat loss, standby off-cycle draft losses, or purge cycle heat dumps. A boiler with 83% combustion efficiency often achieves only 72% true annual AFUE.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Short-Cycling Thermal Purge Dump</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        An oversized boiler that fires for 2 minutes and shuts off for 6 minutes performs a 45-second pre-purge with high-velocity room air before every light-off. This purges stored heat from the boiler water out the exhaust stack, wasting up to 15% of annual fuel.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      // Fuel properties: cost per unit, heating value, Siegert factor
+      var fuelConstants = {
+        nat_gas: { unitName: 'Therm', costPerUnit: 1.20, btuPerUnit: 100000, k1: 0.38, moistLoss: 9.8 },
+        propane: { unitName: 'Gallon', costPerUnit: 2.60, btuPerUnit: 91500, k1: 0.42, moistLoss: 8.5 },
+        oil2:    { unitName: 'Gallon', costPerUnit: 3.80, btuPerUnit: 138500, k1: 0.48, moistLoss: 6.2 }
+      };
+
+      function calcBoiler() {
+        var fuelKey = document.getElementById('beFuelType').value;
+        var stackT = parseFloat(document.getElementById('beStackTemp').value) || 380;
+        var ambientT = parseFloat(document.getElementById('beAmbientTemp').value) || 70;
+        var o2 = parseFloat(document.getElementById('beFlueO2').value) || 4.5;
+        var inputBtu = parseFloat(document.getElementById('beInputBtu').value) || 250000;
+        var runHrs = parseFloat(document.getElementById('beRunHours').value) || 2200;
+        var newEff = (parseFloat(document.getElementById('beNewEff').value) || 95.0) / 100;
+        var upCost = parseFloat(document.getElementById('beUpgradeCost').value) || 12500;
+
+        var fData = fuelConstants[fuelKey] || fuelConstants.nat_gas;
+
+        var deltaT = Math.max(1, stackT - ambientT);
+
+        // Excess air: EA% = (O2 / (20.9 - O2)) * 100
+        var excessAirPct = (o2 / Math.max(0.5, 20.9 - o2)) * 100;
+
+        // Dry flue gas loss (Siegert formula): L_dry = K1 * deltaT / (20.9 - O2)
+        var dryLossPct = (fData.k1 * deltaT) / Math.max(0.5, 20.9 - o2);
+
+        // Moisture loss
+        var moistLossPct = fData.moistLoss;
+
+        // Radiation/Jacket loss assumption ~1.5%
+        var jacketLossPct = 1.5;
+
+        // Current efficiency
+        var totalLossPct = dryLossPct + moistLossPct + jacketLossPct;
+        var currentEffPct = Math.max(40, Math.min(99, 100 - totalLossPct));
+        var currentEffDec = currentEffPct / 100;
+
+        // Annual fuel consumption (BTU/year)
+        var totalHeatDeliveredBtu = inputBtu * currentEffDec * runHrs;
+
+        // Fuel units consumed currently
+        var currentFuelUnits = (inputBtu * runHrs) / fData.btuPerUnit;
+        var currentFuelCost = currentFuelUnits * fData.costPerUnit;
+
+        // Fuel units required with new high-eff boiler delivering same heat
+        var newFuelUnits = (totalHeatDeliveredBtu / newEff) / fData.btuPerUnit;
+        var newFuelCost = newFuelUnits * fData.costPerUnit;
+
+        // Annual savings
+        var annualSavings = Math.max(0, currentFuelCost - newFuelCost);
+        var paybackYears = annualSavings > 0 ? (upCost / annualSavings) : 99.9;
+
+        // DOM updates
+        document.getElementById('beCurrentEff').textContent = currentEffPct.toFixed(1) + '%';
+        document.getElementById('beNetStack').textContent = 'Net Stack: ' + Math.round(deltaT) + '\u00B0F \u0394T (' + Math.round(stackT) + '\u00B0 - ' + Math.round(ambientT) + '\u00B0)';
+
+        document.getElementById('beAnnualSavings').textContent = '$' + Math.round(annualSavings).toLocaleString() + ' / yr';
+        document.getElementById('bePayback').textContent = 'Simple Payback: ' + (paybackYears < 50 ? paybackYears.toFixed(1) + ' Years' : '> 50 Years');
+
+        document.getElementById('beExcessAir').textContent = excessAirPct.toFixed(1) + '% (O\u2082: ' + o2.toFixed(1) + '%)';
+        document.getElementById('beDryLoss').textContent = dryLossPct.toFixed(1) + '% (Sensible Flue Gas)';
+        document.getElementById('beMoistLoss').textContent = moistLossPct.toFixed(1) + '% (Latent H\u2082O Vapor)';
+
+        document.getElementById('beCurrentFuelCost').textContent = '$' + Math.round(currentFuelCost).toLocaleString() + ' / yr (' + Math.round(currentFuelUnits).toLocaleString() + ' ' + fData.unitName + 's)';
+        document.getElementById('beNewFuelCost').textContent = '$' + Math.round(newFuelCost).toLocaleString() + ' / yr (@ ' + (newEff * 100).toFixed(1) + '%)';
+
+        // Badge
+        var badge = document.getElementById('beBadge');
+        if (currentEffPct >= 90) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'High Efficiency Operating State (' + currentEffPct.toFixed(1) + '%)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Stack temperatures and excess air are low, indicating condensing or near-condensing heat recovery. Minimum fuel waste.' +
+            '</div>';
+        } else if (currentEffPct >= 80) {
+          badge.style.background = 'rgba(59, 130, 246, 0.1)';
+          badge.style.border = '1px solid #3b82f6';
+          badge.style.color = '#3b82f6';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Standard Mid-Efficiency (' + currentEffPct.toFixed(1) + '%)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Typical cast iron or steel non-condensing boiler. Upgrading to a 95% condensing unit will save $' + Math.round(annualSavings).toLocaleString() + ' annually.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'LOW COMBUSTION EFFICIENCY (' + currentEffPct.toFixed(1) + '%)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'High stack temperature (' + Math.round(stackT) + '\u00B0F) or high excess air is throwing thousands of dollars up the chimney every winter. Immediate burner retune or boiler replacement advised.' +
+            '</div>';
+        }
+
+        renderSankey(currentEffPct, dryLossPct, moistLossPct, jacketLossPct);
+      }
+
+      function renderSankey(eff, dry, moist, jacket) {
+        var svg = document.getElementById('beSankeySvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var startX = 60;
+        var startY = 40;
+        var barW = 680;
+        var barH = 34;
+
+        var svgHtml = '';
+
+        // Energy Bar Title
+        svgHtml += '<text x=\"' + startX + '\" y=\"' + (startY - 12) + '\" fill=\"var(--fg)\" font-size=\"12\" font-weight=\"bold\">100% Chemical Fuel Enthalpy Input</text>';
+
+        // Main bar container
+        svgHtml += '<rect x=\"' + startX + '\" y=\"' + startY + '\" width=\"' + barW + '\" height=\"' + barH + '\" rx=\"6\" fill=\"var(--bg)\" stroke=\"var(--border)\" stroke-width=\"2\"/>';
+
+        var effW = (eff / 100) * barW;
+        var dryW = (dry / 100) * barW;
+        var moistW = (moist / 100) * barW;
+        var jacketW = barW - (effW + dryW + moistW);
+
+        // Useful Hydronic Output
+        svgHtml += '<rect x=\"' + startX + '\" y=\"' + startY + '\" width=\"' + effW + '\" height=\"' + barH + '\" rx=\"6\" fill=\"#10b981\"/>';
+
+        // Dry Flue Gas Loss
+        svgHtml += '<rect x=\"' + (startX + effW) + '\" y=\"' + startY + '\" width=\"' + dryW + '\" height=\"' + barH + '\" fill=\"#ef4444\"/>';
+
+        // Moisture Vapor Loss
+        svgHtml += '<rect x=\"' + (startX + effW + dryW) + '\" y=\"' + startY + '\" width=\"' + moistW + '\" height=\"' + barH + '\" fill=\"#f59e0b\"/>';
+
+        // Jacket Loss
+        svgHtml += '<rect x=\"' + (startX + effW + dryW + moistW) + '\" y=\"' + startY + '\" width=\"' + jacketW + '\" height=\"' + barH + '\" rx=\"6\" fill=\"#8b5cf6\"/>';
+
+        // Callout Legends below
+        var legY = startY + 65;
+        svgHtml += '<circle cx=\"' + (startX + 10) + '\" cy=\"' + legY + '\" r=\"6\" fill=\"#10b981\"/>';
+        svgHtml += '<text x=\"' + (startX + 22) + '\" y=\"' + (legY + 4) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"600\">Useful Heating Output: ' + eff.toFixed(1) + '%</text>';
+
+        svgHtml += '<circle cx=\"' + (startX + 240) + '\" cy=\"' + legY + '\" r=\"6\" fill=\"#ef4444\"/>';
+        svgHtml += '<text x=\"' + (startX + 252) + '\" y=\"' + (legY + 4) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"600\">Dry Stack Loss: ' + dry.toFixed(1) + '%</text>';
+
+        svgHtml += '<circle cx=\"' + (startX + 440) + '\" cy=\"' + legY + '\" r=\"6\" fill=\"#f59e0b\"/>';
+        svgHtml += '<text x=\"' + (startX + 452) + '\" y=\"' + (legY + 4) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"600\">Moisture H2O Vapor: ' + moist.toFixed(1) + '%</text>';
+
+        svgHtml += '<circle cx=\"' + (startX + 620) + '\" cy=\"' + legY + '\" r=\"6\" fill=\"#8b5cf6\"/>';
+        svgHtml += '<text x=\"' + (startX + 632) + '\" y=\"' + (legY + 4) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"600\">Radiation: ' + jacket.toFixed(1) + '%</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyBoilerSpec() {
+        var eff = document.getElementById('beCurrentEff').textContent;
+        var sav = document.getElementById('beAnnualSavings').textContent;
+        var pb = document.getElementById('bePayback').textContent;
+        var ea = document.getElementById('beExcessAir').textContent;
+        var dry = document.getElementById('beDryLoss').textContent;
+        var moist = document.getElementById('beMoistLoss').textContent;
+        var curCost = document.getElementById('beCurrentFuelCost').textContent;
+        var newCost = document.getElementById('beNewFuelCost').textContent;
+
+        var text = '🔥 Boiler Combustion Efficiency & Fuel Savings Audit\\n' +
+          '• Current Steady-State Efficiency: ' + eff + '\\n' +
+          '• Annual Projected Savings: ' + sav + ' (' + pb + ')\\n' +
+          '• Current Fuel Expense: ' + curCost + '\\n' +
+          '• High-Efficiency Projected Expense: ' + newCost + '\\n\\n' +
+          'Combustion Thermodynamics:\\n' +
+          '• Excess Air: ' + ea + '\\n' +
+          '• Dry Flue Gas Sensible Loss: ' + dry + '\\n' +
+          '• Moisture Latent Loss: ' + moist + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/boiler-efficiency-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyBeBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Boiler Audit!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['beFuelType', 'beStackTemp', 'beAmbientTemp', 'beFlueO2', 'beInputBtu', 'beRunHours', 'beNewEff', 'beUpgradeCost'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcBoiler);
+          el.addEventListener('change', calcBoiler);
+        }
+      });
+
+      document.getElementById('copyBeBtn').addEventListener('click', copyBoilerSpec);
+
+      calcBoiler();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'boiler-efficiency-calculator.html'), renderTradePage({
+    title: "Boiler Efficiency Calculator: ASME Flue Gas & Fuel Savings | Digital Tools Shed",
+    metaDesc: "Calculate boiler combustion efficiency, dry flue gas loss, excess air from O_2/CO_2 analysis, and annual fuel savings between standard and condensing boilers.",
+    canonical: `${DOMAIN}/calc/boiler-efficiency-calculator`,
+    bodyContent: boilerEfficiencyBody,
+    currentPath: '/calc/boiler-efficiency-calculator',
+    faq: [
+      {
+        "q": "How is boiler combustion efficiency calculated?",
+        "a": "Boiler combustion efficiency is calculated using the indirect heat loss method standardized in ASME PTC 4. It starts with 100% fuel chemical enthalpy and subtracts sensible dry flue gas heat loss ($L_{\\text{dry}} = K \\times \\Delta T_{\\text{net}} / (20.9 - O_2)$), latent moisture loss from burning hydrogen in hydrocarbon fuels (~9.5% for methane), and jacket surface radiation loss (~1.5%)."
+      },
+      {
+        "q": "Why do condensing boilers save so much fuel?",
+        "a": "Burning natural gas produces substantial water vapor from the hydrogen in methane ($CH_4 + 2O_2 \\to CO_2 + 2H_2O$). Non-condensing boilers vent this vapor out the chimney, forfeiting the latent heat of vaporization (~1,000 BTU per pound of water). Condensing boilers cool flue gases below the $130^\\circ\\text{F}$ dew point, condensing the vapor into liquid and extracting this otherwise lost latent energy."
+      },
+      {
+        "q": "What is excess air and what is the ideal percentage?",
+        "a": "Excess air is the air supplied to a burner beyond the theoretical stoichiometric amount required for complete combustion. Too little excess air causes incomplete combustion and deadly carbon monoxide (CO) production; too much excess air blows heated air out the chimney, wasting energy. Ideal excess air for power natural gas burners is between 15% and 25% (corresponding to 3.0% to 4.5% $O_2$ in the flue gas)."
+      },
+      {
+        "q": "What is net stack temperature?",
+        "a": "Net stack temperature is the gross exhaust gas temperature measured in the flue pipe minus the combustion air temperature in the boiler room ($\\Delta T_{\\text{net}} = T_{\\text{flue}} - T_{\\text{ambient}}$). High net stack temperatures indicate that heat is not being effectively transferred across boiler heat exchanger surfaces into the water."
+      },
+      {
+        "q": "What is the difference between AFUE and combustion efficiency?",
+        "a": "Combustion efficiency measures how completely and efficiently fuel burns when the boiler is firing at steady-state operating temperature. Annual Fuel Utilization Efficiency (AFUE) is a seasonal performance rating that accounts for off-cycle draft losses, jacket heat radiation to unheated spaces, and energy lost during purge cycles when the boiler starts up and shuts down."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
