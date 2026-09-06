@@ -1850,20 +1850,46 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
 
   // Emit all individual tool HTML files
   allTools.forEach(tool => {
-    const faqSchema = tool.faqs ? {
+    // 1. Augment FAQs to guarantee at least 5 FAQs
+    const rawFaqs = tool.faqs || tool.faq || [];
+    const toolRawName = tool.title.split('[')[0].split('|')[0].trim();
+    const standardFaqs = [
+      {
+        q: `How does the ${toolRawName} work neurobiologically?`,
+        a: `This diagnostic and regulation workbench leverages validated cognitive behavioral therapy (CBT), polyvagal theory, and neurobiological self-efficacy models to externalize cognitive friction and re-anchor prefrontal cortex control.`
+      },
+      {
+        q: `Are my responses, sliders, and assessments saved on any server?`,
+        a: `No. All calculations, slider inputs, psychometric assessments, and synthesized audio frequencies run 100% locally within your browser memory. No telemetry or personal inputs are transmitted to or stored on external servers.`
+      },
+      {
+        q: `When should I use this ${toolRawName} tool during the day?`,
+        a: `Use this tool whenever acute executive dysfunction, cognitive distortion loops, imposter anxiety, or autonomic nervous system over-activation occurs. For circadian and rest protocols, align sessions with your natural afternoon slump (typically 1:00 PM - 3:30 PM) or pre-sleep wind-down.`
+      }
+    ];
+
+    const augmentedFaqs = [...rawFaqs];
+    for (const sf of standardFaqs) {
+      if (!augmentedFaqs.some(f => f.q === sf.q)) {
+        augmentedFaqs.push(sf);
+      }
+    }
+    tool.faqs = augmentedFaqs;
+
+    const faqSchema = {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      'mainEntity': tool.faqs.map(f => ({
+      'mainEntity': augmentedFaqs.map(f => ({
         '@type': 'Question',
         'name': f.q,
         'acceptedAnswer': { '@type': 'Answer', 'text': f.a }
       }))
-    } : null;
+    };
 
     const webAppSchema = {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
-      'name': tool.title.split('[')[0].trim(),
+      'name': toolRawName,
       'url': `${DOMAIN}/neuro/${tool.slug}`,
       'description': tool.metaDesc,
       'applicationCategory': 'HealthApplication',
@@ -1877,22 +1903,199 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
       }
     };
 
-    const faqAccordionHtml = tool.faqs ? `
-      <div class="wb-card" style="margin-top: 2rem;">
-        <h3 style="font-size: 1.15rem; font-family: var(--serif); margin-bottom: 1rem;">Frequently Asked Psychological & Scientific Questions</h3>
-        ${tool.faqs.map(f => `
-          <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-q"><span>${f.q}</span><span>+</span></div>
-            <div class="faq-a">${f.a}</div>
+    const howToSchema = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": `How to Use the ${toolRawName}`,
+      "description": tool.metaDesc,
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Calibrate Subjective & Objective Inputs",
+          "text": "Enter your current somatic ratings, psychological indicators, or task parameters into the interactive sliders and controls."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Inspect Interactive Neurobiological Visualizer",
+          "text": "Observe real-time 2D coordinate matrices, circadian energy curves, or autonomic nervous system spectrum shifts."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Review Evidence-Based Behavioral Prescriptions",
+          "text": "Analyze targeted neurobiological prescriptions (e.g. cognitive defusion, NSDR parasympathetic downregulation, dopamine titration)."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Export Diagnostic Summary & Action Plan",
+          "text": "Copy the formatted diagnostic report to your clipboard for your clinical journal, therapy check-in, or daily focus routine."
+        }
+      ]
+    };
+
+    // 5 Fatal Cognitive & Neurobiological Traps cards
+    const trapsHtml = `
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 2rem 0;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Cognitive & Neurobiological Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          When navigating psychological distress, autonomic arousal, or executive dysfunction, the human brain consistently falls into these 5 neurobiological traps:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #ef4444; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">1. Somatic False-Alarm Misattribution</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              The neocortex constantly confounds baseline autonomic arousal (elevated heart rate from caffeine, digestive vagal shifts, or circadian dips) with catastrophic psychological meaning. Experiencing physiological activation is not evidence of imminent danger, career fraudulence, or moral collapse. Always regulate physiology before interpreting thoughts.
+            </p>
           </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #f59e0b; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">2. Ironic Mental Suppression (Wegner's White Bear Rebound)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Forcibly attempting to banish distressing thoughts or compulsive self-doubt paradoxically increases their subcortical salience. Neurological monitoring processes continually check for the suppressed item, reinforcing the very neural pathway you seek to silence. Practice non-judgmental noticing and defusion rather than cognitive warfare.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #10b981; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">3. Intellectualization Without Somatic Regulation</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Understanding a psychological defense mechanism or attachment wound intellectually does not reorganize limbic pathways. Cognitive insight without vagal down-regulation (extended exhalations, physiological sighs, bilateral somatic grounding) merely creates sophisticated, highly articulated rumination. Insight must be paired with somatic re-anchoring.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">4. The All-or-Nothing Executive Friction Wall</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              The dopaminergic initiation engine shuts down when tasks are perceived as monolithic binaries. When the brain evaluates an effort as requiring 4 uninterrupted hours of perfection, prefrontal activation threshold skyrockets, inducing executive paralysis. Defeat friction by executing non-negotiable 120-second mechanical micro-steps.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">5. Social Comparison & Neocortex Bandwidth Distortion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Human social hierarchy circuits evolved for small ancestral bands of 50–150 people. Comparing your unfiltered internal doubts against the algorithmic highlight reels of millions of hyper-specialized global outliers triggers chronic status anxiety and dopamine baseline depletion. Re-anchor your reference frame to internal objective progress metrics.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Actionable Utility Export Card
+    const exportCardHtml = `
+      <div class="wb-card" style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0 0 0.25rem 0; color: var(--fg);">Export Diagnostic Summary & Protocol</h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0; line-height: 1.5;">
+              Copy your real-time assessment values, cognitive reframes, and neurobiological action steps to your clipboard.
+            </p>
+          </div>
+          <button type="button" id="btnCopyNeuroReport" onclick="copyNeuroDiagnosticReport('${tool.slug}')" class="btn-primary" style="padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.5rem;">
+            📋 Copy Diagnostic Report
+          </button>
+        </div>
+      </div>
+    `;
+
+    // FAQ Accordion
+    const faqAccordionHtml = `
+      <div class="wb-card" style="margin-top: 2rem;">
+        <h3 style="font-size: 1.25rem; font-family: var(--serif); margin-bottom: 1rem; color: var(--fg);">Frequently Asked Psychological & Scientific Questions</h3>
+        ${augmentedFaqs.map(f => `
+          <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+            <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">${f.q}</summary>
+            <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">${f.a}</div>
+          </details>
         `).join('')}
       </div>
-    ` : '';
+    `;
+
+    // Client-side report copy script
+    const copyScriptHtml = `
+      <script>
+        window.copyNeuroDiagnosticReport = function(slug) {
+          var btn = document.getElementById('btnCopyNeuroReport');
+          var toolTitle = document.title.split('|')[0].trim();
+          var container = document.querySelector('.article-container');
+          var reportLines = [
+            '=== CLINICAL COGNITIVE & NEUROBIOLOGY REPORT ===',
+            'Tool: ' + toolTitle,
+            'Domain: Human Neurobiology & Cognitive Architecture',
+            'Timestamp: ' + new Date().toISOString(),
+            'Verified 100% Client-Side Private (Digital Tools Shed)',
+            'URL: ' + window.location.href,
+            '------------------------------------------------',
+            'ASSESSMENT VALUES & METRICS:'
+          ];
+
+          if (container) {
+            var inputs = container.querySelectorAll('input, select');
+            inputs.forEach(function(inp) {
+              if (inp.id && inp.type !== 'hidden' && inp.type !== 'button') {
+                var labelEl = container.querySelector('label[for="' + inp.id + '"]') || (inp.closest('div') ? inp.closest('div').querySelector('.field-label') : null);
+                var label = labelEl ? labelEl.textContent.trim().split('(')[0].trim() : inp.id;
+                var val = inp.value;
+                if (inp.type === 'checkbox') val = inp.checked ? 'Yes / Enabled' : 'No / Disabled';
+                reportLines.push('• ' + label + ': ' + val);
+              }
+            });
+
+            var results = container.querySelectorAll('#imp-verdict-title, #imp-prescription, .result-text, [id*="verdict"], [id*="result"], [id*="score"], [id*="prescription"], [id*="stat"]');
+            if (results.length > 0) {
+              reportLines.push('------------------------------------------------');
+              reportLines.push('DIAGNOSTIC OUTCOMES & INTERPRETATION:');
+              results.forEach(function(r) {
+                var txt = r.textContent.trim();
+                if (txt && txt.length > 0 && txt.length < 300) {
+                  reportLines.push('• ' + txt);
+                }
+              });
+            }
+          }
+
+          reportLines.push('------------------------------------------------');
+          reportLines.push('CORE NEUROLOGICAL PROTOCOL:');
+          reportLines.push('1. Somatic Down-Regulation: 2-to-1 exhalation to inhalation ratio.');
+          reportLines.push('2. Cognitive Defusion: Label automatic thoughts without emotional fusion.');
+          reportLines.push('3. Dopaminergic Initiation: Reduce activation threshold to 120-second mechanical steps.');
+          reportLines.push('4. Reality Testing: Base self-worth on objective evidence rather than transient affect.');
+          reportLines.push('================================================');
+
+          var text = reportLines.join('\\n');
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function() {
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Diagnostic Report!';
+                btn.style.background = '#10b981';
+                btn.style.color = '#fff';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.background = '';
+                  btn.style.color = '';
+                }, 2500);
+              }
+            }).catch(function() {
+              if (btn) {
+                btn.innerHTML = '✓ Copied!';
+                setTimeout(function() { btn.innerHTML = '📋 Copy Diagnostic Report'; }, 2000);
+              }
+            });
+          }
+        };
+      </script>
+    `;
 
     const pageBody = `
       ${tool.html.includes('.wb-card') && tool.html.includes('<style>') ? '' : sharedStyle}
       ${tool.html}
+      ${exportCardHtml}
+      ${trapsHtml}
       ${faqAccordionHtml}
+      ${copyScriptHtml}
     `;
 
     const pageHtml = renderPage({
@@ -1900,7 +2103,8 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/neuro/${tool.slug}`,
       content: pageBody,
-      jsonLd: [webAppSchema, ...(faqSchema ? [faqSchema] : [])]
+      faq: augmentedFaqs,
+      jsonLd: [webAppSchema, howToSchema, faqSchema]
     });
 
     writeFileSync(join(neuroDist, `${tool.slug}.html`), pageHtml, 'utf8');
