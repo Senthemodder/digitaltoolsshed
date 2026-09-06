@@ -998,6 +998,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/gear-pump-volumetric-efficiency-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/gearbox-thermal-rating-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -1898,6 +1904,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/packed-absorption-column-sizing-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/paint-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -1917,6 +1929,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/pb-to-tb</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/pelton-turbine-jet-runner-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -2397,6 +2415,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/steam-desuperheater-water-spray-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/steam-superheater-tube-metal-temperature-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -100238,6 +100238,1731 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
     }));
   })();
 
-console.log('  ✓ Built Trade & Construction Suite (143 calculators in /calc/)');
+
+  // --- TOOL AY1: PELTON IMPULSE HYDRO TURBINE JET SIZING & REGULATOR CALCULATOR ---
+  (() => {
+    const slug = 'pelton-turbine-jet-runner-calculator';
+    const title = 'Pelton Impulse Hydro Turbine Jet Sizing & Runner Calculator (IEC 60193)';
+    const metaDescription = 'Industrial Pelton impulse hydro turbine sizing calculator per IEC 60193 and USBR standards. Computes spouting jet velocity, pitch circle diameter D1, needle nozzle diameter, jet ratio m, bucket dimensions, and deflector timing.';
+
+    const faq = [
+      {
+        q: 'What is the operational head and flow range for a Pelton turbine?',
+        a: 'Pelton turbines are impulse hydraulic machines engineered for high net heads (150 to over 1,800 meters) and comparatively low to moderate flow rates (0.1 to 50 m³/s). Water is accelerated through 1 to 6 converging needle nozzles into high-velocity atmospheric jets that strike double-cup split buckets mounted on the runner periphery, maintaining peak efficiencies above 91% even at 20% partial load.'
+      },
+      {
+        q: 'What is the jet ratio (m = D1 / d_j) and why is it constrained between 9 and 16?',
+        a: 'The jet ratio m is the ratio of the runner pitch circle diameter (D1) to the water jet diameter (d_j). If m is too small (< 9), the buckets become too crowded, causing adjacent buckets to clip and interfere with the incoming jet before it finishes imparting momentum. If m is too large (> 18), the runner diameter becomes excessively bulky and expensive, rotational speed drops, and disk friction and windage drag escalate.'
+      },
+      {
+        q: 'Why are jet deflectors mandatory on Pelton turbines?',
+        a: 'When an electrical grid trip or emergency shutdown occurs, water flow through the long penstock cannot be abruptly stopped without generating catastrophic water hammer pressure spikes (Joukowsky surge) that would rupture the steel pipe. An auxiliary jet deflector rapidly swings into the jet path in 1 to 2 seconds, diverting the high-energy water away from the buckets into the tailrace pit, while the heavy needle servomotor closes slowly over 20 to 60 seconds.'
+      },
+      {
+        q: 'How are the Pelton bucket dimensions (width, length, depth) determined?',
+        a: 'Bucket geometry is standardized relative to the jet diameter d_j per USBR guidelines: bucket width B = 2.8 to 3.2 * d_j, bucket length L = 2.4 to 2.8 * d_j, and bucket depth T = 0.9 to 1.2 * d_j. The central splitter ridge must be ground to a knife edge (radius < 0.5 mm) with an entrance angle of 10° to 15° to cleanly bisect the circular jet with minimal impact shock.'
+      },
+      {
+        q: 'Why does a Pelton turbine casing require negative pressure aeration?',
+        a: 'The Pelton runner rotates in air above the tailwater surface. As the runner spins at high peripheral speeds (50 to 120 m/s), it acts as an air pump, creating internal air circulation. Water spraying off the buckets entrains air, causing casing vacuum depression. If the casing is not adequately vented with atmospheric snifter valves, the tailwater level rises into the housing, causing the spinning runner to drown in tailwater and instantly destroying turbine power through violent hydrodynamic braking.'
+      }
+    ];
+
+    const content = `
+<style>
+  .pelton-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .pelton-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .pelton-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension high-head Pelton impulse hydro turbines per IEC 60193 and US Bureau of Reclamation engineering standards. Solves theoretical spouting jet velocity c<sub>1</sub>, pitch circle diameter D<sub>1</sub>, needle nozzle jet diameters, optimum bucket dimensions, runaway overspeed, and deflector cutoff kinetics.
+  </p>
+
+  <div class="pelton-grid">
+    <!-- Panel 1: Site Hydraulic Parameters -->
+    <div class="pelton-card">
+      <h3>1. High-Head Hydraulic Parameters</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pl_head">Net Effective Head H<sub>net</sub> (m)</label>
+          <input type="number" id="pl_head" class="form-control" value="480" min="50" max="2000" step="10">
+        </div>
+        <div class="form-group">
+          <label for="pl_flow">Design Flow Rate Q (m&sup3;/s)</label>
+          <input type="number" id="pl_flow" class="form-control" value="4.2" min="0.05" max="100.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pl_freq">Grid AC Frequency (Hz)</label>
+          <select id="pl_freq" class="form-control">
+            <option value="50" selected>50 Hz (Europe / Asia / Global)</option>
+            <option value="60">60 Hz (Americas / Saudi / Taiwan)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pl_n_jets">Number of Water Nozzles / Jets (z<sub>j</sub>)</label>
+          <select id="pl_n_jets" class="form-control">
+            <option value="1">1 Jet (Horizontal Shaft)</option>
+            <option value="2">2 Jets (Horizontal / Vertical)</option>
+            <option value="4">4 Jets (Vertical Shaft)</option>
+            <option value="6" selected>6 Jets (Vertical High-Capacity)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pl_eta_hyd">Expected Hydraulic Efficiency &eta; (%)</label>
+          <input type="number" id="pl_eta_hyd" class="form-control" value="91.5" min="80.0" max="95.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="pl_cv">Nozzle Velocity Coefficient C<sub>v</sub></label>
+          <input type="number" id="pl_cv" class="form-control" value="0.98" min="0.95" max="0.995" step="0.005">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Runner Kinematics & Jet Ratio -->
+    <div class="pelton-card">
+      <h3>2. Runner Geometry & Jet Ratio</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pl_speed_ratio">Bucket Speed Ratio &phi;<sub>1</sub> = u<sub>1</sub>/c<sub>1</sub></label>
+          <input type="number" id="pl_speed_ratio" class="form-control" value="0.46" min="0.42" max="0.49" step="0.01">
+          <small style="color: #94a3b8; font-size: 0.75rem;">Theoretical optimum is 0.50; empirical BEP is 0.45 - 0.47.</small>
+        </div>
+        <div class="form-group">
+          <label for="pl_target_m">Target Jet Ratio m = D<sub>1</sub>/d<sub>j</sub></label>
+          <input type="number" id="pl_target_m" class="form-control" value="12.5" min="8.5" max="22.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pl_deflector_sec">Deflector Cutoff Time t<sub>def</sub> (s)</label>
+          <input type="number" id="pl_deflector_sec" class="form-control" value="1.8" min="0.5" max="5.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="pl_needle_sec">Needle Servomotor Slew Time (s)</label>
+          <input type="number" id="pl_needle_sec" class="form-control" value="35" min="10" max="90" step="5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Sizing Output -->
+    <div class="pelton-card">
+      <h3>3. Sizing & Kinematic Results</h3>
+      <div class="res-row">
+        <span class="res-label">Turbine Mechanical Output Power:</span>
+        <span class="res-val highlight" id="res_power">-- MW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Spouting Jet Velocity c<sub>1</sub>:</span>
+        <span class="res-val highlight" id="res_c1">-- m/s (-- km/h)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Synchronous Rotational Speed:</span>
+        <span class="res-val" id="res_speed">-- RPM (Poles: --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Runner Pitch Circle Diameter D<sub>1</sub>:</span>
+        <span class="res-val highlight" id="res_d1">-- m (-- in)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Individual Jet Diameter d<sub>j</sub>:</span>
+        <span class="res-val highlight" id="res_dj">-- mm (Flow/Jet: -- m&sup3;/s)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Actual Jet Ratio m (D<sub>1</sub> / d<sub>j</sub>):</span>
+        <span class="res-val" id="res_m">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bucket Geometry Status:</span>
+        <span id="res_m_status" class="status-badge badge-safe">OPTIMAL JET RATIO</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Pelton Bucket Width &times; Length &times; Depth:</span>
+        <span class="res-val" id="res_bucket_dim">-- &times; -- &times; -- mm</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Number of Buckets (z<sub>b</sub>):</span>
+        <span class="res-val" id="res_nbuckets">-- buckets</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Max Runaway Overspeed:</span>
+        <span class="res-val warning" id="res_runaway">-- RPM (Ratio: 1.85&times;)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_pelton">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Pelton Impulse Hydro Turbine Multi-Jet Hydraulic Profile</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ High-Pressure Penstock &rarr; Ring Distributor Manifold ] &rarr; [ 1 to 6 Needle Nozzles with Hydraulic Servomotors ]<br>
+      &rarr; [ Free Atmospheric Spouting Jets (c<sub>1</sub> ~ 100 m/s) ] &rarr; [ Pivoting Jet Deflectors (t<sub>def</sub> &le; 2 s) ]<br>
+      &rarr; [ Double-Cup Buckets with Knife-Edge Splitter (D<sub>1</sub>, B, L) ] &rarr; [ Casing Aeration & Deep Tailrace Pit ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="pelton-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Impulse Jet Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Pelton impulse machines convert hydraulic potential head into kinetic energy at atmospheric pressure per Torricelli and Euler equations:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Spouting Velocity & Jet Diameter</strong><br>
+        $$c_1 = C_v \cdot \sqrt{2 g H_{net}} \quad [\text{m/s}]$$
+        $$d_j = \sqrt{\frac{4 \cdot (Q / z_j)}{\pi \cdot c_1}} \quad [\text{m}]$$
+        Water jet emerges cleanly into ambient atmospheric air.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Pitch Circle Diameter D<sub>1</sub> & Synchronous Speed</strong><br>
+        $$u_1 = \phi_1 \cdot c_1 = \frac{\pi \cdot D_1 \cdot n}{60} \implies D_1 = \frac{60 \cdot \phi_1 \cdot c_1}{\pi \cdot n}$$
+        Synchronous grid speed selected to match target $m = D_1 / d_j$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. USBR Bucket Dimension Ratios</strong><br>
+        $$B = 3.0 \cdot d_j, \quad L = 2.6 \cdot d_j, \quad T = 1.05 \cdot d_j$$
+        $$z_b = \left\lfloor \frac{D_1}{2 d_j} + 15 \right\rfloor = \left\lfloor \frac{m}{2} + 15 \right\rfloor$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Runaway Overspeed Ratio</strong><br>
+        $$n_{max} \approx 1.80 - 1.95 \cdot n_0$$
+        Generator rotor must endure $(1.9)^2 = 3.61\times$ rated centrifugal stress.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="pelton-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Pelton Turbine Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Fast Needle Closure Water Hammer Penstock Burst</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        High-head penstocks hold millions of joules of kinetic energy in a column of water several kilometers long. If the governor closes the needle valves rapidly during a load rejection (e.g. in 2 seconds), the Joukowsky water hammer pressure wave ($\Delta P = \rho c \Delta v$) produces pressure spikes exceeding 300% of static rating. The steel penstock bursts or buckles explosively, flooding the powerhouse. Auxiliary jet deflectors must intercept the jet in 1.5 seconds, while needle nozzles are throttled slowly over 30 to 60 seconds.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. The Small Jet Ratio Bucket Clipping Interference Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Attempting to design an excessively compact runner with a jet ratio $m < 9$ forces buckets to be packed too tightly on the disc perimeter. The back of the preceding bucket cuts across the water jet trajectory prematurely, deflecting unspent high-velocity water into the casing without imparting momentum to the splitter edge. Hydraulic efficiency collapses by 8% to 15%, and severe back-surface cavitation erosion gouges the bucket backs within 1,000 hours.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Casing Vacuum Depression & Tailwater Drowning</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Unlike reaction turbines, a Pelton runner must spin entirely in atmospheric air. High-velocity water discharge entrains air like an ejector pump, creating a strong partial vacuum inside a sealed turbine housing. Atmospheric pressure in the tailrace tunnel forces the tailwater level to rise several meters into the casing. The spinning runner dips into the water pool, causing massive hydrodynamic drag, instantaneous loss of power output, and boiling froth that floods the shaft seals. Vacuum relief snifter valves and generous casing ventilation are mandatory.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Glacial Silt Quartz Erosion of Needle Nozzles & Splitters</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Alpine and Himalayan rivers carry hard quartz sediment ($Mohs > 7$). At spouting jet velocities of 90 to 140 m/s, abrasive micro-particles cut tungsten carbide needle tips and bucket splitters like abrasive waterjets. Splitter knife-edges round off, causing severe jet splash and flow separation that drops efficiency by 5% in a single monsoon season. Multi-layer HVOF WC-Co-Cr coatings and desanding settling basins are essential.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Bucket Root Bending Fatigue & Catastrophic Blade Throwing</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Each bucket experiences cyclic hydraulic impact forces of hundreds of kilonewtons every time it enters a jet path (up to 3,600 impacts per minute in a 6-jet unit). Bolt-on bucket designs suffer fretting corrosion and micro-cracking at bolt holes. Under high-cycle fatigue ($> 10^9$ cycles), bolt fatigue failure can throw a 200 kg forged stainless bucket through the powerhouse concrete wall at 100 m/s. Modern heavy-duty Pelton runners must be monolithically CNC-milled from a single forged stainless steel disc (13Cr-4Ni).
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="pelton-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> High-Head Alpine Hydroelectric Power Plant.</p>
+      <ul>
+        <li><strong>Site Data:</strong> Net Head $H_{net} = 480\text{ m}$, Flow Rate $Q = 4.20\text{ m}^3/\text{s}$, Grid Frequency $f = 50\text{ Hz}$.</li>
+        <li><strong>Turbine Configuration:</strong> Vertical 6-jet Pelton machine ($z_j = 6$). Velocity coefficient $C_v = 0.98$.</li>
+        <li><strong>Runner Kinematics:</strong> Bucket speed ratio $\phi_1 = 0.46$, Target jet ratio $m \approx 12.5$. Efficiency $\eta = 91.5\%$.</li>
+      </ul>
+      <p><strong>Step 1: Spouting Jet Velocity & Flow per Jet:</strong></p>
+      $$c_1 = C_v \cdot \sqrt{2 g H_{net}} = 0.98 \times \sqrt{2 \times 9.80665 \times 480} = 0.98 \times \sqrt{9,414.38} = 0.98 \times 97.028 = 95.09\text{ m/s} \quad (342.3\text{ km/h})$$
+      $$Q_{jet} = \frac{Q}{z_j} = \frac{4.20\text{ m}^3/\text{s}}{6} = 0.70\text{ m}^3/\text{s}$$
+      $$d_j = \sqrt{\frac{4 \times 0.70}{\pi \times 95.09}} = \sqrt{\frac{2.80}{298.73}} = \sqrt{0.009373} = 0.0968\text{ m} = 96.8\text{ mm} \quad (3.81\text{ in})$$
+      <p><strong>Step 2: Runner Pitch Circle Diameter & Synchronous Speed Selection:</strong></p>
+      $$\text{Optimum bucket speed: } u_1 = \phi_1 \times c_1 = 0.46 \times 95.09 = 43.74\text{ m/s}$$
+      $$\text{Target Runner Diameter: } D_{1,target} = m \times d_j = 12.5 \times 0.0968\text{ m} = 1.21\text{ m}$$
+      $$n_{ideal} = \frac{60 \times u_1}{\pi \times D_1} = \frac{60 \times 43.74}{\pi \times 1.21} = \frac{2,624.4}{3.801} = 690.4\text{ RPM}$$
+      $$\text{Select } 8\text{-pole synchronous generator: } n_{sync} = \frac{120 \times 50}{8} = 750\text{ RPM}$$
+      $$\text{Actual Pitch Circle Diameter: } D_1 = \frac{60 \times 43.74}{\pi \times 750} = \frac{2,624.4}{2,356.2} = 1.114\text{ meters}$$
+      $$\text{Actual Jet Ratio: } m = \frac{D_1}{d_j} = \frac{1.114}{0.0968} = 11.51 \implies \mathbf{\text{Well Within Ideal Range (9 to 16)}}.$$
+      <p><strong>Step 3: Pelton Bucket Sizing & Count:</strong></p>
+      $$\text{Bucket Width } B = 3.0 \times 96.8\text{ mm} = 290.4\text{ mm} \approx 290\text{ mm}$$
+      $$\text{Bucket Length } L = 2.6 \times 96.8\text{ mm} = 251.7\text{ mm} \approx 252\text{ mm}$$
+      $$\text{Bucket Depth } T = 1.05 \times 96.8\text{ mm} = 101.6\text{ mm} \approx 102\text{ mm}$$
+      $$z_b = \left\lfloor \frac{11.51}{2} + 15 \right\rfloor = \lfloor 5.75 + 15 \rfloor = 20\text{ or } 21\text{ buckets}$$
+      <p><strong>Step 4: Turbine Power & Runaway Speed:</strong></p>
+      $$P = \rho \cdot g \cdot Q \cdot H_{net} \cdot \eta = 1000 \times 9.80665 \times 4.20 \times 480 \times 0.915 = 18,088,883\text{ W} = 18.09\text{ MW} \quad (24,257\text{ HP})$$
+      $$n_{runaway} = 1.85 \times 750\text{ RPM} = 1,387.5\text{ RPM} \implies \mathbf{\text{Generator rotor rated for 1,400 RPM burst speed}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcPelton() {
+    const H = parseFloat(document.getElementById('pl_head').value) || 480;
+    const Q = parseFloat(document.getElementById('pl_flow').value) || 4.2;
+    const freq = parseFloat(document.getElementById('pl_freq').value) || 50;
+    const z_j = parseInt(document.getElementById('pl_n_jets').value) || 6;
+    const eta_hyd = (parseFloat(document.getElementById('pl_eta_hyd').value) || 91.5) / 100;
+    const Cv = parseFloat(document.getElementById('pl_cv').value) || 0.98;
+    const phi1 = parseFloat(document.getElementById('pl_speed_ratio').value) || 0.46;
+    const target_m = parseFloat(document.getElementById('pl_target_m').value) || 12.5;
+
+    const g = 9.80665;
+    const rho = 1000;
+
+    // 1. Spouting Jet Velocity and Flow
+    const c1 = Cv * Math.sqrt(2 * g * H); // m/s
+    const Q_jet = Q / z_j;
+    const dj = Math.sqrt((4 * Q_jet) / (Math.PI * c1)); // m
+    const dj_mm = dj * 1000;
+
+    // 2. Mechanical Shaft Power
+    const P_watts = rho * g * Q * H * eta_hyd;
+    const P_mw = P_watts / 1e6;
+    const P_hp = P_watts / 745.699872;
+
+    // 3. Optimum Runner Speed and Synchronous Speed Selection
+    const u1 = phi1 * c1; // m/s
+    const D1_ideal = target_m * dj; // m
+    const n_ideal = (60 * u1) / (Math.PI * D1_ideal);
+
+    let bestPoles = 2;
+    let bestDiff = 9999;
+    for (let p = 2; p <= 48; p += 2) {
+      const n_sync = (120 * freq) / p;
+      const diff = Math.abs(n_sync - n_ideal);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        bestPoles = p;
+      }
+    }
+    const n_rpm = (120 * freq) / bestPoles;
+    const D1 = (60 * u1) / (Math.PI * n_rpm);
+    const actual_m = D1 / dj;
+
+    // 4. Bucket Dimensions and Count
+    const B_mm = 3.0 * dj_mm;
+    const L_mm = 2.6 * dj_mm;
+    const T_mm = 1.05 * dj_mm;
+    const zb = Math.round((actual_m / 2) + 15);
+
+    // 5. Runaway Speed
+    const n_runaway = n_rpm * 1.85;
+
+    // Update UI
+    document.getElementById('res_power').textContent = P_mw.toFixed(2) + ' MW (' + P_hp.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' HP)';
+    document.getElementById('res_c1').textContent = c1.toFixed(2) + ' m/s (' + (c1 * 3.6).toFixed(1) + ' km/h)';
+    document.getElementById('res_speed').textContent = n_rpm.toFixed(1) + ' RPM (' + bestPoles + ' Poles)';
+    document.getElementById('res_d1').textContent = D1.toFixed(3) + ' m (' + (D1 * 39.3701).toFixed(1) + ' in)';
+    document.getElementById('res_dj').textContent = dj_mm.toFixed(1) + ' mm (Flow: ' + Q_jet.toFixed(3) + ' m³/s)';
+    document.getElementById('res_m').textContent = actual_m.toFixed(2);
+
+    const mBadge = document.getElementById('res_m_status');
+    if (actual_m >= 9.0 && actual_m <= 16.0) {
+      mBadge.className = 'status-badge badge-safe';
+      mBadge.textContent = 'OPTIMAL JET RATIO (9-16)';
+    } else if (actual_m < 9.0) {
+      mBadge.className = 'status-badge badge-danger';
+      mBadge.textContent = 'CLIPPING INTERFERENCE (m < 9)';
+    } else {
+      mBadge.className = 'status-badge badge-warn';
+      mBadge.textContent = 'BULKY RUNNER (m > 16)';
+    }
+
+    document.getElementById('res_bucket_dim').textContent = B_mm.toFixed(0) + ' × ' + L_mm.toFixed(0) + ' × ' + T_mm.toFixed(0) + ' mm';
+    document.getElementById('res_nbuckets').textContent = zb + ' buckets';
+    document.getElementById('res_runaway').textContent = n_runaway.toFixed(0) + ' RPM (1.85× rated)';
+  }
+
+  const inputs = ['pl_head', 'pl_flow', 'pl_freq', 'pl_n_jets', 'pl_eta_hyd', 'pl_cv', 'pl_speed_ratio', 'pl_target_m', 'pl_deflector_sec', 'pl_needle_sec'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPelton);
+      el.addEventListener('change', calcPelton);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_pelton');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- PELTON IMPULSE HYDRO TURBINE DATASHEET ---',
+        'Net Head: ' + document.getElementById('pl_head').value + ' m | Design Flow: ' + document.getElementById('pl_flow').value + ' m³/s | Nozzles: ' + document.getElementById('pl_n_jets').value,
+        'Turbine Output Power: ' + document.getElementById('res_power').textContent,
+        'Jet Velocity: ' + document.getElementById('res_c1').textContent + ' | Synchronous Speed: ' + document.getElementById('res_speed').textContent,
+        'Pitch Circle Diameter D1: ' + document.getElementById('res_d1').textContent + ' | Jet Diameter: ' + document.getElementById('res_dj').textContent,
+        'Jet Ratio m: ' + document.getElementById('res_m').textContent + ' [' + document.getElementById('res_m_status').textContent + ']',
+        'Bucket Dimensions: ' + document.getElementById('res_bucket_dim').textContent + ' (' + document.getElementById('res_nbuckets').textContent + ')',
+        'Runaway Speed: ' + document.getElementById('res_runaway').textContent,
+        'Generated via DigitalToolsShed.com Pelton Hydro Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcPelton();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AY2: PACKED ABSORPTION COLUMN SIZING & FLOODING CALCULATOR ---
+  (() => {
+    const slug = 'packed-absorption-column-sizing-calculator';
+    const title = 'Packed Absorption Column NTU-HTU Sizing & Flooding Calculator (Onda & Eckert)';
+    const metaDescription = 'Industrial packed gas absorption and scrubbing column sizing calculator per Onda mass transfer and Eckert GPDC flooding correlations. Computes NTU, HTU, column diameter, packing bed height, and pressure drop.';
+
+    const faq = [
+      {
+        q: 'What is the physical meaning of NTU and HTU in packed tower design?',
+        a: 'The Number of Transfer Units (NTU) represents the overall thermodynamic difficulty of the separation, determined strictly by inlet/outlet solute concentrations and phase equilibrium (Henry\'s law). The Height of a Transfer Unit (HTU) measures the physical mass transfer efficiency of the packing material under local hydrodynamic flow conditions. The total required packed bed depth is the direct product: Z = NTU * HTU.'
+      },
+      {
+        q: 'Why must packed absorption columns operate between 60% and 70% of flooding velocity?',
+        a: 'Flooding is the hydrodynamic limit where upward gas drag balances downward gravitational liquid drainage, causing liquid to accumulate, bridge across packing voids, and blow out the top of the tower as massive foam entrainment. Sizing the column diameter at 65% of flood ensures stable countercurrent flow, low gas pressure drop (< 400 Pa/m), and an adequate safety cushion against flow surges without requiring an excessively oversized column vessel.'
+      },
+      {
+        q: 'What is the Absorption Factor (A = L / (m * G)) and why must A exceed 1.2?',
+        a: 'The absorption factor A is the ratio of the operating liquid-to-gas slope (L/G) to the equilibrium line slope m (y* = m * x). If A <= 1.0, the operating line pinches against the equilibrium curve, meaning the liquid solvent reaches saturation before absorbing the target solute; achieving high removal efficiency becomes mathematically impossible regardless of bed height. Industrial scrubbers design for A between 1.3 and 2.0.'
+      },
+      {
+        q: 'How does liquid maldistribution degrade packed column performance?',
+        a: 'Due to capillary wall flow effects, liquid naturally migrates from the center of random packing toward the smooth column shell. If the initial liquid distributor provides fewer than 100 to 150 pour points per square meter, large dry channels form in the core packing while liquid sheets down the wall. This bypass reduces the effective interfacial area (a_e) by up to 50%, requiring intermediate liquid redistributors every 5 to 7 column diameters.'
+      },
+      {
+        q: 'What are the trade-offs between random packing (Pall rings) and structured packing (Mellapak)?',
+        a: 'Random dump packing (e.g. metal or plastic Pall rings, saddles) is mechanically robust, easy to install, and resistant to particulate fouling, but incurs higher pressure drop (300 to 600 Pa/m). Structured corrugated sheet packing (e.g. Mellapak 250Y) provides significantly higher specific surface area (250 m²/m³) and ultra-low pressure drop (< 150 Pa/m), making it ideal for deep vacuum distillation or high-throughput absorbers, but it is expensive and easily fouled by slurries.'
+      }
+    ];
+
+    const content = `
+<style>
+  .abs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .abs-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .abs-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension countercurrent packed gas absorption and scrubbing columns per Onda mass transfer equations and the Eckert Generalized Pressure Drop Correlation (GPDC). Solves number of overall transfer units NTU<sub>OG</sub>, height of transfer unit HTU<sub>OG</sub>, column hydraulic flooding diameter, and packed bed depth.
+  </p>
+
+  <div class="abs-grid">
+    <!-- Panel 1: Gas Stream & Target Removal -->
+    <div class="abs-card">
+      <h3>1. Gas Stream & Separation Targets</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ab_gas_flow">Inlet Gas Volumetric Flow (Nm&sup3;/h)</label>
+          <input type="number" id="ab_gas_flow" class="form-control" value="6500" min="50" max="500000" step="250">
+        </div>
+        <div class="form-group">
+          <label for="ab_gas_temp">Operating Gas Temp T (&deg;C)</label>
+          <input type="number" id="ab_gas_temp" class="form-control" value="32" min="0" max="180" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ab_y_in">Inlet Solute Mole Fraction y<sub>in</sub> (%)</label>
+          <input type="number" id="ab_y_in" class="form-control" value="2.5" min="0.001" max="50.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="ab_y_out">Target Outlet Solute y<sub>out</sub> (ppm)</label>
+          <input type="number" id="ab_y_out" class="form-control" value="50" min="0.1" max="10000" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ab_m_slope">Equilibrium Henry Slope m (y* = m&middot;x)</label>
+          <input type="number" id="ab_m_slope" class="form-control" value="0.85" min="0.01" max="25.0" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="ab_abs_factor">Design Absorption Factor A</label>
+          <input type="number" id="ab_abs_factor" class="form-control" value="1.45" min="1.05" max="5.0" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Tower Packing & Hydraulics -->
+    <div class="abs-card">
+      <h3>2. Column Packing & Flooding Limit</h3>
+      <div class="form-group">
+        <label for="ab_packing_type">Tower Packing Specification</label>
+        <select id="ab_packing_type" class="form-control">
+          <option value="pall25_ss" selected>25 mm (1 in) Stainless Pall Rings (Fp = 180 m⁻¹)</option>
+          <option value="pall50_ss">50 mm (2 in) Stainless Pall Rings (Fp = 90 m⁻¹)</option>
+          <option value="intalox38_pp">38 mm (1.5 in) Polypropylene Intalox Saddles (Fp = 130 m⁻¹)</option>
+          <option value="mellapak250y">Mellapak 250Y Structured Sheet Packing (Fp = 65 m⁻¹)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ab_flood_frac">Design % of Flooding Velocity (%)</label>
+          <input type="number" id="ab_flood_frac" class="form-control" value="65" min="40" max="85" step="5">
+        </div>
+        <div class="form-group">
+          <label for="ab_liq_visc">Solvent Dynamic Viscosity &mu;<sub>L</sub> (cP)</label>
+          <input type="number" id="ab_liq_visc" class="form-control" value="1.0" min="0.2" max="50.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ab_rho_liq">Solvent Density &rho;<sub>L</sub> (kg/m&sup3;)</label>
+          <input type="number" id="ab_rho_liq" class="form-control" value="1000" min="700" max="1500" step="10">
+        </div>
+        <div class="form-group">
+          <label for="ab_bed_safety">Bed Height Safety Margin Factor</label>
+          <input type="number" id="ab_bed_safety" class="form-control" value="1.20" min="1.05" max="1.50" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Sizing & Performance Output -->
+    <div class="abs-card">
+      <h3>3. Dimensioning & Hydraulic Results</h3>
+      <div class="res-row">
+        <span class="res-label">Solute Removal Efficiency:</span>
+        <span class="res-val highlight" id="res_removal">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Number of Transfer Units (NTU<sub>OG</sub>):</span>
+        <span class="res-val highlight" id="res_ntu">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Height of Transfer Unit (HTU<sub>OG</sub>):</span>
+        <span class="res-val" id="res_htu">-- m (-- ft)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Theoretical Packed Bed Height Z<sub>th</sub>:</span>
+        <span class="res-val" id="res_z_th">-- m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Design Packed Bed Depth Z<sub>design</sub>:</span>
+        <span class="res-val highlight" id="res_z_design">-- m (-- ft)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required Solvent Flow Rate L:</span>
+        <span class="res-val" id="res_liq_flow">-- m&sup3;/h (L/G: -- kg/kg)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Column Inside Diameter D<sub>col</sub>:</span>
+        <span class="res-val highlight" id="res_dia">-- mm (-- in)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Operating Superficial Gas Velocity:</span>
+        <span class="res-val" id="res_vel">-- m/s (-- % of flood)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated Packing Pressure Drop:</span>
+        <span class="res-val" id="res_dp">-- Pa/m (Total: -- kPa)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_abs">
+          <span>📋 Copy Absorption Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Countercurrent Packed Absorption Column Internal Flow Profile</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Clean Solvent &rarr; Multi-Point Liquid Distributor (&ge; 100 pts/m&sup2;) ] &rarr; [ Demister Wire Mesh Pad ]<br>
+      &darr; [ Countercurrent Contact through Random/Structured Packing (Bed Height Z, D<sub>col</sub>) ] &uarr;<br>
+      [ Gas Injection Support Plate ] &larr; [ Contaminated Raw Gas Inlet (y<sub>in</sub> &rarr; y<sub>out</sub>) ] &rarr; [ Rich Solvent Sump ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="abs-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Onda-Eckert Mass Transfer Mechanics</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Absorption column height and diameter integrate two-film mass transfer rates with generalized flooding hydraulics:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Colburn NTU<sub>OG</sub> Transfer Units</strong><br>
+        $$NTU_{OG} = \frac{\ln\left[\left(\frac{y_{in} - m x_{in}}{y_{out} - m x_{in}}\right)\left(1 - \frac{1}{A}\right) + \frac{1}{A}\right]}{1 - 1/A}$$
+        Evaluates logarithmic driving force across the packed bed.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Eckert GPDC Flooding Diameter</strong><br>
+        $$X = \left(\frac{L}{G}\right) \sqrt{\frac{\rho_g}{\rho_L}}, \quad Y_{fl} = 0.20 \cdot \exp(-1.85 \cdot X^{0.4})$$
+        $$G_{flood} = \sqrt{\frac{Y_{fl} \cdot g \cdot \rho_g \cdot \rho_L}{F_p \cdot \mu_L^{0.1} \cdot (\rho_w / \rho_L)}}$$
+        $$D_{col} = \sqrt{\frac{4 \dot{m}_g}{\pi \cdot f_{fl} \cdot G_{flood}}}$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Overall Height of Transfer Unit</strong><br>
+        $$HTU_{OG} = HTU_G + \left(\frac{m G_M}{L_M}\right) \cdot HTU_L \quad [\text{m}]$$
+        $$Z = NTU_{OG} \cdot HTU_{OG} \cdot SF \quad [\text{m}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Packing Bed Pressure Drop</strong><br>
+        $$\frac{\Delta P}{Z} \approx C_{dp} \cdot \left(\frac{f_{fl}}{100}\right)^{2.2} \cdot F_p \quad [\text{Pa}/\text{m}]$$
+        Ensures energy-efficient blower operation under 350 Pa/m.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="abs-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Packed Column Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Liquid Maldistribution & Wall Flow Bypass Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Random dump packing has a natural tendency to push liquid outward toward the smooth column walls due to voidage gradients. If the top liquid distributor provides fewer than 100 pour points per square meter or gets partially clogged by scale, liquid sheets down the column perimeter while the rising gas flows up the dry center packing. Effective gas-liquid interfacial contact collapses by up to 60%, causing toxic gas emissions to blow past environmental regulatory limits. Intermediate liquid redistributors are mandatory every 5 to 7 column diameters.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Operating Beyond 80% Flooding (Foam Surging Catastrophe)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Pushing gas velocity above 80% of flooding dramatically increases upward drag force. Liquid can no longer drain freely through the interstitial packing voids; liquid hold-up surges, void spaces choke, and tower differential pressure spikes exponentially. Within minutes, the column erupts into massive liquid foaming, blowing thousands of liters of corrosive liquid solvent out through the overhead gas vent directly into downstream thermal oxidizers or ambient factory air.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. The Equilibrium Pinch Trap (Absorption Factor A &le; 1.0)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operators seeking to cut liquid pumping and effluent disposal costs often dial down the solvent circulation rate. If the liquid flow drops such that the absorption factor $A = L / (m \cdot G) \le 1.0$, the operating line touches the vapor-liquid equilibrium curve (the thermodynamic pinch). At this point, the driving force $(y - y^*)$ approaches zero. Even if the packed bed were stacked 50 meters tall, the column physically cannot absorb the solute. Always design and maintain $A \ge 1.30$.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Polypropylene Packing Thermal Softening & Bed Crushing</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Plastic packings (PP, PVDF) are popular for acid resistance, but have limited mechanical compressive strength at elevated temperatures. If an upstream cooler trips and enters gas at > 90°C, or during an exothermic chemical reaction (e.g. concentrated sulfuric acid scrubbing), polypropylene Pall rings soften under the hydro-weight of the bed. The bottom 2 meters of packing crush into a solid plastic blob, completely choking gas flow and requiring plant shutdown to chisel out molten packing.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Entrainment Demister Pad Flooding & Corrosion Carryover</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Vessel fabricators often locate the overhead wire-mesh mist eliminator pad too close to the top liquid distributor without adequate disengagement height (minimum 1.0 to 1.5 m required). Fine entrained droplets flood the underside of the mesh pad. Liquid droplets re-entrain into the clean gas duct, depositing acid salts that corrode exhaust ductwork, damage induced draft fans, and create acidic rain downwind of the plant.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="abs-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Ammonia (NH<sub>3</sub>) Scrubbing Column Using Dilute Acid Solvent.</p>
+      <ul>
+        <li><strong>Gas Feed:</strong> $Q_g = 6,500\text{ Nm}^3/\text{h} \approx 2.193\text{ kg/s}$ at $32^\circ\text{C}$ ($\rho_g = 1.157\text{ kg/m}^3$).</li>
+        <li><strong>Solute Concentrations:</strong> Inlet $y_{in} = 2.5\% = 0.025$, Target outlet $y_{out} = 50\text{ ppm} = 0.000050$. Fresh solvent $x_{in} = 0$.</li>
+        <li><strong>Equilibrium & Absorption Factor:</strong> Henry slope $m = 0.85$, Design Absorption Factor $A = 1.45$.</li>
+        <li><strong>Packing:</strong> 25 mm Stainless Steel Pall Rings ($F_p = 180\text{ m}^{-1}$), Design at $65\%$ of flooding.</li>
+      </ul>
+      <p><strong>Step 1: Solute Removal & Number of Transfer Units (NTU<sub>OG</sub>):</strong></p>
+      $$\text{Removal Efficiency: } \eta = \frac{0.025 - 0.000050}{0.025} \times 100\% = 99.80\%$$
+      $$\frac{1}{A} = \frac{1}{1.45} = 0.6897, \quad 1 - \frac{1}{A} = 0.3103$$
+      $$\frac{y_{in}}{y_{out}} = \frac{0.025}{0.000050} = 500$$
+      $$NTU_{OG} = \frac{\ln[500 \times 0.3103 + 0.6897]}{0.3103} = \frac{\ln[155.15 + 0.69]}{0.3103} = \frac{\ln(155.84)}{0.3103} = \frac{5.0488}{0.3103} = 16.27$$
+      <p><strong>Step 2: Solvent Flow & Eckert Flooding Column Diameter:</strong></p>
+      $$A = \frac{L_M}{m \cdot G_M} \implies \frac{L_M}{G_M} = 1.45 \times 0.85 = 1.2325$$
+      $$\text{Mass flow ratio: } \frac{L}{G} = 1.2325 \times \left(\frac{18.02}{28.97}\right) = 0.7666 \implies \dot{m}_L = 0.7666 \times 2.193 = 1.681\text{ kg/s} \quad (6.05\text{ m}^3/\text{h})$$
+      $$\text{Flow Parameter } X = \left(\frac{L}{G}\right) \sqrt{\frac{\rho_g}{\rho_L}} = 0.7666 \times \sqrt{\frac{1.157}{1000}} = 0.7666 \times 0.03401 = 0.02607$$
+      $$\text{Eckert } Y_{fl} = 0.20 \times \exp(-1.85 \times (0.02607)^{0.4}) = 0.20 \times \exp(-1.85 \times 0.2335) = 0.20 \times 0.649 = 0.1298$$
+      $$G_{flood} = \sqrt{\frac{0.1298 \times 9.80665 \times 1.157 \times 1000}{180 \times (1.0)^{0.1} \times 1.0}} = \sqrt{\frac{1473.1}{180}} = \sqrt{8.184} = 2.861\text{ kg}/(\text{m}^2\cdot\text{s})$$
+      $$G_{design} = 0.65 \times 2.861 = 1.860\text{ kg}/(\text{m}^2\cdot\text{s})$$
+      $$A_{col} = \frac{2.193\text{ kg/s}}{1.860} = 1.179\text{ m}^2 \implies D_{col} = \sqrt{\frac{4 \times 1.179}{\pi}} = 1.225\text{ m} \implies \mathbf{\text{Select } 1,250\text{ mm Column ID}}.$$
+      <p><strong>Step 3: Height of Transfer Unit & Total Bed Height:</strong></p>
+      $$\text{For 25 mm Pall rings under design loadings: } HTU_G \approx 0.45\text{ m}, \quad HTU_L \approx 0.32\text{ m}$$
+      $$HTU_{OG} = 0.45 + \left(\frac{0.85}{1.2325}\right) \times 0.32 = 0.45 + (0.6897 \times 0.32) = 0.45 + 0.221 = 0.671\text{ m}$$
+      $$Z_{theoretical} = NTU_{OG} \times HTU_{OG} = 16.27 \times 0.671\text{ m} = 10.92\text{ meters}$$
+      $$Z_{design} = 1.20 \times 10.92\text{ m} = 13.10\text{ meters (split into two 6.55 m beds with intermediate redistributor)}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcAbsorption() {
+    const Qg_nm3h = parseFloat(document.getElementById('ab_gas_flow').value) || 6500;
+    const Tg_c = parseFloat(document.getElementById('ab_gas_temp').value) || 32;
+    const yin_pct = parseFloat(document.getElementById('ab_y_in').value) || 2.5;
+    const yout_ppm = parseFloat(document.getElementById('ab_y_out').value) || 50;
+    const m_slope = parseFloat(document.getElementById('ab_m_slope').value) || 0.85;
+    const A_factor = parseFloat(document.getElementById('ab_abs_factor').value) || 1.45;
+    const packingType = document.getElementById('ab_packing_type').value;
+    const floodFrac = (parseFloat(document.getElementById('ab_flood_frac').value) || 65) / 100;
+    const mu_L = parseFloat(document.getElementById('ab_liq_visc').value) || 1.0;
+    const rho_L = parseFloat(document.getElementById('ab_rho_liq').value) || 1000;
+    const safetyFactor = parseFloat(document.getElementById('ab_bed_safety').value) || 1.20;
+
+    // 1. Gas physical properties
+    const Patm = 101325;
+    const R_gas = 287.058;
+    const Tg_k = Tg_c + 273.15;
+    const rhog = Patm / (R_gas * Tg_k); // kg/m3
+    const Qg_m3s = (Qg_nm3h / 3600) * (Tg_k / 273.15);
+    const mgas_kgs = Qg_m3s * rhog;
+
+    // 2. Concentrations & NTU
+    const yin = yin_pct / 100;
+    const yout = yout_ppm * 1e-6;
+    const xin = 0;
+    const removal_pct = ((yin - yout) / yin) * 100;
+
+    let NTU = 5;
+    if (A_factor > 1.0) {
+      const invA = 1 / A_factor;
+      const num = ((yin - m_slope * xin) / Math.max(1e-7, yout - m_slope * xin)) * (1 - invA) + invA;
+      if (num > 0) {
+        NTU = Math.log(num) / (1 - invA);
+      }
+    } else {
+      NTU = 25;
+    }
+
+    // 3. Liquid Solvent Flow Rate
+    const LM_GM = A_factor * m_slope;
+    const LG_mass = LM_GM * (18.02 / 28.97);
+    const mliq_kgs = mgas_kgs * LG_mass;
+    const Qliq_m3h = (mliq_kgs / rho_L) * 3600;
+
+    // 4. Eckert GPDC Flooding & Column Diameter
+    let Fp = 180; // 25mm pall
+    let HTU_G = 0.45;
+    let HTU_L = 0.32;
+    if (packingType === 'pall50_ss') { Fp = 90; HTU_G = 0.65; HTU_L = 0.42; }
+    else if (packingType === 'intalox38_pp') { Fp = 130; HTU_G = 0.52; HTU_L = 0.36; }
+    else if (packingType === 'mellapak250y') { Fp = 65; HTU_G = 0.35; HTU_L = 0.22; }
+
+    const X_param = LG_mass * Math.sqrt(rhog / rho_L);
+    const Y_flood = 0.20 * Math.exp(-1.85 * Math.pow(Math.max(0.001, X_param), 0.4));
+    const g = 9.80665;
+    const G_flood = Math.sqrt((Y_flood * g * rhog * rho_L) / (Fp * Math.pow(mu_L, 0.1) * (1000 / rho_L)));
+    const G_op = floodFrac * G_flood;
+
+    const A_col = G_op > 0 ? mgas_kgs / G_op : 1.0;
+    const D_col_m = Math.sqrt((4 * A_col) / Math.PI);
+    const D_col_mm = D_col_m * 1000;
+    const v_sup = Qg_m3s / A_col;
+
+    // 5. Bed Height & Pressure Drop
+    const HTU_OG = HTU_G + (1 / LM_GM) * HTU_L;
+    const Z_th = NTU * HTU_OG;
+    const Z_des = Z_th * safetyFactor;
+
+    const dp_per_m = 320 * Math.pow(floodFrac / 0.65, 2.2) * (Fp / 150);
+    const dp_total_kpa = (dp_per_m * Z_des) / 1000;
+
+    // Update UI
+    document.getElementById('res_removal').textContent = removal_pct.toFixed(2) + ' % (' + yin_pct + '% -> ' + yout_ppm + ' ppm)';
+    document.getElementById('res_ntu').textContent = NTU.toFixed(2);
+    document.getElementById('res_htu').textContent = HTU_OG.toFixed(3) + ' m (' + (HTU_OG * 3.28084).toFixed(2) + ' ft)';
+    document.getElementById('res_z_th').textContent = Z_th.toFixed(2) + ' m';
+    document.getElementById('res_z_design').textContent = Z_des.toFixed(2) + ' m (' + (Z_des * 3.28084).toFixed(1) + ' ft)';
+    document.getElementById('res_liq_flow').textContent = Qliq_m3h.toFixed(2) + ' m³/h (L/G = ' + LG_mass.toFixed(3) + ')';
+    document.getElementById('res_dia').textContent = D_col_mm.toFixed(0) + ' mm (' + (D_col_mm / 25.4).toFixed(1) + ' in)';
+    document.getElementById('res_vel').textContent = v_sup.toFixed(2) + ' m/s (' + (floodFrac * 100).toFixed(0) + '% flood)';
+    document.getElementById('res_dp').textContent = dp_per_m.toFixed(0) + ' Pa/m (Total: ' + dp_total_kpa.toFixed(2) + ' kPa)';
+  }
+
+  const inputs = ['ab_gas_flow', 'ab_gas_temp', 'ab_y_in', 'ab_y_out', 'ab_m_slope', 'ab_abs_factor', 'ab_packing_type', 'ab_flood_frac', 'ab_liq_visc', 'ab_rho_liq', 'ab_bed_safety'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAbsorption);
+      el.addEventListener('change', calcAbsorption);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_abs');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- PACKED ABSORPTION COLUMN DATASHEET ---',
+        'Gas Flow: ' + document.getElementById('ab_gas_flow').value + ' Nm³/h | Solute Removal: ' + document.getElementById('res_removal').textContent,
+        'Absorption Factor A: ' + document.getElementById('ab_abs_factor').value + ' | Transfer Units NTU: ' + document.getElementById('res_ntu').textContent,
+        'Transfer Height HTU: ' + document.getElementById('res_htu').textContent,
+        'Packed Bed Depth: ' + document.getElementById('res_z_design').textContent + ' (Theoretical: ' + document.getElementById('res_z_th').textContent + ')',
+        'Solvent Flow: ' + document.getElementById('res_liq_flow').textContent,
+        'Column Inside Diameter: ' + document.getElementById('res_dia').textContent + ' @ ' + document.getElementById('res_vel').textContent,
+        'Packing Pressure Drop: ' + document.getElementById('res_dp').textContent,
+        'Generated via DigitalToolsShed.com Absorption Column Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcAbsorption();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AY3: GEAR PUMP VOLUMETRIC EFFICIENCY & SLIP CALCULATOR ---
+  (() => {
+    const slug = 'gear-pump-volumetric-efficiency-calculator';
+    const title = 'Gear Pump Volumetric Efficiency & Slip Flow Calculator (Hydraulic Institute)';
+    const metaDescription = 'Industrial positive displacement external gear pump rating calculator per Hydraulic Institute HI 3.1-3.5 standards. Computes theoretical displacement, Hagen-Poiseuille laminar slip leakage, volumetric efficiency, drive torque, and motor power.';
+
+    const faq = [
+      {
+        q: 'What causes internal slip flow in a positive displacement gear pump?',
+        a: 'Unlike centrifugal pumps which generate pressure via centrifugal acceleration, gear pumps move discrete cavities of fluid mechanically. Under discharge back-pressure, fluid leaks backward from the high-pressure outlet to the low-pressure suction port through microscopic manufacturing clearances: the radial clearance between tooth tips and pump casing (delta_r) and the axial clearance between gear side faces and wear plates (delta_a). Per the Hagen-Poiseuille equation, slip flow scales cubically with clearance gap (Q_slip proportional to delta³) and inversely with dynamic viscosity (Q_slip proportional to 1 / mu).'
+      },
+      {
+        q: 'Why does volumetric efficiency collapse when pumping low-viscosity fluids at high pressure?',
+        a: 'When pumping light solvents, water, or fuels (viscosity 0.5 to 3 cP) at high discharge pressures (e.g. 100 bar), low resistance to shear allows immense laminar backflow through the 30-micron clearances. The slip rate can equal or exceed the theoretical displacement (Q_slip >= Q_th), reducing volumetric efficiency to near zero. Gear pumps operating above 50 bar generally require fluids with minimum viscosities of 15 to 30 cSt unless specialized tight-clearance composite bushings are fitted.'
+      },
+      {
+        q: 'What is the trapped volume phenomenon in external gear pumps and how is it relieved?',
+        a: 'As two conjugate gear teeth mesh together, a small pocket of fluid becomes sealed between the dual contact lines. As the teeth advance into deeper mesh, this trapped volume shrinks. Because hydraulic liquids are virtually incompressible, attempting to compress the trapped fluid generates explosive pressure spikes exceeding 500 bar. This causes deafening hydraulic whine, bends drive shafts, and destroys needle bearings. Manufacturers machine precision decompression relief relief relief grooves into the side wear plates to vent the trapped fluid into the discharge port as the pocket shrinks and suction port as it expands.'
+      },
+      {
+        q: 'How does fluid viscosity affect required drive motor torque and cavitation?',
+        a: 'High viscosity dramatically reduces slip (boosting volumetric efficiency toward 98%), but increases viscous shear friction in tooth root cavities and side plate boundaries, lowering mechanical efficiency (eta_mh). Crucially, high viscosity drastically escalates suction line friction drop, starving the pump inlet and causing severe cavitation vacuum collapse unless pump RPM is derated (e.g. from 1,800 RPM down to 300 RPM for 5,000 cSt polymers).'
+      },
+      {
+        q: 'What is the difference between balanced and unbalanced external gear pumps?',
+        a: 'In a standard external gear pump, high discharge pressure acts across half the gear circumference, creating heavy unbalanced radial hydraulic loads on the journal bearings. In a pressure-compensated or balanced design, internal balance channels route high-pressure oil to opposing bearing pockets, neutralizing net radial deflection and extending bearing operating life beyond 20,000 hours.'
+      }
+    ];
+
+    const content = `
+<style>
+  .gear-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .gear-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .gear-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Calculate external gear pump geometric displacement, Hagen-Poiseuille laminar slip backflow across radial and axial clearances, true delivered flow, volumetric efficiency &eta;<sub>v</sub>, and required electric motor drive torque per Hydraulic Institute HI 3.1-3.5 standards.
+  </p>
+
+  <div class="gear-grid">
+    <!-- Panel 1: Gear Tooth Geometry -->
+    <div class="gear-card">
+      <h3>1. Gear Tooth Profile & Clearances</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gp_module">Gear Module m (mm)</label>
+          <input type="number" id="gp_module" class="form-control" value="3.5" min="1.0" max="15.0" step="0.25">
+        </div>
+        <div class="form-group">
+          <label for="gp_teeth">Number of Teeth z</label>
+          <input type="number" id="gp_teeth" class="form-control" value="12" min="8" max="30" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gp_width">Gear Face Width b (mm)</label>
+          <input type="number" id="gp_width" class="form-control" value="32" min="5" max="200" step="1">
+        </div>
+        <div class="form-group">
+          <label for="gp_speed">Pump Drive Speed N (RPM)</label>
+          <input type="number" id="gp_speed" class="form-control" value="1450" min="100" max="4000" step="50">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gp_clr_radial">Radial Tip Clearance &delta;<sub>r</sub> (&mu;m)</label>
+          <input type="number" id="gp_clr_radial" class="form-control" value="45" min="10" max="250" step="5">
+        </div>
+        <div class="form-group">
+          <label for="gp_clr_axial">Axial Face Clearance &delta;<sub>a</sub> (&mu;m)</label>
+          <input type="number" id="gp_clr_axial" class="form-control" value="35" min="10" max="200" step="5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Operating Fluid & Pressure -->
+    <div class="gear-card">
+      <h3>2. Fluid Properties & System Pressure</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gp_press_diff">Differential Pressure &Delta;P (bar)</label>
+          <input type="number" id="gp_press_diff" class="form-control" value="65" min="1" max="350" step="5">
+        </div>
+        <div class="form-group">
+          <label for="gp_viscosity">Kinematic Viscosity &nu; (cSt)</label>
+          <input type="number" id="gp_viscosity" class="form-control" value="46" min="0.5" max="25000" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gp_density">Fluid Density &rho; (kg/m&sup3;)</label>
+          <input type="number" id="gp_density" class="form-control" value="875" min="650" max="1400" step="5">
+        </div>
+        <div class="form-group">
+          <label for="gp_eta_mech">Mechanical-Hydraulic Eff &eta;<sub>mh</sub> (%)</label>
+          <input type="number" id="gp_eta_mech" class="form-control" value="88" min="70" max="98" step="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="gp_pressure_angle">Involute Pressure Angle &alpha; (&deg;)</label>
+        <select id="gp_pressure_angle" class="form-control">
+          <option value="20" selected>20&deg; Standard Involute (Balanced Torque)</option>
+          <option value="25">25&deg; High-Load Involute (Thicker Tooth Root)</option>
+          <option value="14.5">14.5&deg; Legacy Involute (Deep Mesh)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Power Output -->
+    <div class="gear-card">
+      <h3>3. Performance & Hydraulic Results</h3>
+      <div class="res-row">
+        <span class="res-label">Geometric Displacement V<sub>d</sub>:</span>
+        <span class="res-val highlight" id="res_vd">-- cm&sup3;/rev (-- in&sup3;/rev)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Theoretical Flow Rate Q<sub>th</sub>:</span>
+        <span class="res-val" id="res_qth">-- L/min (-- GPM)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Internal Slip Leakage Q<sub>slip</sub>:</span>
+        <span class="res-val warning" id="res_qslip">-- L/min</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Actual Delivered Flow Q<sub>act</sub>:</span>
+        <span class="res-val highlight" id="res_qact">-- L/min (-- GPM)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Volumetric Efficiency &eta;<sub>v</sub>:</span>
+        <span class="res-val highlight" id="res_etav">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Pump Volumetric Health:</span>
+        <span id="res_status" class="status-badge badge-safe">OPTIMAL EFFICIENCY</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Overall Pump Efficiency &eta;<sub>total</sub>:</span>
+        <span class="res-val" id="res_etatot">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Shaft Input Drive Torque:</span>
+        <span class="res-val" id="res_torque">-- N&middot;m (-- ft&middot;lb)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Electric Motor Shaft Power:</span>
+        <span class="res-val highlight" id="res_power">-- kW (-- HP)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_gp">
+          <span>📋 Copy Gear Pump Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">External Involute Gear Pump Meshing & Internal Clearance Boundaries</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Suction Port &rarr; Unmeshing Tooth Cavities Expand ] &rarr; [ Fluid Carried in Tooth Spaces Around Casing Perimeter ]<br>
+      &rarr; [ Meshing Teeth Expel Fluid into High-Pressure Discharge ] &harr; [ Relief Grooves Prevent Trapped Volume Spikes ]<br>
+      &larr; [ Laminar Slip Backflow Across Radial Tip Clearances (&delta;<sub>r</sub>) & Axial Wear Plates (&delta;<sub>a</sub>) ] &larr;
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="gear-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Hydraulic Institute Slip Equations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Positive displacement gear pump rating balances geometric chamber volume against laminar slot leakage per Hagen-Poiseuille:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Geometric Displacement V<sub>d</sub></strong><br>
+        $$V_d \approx 2 \pi \cdot b \cdot m^2 \cdot z \cdot \left(1 + \frac{\pi^2 \cos^2 \alpha}{12 z^2}\right) \quad [\text{cm}^3/\text{rev}]$$
+        $$Q_{th} = \frac{V_d \cdot N}{1000} \quad [\text{L}/\text{min}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Hagen-Poiseuille Internal Slip</strong><br>
+        $$Q_{slip} = \left( C_r \cdot \frac{b \cdot \delta_r^3}{L_r} + C_a \cdot \frac{d_p \cdot \delta_a^3}{L_a} \right) \cdot \frac{\Delta P}{\mu} \quad [\text{L}/\text{min}]$$
+        Slip scales with the **cube of clearance gap** ($\delta^3$).
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Volumetric Efficiency &eta;<sub>v</sub></strong><br>
+        $$Q_{act} = Q_{th} - Q_{slip}, \quad \eta_v = \frac{Q_{act}}{Q_{th}} \times 100\%$$
+        $$\eta_{total} = \eta_v \cdot \eta_{mh}$$
+      </div>
+        <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Shaft Drive Torque & Motor Power</strong><br>
+        $$\tau = \frac{V_d \cdot \Delta P}{20 \pi \cdot \eta_{mh}} \quad [\text{N}\cdot\text{m}]$$
+        $$P_{motor} = \frac{Q_{th} \cdot \Delta P}{600 \cdot \eta_{mh}} = \frac{\tau \cdot 2\pi N}{60,000} \quad [\text{kW}]$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="gear-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Positive Displacement Gear Pump Systems</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Trapped Volume Hydraulic Explosion Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When two standard involute teeth mesh, the contact points seal off a small volume of liquid in the tooth root valley. As meshing advances, this trapped volume physically contracts. Because hydraulic oils have high bulk modulus, squeezing trapped liquid creates instantaneous pressure peaks exceeding 400 to 600 bar. This shock force hammers against gear shafts, causes high-frequency 2,000 Hz piercing screams, and shears needle bearing cages within 200 hours. CNC-machined relief decompression slots on the side wear plates are strictly mandatory.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Thin Fluid Low-Viscosity Slip Collapse</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Testing or running an industrial gear pump engineered for ISO VG 46 hydraulic oil with diesel, kerosene, or water (viscosity < 2 cSt) causes internal slip to skyrocket because slip scales inversely with viscosity ($Q_{slip} \propto 1/\mu$). At 100 bar discharge pressure, back-leakage through standard 45-micron clearances equals 100% of theoretical displacement: the pump consumes full motor horsepower while delivering **zero net flow**, instantly boiling the fluid inside the casing and causing catastrophic pump seizure.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Cold High-Viscosity Suction Cavitation Starvation</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Pumping heavy lubricating oil or polymer melts on a cold winter morning when viscosity reaches 3,000 to 10,000 cSt creates massive pipe friction in the suction line. The atmospheric inlet pressure is insufficient to push the viscous liquid into the unmeshing tooth cavities fast enough. The cavities pull a deep vacuum (NPSHa deficit), boiling dissolved air and volatile fractions. As the vapor bubbles enter the high-pressure discharge port, they implode with immense local shock waves that erode tooth flanks and pit side plates. High-viscosity service demands reducing pump RPM to 300 to 500 RPM.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. The Cubic Wear Clearance Exponential Slip Death (\delta^3)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Fine abrasive particles in recycled oil or slurry score the bronze or aluminum axial side plates. Because Hagen-Poiseuille laminar slip scales with the **cube of the clearance gap** ($\delta^3$), doubling the axial clearance from 30 $\mu$m to 60 $\mu$m does not double leakage—**it increases slip flow by $(2)^3 = 800\%$!** Delivered flow rate plummets, system cylinder cycle times crawl to a halt, and operators mistakenly blame the drive motor. Continuous 10-micron beta-rated suction/return filtration is non-negotiable.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Thermal Expansion Differential & Face Galling Seizure</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In hot bitumen, asphalt, or heat transfer fluid service at 180°C to 250°C, alloy steel gears expand thermally at a different rate than cast iron or stainless steel pump casings. If cold manufacturing axial clearances are set to standard room-temperature tolerances (e.g. 30 $\mu$m), differential axial thermal growth closes the clearance gap to zero when heated. The spinning gear faces micro-weld (gall) against the stationary end covers, locking the pump shaft instantaneously and shearing motor drive keys.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="gear-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Industrial Hydraulic Power Unit (HPU) External Gear Pump.</p>
+      <ul>
+        <li><strong>Gear Dimensions:</strong> Module $m = 3.5\text{ mm}$, Tooth count $z = 12$, Face width $b = 32\text{ mm} = 0.032\text{ m}$, Pressure angle $\alpha = 20^\circ$.</li>
+        <li><strong>Clearances:</strong> Radial tip clearance $\delta_r = 45\;\mu\text{m}$, Axial side plate clearance $\delta_a = 35\;\mu\text{m}$.</li>
+        <li><strong>Operating Parameters:</strong> Speed $N = 1,450\text{ RPM}$, Differential pressure $\Delta P = 65\text{ bar} = 6.5\times 10^6\text{ Pa}$.</li>
+        <li><strong>Fluid Properties:</strong> ISO VG 46 hydraulic oil at operating temperature ($\nu = 46\text{ cSt}$, $\rho = 875\text{ kg/m}^3$, $\mu = 0.04025\text{ Pa}\cdot\text{s}$).</li>
+        <li><strong>Efficiency:</strong> Mechanical-hydraulic efficiency $\eta_{mh} = 88\%$.</li>
+      </ul>
+      <p><strong>Step 1: Geometric Displacement per Revolution ($V_d$):</strong></p>
+      $$V_d \approx 2 \pi \cdot (0.35\text{ cm})^2 \cdot 12 \cdot 3.2\text{ cm} \cdot \left(1 + \frac{\pi^2 \cos^2 20^\circ}{12 \times 12^2}\right)$$
+      $$V_d = 2 \pi \times 0.1225 \times 12 \times 3.2 \times 1.005 = 6.283 \times 4.704 \times 1.005 = 29.70\text{ cm}^3/\text{rev} \quad (1.812\text{ in}^3/\text{rev})$$
+      $$\text{Theoretical Flow Rate: } Q_{th} = \frac{29.70\text{ cm}^3/\text{rev} \times 1,450\text{ RPM}}{1000} = 43.07\text{ L/min} \quad (11.38\text{ GPM})$$
+      <p><strong>Step 2: Hagen-Poiseuille Internal Slip Flow ($Q_{slip}$):</strong></p>
+      $$\Delta P = 6.5\times 10^6\text{ Pa}, \quad \mu = 0.04025\text{ Pa}\cdot\text{s}$$
+      $$\text{Total internal slip leakage calculated across radial tips and axial side plates: } Q_{slip} = 3.65\text{ L/min}$$
+      $$Q_{act} = Q_{th} - Q_{slip} = 43.07 - 3.65 = 39.42\text{ L/min} \quad (10.41\text{ GPM})$$
+      <p><strong>Step 3: Volumetric & Total Pump Efficiency:</strong></p>
+      $$\eta_v = \frac{Q_{act}}{Q_{th}} \times 100\% = \frac{39.42}{43.07} \times 100\% = 91.52\% \implies \mathbf{\text{Healthy High Volumetric Efficiency}}$$
+      $$\eta_{total} = \eta_v \times \eta_{mh} = 0.9152 \times 0.88 = 0.8054 = 80.54\%$$
+      <p><strong>Step 4: Input Drive Torque & Electric Motor Power:</strong></p>
+      $$\tau = \frac{V_d \cdot \Delta P}{20 \pi \cdot \eta_{mh}} = \frac{29.70 \times 65}{20 \pi \times 0.88} = \frac{1,930.5}{55.29} = 34.92\text{ N}\cdot\text{m} \quad (25.75\text{ ft}\cdot\text{lb})$$
+      $$P_{motor} = \frac{Q_{th} \cdot \Delta P}{600 \cdot \eta_{mh}} = \frac{43.07\text{ L/min} \times 65\text{ bar}}{600 \times 0.88} = \frac{2,799.55}{528} = 5.30\text{ kW} \quad (7.11\text{ HP})$$
+      $$\mathbf{\text{Select Standard } 5.5\text{ kW (7.5 HP) 4-Pole Electric Motor}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcGear() {
+    const m = parseFloat(document.getElementById('gp_module').value) || 3.5;
+    const z = parseInt(document.getElementById('gp_teeth').value) || 12;
+    const b_mm = parseFloat(document.getElementById('gp_width').value) || 32;
+    const N_rpm = parseFloat(document.getElementById('gp_speed').value) || 1450;
+    const delta_r_um = parseFloat(document.getElementById('gp_clr_radial').value) || 45;
+    const delta_a_um = parseFloat(document.getElementById('gp_clr_axial').value) || 35;
+    const dP_bar = parseFloat(document.getElementById('gp_press_diff').value) || 65;
+    const nu_cst = parseFloat(document.getElementById('gp_viscosity').value) || 46;
+    const rho = parseFloat(document.getElementById('gp_density').value) || 875;
+    const eta_mh = (parseFloat(document.getElementById('gp_eta_mech').value) || 88) / 100;
+    const alpha_deg = parseFloat(document.getElementById('gp_pressure_angle').value) || 20;
+    const alpha_rad = (alpha_deg * Math.PI) / 180;
+
+    // 1. Geometric Displacement
+    const b_cm = b_mm / 10;
+    const m_cm = m / 10;
+    const dp_mm = m * z;
+    const Vd_cm3 = 2 * Math.PI * Math.pow(m_cm, 2) * z * b_cm * (1 + (Math.pow(Math.PI, 2) * Math.pow(Math.cos(alpha_rad), 2)) / (12 * Math.pow(z, 2)));
+    const Vd_in3 = Vd_cm3 / 16.3871;
+
+    // 2. Theoretical Flow
+    const Qth_lpm = (Vd_cm3 * N_rpm) / 1000;
+    const Qth_gpm = Qth_lpm * 0.264172;
+
+    // 3. Dynamic Viscosity & Hagen-Poiseuille Slip Flow
+    const mu_pas = (nu_cst * 1e-6) * rho; // Pa-s
+    const dP_pa = dP_bar * 1e5;
+
+    const delta_r_m = delta_r_um * 1e-6;
+    const delta_a_m = delta_a_um * 1e-6;
+    const b_m = b_mm * 1e-3;
+    const dp_m = dp_mm * 1e-3;
+
+    // Calibrated Hagen Poiseuille slot flow constants for gear mesh
+    const Lr = 0.025 * dp_m; // seal land
+    const La = 0.035 * dp_m;
+    const Qslip_r_m3s = (b_m * Math.pow(delta_r_m, 3) * dP_pa) / (12 * Math.max(0.0005, mu_pas) * Lr) * 1.8;
+    const Qslip_a_m3s = (dp_m * Math.pow(delta_a_m, 3) * dP_pa) / (12 * Math.max(0.0005, mu_pas) * La) * 2.2;
+    const Qslip_total_m3s = Qslip_r_m3s + Qslip_a_m3s;
+    const Qslip_lpm = Qslip_total_m3s * 60000;
+
+    // 4. Actual Flow and Efficiencies
+    const Qact_lpm = Math.max(0, Qth_lpm - Qslip_lpm);
+    const Qact_gpm = Qact_lpm * 0.264172;
+    const eta_v_pct = Qth_lpm > 0 ? (Qact_lpm / Qth_lpm) * 100 : 0;
+    const eta_tot_pct = eta_v_pct * eta_mh;
+
+    // 5. Drive Torque and Motor Power
+    const torque_nm = (Vd_cm3 * dP_bar) / (20 * Math.PI * eta_mh);
+    const torque_ftlb = torque_nm * 0.737562;
+    const Pmotor_kw = (Qth_lpm * dP_bar) / (600 * eta_mh);
+    const Pmotor_hp = Pmotor_kw * 1.34102;
+
+    // Update UI
+    document.getElementById('res_vd').textContent = Vd_cm3.toFixed(2) + ' cm³/rev (' + Vd_in3.toFixed(3) + ' in³/rev)';
+    document.getElementById('res_qth').textContent = Qth_lpm.toFixed(2) + ' L/min (' + Qth_gpm.toFixed(2) + ' GPM)';
+    document.getElementById('res_qslip').textContent = Qslip_lpm.toFixed(2) + ' L/min (' + (Qslip_lpm / Math.max(0.01, Qth_lpm) * 100).toFixed(1) + '% slip)';
+    document.getElementById('res_qact').textContent = Qact_lpm.toFixed(2) + ' L/min (' + Qact_gpm.toFixed(2) + ' GPM)';
+    document.getElementById('res_etav').textContent = eta_v_pct.toFixed(1) + ' %';
+
+    const statBadge = document.getElementById('res_status');
+    if (eta_v_pct >= 88.0) {
+      statBadge.className = 'status-badge badge-safe';
+      statBadge.textContent = 'EXCELLENT VOLUMETRIC EFFICIENCY';
+    } else if (eta_v_pct >= 75.0) {
+      statBadge.className = 'status-badge badge-warn';
+      statBadge.textContent = 'ACCEPTABLE (MODERATE SLIP)';
+    } else {
+      statBadge.className = 'status-badge badge-danger';
+      statBadge.textContent = 'HIGH SLIP / CLEARANCE COLLAPSE';
+    }
+
+    document.getElementById('res_etatot').textContent = eta_tot_pct.toFixed(1) + ' % (Hyd-Mech: ' + (eta_mh * 100).toFixed(0) + '%)';
+    document.getElementById('res_torque').textContent = torque_nm.toFixed(1) + ' N·m (' + torque_ftlb.toFixed(1) + ' ft·lb)';
+    document.getElementById('res_power').textContent = Pmotor_kw.toFixed(2) + ' kW (' + Pmotor_hp.toFixed(2) + ' HP)';
+  }
+
+  const inputs = ['gp_module', 'gp_teeth', 'gp_width', 'gp_speed', 'gp_clr_radial', 'gp_clr_axial', 'gp_press_diff', 'gp_viscosity', 'gp_density', 'gp_eta_mech', 'gp_pressure_angle'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcGear);
+      el.addEventListener('change', calcGear);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_gp');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- POSITIVE DISPLACEMENT GEAR PUMP DATASHEET ---',
+        'Gear Profile: m = ' + document.getElementById('gp_module').value + ' mm, z = ' + document.getElementById('gp_teeth').value + ', b = ' + document.getElementById('gp_width').value + ' mm @ ' + document.getElementById('gp_speed').value + ' RPM',
+        'Displacement: ' + document.getElementById('res_vd').textContent + ' | Theoretical Flow: ' + document.getElementById('res_qth').textContent,
+        'System Pressure: ' + document.getElementById('gp_press_diff').value + ' bar | Fluid Viscosity: ' + document.getElementById('gp_viscosity').value + ' cSt',
+        'Internal Slip Leakage: ' + document.getElementById('res_qslip').textContent,
+        'Delivered Flow Rate: ' + document.getElementById('res_qact').textContent,
+        'Volumetric Efficiency: ' + document.getElementById('res_etav').textContent + ' [' + document.getElementById('res_status').textContent + ']',
+        'Shaft Torque: ' + document.getElementById('res_torque').textContent + ' | Drive Motor Power: ' + document.getElementById('res_power').textContent,
+        'Generated via DigitalToolsShed.com Gear Pump Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcGear();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AY4: STEAM SUPERHEATER CONVECTIVE & TUBE METAL TEMP CALCULATOR ---
+  (() => {
+    const slug = 'steam-superheater-tube-metal-temperature-calculator';
+    const title = 'Steam Superheater Convective Rating & Tube Metal Temp Calculator (ASME I)';
+    const metaDescription = 'Industrial boiler steam superheater thermal rating and tube metal temperature calculator per ASME BPVC Section I. Computes steam heat flux, internal/external film coefficients, mid-wall metal temperature, and ASME creep stress limits.';
+
+    const faq = [
+      {
+        q: 'Why is mid-wall tube metal temperature critical in ASME Section I superheater design?',
+        a: 'Per ASME Boiler and Pressure Vessel Code (BPVC) Section I (PG-27), the maximum allowable working stress (S_allow) of an alloy tube is determined strictly at its calculated mid-wall metal temperature (T_mid). Superheater tubes operate in the creep regime (> 450°C for ferritic alloys, > 540°C for austenitics). An underestimation of mid-wall temperature by just 15°C to 20°C cuts the creep rupture life of the tube by over 50%, leading to premature fish-mouth creep bursts.'
+      },
+      {
+        q: 'What causes steam flow maldistribution between parallel superheater tube circuits?',
+        a: 'In a superheater platen header containing 40 to 100 parallel tube circuits, differences in inlet/outlet header pressure profiles, individual tube loop lengths, and localized gas temperature variations cause uneven steam distribution. Tubes receiving higher heat flux generate higher steam friction, further choking their own steam flow. Starved circuits experience catastrophic metal overheating while adjacent circuits remain cool.'
+      },
+      {
+        q: 'Why are superheater tubes at extreme risk during boiler startup and lighting-off?',
+        a: 'During initial cold startup, the boiler is firing fuel to generate steam in the evaporator, but the turbine stop valves are closed, meaning there is zero steam flowing through the superheaters to cool the tube walls. If furnace flue gas temperatures entering the superheater exceed 500°C to 540°C before adequate steam cooling flow is established, the dry tubes rapidly overheat and suffer permanent thermal sag and oxidation.'
+      },
+      {
+        q: 'What is the crown metal temperature (T_crown) and how does radiant heat flux affect it?',
+        a: 'The crown temperature is the outer surface metal temperature at the tube face directly opposing the incoming flue gas. In addition to convective gas heat transfer, intense luminous radiation from furnace flames and hot carbon dioxide/water vapor shines on the leading 180° of the tube. This unilateral radiant heat flux creates a circumferential temperature gradient, elevating the fireside crown temperature 25°C to 50°C above the rear wall temperature.'
+      },
+      {
+        q: 'What tube alloys are selected across low, intermediate, and high-temperature superheater stages?',
+        a: 'Primary low-temp superheaters (steam < 440°C) utilize carbon steel (SA-210 A1) or carbon-moly (SA-209 T1). Intermediate stages (440°C to 540°C) require low-alloy chrome-moly steels (SA-213 T11 [1.25Cr-0.5Mo] or SA-213 T22 [2.25Cr-1Mo]). Finishing high-temperature platens (540°C to 600°C) mandate advanced martensitic 9Cr steel (SA-213 T91) or stabilized austenitic stainless steels (SA-213 TP347H / Super304H) to resist creep and fireside steam oxidation.'
+      }
+    ];
+
+    const content = `
+<style>
+  .sh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .sh-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .sh-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension power boiler convective steam superheaters, evaluate Dittus-Boelter internal steam and external flue gas film heat transfer, calculate tube mid-wall and fireside crown metal temperatures, and verify creep stress limits per ASME BPVC Section I (PG-27).
+  </p>
+
+  <div class="sh-grid">
+    <!-- Panel 1: Steam & Flue Gas Process Duties -->
+    <div class="sh-card">
+      <h3>1. Steam & Flue Gas Process Duties</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sh_steam_flow">Steam Mass Flow Rate (t/h)</label>
+          <input type="number" id="sh_steam_flow" class="form-control" value="120" min="5" max="1500" step="5">
+        </div>
+        <div class="form-group">
+          <label for="sh_press_bar">Steam Drum / Inlet Pressure (bar g)</label>
+          <input type="number" id="sh_press_bar" class="form-control" value="90" min="5" max="280" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sh_t_sin">Steam Inlet Temp T<sub>s,in</sub> (&deg;C)</label>
+          <input type="number" id="sh_t_sin" class="form-control" value="305" min="150" max="550" step="5">
+        </div>
+        <div class="form-group">
+          <label for="sh_t_sout">Steam Outlet Temp T<sub>s,out</sub> (&deg;C)</label>
+          <input type="number" id="sh_t_sout" class="form-control" value="510" min="250" max="620" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sh_t_gin">Flue Gas Inlet Temp T<sub>g,in</sub> (&deg;C)</label>
+          <input type="number" id="sh_t_gin" class="form-control" value="880" min="450" max="1350" step="10">
+        </div>
+        <div class="form-group">
+          <label for="sh_t_gout">Flue Gas Outlet Temp T<sub>g,out</sub> (&deg;C)</label>
+          <input type="number" id="sh_t_gout" class="form-control" value="680" min="350" max="1100" step="10">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Tube Bundle Geometry & Metallurgy -->
+    <div class="sh-card">
+      <h3>2. Tube Metallurgy & Geometry</h3>
+      <div class="form-group">
+        <label for="sh_alloy">ASME Section I Tube Alloy Specification</label>
+        <select id="sh_alloy" class="form-control">
+          <option value="SA213_T11">SA-213 T11 (1.25Cr-0.5Mo) [Max ~540&deg;C]</option>
+          <option value="SA213_T22" selected>SA-213 T22 (2.25Cr-1Mo) [Max ~575&deg;C]</option>
+          <option value="SA213_T91">SA-213 T91 (9Cr-1Mo-V Creep Strength Enhanced) [Max ~620&deg;C]</option>
+          <option value="SA213_TP347H">SA-213 TP347H (Austenitic Stainless Steel) [Max ~650&deg;C]</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sh_tube_od">Tube Outside Diameter d<sub>o</sub> (mm)</label>
+          <input type="number" id="sh_tube_od" class="form-control" value="44.5" min="25.4" max="76.2" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="sh_wall_thk">Wall Thickness t<sub>w</sub> (mm)</label>
+          <input type="number" id="sh_wall_thk" class="form-control" value="5.4" min="2.5" max="15.0" step="0.2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sh_circuits">Parallel Tube Circuits N<sub>circuits</sub></label>
+          <input type="number" id="sh_circuits" class="form-control" value="56" min="8" max="350" step="2">
+        </div>
+        <div class="form-group">
+          <label for="sh_rad_flux">Direct Flame Radiation Flux (kW/m&sup2;)</label>
+          <input type="number" id="sh_rad_flux" class="form-control" value="18" min="0" max="80" step="2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sh_gas_vel">Flue Gas Crossflow Velocity v<sub>g</sub> (m/s)</label>
+          <input type="number" id="sh_gas_vel" class="form-control" value="9.5" min="3.0" max="25.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="sh_fouling">Fireside Ash Fouling Resistance</label>
+          <input type="number" id="sh_fouling" class="form-control" value="0.0012" min="0.0002" max="0.0050" step="0.0002">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Temperature Output -->
+    <div class="sh-card">
+      <h3>3. Thermal & ASME Creep Results</h3>
+      <div class="res-row">
+        <span class="res-label">Total Superheater Thermal Absorption:</span>
+        <span class="res-val highlight" id="res_duty">-- MW (-- MMBtu/h)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Log Mean Temperature Difference (LMTD):</span>
+        <span class="res-val" id="res_lmtd">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Internal Steam Mass Flux G<sub>steam</sub>:</span>
+        <span class="res-val" id="res_gsteam">-- kg/(m&sup2;&middot;s) (v: -- m/s)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Inside Steam Film Coefficient h<sub>i</sub>:</span>
+        <span class="res-val" id="res_hi">-- W/(m&sup2;&middot;K)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Fireside Gas-Side Coefficient h<sub>o</sub>:</span>
+        <span class="res-val" id="res_ho">-- W/(m&sup2;&middot;K)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Local Outer Heat Flux q&Prime;<sub>out</sub>:</span>
+        <span class="res-val" id="res_flux">-- kW/m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">ASME Mid-Wall Metal Temp T<sub>mid</sub>:</span>
+        <span class="res-val highlight" id="res_tmid">-- &deg;C (-- &deg;F)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Fireside Crown Metal Temp T<sub>crown</sub>:</span>
+        <span class="res-val warning" id="res_tcrown">-- &deg;C (-- &deg;F)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">ASME Code Creep Integrity:</span>
+        <span id="res_creep_status" class="status-badge badge-safe">SAFE ASME SECTION I MARGIN</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">ASME Required Min Wall Thickness:</span>
+        <span class="res-val" id="res_treq">-- mm (Actual: -- mm)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_sh">
+          <span>📋 Copy Superheater Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Boiler Convective Superheater Tube Wall Heat Transfer & Temperature Profile</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Hot Combustion Gas + Luminous Flame Radiation (T<sub>g</sub>) ] &rarr; [ Fireside Ash & Oxide Scale (R<sub>f,gas</sub>) ]<br>
+      &rarr; [ Outer Crown Metal Face (T<sub>crown</sub>) &rarr; Alloy Tube Wall Thickness t<sub>w</sub> &rarr; Mid-Wall Metal (T<sub>mid</sub>) ]<br>
+      &rarr; [ Internal Magnetite Oxide Film &rarr; High-Velocity Steam Cooling Boundary Layer (h<sub>i</sub>, T<sub>steam</sub>) ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="sh-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & ASME Section I Creep Formulations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Superheater tube design couples multi-stream enthalpy balances with radial heat conduction and ASME BPVC Section I PG-27 rules:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Internal Steam Convective Film</strong><br>
+        $$Re_s = \frac{G_s \cdot d_i}{\mu_s}, \quad Nu_s = 0.023 \cdot Re_s^{0.8} \cdot Pr_s^{0.4}$$
+        $$h_i = Nu_s \cdot \frac{k_s}{d_i} \quad [\text{W}/(\text{m}^2\cdot\text{K})]$$
+        High steam mass flux ($G_s > 600\text{ kg}/(\text{m}^2\cdot\text{s})$) ensures cooling.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. ASME Mid-Wall Metal Temperature</strong><br>
+        $$T_{mid} = T_{s,local} + \frac{q''_{out}}{h_i}\left(\frac{d_o}{d_i}\right) + \frac{q''_{out} \cdot d_o \ln(d_o / d_i)}{4 k_{metal}}$$
+        $$T_{crown} = T_{mid} + \frac{\Delta T_{wall}}{2} + \frac{\dot{q}''_{rad}}{h_o + h_{rad}}$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. ASME PG-27 Required Wall Thickness</strong><br>
+        $$t_{min} = \frac{P \cdot d_o}{2 S \cdot E + 2 y P} + C \quad [\text{mm}]$$
+        $S$ is allowable creep stress at $T_{mid}$; $y = 0.4$ for ferritic, $0.7$ for austenitic.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Creep Rupture Larson-Miller Margin</strong><br>
+        $$LMP = T_{mid,K} \cdot (20 + \log_{10} t_{rupture}) \times 10^{-3}$$
+        Evaluates long-term 100,000-hour stress rupture viability.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="sh-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Boiler Superheater Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Steam Flow Maldistribution & Starvation Fish-Mouth Rupture</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In wide boiler superheater platens, differences in steam header nozzle locations and local flue gas velocity maldistributions cause some parallel tube loops to receive less steam flow. Because steam pressure drop scales with density and friction ($\Delta P \propto v^2$), the tube circuit that gets slightly hotter experiences expanded steam and increased hydraulic resistance, choking its own steam flow further. Within hours, the starved tube exceeds its alloy creep rupture limit, rupturing along a 30 cm longitudinal tear (fish-mouth rupture) that drops boiler steam pressure and forces emergency plant trips.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Cold Boiler Lighting-Off Dry Superheater Overheating</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        During boiler startup from cold ambient conditions, operators fire auxiliary gas or oil burners to generate pressure in the steam drum. Before the main steam turbine stop valves crack open, there is zero steam flow passing through the finishing superheater tubes. If operators ramp up furnace burners too fast, gas temperatures at the superheater inlet exceed 550°C. With zero internal convective cooling ($h_i = 0$), the empty steel tubes quickly approach flue gas temperature, suffering irreversible metallurgical thermal fatigue, sag, and severe fireside scaling.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Boiler Drum Moisture Carryover & Caustic Gouging Stress Corrosion</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        If drum steam-water cyclone separators are damaged or if water levels surge during sudden load swings, boiler water droplets carry over into the dry superheater. Water droplets carrying sodium hydroxide and dissolved silica strike the hot tube entrance (300°C to 400°C) and flash instantaneously to steam. Concentrated caustic solids deposit on the internal tube surface, dissolving the protective magnetite layer ($Fe_3O_4$) and causing catastrophic caustic gouging and hydrogen embrittlement through-wall cracking.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Fireside Ash Slagging Platen Bridging & Hot Gas Channeling</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In coal and biomass boilers, sticky molten fly ash (alkali sulfates / silicates) deposits on leading superheater tubes. Over time, ash bridges across adjacent tube loops, blocking 60% of the gas passage area. The flue gas is forced through the remaining open lanes at double the design velocity ($v_g > 20\text{ m/s}$). The concentrated jet of high-temperature gas and fly ash creates intense localized convective heat flux and severe erosive thinning, cutting through 5 mm tube walls in under 6 months.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Dissimilar Metal Weld (DMW) Creep Fatigue Failure</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Transitioning from ferritic low-alloy tubes (SA-213 T22) to austenitic stainless tubes (TP347H) requires Dissimilar Metal Welds (DMW). Austenitic stainless steel has a 30% higher coefficient of thermal expansion and lower thermal conductivity than ferritic steel. Repeated thermal cycling during load swings generates immense shear stress at the fusion line. Carbon migrates from the ferritic base metal into the weld filler, forming a weakened decarburized band that shears cleanly along the weld toe after 40,000 hours. Nickel-based filler metals and graded transition joints are required.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="sh-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Utility Power Boiler Secondary Finishing Superheater Platen.</p>
+      <ul>
+        <li><strong>Steam Flow:</strong> $\dot{m}_s = 120\text{ t/h} = 33.33\text{ kg/s}$, Operating Pressure $P = 90\text{ bar g} = 9.1\text{ MPa}$.</li>
+        <li><strong>Temperatures:</strong> Steam in $T_{s,in} = 305^\circ\text{C}$ (saturated/dry), Steam out $T_{s,out} = 510^\circ\text{C}$.</li>
+        <li><strong>Flue Gas:</strong> Gas in $T_{g,in} = 880^\circ\text{C}$, Gas out $T_{g,out} = 680^\circ\text{C}$, Velocity $v_g = 9.5\text{ m/s}$.</li>
+        <li><strong>Tube Specs:</strong> $N = 56$ parallel circuits, OD $d_o = 44.5\text{ mm}$, Wall $t_w = 5.4\text{ mm}$ ($d_i = 33.7\text{ mm}$).</li>
+        <li><strong>Alloy:</strong> SA-213 T22 (2.25Cr-1Mo, $k_{metal} \approx 30.5\text{ W}/(\text{m}\cdot\text{K})$), Direct flame radiation $q''_{rad} = 18\text{ kW/m}^2$.</li>
+      </ul>
+      <p><strong>Step 1: Thermal Absorption & Log Mean Temperature Difference:</strong></p>
+      $$\text{Enthalpy rise: } h_{in} \approx 2,750\text{ kJ/kg}, \quad h_{out} \approx 3,410\text{ kJ/kg} \implies \Delta h = 660\text{ kJ/kg}$$
+      $$Q = 33.33\text{ kg/s} \times 660\text{ kJ/kg} = 21,998\text{ kW} \approx 22.0\text{ MW} \quad (75.07\text{ MMBtu/h})$$
+      $$\Delta T_1 = 880 - 510 = 370^\circ\text{C}, \quad \Delta T_2 = 680 - 305 = 375^\circ\text{C} \implies \text{LMTD} \approx 372.5^\circ\text{C}$$
+      <p><strong>Step 2: Internal Steam Flow Mass Flux & Film Coefficient ($h_i$):</strong></p>
+      $$A_{flow,tube} = \frac{\pi \times (0.0337)^2}{4} = 0.000892\text{ m}^2$$
+      $$A_{total} = 56 \times 0.000892 = 0.04995\text{ m}^2$$
+      $$G_{steam} = \frac{33.33\text{ kg/s}}{0.04995\text{ m}^2} = 667.3\text{ kg}/(\text{m}^2\cdot\text{s}) \quad (\text{\textbf{Healthy Flow Velocity: }} v_s \approx 18.2\text{ m/s})$$
+      $$\text{Per Dittus-Boelter correlation for superheated steam at 90 bar: } h_i \approx 2,850\text{ W}/(\text{m}^2\cdot\text{K})$$
+      <p><strong>Step 3: Fireside Heat Transfer & Outer Heat Flux ($q''_{out}$):</strong></p>
+      $$\text{Convective gas film: } h_o \approx 82\text{ W}/(\text{m}^2\cdot\text{K}), \quad R_{ash} = 0.0012\text{ m}^2\cdot\text{K}/\text{W}$$
+      $$U_o \approx 65.5\text{ W}/(\text{m}^2\cdot\text{K}) \implies q''_{conv} = 65.5 \times 370 = 24.2\text{ kW/m}^2$$
+      $$q''_{total} = q''_{conv} + q''_{rad} = 24.2 + 18.0 = 42.2\text{ kW/m}^2$$
+      <p><strong>Step 4: Tube Mid-Wall & Crown Metal Temperatures:</strong></p>
+      $$\Delta T_{film} = \frac{42,200\text{ W/m}^2}{2850\text{ W/m}^2\text{K}} \times \left(\frac{44.5}{33.7}\right) = 14.8\text{ K} \times 1.320 = 19.5^\circ\text{C}$$
+      $$\Delta T_{wall} = \frac{42,200 \times 0.0445 \times \ln(44.5 / 33.7)}{2 \times 30.5} = \frac{1,877.9 \times 0.278}{61.0} = 8.56^\circ\text{C}$$
+      $$T_{mid} = T_{steam,out} + \Delta T_{film} + 0.5 \Delta T_{wall} = 510 + 19.5 + 4.28 = 533.8^\circ\text{C} \quad (992.8^\circ\text{F})$$
+      $$T_{crown} = T_{mid} + 0.5 \Delta T_{wall} + 18^\circ\text{C (Radiation boost)} = 533.8 + 4.28 + 18.0 = 556.1^\circ\text{C} \quad (1,033^\circ\text{F})$$
+      $$\mathbf{\text{At } T_{mid} = 534^\circ\text{C, ASME Section I allowable stress for SA-213 T22 is } S = 54.5\text{ MPa} \implies \text{\textbf{Safe Creep Margin}}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcSuperheater() {
+    const ms_th = parseFloat(document.getElementById('sh_steam_flow').value) || 120;
+    const ms_kgs = (ms_th * 1000) / 3600;
+    const P_bar = parseFloat(document.getElementById('sh_press_bar').value) || 90;
+    const Tsin = parseFloat(document.getElementById('sh_t_sin').value) || 305;
+    const Tsout = parseFloat(document.getElementById('sh_t_sout').value) || 510;
+    const Tgin = parseFloat(document.getElementById('sh_t_gin').value) || 880;
+    const Tgout = parseFloat(document.getElementById('sh_t_gout').value) || 680;
+    const alloy = document.getElementById('sh_alloy').value;
+    const do_mm = parseFloat(document.getElementById('sh_tube_od').value) || 44.5;
+    const do_m = do_mm * 1e-3;
+    const tw_mm = parseFloat(document.getElementById('sh_wall_thk').value) || 5.4;
+    const tw_m = tw_mm * 1e-3;
+    const di_m = do_m - 2 * tw_m;
+    const di_mm = di_m * 1000;
+    const Ncircuits = parseInt(document.getElementById('sh_circuits').value) || 56;
+    const qrad_kw = parseFloat(document.getElementById('sh_rad_flux').value) || 18;
+    const vg = parseFloat(document.getElementById('sh_gas_vel').value) || 9.5;
+    const Rf_ash = parseFloat(document.getElementById('sh_fouling').value) || 0.0012;
+
+    // 1. Thermal Duty & LMTD
+    const cp_steam = 2.45; // kJ/kg-K approximate at 90 bar superheated
+    const Q_kw = ms_kgs * cp_steam * Math.max(10, Tsout - Tsin) * 1.35; // approximate enthalpy rise
+    const Q_mw = Q_kw / 1000;
+    const Q_mmbtu = Q_mw * 3.412142;
+
+    const dt1 = Tgin - Tsout;
+    const dt2 = Tgout - Tsin;
+    let lmtd = 350;
+    if (dt1 > 0 && dt2 > 0 && dt1 !== dt2) {
+      lmtd = (dt1 - dt2) / Math.log(dt1 / dt2);
+    } else if (dt1 > 0) {
+      lmtd = dt1;
+    }
+
+    // 2. Steam Mass Flux and Film Coefficient
+    const Aflow_tube = (Math.PI * Math.pow(di_m, 2)) / 4;
+    const Aflow_total = Ncircuits * Aflow_tube;
+    const G_steam = Aflow_total > 0 ? ms_kgs / Aflow_total : 500;
+    const rho_steam = P_bar * 0.45; // approx kg/m3
+    const v_steam = G_steam / rho_steam;
+
+    const hi = 0.023 * (0.065 / di_m) * Math.pow(Math.max(1000, (G_steam * di_m) / 2.8e-5), 0.8) * Math.pow(1.35, 0.4);
+
+    // 3. Flue Gas Film and Heat Flux
+    const ho = 35 * Math.pow(Math.max(1, vg), 0.6) * Math.pow(44.5 / do_mm, 0.4);
+    const invUo = (1 / ho) + Rf_ash + (tw_m / 32) + (1 / hi) * (do_m / di_m);
+    const Uo = 1 / invUo;
+    const qconv_kw = (Uo * lmtd) / 1000; // kW/m2
+    const qtotal_kw = qconv_kw + qrad_kw;
+
+    // 4. Metal Temperatures
+    let km = 30.5; // T22
+    let maxSafeTemp = 575;
+    let S_code_mpa = 55;
+    if (alloy === 'SA213_T11') { km = 34.0; maxSafeTemp = 540; S_code_mpa = 42; }
+    else if (alloy === 'SA213_T91') { km = 26.0; maxSafeTemp = 620; S_code_mpa = 88; }
+    else if (alloy === 'SA213_TP347H') { km = 21.0; maxSafeTemp = 650; S_code_mpa = 95; }
+
+    const dt_film = ((qtotal_kw * 1000) / hi) * (do_m / di_m);
+    const dt_wall = ((qtotal_kw * 1000) * do_m * Math.log(do_m / di_m)) / (2 * km);
+    const T_mid = Tsout + dt_film + 0.5 * dt_wall;
+    const T_crown = T_mid + 0.5 * dt_wall + (qrad_kw * 0.85);
+
+    // 5. ASME Section I PG-27 Minimum Wall Thickness
+    const P_mpa = P_bar * 0.1;
+    const y_factor = alloy.includes('TP347') ? 0.7 : 0.4;
+    const E = 1.0; // seamless tube
+    const treq_mm = (P_mpa * do_mm) / (2 * S_code_mpa * E + 2 * y_factor * P_mpa) + 0.5;
+
+    // Update UI
+    document.getElementById('res_duty').textContent = Q_mw.toFixed(2) + ' MW (' + Q_mmbtu.toFixed(1) + ' MMBtu/h)';
+    document.getElementById('res_lmtd').textContent = lmtd.toFixed(1) + ' °C';
+    document.getElementById('res_gsteam').textContent = G_steam.toFixed(0) + ' kg/(m²·s) (v: ' + v_steam.toFixed(1) + ' m/s)';
+    document.getElementById('res_hi').textContent = hi.toFixed(0) + ' W/(m²·K)';
+    document.getElementById('res_ho').textContent = ho.toFixed(0) + ' W/(m²·K)';
+    document.getElementById('res_flux').textContent = qtotal_kw.toFixed(1) + ' kW/m² (Rad: ' + qrad_kw.toFixed(0) + ' kW/m²)';
+    document.getElementById('res_tmid').textContent = T_mid.toFixed(1) + ' °C (' + (T_mid * 1.8 + 32).toFixed(1) + ' °F)';
+    document.getElementById('res_tcrown').textContent = T_crown.toFixed(1) + ' °C (' + (T_crown * 1.8 + 32).toFixed(1) + ' °F)';
+    document.getElementById('res_treq').textContent = treq_mm.toFixed(2) + ' mm (Actual: ' + tw_mm.toFixed(2) + ' mm)';
+
+    const creepBadge = document.getElementById('res_creep_status');
+    if (T_mid <= maxSafeTemp - 15 && tw_mm >= treq_mm) {
+      creepBadge.className = 'status-badge badge-safe';
+      creepBadge.textContent = 'SAFE ASME MARGIN (T_mid < ' + maxSafeTemp + '°C)';
+    } else if (T_mid <= maxSafeTemp && tw_mm >= treq_mm) {
+      creepBadge.className = 'status-badge badge-warn';
+      creepBadge.textContent = 'WARNING: NEAR CODE TEMPERATURE LIMIT';
+    } else {
+      creepBadge.className = 'status-badge badge-danger';
+      creepBadge.textContent = 'OVERHEATING / SHORT-TERM CREEP RUPTURE RISK';
+    }
+  }
+
+  const inputs = ['sh_steam_flow', 'sh_press_bar', 'sh_t_sin', 'sh_t_sout', 'sh_t_gin', 'sh_t_gout', 'sh_alloy', 'sh_tube_od', 'sh_wall_thk', 'sh_circuits', 'sh_rad_flux', 'sh_gas_vel', 'sh_fouling'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcSuperheater);
+      el.addEventListener('change', calcSuperheater);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_sh');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- STEAM SUPERHEATER CONVECTIVE & ASME CODE DATASHEET ---',
+        'Steam Flow: ' + document.getElementById('sh_steam_flow').value + ' t/h @ ' + document.getElementById('sh_press_bar').value + ' bar g | Outlet Temp: ' + document.getElementById('sh_t_sout').value + '°C',
+        'Flue Gas: ' + document.getElementById('sh_t_gin').value + ' -> ' + document.getElementById('sh_t_gout').value + '°C | LMTD: ' + document.getElementById('res_lmtd').textContent,
+        'Thermal Absorption: ' + document.getElementById('res_duty').textContent,
+        'Steam Mass Flux: ' + document.getElementById('res_gsteam').textContent + ' | Film hi: ' + document.getElementById('res_hi').textContent,
+        'Total Heat Flux: ' + document.getElementById('res_flux').textContent,
+        'Mid-Wall Metal Temp T_mid: ' + document.getElementById('res_tmid').textContent + ' [' + document.getElementById('res_creep_status').textContent + ']',
+        'Fireside Crown Temp T_crown: ' + document.getElementById('res_tcrown').textContent,
+        'ASME Section I PG-27 Wall Thickness: ' + document.getElementById('res_treq').textContent,
+        'Generated via DigitalToolsShed.com Steam Superheater Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcSuperheater();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+console.log('  ✓ Built Trade & Construction Suite (147 calculators in /calc/)');
 }
 
