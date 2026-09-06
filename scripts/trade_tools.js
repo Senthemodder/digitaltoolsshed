@@ -158217,6 +158217,2586 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
 
-  console.log('  ✓ Built Trade & Construction Suite (239 calculators in /calc/)');
+
+  // ─── TOOL BW1: PLATE-FIN CRYOGENIC HEAT EXCHANGER CALCULATOR ───
+  (() => {
+    const slug = 'plate-fin-cryogenic-heat-exchanger-sizing-calculator';
+    const title = 'Plate-Fin Cryogenic Heat Exchanger (PFHE) Sizing Calculator';
+    const metaDescription = 'Size brazed aluminum plate-fin heat exchangers (PFHE / BAHX) for cryogenic LNG, air separation (ASU), and petrochemical cold boxes. Calculate offset-strip fin j and f factors (Manglik-Bergles), fin efficiency, overall UA rating, stream pressure drops, and core stacking.';
+    const faq = [
+      {
+        q: 'How does a Brazed Aluminum Plate-Fin Heat Exchanger (BAHX / PFHE) operate in cryogenic systems?',
+        a: 'A Brazed Aluminum Plate-Fin Heat Exchanger (PFHE) consists of stacked layers of corrugated aluminum fins separated by thin flat parting sheets (separator plates) and sealed along the edges by solid aluminum side bars. The entire assembly is vacuum-brazed at ~600°C to create a monolithic block. The corrugated fins serve a dual purpose: they provide an immense extended secondary heat transfer surface area (yielding volumetric area densities of 1,000 to 2,000 m²/m³) and act as structural mechanical ties capable of containing design pressures up to 100 bar (1,450 psi). Multi-stream PFHEs can simultaneously exchange heat between up to 8 or 10 independent hot, cold, and boiling cryogenic streams within a single compact core.'
+      },
+      {
+        q: 'What are Manglik and Bergles (1995) correlations for Offset Strip Fins (OSF)?',
+        a: 'Offset Strip Fins (also called serrated fins) are the industry standard for cryogenic PFHEs because their interrupted fin geometry continually restarts thermal and hydraulic boundary layers. Manglik and Bergles developed generalized correlations for the Colburn heat transfer factor \\(j\\) and Fanning friction factor \\(f\\):\\n$$j = 0.6522 \\cdot Re^{-0.5403} \\alpha^{-0.1541} \\delta^{0.1499} \\gamma^{-0.0678} \\left[1 + 5.269 \\times 10^{-5} Re^{1.340} \\alpha^{0.504} \\delta^{0.456} \\gamma^{-1.055}\\right]^{0.1}$$\\n$$f = 9.6243 \\cdot Re^{-0.7422} \\alpha^{-0.1856} \\delta^{0.3053} \\gamma^{-0.2659} \\left[1 + 7.669 \\times 10^{-8} Re^{4.429} \\alpha^{0.920} \\delta^{3.767} \\gamma^{0.236}\\right]^{0.1}$$\\nWhere \\(Re = G D_h / \\mu\\), \\(\alpha = s/h\'\\) (aspect ratio), \\(\delta = t/\\ell\\) (thickness ratio), and \\(\gamma = t/s\\) (contraction ratio).'
+      },
+      {
+        q: 'How does fin efficiency ($\\eta_f$) affect the overall heat transfer rating ($UA$)?',
+        a: 'Because heat conducted along the thin aluminum fin (typically 0.2 to 0.5 mm thick) encounters thermal resistance, the temperature gradient along the fin reduces its effective driving force relative to the parting sheet. Fin efficiency is computed using standard extended surface theory:\\n$$\\eta_f = \\frac{\\tanh(m \\cdot h\'/2)}{m \\cdot h\'/2}, \\quad m = \\sqrt{\\frac{2 h}{k_{fin} \\cdot t_{fin}}}$$\\nWhere \\(h\\) is the convective film coefficient, \\(k_{fin}\\) is aluminum thermal conductivity (~160 to 200 W/m·K), and \\(h\'\\) is fin height. The overall surface efficiency is \\(\eta_o = 1 - (A_f / A_t)(1 - \\eta_f)\\). Cryogenic units typically operate with fin efficiencies between 75% and 92%.'
+      },
+      {
+        q: 'Why are PFHEs essential in LNG liquefaction and Air Separation Units (ASU)?',
+        a: 'Cryogenic processes like nitrogen/oxygen air distillation (-196°C) and LNG liquefaction (-162°C) operate with narrow pinch-point temperature approaches between hot natural gas and boiling mixed refrigerants (frequently as tight as 1.5°C to 3.0°C). Conventional shell-and-tube exchangers would require colossal surface areas, gigantic footprints, and excessive cold box volume. The high area density (up to 1,500 m²/m³) and true counter-current multi-stream capability of PFHEs reduce exchanger weight and cold-box volume by 80% to 90%.'
+      },
+      {
+        q: 'What is mercury Liquid Metal Embrittlement (LME) and why is it fatal to aluminum PFHEs?',
+        a: 'Raw natural gas frequently contains trace elemental mercury vapors ($0.01$ to $>100\,\mu\text{g/Nm}^3$). If mercury passes into the cryogenic section, it condenses as a liquid metal on aluminum surfaces when temperatures exceed mercury\'s freezing point (-38.8°C). Liquid mercury rapidly penetrates the grain boundaries of 3003 and 6061 brazing alloys, destroying grain cohesion via Liquid Metal Embrittlement (LME). This causes instantaneous, catastrophic brittle failure and explosive core blowout under operating pressure, requiring non-regenerable sulfur-impregnated carbon guard beds upstream.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Plate-Fin Cryogenic Heat Exchanger (PFHE) Sizing Calculator</h1>' +
+      '    <p>Perform industrial thermal-hydraulic sizing for brazed aluminum plate-fin heat exchangers (BAHX). Calculate offset-strip fin Colburn j and Fanning f friction factors (Manglik-Bergles), fin efficiency, overall UA rating, stream pressure drops, and core block stacking dimensions.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Process Service & Core Specifications</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-preset">Cryogenic PFHE Application Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="pf-preset">' +
+      '            <option value="lng_precool" selected>LNG Pre-Cooling Core (C3-MR Service, 100 t/h, 5.5 MW, ΔT=3.5°C)</option>' +
+      '            <option value="asu_main">Air Separation Unit (ASU) Main Condenser (N2/O2, 45 t/h, -180°C)</option>' +
+      '            <option value="h2_bog">Hydrogen BOG Cryo-Reliquefaction (-220°C, 3.5 t/h, 45 bar)</option>' +
+      '            <option value="ethylene_cold">Ethylene Cold Box Demethanizer Chiller (-85°C, 40 t/h)</option>' +
+      '            <option value="custom">Custom Cryogenic PFHE</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-heat-duty">Thermal Exchanger Duty (\(Q_{duty}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pf-heat-duty" value="5500" min="50" max="100000" step="100">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">kW</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-lmtd">Log Mean Temperature Difference (\(\Delta T_{LMTD}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pf-lmtd" value="3.5" min="0.5" max="50" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">°C</span>' +
+      '        </div>' +
+      '        <div class="hint">Cryogenic pinch points are tight: 1.5°C to 5.0°C</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-flow-rate">Hot Stream Mass Flow Rate (\(\dot{m}_h\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pf-flow-rate" value="100" min="0.5" max="500" step="1">' +
+      '          <select id="pf-flow-unit">' +
+      '            <option value="th" selected>tonne/hour</option>' +
+      '            <option value="kgs">kg/s</option>' +
+      '            <option value="lbh">lb/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-fin-type">Corrugated Fin Geometry</label>' +
+      '        <div class="input-row">' +
+      '          <select id="pf-fin-type">' +
+      '            <option value="osf_standard" selected>Offset Strip Fin (OSF / Serrated, 18 FPI, h=6.5 mm)</option>' +
+      '            <option value="osf_dense">High-Density Serrated Fin (24 FPI, h=5.0 mm, max area)</option>' +
+      '            <option value="plain">Plain Continuous Fin (Low dP, 15 FPI, h=8.0 mm)</option>' +
+      '            <option value="perforated">Perforated Fin (Boiling/condensing, 16 FPI, h=7.0 mm)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-core-width">Core Block Width (\(W\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pf-core-width" value="1.2" min="0.3" max="2.5" step="0.05">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard commercial core block width: 0.8m to 1.5m</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-core-len">Core Active Heat Transfer Length (\(L\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pf-core-len" value="4.5" min="0.5" max="10.0" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-hot-layers">Number of Hot Stream Layers (\(N_h\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pf-hot-layers" value="48" min="4" max="150" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">layers</span>' +
+      '        </div>' +
+      '        <div class="hint">Cold layers are usually Nh + 1 (49 layers)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="pf-fluid-density">Hot Fluid Density (\(\rho\)) & Viscosity (\(\mu\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="pf-fluid-density" value="320" min="0.5" max="1200" step="10" placeholder="Density kg/m³">' +
+      '          <input type="number" id="pf-fluid-visc" value="0.000085" min="0.00001" max="0.01" step="0.000005" placeholder="Visc Pa·s">' +
+      '        </div>' +
+      '        <div class="hint">Cryogenic LNG/methane: ~300-420 kg/m³, 0.00008 Pa·s</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="pf-calc-btn">Recalculate Exchanger</button>' +
+      '        <button type="button" class="btn btn-secondary" id="pf-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="pf-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Thermal, Hydraulic & Core Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Required UA</div>' +
+      '          <div class="res-val" id="res-req-ua">--</div>' +
+      '          <div class="res-unit">kW/K (<span id="res-req-w-k">--</span> W/K)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Heat Transfer Area (\(A_t\))</div>' +
+      '          <div class="res-val" id="res-total-area">--</div>' +
+      '          <div class="res-unit">m² (Density: <span id="res-area-density">--</span> m²/m³)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Reynolds Number (\(Re\))</div>' +
+      '          <div class="res-val" id="res-reynolds">--</div>' +
+      '          <div class="res-unit">Flow: <span id="res-flow-regime">--</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Colburn \(j\) & Fanning \(f\)</div>' +
+      '          <div class="res-val" id="res-j-factor">--</div>' +
+      '          <div class="res-unit">j-factor (f = <span id="res-f-factor">--</span>)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Fin Thermal Efficiency (\(\eta_f\))</div>' +
+      '          <div class="res-val" id="res-fin-eff">--</div>' +
+      '          <div class="res-unit">% (Surface \(\eta_o\): <span id="res-surf-eff">--</span>%)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Film Coeff (\(h_h\)) & Overall \(U\)</div>' +
+      '          <div class="res-val" id="res-overall-u">--</div>' +
+      '          <div class="res-unit">W/m²·K (Film: <span id="res-film-h">--</span> W/m²·K)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Hot Stream Pressure Drop (\(\Delta P\))</div>' +
+      '          <div class="res-val" id="res-stream-dp">--</div>' +
+      '          <div class="res-unit">kPa (<span id="res-stream-psi">--</span> psi)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Core Block Dimensions</div>' +
+      '          <div class="res-val" id="res-core-stack-ht">--</div>' +
+      '          <div class="res-unit">m Height (Vol: <span id="res-core-vol">--</span> m³)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">PFHE Rating & Pressure Margin: </span>' +
+      '        <span id="pf-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="pf-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Rigorous Mathematical Derivations</h2>' +
+      '    <p>Brazed Aluminum Plate-Fin Heat Exchangers (BAHX) provide the highest surface area density of any industrial heat exchanger type, handling temperatures down to 4 Kelvin (-269°C) in aerospace, LNG liquefaction, and air separation industries.</p>' +
+      '    <h3>1. Offset Strip Fin (OSF) Hydraulic Geometry</h3>' +
+      '    <p>The interrupted fin structure has four fundamental microscopic dimensions: fin height \(h\'\), fin pitch \(s\) (where \(s = 1 / \text{FPI}\)), fin strip length \(\ell\), and fin metal thickness \(t\). The hydraulic diameter \(D_h\) is derived from wetted perimeter and free flow area:</p>' +
+      '    <div class="formula-box">' +
+      'D_h = \frac{4 s h\' \ell}{2(s \ell + h\' \ell + t h\') + t s}' +
+      '    </div>' +
+      '    <p>The aspect ratio \(\alpha = s / h\'\), thickness ratio \(\delta = t / \ell\), and contraction ratio \(\gamma = t / s\) parameterize the boundary layer development.</p>' +
+      '    <h3>2. Manglik & Bergles Heat Transfer & Friction Correlations</h3>' +
+      '    <p>Using the dimensionless Reynolds number \(Re = \frac{G D_h}{\mu}\) (where mass velocity \(G = \frac{\dot{m}}{A_{free}}\)), the Colburn factor \(j\) and Fanning friction factor \(f\) are calculated via the Manglik-Bergles equations:</p>' +
+      '    <div class="formula-box">' +
+      'j = 0.6522 Re^{-0.5403} \alpha^{-0.1541} \delta^{0.1499} \gamma^{-0.0678} \left[1 + 5.269 \times 10^{-5} Re^{1.340} \alpha^{0.504} \delta^{0.456} \gamma^{-1.055}\right]^{0.1} \\' +
+      'f = 9.6243 Re^{-0.7422} \alpha^{-0.1856} \delta^{0.3053} \gamma^{-0.2659} \left[1 + 7.669 \times 10^{-8} Re^{4.429} \alpha^{0.920} \delta^{3.767} \gamma^{0.236}\right]^{0.1}' +
+      '    </div>' +
+      '    <p>Convective film heat transfer coefficient \(h = j \cdot G \cdot c_p \cdot Pr^{-2/3}\).</p>' +
+      '    <h3>3. Fin Efficiency & Overall Surface Temperature Effectiveness</h3>' +
+      '    <p>Extended surface efficiency accounts for the conduction resistance down the thin corrugated aluminum fin:</p>' +
+      '    <div class="formula-box">' +
+      'm = \sqrt{\frac{2 h}{k_{al} \cdot t_{fin}}}, \quad \eta_f = \frac{\tanh(m \cdot h\'/2)}{m \cdot h\'/2}, \quad \eta_o = 1 - \frac{A_f}{A_t}(1 - \eta_f)' +
+      '    </div>' +
+      '    <p>Where \(k_{al} \approx 180\,\text{W/m}\cdot\text{K}\) for brazed aluminum alloys (AA 3003).</p>' +
+      '    <h3>4. Core Pressure Drop Across Interrupted Passages</h3>' +
+      '    <p>The frictional core pressure drop over active heat transfer length \(L\) is governed by Fanning friction:</p>' +
+      '    <div class="formula-box">' +
+      '\Delta P_{fric} = \frac{2 f L G^2}{\rho D_h} \quad [\text{Pa}]' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Thermal Shock Cracking via Excessive Ramp Rates (>50°C/hr)</h4>' +
+      '      <p>During plant startup, cool-down, or sudden tripped restarts, introducing cryogenic fluids faster than 50°C per hour creates violent transient temperature gradients across the block. The thick solid aluminum side bars respond slower thermally than the micro-thin corrugated interior fins, inducing massive internal shear stresses that rupture parting sheet brazes and destroy interlayer seals.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Two-Phase Maldistribution across Parallel Brazed Layers</h4>' +
+      '      <p>In boiling mixed refrigerants or flashing LNG, liquid and vapor phases separate easily in inlet header manifolds. If header distributor nozzles are improperly baffled, liquid preferentially floods center layers while vapor starves outer layers. This maldistribution collapses the effective LMTD, causing severe pinch-point violations and under-performance by up to 35%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Mercury Liquid Metal Embrittlement (LME) Catastrophic Rupture</h4>' +
+      '      <p>Elemental mercury in untreated gas streams passes into the cold box and condenses on aluminum core surfaces above -38.8°C. Liquid mercury wets and penetrates aluminum grain boundaries, inducing catastrophic brittle cracking without prior warning. All natural gas entering aluminum PFHEs must pass through non-regenerable sulfur-impregnated carbon guard beds (<0.01 µg/Nm³ Hg).</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Inter-Layer Pressure Reversal Parting Sheet Buckling</h4>' +
+      '      <p>In multi-stream cores, high-pressure natural gas (60 to 80 bar) runs directly adjacent to low-pressure boiling refrigerant (3 to 6 bar). During emergency pressure relief or testing, sudden depressurization of one circuit without equalizing adjacent passages creates huge differential pressure across 1.5 mm parting sheets, buckling internal corrugation fins and causing internal cross-stream leakage.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Serrated Channel Particulate Clogging & Freeze-up</h4>' +
+      '      <p>Serrated fin passages have hydraulic openings under 1.5 mm. Migrating desiccant dust from upstream molecular sieve dehydration beds, pipe scale, or frozen moisture/carbon dioxide instantly clogs fin gaps. Trapped dead zones freeze solid, creating localized pressure spikes that physically rupture fin passages during defrost cycles.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    lng_precool: { duty: 5500, lmtd: 3.5, flow: 100, unit: "th", fin: "osf_standard", w: 1.2, l: 4.5, nh: 48, rho: 320, visc: 0.000085 },' +
+      '    asu_main: { duty: 8000, lmtd: 2.0, flow: 45, unit: "th", fin: "osf_dense", w: 1.4, l: 5.0, nh: 60, rho: 800, visc: 0.00012 },' +
+      '    h2_bog: { duty: 850, lmtd: 4.0, flow: 3.5, unit: "th", fin: "osf_standard", w: 0.8, l: 3.2, nh: 24, rho: 35, visc: 0.000025 },' +
+      '    ethylene_cold: { duty: 3200, lmtd: 3.0, flow: 40, unit: "th", fin: "plain", w: 1.0, l: 4.0, nh: 36, rho: 450, visc: 0.00009 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("pf-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("pf-heat-duty").value = p.duty;' +
+      '    el("pf-lmtd").value = p.lmtd;' +
+      '    el("pf-flow-rate").value = p.flow;' +
+      '    el("pf-flow-unit").value = p.unit;' +
+      '    el("pf-fin-type").value = p.fin;' +
+      '    el("pf-core-width").value = p.w;' +
+      '    el("pf-core-len").value = p.l;' +
+      '    el("pf-hot-layers").value = p.nh;' +
+      '    el("pf-fluid-density").value = p.rho;' +
+      '    el("pf-fluid-visc").value = p.visc;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const Q_kw = parseFloat(el("pf-heat-duty").value) || 5500;' +
+      '    const lmtd = parseFloat(el("pf-lmtd").value) || 3.5;' +
+      '    ' +
+      '    let flowRaw = parseFloat(el("pf-flow-rate").value) || 100;' +
+      '    const flowUnit = el("pf-flow-unit").value;' +
+      '    let m_kgs = flowRaw / 3.6;' +
+      '    if (flowUnit === "kgs") m_kgs = flowRaw;' +
+      '    else if (flowUnit === "lbh") m_kgs = flowRaw * 0.000125998;' +
+      '    ' +
+      '    const finType = el("pf-fin-type").value;' +
+      '    const W_m = parseFloat(el("pf-core-width").value) || 1.2;' +
+      '    const L_m = parseFloat(el("pf-core-len").value) || 4.5;' +
+      '    const N_h = parseInt(el("pf-hot-layers").value, 10) || 48;' +
+      '    const rho = parseFloat(el("pf-fluid-density").value) || 320;' +
+      '    const mu = parseFloat(el("pf-fluid-visc").value) || 0.000085;' +
+      '    ' +
+      '    // Fin geometry parameters' +
+      '    // h_prime (m), FPI, s (m), ell (m), t (m)' +
+      '    let h_prime = 0.0065; // 6.5 mm' +
+      '    let fpi = 18;' +
+      '    let ell = 0.0032; // strip length 3.2 mm' +
+      '    let t_fin = 0.00025; // 0.25 mm' +
+      '    if (finType === "osf_dense") {' +
+      '      h_prime = 0.0050; fpi = 24; ell = 0.0025; t_fin = 0.00020;' +
+      '    } else if (finType === "plain") {' +
+      '      h_prime = 0.0080; fpi = 15; ell = L_m; t_fin = 0.00030;' +
+      '    } else if (finType === "perforated") {' +
+      '      h_prime = 0.0070; fpi = 16; ell = 0.0050; t_fin = 0.00025;' +
+      '    }' +
+      '    ' +
+      '    const s = 0.0254 / fpi; // fin pitch (m)' +
+      '    const alpha = s / h_prime;' +
+      '    const delta = t_fin / Math.max(0.0001, ell);' +
+      '    const gamma = t_fin / s;' +
+      '    ' +
+      '    // Hydraulic diameter Dh' +
+      '    const num_dh = 4 * s * h_prime * ell;' +
+      '    const den_dh = 2 * (s * ell + h_prime * ell + t_fin * h_prime) + t_fin * s;' +
+      '    const Dh = num_dh / den_dh;' +
+      '    ' +
+      '    // Free flow area per hot layer' +
+      '    // Number of fin passages across width W: n_pass = W / s' +
+      '    const n_pass = W_m / s;' +
+      '    const A_free_layer = n_pass * (s - t_fin) * h_prime;' +
+      '    const A_free_total = A_free_layer * N_h;' +
+      '    ' +
+      '    // Mass velocity G (kg/m2.s)' +
+      '    const G = m_kgs / Math.max(0.001, A_free_total);' +
+      '    ' +
+      '    // Reynolds number' +
+      '    const Re = (G * Dh) / Math.max(1e-6, mu);' +
+      '    ' +
+      '    // Manglik-Bergles j and f' +
+      '    let j_val = 0.015;' +
+      '    let f_val = 0.060;' +
+      '    if (finType.startsWith("osf")) {' +
+      '      const term1_j = 0.6522 * Math.pow(Math.max(50, Re), -0.5403) * Math.pow(alpha, -0.1541) * Math.pow(delta, 0.1499) * Math.pow(gamma, -0.0678);' +
+      '      const term2_j = Math.pow(1 + 5.269e-5 * Math.pow(Re, 1.340) * Math.pow(alpha, 0.504) * Math.pow(delta, 0.456) * Math.pow(gamma, -1.055), 0.1);' +
+      '      j_val = Math.max(0.003, Math.min(0.08, term1_j * term2_j));' +
+      '      ' +
+      '      const term1_f = 9.6243 * Math.pow(Math.max(50, Re), -0.7422) * Math.pow(alpha, -0.1856) * Math.pow(delta, 0.3053) * Math.pow(gamma, -0.2659);' +
+      '      const term2_f = Math.pow(1 + 7.669e-8 * Math.pow(Re, 4.429) * Math.pow(alpha, 0.920) * Math.pow(delta, 3.767) * Math.pow(gamma, 0.236), 0.1);' +
+      '      f_val = Math.max(0.01, Math.min(0.35, term1_f * term2_f));' +
+      '    } else {' +
+      '      // Plain fins' +
+      '      j_val = 0.023 * Math.pow(Math.max(100, Re), -0.2);' +
+      '      f_val = 0.079 * Math.pow(Math.max(100, Re), -0.25);' +
+      '    }' +
+      '    ' +
+      '    // Fluid thermal properties (approx LNG/methane)' +
+      '    const cp = 2400; // J/kg.K' +
+      '    const k_fluid = 0.15; // W/m.K' +
+      '    const Pr = (cp * mu) / k_fluid;' +
+      '    ' +
+      '    // Film coefficient h_h (W/m2.K)' +
+      '    const h_h = j_val * G * cp * Math.pow(Pr, -2/3);' +
+      '    ' +
+      '    // Fin efficiency eta_f' +
+      '    const k_al = 180; // W/m.K' +
+      '    const m_fin = Math.sqrt((2 * h_h) / (k_al * t_fin));' +
+      '    const ml2 = m_fin * (h_prime / 2);' +
+      '    const eta_f = Math.tanh(ml2) / Math.max(0.001, ml2);' +
+      '    ' +
+      '    // Surface area per layer' +
+      '    // Fin area + prime plate area' +
+      '    const A_fin_layer = 2 * n_pass * h_prime * L_m;' +
+      '    const A_prime_layer = 2 * W_m * L_m;' +
+      '    const A_tot_layer = A_fin_layer + A_prime_layer;' +
+      '    const A_tot_hot = A_tot_layer * N_h;' +
+      '    ' +
+      '    // Overall surface efficiency' +
+      '    const eta_o = 1 - (A_fin_layer / A_tot_layer) * (1 - eta_f);' +
+      '    ' +
+      '    // Cold stream side assumption: comparable thermal conductance' +
+      '    const U_overall = (h_h * eta_o) / 2.1; // factoring cold side film + wall resistance' +
+      '    ' +
+      '    // Required UA & Available UA' +
+      '    const req_UA_kw_K = Q_kw / Math.max(0.2, lmtd);' +
+      '    const req_UA_W_K = req_UA_kw_K * 1000;' +
+      '    const avail_UA_W_K = U_overall * A_tot_hot;' +
+      '    ' +
+      '    // Core block dimensions' +
+      '    const t_parting = 0.0015; // 1.5 mm' +
+      '    const total_layers = 2 * N_h + 1;' +
+      '    const core_stack_ht = total_layers * (h_prime + t_parting);' +
+      '    const core_vol = W_m * L_m * core_stack_ht;' +
+      '    const area_density = (A_tot_hot * 2) / Math.max(0.1, core_vol);' +
+      '    ' +
+      '    // Pressure Drop' +
+      '    // dP = 2 * f * L * G^2 / (rho * Dh)' +
+      '    const dp_pa = (2 * f_val * L_m * Math.pow(G, 2)) / (rho * Dh);' +
+      '    const dp_kpa = dp_pa / 1000;' +
+      '    const dp_psi = dp_kpa * 0.145038;' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-req-ua").textContent = req_UA_kw_K.toFixed(1);' +
+      '    el("res-req-w-k").textContent = Math.round(req_UA_W_K).toLocaleString();' +
+      '    el("res-total-area").textContent = Math.round(A_tot_hot).toLocaleString();' +
+      '    el("res-area-density").textContent = Math.round(area_density);' +
+      '    el("res-reynolds").textContent = Math.round(Re);' +
+      '    el("res-flow-regime").textContent = Re > 2000 ? "Turbulent / Boundary Restart" : "Laminar / Periodic Wake";' +
+      '    el("res-j-factor").textContent = j_val.toFixed(4);' +
+      '    el("res-f-factor").textContent = f_val.toFixed(3);' +
+      '    el("res-fin-eff").textContent = (eta_f * 100).toFixed(1);' +
+      '    el("res-surf-eff").textContent = (eta_o * 100).toFixed(1);' +
+      '    el("res-overall-u").textContent = Math.round(U_overall);' +
+      '    el("res-film-h").textContent = Math.round(h_h);' +
+      '    el("res-stream-dp").textContent = dp_kpa.toFixed(1);' +
+      '    el("res-stream-psi").textContent = dp_psi.toFixed(2);' +
+      '    el("res-core-stack-ht").textContent = core_stack_ht.toFixed(2);' +
+      '    el("res-core-vol").textContent = core_vol.toFixed(2);' +
+      '    ' +
+      '    // Evaluation badge' +
+      '    const badge = el("pf-eval-badge");' +
+      '    if (avail_UA_W_K >= req_UA_W_K && dp_kpa <= 60) {' +
+      '      badge.textContent = "Design Adequate: Thermally Sized with Low Cryo dP Margin";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (avail_UA_W_K >= req_UA_W_K && dp_kpa > 60) {' +
+      '      badge.textContent = "High Core Pressure Drop: Consider Wider Width or Taller Fins";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else {' +
+      '      badge.textContent = "Undersized Surface Area: Increase Length or Number of Layers";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#b91c1c";' +
+      '    }' +
+      '    ' +
+      '    drawPFHE(N_h, dp_kpa, Math.round(area_density));' +
+      '  }' +
+      '  ' +
+      '  function drawPFHE(nh, dp, density) {' +
+      '    const canvas = el("pf-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    // Draw 3D Isometric BAHX Core Block' +
+      '    // Origin for isometric block' +
+      '    const ox = 70;' +
+      '    const oy = 170;' +
+      '    const dx = 130; // width vector' +
+      '    const dy = -40;' +
+      '    const lx = 140; // length vector' +
+      '    const ly = 35;' +
+      '    const ht = 110; // stack height' +
+      '    ' +
+      '    // Front Face (Length x Height)' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(ox, oy);' +
+      '    ctx.lineTo(ox + lx, oy + ly);' +
+      '    ctx.lineTo(ox + lx, oy + ly - ht);' +
+      '    ctx.lineTo(ox, oy - ht);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Top Face (Width x Length)' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(ox, oy - ht);' +
+      '    ctx.lineTo(ox + lx, oy + ly - ht);' +
+      '    ctx.lineTo(ox + lx + dx, oy + ly - ht + dy);' +
+      '    ctx.lineTo(ox + dx, oy - ht + dy);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Side Face (Width x Height - Header Face)' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(ox + lx, oy + ly);' +
+      '    ctx.lineTo(ox + lx + dx, oy + ly + dy);' +
+      '    ctx.lineTo(ox + lx + dx, oy + ly + dy - ht);' +
+      '    ctx.lineTo(ox + lx, oy + ly - ht);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Draw internal corrugated fin layers on front cross-section' +
+      '    const layers = 8;' +
+      '    const l_step = ht / layers;' +
+      '    for (let i = 0; i < layers; i++) {' +
+      '      const ly_base = oy - i * l_step;' +
+      '      // Parting plate line' +
+      '      ctx.strokeStyle = "#94a3b8";' +
+      '      ctx.lineWidth = 1;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(ox, ly_base);' +
+      '      ctx.lineTo(ox + lx, ly_base + ly);' +
+      '      ctx.stroke();' +
+      '      ' +
+      '      // Draw corrugation zig-zag inside layer' +
+      '      ctx.strokeStyle = (i % 2 === 0 ? "#ef4444" : "#38bdf8"); // Hot vs Cold' +
+      '      ctx.lineWidth = 1.2;' +
+      '      ctx.beginPath();' +
+      '      const numWaves = 14;' +
+      '      for (let w = 0; w < numWaves; w++) {' +
+      '        const f1 = w / numWaves;' +
+      '        const f2 = (w + 0.5) / numWaves;' +
+      '        const x1 = ox + f1 * lx;' +
+      '        const y1 = ly_base + f1 * ly;' +
+      '        const x2 = ox + f2 * lx;' +
+      '        const y2 = (ly_base - l_step + 3) + f2 * ly;' +
+      '        if (w === 0) ctx.moveTo(x1, y1);' +
+      '        ctx.lineTo(x2, y2);' +
+      '        ctx.lineTo(ox + ((w + 1) / numWaves) * lx, ly_base + ((w + 1) / numWaves) * ly);' +
+      '      }' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Flow arrows' +
+      '    // Hot stream inlet arrow' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Hot Stream In ↓", ox + 15, oy - ht - 15);' +
+      '    ' +
+      '    // Cold stream inlet arrow' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("Cold Stream (Counter) ↑", ox + lx + 10, oy + ly + 22);' +
+      '    ' +
+      '    // Header tanks illustration on side face' +
+      '    ctx.fillStyle = "rgba(2, 132, 199, 0.4)";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(ox + lx + dx / 2, oy + ly + dy / 2 - ht / 2, 22, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Legend & Info Box on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(340, 35, 150, 210);' +
+      '    ctx.strokeRect(340, 35, 150, 210);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("CORE CONFIGURATION", 352, 58);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 15px sans-serif";' +
+      '    ctx.fillText(nh + " Hot Layers", 352, 78);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("AREA DENSITY", 352, 108);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 15px sans-serif";' +
+      '    ctx.fillText(density + " m²/m³", 352, 128);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("CORE PRESSURE DROP", 352, 158);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.font = "bold 15px sans-serif";' +
+      '    ctx.fillText(dp.toFixed(1) + " kPa", 352, 178);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Brazed Aluminum (BAHX)", 352, 210);' +
+      '    ctx.fillText("Manglik-Bergles OSF", 352, 226);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "pf-preset", "pf-heat-duty", "pf-lmtd", "pf-flow-rate",' +
+      '    "pf-flow-unit", "pf-fin-type", "pf-core-width", "pf-core-len",' +
+      '    "pf-hot-layers", "pf-fluid-density", "pf-fluid-visc"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "pf-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "pf-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("pf-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("pf-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== PLATE-FIN CRYOGENIC HEAT EXCHANGER SIZING REPORT ===",' +
+      '        "Thermal Duty: " + el("pf-heat-duty").value + " kW (LMTD: " + el("pf-lmtd").value + " °C)",' +
+      '        "Hot Stream Mass Flow: " + el("pf-flow-rate").value + " " + el("pf-flow-unit").value,' +
+      '        "Core Block Dimensions: Width " + el("pf-core-width").value + " m x Length " + el("pf-core-len").value + " m x Height " + el("res-core-stack-ht").textContent + " m (Vol: " + el("res-core-vol").textContent + " m³)",' +
+      '        "Layers: " + el("pf-hot-layers").value + " Hot Layers (Offset Strip Fin: " + el("pf-fin-type").value + ")",' +
+      '        "Total Heat Transfer Area: " + el("res-total-area").textContent + " m² (Area Density: " + el("res-area-density").textContent + " m²/m³)",' +
+      '        "Reynolds Number: " + el("res-reynolds").textContent + " (Regime: " + el("res-flow-regime").textContent + ")",' +
+      '        "Colburn j-factor: " + el("res-j-factor").textContent + " (Fanning f: " + el("res-f-factor").textContent + ")",' +
+      '        "Fin Efficiency: " + el("res-fin-eff").textContent + " % (Surface Efficiency: " + el("res-surf-eff").textContent + " %)",' +
+      '        "Film Coefficient: " + el("res-film-h").textContent + " W/m²·K (Overall U: " + el("res-overall-u").textContent + " W/m²·K)",' +
+      '        "Required UA: " + el("res-req-ua").textContent + " kW/K",' +
+      '        "Stream Pressure Drop: " + el("res-stream-dp").textContent + " kPa (" + el("res-stream-psi").textContent + " psi)",' +
+      '        "Evaluation Status: " + el("pf-eval-badge").textContent,' +
+      '        "Engineering Standards: ALPEMA / Manglik & Bergles Offset Strip Fin Correlations"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("pf-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  // ─── TOOL BW2: MOVING BED BIOFILM REACTOR (MBBR) CALCULATOR ───
+  (() => {
+    const slug = 'moving-bed-biofilm-reactor-mbbr-sizing-calculator';
+    const title = 'Moving Bed Biofilm Reactor (MBBR) Sizing & Kinetics Calculator';
+    const metaDescription = 'Size municipal and industrial Moving Bed Biofilm Reactors (MBBR). Calculate media filling fraction, protected specific surface area, Surface Area Loading Rate (SALR), Surface Area Removal Rate (SARR), aeration airflow, and reactor volume.';
+    const faq = [
+      {
+        q: 'How does a Moving Bed Biofilm Reactor (MBBR) work compared to conventional activated sludge (CAS)?',
+        a: 'A Moving Bed Biofilm Reactor (MBBR) operates as an attached-growth biological wastewater treatment system. Unlike Conventional Activated Sludge (CAS)—which relies on suspended bacterial flocs that require large secondary clarifiers and continuous return activated sludge (RAS) recycling—an MBBR grows specialized microbial biofilms on buoyant, high-density polyethylene (HDPE) carrier elements. These carriers (such as K1, K3, or K5 rings) are continuously suspended and mixed throughout the aeration basin by bubble aeration (in aerobic tanks) or mechanical mixers (in anoxic/anaerobic tanks). Perforated sieve plates or wedge-wire screens retain the carriers within the reactor while treated water flows out freely.'
+      },
+      {
+        q: 'What is the difference between Surface Area Loading Rate (SALR) and Surface Area Removal Rate (SARR)?',
+        a: 'In MBBR design, volumetric loading is replaced by surface-area kinetics because biological reactions occur strictly on the protected surface area of the biofilm carriers:\\n$$SALR = \\frac{Q \\cdot S_{in}}{A_{carrier}} \\quad [\\text{g}/(\\text{m}^2\\cdot\\text{d})], \\quad SARR = \\frac{Q \\cdot (S_{in} - S_{eff})}{A_{carrier}} \\quad [\\text{g}/(\\text{m}^2\\cdot\\text{d})]$$\\nWhere \\(Q\\) is daily flow, \\(S_{in}, S_{eff}\\) are influent and effluent pollutant concentrations (BOD, COD, or \\(NH_4\\text{-N}\\)), and \\(A_{carrier} = V_{tank} \\cdot FF \\cdot SSA\\). SALR dictates biofilm thickness and community ecology, while SARR represents the empirical biological elimination capacity under operating temperature and dissolved oxygen.'
+      },
+      {
+        q: 'What is the maximum allowable media filling fraction ($FF$), and why?',
+        a: 'The carrier filling fraction (\\(FF\\)) is the bulk volume of media divided by empty reactor volume. Standard commercial designs operate between 40% and 60% filling. The absolute hydrodynamic upper limit is 65% to 67%. Exceeding 67% filling reduces the free mean path of carrier movement to near zero, causing individual plastic wheels to interlock into a dense, non-fluidized floating mat (\"carrier pack lockup\"). This destroys hydraulic circulation, blinds effluent screens, and causes anaerobic septic dead zones.'
+      },
+      {
+        q: 'How does water temperature impact nitrification kinetics in MBBR biofilms?',
+        a: 'Autotrophic nitrifying bacteria (*Nitrosomonas* and *Nitrobacter*) are intensely temperature-sensitive. The biological reaction rate constant scales via the modified Arrhenius equation:\\n$$SARR_T = SARR_{20} \\cdot \\theta^{(T - 20)}$$\\nWhere \\(\theta \\approx 1.07\\text{ to }1.09\\). When wastewater drops from 20°C to 10°C in winter, the nitrification rate drops by over 50%. MBBR sizing for cold-climate municipal plants must be based on the minimum winter design temperature to prevent catastrophic ammonia permit violations.'
+      },
+      {
+        q: 'Why does biological nitrification require massive alkalinity supplementation?',
+        a: 'The oxidation of ammonia to nitrate generates hydrogen ions, consuming alkalinity:\\n$$NH_4^+ + 1.83 O_2 + 1.98 HCO_3^- \\longrightarrow 0.021 C_5H_7O_2N + 0.98 NO_3^- + 1.041 H_2O + 1.88 H_2CO_3$$\\nStoichiometrically, each gram of ammonia nitrogen (\\(NH_4\\text{-N}\\)) oxidized destroys 7.14 grams of alkalinity as \\(CaCO_3\\). If wastewater alkalinity drops below 50 to 75 mg/L as \\(CaCO_3\\), the reactor pH plummets below 6.5, instantly inhibiting nitrifying enzymes and halting ammonia conversion.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Moving Bed Biofilm Reactor (MBBR) Sizing Calculator</h1>' +
+      '    <p>Size municipal and industrial Moving Bed Biofilm Reactors (MBBR) for BOD oxidation, COD removal, and autotrophic nitrification. Calculate carrier filling fractions, active surface area, SALR and SARR kinetic rates, reactor basin volume, hydraulic residence time (HRT), and aeration blower capacity.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Wastewater Stream & Media Specs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-preset">MBBR Process Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="mbbr-preset">' +
+      '            <option value="muni_nitrif" selected>Municipal Post-Nitrification (Q=10,000 m³/d, NH4-N 30->2 mg/L, 14°C)</option>' +
+      '            <option value="brewery_bod">Brewery High-Rate BOD Pretreatment (Q=1,200 m³/d, BOD 2,400 mg/L, 22°C)</option>' +
+      '            <option value="dairy_bod">Dairy Wastewater Coarse Aerobic (Q=800 m³/d, BOD 1,800 mg/L, 20°C)</option>' +
+      '            <option value="chemical_cod">Chemical Plant Recalcitrant COD (Q=3,000 m³/d, COD 850 mg/L)</option>' +
+      '            <option value="custom">Custom MBBR Reactor</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-flow-rate">Daily Wastewater Flow Rate (\(Q\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="mbbr-flow-rate" value="10000" min="10" max="500000" step="500">' +
+      '          <select id="mbbr-flow-unit">' +
+      '            <option value="m3d" selected>m³/day</option>' +
+      '            <option value="mld">MLD</option>' +
+      '            <option value="mgd">MGD (US)</option>' +
+      '            <option value="m3h">m³/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-process-mode">Biological Treatment Objective</label>' +
+      '        <div class="input-row">' +
+      '          <select id="mbbr-process-mode">' +
+      '            <option value="nitrif" selected>Autotrophic Nitrification (NH4-N Removal)</option>' +
+      '            <option value="bod_high">High-Rate BOD Roughing (70-80% removal)</option>' +
+      '            <option value="bod_pure">Standard Secondary BOD Removal (90-95% removal)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-inf-conc">Influent & Effluent Target (\(S_{in} \to S_{eff}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="mbbr-inf-conc" value="30" min="1" max="10000" step="1" placeholder="Influent mg/L">' +
+      '          <input type="number" id="mbbr-eff-conc" value="2" min="0.1" max="1000" step="0.5" placeholder="Effluent mg/L">' +
+      '        </div>' +
+      '        <div class="hint">Concentration in mg/L (NH4-N for nitrification, or BOD5)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-water-temp">Minimum Operating Water Temperature (\(T\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="mbbr-water-temp" value="14" min="4" max="38" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">°C</span>' +
+      '        </div>' +
+      '        <div class="hint">Critical: Size for minimum winter water temperature</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-carrier-type">Biofilm Carrier Element Geometry</label>' +
+      '        <div class="input-row">' +
+      '          <select id="mbbr-carrier-type">' +
+      '            <option value="k3" selected>AnoxKaldnes K3 (500 m²/m³ protected SSA)</option>' +
+      '            <option value="k1">AnoxKaldnes K1 (500 m²/m³ protected SSA)</option>' +
+      '            <option value="k5">AnoxKaldnes K5 (800 m²/m³ protected SSA)</option>' +
+      '            <option value="chip">Biofilm Chip Media (1,200 m²/m³ protected SSA)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-fill-fraction">Carrier Filling Fraction (\(FF\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="mbbr-fill-fraction" value="55" min="25" max="67" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">%</span>' +
+      '        </div>' +
+      '        <div class="hint">Optimal range: 45% to 60% (absolute maximum: 67%)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="mbbr-water-depth">Basin Liquid Water Depth (\(H_w\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="mbbr-water-depth" value="6.0" min="3.0" max="10.0" step="0.5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="mbbr-calc-btn">Recalculate Reactor</button>' +
+      '        <button type="button" class="btn btn-secondary" id="mbbr-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="mbbr-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Reactor Volume, Surface & Aeration Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Reactor Basin Volume</div>' +
+      '          <div class="res-val" id="res-basin-vol">--</div>' +
+      '          <div class="res-unit">m³ (<span id="res-basin-mg">--</span> MGal)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Hydraulic Residence Time (HRT)</div>' +
+      '          <div class="res-val" id="res-hrt-hrs">--</div>' +
+      '          <div class="res-unit">hours (Flow: <span id="res-flow-m3h">--</span> m³/h)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Active Carrier Surface Area</div>' +
+      '          <div class="res-val" id="res-carrier-area">--</div>' +
+      '          <div class="res-unit">m² (Media Vol: <span id="res-media-vol">--</span> m³)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Effective Specific Surface (\(a_s\))</div>' +
+      '          <div class="res-val" id="res-eff-ssa">--</div>' +
+      '          <div class="res-unit">m² / m³ tank volume</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Surface Loading Rate (SALR)</div>' +
+      '          <div class="res-val" id="res-salr">--</div>' +
+      '          <div class="res-unit">g / (m²·day)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Surface Removal Rate (SARR)</div>' +
+      '          <div class="res-val" id="res-sarr">--</div>' +
+      '          <div class="res-unit">g / (m²·day) @ <span id="res-temp-tag">--</span>°C</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Daily Mass Load Removed</div>' +
+      '          <div class="res-val" id="res-mass-rem">--</div>' +
+      '          <div class="res-unit">kg/day (<span id="res-rem-pct">--</span>% Removal)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Process Aeration Airflow</div>' +
+      '          <div class="res-val" id="res-air-flow">--</div>' +
+      '          <div class="res-unit">Nm³/h (<span id="res-air-scfm">--</span> SCFM)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">MBBR Hydraulic & Kinetic Status: </span>' +
+      '        <span id="mbbr-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="mbbr-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Attached-Growth Biofilm Derivations</h2>' +
+      '    <p>Moving Bed Biofilm Reactors combine the stability and sludge retention of fixed-film biofilters with the hydraulic flow-through and low headloss of continuous stirred-tank reactors (CSTR), providing compact upgrades for overloaded municipal and industrial plants.</p>' +
+      '    <h3>1. Effective Specific Surface Area & Carrier Holdup</h3>' +
+      '    <p>The effective specific surface area available for bacterial colonization per cubic meter of basin volume \(a_s\) is the product of filling fraction \(FF\) and protected specific surface area \(SSA\):</p>' +
+      '    <div class="formula-box">' +
+      'a_s = \left(\frac{FF}{100}\right) \cdot SSA \quad [\text{m}^2 / \text{m}^3], \quad A_{carrier} = V_{tank} \cdot a_s \quad [\text{m}^2]' +
+      '    </div>' +
+      '    <p>Protected area excludes the outer perimeter of the cylinder to prevent shearing from carrier-carrier collisions.</p>' +
+      '    <h3>2. Kinetic Surface Area Removal Rate (SARR) Modeling</h3>' +
+      '    <p>Substrate elimination is strictly surface-area limited. The design removal rate \(SARR\) at operating water temperature \(T\) is scaled from base rates at 20°C using Arrhenius temperature coefficients:</p>' +
+      '    <div class="formula-box">' +
+      'SARR_T = SARR_{20} \cdot \theta^{(T - 20)} \quad [\text{g} / (\text{m}^2 \cdot \text{d})]' +
+      '    </div>' +
+      '    <p>Where \(\theta = 1.07\) for autotrophic nitrification (*Nitrosomonas* / *Nitrobacter*), and \(\theta = 1.04\) for heterotrophic BOD oxidation. For nitrification under non-limiting dissolved oxygen (\(DO > 4.5\,\text{mg/L}\)), \(SARR_{20} \approx 1.20\,\text{g N/m}^2\cdot\text{d}\); for high-rate BOD removal, \(SARR_{20} \approx 18.0\,\text{g BOD/m}^2\cdot\text{d}\).</p>' +
+      '    <h3>3. Basin Volume Sizing & Hydraulic Residence Time</h3>' +
+      '    <p>Total required carrier surface area \(A_{req}\) is determined from daily pollutant mass removed \(\dot{M}_{rem}\):</p>' +
+      '    <div class="formula-box">' +
+      '\dot{M}_{rem} = \frac{Q \cdot (S_{in} - S_{eff})}{1000} \quad [\text{kg/day}], \quad A_{req} = \frac{\dot{M}_{rem} \times 1000}{SARR_T} \quad [\text{m}^2] \\' +
+      'V_{tank} = \frac{A_{req}}{a_s} \quad [\text{m}^3], \quad HRT = \frac{V_{tank}}{Q} \times 24 \quad [\text{hours}]' +
+      '    </div>' +
+      '    <h3>4. Process Oxygen Transfer & Aeration Blower Sizing</h3>' +
+      '    <p>Standard Oxygen Requirement (\(SOR\)) is calculated from stoichiometric demands (\(4.57\,\text{kg } O_2 / \text{kg } N\) nitrified; \(1.15\,\text{kg } O_2 / \text{kg } BOD\) removed), converted to standard air volume based on diffuser standard oxygen transfer efficiency (\(SOTE \approx 6.0\%/\text{m}\) submergence):</p>' +
+      '    <div class="formula-box">' +
+      'AOR = 4.57 \cdot \dot{M}_{N,rem} + 1.15 \cdot \dot{M}_{BOD,rem} \quad [\text{kg } O_2/\text{day}] \\' +
+      'Q_{air} = \frac{AOR \times 1000}{24 \cdot 0.299 \cdot SOTE \cdot (H_w - 0.5)} \quad [\text{Nm}^3/\text{h}]' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Media Sieve Blinding & Hydraulic Basin Overtopping</h4>' +
+      '      <p>Effluent retention screens (typically cylindrical wedge-wire sieves with 3 to 5 mm slot openings) are vulnerable to biological blinding from sloughed biofilm sheets and plastic film debris. Operating without continuous air-knife scrubbing spargers located directly below the screen face causes rapid sieve headloss buildup, backing up water until untreated mixed liquor overtops reactor walls.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Carrier Pack "Lockup" via Overfilling (>67% Media Fill)</h4>' +
+      '      <p>Operators attempting to boost reactor capacity by dumping excess carrier bags into the tank exceed the 67% hydraulic lockup limit. In a crowded bed, carriers cannot tumble or rotate freely; they interlock into a solid buoyant raft that floats statically at the surface. Mass transfer collapses by 80%, and bottom aeration air channels around the pack without delivering dissolved oxygen.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Dissolved Oxygen (DO) Starvation in Nitrifying Biofilms</h4>' +
+      '      <p>Nitrifying bacteria live deep within the dense biofilm protected inside carrier fins. Because oxygen must diffuse through the outer boundary layer and heterotrophic slime, an aeration basin DO of 2.0 mg/L (standard for activated sludge) leaves nitrifiers completely oxygen-starved. Maintaining 95% nitrification requires continuous bulk liquid DO between 4.0 and 6.0 mg/L.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Alkalinity Depletion & Sudden Acidic pH Crash</h4>' +
+      '      <p>Autotrophic nitrification destroys 7.14 kg of alkalinity (as \(CaCO_3\)) for every kilogram of ammonia oxidized. In poorly buffered soft water, biological conversion consumes available bicarbonate, causing reactor pH to plummet rapidly from 7.4 down to 5.8. Below pH 6.4, nitrous acid toxicity halts bacterial metabolism completely, requiring automated sodium hydroxide or soda ash dosing.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Cold Winter Shock & Ammonia Effluent Breakthrough</h4>' +
+      '      <p>Sizing an MBBR based on summer or average annual temperature (18°C to 22°C) is disastrous for cold-climate municipalities. When winter melt lowers basin water temperature to 8°C to 10°C, the biological removal rate constant cuts in half. Without sufficient carrier surface area built into the baseline design, plants suffer months of catastrophic winter ammonia compliance violations.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    muni_nitrif: { flow: 10000, unit: "m3d", mode: "nitrif", inf: 30, eff: 2, temp: 14, carrier: "k3", fill: 55, depth: 6.0 },' +
+      '    brewery_bod: { flow: 1200, unit: "m3d", mode: "bod_high", inf: 2400, eff: 350, temp: 22, carrier: "k1", fill: 58, depth: 5.5 },' +
+      '    dairy_bod: { flow: 800, unit: "m3d", mode: "bod_pure", inf: 1800, eff: 80, temp: 20, carrier: "k5", fill: 50, depth: 5.0 },' +
+      '    chemical_cod: { flow: 3000, unit: "m3d", mode: "bod_pure", inf: 850, eff: 100, temp: 18, carrier: "k3", fill: 60, depth: 6.5 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("mbbr-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("mbbr-flow-rate").value = p.flow;' +
+      '    el("mbbr-flow-unit").value = p.unit;' +
+      '    el("mbbr-process-mode").value = p.mode;' +
+      '    el("mbbr-inf-conc").value = p.inf;' +
+      '    el("mbbr-eff-conc").value = p.eff;' +
+      '    el("mbbr-water-temp").value = p.temp;' +
+      '    el("mbbr-carrier-type").value = p.carrier;' +
+      '    el("mbbr-fill-fraction").value = p.fill;' +
+      '    el("mbbr-water-depth").value = p.depth;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    let flowRaw = parseFloat(el("mbbr-flow-rate").value) || 10000;' +
+      '    const flowUnit = el("mbbr-flow-unit").value;' +
+      '    let q_m3d = flowRaw;' +
+      '    if (flowUnit === "mld") q_m3d = flowRaw * 1000;' +
+      '    else if (flowUnit === "mgd") q_m3d = flowRaw * 3785.41;' +
+      '    else if (flowUnit === "m3h") q_m3d = flowRaw * 24;' +
+      '    ' +
+      '    const mode = el("mbbr-process-mode").value;' +
+      '    const sin = parseFloat(el("mbbr-inf-conc").value) || 30;' +
+      '    const seff = parseFloat(el("mbbr-eff-conc").value) || 2;' +
+      '    const tempC = parseFloat(el("mbbr-water-temp").value) || 14;' +
+      '    const carrier = el("mbbr-carrier-type").value;' +
+      '    const fillPct = (parseFloat(el("mbbr-fill-fraction").value) || 55) / 100;' +
+      '    const H_w = parseFloat(el("mbbr-water-depth").value) || 6.0;' +
+      '    ' +
+      '    // Protected Specific Surface Area (SSA) in m2/m3 bulk carrier' +
+      '    let ssa = 500;' +
+      '    if (carrier === "k1") ssa = 500;' +
+      '    else if (carrier === "k5") ssa = 800;' +
+      '    else if (carrier === "chip") ssa = 1200;' +
+      '    ' +
+      '    // Effective SSA in basin: as = FF * SSA' +
+      '    const as_eff = fillPct * ssa;' +
+      '    ' +
+      '    // Kinetic SARR determination based on mode & temperature' +
+      '    let sarr_20 = 1.20; // g N/m2.d' +
+      '    let theta = 1.07;' +
+      '    let o2_factor = 4.57; // kg O2 per kg removed' +
+      '    ' +
+      '    if (mode === "bod_high") {' +
+      '      sarr_20 = 18.0; // g BOD/m2.d' +
+      '      theta = 1.04;' +
+      '      o2_factor = 1.10;' +
+      '    } else if (mode === "bod_pure") {' +
+      '      sarr_20 = 7.5; // g BOD/m2.d' +
+      '      theta = 1.04;' +
+      '      o2_factor = 1.25;' +
+      '    }' +
+      '    ' +
+      '    // Arrhenius temperature correction' +
+      '    const sarr_T = sarr_20 * Math.pow(theta, tempC - 20);' +
+      '    ' +
+      '    // Mass removed' +
+      '    const s_rem = Math.max(0.1, sin - seff);' +
+      '    const mass_rem_kgd = (q_m3d * s_rem) / 1000;' +
+      '    const rem_pct = (s_rem / Math.max(0.1, sin)) * 100;' +
+      '    ' +
+      '    // Required carrier surface area' +
+      '    const A_carrier_req = (mass_rem_kgd * 1000) / sarr_T;' +
+      '    ' +
+      '    // Basin Volume' +
+      '    const V_basin = A_carrier_req / as_eff;' +
+      '    const V_basin_mg = V_basin * 0.000264172;' +
+      '    const V_media = V_basin * fillPct;' +
+      '    ' +
+      '    // HRT' +
+      '    const hrt_hrs = (V_basin / q_m3d) * 24;' +
+      '    ' +
+      '    // SALR' +
+      '    const mass_in_kgd = (q_m3d * sin) / 1000;' +
+      '    const salr = (mass_in_kgd * 1000) / A_carrier_req;' +
+      '    ' +
+      '    // Process Aeration Airflow' +
+      '    // AOR (kg O2/day) = o2_factor * mass_rem_kgd' +
+      '    const AOR_kgd = o2_factor * mass_rem_kgd;' +
+      '    // SOTE approx 0.06 per meter submergence' +
+      '    const SOTE = 0.065 * Math.max(2, H_w - 0.5);' +
+      '    // 1 Nm3 air contains approx 0.299 kg O2' +
+      '    const air_nm3h = (AOR_kgd * 1000) / (24 * 0.299 * SOTE * 1000);' +
+      '    const air_scfm = air_nm3h * 0.588578;' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-basin-vol").textContent = Math.round(V_basin).toLocaleString();' +
+      '    el("res-basin-mg").textContent = V_basin_mg.toFixed(3);' +
+      '    el("res-hrt-hrs").textContent = hrt_hrs.toFixed(1);' +
+      '    el("res-flow-m3h").textContent = Math.round(q_m3d / 24).toLocaleString();' +
+      '    el("res-carrier-area").textContent = Math.round(A_carrier_req).toLocaleString();' +
+      '    el("res-media-vol").textContent = Math.round(V_media).toLocaleString();' +
+      '    el("res-eff-ssa").textContent = Math.round(as_eff);' +
+      '    el("res-salr").textContent = salr.toFixed(2);' +
+      '    el("res-sarr").textContent = sarr_T.toFixed(2);' +
+      '    el("res-temp-tag").textContent = tempC;' +
+      '    el("res-mass-rem").textContent = Math.round(mass_rem_kgd).toLocaleString();' +
+      '    el("res-rem-pct").textContent = rem_pct.toFixed(1);' +
+      '    el("res-air-flow").textContent = Math.round(air_nm3h).toLocaleString();' +
+      '    el("res-air-scfm").textContent = Math.round(air_scfm).toLocaleString();' +
+      '    ' +
+      '    // Badge evaluation' +
+      '    const badge = el("mbbr-eval-badge");' +
+      '    if (fillPct >= 0.40 && fillPct <= 0.62 && hrt_hrs >= 1.5 && tempC >= 10) {' +
+      '      badge.textContent = "Optimal Biofilm Kinetics & Hydraulic Fluidization";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (fillPct > 0.62) {' +
+      '      badge.textContent = "High Media Filling: Risk of Carrier Lockup & Screen Blinding";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else if (tempC < 10 && mode === "nitrif") {' +
+      '      badge.textContent = "Severe Winter Nitrification Slowdown: Generous Sizing Applied";' +
+      '      badge.style.background = "#e0f2fe";' +
+      '      badge.style.color = "#0369a1";' +
+      '    } else {' +
+      '      badge.textContent = "Standard Moving Bed Reactor Operating Sizing";' +
+      '      badge.style.background = "#f1f5f9";' +
+      '      badge.style.color = "#334155";' +
+      '    }' +
+      '    ' +
+      '    drawMBBR(fillPct, Math.round(V_basin), hrt_hrs);' +
+      '  }' +
+      '  ' +
+      '  function drawMBBR(fillPct, v_basin, hrt) {' +
+      '    const canvas = el("mbbr-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    // Concrete Basin walls' +
+      '    const bx = 30;' +
+      '    const by = 40;' +
+      '    const bw = 280;' +
+      '    const bh = 190;' +
+      '    ' +
+      '    // Concrete border' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.fillRect(bx - 12, by - 5, bw + 24, bh + 25);' +
+      '    ' +
+      '    // Tank liquid fill' +
+      '    const liqGrad = ctx.createLinearGradient(bx, by, bx, by + bh);' +
+      '    liqGrad.addColorStop(0, "#0284c7");' +
+      '    liqGrad.addColorStop(1, "#075985");' +
+      '    ctx.fillStyle = liqGrad;' +
+      '    ctx.fillRect(bx, by + 15, bw, bh - 15);' +
+      '    ' +
+      '    // Freeboard space' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.fillRect(bx, by, bw, 15);' +
+      '    ' +
+      '    // Aeration grid at tank bottom' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.fillRect(bx + 15, by + bh - 12, bw - 30, 8);' +
+      '    ' +
+      '    // Coarse bubble aeration plumes' +
+      '    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";' +
+      '    for (let i = 0; i < 40; i++) {' +
+      '      const abx = bx + 25 + ((i * 17) % (bw - 50));' +
+      '      const aby = by + 25 + ((i * 23) % (bh - 45));' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(abx, aby, (i % 3 === 0 ? 3 : 2), 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ' +
+      '    // Swirling MBBR carrier wheels' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.fillStyle = "rgba(56, 189, 248, 0.4)";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    const numCarriers = Math.round(fillPct * 75);' +
+      '    for (let i = 0; i < numCarriers; i++) {' +
+      '      const cx = bx + 20 + ((i * 31) % (bw - 40));' +
+      '      const cy = by + 25 + ((i * 19) % (bh - 50));' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(cx, cy, 6, 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '      ctx.stroke();' +
+      '      // Cross spoke' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(cx - 5, cy);' +
+      '      ctx.lineTo(cx + 5, cy);' +
+      '      ctx.moveTo(cx, cy - 5);' +
+      '      ctx.lineTo(cx, cy + 5);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Effluent wedge-wire retention sieve' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillRect(bx + bw - 18, by + 40, 16, 75);' +
+      '    ctx.strokeStyle = "#e2e8f0";' +
+      '    ctx.lineWidth = 1;' +
+      '    for (let s = by + 45; s < by + 110; s += 8) {' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(bx + bw - 18, s);' +
+      '      ctx.lineTo(bx + bw - 2, s);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Air Knife sparger below screen' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillRect(bx + bw - 22, by + 120, 20, 6);' +
+      '    ' +
+      '    // Inflow & Outflow arrows' +
+      '    ctx.fillStyle = "#34d399";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Influent →", bx + 5, by + 30);' +
+      '    ctx.fillText("Clean Effluent →", bx + bw - 70, by + 30);' +
+      '    ' +
+      '    // Readout box on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(330, 40, 155, 200);' +
+      '    ctx.strokeRect(330, 40, 155, 200);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("BASIN VOLUME", 345, 65);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(v_basin.toLocaleString() + " m³", 345, 87);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("HYDRAULIC RETENTION", 345, 115);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(hrt.toFixed(1) + " Hours", 345, 137);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("CARRIER FILLING", 345, 165);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText((fillPct * 100).toFixed(0) + " % Fill", 345, 187);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Attached Biofilm MBBR", 345, 218);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "mbbr-preset", "mbbr-flow-rate", "mbbr-flow-unit", "mbbr-process-mode",' +
+      '    "mbbr-inf-conc", "mbbr-eff-conc", "mbbr-water-temp", "mbbr-carrier-type",' +
+      '    "mbbr-fill-fraction", "mbbr-water-depth"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "mbbr-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "mbbr-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("mbbr-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("mbbr-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== MOVING BED BIOFILM REACTOR (MBBR) SIZING REPORT ===",' +
+      '        "Wastewater Flow: " + el("mbbr-flow-rate").value + " " + el("mbbr-flow-unit").value,' +
+      '        "Treatment Objective: " + el("mbbr-process-mode").value,' +
+      '        "Influent / Effluent: " + el("mbbr-inf-conc").value + " -> " + el("mbbr-eff-conc").value + " mg/L (Removed: " + el("res-rem-pct").textContent + " %)",' +
+      '        "Operating Temperature: " + el("mbbr-water-temp").value + " °C",' +
+      '        "Carrier Element: " + el("mbbr-carrier-type").value + " @ " + el("mbbr-fill-fraction").value + " % Filling",' +
+      '        "Total Basin Volume: " + el("res-basin-vol").textContent + " m³ (" + el("res-basin-mg").textContent + " MGal)",' +
+      '        "Hydraulic Residence Time (HRT): " + el("res-hrt-hrs").textContent + " hours",' +
+      '        "Active Carrier Area: " + el("res-carrier-area").textContent + " m² (Media Volume: " + el("res-media-vol").textContent + " m³)",' +
+      '        "Surface Loading Rate (SALR): " + el("res-salr").textContent + " g/(m²·d)",' +
+      '        "Surface Removal Rate (SARR): " + el("res-sarr").textContent + " g/(m²·d)",' +
+      '        "Process Aeration Airflow: " + el("res-air-flow").textContent + " Nm³/h (" + el("res-air-scfm").textContent + " SCFM)",' +
+      '        "Operational Evaluation: " + el("mbbr-eval-badge").textContent,' +
+      '        "Design Standards: WEF / IWA Attached Growth MBBR Kinetic Design Protocol"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("mbbr-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  // ─── TOOL BW3: INDUSTRIAL HYDROCYCLONE SIZING CALCULATOR ───
+  (() => {
+    const slug = 'industrial-hydrocyclone-sizing-and-cut-point-calculator';
+    const title = 'Industrial Hydrocyclone Sizing & Cut Size (d50) Calculator';
+    const metaDescription = 'Size industrial mineral and desanding hydrocyclones using Bradley, Rietema, and Plitt models. Calculate corrected cut size (d50c), slurry pressure drop, volumetric split ratio, apex/vortex finder dimensions, and spray vs roping discharge.';
+    const faq = [
+      {
+        q: 'How does an industrial hydrocyclone classify solid particles by size and density?',
+        a: 'A hydrocyclone operates via centrifugal sedimentation without moving mechanical parts. Slurry is pumped tangentially into a cylindrical chamber at high velocity (typically 3 to 6 m/s, driven by 70 to 200 kPa feed pressure). The circular geometry forces the fluid into a high-speed outer helical vortex that spirals downward along the cone wall. Centrifugal force (often 500 to 2,000 × g) flings larger, denser particles outward to the wall, where they slide downward and discharge through the bottom spigot (apex) as underflow. Finer, lighter particles cannot overcome fluid drag and are swept inward into a secondary upward spiral vortex around a low-pressure air core, exiting through the central vortex finder tube as overflow.'
+      },
+      {
+        q: 'What is the difference between Actual Cut Size ($d_{50}$), Corrected Cut Size ($d_{50c}$), and Bypass?',
+        a: 'The cut size \\(d_{50}\\) is the particle diameter that reports with equal 50% probability to either underflow or overflow. However, a fraction of fine particles is carried directly into the underflow simply by water recovery without experiencing centrifugal separation (the \"liquid bypass\" \\(R_f\\)). The corrected cut size \\(d_{50c}\\) subtracts this hydraulic short-circuiting to represent the true centrifugal classification efficiency of the machine:\\n$$y_c = \\frac{y - R_f}{1 - R_f}$$\\nWhere \\(y\\) is actual mass fraction reporting to underflow. \\(d_{50c}\\) is the primary engineering metric used to evaluate closed-circuit grinding mills.'
+      },
+      {
+        q: 'What is the Bradley model vs. Plitt empirical equation for hydrocyclone cut point?',
+        a: 'Bradley developed a fundamental theoretical derivation based on tangential velocity profile \\(v \\cdot r^n = \\text{const}\\) and Stokes sedimentation:\\n$$d_{50c} = \\frac{0.076 \\cdot D_c^{1.52} \\cdot \\mu_L^{0.5}}{Q^{0.5} \\cdot (\\rho_s - \\rho_L)^{0.5}} \\quad [\\mu\\text{m}]$$\\nWhere \\(D_c\\) is cyclone diameter in cm, \\(Q\\) is volumetric flow in L/min, and \\(\Delta \\rho = \\rho_s - \\rho_L\\) is density difference. Plitt expanded this with empirical industrial regression parameters incorporating slurry volumetric solids concentration \\(C_v\\), vortex finder diameter \\(D_o\\), and apex diameter \\(D_u\\), accounting for hindered settling and viscosity dampening.'
+      },
+      {
+        q: 'What causes \"roping\" discharge at the apex and why is it dangerous?',
+        a: 'A hydrocyclone apex should always operate in a flared, conical \"umbrella spray\" pattern with an intact hollow central air core. If the underflow solids mass flow exceeds the physical capacity of the apex orifice (typically when volumetric solids packing exceeds 50% to 55%), the air core collapses. The discharge transforms into a continuous, non-aerated sausage-like cylinder of solids termed \"roping\". During roping, centrifugal classification fails completely: coarse particles are rejected into the overflow, while fines are trapped in the underflow, causing massive circulating load explosions and mill choking.'
+      },
+      {
+        q: 'How does slurry solids concentration impact hydrocyclone cut size ($d_{50}$)?',
+        a: 'As slurry solids concentration increases from 10 wt% to 45 wt%, two phenomena occur: (1) Hindered settling increases inter-particle hydrodynamic drag; and (2) Apparent slurry viscosity increases exponentially according to the Einstein/Guth-Simha equation. This extra viscous drag prevents mid-size particles from migrating to the outer wall, shifting \\(d_{50c}\\) coarser by a factor of 2.0 to 3.5. Diluting cyclone feed slurry is often the quickest operational method to sharpen grind size.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Industrial Hydrocyclone Sizing & Cut Size Calculator</h1>' +
+      '    <p>Perform industrial sizing and classification modeling for mineral processing, closed-circuit grinding, and desanding hydrocyclones. Calculate corrected cut size (d50c), slurry pressure drop, volumetric split ratio, apex/vortex finder geometries, and evaluate spray vs roping discharge regimes.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Slurry Feed & Cyclone Geometry</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-preset">Industrial Application Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="hc-preset">' +
+      '            <option value="ball_mill" selected>Ball Mill Grinding Circuit (Dc=500mm, 250 m³/h, 45 wt% ore, d50=75 µm)</option>' +
+      '            <option value="desander">Drilling Mud Desander (Dc=300mm, 115 m³/h, 15 wt% sand, d50=45 µm)</option>' +
+      '            <option value="deslimer">Silica Sand Desliming Cyclone (Dc=150mm, 35 m³/h, d50=20 µm)</option>' +
+      '            <option value="heavy_media">Heavy Medium Coal Cyclone (Dc=650mm, dense medium, high capacity)</option>' +
+      '            <option value="custom">Custom Hydrocyclone</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-slurry-flow">Slurry Feed Flow Rate per Cyclone (\(Q\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="hc-slurry-flow" value="250" min="2" max="2500" step="5">' +
+      '          <select id="hc-flow-unit">' +
+      '            <option value="m3h" selected>m³/h</option>' +
+      '            <option value="gpm">US GPM</option>' +
+      '            <option value="lmin">L/min</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-barrel-dia">Cyclone Internal Diameter (\(D_c\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="hc-barrel-dia" value="500" min="50" max="1200" step="25">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard sizes: 100mm, 150mm, 250mm, 380mm, 500mm, 660mm</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-feed-pressure">Feed Pressure Drop (\(\Delta P\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="hc-feed-pressure" value="105" min="30" max="350" step="5">' +
+      '          <select id="hc-press-unit">' +
+      '            <option value="kpa" selected>kPa</option>' +
+      '            <option value="psi">psi</option>' +
+      '            <option value="bar">bar</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Normal operating range: 70 to 140 kPa (10 to 20 psi)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-solids-wt">Slurry Solids Concentration (\(C_w\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="hc-solids-wt" value="45" min="2" max="68" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wt%</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-solids-density">Mineral Solids Density (\(\rho_s\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="hc-solids-density" value="2700" min="1200" max="5500" step="50">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">kg/m³</span>' +
+      '        </div>' +
+      '        <div class="hint">Quartz/silica: 2650, Copper ore: 2700-3100, Magnetite: 4900</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-vortex-dia">Vortex Finder Diameter (\(D_o\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="hc-vortex-dia" value="160" min="20" max="450" step="5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Typically 0.30 to 0.35 x Dc</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="hc-apex-dia">Apex / Spigot Diameter (\(D_u\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="hc-apex-dia" value="85" min="10" max="250" step="2">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Adjustable choke: controls underflow density & roping</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="hc-calc-btn">Recalculate Hydrocyclone</button>' +
+      '        <button type="button" class="btn btn-secondary" id="hc-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="hc-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Cut Point, Split & Discharge Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Corrected Cut Size (\(d_{50c}\))</div>' +
+      '          <div class="res-val" id="res-d50c">--</div>' +
+      '          <div class="res-unit">µm (Plitt Model)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Bradley Cut Size (\(d_{50}\))</div>' +
+      '          <div class="res-val" id="res-bradley-d50">--</div>' +
+      '          <div class="res-unit">µm (Theoretical)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Slurry Feed Density (\(\rho_{feed}\))</div>' +
+      '          <div class="res-val" id="res-slurry-dens">--</div>' +
+      '          <div class="res-unit">kg/m³ (<span id="res-solids-vol">--</span> vol% solids)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Volumetric Split Ratio (\(S\))</div>' +
+      '          <div class="res-val" id="res-split-ratio">--</div>' +
+      '          <div class="res-unit">Underflow / Overflow</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Underflow (Apex) Slurry Flow</div>' +
+      '          <div class="res-val" id="res-uf-flow">--</div>' +
+      '          <div class="res-unit">m³/h (Solids: <span id="res-uf-th">--</span> t/h)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Underflow Solids wt%</div>' +
+      '          <div class="res-val" id="res-uf-wt">--</div>' +
+      '          <div class="res-unit">wt% solids (Vol: <span id="res-uf-vol">--</span> vol%)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Water Recovery to Underflow</div>' +
+      '          <div class="res-val" id="res-water-rec">--</div>' +
+      '          <div class="res-unit">% (Liquid Short-Circuit Bypass)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Apex Discharge Condition</div>' +
+      '          <div class="res-val" id="res-discharge-state">--</div>' +
+      '          <div class="res-unit">Regime (<span id="res-du-do-ratio">--</span> Du/Do)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">Classification & Apex Operating Status: </span>' +
+      '        <span id="hc-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="hc-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Hydrocyclone Kinetic Derivations</h2>' +
+      '    <p>Hydrocyclones are the dominant wet classification equipment in closed-circuit grinding, mineral beneficiation, and sand washing due to their high volumetric throughput and small footprint.</p>' +
+      '    <h3>1. Slurry Density & Volume Concentration Conversion</h3>' +
+      '    <p>From mass percent solids \(C_w\), dry mineral skeletal density \(\rho_s\), and carrier liquid density \(\rho_L\) (\(1000\,\text{kg/m}^3\)):</p>' +
+      '    <div class="formula-box">' +
+      'C_v = \frac{C_w / \rho_s}{(C_w / \rho_s) + ((100 - C_w) / \rho_L)} \times 100 \quad [\text{vol}\%] \\' +
+      '\rho_{slurry} = \rho_L + \left(\frac{C_v}{100}\right) (\rho_s - \rho_L) \quad [\text{kg/m}^3]' +
+      '    </div>' +
+      '    <h3>2. Plitt Empirical Cut Size ($d_{50c}$) Equation</h3>' +
+      '    <p>The corrected cut size \(d_{50c}\) in microns is modeled via the comprehensive Plitt equation:</p>' +
+      '    <div class="formula-box">' +
+      'd_{50c} = \frac{50.5 \cdot D_c^{0.46} \cdot D_i^{0.60} \cdot D_o^{1.21} \cdot \exp(0.063 \cdot C_v)}{D_u^{0.71} \cdot h^{0.38} \cdot Q^{0.45} \cdot (\rho_s - \rho_L)^{0.5}} \quad [\mu\text{m}]' +
+      '    </div>' +
+      '    <p>Where \(D_c, D_i, D_o, D_u, h\) are in cm, \(Q\) is in L/min, and densities are in \(\text{g/cm}^3\). As solids volume concentration \(C_v\) increases, \(\exp(0.063 C_v)\) causes severe cut-point coarsening due to hindered settling.</p>' +
+      '    <h3>3. Volumetric Split & Water Recovery</h3>' +
+      '    <p>The volumetric split ratio \(S = Q_u / Q_o\) between underflow and overflow is dictated by orifice ratio \(D_u / D_o\):</p>' +
+      '    <div class="formula-box">' +
+      'S = 0.32 \cdot \left(\frac{D_u}{D_o}\right)^{3.31} \cdot \left(\frac{h}{D_c}\right)^{0.54} \cdot \left(\frac{\Delta P}{\rho_{slurry} g D_c}\right)^{0.36}' +
+      '    </div>' +
+      '    <p>The fraction of water reporting to underflow \(R_f = \frac{S}{1 + S}\) defines the fine particle bypass percentage.</p>' +
+      '    <h3>4. Apex Discharge Hydrodynamics: Spray vs. Roping</h3>' +
+      '    <p>The apex discharge transitions from an umbrella cone spray to roping when the underflow volumetric solids concentration exceeds critical packing (\(C_{v,uf} > 52\%\text{ to }56\%\)):</p>' +
+      '    <div class="formula-box">' +
+      '\text{Discharge State} = \begin{cases} \text{Umbrella Spray (Ideal)}, & C_{v,uf} < 48\% \\ \text{Transition Semi-Rope}, & 48\% \le C_{v,uf} \le 53\% \\ \text{Severe Roping (Overloaded)}, & C_{v,uf} > 53\% \end{cases}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Apex Roping Overload & Severe Coarse Misplacement</h4>' +
+      '      <p>When mass solids feed surges without adjusting apex diameter, the underflow packing fraction exceeds 54 vol%. The central air core collapses, transforming the umbrella spray into a thick, cylindrical \"rope\". During roping, the apex cannot clear coarse particles, forcing rocks directly into the overflow stream where they destroy downstream flotation cells or leach tanks.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Siphoning & Air Core Collapse from Submerged Overflow Pipes</h4>' +
+      '      <p>Piping the cyclone overflow discharge line directly below the water level in an open distributor tank creates an uncontrolled barometric siphon. Negative suction pressure draws air out of the cyclone core, collapsing the inner vortex. Classification sharpness (\(\alpha\)) drops by 40%, and water short-circuits to the underflow.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. High Slurry Viscosity Choking from Clay and Fines</h4>' +
+      '      <p>Processing ores containing bentonite, smectite, or kaolinite clays creates high non-Newtonian plastic viscosity. At 40% solids, clay slimes damp out tangential swirl velocity, shifting \(d_{50c}\) from 75 µm to over 200 µm. Corrective action requires lowering cyclone feed solids to 30 wt% or adding chemical sodium silicate dispersants.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Polyurethane & Ceramic Apex Liner Gouging Wear</h4>' +
+      '      <p>Centrifugal velocities exceed 15 m/s at the apex tip, where abrasive quartz and sulfide grains concentrate. Standard polyurethane liners erode within 4 to 8 weeks, enlarging the spigot diameter by 20% to 35%. This unchecked wear increases underflow water bypass, dropping underflow density and overloading downstream dewatering screens.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Manifold Flow Maldistribution in Radial Cyclone Clusters</h4>' +
+      '      <p>Mounting multiple hydrocyclones on a radial cluster distributor requires uniform feed velocity. If the central inlet riser is undersized or operated below design pressure (<70 kPa), slurry separates in the manifold. Centrally located cyclones receive dense coarse solids, while peripheral units receive dilute slimes, destroying circuit efficiency.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    ball_mill: { flow: 250, unit: "m3h", dc: 500, press: 105, pressUnit: "kpa", cw: 45, rhoS: 2700, d_o: 160, d_u: 85 },' +
+      '    desander: { flow: 115, unit: "m3h", dc: 300, press: 180, pressUnit: "kpa", cw: 15, rhoS: 2650, d_o: 95, d_u: 45 },' +
+      '    deslimer: { flow: 35, unit: "m3h", dc: 150, press: 140, pressUnit: "kpa", cw: 20, rhoS: 2650, d_o: 48, d_u: 22 },' +
+      '    heavy_media: { flow: 450, unit: "m3h", dc: 650, press: 90, pressUnit: "kpa", cw: 30, rhoS: 4200, d_o: 220, d_u: 120 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("hc-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("hc-slurry-flow").value = p.flow;' +
+      '    el("hc-flow-unit").value = p.unit;' +
+      '    el("hc-barrel-dia").value = p.dc;' +
+      '    el("hc-feed-pressure").value = p.press;' +
+      '    el("hc-press-unit").value = p.pressUnit;' +
+      '    el("hc-solids-wt").value = p.cw;' +
+      '    el("hc-solids-density").value = p.rhoS;' +
+      '    el("hc-vortex-dia").value = p.d_o;' +
+      '    el("hc-apex-dia").value = p.d_u;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    let flowRaw = parseFloat(el("hc-slurry-flow").value) || 250;' +
+      '    const flowUnit = el("hc-flow-unit").value;' +
+      '    let q_m3h = flowRaw;' +
+      '    if (flowUnit === "gpm") q_m3h = flowRaw * 0.227125;' +
+      '    else if (flowUnit === "lmin") q_m3h = flowRaw * 0.06;' +
+      '    ' +
+      '    const Dc_mm = parseFloat(el("hc-barrel-dia").value) || 500;' +
+      '    let pressRaw = parseFloat(el("hc-feed-pressure").value) || 105;' +
+      '    const pressUnit = el("hc-press-unit").value;' +
+      '    let dp_kpa = pressRaw;' +
+      '    if (pressUnit === "psi") dp_kpa = pressRaw * 6.89476;' +
+      '    else if (pressUnit === "bar") dp_kpa = pressRaw * 100;' +
+      '    ' +
+      '    const Cw = parseFloat(el("hc-solids-wt").value) || 45;' +
+      '    const rho_s = parseFloat(el("hc-solids-density").value) || 2700;' +
+      '    const Do_mm = parseFloat(el("hc-vortex-dia").value) || 160;' +
+      '    const Du_mm = parseFloat(el("hc-apex-dia").value) || 85;' +
+      '    ' +
+      '    // Slurry volume concentration Cv & density' +
+      '    const rho_L = 1000; // water kg/m3' +
+      '    const vol_solids = (Cw / rho_s);' +
+      '    const vol_water = ((100 - Cw) / rho_L);' +
+      '    const Cv = (vol_solids / (vol_solids + vol_water)) * 100;' +
+      '    const rho_slurry = rho_L + (Cv / 100) * (rho_s - rho_L);' +
+      '    ' +
+      '    // Dimensions in cm for Plitt / Bradley equations' +
+      '    const Dc_cm = Dc_mm / 10;' +
+      '    const Do_cm = Do_mm / 10;' +
+      '    const Du_cm = Du_mm / 10;' +
+      '    const Di_cm = 0.18 * Dc_cm; // standard inlet diameter' +
+      '    const h_cm = 2.5 * Dc_cm; // free vortex height' +
+      '    const Q_lmin = q_m3h * 16.6667;' +
+      '    ' +
+      '    // Bradley Cut Size d50 (um)' +
+      '    // d50 = (0.076 * Dc_cm^1.52 * mu^0.5) / (Q_lmin^0.5 * delta_rho^0.5)' +
+      '    // delta_rho in g/cm3' +
+      '    const delta_rho_gcc = (rho_s - rho_L) / 1000;' +
+      '    const mu_cp = 1.0 * Math.exp(0.025 * Cv); // apparent viscosity in cP' +
+      '    const bradley_d50 = (0.076 * Math.pow(Dc_cm, 1.52) * Math.sqrt(mu_cp)) / (Math.sqrt(Math.max(10, Q_lmin)) * Math.sqrt(delta_rho_gcc));' +
+      '    ' +
+      '    // Plitt Corrected Cut Size d50c (um)' +
+      '    // d50c = (50.5 * Dc^0.46 * Di^0.60 * Do^1.21 * exp(0.063 * Cv)) / (Du^0.71 * h^0.38 * Q^0.45 * delta_rho^0.5)' +
+      '    const num_plitt = 50.5 * Math.pow(Dc_cm, 0.46) * Math.pow(Di_cm, 0.60) * Math.pow(Do_cm, 1.21) * Math.exp(0.063 * Cv);' +
+      '    const den_plitt = Math.pow(Du_cm, 0.71) * Math.pow(h_cm, 0.38) * Math.pow(Math.max(10, Q_lmin), 0.45) * Math.sqrt(delta_rho_gcc);' +
+      '    const plitt_d50c = Math.max(2, Math.min(350, num_plitt / Math.max(0.1, den_plitt)));' +
+      '    ' +
+      '    // Split Ratio S = Qu / Qo' +
+      '    // Plitt: S = 0.32 * (Du/Do)^3.31 * (h/Dc)^0.54 * (dP / rho_g_Dc)^0.36' +
+      '    const ratio_u_o = Du_mm / Math.max(10, Do_mm);' +
+      '    const S_split = Math.max(0.02, Math.min(2.0, 0.32 * Math.pow(ratio_u_o, 3.31) * Math.pow(2.5, 0.54) * Math.pow(dp_kpa / 100, 0.36)));' +
+      '    ' +
+      '    // Underflow & Overflow flows' +
+      '    const Q_uf_m3h = q_m3h * (S_split / (1 + S_split));' +
+      '    const Q_of_m3h = q_m3h - Q_uf_m3h;' +
+      '    ' +
+      '    // Mass solids feed & Underflow solids' +
+      '    const feed_solids_th = q_m3h * (rho_slurry / 1000) * (Cw / 100);' +
+      '    // Underflow solids recovery typically 70% to 92%' +
+      '    const recovery_solids = Math.min(0.96, Math.max(0.60, 0.85 * (1 - Math.exp(-2.2 * ratio_u_o))));' +
+      '    const uf_solids_th = feed_solids_th * recovery_solids;' +
+      '    ' +
+      '    // Underflow density & wt%' +
+      '    const uf_solids_m3h = uf_solids_th / (rho_s / 1000);' +
+      '    const uf_vol_pct = Math.min(62, (uf_solids_m3h / Math.max(0.1, Q_uf_m3h)) * 100);' +
+      '    const uf_wt_pct = Math.min(85, (uf_solids_th / Math.max(0.1, (Q_uf_m3h * (rho_slurry / 1000)))) * 100);' +
+      '    ' +
+      '    // Water recovery bypass' +
+      '    const water_rec_pct = (S_split / (1 + S_split)) * 100;' +
+      '    ' +
+      '    // Discharge condition evaluation' +
+      '    let dischargeState = "Umbrella Spray (Ideal)";' +
+      '    if (uf_vol_pct > 53.0) dischargeState = "Severe Roping (Overloaded)";' +
+      '    else if (uf_vol_pct > 48.0) dischargeState = "Transition Semi-Rope";' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-d50c").textContent = plitt_d50c.toFixed(1);' +
+      '    el("res-bradley-d50").textContent = bradley_d50.toFixed(1);' +
+      '    el("res-slurry-dens").textContent = Math.round(rho_slurry);' +
+      '    el("res-solids-vol").textContent = Cv.toFixed(1);' +
+      '    el("res-split-ratio").textContent = S_split.toFixed(3);' +
+      '    el("res-uf-flow").textContent = Q_uf_m3h.toFixed(1);' +
+      '    el("res-uf-th").textContent = uf_solids_th.toFixed(1);' +
+      '    el("res-uf-wt").textContent = uf_wt_pct.toFixed(1);' +
+      '    el("res-uf-vol").textContent = uf_vol_pct.toFixed(1);' +
+      '    el("res-water-rec").textContent = water_rec_pct.toFixed(1);' +
+      '    el("res-discharge-state").textContent = dischargeState;' +
+      '    el("res-du-do-ratio").textContent = ratio_u_o.toFixed(2);' +
+      '    ' +
+      '    // Evaluation Badge' +
+      '    const badge = el("hc-eval-badge");' +
+      '    if (dischargeState === "Umbrella Spray (Ideal)" && dp_kpa >= 70 && dp_kpa <= 160) {' +
+      '      badge.textContent = "Sharp Umbrella Spray Classification (Stable Operating Core)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (dischargeState.includes("Roping")) {' +
+      '      badge.textContent = "APEX ROPING HAZARD: Enlarge Apex Orifice or Dilute Feed Slurry";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#b91c1c";' +
+      '    } else if (dp_kpa < 70) {' +
+      '      badge.textContent = "Low Feed Pressure: Risk of Swirl Decay & High Bypass";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else {' +
+      '      badge.textContent = "Acceptable Hydrocyclone Operating Parameters";' +
+      '      badge.style.background = "#e0f2fe";' +
+      '      badge.style.color = "#0369a1";' +
+      '    }' +
+      '    ' +
+      '    drawHydrocyclone(Dc_mm, Do_mm, Du_mm, dischargeState);' +
+      '  }' +
+      '  ' +
+      '  function drawHydrocyclone(dc, do_dia, du_dia, state) {' +
+      '    const canvas = el("hc-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    const cx = 160;' +
+      '    ' +
+      '    // Cyclone Body' +
+      '    // Barrel: y: 40 to 95, width: 110' +
+      '    // Conical Section: y: 95 to 220, tapers from 110 to 30' +
+      '    // Apex Spigot: y: 220 to 240, width: 26' +
+      '    ' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 55, 40);' +
+      '    ctx.lineTo(cx + 55, 40);' +
+      '    ctx.lineTo(cx + 55, 95);' +
+      '    ctx.lineTo(cx + 14, 220);' +
+      '    ctx.lineTo(cx + 14, 240);' +
+      '    ctx.lineTo(cx - 14, 240);' +
+      '    ctx.lineTo(cx - 14, 220);' +
+      '    ctx.lineTo(cx - 55, 95);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Tangential Feed Nozzle on left' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.fillRect(cx - 110, 40, 55, 30);' +
+      '    ctx.strokeRect(cx - 110, 40, 55, 30);' +
+      '    ' +
+      '    // Vortex Finder Tube' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.fillRect(cx - 22, 15, 44, 55);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.strokeRect(cx - 22, 15, 44, 55);' +
+      '    ' +
+      '    // Central Air Core (White dashed column)' +
+      '    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.setLineDash([3, 3]);' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, 15);' +
+      '    ctx.lineTo(cx, 240);' +
+      '    ctx.stroke();' +
+      '    ctx.setLineDash([]);' +
+      '    ' +
+      '    // Outer downward slurry vortex (Amber/Red solids)' +
+      '    ctx.strokeStyle = "rgba(245, 158, 11, 0.75)";' +
+      '    ctx.lineWidth = 1.8;' +
+      '    for (let i = 0; i < 6; i++) {' +
+      '      const y = 60 + i * 26;' +
+      '      const span = 45 - i * 5.5;' +
+      '      ctx.beginPath();' +
+      '      ctx.ellipse(cx, y, span, 8, 0, 0, Math.PI * 2);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Discharge at apex' +
+      '    if (state.includes("Roping")) {' +
+      '      // Solid dense sausage cylinder' +
+      '      ctx.fillStyle = "#b45309";' +
+      '      ctx.fillRect(cx - 10, 240, 20, 35);' +
+      '      ctx.strokeStyle = "#ef4444";' +
+      '      ctx.strokeRect(cx - 10, 240, 20, 35);' +
+      '      ctx.fillStyle = "#fee2e2";' +
+      '      ctx.font = "bold 10px sans-serif";' +
+      '      ctx.fillText("ROPING!", cx - 22, 272);' +
+      '    } else {' +
+      '      // Flared umbrella spray' +
+      '      const sprayGrad = ctx.createRadialGradient(cx, 240, 5, cx, 270, 35);' +
+      '      sprayGrad.addColorStop(0, "rgba(245, 158, 11, 0.9)");' +
+      '      sprayGrad.addColorStop(1, "rgba(245, 158, 11, 0.1)");' +
+      '      ctx.fillStyle = sprayGrad;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(cx - 12, 240);' +
+      '      ctx.lineTo(cx + 12, 240);' +
+      '      ctx.lineTo(cx + 40, 275);' +
+      '      ctx.lineTo(cx - 40, 275);' +
+      '      ctx.closePath();' +
+      '      ctx.fill();' +
+      '      ctx.fillStyle = "#a7f3d0";' +
+      '      ctx.font = "10px sans-serif";' +
+      '      ctx.fillText("Umbrella Spray", cx - 35, 272);' +
+      '    }' +
+      '    ' +
+      '    // Overflow arrow' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Overflow (Fines) ↑", cx - 45, 10);' +
+      '    ' +
+      '    // Feed annotation' +
+      '    ctx.fillStyle = "#fbbf24";' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillText("Slurry Feed →", cx - 105, 58);' +
+      '    ' +
+      '    // Info Card on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(295, 40, 190, 200);' +
+      '    ctx.strokeRect(295, 40, 190, 200);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("CYCLONE DIAMETER", 310, 65);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(dc + " mm (Apex: " + du_dia + "mm)", 310, 87);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("CUT POINT (d50c)", 310, 115);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(el("res-d50c").textContent + " µm", 310, 137);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("APEX STATE", 310, 165);' +
+      '    ctx.fillStyle = state.includes("Roping") ? "#ef4444" : "#10b981";' +
+      '    ctx.font = "bold 14px sans-serif";' +
+      '    ctx.fillText(state.split(" ")[0], 310, 187);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Plitt / Bradley Modeling", 310, 218);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "hc-preset", "hc-slurry-flow", "hc-flow-unit", "hc-barrel-dia",' +
+      '    "hc-feed-pressure", "hc-press-unit", "hc-solids-wt", "hc-solids-density",' +
+      '    "hc-vortex-dia", "hc-apex-dia"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "hc-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "hc-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("hc-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("hc-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== INDUSTRIAL HYDROCYCLONE SIZING REPORT ===",' +
+      '        "Feed Slurry Flow: " + el("hc-slurry-flow").value + " " + el("hc-flow-unit").value,' +
+      '        "Feed Pressure Drop: " + el("hc-feed-pressure").value + " " + el("hc-press-unit").value,' +
+      '        "Cyclone Diameter: " + el("hc-barrel-dia").value + " mm (Vortex: " + el("hc-vortex-dia").value + " mm, Apex: " + el("hc-apex-dia").value + " mm)",' +
+      '        "Feed Solids: " + el("hc-solids-wt").value + " wt% (" + el("res-solids-vol").textContent + " vol%, Density: " + el("res-slurry-dens").textContent + " kg/m³)",' +
+      '        "Corrected Cut Size (d50c): " + el("res-d50c").textContent + " µm (Bradley d50: " + el("res-bradley-d50").textContent + " µm)",' +
+      '        "Volumetric Split Ratio (S): " + el("res-split-ratio").textContent + " (Du/Do: " + el("res-du-do-ratio").textContent + ")",' +
+      '        "Underflow Slurry Flow: " + el("res-uf-flow").textContent + " m³/h (Solids: " + el("res-uf-th").textContent + " t/h, " + el("res-uf-wt").textContent + " wt%)",' +
+      '        "Water Recovery to Underflow: " + el("res-water-rec").textContent + " %",' +
+      '        "Apex Discharge State: " + el("res-discharge-state").textContent,' +
+      '        "Operating Status: " + el("hc-eval-badge").textContent,' +
+      '        "Design Standards: Bradley / Plitt Hydrocyclone Empirical Classification Model"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("hc-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  // ─── TOOL BW4: WIPED FILM EVAPORATOR (WFE) CALCULATOR ───
+  (() => {
+    const slug = 'wiped-film-evaporator-short-path-distillation-calculator';
+    const title = 'Wiped Film Evaporator (WFE) & Molecular Short Path Distillation Calculator';
+    const metaDescription = 'Size industrial wiped thin-film evaporators (WFE / ATFE) and short-path molecular distillation units for heat-sensitive APIs and organics. Calculate wiper tip speed, dynamic film thickness, residence time, heat transfer duty, and evaporation flux.';
+    const faq = [
+      {
+        q: 'How does a Wiped Film Evaporator (WFE) separate heat-sensitive chemicals without thermal degradation?',
+        a: 'A Wiped Film Evaporator (also called an Agitated Thin-Film Evaporator, ATFE) spreads feed liquid into an extremely thin, turbulent film (typically 0.2 to 1.0 mm thick) along the inside wall of a heated cylindrical thermal jacket. Rotating wiper blades (hinged swinging carbon/PTFE blades or fixed-clearance wipers spinning at 7 to 12 m/s tip speed) create a continuous hydrodynamic bow wave in front of each blade. This intense turbulence provides extraordinary heat transfer coefficients (1,000 to 2,500 W/m²·K). Crucially, the liquid drains rapidly by gravity, resulting in ultra-short exposure times of only 10 to 40 seconds at elevated temperature, preventing thermal decomposition of sensitive APIs, botanicals, and vitamins.'
+      },
+      {
+        q: 'What is the fundamental difference between a standard WFE and a Short Path Molecular Distillation unit?',
+        a: 'In a standard WFE, evaporated vapors travel out of the vessel through an external duct into a remote shell-and-tube condenser. This external piping path introduces a finite vapor pressure drop (limiting lowest practical vacuum to 1 to 5 mbar). In a Short Path Evaporator (SPE / Molecular Still), a cylindrical condenser is positioned directly inside the center of the evaporator vessel, only 20 to 50 mm away from the heated evaporating wall. Operating under high vacuum (0.001 to 0.1 mbar), the distance between evaporating surface and condensing surface is shorter than the mean free path of vapor molecules (\\(Kn = \\lambda / d_{gap} > 1.0\\)), eliminating vapor pressure drop and enabling distillation at temperatures 50°C to 100°C lower than standard boiling points.'
+      },
+      {
+        q: 'What is the Langmuir-Knudsen equation for molecular distillation flux?',
+        a: 'Under collision-free high vacuum, the maximum theoretical mass rate of evaporation \\(G_{max}\\) from a liquid surface into deep vacuum is given by the Langmuir-Knudsen equation:\\n$$G_{max} = 0.0583 \\cdot \\alpha \\cdot P_{vap}^* \\cdot \\sqrt{\\frac{M}{T}} \\quad [\\text{g}/(\\text{cm}^2\\cdot\\text{s})]$$\\nWhere \\(\alpha\\) is the evaporation coefficient (typically 0.7 to 1.0), \\(P_{vap}^*\\) is saturation vapor pressure in Torr at surface temperature \\(T\\) (Kelvin), and \\(M\\) is molecular weight. In commercial short-path evaporators, actual industrial fluxes reach 30% to 70% of theoretical maximum due to boundary layer diffusion resistance in viscous liquid films.'
+      },
+      {
+        q: 'How is the minimum wetting rate ($\\Gamma_{min}$) calculated to prevent hot-wall dry spots?',
+        a: 'To maintain a continuous protective liquid film across the entire cylindrical heating perimeter without dry-out, the mass feed rate per unit perimeter \\(\Gamma\\) must exceed the critical minimum wetting rate:\\n$$\\Gamma = \\frac{\\dot{M}_{residue}}{\\pi D} \\ge \\Gamma_{min} \\approx 0.025\\text{ to }0.040 \\quad [\\text{kg}/(\\text{m}\\cdot\\text{s})]$$\\nIf distillation recovery is pushed too high (>90% vapor cut) and liquid throughput drops below \\(\Gamma_{min}\\), dry patches form on the heated wall. The stagnant film cooks onto the 316L stainless steel, forming an insulating charred crust (burn-on) that permanently ruins product purity.'
+      },
+      {
+        q: 'Why is rotor blade tip speed maintained strictly between 7 m/s and 12 m/s?',
+        a: 'Wiper rotor tip speed (\\(v_{tip} = \\pi D N / 60\\)) governs the mechanical mechanics of the film: (1) Below 7 m/s: Centrifugal force is insufficient to maintain a continuous bow wave ahead of the wiper blade, allowing viscous fluid to channel in rivulets; and (2) Above 12 m/s: Extreme aerodynamic and mechanical shear pulverizes liquid droplets into a fine airborne aerosol fog that gets carried over into the pure distillate condenser, causing severe color and impurity contamination.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Wiped Film Evaporator & Short Path Distillation Calculator</h1>' +
+      '    <p>Perform engineering sizing and process modeling for industrial Wiped Film Evaporators (WFE / ATFE) and short-path molecular stills. Calculate rotor tip speed, dynamic thin-film thickness, residence time, heat transfer duty, evaporation flux, and check minimum wetting limits.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Process Feed & Evaporator Geometry</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-preset">Process Service Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="wfe-preset">' +
+      '            <option value="botanical" selected>Botanical Extract Short-Path (0.02 mbar, 175°C, 35 kg/h, 0.5 m²)</option>' +
+      '            <option value="api_solvent">Pharmaceutical API Solvent Strip (1.5 mbar, 85°C, 250 kg/h, 1.5 m²)</option>' +
+      '            <option value="fatty_acid">Fatty Acid Ester Molecular Distillation (0.005 mbar, 210°C, 600 kg/h)</option>' +
+      '            <option value="polymer_devol">Polymer / Resin Devolatilization (5,000 cP, 15 mbar, 1,200 kg/h)</option>' +
+      '            <option value="custom">Custom Thin-Film Evaporator</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-feed-rate">Liquid Feed Throughput (\(\dot{M}_{feed}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wfe-feed-rate" value="35" min="1" max="10000" step="5">' +
+      '          <select id="wfe-feed-unit">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="lph">L/h</option>' +
+      '            <option value="gph">GPH (US)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-evap-pct">Distillate Evaporation Cut (\(\%\) Vaporized)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wfe-evap-pct" value="75" min="5" max="95" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">%</span>' +
+      '        </div>' +
+      '        <div class="hint">Avoid >90% cut without solvent recycle to prevent dry spots</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-evap-dia">Evaporator Cylinder Inside Diameter (\(D\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wfe-evap-dia" value="250" min="50" max="2000" step="25">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-evap-len">Heated Jacket Working Length (\(L\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wfe-evap-len" value="650" min="150" max="6000" step="50">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-rotor-rpm">Wiper Rotor Rotational Speed (\(N\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wfe-rotor-rpm" value="650" min="100" max="2500" step="25">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">RPM</span>' +
+      '        </div>' +
+      '        <div class="hint">Target blade tip speed: 7 to 11 m/s</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-viscosity">Dynamic Operating Viscosity (\(\mu\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wfe-viscosity" value="150" min="0.5" max="50000" step="10">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">cP (mPa·s)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="wfe-jacket-temp">Jacket Temp vs Boiling Temp (\(T_{j} - T_{b}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="wfe-jacket-temp" value="45" min="5" max="120" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">°C (\(\Delta T\))</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="wfe-calc-btn">Recalculate Evaporator</button>' +
+      '        <button type="button" class="btn btn-secondary" id="wfe-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="wfe-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Thin-Film, Thermal & Kinetic Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Evaporator Heat Surface (\(A\))</div>' +
+      '          <div class="res-val" id="res-surface-area">--</div>' +
+      '          <div class="res-unit">m² (<span id="res-surface-sqft">--</span> sq ft)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Wiper Blade Tip Speed (\(v_{tip}\))</div>' +
+      '          <div class="res-val" id="res-tip-speed">--</div>' +
+      '          <div class="res-unit">m/s (Target: 7-11 m/s)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Dynamic Film Thickness (\(\delta\))</div>' +
+      '          <div class="res-val" id="res-film-thick">--</div>' +
+      '          <div class="res-unit">mm (Agitated Bow Wave)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Mean Film Residence Time (\(\tau\))</div>' +
+      '          <div class="res-val" id="res-res-time">--</div>' +
+      '          <div class="res-unit">seconds (Thermal Exposure)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Wetting Rate at Bottom (\(\Gamma_{bot}\))</div>' +
+      '          <div class="res-val" id="res-wetting-rate">--</div>' +
+      '          <div class="res-unit">kg/(m·h) (Min: 90 kg/m·h)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Specific Evaporative Flux (\(J\))</div>' +
+      '          <div class="res-val" id="res-evap-flux">--</div>' +
+      '          <div class="res-unit">kg/(m²·h) (Distillate Rate)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Heat Transfer Duty (\(Q_{duty}\))</div>' +
+      '          <div class="res-val" id="res-thermal-duty">--</div>' +
+      '          <div class="res-unit">kW (Overall U: <span id="res-overall-u">--</span> W/m²K)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Distillate & Residue Production</div>' +
+      '          <div class="res-val" id="res-dist-rate">--</div>' +
+      '          <div class="res-unit">kg/h Dist (Res: <span id="res-res-rate">--</span> kg/h)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">Film Hydrodynamics & Thermal Status: </span>' +
+      '        <span id="wfe-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="wfe-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Agitated Thin-Film Derivations</h2>' +
+      '    <p>Wiped Film Evaporators (WFE) and Short-Path Molecular Stills (SPE) are the definitive separation tools for thermolabile (heat-sensitive) active pharmaceutical ingredients, high-potency cannabis extracts, monoglycerides, and polymers that degrade under boiling times longer than one minute.</p>' +
+      '    <h3>1. Wiper Rotor Kinematics & Bow Wave Hydrodynamics</h3>' +
+      '    <p>Rotor peripheral tip velocity \(v_{tip}\) is determined from cylinder inside diameter \(D\) and rotational speed \(N\):</p>' +
+      '    <div class="formula-box">' +
+      'v_{tip} = \frac{\pi \cdot D \cdot N}{60} \quad [\text{m/s}]' +
+      '    </div>' +
+      '    <p>Operating tip speed between 7.0 and 11.0 m/s generates intense hydrodynamic bow waves ahead of each wiper blade, renewing the wall surface 20 to 50 times per second.</p>' +
+      '    <h3>2. Dynamic Thin Film Thickness & Mean Residence Time</h3>' +
+      '    <p>Under gravity drainage and blade wiping, the mean agitated film thickness \(\delta\) is correlated via the modified Nusselt/Kern-Karpath formulation:</p>' +
+      '    <div class="formula-box">' +
+      '\delta = \left(\frac{3 \mu \Gamma}{\rho^2 g}\right)^{1/3} \times \left(1 + 0.15 \left(\frac{\mu_{cP}}{100}\right)^{0.4}\right) \quad [\text{m}]' +
+      '    </div>' +
+      '    <p>Where \(\Gamma = \frac{\dot{M}_{feed}}{\pi D}\) is the peripheral wetting rate. Total liquid hold-up inside the active heated cylinder is \(V_{film} = \pi D L \delta\). The mean thermal residence time \(\tau\) is:</p>' +
+      '    <div class="formula-box">' +
+      '\tau = \frac{V_{film} \cdot \rho}{\dot{M}_{feed}} \times 3600 \quad [\text{seconds}]' +
+      '    </div>' +
+      '    <h3>3. Heat Transfer Coefficient & Evaporative Flux</h3>' +
+      '    <p>Because the agitated film is ultra-thin and turbulent, the convective film coefficient is extraordinarily high, yielding overall heat transfer coefficients \(U \approx 1,000\text{ to }2,200\,\text{W/m}^2\cdot\text{K}\):</p>' +
+      '    <div class="formula-box">' +
+      'Q_{duty} = U \cdot A \cdot \Delta T = U \cdot (\pi D L) \cdot (T_{jacket} - T_{boil}) \quad [\text{W}] \\' +
+      'J_{evap} = \frac{\dot{M}_{distillate}}{\pi D L} \quad [\text{kg}/(\text{m}^2\cdot\text{h})]' +
+      '    </div>' +
+      '    <h3>4. Minimum Wetting Rate (\(\Gamma_{min}\)) Safety Boundary</h3>' +
+      '    <p>To guarantee complete surface coverage without dry burn-on, the residue mass flow per perimeter at the bottom cone exit must satisfy:</p>' +
+      '    <div class="formula-box">' +
+      '\Gamma_{bottom} = \frac{\dot{M}_{residue}}{\pi D} = \frac{\dot{M}_{feed} \cdot (1 - \text{Evap\%}/100)}{\pi D} \ge 90 \quad [\text{kg}/(\text{m}\cdot\text{h})]' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Dry Spot Film Rupture & Wall Burn-on Crust</h4>' +
+      '      <p>Pushing evaporation cut past 90% starves the bottom perimeter of liquid below the minimum wetting rate (\(\Gamma < 90\,\text{kg/m}\cdot\text{h}\)). The liquid film tears into rivulets, exposing bare heated 316L stainless steel. Thermally sensitive organic oil bakes onto the dry wall, producing a charred, insoluble black crust that degrades heat transfer by 70% and ruins batch color purity.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Entrainment Carryover to Internal Molecular Condenser</h4>' +
+      '      <p>Operating with excessive rotor speed (>12 m/s) or flashing high-volatility solvent creates violent droplet splattering. Liquid droplets are thrown across the 35 mm internal vacuum gap directly onto the pure distillate condenser surface. This mechanical splash bypasses thermal vaporization entirely, instantly contaminating pharmaceutical-grade distillate with crude feed residue.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. PTFE / Carbon Wiper Blade Thermal Binding & Seizure</h4>' +
+      '      <p>Virgin PTFE has a thermal expansion coefficient nearly 10 times higher than 316L stainless steel. If replacement wiper blades are machined with cold clearances under 1.5 mm, heating thermal oil to 220°C expands the blades until they lock tightly against the heated cylinder. The drive motor stalls or snaps the mechanical shear pin on the rotor shaft within minutes.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Cold Condenser Crystallization Freeze-up</h4>' +
+      '      <p>In high-purity molecular distillation of high-melting-point compounds (e.g. cannabinoids, fatty acids, stearates), chilling the internal condenser coolant below the distillate solidification point freezes crystalline solid directly on the condenser surface. The solid wax layer bridges across the vacuum gap to the rotating blades, destroying wiper assemblies.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Viscous Hydrodynamic Drag Motor Overload</h4>' +
+      '      <p>Concentrating high molecular weight polymers or resins causes liquid viscosity to skyrocket from 200 cP up to 15,000 cP at the residue outlet. Agitating a thick viscous layer demands huge rotor torque (\(P_{motor} \propto \mu v_{tip}^2\)). Sizing with standard fractional horsepower gearmotors causes thermal overload tripouts under steady-state distillation.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    botanical: { feed: 35, unit: "kgh", evap: 75, dia: 250, len: 650, rpm: 650, visc: 150, dt: 45 },' +
+      '    api_solvent: { feed: 250, unit: "kgh", evap: 80, dia: 400, len: 1200, rpm: 450, visc: 25, dt: 35 },' +
+      '    fatty_acid: { feed: 600, unit: "kgh", evap: 65, dia: 600, len: 1800, rpm: 320, visc: 80, dt: 50 },' +
+      '    polymer_devol: { feed: 1200, unit: "kgh", evap: 15, dia: 800, len: 2500, rpm: 220, visc: 5000, dt: 60 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("wfe-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("wfe-feed-rate").value = p.feed;' +
+      '    el("wfe-feed-unit").value = p.unit;' +
+      '    el("wfe-evap-pct").value = p.evap;' +
+      '    el("wfe-evap-dia").value = p.dia;' +
+      '    el("wfe-evap-len").value = p.len;' +
+      '    el("wfe-rotor-rpm").value = p.rpm;' +
+      '    el("wfe-viscosity").value = p.visc;' +
+      '    el("wfe-jacket-temp").value = p.dt;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    let feedRaw = parseFloat(el("wfe-feed-rate").value) || 35;' +
+      '    const feedUnit = el("wfe-feed-unit").value;' +
+      '    let m_feed_kgh = feedRaw;' +
+      '    if (feedUnit === "lph") m_feed_kgh = feedRaw * 0.95;' +
+      '    else if (feedUnit === "gph") m_feed_kgh = feedRaw * 3.78541 * 0.95;' +
+      '    ' +
+      '    const evapPct = (parseFloat(el("wfe-evap-pct").value) || 75) / 100;' +
+      '    const D_mm = parseFloat(el("wfe-evap-dia").value) || 250;' +
+      '    const L_mm = parseFloat(el("wfe-evap-len").value) || 650;' +
+      '    const rpm = parseFloat(el("wfe-rotor-rpm").value) || 650;' +
+      '    const visc_cp = parseFloat(el("wfe-viscosity").value) || 150;' +
+      '    const deltaT = parseFloat(el("wfe-jacket-temp").value) || 45;' +
+      '    ' +
+      '    const D_m = D_mm / 1000;' +
+      '    const L_m = L_mm / 1000;' +
+      '    ' +
+      '    // Surface Area' +
+      '    const Area_m2 = Math.PI * D_m * L_m;' +
+      '    const Area_sqft = Area_m2 * 10.7639;' +
+      '    ' +
+      '    // Rotor Tip Speed (m/s)' +
+      '    const v_tip = (Math.PI * D_m * rpm) / 60;' +
+      '    ' +
+      '    // Mass flows' +
+      '    const m_dist_kgh = m_feed_kgh * evapPct;' +
+      '    const m_res_kgh = m_feed_kgh - m_dist_kgh;' +
+      '    ' +
+      '    // Evaporative Flux' +
+      '    const J_evap = m_dist_kgh / Math.max(0.01, Area_m2);' +
+      '    ' +
+      '    // Wetting Rate at Bottom (kg/m.h)' +
+      '    const perimeter_m = Math.PI * D_m;' +
+      '    const gamma_bot_kghm = m_res_kgh / perimeter_m;' +
+      '    const gamma_bot_kgsm = gamma_bot_kghm / 3600;' +
+      '    ' +
+      '    // Dynamic Film Thickness (mm)' +
+      '    // delta = (3 * mu * Gamma / (rho^2 * g))^(1/3) * factor' +
+      '    const rho = 950; // liquid density kg/m3' +
+      '    const mu_pas = visc_cp * 0.001;' +
+      '    const gamma_avg_kgsm = (m_feed_kgh + m_res_kgh) / (2 * 3600 * perimeter_m);' +
+      '    const delta_base_m = Math.pow((3 * mu_pas * gamma_avg_kgsm) / (Math.pow(rho, 2) * 9.80665), 1/3);' +
+      '    const bow_wave_factor = 1 + 0.25 * Math.pow(Math.max(1, visc_cp) / 100, 0.4);' +
+      '    const delta_m = delta_base_m * bow_wave_factor;' +
+      '    const delta_mm = Math.max(0.15, Math.min(3.5, delta_m * 1000));' +
+      '    ' +
+      '    // Mean Residence Time (seconds)' +
+      '    // tau = V_film / V_dot_feed' +
+      '    const V_film_m3 = Math.PI * D_m * L_m * (delta_mm / 1000);' +
+      '    const V_dot_feed_m3s = (m_feed_kgh / rho) / 3600;' +
+      '    const res_time_sec = V_film_m3 / Math.max(1e-6, V_dot_feed_m3s);' +
+      '    ' +
+      '    // Thermal Heat Duty (kW)' +
+      '    // Sensible + Latent' +
+      '    const cp = 2.1; // kJ/kg.K' +
+      '    const dH_vap = 380; // kJ/kg' +
+      '    const q_sensible_kw = (m_feed_kgh / 3600) * cp * 15; // approx 15C preheat' +
+      '    const q_latent_kw = (m_dist_kgh / 3600) * dH_vap;' +
+      '    const q_duty_kw = q_sensible_kw + q_latent_kw;' +
+      '    ' +
+      '    // Overall U (W/m2.K)' +
+      '    const U_overall = (q_duty_kw * 1000) / (Area_m2 * Math.max(5, deltaT));' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-surface-area").textContent = Area_m2.toFixed(2);' +
+      '    el("res-surface-sqft").textContent = Area_sqft.toFixed(1);' +
+      '    el("res-tip-speed").textContent = v_tip.toFixed(1);' +
+      '    el("res-film-thick").textContent = delta_mm.toFixed(2);' +
+      '    el("res-res-time").textContent = res_time_sec.toFixed(1);' +
+      '    el("res-wetting-rate").textContent = Math.round(gamma_bot_kghm);' +
+      '    el("res-evap-flux").textContent = J_evap.toFixed(1);' +
+      '    el("res-thermal-duty").textContent = q_duty_kw.toFixed(2);' +
+      '    el("res-overall-u").textContent = Math.round(U_overall);' +
+      '    el("res-dist-rate").textContent = m_dist_kgh.toFixed(1);' +
+      '    el("res-res-rate").textContent = m_res_kgh.toFixed(1);' +
+      '    ' +
+      '    // Evaluation Badge' +
+      '    const badge = el("wfe-eval-badge");' +
+      '    if (gamma_bot_kghm >= 90 && v_tip >= 7.0 && v_tip <= 11.5 && res_time_sec <= 45) {' +
+      '      badge.textContent = "Optimal Thin-Film Hydrodynamics & Safe Bottom Wetting";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (gamma_bot_kghm < 90) {' +
+      '      badge.textContent = "DRY SPOT HAZARD: Bottom Wetting Rate Below 90 kg/(m·h)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#b91c1c";' +
+      '    } else if (v_tip > 11.5) {' +
+      '      badge.textContent = "Excessive Rotor Tip Speed: Risk of Distillate Aerosol Misting";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else {' +
+      '      badge.textContent = "Acceptable Wiped Film Operating Conditions";' +
+      '      badge.style.background = "#e0f2fe";' +
+      '      badge.style.color = "#0369a1";' +
+      '    }' +
+      '    ' +
+      '    drawWFE(D_mm, L_mm, v_tip, gamma_bot_kghm);' +
+      '  }' +
+      '  ' +
+      '  function drawWFE(d_mm, l_mm, v_tip, gamma) {' +
+      '    const canvas = el("wfe-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    const cx = 150;' +
+      '    const cy_top = 35;' +
+      '    const cy_bot = 225;' +
+      '    const cyl_w = 90;' +
+      '    const jkt_w = 114;' +
+      '    ' +
+      '    // Outer Heating Jacket (Orange / Red Glow)' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.fillRect(cx - jkt_w / 2, cy_top + 15, jkt_w, cy_bot - cy_top - 20);' +
+      '    ctx.fillStyle = "rgba(239, 68, 68, 0.25)";' +
+      '    ctx.fillRect(cx - jkt_w / 2 + 3, cy_top + 18, jkt_w - 6, cy_bot - cy_top - 26);' +
+      '    ' +
+      '    // Heating oil ports' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.fillRect(cx - jkt_w / 2 - 12, cy_top + 30, 12, 10);' +
+      '    ctx.fillRect(cx + jkt_w / 2, cy_bot - 45, 12, 10);' +
+      '    ' +
+      '    // Inner Evaporator Barrel' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.fillRect(cx - cyl_w / 2, cy_top, cyl_w, cy_bot - cy_top);' +
+      '    ctx.strokeRect(cx - cyl_w / 2, cy_top, cyl_w, cy_bot - cy_top);' +
+      '    ' +
+      '    // Bottom Discharge Cone' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - cyl_w / 2, cy_bot);' +
+      '    ctx.lineTo(cx - 10, cy_bot + 35);' +
+      '    ctx.lineTo(cx + 10, cy_bot + 35);' +
+      '    ctx.lineTo(cx + cyl_w / 2, cy_bot);' +
+      '    ctx.closePath();' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Agitated liquid film along walls (amber glow)' +
+      '    ctx.fillStyle = (gamma < 90 ? "#ef4444" : "#f59e0b");' +
+      '    ctx.fillRect(cx - cyl_w / 2 + 1, cy_top + 10, 4, cy_bot - cy_top - 10);' +
+      '    ctx.fillRect(cx + cyl_w / 2 - 5, cy_top + 10, 4, cy_bot - cy_top - 10);' +
+      '    ' +
+      '    // Internal Cold Finger Condenser (Short-path core)' +
+      '    const c_w = 34;' +
+      '    ctx.fillStyle = "#0284c7";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    ctx.fillRect(cx - c_w / 2, cy_top + 25, c_w, cy_bot - cy_top - 45);' +
+      '    ctx.strokeRect(cx - c_w / 2, cy_top + 25, c_w, cy_bot - cy_top - 45);' +
+      '    ' +
+      '    // Condensate film on cold finger' +
+      '    ctx.fillStyle = "rgba(56, 189, 248, 0.7)";' +
+      '    ctx.fillRect(cx - c_w / 2 + 1, cy_top + 30, 2, cy_bot - cy_top - 55);' +
+      '    ctx.fillRect(cx + c_w / 2 - 3, cy_top + 30, 2, cy_bot - cy_top - 55);' +
+      '    ' +
+      '    // Central rotor shaft & wiper blades' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.fillRect(cx - 3, cy_top - 15, 6, cy_bot - cy_top + 15);' +
+      '    ' +
+      '    // Wiper blade arms' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    for (let y = cy_top + 35; y < cy_bot - 20; y += 35) {' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(cx - 3, y);' +
+      '      ctx.lineTo(cx - cyl_w / 2 + 6, y);' +
+      '      ctx.moveTo(cx + 3, y);' +
+      '      ctx.lineTo(cx + cyl_w / 2 - 6, y);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Feed inlet & Distillate outlet' +
+      '    ctx.fillStyle = "#34d399";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Feed In →", cx - 110, cy_top + 10);' +
+      '    ctx.fillText("Distillate ↓", cx - 60, cy_bot + 45);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillText("Residue ↓", cx + 18, cy_bot + 45);' +
+      '    ' +
+      '    // Info card on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(290, 40, 195, 200);' +
+      '    ctx.strokeRect(290, 40, 195, 200);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("ROTOR TIP SPEED", 305, 65);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(v_tip.toFixed(1) + " m/s", 305, 87);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("FILM RESIDENCE TIME", 305, 115);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(el("res-res-time").textContent + " Seconds", 305, 137);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("BOTTOM WETTING", 305, 165);' +
+      '    ctx.fillStyle = gamma < 90 ? "#ef4444" : "#10b981";' +
+      '    ctx.font = "bold 15px sans-serif";' +
+      '    ctx.fillText(Math.round(gamma) + " kg/(m·h)", 305, 187);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Short-Path Molecular Still", 305, 218);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "wfe-preset", "wfe-feed-rate", "wfe-feed-unit", "wfe-evap-pct",' +
+      '    "wfe-evap-dia", "wfe-evap-len", "wfe-rotor-rpm", "wfe-viscosity",' +
+      '    "wfe-jacket-temp"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "wfe-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "wfe-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("wfe-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("wfe-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== WIPED FILM EVAPORATOR (WFE) SIZING REPORT ===",' +
+      '        "Liquid Feed Rate: " + el("wfe-feed-rate").value + " " + el("wfe-feed-unit").value,' +
+      '        "Distillate Cut: " + el("wfe-evap-pct").value + " % (" + el("res-dist-rate").textContent + " kg/h Dist, " + el("res-res-rate").textContent + " kg/h Residue)",' +
+      '        "Evaporator Surface Area: " + el("res-surface-area").textContent + " m² (Dia: " + el("wfe-evap-dia").value + " mm x Len: " + el("wfe-evap-len").value + " mm)",' +
+      '        "Rotor Tip Speed: " + el("res-tip-speed").textContent + " m/s (@ " + el("wfe-rotor-rpm").value + " RPM)",' +
+      '        "Dynamic Film Thickness: " + el("res-film-thick").textContent + " mm",' +
+      '        "Mean Residence Time: " + el("res-res-time").textContent + " seconds",' +
+      '        "Bottom Wetting Rate: " + el("res-wetting-rate").textContent + " kg/(m·h)",' +
+      '        "Evaporative Flux: " + el("res-evap-flux").textContent + " kg/(m²·h)",' +
+      '        "Heat Duty: " + el("res-thermal-duty").textContent + " kW (Overall U: " + el("res-overall-u").textContent + " W/m²·K)",' +
+      '        "Operating Status: " + el("wfe-eval-badge").textContent,' +
+      '        "Design Standards: Industrial Agitated Thin-Film & Short-Path Molecular Distillation"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("wfe-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  console.log('  ✓ Built Trade & Construction Suite (243 calculators in /calc/)');
 }
 
