@@ -25026,6 +25026,2502 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (19 calculators in /calc/)');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SUBMERSIBLE WELL PUMP, TDH & PRESSURE TANK SIZING CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const wellPumpBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Well Pump Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Submersible Well Pump &amp; Pressure Tank Sizing Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate Total Dynamic Head (TDH), required motor horsepower (HP), Hazen-Williams drop pipe friction, electrical wire sizing, and Boyle's Law pressure tank drawdown capacity for deep-well water systems.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 18v4M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M18 12h4M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>
+        Well Depth &amp; Hydraulic Conditions
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wpPumpingDepth">Pumping Water Level (Ft)</label>
+          <input type="number" id="wpPumpingDepth" value="120" min="5" max="1500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Drawdown level when pumping</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wpElevLift">Surface Elevation Lift (Ft)</label>
+          <input type="number" id="wpElevLift" value="15" min="0" max="500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Wellhead to indoor pressure tank</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wpPressSwitch">Pressure Switch Setting</label>
+          <select id="wpPressSwitch" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="30_50">30 / 50 PSI (Cut-Out: 115.4 ft head)</option>
+            <option value="40_60" selected>40 / 60 PSI (Standard: 138.4 ft head)</option>
+            <option value="50_70">50 / 70 PSI (High: 161.5 ft head)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">System service delivery pressure</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wpFlowGpm">Required Flow Rate (GPM)</label>
+          <input type="number" id="wpFlowGpm" value="10" min="1" max="250" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Peak domestic or irrigation demand</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wpPipeSize">Drop Pipe Material &amp; Inside Diameter</label>
+        <select id="wpPipeSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="1.049">1" Sch 40 PVC (ID: 1.049 in)</option>
+          <option value="1.062">1" SDR 9/11 Poly Pipe (ID: 1.062 in)</option>
+          <option value="1.380" selected>1-1/4" Sch 40 PVC (ID: 1.380 in — Recommended)</option>
+          <option value="1.328">1-1/4" SDR 9 Poly Pipe (ID: 1.328 in)</option>
+          <option value="1.610">1-1/2" Sch 40 PVC (ID: 1.610 in)</option>
+          <option value="2.067">2" Sch 40 PVC (ID: 2.067 in — High Flow)</option>
+        </select>
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Drop pipe hanging down the well casing</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wpTotalPipeLen">Total Pipe Run (Ft)</label>
+          <input type="number" id="wpTotalPipeLen" value="200" min="10" max="2500" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Vertical drop + horizontal trench</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wpRuntimeTarget">Target Motor Run Time</label>
+          <select id="wpRuntimeTarget" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.0" selected>1.0 Minute (Standard &le; 1.0 HP)</option>
+            <option value="1.5">1.5 Minutes (Optimal Longevity)</option>
+            <option value="2.0">2.0 Minutes (Required &ge; 1.5 HP)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Prevents motor start capacitor fatigue</span>
+        </div>
+      </div>
+
+      <button id="copyWpBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Complete Well System Specification</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Pump Hydraulic Sizing &amp; Motor Spec
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Total Dynamic Head (TDH)</div>
+            <div id="outTdh" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">276.3 Ft</div>
+            <div id="outTdhPsi" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">119.7 PSI Equivalent</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Recommended Motor</div>
+            <div id="outMotorHp" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">1.5 HP</div>
+            <div id="outBhp" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">1.20 Brake HP Required</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Static Lift Head</div>
+            <div id="outStaticHead" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">135.0 Ft</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Depth + elevation</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Pressure Head</div>
+            <div id="outPressHead" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">138.4 Ft</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">60 PSI switch cut-out</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Friction Head ($h_f$)</div>
+            <div id="outFricHead" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">2.9 Ft</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Hazen-Williams (C=150)</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">230V Submersible Cable</div>
+            <div id="outWireSize" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">#12 AWG Copper</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">&lt; 3.0% voltage drop limit</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Running Electrical Draw</div>
+            <div id="outAmps" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">11.5 FLA (230V)</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">20A Breaker / #12-2 Wire</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRESSURE TANK SIZING CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/></svg>
+          Pressure Tank Sizing (Boyle's Law)
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Required Drawdown</div>
+            <div id="outDrawdown" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--primary);">10.0 Gallons</div>
+            <div id="outDrawdownNote" style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;">1.0 min run @ 10 GPM</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Minimum Tank Volume</div>
+            <div id="outTankVol" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;">37.0 Gallons</div>
+            <div id="outTankModel" style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;">Size 32-44 Gal Tank (e.g. WX-250)</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);font-size:0.85rem;">
+          <span>Factory Pre-Charge Setting (Empty Tank):</span>
+          <span id="outPrecharge" style="font-family:var(--mono);font-weight:700;color:var(--fg);">38 PSI (2 PSI below cut-in)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE WELL CASING & PLUMBING SCHEMATIC (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Complete Wellhead, Aquifer Cone of Depression &amp; House Plumbing Schematic
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Water Table &amp; Submersible Rig
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="wellSvg" viewBox="0 0 800 380" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: SUBMERSIBLE SIZING MATRIX -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Franklin Electric 4-Inch Submersible Motor &amp; Pump Performance Matrix</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Motor HP</th>
+            <th style="padding:0.6rem 0.75rem;">Stages (Impellers)</th>
+            <th style="padding:0.6rem 0.75rem;">230V 1-Ph FLA</th>
+            <th style="padding:0.6rem 0.75rem;">Max Wire Run (#10 AWG)</th>
+            <th style="padding:0.6rem 0.75rem;">Max TDH @ 10 GPM</th>
+            <th style="padding:0.6rem 0.75rem;">Optimal Depth Range</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);"><td>0.5 HP (1/2 HP)</td><td>5-7 Stages</td><td>5.0 A</td><td>400 ft</td><td>160 ft</td><td>Shallow Wells (&lt;100 ft)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>0.75 HP (3/4 HP)</td><td>8-10 Stages</td><td>6.8 A</td><td>300 ft</td><td>230 ft</td><td>100 - 180 ft Wells</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>1.0 HP</td><td>11-14 Stages</td><td>8.8 A</td><td>250 ft</td><td>300 ft</td><td>150 - 250 ft Wells</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;"><td>1.5 HP</td><td>16-19 Stages</td><td>11.5 A</td><td>200 ft</td><td>440 ft</td><td>200 - 350 ft Wells (Standard)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>2.0 HP</td><td>21-25 Stages</td><td>13.2 A</td><td>170 ft</td><td>570 ft</td><td>300 - 450 ft Wells</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>3.0 HP</td><td>30-36 Stages</td><td>17.0 A</td><td>130 ft</td><td>780 ft</td><td>400 - 650 ft Deep Rock</td></tr>
+          <tr><td>5.0 HP</td><td>45-52 Stages</td><td>27.5 A</td><td>80 ft</td><td>1,150 ft</td><td>Ultra-Deep Commercial / Farm</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Engineering Equations &amp; Step-by-Step Derivations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Total Dynamic Head (TDH):</strong><br>
+        The total mechanical work required by the submersible pump to lift water from the drawdown depth and pressurize the indoor distribution manifold:
+        $$\text{TDH} = H_{\text{pumping}} + H_{\text{elevation}} + (\text{Cut-out PSI} \times 2.307) + h_f$$
+        $$\text{TDH} = <span id="mPumping">120.0</span> + <span id="mElev">15.0</span> + (<span id="mCutOut">60</span> \times 2.307) + <span id="mHf">2.9</span> = \mathbf{<span id="mTdhResult">276.3</span> \text{ Feet}}$$
+      </p>
+
+      <p>
+        <strong>2. Hazen-Williams Friction Loss ($h_f$):</strong><br>
+        Head loss through the drop pipe and trench offset (plastic pipe $C=150$):
+        $$h_f = 10.44 \times L \times \frac{Q^{1.852}}{C^{1.852} \times D_i^{4.8655}}$$
+        $$h_f = 10.44 \times <span id="mPipeL">200</span> \times \frac{(<span id="mGpm">10</span>)^{1.852}}{(150)^{1.852} \times (<span id="mDi">1.380</span>)^{4.8655}} = \mathbf{<span id="mHfResult">2.9</span> \text{ Feet}}$$
+      </p>
+
+      <p>
+        <strong>3. Water Horsepower (WHP) and Brake Horsepower (BHP):</strong><br>
+        $$WHP = \frac{Q_{\text{GPM}} \times \text{TDH}_{\text{ft}}}{3,960} = \frac{<span id="mWgpm">10</span> \times <span id="mWtdh">276.3</span>}{3,960} = \mathbf{<span id="mWhp">0.70</span> \text{ WHP}}$$
+        At 58% typical wet-end pump efficiency: $BHP = \frac{0.70}{0.58} = \mathbf{<span id="mBhp">1.20</span> \text{ BHP}}$ &rarr; <strong><span id="mRecHp">1.5 HP</span> Motor</strong>.
+      </p>
+
+      <p>
+        <strong>4. Boyle's Law Pre-Charged Tank Sizing ($V_{tank}$):</strong><br>
+        $$V_{\text{tank}} = \frac{V_{\text{drawdown}}}{\frac{P_{\text{cutout}} - P_{\text{cutin}}}{P_{\text{cutout}} + 14.7}} = \frac{<span id="mDrawdown">10.0</span>}{\frac{60 - 40}{60 + 14.7}} = \frac{10.0}{0.2677} = \mathbf{<span id="mTankResult">37.0</span> \text{ Gallons}}$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & WELL DRILLING/PLUMBING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Deep-Well Sizing Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: Submersible Motor Rapid Short-Cycling & Bladder Waterlogging</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Submersible motors generate immense starting inrush currents (up to 40 amps) that heat stator windings. Franklin Electric limits 4-inch single-phase motors to a maximum of <strong>25 starts per 24-hour period</strong> and mandates at least <strong>1 to 2 minutes of continuous run time per cycle</strong> to allow water flow past the motor sleeve to dissipate rotor heat. Installing an undersized 14-gallon bladder tank causes the pump to short-cycle every 20 seconds during dishwashing, burning out start capacitors and melting stator varnish within 6 to 18 months.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Sizing Pump Head Against Static Water Level Instead of Drawdown</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Static water level is the resting depth of water in an idle well. When a 10 GPM pump engages, water in the surrounding rock aquifer depressurizes into a descending "cone of depression." In low-yield bedrock aquifers (e.g. 3–5 GPM yield), the pumping water level may drop 100 to 150 feet below static level. Sizing TDH using the static depth causes the pump to encounter far higher head than engineered, dropping flow to a trickle or causing dry-run cavitation that melts the thermoplastic Diffusers and Lexan impellers.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Choking High Flow Through Undersized 1-Inch Drop Pipe</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Pushing 15 to 20 GPM through a 1-inch polyethylene drop pipe creates severe friction head loss exceeding <strong>15 to 25 feet per 100 feet of pipe run</strong>! On a 300-foot well run, an undersized 1-inch pipe adds over 60 feet (26 PSI) of parasitic friction head that the motor must fight continuously. Upsizing drop pipe from 1" to 1-1/4" reduces friction resistance by over <strong>65%</strong>, lowering motor running amps, reducing electric bills, and boosting household faucet pressure.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Improper Tank Pre-Charge Air Pressure (Must Be 2 PSI Below Cut-In!)</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          A captive air bladder tank must be pre-charged with compressed air to exactly <strong>2 PSI below the pressure switch cut-in setting while the tank is 100% drained of water</strong>. For a standard 40/60 PSI switch, air pre-charge must be exactly 38 PSI. If the pre-charge is set equal to or above cut-in (e.g. 42 PSI), the bladder collapses completely against the bottom inlet flange before the switch contacts close, creating an instantaneous complete water pressure dropout at home faucets.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Lightning Surges & Omitting Wellhead Surge Arrestors</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          A steel well casing embedded 200+ feet into wet bedrock acts as an immense earth ground electrode. Nearby lightning strikes induce thousands of volts of electrical back-feed up the submersible cable into the home breaker panel. Omitting a dedicated secondary lightning surge arrestor on the pump control box is the #1 cause of catastrophic winding short circuits in deep well systems. Always install a dedicated MOV/gas-discharge surge arrestor at the pressure switch.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Well Pump Sizing Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What size well pump do I need for a 3-bedroom, 2-bathroom home?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Under Water Systems Council guidelines, residential flow is sized at <strong>1 GPM per water fixture</strong>, or a minimum of <strong>8 to 12 GPM</strong> for a standard 3-bedroom single-family home. If your well depth is between 150 and 250 feet with a standard 40/60 PSI switch, a <strong>3/4 HP or 1.0 HP submersible pump</strong> delivering 10 GPM is the standard engineering specification.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How does a pressure tank prevent a well pump from burning out?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Water is virtually incompressible. Without a pressure tank, opening a faucet causes water pressure to drop from 60 PSI to 40 PSI in under 1 second, turning the pump on; closing the faucet spikes pressure to 60 PSI instantly, turning it off. A captive air bladder acts as a compressible spring, storing several gallons of pressurized water (drawdown). This forces the pump motor to run for at least 1 to 2 continuous minutes each time it starts, cooling the electrical windings.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the difference between 30/50 PSI and 40/60 PSI switch settings?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        A 30/50 PSI switch turns the pump on at 30 PSI and off at 50 PSI (older standard for shallow wells). A 40/60 PSI switch turns on at 40 PSI and off at 60 PSI (modern standard providing superior shower pressure and modern appliance flow). The 40/60 setting requires the pump to generate an additional 23 feet of pressure head ($10\text{ PSI} \times 2.307\text{ ft/PSI}$).
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What wire gauge is needed for a 230V submersible well pump?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Wire size is determined by motor horsepower and total wire length from breaker panel to pump motor at depth:
+        <ul>
+          <li><strong>0.5 HP (5.0A):</strong> #14 AWG up to 300 ft; #12 AWG up to 500 ft.</li>
+          <li><strong>1.0 HP (8.8A):</strong> #12 AWG up to 250 ft; #10 AWG up to 400 ft.</li>
+          <li><strong>1.5 HP (11.5A):</strong> #12 AWG up to 190 ft; #10 AWG up to 310 ft; #8 AWG up to 490 ft.</li>
+        </ul>
+        Keeping voltage drop below 3% ensures the motor develops full starting torque without stalling.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why is a check valve needed on a submersible drop pipe?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Check valves prevent pumped water from draining backward down the well casing when the pump shuts off. Without check valves, backward water flow causes the pump impellers to spin in reverse. If the pump restarts while spinning backward, the extreme torque shock shears the drive shaft or strips the motor spline. A spring-loaded check valve should be installed at the pump discharge and every 200 feet up the vertical drop pipe.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      function calcWell() {
+        var depth = parseFloat(document.getElementById('wpPumpingDepth').value) || 120;
+        var elev = parseFloat(document.getElementById('wpElevLift').value) || 15;
+        var pSwitch = document.getElementById('wpPressSwitch').value;
+        var flowGpm = parseFloat(document.getElementById('wpFlowGpm').value) || 10;
+        var pipeId = parseFloat(document.getElementById('wpPipeSize').value) || 1.380;
+        var totalPipeLen = parseFloat(document.getElementById('wpTotalPipeLen').value) || 200;
+        var runTarget = parseFloat(document.getElementById('wpRuntimeTarget').value) || 1.0;
+
+        var cutIn = 40, cutOut = 60;
+        if (pSwitch === '30_50') { cutIn = 30; cutOut = 50; }
+        else if (pSwitch === '50_70') { cutIn = 50; cutOut = 70; }
+
+        var pressHeadFt = cutOut * 2.307;
+        var staticHead = depth + elev;
+
+        // Hazen-Williams Friction Head (C = 150 for PVC/Polyethylene)
+        // hf = 10.44 * L * (Q^1.852) / (C^1.852 * d^4.8655)
+        var cConst = 150;
+        var hf = 10.44 * totalPipeLen * Math.pow(flowGpm, 1.852) / (Math.pow(cConst, 1.852) * Math.pow(pipeId, 4.8655));
+
+        var tdh = staticHead + pressHeadFt + hf;
+        var tdhPsi = tdh / 2.307;
+
+        // Water Horsepower (WHP)
+        var whp = (flowGpm * tdh) / 3960;
+        // Brake Horsepower (BHP) at ~58% wet end efficiency
+        var bhp = whp / 0.58;
+
+        var recHp = 0.5;
+        var flaAmps = 5.0;
+        var wireSize = "#14 AWG Copper";
+        var breaker = "15A Breaker";
+
+        if (bhp > 3.0) {
+          recHp = 5.0; flaAmps = 27.5; wireSize = "#8 or #6 AWG"; breaker = "50A Breaker";
+        } else if (bhp > 2.0) {
+          recHp = 3.0; flaAmps = 17.0; wireSize = "#10 or #8 AWG"; breaker = "30A Breaker";
+        } else if (bhp > 1.5) {
+          recHp = 2.0; flaAmps = 13.2; wireSize = "#10 AWG Copper"; breaker = "25A Breaker";
+        } else if (bhp > 1.0) {
+          recHp = 1.5; flaAmps = 11.5; wireSize = "#12 AWG Copper"; breaker = "20A Breaker";
+        } else if (bhp > 0.75) {
+          recHp = 1.0; flaAmps = 8.8; wireSize = "#12 AWG Copper"; breaker = "15A Breaker";
+        } else if (bhp > 0.5) {
+          recHp = 0.75; flaAmps = 6.8; wireSize = "#14 AWG Copper"; breaker = "15A Breaker";
+        }
+
+        if (totalPipeLen > 250 && recHp >= 1.0) {
+          wireSize = "#10 AWG Copper (Distance Boost)";
+        }
+
+        // Pressure Tank Sizing (Boyle's Law)
+        var drawdownReq = flowGpm * runTarget;
+        var tankFactor = (cutOut - cutIn) / (cutOut + 14.7);
+        var minTankVol = drawdownReq / tankFactor;
+        var prechargePsi = cutIn - 2;
+
+        var tankModel = "Size 32-44 Gal (e.g. WX-250)";
+        if (minTankVol < 25) tankModel = "Size 20-26 Gal (e.g. WX-202)";
+        else if (minTankVol <= 36) tankModel = "Size 32-36 Gal (e.g. WX-203)";
+        else if (minTankVol <= 65) tankModel = "Size 62-65 Gal (e.g. WX-251)";
+        else if (minTankVol <= 90) tankModel = "Size 86-90 Gal (e.g. WX-302)";
+        else tankModel = "Size 119+ Gal or Dual 86 Gal Tanks";
+
+        // Update DOM
+        document.getElementById('outTdh').textContent = tdh.toFixed(1) + ' Ft';
+        document.getElementById('outTdhPsi').textContent = tdhPsi.toFixed(1) + ' PSI Equivalent';
+        document.getElementById('outMotorHp').textContent = recHp + ' HP';
+        document.getElementById('outBhp').textContent = bhp.toFixed(2) + ' Brake HP Required';
+        document.getElementById('outStaticHead').textContent = staticHead.toFixed(1) + ' Ft';
+        document.getElementById('outPressHead').textContent = pressHeadFt.toFixed(1) + ' Ft';
+        document.getElementById('outFricHead').textContent = hf.toFixed(1) + ' Ft';
+        document.getElementById('outWireSize').textContent = wireSize;
+        document.getElementById('outAmps').textContent = flaAmps.toFixed(1) + ' FLA (230V)';
+        document.getElementById('outDrawdown').textContent = drawdownReq.toFixed(1) + ' Gallons';
+        document.getElementById('outDrawdownNote').textContent = runTarget.toFixed(1) + ' min run @ ' + flowGpm + ' GPM';
+        document.getElementById('outTankVol').textContent = minTankVol.toFixed(1) + ' Gallons';
+        document.getElementById('outTankModel').textContent = tankModel;
+        document.getElementById('outPrecharge').textContent = prechargePsi + ' PSI (' + cutIn + ' PSI cut-in - 2 PSI)';
+
+        // Update Math Derivations
+        document.getElementById('mPumping').textContent = depth.toFixed(1);
+        document.getElementById('mElev').textContent = elev.toFixed(1);
+        document.getElementById('mCutOut').textContent = cutOut;
+        document.getElementById('mHf').textContent = hf.toFixed(1);
+        document.getElementById('mTdhResult').textContent = tdh.toFixed(1);
+        document.getElementById('mPipeL').textContent = totalPipeLen;
+        document.getElementById('mGpm').textContent = flowGpm;
+        document.getElementById('mDi').textContent = pipeId.toFixed(3);
+        document.getElementById('mHfResult').textContent = hf.toFixed(1);
+        document.getElementById('mWgpm').textContent = flowGpm;
+        document.getElementById('mWtdh').textContent = tdh.toFixed(1);
+        document.getElementById('mWhp').textContent = whp.toFixed(2);
+        document.getElementById('mBhp').textContent = bhp.toFixed(2);
+        document.getElementById('mRecHp').textContent = recHp + ' HP';
+        document.getElementById('mDrawdown').textContent = drawdownReq.toFixed(1);
+        document.getElementById('mTankResult').textContent = minTankVol.toFixed(1);
+
+        drawWellSvg(depth, elev, flowGpm, recHp, minTankVol, cutOut);
+      }
+
+      function drawWellSvg(depth, elev, gpm, hp, tankVol, cutOut) {
+        var svg = document.getElementById('wellSvg');
+        var svgContent = '';
+
+        // Background Sky & Earth Strata
+        svgContent += '<rect width="800" height="380" fill="#0f172a"/>';
+
+        // Ground Level Line
+        svgContent += '<line x1="20" y1="90" x2="780" y2="90" stroke="#854d0e" stroke-width="4"/>';
+        svgContent += '<rect x="20" y="90" width="760" height="280" fill="#1e293b" opacity="0.6"/>';
+        svgContent += '<text x="30" y="80" fill="#a16207" font-size="11" font-weight="700">GROUND LEVEL</text>';
+
+        // House Basement / Pressure Tank Foundation
+        svgContent += '<rect x="540" y="30" width="220" height="140" fill="#0f172a" stroke="#475569" stroke-width="2"/>';
+        svgContent += '<text x="555" y="55" fill="#94a3b8" font-size="12" font-weight="700">HOUSE UTILITY ROOM</text>';
+
+        // Pressure Bladder Tank inside house
+        svgContent += '<rect x="580" y="70" width="50" height="85" rx="12" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>';
+        svgContent += '<text x="605" y="115" fill="#ffffff" font-size="10" font-family="monospace" text-anchor="middle" font-weight="700">' + Math.round(tankVol) + ' GAL</text>';
+        svgContent += '<line x1="605" y1="155" x2="605" y2="165" stroke="#38bdf8" stroke-width="3"/>';
+        svgContent += '<rect x="635" y="125" width="20" height="15" fill="#10b981" stroke="#ffffff" stroke-width="1"/>';
+        svgContent += '<text x="645" y="118" fill="#34d399" font-size="9" font-family="monospace" text-anchor="middle">SWITCH</text>';
+
+        // Well Casing (Vertical Steel Tube)
+        svgContent += '<rect x="140" y="60" width="30" height="300" fill="#334155" stroke="#64748b" stroke-width="2"/>';
+        svgContent += '<rect x="135" y="50" width="40" height="12" fill="#475569" rx="2"/>';
+        svgContent += '<text x="155" y="42" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">SANITARY CAP</text>';
+
+        // Water Aquifer Layer & Cone of Depression
+        svgContent += '<rect x="20" y="220" width="760" height="150" fill="#0369a1" opacity="0.3"/>';
+        svgContent += '<text x="30" y="240" fill="#38bdf8" font-size="11" font-weight="600">WATER BEARING AQUIFER ROCK</text>';
+        // Static Water Line (dashed)
+        svgContent += '<line x1="20" y1="180" x2="780" y2="180" stroke="#38bdf8" stroke-dasharray="4,4" stroke-width="1.5"/>';
+        svgContent += '<text x="30" y="175" fill="#38bdf8" font-size="10" font-family="monospace">Static Water Table (Idle)</text>';
+
+        // Cone of Depression (Pumping water curve)
+        svgContent += '<path d="M40 180 Q155 270 300 180" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3"/>';
+        svgContent += '<text x="190" y="255" fill="#f59e0b" font-size="10" font-family="monospace">Pumping Drawdown Level: ' + depth + ' ft</text>';
+
+        // Submersible Drop Pipe (Blue Line inside Casing)
+        svgContent += '<line x1="155" y1="110" x2="155" y2="300" stroke="#0284c7" stroke-width="4"/>';
+
+        // Pitless Adapter (Through Casing below Frost Line)
+        svgContent += '<circle cx="155" cy="110" r="5" fill="#e2e8f0"/>';
+        svgContent += '<line x1="155" y1="110" x2="580" y2="155" stroke="#0284c7" stroke-width="4"/>';
+        svgContent += '<text x="330" y="125" fill="#93c5fd" font-size="10" font-family="monospace">Trench Pipe (Below Frost Line)</text>';
+
+        // Submersible Pump Unit (at depth)
+        svgContent += '<rect x="148" y="295" width="14" height="45" fill="#dc2626" rx="2" stroke="#ffffff" stroke-width="1"/>';
+        svgContent += '<text x="175" y="322" fill="#f87171" font-size="11" font-family="monospace" font-weight="700">' + hp + ' HP SUBMERSIBLE PUMP</text>';
+
+        // Well Screen / Perforations at base
+        for (var py = 340; py <= 355; py += 3) {
+          svgContent += '<line x1="140" y1="' + py + '" x2="170" y2="' + py + '" stroke="#94a3b8" stroke-dasharray="2,2"/>';
+        }
+
+        // Hydraulic Dimension Callout
+        svgContent += '<line x1="100" y1="90" x2="100" y2="310" stroke="#ec4899" stroke-width="1.5"/>';
+        svgContent += '<polygon points="100,90 97,98 103,98" fill="#ec4899"/>';
+        svgContent += '<polygon points="100,310 97,302 103,302" fill="#ec4899"/>';
+        svgContent += '<text x="90" y="200" fill="#f472b6" font-size="11" font-family="monospace" font-weight="700" text-anchor="end" transform="rotate(-90 90 200)">DEPTH: ' + depth + ' FT</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyWpSpec() {
+        var depth = document.getElementById('wpPumpingDepth').value;
+        var elev = document.getElementById('wpElevLift').value;
+        var flow = document.getElementById('wpFlowGpm').value;
+        var tdh = document.getElementById('outTdh').textContent;
+        var hp = document.getElementById('outMotorHp').textContent;
+        var bhp = document.getElementById('outBhp').textContent;
+        var wire = document.getElementById('outWireSize').textContent;
+        var amps = document.getElementById('outAmps').textContent;
+        var tank = document.getElementById('outTankVol').textContent;
+        var model = document.getElementById('outTankModel').textContent;
+        var precharge = document.getElementById('outPrecharge').textContent;
+
+        var text = "=== SUBMERSIBLE WELL PUMP & TANK SIZING REPORT ===\n" +
+          "Pumping Drawdown Depth: " + depth + " ft (Surface Lift: " + elev + " ft)\n" +
+          "Required Flow Rate: " + flow + " GPM\n" +
+          "TOTAL DYNAMIC HEAD (TDH): " + tdh + " (" + document.getElementById('outTdhPsi').textContent + ")\n" +
+          "Recommended Submersible Motor: " + hp + " (" + bhp + ")\n" +
+          "Electrical Specs: 230V 1-Phase, " + amps + ", " + wire + "\n" +
+          "Required Tank Drawdown: " + document.getElementById('outDrawdown').textContent + "\n" +
+          "Minimum Bladder Tank Volume: " + tank + " (" + model + ")\n" +
+          "Tank Pre-Charge Air Pressure: " + precharge + "\n" +
+          "Design Standard: Water Systems Council & Franklin Electric Sizing Standards\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/well-pump-sizing-calculator)";
+
+        var btn = document.getElementById('copyWpBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Well System Specs Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['wpPumpingDepth', 'wpElevLift', 'wpPressSwitch', 'wpFlowGpm', 'wpPipeSize', 'wpTotalPipeLen', 'wpRuntimeTarget'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcWell);
+          el.addEventListener('change', calcWell);
+        }
+      });
+
+      document.getElementById('copyWpBtn').addEventListener('click', copyWpSpec);
+
+      calcWell();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'well-pump-sizing-calculator.html'), renderTradePage({
+    title: "Well Pump Sizing Calculator: TDH, Horsepower & Pressure Tank | Digital Tools Shed",
+    metaDesc: "Calculate Total Dynamic Head (TDH), submersible well pump motor horsepower (HP), drop pipe friction, electrical wire gauge, and Boyle's Law pressure tank size.",
+    canonical: `${DOMAIN}/calc/well-pump-sizing-calculator`,
+    bodyContent: wellPumpBody,
+    currentPath: '/calc/well-pump-sizing-calculator',
+    faq: [
+      {
+        "q": "What size well pump is standard for a 3-bedroom, 2-bath house?",
+        "a": "Residential peak flow is sized at 8 to 12 GPM for a standard 3-bedroom home. For wells between 150 and 250 feet deep with a 40/60 PSI switch, a 3/4 HP or 1.0 HP submersible pump delivering 10 GPM is the universal standard."
+      },
+      {
+        "q": "How does a captive air pressure tank protect the pump?",
+        "a": "A captive air bladder tank stores pressurized water, forcing the pump motor to run continuously for at least 1 to 2 minutes per cycle. This prevents rapid short-cycling (turning on/off in seconds), which quickly destroys start capacitors and overheats windings."
+      },
+      {
+        "q": "What should my pressure tank pre-charge air pressure be set to?",
+        "a": "The air pre-charge must be set to exactly 2 PSI below the pressure switch cut-in pressure when the tank is completely drained of water. For a 40/60 PSI switch, the pre-charge must be exactly 38 PSI."
+      },
+      {
+        "q": "Why must TDH be calculated using pumping water level instead of static water level?",
+        "a": "When a pump runs, water drops from its resting static level to a lower drawdown depth within the aquifer cone of depression. Calculating TDH using static level underestimates head, causing the pump to deliver low flow or cavitate."
+      },
+      {
+        "q": "What wire gauge is needed for a 230V submersible well pump?",
+        "a": "For a 1.0 HP motor, use #12 AWG up to 250 feet or #10 AWG up to 400 feet. For a 1.5 HP motor, use #12 AWG up to 190 feet or #10 AWG up to 310 feet to keep electrical voltage drop under 3%."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // VAPOR-COMPRESSION REFRIGERATION CYCLE COP, EER & ENTHALPY CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const refrigerationCopBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Refrigeration COP Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Refrigeration Cycle COP &amp; Thermodynamic Efficiency Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Analyze real vapor-compression refrigeration cycles across R-410A, R-134a, R-404A, R-448A, and R-290: calculate actual COP, EER, Carnot maximum efficiency, enthalpy states ($h_1$ to $h_4$), compressor power (kW/HP), and mass flow rate.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Cycle Operating Parameters
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rfGas">Refrigerant Blend</label>
+        <select id="rfGas" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="r410a" selected>R-410A (High Pressure — Residential AC &amp; Heat Pumps)</option>
+          <option value="r134a">R-134a (Medium Temp — Auto AC, Water Chillers)</option>
+          <option value="r404a">R-404A (Low Temp — Commercial Freezers &amp; Walk-ins)</option>
+          <option value="r448a">R-448A / R-449A (Low-GWP Supermarket Retrofit)</option>
+          <option value="r290">R-290 Propane (Eco Natural Refrigerant)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rfTevap">Evap Temp ($T_{\text{evap}}$ °F)</label>
+          <input type="number" id="rfTevap" value="45" min="-50" max="60" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">45°F AC; 20°F Med; -20°F Freezer</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rfTcond">Condensing Temp ($T_{\text{cond}}$ °F)</label>
+          <input type="number" id="rfTcond" value="115" min="70" max="150" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Typically Ambient + 20°F to 30°F</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rfSh">Evaporator Superheat (°F)</label>
+          <input type="number" id="rfSh" value="10" min="0" max="40" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Target: 8°F to 14°F at TXV bulb</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rfSc">Condenser Subcooling (°F)</label>
+          <input type="number" id="rfSc" value="10" min="0" max="30" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Target: 8°F to 12°F liquid seal</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rfTons">Cooling Load (Tons)</label>
+          <input type="number" id="rfTons" value="3.0" min="0.25" max="500" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">1 Ton = 12,000 BTU/hr</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rfEta">Compressor Isentropic Eff (&eta;)</label>
+          <input type="number" id="rfEta" value="0.75" min="0.50" max="0.95" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Scroll: 0.72-0.78; Recip: 0.65-0.72</span>
+        </div>
+      </div>
+
+      <button id="copyRfBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Complete Refrigeration Analysis</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Efficiency Metrics &amp; Power Consumption
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Actual System COP</div>
+            <div id="outCop" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">3.76</div>
+            <div id="outEer" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">12.82 EER (BTU/Wh)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Compressor Power</div>
+            <div id="outPowerKw" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">2.81 kW</div>
+            <div id="outPowerHp" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">3.77 Brake Horsepower</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Carnot Max COP</div>
+            <div id="outCarnot" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">7.21</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Theoretical ceiling</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">2nd Law Efficiency</div>
+            <div id="outEta2" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">52.1%</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">COP / Carnot</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Mass Flow Rate</div>
+            <div id="outMassFlow" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">4.89</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">lbs / minute</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Operating Pressures</div>
+            <div id="outPressures" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">130 / 390 PSIG</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);" id="outCr">Compression Ratio: 2.80</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Discharge Temperature</div>
+            <div id="outDischargeT" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">183.8 °F</div>
+            <div style="font-size:0.7rem;color:#10b981;" id="outDischStatus">✓ Safe (&lt; 225°F Oil Limit)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARDINAL ENTHALPY STATES CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          Cardinal Thermodynamic Enthalpy States
+        </h3>
+
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:0.5rem;margin-bottom:1rem;font-family:var(--mono);text-align:center;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.5rem;border-radius:6px;">
+            <div style="font-size:0.7rem;color:var(--text-muted);">Point 1 (Suction)</div>
+            <div id="h1Val" style="font-weight:700;font-size:1rem;color:#38bdf8;">184.2</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);">BTU/lb</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.5rem;border-radius:6px;">
+            <div style="font-size:0.7rem;color:var(--text-muted);">Point 2 (Disch)</div>
+            <div id="h2Val" style="font-weight:700;font-size:1rem;color:#ef4444;">216.9</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);">BTU/lb</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.5rem;border-radius:6px;">
+            <div style="font-size:0.7rem;color:var(--text-muted);">Point 3 (Subcooled)</div>
+            <div id="h3Val" style="font-weight:700;font-size:1rem;color:#10b981;">61.5</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);">BTU/lb</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.5rem;border-radius:6px;">
+            <div style="font-size:0.7rem;color:var(--text-muted);">Point 4 (Evap In)</div>
+            <div id="h4Val" style="font-weight:700;font-size:1rem;color:#f59e0b;">61.5</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);">BTU/lb</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;padding:0.6rem 0.85rem;background:var(--bg);border-radius:6px;border:1px solid var(--border);font-size:0.85rem;">
+          <span>Net Refrigerating Effect ($q_{\text{in}} = h_1 - h_4$):</span>
+          <span id="outQin" style="font-family:var(--mono);font-weight:700;color:var(--fg);">122.7 BTU/lb</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE PRESSURE-ENTHALPY (P-h) DOME DIAGRAM (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Interactive Pressure-Enthalpy (Log P - h) Vapor-Compression Cycle
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Thermodynamic Cycle Plotted
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="phDomeSvg" viewBox="0 0 800 360" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+    <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);flex-wrap:wrap;">
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:10px;height:10px;background:#38bdf8;border-radius:50%;display:inline-block;"></span> 1: Superheated Suction</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:10px;height:10px;background:#ef4444;border-radius:50%;display:inline-block;"></span> 2: Hot Discharge Vapor</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:10px;height:10px;background:#10b981;border-radius:50%;display:inline-block;"></span> 3: Subcooled Liquid</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:10px;height:10px;background:#f59e0b;border-radius:50%;display:inline-block;"></span> 4: Flashing Evaporator Inlet</span>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: REFRIGERANT BENCHMARKS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Refrigeration Regime Performance Benchmarks (Air-Cooled Condenser)</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Application Regime</th>
+            <th style="padding:0.6rem 0.75rem;">Evap / Cond Temp</th>
+            <th style="padding:0.6rem 0.75rem;">Standard Gas</th>
+            <th style="padding:0.6rem 0.75rem;">Compression Ratio</th>
+            <th style="padding:0.6rem 0.75rem;">Typical COP</th>
+            <th style="padding:0.6rem 0.75rem;">Typical EER</th>
+            <th style="padding:0.6rem 0.75rem;">Carnot COP</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;">
+            <td>Air Conditioning (High Temp)</td><td>45°F / 115°F</td><td>R-410A / R-32</td><td>2.80</td><td>3.76</td><td>12.8</td><td>7.21</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td>Commercial Chiller (Water Cooled)</td><td>44°F / 95°F</td><td>R-134a / R-1233zd</td><td>2.10</td><td>5.20</td><td>17.7</td><td>9.88</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td>Medium-Temp Walk-in Cooler</td><td>20°F / 110°F</td><td>R-448A / R-404A</td><td>4.20</td><td>2.45</td><td>8.36</td><td>5.33</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td>Low-Temp Commercial Freezer</td><td>-20°F / 110°F</td><td>R-448A / R-404A</td><td>8.50</td><td>1.45</td><td>4.95</td><td>3.38</td>
+          </tr>
+          <tr>
+            <td>Ultra-Low Cold Storage (-40°)</td><td>-40°F / 105°F</td><td>Two-Stage / Cascade</td><td>14.2</td><td>0.95</td><td>3.24</td><td>2.89</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Thermodynamic Formulations &amp; Step-by-Step Derivations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Coefficient of Performance (COP) &amp; Energy Efficiency Ratio (EER):</strong><br>
+        COP defines thermal refrigeration output divided by electrical compressor work input:
+        $$\text{COP} = \frac{q_{\text{in}}}{w_c} = \frac{h_1 - h_4}{h_2 - h_1} = \frac{<span id="mQ">122.7</span>}{<span id="mWc">32.7</span>} = \mathbf{<span id="mCop">3.76</span>}$$
+        $$\text{EER} = 3.41214 \times \text{COP} = 3.41214 \times 3.76 = \mathbf{<span id="mEer">12.82</span> \text{ BTU/(Watt}\cdot\text{hr)}}$$
+      </p>
+
+      <p>
+        <strong>2. Carnot Ideal Maximum Ceiling:</strong><br>
+        The absolute theoretical upper limit of efficiency defined by the Second Law of Thermodynamics:
+        $$\text{COP}_{\text{Carnot}} = \frac{T_{\text{evap, Rankine}}}{T_{\text{cond, Rankine}} - T_{\text{evap, Rankine}}} = \frac{<span id="mTeR">504.67</span>}{<span id="mTcR">574.67</span> - 504.67} = \mathbf{<span id="mCarnot">7.21</span>}$$
+        $$\text{Second Law Efficiency } \eta_{\text{II}} = \frac{\text{COP}}{\text{COP}_{\text{Carnot}}} \times 100\% = \frac{3.76}{7.21} \times 100\% = \mathbf{<span id="mEta2">52.1</span>\%}$$
+      </p>
+
+      <p>
+        <strong>3. Refrigerant Mass Flow Rate ($\dot{m}$) &amp; Compressor Power:</strong><br>
+        $$\dot{m} = \frac{Q_{\text{load}}}{q_{\text{in}}} = \frac{<span id="mLoadBtu">36,000</span> \text{ BTU/hr}}{<span id="mQin2">122.7</span> \text{ BTU/lb}} = \mathbf{<span id="mMassLbs">293.4</span> \text{ lbs/hr}} \quad (<span id="mMassMin">4.89</span> \text{ lbs/min})$$
+        $$P_{\text{comp}} = \frac{\dot{m} \times w_c}{3,412.14} = \frac{293.4 \times 32.7}{3,412.14} = \mathbf{<span id="mPowerKw">2.81</span> \text{ kW}} \quad (<span id="mPowerHp">3.77</span> \text{ HP})$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & REFRIGERATION ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Refrigeration Engineering Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: Liquid Slugging & Hydraulic Compressor Destruction</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Compressors are vapor pumps; liquids are incompressible. When evaporator airflow fails (due to clogged air filters, iced coils, or a failed blower motor), liquid refrigerant cannot absorb latent heat and fails to boil off. Raw liquid enters the compressor suction port. As the reciprocating piston or scroll wraps compress liquid droplets, hydrodynamic shock waves instantly smash reed discharge valves, snap connecting rods, and shatter scroll tips. Always maintain at least 8°F to 12°F of superheat at the compressor inlet.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Excessive Compression Ratio & Ester Oil Pyrolysis (&gt;225°F)</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Operating single-stage systems with compression ratios exceeding 8:1 (e.g. low-temp freezers running on high-ambient days) causes adiabatic heat of compression to drive discharge line temperatures beyond <strong>225°F to 250°F</strong>. Polyolester (POE) and PVE synthetic compressor oils thermally decompose, carbonizing valve plates, stripping lubricating films from bearings, and precipitating acidic sludge that causes catastrophic motor burnout. Systems with $CR &gt; 8$ require liquid injection or two-stage compound compression.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Zero Subcooling Flash Gas Starvation at the Expansion Valve</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          If a condenser does not achieve at least 8°F to 10°F of liquid subcooling, slight pressure drops across filter-driers, liquid line sight glasses, or vertical riser lifts cause liquid refrigerant to prematurely boil into "flash gas" before reaching the Thermostatic Expansion Valve (TXV). Because vapor occupies over 30 times the volume of liquid, flash gas chokes the TXV orifice, starving the evaporator coil, creating phantom hunting, and reducing cooling capacity by 40%.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Non-Condensable Atmospheric Air & Moisture Contamination</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Failing to evacuate a refrigeration circuit to under 500 microns traps atmospheric nitrogen, oxygen, and water vapor inside the system. Trapped air cannot condense; it collects at the top of the condenser, creating a false parasitic head pressure (Dalton's Law of Partial Pressures). An extra 30 PSI of head pressure increases compressor amperage draw by 15%, while moisture reacts with POE oil to synthesize hydrofluoric acid, chemically dissolving motor copper windings.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Crankcase Oil Migration & Violent Flooded Starts</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Refrigerant has a high chemical affinity for lubricating oil. During long off-cycles in cold ambient environments, refrigerant vapor naturally migrates to the coldest point—the compressor crankcase—and condenses beneath the oil reservoir. Upon startup, the sudden drop in crankcase pressure causes dissolved refrigerant to flash boil violently, foaming all oil out of the sump into the discharge line, leaving crankshaft bearings running completely dry for the first 30 seconds. Always install an energized crankcase heater.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Refrigeration Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the relationship between COP and EER?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Coefficient of Performance (COP) is a dimensionless thermodynamic ratio: $\text{Watts of Cooling} / \text{Watts of Work}$. Energy Efficiency Ratio (EER) is an imperial unit ratio: $\text{BTU/hr of Cooling} / \text{Watts of Electrical Power}$. Because 1 Watt equals 3.41214 BTU/hr, the conversion is exact:
+        $$\text{EER} = 3.41214 \times \text{COP}$$
+        A system with a COP of 3.76 has an EER of 12.83.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why does subcooling increase system capacity and COP?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Subcooling drops the enthalpy of liquid refrigerant entering the expansion valve ($h_3$ and $h_4$). Because Net Refrigerating Effect equals $q_{\text{in}} = h_1 - h_4$, lowering $h_4$ expands the refrigeration effect across the evaporator coil. For every 1°F of subcooling gained without increasing condensing pressure, system cooling capacity increases by approximately <strong>0.5% to 0.8%</strong> with zero additional compressor work.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is isentropic efficiency in a refrigeration compressor?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Isentropic efficiency ($\eta_{\text{is}}$) compares the theoretical reversible work of compression along a constant entropy line ($w_{\text{ideal}} = h_{2s} - h_1$) to the real-world actual work required ($w_{\text{actual}} = h_2 - h_1$). Real compressors incur valve pressure drops, electric motor stator losses, and friction, typical values range from <strong>0.68 to 0.78 for modern scroll compressors</strong>.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why is Carnot COP unattainable in practical equipment?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        The theoretical Carnot cycle assumes completely reversible isothermal heat transfer across zero temperature differences, isentropic compression, and work-recovery expansion through a turbine. Practical vapor-compression systems dissipate energy through throttling across expansion valves (isenthalpic loss), finite temperature differences across coils (typically 15°F to 25°F approach), and aerodynamic turbulence inside compressor scroll pockets.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why are supermarkets transitioning from R-404A to R-448A/R-449A?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        R-404A has a severe Global Warming Potential (GWP) of 3,922, making it subject to aggressive EPA AIM Act phase-downs. R-448A and R-449A are HFO blends with a GWP of ~1,390 (a 65% reduction), while offering a <strong>5% to 10% higher thermodynamic COP</strong> and lower mass flow requirements in medium and low-temperature supermarket rack systems.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      var REFRIG_DATA = {
+        r410a: { name: 'R-410A', pEvapBase: 130, pCondBase: 390, dPevap: 2.8, dPcond: 6.5, h1Base: 182, h3Base: 66, cpV: 0.22, cpL: 0.45 },
+        r134a: { name: 'R-134a', pEvapBase: 37,  pCondBase: 158, dPevap: 1.1, dPcond: 3.2, h1Base: 175, h3Base: 52, cpV: 0.20, cpL: 0.35 },
+        r404a: { name: 'R-404A', pEvapBase: 98,  pCondBase: 285, dPevap: 2.3, dPcond: 5.2, h1Base: 158, h3Base: 62, cpV: 0.24, cpL: 0.38 },
+        r448a: { name: 'R-448A', pEvapBase: 88,  pCondBase: 270, dPevap: 2.1, dPcond: 4.8, h1Base: 165, h3Base: 58, cpV: 0.23, cpL: 0.40 },
+        r290:  { name: 'R-290',  pEvapBase: 72,  pCondBase: 212, dPevap: 1.8, dPcond: 4.1, h1Base: 245, h3Base: 82, cpV: 0.45, cpL: 0.65 }
+      };
+
+      function calcRefrig() {
+        var gasKey = document.getElementById('rfGas').value;
+        var r = REFRIG_DATA[gasKey];
+        var Te = parseFloat(document.getElementById('rfTevap').value) || 45;
+        var Tc = parseFloat(document.getElementById('rfTcond').value) || 115;
+        var sh = parseFloat(document.getElementById('rfSh').value) || 10;
+        var sc = parseFloat(document.getElementById('rfSc').value) || 10;
+        var tons = parseFloat(document.getElementById('rfTons').value) || 3.0;
+        var etaIs = parseFloat(document.getElementById('rfEta').value) || 0.75;
+
+        // Pressures (PSIG)
+        var pEvap = r.pEvapBase + (Te - 45) * r.dPevap;
+        var pCond = r.pCondBase + (Tc - 115) * r.dPcond;
+        pEvap = Math.max(1, pEvap);
+        pCond = Math.max(pEvap + 10, pCond);
+        var cr = (pCond + 14.7) / (pEvap + 14.7);
+
+        // Cardinal Enthalpy Points (BTU/lb)
+        var h1 = r.h1Base + (Te - 45) * 0.15 + r.cpV * sh;
+        var h3 = r.h3Base + (Tc - 115) * 0.55 - r.cpL * sc;
+        var h4 = h3; // Throttling expansion is isenthalpic!
+
+        var q_in = h1 - h4; // Net refrigerating effect
+        var wc_ideal = (Tc - Te) * 0.35 * Math.pow(Math.max(1.2, cr) / 2.8, 0.2);
+        if (gasKey === 'r290') wc_ideal *= 1.4;
+        var wc = wc_ideal / etaIs;
+        var h2 = h1 + wc;
+
+        var cop = q_in / wc;
+        var eer = cop * 3.41214;
+
+        // Carnot Max
+        var Te_R = Te + 459.67;
+        var Tc_R = Tc + 459.67;
+        var carnot = Te_R / Math.max(1, Tc_R - Te_R);
+        var eta2 = (cop / carnot) * 100;
+
+        // Mass Flow & Power
+        var totalBtu = tons * 12000;
+        var massLbsHr = totalBtu / Math.max(1, q_in);
+        var massLbsMin = massLbsHr / 60;
+        var powerKw = (massLbsHr * wc) / 3412.14;
+        var powerHp = powerKw * 1.34102;
+
+        // Discharge Temperature
+        var tDisch = Tc + sh + (wc * 1.8);
+
+        // Update DOM
+        document.getElementById('outCop').textContent = cop.toFixed(2);
+        document.getElementById('outEer').textContent = eer.toFixed(2) + ' EER (BTU/Wh)';
+        document.getElementById('outPowerKw').textContent = powerKw.toFixed(2) + ' kW';
+        document.getElementById('outPowerHp').textContent = powerHp.toFixed(2) + ' Brake Horsepower';
+        document.getElementById('outCarnot').textContent = carnot.toFixed(2);
+        document.getElementById('outEta2').textContent = eta2.toFixed(1) + '%';
+        document.getElementById('outMassFlow').textContent = massLbsMin.toFixed(2);
+        document.getElementById('outPressures').textContent = Math.round(pEvap) + ' / ' + Math.round(pCond) + ' PSIG';
+        document.getElementById('outCr').textContent = 'Compression Ratio: ' + cr.toFixed(2);
+        document.getElementById('outDischargeT').textContent = tDisch.toFixed(1) + ' °F';
+
+        var dischStatus = document.getElementById('outDischStatus');
+        if (tDisch < 225) {
+          dischStatus.textContent = '✓ Safe Discharge (< 225°F Oil Threshold)';
+          dischStatus.style.color = '#10b981';
+        } else if (tDisch <= 260) {
+          dischStatus.textContent = '⚠️ Elevated Temp (225-260°F) — POE Oil Breakdown Risk';
+          dischStatus.style.color = '#f59e0b';
+        } else {
+          dischStatus.textContent = '⛔ Severe Pyrolysis Hazard (>260°F) — Install Liquid Injection';
+          dischStatus.style.color = '#ef4444';
+        }
+
+        document.getElementById('h1Val').textContent = h1.toFixed(1);
+        document.getElementById('h2Val').textContent = h2.toFixed(1);
+        document.getElementById('h3Val').textContent = h3.toFixed(1);
+        document.getElementById('h4Val').textContent = h4.toFixed(1);
+        document.getElementById('outQin').textContent = q_in.toFixed(1) + ' BTU/lb';
+
+        // Update Math Derivations
+        document.getElementById('mQ').textContent = q_in.toFixed(1);
+        document.getElementById('mWc').textContent = wc.toFixed(1);
+        document.getElementById('mCop').textContent = cop.toFixed(2);
+        document.getElementById('mEer').textContent = eer.toFixed(2);
+        document.getElementById('mTeR').textContent = Te_R.toFixed(2);
+        document.getElementById('mTcR').textContent = Tc_R.toFixed(2);
+        document.getElementById('mCarnot').textContent = carnot.toFixed(2);
+        document.getElementById('mEta2').textContent = eta2.toFixed(1);
+        document.getElementById('mLoadBtu').textContent = Math.round(totalBtu).toLocaleString();
+        document.getElementById('mQin2').textContent = q_in.toFixed(1);
+        document.getElementById('mMassLbs').textContent = massLbsHr.toFixed(1);
+        document.getElementById('mMassMin').textContent = massLbsMin.toFixed(2);
+        document.getElementById('mPowerKw').textContent = powerKw.toFixed(2);
+        document.getElementById('mPowerHp').textContent = powerHp.toFixed(2);
+
+        drawPhSvg(pEvap, pCond, h1, h2, h3, h4, tDisch);
+      }
+
+      function drawPhSvg(pEvap, pCond, h1, h2, h3, h4, tDisch) {
+        var svg = document.getElementById('phDomeSvg');
+        var svgContent = '';
+
+        // Viewport: 800 x 360
+        var padL = 70, padR = 40, padT = 30, padB = 50;
+        var plotW = 800 - padL - padR;
+        var plotH = 360 - padT - padB;
+
+        // Enthalpy range: 30 to 260 BTU/lb
+        // Pressure range: 10 to 600 PSIA (Logarithmic)
+        function hToX(h) {
+          return padL + ((h - 30) / (260 - 30)) * plotW;
+        }
+        function pToY(p) {
+          var pMin = 10, pMax = 600;
+          var logMin = Math.log10(pMin), logMax = Math.log10(pMax);
+          var logP = Math.log10(Math.max(pMin, p));
+          return padT + plotH - ((logP - logMin) / (logMax - logMin)) * plotH;
+        }
+
+        // Background & Grid
+        svgContent += '<rect width="800" height="360" fill="#0f172a"/>';
+
+        // Grid lines for pressure (10, 20, 50, 100, 200, 500 psia)
+        var pTicks = [15, 30, 60, 150, 300, 500];
+        pTicks.forEach(function(pt) {
+          var y = pToY(pt);
+          svgContent += '<line x1="' + padL + '" y1="' + y + '" x2="' + (800 - padR) + '" y2="' + y + '" stroke="#334155" stroke-dasharray="3,3" stroke-width="1"/>';
+          svgContent += '<text x="' + (padL - 10) + '" y="' + (y + 4) + '" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">' + pt + ' psia</text>';
+        });
+
+        // Enthalpy ticks (50, 100, 150, 200, 250)
+        for (var ht = 50; ht <= 250; ht += 50) {
+          var x = hToX(ht);
+          svgContent += '<line x1="' + x + '" y1="' + padT + '" x2="' + x + '" y2="' + (360 - padB) + '" stroke="#334155" stroke-dasharray="3,3" stroke-width="1"/>';
+          svgContent += '<text x="' + x + '" y="' + (360 - padB + 20) + '" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="middle">' + ht + '</text>';
+        }
+
+        svgContent += '<text x="' + (padL + plotW / 2) + '" y="' + (360 - 12) + '" fill="#cbd5e1" font-size="12" font-weight="600" text-anchor="middle">Specific Enthalpy h (BTU / lb)</text>';
+        svgContent += '<text x="20" y="' + (padT + plotH / 2) + '" fill="#cbd5e1" font-size="12" font-weight="600" text-anchor="middle" transform="rotate(-90 20 ' + (padT + plotH / 2) + ')">Pressure P (PSIA - Log Scale)</text>';
+
+        // Vapor Dome Outline (Parabolic / skewed dome)
+        // Liquid line from h=40, p=15 up to apex at h=110, p=550
+        // Vapor line from apex at h=110, p=550 down to h=190, p=15
+        var apexX = hToX(110);
+        var apexY = pToY(540);
+        var liqPath = 'M ' + hToX(40) + ' ' + pToY(15) + ' Q ' + hToX(60) + ' ' + pToY(250) + ' ' + apexX + ' ' + apexY;
+        var vapPath = 'M ' + apexX + ' ' + apexY + ' Q ' + hToX(170) + ' ' + pToY(250) + ' ' + hToX(195) + ' ' + pToY(15);
+
+        svgContent += '<path d="' + liqPath + '" fill="none" stroke="#38bdf8" stroke-width="3"/>';
+        svgContent += '<path d="' + vapPath + '" fill="none" stroke="#f59e0b" stroke-width="3"/>';
+        svgContent += '<circle cx="' + apexX + '" cy="' + apexY + '" r="4" fill="#ec4899"/>';
+        svgContent += '<text x="' + apexX + '" y="' + (apexY - 8) + '" fill="#ec4899" font-size="10" font-weight="700" text-anchor="middle">Critical Point</text>';
+
+        // Plot 4 Cardinal Cycle Points
+        var pEvapAbs = pEvap + 14.7;
+        var pCondAbs = pCond + 14.7;
+
+        var x1 = hToX(h1), y1 = pToY(pEvapAbs);
+        var x2 = hToX(h2), y2 = pToY(pCondAbs);
+        var x3 = hToX(h3), y3 = pToY(pCondAbs);
+        var x4 = hToX(h4), y4 = pToY(pEvapAbs);
+
+        // Cycle Lines:
+        // 4 -> 1: Evaporation (Horizontal low-pressure isobar)
+        svgContent += '<line x1="' + x4 + '" y1="' + y4 + '" x2="' + x1 + '" y2="' + y1 + '" stroke="#38bdf8" stroke-width="3"/>';
+        // 1 -> 2: Compression (Slanted upward to the right)
+        svgContent += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#ef4444" stroke-width="3"/>';
+        // 2 -> 3: Condensation & Subcooling (Horizontal high-pressure isobar)
+        svgContent += '<line x1="' + x2 + '" y1="' + y2 + '" x2="' + x3 + '" y2="' + y3 + '" stroke="#10b981" stroke-width="3"/>';
+        // 3 -> 4: Expansion Valve Throttling (Vertical line down: isenthalpic)
+        svgContent += '<line x1="' + x3 + '" y1="' + y3 + '" x2="' + x4 + '" y2="' + y4 + '" stroke="#f59e0b" stroke-width="3" stroke-dasharray="4,2"/>';
+
+        // Dots & Labels
+        svgContent += '<circle cx="' + x1 + '" cy="' + y1 + '" r="6" fill="#38bdf8" stroke="#fff" stroke-width="2"/>';
+        svgContent += '<text x="' + (x1 + 8) + '" y="' + (y1 + 4) + '" fill="#38bdf8" font-size="11" font-weight="700">1: Suction</text>';
+
+        svgContent += '<circle cx="' + x2 + '" cy="' + y2 + '" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/>';
+        svgContent += '<text x="' + (x2 + 8) + '" y="' + (y2 - 6) + '" fill="#ef4444" font-size="11" font-weight="700">2: Discharge (' + tDisch.toFixed(0) + '°F)</text>';
+
+        svgContent += '<circle cx="' + x3 + '" cy="' + y3 + '" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/>';
+        svgContent += '<text x="' + (x3 - 8) + '" y="' + (y3 - 6) + '" fill="#10b981" font-size="11" font-weight="700" text-anchor="end">3: Subcooled</text>';
+
+        svgContent += '<circle cx="' + x4 + '" cy="' + y4 + '" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/>';
+        svgContent += '<text x="' + (x4 - 8) + '" y="' + (y4 + 14) + '" fill="#f59e0b" font-size="11" font-weight="700" text-anchor="end">4: TXV Inlet</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyRfSpec() {
+        var gas = document.getElementById('rfGas').value;
+        var te = document.getElementById('rfTevap').value;
+        var tc = document.getElementById('rfTcond').value;
+        var cop = document.getElementById('outCop').textContent;
+        var eer = document.getElementById('outEer').textContent;
+        var kw = document.getElementById('outPowerKw').textContent;
+        var hp = document.getElementById('outPowerHp').textContent;
+        var carnot = document.getElementById('outCarnot').textContent;
+        var mass = document.getElementById('outMassFlow').textContent;
+        var press = document.getElementById('outPressures').textContent;
+        var disch = document.getElementById('outDischargeT').textContent;
+
+        var text = "=== VAPOR-COMPRESSION REFRIGERATION ANALYSIS ===\n" +
+          "Refrigerant: " + gas.toUpperCase() + "\n" +
+          "Operating Regime: " + te + "°F Evap / " + tc + "°F Cond\n" +
+          "Operating Pressures: " + press + " (" + document.getElementById('outCr').textContent + ")\n" +
+          "System COP: " + cop + " (EER: " + eer + ")\n" +
+          "Carnot Max COP: " + carnot + " (2nd Law Eff: " + document.getElementById('outEta2').textContent + ")\n" +
+          "Compressor Power: " + kw + " (" + hp + ")\n" +
+          "Mass Flow Rate: " + mass + " lbs/min\n" +
+          "Discharge Temp: " + disch + "\n" +
+          "Enthalpy Coordinates (h1/h2/h3/h4): " + document.getElementById('h1Val').textContent + " / " + document.getElementById('h2Val').textContent + " / " + document.getElementById('h3Val').textContent + " / " + document.getElementById('h4Val').textContent + " BTU/lb\n" +
+          "Design Standard: ASHRAE Fundamentals & Refrigeration Cycle Model\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/refrigeration-cycle-cop-calculator)";
+
+        var btn = document.getElementById('copyRfBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Refrigeration Report Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['rfGas', 'rfTevap', 'rfTcond', 'rfSh', 'rfSc', 'rfTons', 'rfEta'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcRefrig);
+          el.addEventListener('change', calcRefrig);
+        }
+      });
+
+      document.getElementById('copyRfBtn').addEventListener('click', copyRfSpec);
+
+      calcRefrig();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'refrigeration-cycle-cop-calculator.html'), renderTradePage({
+    title: "Refrigeration COP Calculator: Cycle Efficiency, EER & Enthalpy | Digital Tools Shed",
+    metaDesc: "Calculate real vapor-compression cycle COP, EER, Carnot maximum efficiency, cardinal enthalpy states (h1-h4), compressor power (kW/HP), and mass flow.",
+    canonical: `${DOMAIN}/calc/refrigeration-cycle-cop-calculator`,
+    bodyContent: refrigerationCopBody,
+    currentPath: '/calc/refrigeration-cycle-cop-calculator',
+    faq: [
+      {
+        "q": "What is the relationship between COP and EER?",
+        "a": "COP is a dimensionless ratio (Watts Cooling / Watts Work). EER is imperial (BTU/hr Cooling / Watts Power). Since 1 Watt = 3.41214 BTU/hr, EER = 3.41214 * COP. A COP of 3.76 equals an EER of 12.82."
+      },
+      {
+        "q": "How does subcooling increase system capacity and COP?",
+        "a": "Subcooling lowers the enthalpy of liquid entering the expansion valve (h4). This expands the net refrigerating effect (q_in = h1 - h4) across the evaporator. Every 1°F of subcooling boosts capacity by ~0.5% to 0.8% with zero extra compressor work."
+      },
+      {
+        "q": "What is compressor isentropic efficiency?",
+        "a": "Isentropic efficiency compares theoretical reversible compression work along a constant entropy line to actual electrical work. Modern HVAC scroll compressors operate with isentropic efficiencies between 0.70 and 0.78."
+      },
+      {
+        "q": "Why is compressor liquid slugging so catastrophic?",
+        "a": "Liquids are incompressible. When unboiled liquid refrigerant enters the compressor suction port, hydraulic compression forces instantly break valve plates, shatter scroll tips, and bend connecting rods."
+      },
+      {
+        "q": "What happens if compressor discharge temperature exceeds 225°F?",
+        "a": "Temperatures above 225°F cause synthetic POE and PVE refrigeration oils to break down chemically (pyrolysis), producing acid, carbonizing discharge valves, and wiping out crankshaft bearing lubrication."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // COOLING & HEATING DEGREE DAYS (CDD/HDD) & WEATHER NORMALIZATION CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const coolingDegreeDaysBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Degree Days Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Cooling &amp; Heating Degree Days (CDD / HDD) Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Weather-normalize building energy consumption, calculate annual Cooling Degree Days ($CDD_{65}$) and Heating Degree Days ($HDD_{65}$), estimate seasonal HVAC kWh and gas therms, and determine building Energy Use Intensity (EUI).
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.07" x2="5.64" y2="17.66"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        Climate Zone &amp; Building Envelope
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddClimatePreset">Climate Zone / Location Profile</label>
+        <select id="ddClimatePreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="zone1">Zone 1: Very Hot / Tropical (Miami, FL — 4,200 CDD / 150 HDD)</option>
+          <option value="zone2">Zone 2: Hot / Humid (Houston, TX — 2,900 CDD / 1,400 HDD)</option>
+          <option value="zone3">Zone 3: Warm / Marine (Atlanta, GA — 1,850 CDD / 2,800 HDD)</option>
+          <option value="zone4">Zone 4: Mixed Humid (St. Louis / DC — 1,400 CDD / 4,500 HDD)</option>
+          <option value="zone5" selected>Zone 5: Cool / Cold (Chicago / NYC — 950 CDD / 6,100 HDD)</option>
+          <option value="zone6">Zone 6: Cold (Minneapolis, MN — 680 CDD / 7,850 HDD)</option>
+          <option value="zone7">Zone 7: Very Cold (Duluth / Fairbanks — 320 CDD / 9,600 HDD)</option>
+          <option value="custom">Custom Manual CDD &amp; HDD Entry</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddCdd">Annual CDD (Base 65°F)</label>
+          <input type="number" id="ddCdd" value="950" min="0" max="8000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Cooling Degree Days</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddHdd">Annual HDD (Base 65°F)</label>
+          <input type="number" id="ddHdd" value="6100" min="0" max="15000" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Heating Degree Days</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddArea">Conditioned Area (Sq Ft)</label>
+          <input type="number" id="ddArea" value="2400" min="200" max="500000" step="100" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Finished floor area</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddEnvelope">Envelope Insulation Level</label>
+          <select id="ddEnvelope" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.48">Pre-1980 Uninsulated (UA: 0.48)</option>
+            <option value="0.30" selected>Standard Code 2009-2015 (UA: 0.30)</option>
+            <option value="0.18">High-Performance / Energy Star (UA: 0.18)</option>
+            <option value="0.09">Net-Zero / Passive House (UA: 0.09)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddSeer2">AC Efficiency (SEER2)</label>
+          <input type="number" id="ddSeer2" value="15.2" min="10" max="30" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Standard modern code is 14.3-15.2</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddHeatSys">Heating System Type</label>
+          <select id="ddHeatSys" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="gas_cond" selected>Condensing Gas Furnace (96% AFUE)</option>
+            <option value="gas_std">Standard Gas Furnace (80% AFUE)</option>
+            <option value="heat_pump">Inverter Heat Pump (9.0 HSPF2 / COP 2.8)</option>
+            <option value="electric_strip">Electric Baseboard / Strip (100% COP 1.0)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddElecRate">Electric Rate ($/kWh)</label>
+          <input type="number" id="ddElecRate" value="0.16" min="0.02" max="1.50" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ddGasRate">Gas Rate ($/Therm)</label>
+          <input type="number" id="ddGasRate" value="1.35" min="0.20" max="10.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+      </div>
+
+      <button id="copyDdBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Weather-Normalized Energy Report</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Annual Energy Consumption &amp; Operating Cost
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Total Annual HVAC Cost</div>
+            <div id="outTotalCost" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">$1,632 / yr</div>
+            <div id="outMonthlyAvg" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">$136 / month average</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Site Energy Use Intensity</div>
+            <div id="outEui" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">50.8 EUI</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">kBTU / (sq ft &middot; year)</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Cooling Cost</div>
+            <div id="outCoolCost" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">$173 / yr</div>
+            <div id="outCoolKwh" style="font-size:0.7rem;color:var(--text-muted);">1,080 kWh</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Heating Cost</div>
+            <div id="outHeatCost" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">$1,459 / yr</div>
+            <div id="outHeatUnits" style="font-size:0.7rem;color:var(--text-muted);">1,081 Therms</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Thermal Heat Load</div>
+            <div id="outTotalMbtu" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">121.8 MMBTU</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Annual envelope load</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">+100 CDD Heat Wave Anomaly</div>
+            <div id="outCddDelta" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">+$18.20 / yr</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Sensitivity per 100 CDD</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">+100 HDD Cold Snap Anomaly</div>
+            <div id="outHddDelta" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">+$23.90 / yr</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Sensitivity per 100 HDD</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEATHER NORMALIZATION SENSITIVITY INSIGHT -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Weather Normalization Rule of Thumb
+        </h3>
+        <p style="font-size:0.85rem;line-height:1.6;color:var(--text-muted);margin:0;">
+          Utility bill changes between consecutive years are predominantly driven by outdoor degree-day deviations rather than appliance degradation. If heating degree days increase by 12% during a severe winter polar vortex, a 12% increase in gas therm consumption indicates perfectly normal thermal performance.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SEASONAL SINE CURVE & CDD/HDD INTEGRAL (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Annual Temperature Climatology vs 65°F Balance Point ($T_{\text{base}}$)
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Degree-Day Integration
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="cddHddSvg" viewBox="0 0 800 320" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+    <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);flex-wrap:wrap;">
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:12px;height:12px;background:#ef4444;opacity:0.6;display:inline-block;border-radius:2px;"></span> Red Shaded Area = Cooling Degree Days (CDD)</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:12px;height:12px;background:#38bdf8;opacity:0.6;display:inline-block;border-radius:2px;"></span> Blue Shaded Area = Heating Degree Days (HDD)</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:16px;height:2px;background:#10b981;display:inline-block;"></span> Green Line = 65°F Thermal Balance Point</span>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: ASHRAE CLIMATE ZONES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">ASHRAE Climate Zone Degree Days &amp; Energy Baselines</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Climate Zone</th>
+            <th style="padding:0.6rem 0.75rem;">Representative City</th>
+            <th style="padding:0.6rem 0.75rem;">Annual $CDD_{65}$</th>
+            <th style="padding:0.6rem 0.75rem;">Annual $HDD_{65}$</th>
+            <th style="padding:0.6rem 0.75rem;">Dominant Load</th>
+            <th style="padding:0.6rem 0.75rem;">Average Residential EUI</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);"><td>Zone 1</td><td>Miami, FL / Honolulu, HI</td><td>4,200</td><td>150</td><td>100% Cooling Dominant</td><td>38 kBTU/(sq ft&middot;yr)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>Zone 2</td><td>Houston, TX / Phoenix, AZ</td><td>2,900</td><td>1,400</td><td>Cooling Dominant</td><td>42 kBTU/(sq ft&middot;yr)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>Zone 3</td><td>Atlanta, GA / Dallas, TX</td><td>1,850</td><td>2,800</td><td>Mixed / Dual Season</td><td>46 kBTU/(sq ft&middot;yr)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>Zone 4</td><td>St. Louis, MO / Washington, DC</td><td>1,400</td><td>4,500</td><td>Mixed Heating Heavy</td><td>52 kBTU/(sq ft&middot;yr)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;"><td>Zone 5</td><td>Chicago, IL / New York, NY</td><td>950</td><td>6,100</td><td>Heating Dominant</td><td>58 kBTU/(sq ft&middot;yr)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>Zone 6</td><td>Minneapolis, MN / Burlington, VT</td><td>680</td><td>7,850</td><td>Severe Heating Heavy</td><td>66 kBTU/(sq ft&middot;yr)</td></tr>
+          <tr><td>Zone 7</td><td>Duluth, MN / Grand Forks, ND</td><td>320</td><td>9,600</td><td>Sub-Arctic Heating</td><td>78 kBTU/(sq ft&middot;yr)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Degree-Day Integration &amp; Thermal Math</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Daily Cooling and Heating Degree Days:</strong><br>
+        For any 24-hour day with mean outdoor temperature $\bar{T} = \frac{T_{\max} + T_{\min}}{2}$:
+        $$\text{CDD} = \max(0, \bar{T} - 65^\circ\text{F}) \quad \text{and} \quad \text{HDD} = \max(0, 65^\circ\text{F} - \bar{T})$$
+        Across the annual profile, the site accumulates <span id="mCddVal">950</span> CDD and <span id="mHddVal">6,100</span> HDD.
+      </p>
+
+      <p>
+        <strong>2. Building Seasonal Thermal Loads (MMBTU):</strong><br>
+        Overall building conductive heat loss/gain coefficient: $\text{UA} = A \times U_{\text{factor}} = <span id="mArea">2,400</span> \times <span id="mUa">0.30</span> = \mathbf{<span id="mTotalUa">720</span> \text{ BTU}/(\text{hr}\cdot^\circ\text{F})}$.
+        $$Q_{\text{cool}} = \frac{\text{UA} \times 24 \times \text{CDD}}{1,000,000} = \frac{720 \times 24 \times 950}{1,000,000} = \mathbf{<span id="mCoolMbtu">16.4</span> \text{ MMBTU}}$$
+        $$Q_{\text{heat}} = \frac{\text{UA} \times 24 \times \text{HDD}}{1,000,000} = \frac{720 \times 24 \times 6,100}{1,000,000} = \mathbf{<span id="mHeatMbtu">105.4</span> \text{ MMBTU}}$$
+      </p>
+
+      <p>
+        <strong>3. Electrical &amp; Fuel Sizing Conversions:</strong><br>
+        $$\text{Cooling Electricity} = \frac{Q_{\text{cool}} \times 1,000}{\text{SEER2}} = \frac{16.4 \times 1,000}{<span id="mSeer">15.2</span>} = \mathbf{<span id="mKwh">1,080</span> \text{ kWh}} \quad (\$<span id="mCostCool">173</span>)$$
+        $$\text{Gas Furnace Fuel} = \frac{Q_{\text{heat}} \times 10}{\text{AFUE}} = \frac{105.4 \times 10}{<span id="mAfue">0.96</span>} = \mathbf{<span id="mTherms">1,081</span> \text{ Therms}} \quad (\$<span id="mCostHeat">1,459</span>)$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & BUILDING SCIENCE PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Degree-Day Modeling Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: The 65°F Universal Base Assumption Blindspot</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Base 65°F was standardized in the 1930s when homes had uninsulated walls, incandescent lighting, and few internal electronics. In modern, highly-insulated homes with massive internal heat gains (computers, refrigerators, televisions, cooking, occupants), the actual thermal balance point where indoor heating is needed drops to <strong>55°F to 60°F</strong>. In commercial office buildings with high plug-loads, cooling is required even when outdoor temperatures are 50°F! Modeling modern buildings with standard Base 65°F drastically overestimates heating fuel and underestimates cooling electricity.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Degree Days Completely Ignore Latent Humidity Loads</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Cooling degree days are derived strictly from dry-bulb temperatures. In humid climates like Houston, Miami, or New Orleans, <strong>30% to 45% of total air conditioning electrical power is expended condensing airborne moisture (latent heat of condensation)</strong> rather than lowering air temperature. Two summer days with an identical 82°F dry-bulb mean will yield the exact same 17 CDD, but an 80% relative humidity day will consume twice the air conditioning kilowatt-hours of a dry 30% RH desert day.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Thermostat Setpoint Drift & The 3% Per Degree Exponential Rule</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          The degree-day formula assumes an occupant maintains an unyielding constant 68°F winter and 75°F summer setpoint. In practice, bumping a winter thermostat up by just 2°F (from 68°F to 70°F) or dropping a summer thermostat down by 2°F (from 74°F to 72°F) increases annual heating/cooling energy consumption by <strong>6% to 10%</strong>. Failing to calibrate degree days to actual user thermostat setpoints produces large discrepancies between modeled predictions and actual utility bills.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Solar Radiation & Fenestration SHGC Weather Distortion</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Degree days treat cloudy overcast days and clear, cloudless sunny days identically if mean temperatures match. However, unshaded south-facing and west-facing windows admit immense solar heat gains (up to 200 BTU/(hr&middot;sq ft) of glass). On a crisp 40°F sunny winter day, passive solar heat gain can completely heat a house with zero furnace operation; on an identical 40°F overcast day, the furnace runs continuously.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Heat Pump Auxiliary Strip Heat Penalty in Extreme Cold</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Standard air-source heat pumps suffer significant COP degradation below 25°F. When ambient temperatures plunge below the thermal balance point (typically 15°F to 25°F), the system engages emergency electric resistance heat strips (10 to 15 kW of toaster-wire coils with COP = 1.0). If a degree-day model assumes a constant HSPF2 efficiency across all 6,000+ heating degree days without modeling the auxiliary strip transition, winter electric heating costs will be underestimated by <strong>30% to 50%</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Degree Days Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is a Degree Day in simple terms?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        A Degree Day measures how much and for how long outside air temperature is above or below a baseline temperature (traditionally 65°F). If the average temperature on a summer day is 80°F, that day accumulates <strong>15 Cooling Degree Days (80 - 65 = 15 CDD)</strong>. If the average temperature on a winter day is 25°F, that day accumulates <strong>40 Heating Degree Days (65 - 25 = 40 HDD)</strong>.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why is 65°F used as the standard base temperature?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Historical research determined that when outdoor temperature averages 65°F, typical building internal heat gains (body heat, appliances, lighting) raise indoor temperature to roughly 70°F. Thus, neither mechanical heating nor air conditioning is needed.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is Energy Use Intensity (EUI)?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Energy Use Intensity (EUI) expresses a building's annual energy consumption relative to its gross floor area, measured in <strong>kBTU per square foot per year (kBTU/sq ft/yr)</strong>. It serves as the miles-per-gallon rating for buildings: an average US single-family home has an EUI around 45-55, while a high-performance Net-Zero home operates at under 20 EUI.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How does weather normalization verify energy efficiency improvements?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Weather normalization divides actual fuel usage by degree days (e.g. Therms per HDD or kWh per CDD). If you install new attic insulation and your raw heating bill increases by 5% because the winter was 20% colder, weather normalization reveals that your home was actually <strong>15% more thermally efficient per degree of cold</strong>.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the difference between SEER2 and HSPF2?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        <strong>SEER2 (Seasonal Energy Efficiency Ratio 2)</strong> measures cooling efficiency across a standard cooling season (BTU of heat removed per Watt-hour consumed). <strong>HSPF2 (Heating Seasonal Performance Factor 2)</strong> measures heat pump heating efficiency across a heating season (BTU of heat delivered per Watt-hour consumed). Both standards were enacted in 2023 under DOE M1 testing procedures reflecting higher duct static pressures.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      var PRESETS = {
+        zone1: { cdd: 4200, hdd: 150 },
+        zone2: { cdd: 2900, hdd: 1400 },
+        zone3: { cdd: 1850, hdd: 2800 },
+        zone4: { cdd: 1400, hdd: 4500 },
+        zone5: { cdd: 950,  hdd: 6100 },
+        zone6: { cdd: 680,  hdd: 7850 },
+        zone7: { cdd: 320,  hdd: 9600 }
+      };
+
+      function updatePreset() {
+        var p = document.getElementById('ddClimatePreset').value;
+        if (p !== 'custom' && PRESETS[p]) {
+          document.getElementById('ddCdd').value = PRESETS[p].cdd;
+          document.getElementById('ddHdd').value = PRESETS[p].hdd;
+        }
+      }
+
+      function calcDegreeDays() {
+        var cdd = parseFloat(document.getElementById('ddCdd').value) || 0;
+        var hdd = parseFloat(document.getElementById('ddHdd').value) || 0;
+        var area = parseFloat(document.getElementById('ddArea').value) || 2400;
+        var uaFactor = parseFloat(document.getElementById('ddEnvelope').value) || 0.30;
+        var seer2 = parseFloat(document.getElementById('ddSeer2').value) || 15.2;
+        var heatSys = document.getElementById('ddHeatSys').value;
+        var elecRate = parseFloat(document.getElementById('ddElecRate').value) || 0.16;
+        var gasRate = parseFloat(document.getElementById('ddGasRate').value) || 1.35;
+
+        var totalUA = area * uaFactor;
+
+        // Seasonal cooling load
+        var coolBtu = totalUA * 24 * cdd;
+        var coolMbtu = coolBtu / 1000000;
+        var coolKwh = coolBtu / (seer2 * 1000);
+        var coolCost = coolKwh * elecRate;
+
+        // Seasonal heating load
+        var heatBtu = totalUA * 24 * hdd;
+        var heatMbtu = heatBtu / 1000000;
+        var heatCost = 0;
+        var heatUnitsText = '';
+
+        if (heatSys === 'gas_cond') {
+          var therms = (heatBtu / 0.96) / 100000;
+          heatCost = therms * gasRate;
+          heatUnitsText = Math.round(therms).toLocaleString() + ' Therms';
+        } else if (heatSys === 'gas_std') {
+          var thermsStd = (heatBtu / 0.80) / 100000;
+          heatCost = thermsStd * gasRate;
+          heatUnitsText = Math.round(thermsStd).toLocaleString() + ' Therms';
+        } else if (heatSys === 'heat_pump') {
+          var hpKwh = heatBtu / (9.0 * 1000);
+          heatCost = hpKwh * elecRate;
+          heatUnitsText = Math.round(hpKwh).toLocaleString() + ' kWh';
+        } else if (heatSys === 'electric_strip') {
+          var stripKwh = heatBtu / 3412.14;
+          heatCost = stripKwh * elecRate;
+          heatUnitsText = Math.round(stripKwh).toLocaleString() + ' kWh';
+        }
+
+        var totalCost = coolCost + heatCost;
+        var totalMbtu = coolMbtu + heatMbtu;
+        var eui = ((coolBtu + heatBtu) / (area * 1000));
+
+        // Sensitivities per 100 CDD / HDD
+        var cddDeltaCost = (totalUA * 24 * 100 / (seer2 * 1000)) * elecRate;
+        var hddDeltaCost = (heatCost / Math.max(1, hdd)) * 100;
+
+        // Update DOM
+        document.getElementById('outTotalCost').textContent = '$' + Math.round(totalCost).toLocaleString() + ' / yr';
+        document.getElementById('outMonthlyAvg').textContent = '$' + Math.round(totalCost / 12) + ' / month average';
+        document.getElementById('outEui').textContent = eui.toFixed(1) + ' EUI';
+        document.getElementById('outCoolCost').textContent = '$' + Math.round(coolCost) + ' / yr';
+        document.getElementById('outCoolKwh').textContent = Math.round(coolKwh).toLocaleString() + ' kWh';
+        document.getElementById('outHeatCost').textContent = '$' + Math.round(heatCost) + ' / yr';
+        document.getElementById('outHeatUnits').textContent = heatUnitsText;
+        document.getElementById('outTotalMbtu').textContent = totalMbtu.toFixed(1) + ' MMBTU';
+        document.getElementById('outCddDelta').textContent = '+$' + cddDeltaCost.toFixed(2) + ' / yr';
+        document.getElementById('outHddDelta').textContent = '+$' + hddDeltaCost.toFixed(2) + ' / yr';
+
+        // Update Math Derivations
+        document.getElementById('mCddVal').textContent = Math.round(cdd).toLocaleString();
+        document.getElementById('mHddVal').textContent = Math.round(hdd).toLocaleString();
+        document.getElementById('mArea').textContent = area.toLocaleString();
+        document.getElementById('mUa').textContent = uaFactor.toFixed(2);
+        document.getElementById('mTotalUa').textContent = Math.round(totalUA);
+        document.getElementById('mCoolMbtu').textContent = coolMbtu.toFixed(1);
+        document.getElementById('mHeatMbtu').textContent = heatMbtu.toFixed(1);
+        document.getElementById('mSeer').textContent = seer2.toFixed(1);
+        document.getElementById('mKwh').textContent = Math.round(coolKwh).toLocaleString();
+        document.getElementById('mCostCool').textContent = Math.round(coolCost);
+        document.getElementById('mAfue').textContent = (heatSys === 'gas_cond' ? '0.96' : '0.80');
+        document.getElementById('mTherms').textContent = heatUnitsText;
+        document.getElementById('mCostHeat').textContent = Math.round(heatCost);
+
+        drawCddHddSvg(cdd, hdd);
+      }
+
+      function drawCddHddSvg(cdd, hdd) {
+        var svg = document.getElementById('cddHddSvg');
+        var svgContent = '';
+
+        // Viewport: 800 x 320
+        var padL = 60, padR = 40, padT = 30, padB = 50;
+        var plotW = 800 - padL - padR;
+        var plotH = 320 - padT - padB;
+
+        // Temperature range: 0°F to 100°F
+        function tempToY(t) {
+          return padT + plotH - (t / 100) * plotH;
+        }
+        function monthToX(m) { // m from 0 to 12
+          return padL + (m / 12) * plotW;
+        }
+
+        // Background & Grid
+        svgContent += '<rect width="800" height="320" fill="#0f172a"/>';
+
+        for (var tStep = 20; tStep <= 80; tStep += 20) {
+          var y = tempToY(tStep);
+          svgContent += '<line x1="' + padL + '" y1="' + y + '" x2="' + (800 - padR) + '" y2="' + y + '" stroke="#334155" stroke-dasharray="3,3" stroke-width="1"/>';
+          svgContent += '<text x="' + (padL - 10) + '" y="' + (y + 4) + '" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">' + tStep + '°F</text>';
+        }
+
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        for (var m = 0; m < 12; m++) {
+          var x = monthToX(m + 0.5);
+          svgContent += '<text x="' + x + '" y="' + (320 - padB + 20) + '" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="middle">' + months[m] + '</text>';
+        }
+
+        var y65 = tempToY(65);
+
+        // Annual Temperature Profile (Climatological Sine Wave derived from CDD and HDD)
+        // Mid-summer peak approx 65 + (CDD / 90)
+        // Mid-winter low approx 65 - (HDD / 180)
+        var summerDelta = Math.min(28, Math.max(5, (cdd / 120)));
+        var winterDelta = Math.min(50, Math.max(10, (hdd / 140)));
+        var tMean = 65 + (summerDelta - winterDelta) / 2;
+        var tAmp = (summerDelta + winterDelta) / 2;
+
+        // Build curve points
+        var points = [];
+        for (var step = 0; step <= 24; step++) {
+          var frac = step / 24;
+          var angle = (frac * 2 * Math.PI) - (Math.PI / 2); // peak at month 6 (July)
+          var tempVal = tMean + tAmp * Math.sin(angle);
+          points.push({ x: monthToX(frac * 12), y: tempToY(tempVal), temp: tempVal });
+        }
+
+        // Shaded Heating Degree Days Area (Below 65°F)
+        var hddAreaPath = 'M ' + points[0].x + ' ' + y65 + ' ';
+        for (var i = 0; i < points.length; i++) {
+          var py = Math.max(y65, points[i].y);
+          hddAreaPath += 'L ' + points[i].x.toFixed(1) + ' ' + py.toFixed(1) + ' ';
+        }
+        hddAreaPath += 'L ' + points[points.length - 1].x + ' ' + y65 + ' Z';
+        svgContent += '<path d="' + hddAreaPath + '" fill="#0284c7" opacity="0.35"/>';
+
+        // Shaded Cooling Degree Days Area (Above 65°F)
+        var cddAreaPath = 'M ' + points[0].x + ' ' + y65 + ' ';
+        for (var j = 0; j < points.length; j++) {
+          var cy = Math.min(y65, points[j].y);
+          cddAreaPath += 'L ' + points[j].x.toFixed(1) + ' ' + cy.toFixed(1) + ' ';
+        }
+        cddAreaPath += 'L ' + points[points.length - 1].x + ' ' + y65 + ' Z';
+        svgContent += '<path d="' + cddAreaPath + '" fill="#ef4444" opacity="0.4"/>';
+
+        // Base 65°F Balance Point Line
+        svgContent += '<line x1="' + padL + '" y1="' + y65 + '" x2="' + (800 - padR) + '" y2="' + y65 + '" stroke="#10b981" stroke-width="2.5"/>';
+        svgContent += '<text x="' + (800 - padR + 5) + '" y="' + (y65 + 4) + '" fill="#10b981" font-size="11" font-family="monospace" font-weight="700">65°F BASE</text>';
+
+        // Sine Wave Curve Line
+        var curvePath = 'M ' + points[0].x + ' ' + points[0].y + ' ';
+        for (var k = 1; k < points.length; k++) {
+          curvePath += 'L ' + points[k].x.toFixed(1) + ' ' + points[k].y.toFixed(1) + ' ';
+        }
+        svgContent += '<path d="' + curvePath + '" fill="none" stroke="#f8fafc" stroke-width="3"/>';
+
+        // Labels inside shaded areas
+        svgContent += '<text x="' + monthToX(6.5) + '" y="' + (y65 - 35) + '" fill="#fca5a5" font-size="13" font-family="monospace" font-weight="700" text-anchor="middle">CDD: ' + Math.round(cdd) + ' DEGREE-DAYS</text>';
+        svgContent += '<text x="' + monthToX(1.5) + '" y="' + (y65 + 45) + '" fill="#93c5fd" font-size="13" font-family="monospace" font-weight="700" text-anchor="middle">HDD: ' + Math.round(hdd) + ' DEGREE-DAYS</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyDdSpec() {
+        var preset = document.getElementById('ddClimatePreset').value;
+        var cdd = document.getElementById('ddCdd').value;
+        var hdd = document.getElementById('ddHdd').value;
+        var area = document.getElementById('ddArea').value;
+        var totalCost = document.getElementById('outTotalCost').textContent;
+        var eui = document.getElementById('outEui').textContent;
+        var coolCost = document.getElementById('outCoolCost').textContent;
+        var heatCost = document.getElementById('outHeatCost').textContent;
+        var mbtu = document.getElementById('outTotalMbtu').textContent;
+
+        var text = "=== WEATHER-NORMALIZED DEGREE DAY & HVAC ENERGY REPORT ===\n" +
+          "Climate Profile: " + preset.toUpperCase() + " (" + cdd + " CDD / " + hdd + " HDD Base 65°F)\n" +
+          "Conditioned Space: " + area + " sq ft\n" +
+          "Total Annual HVAC Energy Cost: " + totalCost + " (" + document.getElementById('outMonthlyAvg').textContent + ")\n" +
+          "Cooling Energy: " + coolCost + " (" + document.getElementById('outCoolKwh').textContent + ")\n" +
+          "Heating Energy: " + heatCost + " (" + document.getElementById('outHeatUnits').textContent + ")\n" +
+          "Site Energy Use Intensity (EUI): " + eui + "\n" +
+          "Total Envelope Thermal Load: " + mbtu + "\n" +
+          "Weather Anomaly Sensitivity: +100 CDD = " + document.getElementById('outCddDelta').textContent + "; +100 HDD = " + document.getElementById('outHddDelta').textContent + "\n" +
+          "Standard: ASHRAE Fundamentals Chapter 14 & Degree-Day Normalization Model\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/cooling-degree-days-calculator)";
+
+        var btn = document.getElementById('copyDdBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Energy Report Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['ddClimatePreset', 'ddCdd', 'ddHdd', 'ddArea', 'ddEnvelope', 'ddSeer2', 'ddHeatSys', 'ddElecRate', 'ddGasRate'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcDegreeDays);
+          el.addEventListener('change', function() {
+            if (id === 'ddClimatePreset') updatePreset();
+            calcDegreeDays();
+          });
+        }
+      });
+
+      document.getElementById('copyDdBtn').addEventListener('click', copyDdSpec);
+
+      updatePreset();
+      calcDegreeDays();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'cooling-degree-days-calculator.html'), renderTradePage({
+    title: "Cooling & Heating Degree Days Calculator: CDD, HDD & Energy | Digital Tools Shed",
+    metaDesc: "Calculate annual Cooling Degree Days (CDD) and Heating Degree Days (HDD), weather-normalize HVAC utility bills, estimate seasonal kWh/therms, and compute EUI.",
+    canonical: `${DOMAIN}/calc/cooling-degree-days-calculator`,
+    bodyContent: coolingDegreeDaysBody,
+    currentPath: '/calc/cooling-degree-days-calculator',
+    faq: [
+      {
+        "q": "What is a Degree Day in building energy modeling?",
+        "a": "A Degree Day measures how much and for how long outdoor air deviates from a base temperature (typically 65°F). A day with an average temperature of 80°F represents 15 CDD (80 - 65 = 15). A day with an average temperature of 30°F represents 35 HDD (65 - 30 = 35)."
+      },
+      {
+        "q": "Why is Base 65°F used for degree-day calculations?",
+        "a": "Historically, buildings with standard internal gains from people, lighting, and cooking achieve a comfortable indoor temperature around 70°F when outdoor temperature is 65°F, requiring neither active heating nor mechanical cooling."
+      },
+      {
+        "q": "What is building Energy Use Intensity (EUI)?",
+        "a": "EUI measures total annual energy consumption per square foot of gross floor area (kBTU/sq ft/yr). An average single-family home operates at 45 to 60 EUI, while an ultra-efficient Passive House can operate under 20 EUI."
+      },
+      {
+        "q": "Why do Cooling Degree Days fail to capture total air conditioning load in humid climates?",
+        "a": "Cooling degree days only track sensible dry-bulb temperature. In humid climates, 30% to 45% of air conditioning electricity is consumed condensing water vapor (latent heat). Two days with 15 CDD can have vastly different energy costs if one has 30% RH and the other has 85% RH."
+      },
+      {
+        "q": "How does weather normalization isolate true building energy efficiency?",
+        "a": "Weather normalization calculates energy use per degree day (kWh/CDD or Therms/HDD). This proves whether a high winter gas bill was caused by envelope air leakage or simply an unusually severe polar vortex."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // EXHAUST FAN CFM, AIR CHANGES PER HOUR (ACH) & STATIC PRESSURE SIZING CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const exhaustFanBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Exhaust Fan Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Exhaust Fan CFM, ACH &amp; Ventilation Sizing Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Size ventilation exhaust fans per ASHRAE 62.1/62.2, HVI, and IMC standards across bathrooms, commercial kitchens, automotive garages, paint booths, and workshops: calculate required CFM, air changes per hour (ACH), duct velocity (FPM), and motorized make-up air interlocks.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        Room Dimensions &amp; Application Type
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="efSpaceType">Space / Application Type</label>
+        <select id="efSpaceType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="bath_res" selected>Residential Bathroom (HVI: 8 ACH / 1 CFM/sq ft)</option>
+          <option value="bath_comm">Commercial Restroom (IMC: 50 CFM / Fixture or 2.0 CFM/sq ft)</option>
+          <option value="kitchen_comm">Commercial Kitchen Hood (Type I: 250-350 CFM / Linear Ft)</option>
+          <option value="garage">Automotive Garage / Workshop (0.75 CFM/sq ft or 4-6 ACH)</option>
+          <option value="paint_booth">Spray Paint Booth (NFPA 33: 100 FPM Cross-Draft)</option>
+          <option value="custom">Custom Air Changes per Hour (ACH Sizing)</option>
+        </select>
+      </div>
+
+      <!-- ROOM DIMENSIONS -->
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.35rem;" for="efLen">Length (Ft)</label>
+          <input type="number" id="efLen" value="12" min="2" max="500" step="1" style="width:100%;padding:0.5rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.35rem;" for="efWidth">Width (Ft)</label>
+          <input type="number" id="efWidth" value="10" min="2" max="500" step="1" style="width:100%;padding:0.5rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.35rem;" for="efHeight">Height (Ft)</label>
+          <input type="number" id="efHeight" value="9" min="6" max="50" step="0.5" style="width:100%;padding:0.5rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        </div>
+      </div>
+
+      <!-- DYNAMIC CONDITIONAL INPUTS -->
+      <div id="boxAch" style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="efAch">Target Air Changes per Hour (ACH)</label>
+        <input type="number" id="efAch" value="8" min="1" max="60" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Bathrooms: 8 ACH; Garages: 4-6 ACH; Chemical Storage: 10-12 ACH</span>
+      </div>
+
+      <div id="boxFixtures" style="display:none;margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="efFixCount">Plumbing Fixture Count (Toilets &amp; Urinals)</label>
+        <input type="number" id="efFixCount" value="4" min="1" max="100" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">IMC mandates 50 CFM per toilet or urinal</span>
+      </div>
+
+      <div id="boxKitchen" style="display:none;margin-bottom:1.25rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="efHoodLen">Hood Length (Feet)</label>
+            <input type="number" id="efHoodLen" value="8" min="3" max="50" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="efHoodStyle">Hood Canopy Style</label>
+            <select id="efHoodStyle" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+              <option value="wall" selected>Wall Canopy (250 CFM/ft)</option>
+              <option value="island">Island Canopy (350 CFM/ft)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- DUCT RUN SPECIFICATIONS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="efDuctDia">Exhaust Duct Diameter</label>
+          <select id="efDuctDia" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="4">4" Round (Up to 80 CFM)</option>
+            <option value="6" selected>6" Round (80 to 200 CFM)</option>
+            <option value="8">8" Round (200 to 450 CFM)</option>
+            <option value="10">10" Round (450 to 800 CFM)</option>
+            <option value="12">12" Round (800 to 1,500 CFM)</option>
+            <option value="14">14" Round (1,500 to 2,500 CFM)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="efDuctLen">Duct Run Length (Ft)</label>
+          <input type="number" id="efDuctLen" value="25" min="2" max="250" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Total equivalent length to roof cap</span>
+        </div>
+      </div>
+
+      <button id="copyEfBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Complete Exhaust Fan Specification</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          Ventilation Airflow &amp; Exchange Performance
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Required Exhaust Flow</div>
+            <div id="outCfm" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">144 CFM</div>
+            <div id="outCfmMin" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">Select 150 CFM Rated Fan</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Air Changes / Hour (ACH)</div>
+            <div id="outAch" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">8.0 ACH</div>
+            <div id="outVol" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">1,080 cu ft room volume</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Duct Velocity</div>
+            <div id="outDuctVel" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">733 FPM</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">In selected duct</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Static Head Loss</div>
+            <div id="outStaticLoss" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">0.13" w.g.</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Duct + dampers</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Max Target Sones</div>
+            <div id="outSones" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">&le; 1.0 Sone</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Ultra-quiet whisper</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Velocity Assessment</div>
+            <div id="outVelStatus" style="font-size:0.85rem;font-weight:600;color:#10b981;">✓ Optimal Range (600-900 FPM)</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Prevents air rush whistling</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Door Undercut Make-Up Area</div>
+            <div id="outDoorGap" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">0.75 Inch</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Under 30" interior door</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAKE-UP AIR INTERLOCK ALERT CARD -->
+      <div id="muaAlertBox" style="background:#fef2f2;border:1px solid #f87171;border-radius:12px;padding:1rem 1.25rem;display:none;">
+        <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+          <span style="font-size:1.5rem;line-height:1;">⚠️</span>
+          <div>
+            <div style="font-weight:700;color:#991b1b;font-size:0.95rem;">MANDATORY: Make-Up Air (MUA) Interlock Required (&gt;400 CFM)</div>
+            <div style="font-size:0.85rem;color:#7f1d1d;line-height:1.4;margin-top:0.25rem;">
+              IRC Section M1503.6 mandates that exhaust hood systems exceeding 400 CFM must be provided with a dedicated, mechanically interlocked motorized make-up air damper. Operating high-volume exhaust in tight modern homes without MUA creates negative pressure that backdrafts deadly Carbon Monoxide (CO) from water heaters and furnaces!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE ROOM AIRFLOW & EXHAUST STREAMLINES (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        Room Aerodynamic Streamlines &amp; Exhaust Infiltration Simulation
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Fluid Vector Dynamics
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="exhaustSvg" viewBox="0 0 800 320" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: VENTILATION STANDARDS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">ASHRAE 62.1, 62.2 &amp; IMC Ventilation Standard Benchmarks</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Space Type</th>
+            <th style="padding:0.6rem 0.75rem;">Standard Sizing Rule</th>
+            <th style="padding:0.6rem 0.75rem;">Target ACH</th>
+            <th style="padding:0.6rem 0.75rem;">Recommended Sound Level</th>
+            <th style="padding:0.6rem 0.75rem;">Governing Code Standard</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;">
+            <td>Residential Bath (&le;100 sq ft)</td><td>50 CFM Intermittent / 20 CFM Continuous</td><td>8 ACH</td><td>&le; 1.0 Sone</td><td>ASHRAE 62.2 / HVI</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td>Residential Luxury Master Bath</td><td>1 CFM per sq ft + 50 CFM per fixture</td><td>8 - 10 ACH</td><td>&le; 1.5 Sones</td><td>HVI Standard</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td>Commercial Public Restroom</td><td>50 CFM per toilet/urinal or 2.0 CFM/sq ft</td><td>10 - 15 ACH</td><td>&le; 2.5 Sones</td><td>IMC Table 403.3.1.1</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td>Commercial Kitchen (Type I)</td><td>250 - 350 CFM per linear foot of hood</td><td>30 - 60 ACH</td><td>Industrial Blower</td><td>NFPA 96 / IMC 507</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td>Automotive Repair Garage</td><td>0.75 CFM per sq ft of floor area</td><td>4 - 6 ACH</td><td>Continuous Exhaust</td><td>IMC Table 403.3.1.1</td>
+          </tr>
+          <tr>
+            <td>Spray Paint Finishing Booth</td><td>100 FPM capture cross-draft velocity</td><td>60+ ACH</td><td>Explosion-Proof Motor</td><td>NFPA 33</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Ventilation Fluid Dynamics &amp; Derivations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Volumetric Air Changes per Hour (ACH):</strong><br>
+        Room cubic volume: $V_{\text{room}} = L \times W \times H = <span id="mLen">12</span> \times <span id="mWidth">10</span> \times <span id="mHeight">9</span> = \mathbf{<span id="mVol">1,080</span> \text{ cu ft}}$.
+        $$\text{CFM}_{\text{ACH}} = \frac{V_{\text{room}} \times \text{ACH}}{60} = \frac{1,080 \times <span id="mAch">8</span>}{60} = \mathbf{<span id="mCfmResult">144</span> \text{ CFM}}$$
+      </p>
+
+      <p>
+        <strong>2. Duct Air Velocity &amp; Acoustic Limit:</strong><br>
+        Duct internal cross-sectional area: $A = \frac{\pi \cdot D^2}{4 \times 144} = \frac{\pi \times (<span id="mDia">6</span>)^2}{576} = \mathbf{<span id="mDuctArea">0.196</span> \text{ sq ft}}$.
+        $$V = \frac{\text{CFM}}{A} = \frac{144}{0.196} = \mathbf{<span id="mVelResult">733</span> \text{ FPM}}$$
+        Velocities below 900 FPM ensure quiet whisper operation and prevent air turbulence whistling across grille louvers.
+      </p>
+
+      <p>
+        <strong>3. Make-Up Air Infiltration Door Undercut Area:</strong><br>
+        Infiltration air passing under an interior door should maintain an air velocity under 300 FPM to prevent door slamming and carpet whistling:
+        $$A_{\text{undercut}} = \frac{\text{CFM}}{300 \text{ FPM}} \times 144 = \frac{144}{300} \times 144 = \mathbf{<span id="mUnderSqIn">69.1</span> \text{ sq inches}}$$
+        Under a standard 30-inch wide bathroom door: $\text{Gap} = \frac{69.1}{30} = \mathbf{<span id="mGapIn">0.75</span> \text{ Inches}}$.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & VENTILATION ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Exhaust Ventilation Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: The 400+ CFM Range Hood Depressurization &amp; CO Backdrafting Hazard</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          High-end residential kitchen range hoods commonly exhaust 600 to 1,200 CFM. In modern air-tight houses, exhausting 800 CFM without dedicated make-up air creates an extreme interior negative pressure exceeding -5 to -15 Pascals. This negative pressure pulls the draft right out of natural-draft gas water heaters and furnaces, sucking invisible, odorless, deadly <strong>Carbon Monoxide (CO)</strong> back down the chimney directly into family living spaces. IRC Section M1503.6 strictly requires an electrically interlocked, motorized make-up air damper for any hood exceeding 400 CFM.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Venting Exhaust Moisture Directly into Attics or Soffits</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Terminating a bathroom exhaust duct inside an attic or pointing it at a perforated soffit vent is illegal under building codes and causes catastrophic structural rot. An average family shower dumps 1 to 2 pints of vaporized water into the exhaust stream. During winter, hot humid air discharged into a freezing attic condenses against the underside of roof sheathing, fostering toxic black mold (*Stachybotrys*) and rotting roof trusses within two seasons. Exhaust ducts must terminate through a dedicated roof or sidewall cap to the outdoors.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Choking High CFM Through 4-Inch Flexible Vinyl Ducting</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Connecting a 110 or 150 CFM bath fan to a corrugated 4-inch flexible vinyl duct creates immense static pressure exceeding 0.35" w.g. Standard fractional horsepower fan motors cannot overcome this resistance, causing actual airflow to plummet by <strong>over 50%</strong> (a 110 CFM fan delivers only 55 CFM in practice). Always use rigid 6-inch smooth-wall galvanized duct for any fan rated above 80 CFM to ensure rated airflow and quiet whisper performance.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Aerodynamic Short-Circuiting (Placing Supply &amp; Exhaust Adjacent)</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Placing the HVAC supply air register within 3 to 4 feet of the exhaust fan creates immediate "short-circuiting": fresh conditioned air from the supply diffuser is sucked straight into the exhaust fan without sweeping across the room. The rest of the space remains stagnant, leaving shower mirrors fogged and odors trapped. The exhaust fan must be placed directly over the shower/tub, while make-up air enters from the door on the opposite wall to establish a cross-room sweeping air current.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Uninsulated Attic Ductwork Causing "Condensation Rain"</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Running uninsulated single-wall metal duct through an unconditioned freezing attic causes warm, moisture-laden exhaust air to hit ice-cold sheet metal. The vapor rapidly condenses into liquid water inside the pipe. Because the duct slopes upward toward the roof, the accumulated water drains backward down the pipe, dripping brown, rusty water directly out of the bathroom ceiling fan grille onto occupants. All exhaust ducts in unconditioned spaces must be wrapped in minimum R-6 fiberglass insulation.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Exhaust Fan Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What CFM exhaust fan do I need for my bathroom?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        For bathrooms up to 100 square feet, the Home Ventilating Institute (HVI) recommends <strong>1 CFM per square foot of floor area</strong>, with a universal code minimum of 50 CFM. For bathrooms over 100 square feet, size based on 8 Air Changes per Hour (ACH) or allocate 50 CFM per standard toilet/shower and 100 CFM for a jetted whirlpool tub.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is a Sone and what rating should I look for?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        A Sone is a linear unit of perceived acoustic loudness. <strong>1.0 Sone</strong> is equivalent to the quiet hum of a modern refrigerator. For residential master bathrooms, select a fan rated at <strong>0.3 to 0.8 Sones</strong> for whisper-quiet operation. Older contractor-grade builder fans run at 3.0 to 4.0 Sones (equivalent to a loud television or vacuum).
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why is dedicated Make-Up Air required for range hoods over 400 CFM?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        International Residential Code (IRC) Section M1503.6 mandates make-up air for exhaust systems over 400 CFM because extracting large volumes of air in tight modern construction creates dangerous negative pressure. This negative pressure reverses the natural draft of gas water heaters and fireplaces, drawing lethal Carbon Monoxide back into the house.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How long should a bathroom exhaust fan run after a shower?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        An exhaust fan should run during the shower and for <strong>20 minutes after completing the shower</strong>. Turning the fan off immediately upon exiting leaves moisture condensed on drywall, grout, and ceilings, fostering mold spores. Installing a push-button countdown timer switch or an automatic humidity sensor ensures complete moisture evacuation.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Can I vent two bathrooms into the same exhaust duct?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Under most mechanical codes, individual fans cannot share a common duct run because air from one bathroom will blow through the wye into the adjacent bathroom. The only code-compliant way to vent two bathrooms through a single roof penetration is to use a <strong>remote in-line centrifugal fan located in the attic</strong> with backdraft dampers on both branch intake grilles.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      function updateSpaceUI() {
+        var sp = document.getElementById('efSpaceType').value;
+        var bAch = document.getElementById('boxAch');
+        var bFix = document.getElementById('boxFixtures');
+        var bKit = document.getElementById('boxKitchen');
+
+        bAch.style.display = 'none';
+        bFix.style.display = 'none';
+        bKit.style.display = 'none';
+
+        if (sp === 'bath_res') {
+          bAch.style.display = 'block';
+          document.getElementById('efAch').value = '8';
+        } else if (sp === 'bath_comm') {
+          bFix.style.display = 'block';
+        } else if (sp === 'kitchen_comm') {
+          bKit.style.display = 'block';
+        } else if (sp === 'garage') {
+          bAch.style.display = 'block';
+          document.getElementById('efAch').value = '5';
+        } else if (sp === 'paint_booth') {
+          // Booth cross draft
+        } else if (sp === 'custom') {
+          bAch.style.display = 'block';
+        }
+      }
+
+      function calcExhaust() {
+        var sp = document.getElementById('efSpaceType').value;
+        var l = parseFloat(document.getElementById('efLen').value) || 12;
+        var w = parseFloat(document.getElementById('efWidth').value) || 10;
+        var h = parseFloat(document.getElementById('efHeight').value) || 9;
+        var ach = parseFloat(document.getElementById('efAch').value) || 8;
+        var fixCount = parseFloat(document.getElementById('efFixCount').value) || 4;
+        var hoodLen = parseFloat(document.getElementById('efHoodLen').value) || 8;
+        var hoodStyle = document.getElementById('efHoodStyle').value;
+        var ductDia = parseFloat(document.getElementById('efDuctDia').value) || 6;
+        var ductLen = parseFloat(document.getElementById('efDuctLen').value) || 25;
+
+        var volCuFt = l * w * h;
+        var reqCfm = 0;
+
+        if (sp === 'bath_res') {
+          var cfmByArea = Math.max(50, l * w);
+          var cfmByAch = (volCuFt * ach) / 60;
+          reqCfm = Math.max(cfmByArea, cfmByAch);
+        } else if (sp === 'bath_comm') {
+          reqCfm = Math.max(fixCount * 50, l * w * 2.0);
+        } else if (sp === 'kitchen_comm') {
+          var rate = (hoodStyle === 'island') ? 350 : 250;
+          reqCfm = hoodLen * rate;
+        } else if (sp === 'garage') {
+          reqCfm = Math.max(l * w * 0.75, (volCuFt * ach) / 60);
+        } else if (sp === 'paint_booth') {
+          // 100 FPM capture velocity across cross-section
+          reqCfm = (w * h) * 100;
+        } else if (sp === 'custom') {
+          reqCfm = (volCuFt * ach) / 60;
+        }
+
+        var achAchieved = (reqCfm * 60) / Math.max(1, volCuFt);
+        var ductAreaSqFt = (Math.PI / 4) * Math.pow(ductDia / 12, 2);
+        var velFpm = reqCfm / Math.max(0.01, ductAreaSqFt);
+
+        // Static pressure
+        var vp = Math.pow(velFpm / 4005, 2);
+        var ductLoss = (ductLen / 100) * (0.02 * (100 / (ductDia / 12)) * vp);
+        var totalSp = ductLoss + 0.10; // 0.10 for damper + cap
+
+        // MUA Interlock Check
+        var muaAlert = document.getElementById('muaAlertBox');
+        if (reqCfm > 400) {
+          muaAlert.style.display = 'block';
+        } else {
+          muaAlert.style.display = 'none';
+        }
+
+        // Target Sones
+        var sonesText = "≤ 1.0 Sone";
+        if (sp === 'bath_comm') sonesText = "≤ 2.5 Sones";
+        else if (sp === 'kitchen_comm' || sp === 'paint_booth') sonesText = "Commercial Blower";
+        else if (sp === 'garage') sonesText = "≤ 3.5 Sones";
+
+        // Door Undercut Area (at 300 FPM infiltration)
+        var underSqIn = (reqCfm / 300) * 144;
+        var gapIn = underSqIn / 30; // 30" standard door
+
+        // Update DOM
+        document.getElementById('outCfm').textContent = Math.round(reqCfm) + ' CFM';
+        document.getElementById('outCfmMin').textContent = 'Select ' + (Math.ceil(reqCfm / 10) * 10) + ' CFM Rated Fan';
+        document.getElementById('outAch').textContent = achAchieved.toFixed(1) + ' ACH';
+        document.getElementById('outVol').textContent = Math.round(volCuFt).toLocaleString() + ' cu ft room volume';
+        document.getElementById('outDuctVel').textContent = Math.round(velFpm) + ' FPM';
+        document.getElementById('outStaticLoss').textContent = totalSp.toFixed(2) + '" w.g.';
+        document.getElementById('outSones').textContent = sonesText;
+
+        var velStatus = document.getElementById('outVelStatus');
+        if (velFpm < 600) {
+          velStatus.textContent = '✓ Low Velocity (<600 FPM) — Extremely Quiet';
+          velStatus.style.color = '#3b82f6';
+        } else if (velFpm <= 1000) {
+          velStatus.textContent = '✓ Optimal Range (600-1,000 FPM) — Good Velocity';
+          velStatus.style.color = '#10b981';
+        } else if (velFpm <= 1400) {
+          velStatus.textContent = '⚠️ Elevated Velocity (1,000-1,400 FPM) — Air Rush Noise';
+          velStatus.style.color = '#f59e0b';
+        } else {
+          velStatus.textContent = '⛔ Severe Restriction (>1,400 FPM) — Upsize Duct Diameter!';
+          velStatus.style.color = '#ef4444';
+        }
+
+        document.getElementById('outDoorGap').textContent = gapIn.toFixed(2) + ' Inch';
+
+        // Update Math Derivations
+        document.getElementById('mLen').textContent = l;
+        document.getElementById('mWidth').textContent = w;
+        document.getElementById('mHeight').textContent = h;
+        document.getElementById('mVol').textContent = Math.round(volCuFt).toLocaleString();
+        document.getElementById('mAch').textContent = ach;
+        document.getElementById('mCfmResult').textContent = Math.round(reqCfm);
+        document.getElementById('mDia').textContent = ductDia;
+        document.getElementById('mDuctArea').textContent = ductAreaSqFt.toFixed(3);
+        document.getElementById('mVelResult').textContent = Math.round(velFpm);
+        document.getElementById('mUnderSqIn').textContent = underSqIn.toFixed(1);
+        document.getElementById('mGapIn').textContent = gapIn.toFixed(2);
+
+        drawExhaustSvg(reqCfm, velFpm, l, w, h);
+      }
+
+      function drawExhaustSvg(cfm, velFpm, l, w, h) {
+        var svg = document.getElementById('exhaustSvg');
+        var svgContent = '';
+
+        // Viewport: 800 x 320
+        svgContent += '<rect width="800" height="320" fill="#0f172a"/>';
+
+        // Room Shell Outline (Cross-section)
+        svgContent += '<rect x="80" y="80" width="640" height="200" fill="#1e293b" stroke="#64748b" stroke-width="3"/>';
+        svgContent += '<line x1="80" y1="80" x2="720" y2="80" stroke="#cbd5e1" stroke-width="4"/>'; // Ceiling
+        svgContent += '<line x1="80" y1="280" x2="720" y2="280" stroke="#78716c" stroke-width="5"/>'; // Floor
+
+        // Door on Left Wall with Undercut Gap
+        svgContent += '<rect x="80" y="140" width="12" height="130" fill="#b45309" stroke="#78350f" stroke-width="1.5"/>';
+        svgContent += '<rect x="80" y="270" width="12" height="10" fill="#0284c7" opacity="0.8"/>'; // Undercut blue air
+        svgContent += '<text x="100" y="265" fill="#38bdf8" font-size="10" font-family="monospace">Make-Up Air Infiltration</text>';
+
+        // Ceiling Exhaust Fan Assembly
+        svgContent += '<rect x="480" y="65" width="80" height="30" fill="#334155" stroke="#94a3b8" stroke-width="2" rx="3"/>';
+        svgContent += '<circle cx="520" cy="80" r="10" fill="#0284c7"/>';
+        svgContent += '<text x="520" y="55" fill="#38bdf8" font-size="11" font-weight="700" font-family="monospace" text-anchor="middle">EXHAUST FAN (' + Math.round(cfm) + ' CFM)</text>';
+
+        // Vertical Ductwork through Roof
+        svgContent += '<rect x="505" y="15" width="30" height="50" fill="#475569" stroke="#64748b" stroke-width="2"/>';
+        // Roof Cap / Damper
+        svgContent += '<polygon points="500,15 520,0 540,15" fill="#94a3b8"/>';
+        svgContent += '<text x="545" y="35" fill="#cbd5e1" font-size="10" font-family="monospace">' + Math.round(velFpm) + ' FPM</text>';
+
+        // Aerodynamic Flow Streamlines (Laminar from door undercut curving up toward ceiling fan)
+        svgContent += '<path d="M92 275 Q260 270 500 95" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="6,4"/>';
+        svgContent += '<path d="M92 275 Q320 220 515 95" fill="none" stroke="#0284c7" stroke-width="2" stroke-dasharray="5,3"/>';
+        svgContent += '<path d="M92 275 Q400 180 530 95" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4,3"/>';
+        svgContent += '<path d="M220 280 Q380 250 510 95" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.7"/>';
+
+        // Room Dimensions Callout
+        svgContent += '<text x="400" y="295" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle">ROOM SPAN: ' + l + '\' &times; ' + w + '\' (' + h + '\' CEILING)</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyEfSpec() {
+        var sp = document.getElementById('efSpaceType').value;
+        var cfm = document.getElementById('outCfm').textContent;
+        var ach = document.getElementById('outAch').textContent;
+        var vel = document.getElementById('outDuctVel').textContent;
+        var loss = document.getElementById('outStaticLoss').textContent;
+        var sones = document.getElementById('outSones').textContent;
+        var gap = document.getElementById('outDoorGap').textContent;
+
+        var text = "=== EXHAUST VENTILATION SIZING REPORT ===\n" +
+          "Space Type: " + sp.toUpperCase() + "\n" +
+          "Room Dimensions: " + document.getElementById('efLen').value + "' x " + document.getElementById('efWidth').value + "' x " + document.getElementById('efHeight').value + "' (" + document.getElementById('outVol').textContent + ")\n" +
+          "REQUIRED EXHAUST AIRFLOW: " + cfm + " (" + document.getElementById('outCfmMin').textContent + ")\n" +
+          "Air Changes per Hour: " + ach + "\n" +
+          "Duct Velocity: " + vel + " (" + document.getElementById('outVelStatus').textContent + ")\n" +
+          "Static Head Loss: " + loss + "\n" +
+          "Recommended Sound Rating: " + sones + "\n" +
+          "Make-Up Air Infiltration Door Gap: " + gap + "\n" +
+          "Standard: ASHRAE 62.1/62.2, HVI & IMC Ventilation Standards\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/exhaust-fan-cfm-calculator)";
+
+        var btn = document.getElementById('copyEfBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Exhaust Fan Specs Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['efSpaceType', 'efLen', 'efWidth', 'efHeight', 'efAch', 'efFixCount', 'efHoodLen', 'efHoodStyle', 'efDuctDia', 'efDuctLen'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcExhaust);
+          el.addEventListener('change', function() {
+            if (id === 'efSpaceType') updateSpaceUI();
+            calcExhaust();
+          });
+        }
+      });
+
+      document.getElementById('copyEfBtn').addEventListener('click', copyEfSpec);
+
+      updateSpaceUI();
+      calcExhaust();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'exhaust-fan-cfm-calculator.html'), renderTradePage({
+    title: "Exhaust Fan CFM Calculator: Room Sizing, ACH & Sones | Digital Tools Shed",
+    metaDesc: "Calculate required exhaust fan CFM and air changes per hour (ACH) per ASHRAE 62.1/62.2 and HVI across bathrooms, commercial kitchens, garages, and paint booths.",
+    canonical: `${DOMAIN}/calc/exhaust-fan-cfm-calculator`,
+    bodyContent: exhaustFanBody,
+    currentPath: '/calc/exhaust-fan-cfm-calculator',
+    faq: [
+      {
+        "q": "What size bathroom exhaust fan CFM do I need?",
+        "a": "For bathrooms up to 100 square feet, the Home Ventilating Institute recommends 1 CFM per square foot of floor area with a minimum of 50 CFM. For larger bathrooms, size based on 8 Air Changes per Hour (ACH) or add 50 CFM per standard fixture."
+      },
+      {
+        "q": "What is a Sone and how quiet is a 1.0 Sone fan?",
+        "a": "A Sone measures perceived acoustic loudness. 1.0 Sone is equivalent to the quiet hum of a refrigerator. High-end residential exhaust fans operate at 0.3 to 0.8 Sones (virtually silent), whereas builder-grade fans run at 3.0 to 4.0 Sones."
+      },
+      {
+        "q": "Why is make-up air required for range hoods exceeding 400 CFM?",
+        "a": "Exhausting over 400 CFM without make-up air creates negative house pressure that backdrafts toxic Carbon Monoxide from water heaters and furnaces into the home. IRC M1503.6 mandates an interlocked make-up air damper."
+      },
+      {
+        "q": "Why should exhaust ductwork in unconditioned attics be insulated?",
+        "a": "Warm humid air entering a freezing attic duct cools rapidly, causing moisture to condense inside the pipe. The water drains backward down the slope, causing rusty brown water to drip out of the ceiling fan grille."
+      },
+      {
+        "q": "What is the minimum door undercut needed for bathroom exhaust airflow?",
+        "a": "To allow fresh air to enter without high acoustic whistling, an interior bathroom door requires approximately a 0.50 to 0.75-inch undercut gap above finished flooring."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (23 calculators in /calc/)');
 }
 

@@ -356,6 +356,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/cooling-degree-days-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/cooling-tower-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -489,6 +495,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/ev-charging-time-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/exhaust-fan-cfm-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1580,6 +1592,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/refrigeration-cycle-cop-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/retaining-pond-volume-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -1965,6 +1983,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/welding-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/well-pump-sizing-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
