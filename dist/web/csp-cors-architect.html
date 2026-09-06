@@ -170,6 +170,22 @@
         "@type": "Answer",
         "text": "The frame-ancestors directive obsoletes the legacy X-Frame-Options header. Setting frame-ancestors self or none stops malicious third-party websites from framing your application inside transparent iframes to trick authenticated users into clicking unauthorized actions."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the maximum preflight cache duration for Access-Control-Max-Age?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Access-Control-Max-Age header tells the browser how many seconds to cache the OPTIONS preflight response. While the specification allows arbitrary values, modern browsers enforce internal caps: Chromium-based browsers cap preflights at 7,200 seconds (2 hours), while Firefox allows up to 86,400 seconds (24 hours)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can a strict Content Security Policy break third-party tag managers or analytics?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. If a tag manager dynamically injects remote scripts or creates inline snippets without matching hashes or nonces, a strict CSP will block them. Production deployments must allowlist the tag manager domains and configure server-side nonce propagation to dynamically generated tags."
+      }
     }
   ]
 }
@@ -1100,6 +1116,8 @@
       .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
       .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
       .faq-item.open .faq-a { display: block; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
     </style>
   
       <div class="article-container" style="max-width: 980px;">
@@ -1116,9 +1134,9 @@
         </div>
 
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchCspTab('csp')">Content Security Policy (CSP)</button>
-          <button class="tab-btn" onclick="switchCspTab('cors')">CORS Policy Architect</button>
-          <button class="tab-btn" onclick="switchCspTab('hash')">SHA-256 Script Hash / Nonce</button>
+          <button type="button" class="tab-btn active" onclick="switchCspTab('csp')">Content Security Policy (CSP)</button>
+          <button type="button" class="tab-btn" onclick="switchCspTab('cors')">CORS Policy Architect</button>
+          <button type="button" class="tab-btn" onclick="switchCspTab('hash')">SHA-256 Script Hash / Nonce</button>
         </div>
 
         <!-- TAB 1: CSP BUILDER -->
@@ -1127,27 +1145,27 @@
             <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Directives & Source Allowlist</h3>
             <div class="grid-2">
               <div>
-                <label class="field-label">default-src (Fallback)</label>
+                <label class="field-label" for="csp-default">default-src (Fallback)</label>
                 <input type="text" id="csp-default" class="text-input" value="'self'" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">script-src (Executable Code)</label>
+                <label class="field-label" for="csp-script">script-src (Executable Code)</label>
                 <input type="text" id="csp-script" class="text-input" value="'self' https://trustedscripts.com" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">style-src (Stylesheets)</label>
+                <label class="field-label" for="csp-style">style-src (Stylesheets)</label>
                 <input type="text" id="csp-style" class="text-input" value="'self' 'unsafe-inline' https://fonts.googleapis.com" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">img-src (Images & Vectors)</label>
+                <label class="field-label" for="csp-img">img-src (Images & Vectors)</label>
                 <input type="text" id="csp-img" class="text-input" value="'self' data: https:" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">connect-src (Fetch, XHR, WebSockets)</label>
+                <label class="field-label" for="csp-connect">connect-src (Fetch, XHR, WebSockets)</label>
                 <input type="text" id="csp-connect" class="text-input" value="'self' https://api.example.com wss:" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">frame-ancestors (Clickjacking Defense)</label>
+                <label class="field-label" for="csp-ancestors">frame-ancestors (Clickjacking Defense)</label>
                 <input type="text" id="csp-ancestors" class="text-input" value="'self'" oninput="generateCsp()" />
               </div>
             </div>
@@ -1179,17 +1197,20 @@
           <div class="wb-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
               <label class="field-label" style="margin:0;">Generated Header String</label>
-              <button class="btn-sec" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCsp()">Copy Header</button>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <button type="button" class="btn-sec" id="btnCopyCsp" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCsp()">Copy Header</button>
+                <span id="cspCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+              </div>
             </div>
             <textarea id="csp-output" class="code-input" style="height:90px;" readonly></textarea>
 
             <div style="margin-top:1.25rem;">
               <label class="field-label">Production Server Deployment Code</label>
               <div class="tab-bar" style="margin-bottom:0.75rem;">
-                <button class="tab-btn active" onclick="setExportFmt('nginx')">Nginx</button>
-                <button class="tab-btn" onclick="setExportFmt('apache')">Apache (.htaccess)</button>
-                <button class="tab-btn" onclick="setExportFmt('cloudflare')">Cloudflare Workers</button>
-                <button class="tab-btn" onclick="setExportFmt('meta')">HTML &lt;meta&gt;</button>
+                <button type="button" class="tab-btn active" onclick="setExportFmt('nginx')">Nginx</button>
+                <button type="button" class="tab-btn" onclick="setExportFmt('apache')">Apache (.htaccess)</button>
+                <button type="button" class="tab-btn" onclick="setExportFmt('cloudflare')">Cloudflare Workers</button>
+                <button type="button" class="tab-btn" onclick="setExportFmt('meta')">HTML &lt;meta&gt;</button>
               </div>
               <textarea id="csp-server-export" class="code-input" style="height:110px;" readonly></textarea>
             </div>
@@ -1202,20 +1223,20 @@
             <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Cross-Origin Resource Sharing (CORS) Configuration</h3>
             <div class="grid-2">
               <div>
-                <label class="field-label">Access-Control-Allow-Origin</label>
+                <label class="field-label" for="cors-origin">Access-Control-Allow-Origin</label>
                 <input type="text" id="cors-origin" class="text-input" value="https://dashboard.example.com" oninput="generateCors()" />
                 <span style="font-size:0.75rem; color:var(--text-muted);">Use specific origins. Never pair wildcard '*' with Allow-Credentials!</span>
               </div>
               <div>
-                <label class="field-label">Access-Control-Allow-Methods</label>
+                <label class="field-label" for="cors-methods">Access-Control-Allow-Methods</label>
                 <input type="text" id="cors-methods" class="text-input" value="GET, POST, PUT, DELETE, OPTIONS" oninput="generateCors()" />
               </div>
               <div>
-                <label class="field-label">Access-Control-Allow-Headers</label>
+                <label class="field-label" for="cors-headers">Access-Control-Allow-Headers</label>
                 <input type="text" id="cors-headers" class="text-input" value="Content-Type, Authorization, X-Requested-With" oninput="generateCors()" />
               </div>
               <div>
-                <label class="field-label">Access-Control-Max-Age (Preflight Cache in Seconds)</label>
+                <label class="field-label" for="cors-age">Access-Control-Max-Age (Preflight Cache in Seconds)</label>
                 <input type="number" id="cors-age" class="text-input" value="86400" oninput="generateCors()" />
               </div>
             </div>
@@ -1230,7 +1251,10 @@
           <div class="wb-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
               <label class="field-label" style="margin:0;">Nginx CORS Configuration Block</label>
-              <button class="btn-sec" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCors()">Copy Nginx Config</button>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <button type="button" class="btn-sec" id="btnCopyCors" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCors()">Copy Nginx Config</button>
+                <span id="corsCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+              </div>
             </div>
             <textarea id="cors-output" class="code-input" style="height:190px;" readonly></textarea>
           </div>
@@ -1241,23 +1265,69 @@
           <div class="wb-card">
             <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Inline Script SHA-256 Hash & Dynamic Nonce Generator</h3>
             <div class="field-group">
-              <label class="field-label">Paste Raw Inline &lt;script&gt; Body</label>
+              <label class="field-label" for="hash-input-script">Paste Raw Inline &lt;script&gt; Body</label>
               <textarea id="hash-input-script" class="code-input" style="height:120px;" placeholder="console.log('Google Analytics or Tag Manager snippet');" oninput="computeScriptHash()"></textarea>
             </div>
 
             <div class="grid-2" style="margin-top:1rem;">
               <div>
-                <label class="field-label">Generated CSP Hash (SHA-256 Base64)</label>
+                <label class="field-label" for="hash-result">Generated CSP Hash (SHA-256 Base64)</label>
                 <input type="text" id="hash-result" class="code-input" readonly placeholder="sha256-..." />
               </div>
               <div>
-                <label class="field-label">Generated Cryptographic Nonce</label>
+                <label class="field-label" for="nonce-result">Generated Cryptographic Nonce</label>
                 <div style="display:flex; gap:0.5rem;">
                   <input type="text" id="nonce-result" class="code-input" readonly />
-                  <button class="btn-sec" onclick="generateNewNonce()">Refresh</button>
+                  <button type="button" class="btn-sec" onclick="generateNewNonce()">Refresh</button>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Mathematical & Cryptographic Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Cryptographic Nonce Entropy & Preflight Latency Architecture</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Modern web applications secure dynamic scripts without allowing raw inline execution through cryptographic nonces and SHA-256 hashes generated by CSPRNG hardware entropy sources:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Cryptographic Nonce Entropy Formulation:</strong></div>
+            <div>&nbsp;&nbsp;H = log_2(64^N) = N 	imes 6 	ext{ bits} quad (	ext{For } 16 	ext{ bytes / } 128 	ext{ bits entropy, collision probability } P < 10^{-18})</div>
+            <div><strong>2. Subresource Hash Ingestion:</strong></div>
+            <div>&nbsp;&nbsp;	ext{Digest} = 	ext{Base64}(	ext{SHA-256}(	ext{ScriptPayload})) quad (	ext{Bitwise exact match across whitespace})</div>
+            <div><strong>3. CORS Preflight RTT Latency Optimization:</strong></div>
+            <div>&nbsp;&nbsp;Delta T_{	ext{saved}} = N_{	ext{subsequent requests}} 	imes 	ext{RTT} quad (	ext{Eliminates round-trip OPTIONS preflight overhead})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Web Security -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Content Security Policy & CORS Configuration</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The 'unsafe-inline' and 'unsafe-eval' Script Compromise Trap</strong>
+            Adding <code>'unsafe-inline'</code> to <code>script-src</code> completely disables CSP protection against Stored and Reflected XSS. If an attacker injects a script tag or inline event handler (<code>onload</code>, <code>onerror</code>), the browser executes it without validation. Production systems should strictly use random per-request nonces or SHA-256 hashes.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. The Wildcard Origin with Credentials Exploit ('*' with Allow-Credentials: true)</strong>
+            W3C and RFC 9110 strictly forbid returning <code>Access-Control-Allow-Origin: *</code> alongside <code>Access-Control-Allow-Credentials: true</code>. When this happens, browsers drop the response entirely. Naive backends often "fix" this by reflecting the incoming request's <code>Origin</code> header, effectively allowing any malicious website on the internet to read authenticated user cookies.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Relying on Legacy X-Frame-Options Instead of frame-ancestors</strong>
+            Legacy <code>X-Frame-Options: SAMEORIGIN</code> does not support multiple allowed parent domains and is ignored by modern browsers when a CSP is present. Omitting <code>frame-ancestors 'self'</code> from your CSP allows malicious sites to embed your pages inside transparent iframes, executing Clickjacking and UI redress attacks against authenticated sessions.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Broad CDN Allowlisting & JSONP Bypass Endpoints</strong>
+            Allowlisting entire shared CDNs like <code>https://cdnjs.cloudflare.com</code> or <code>https://cdn.jsdelivr.net</code> creates easy CSP bypasses. Attackers can find outdated AngularJS versions or vulnerable JSONP endpoints hosted on the same CDN to execute arbitrary JavaScript within your domain origin. Always pin sub-paths or use SRI hashes.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. The Missing base-uri Injection Vulnerability</strong>
+            Omitting the <code>base-uri 'self'</code> directive allows attackers who discover HTML injection vulnerabilities to insert a <code>&lt;base href="https://evil.com"&gt;</code> tag. This rewrites all relative script paths on your page to load from the attacker's server, bypassing your domain allowlists and executing hostile code.
           </div>
         </div>
       </div>
@@ -1268,7 +1338,7 @@
         function switchCspTab(tab) {
           var btns = document.querySelectorAll('.tab-bar .tab-btn');
           for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
+          if (window.event && window.event.target) window.event.target.classList.add('active');
           document.getElementById('csp-tab-content').style.display = tab === 'csp' ? 'block' : 'none';
           document.getElementById('cors-tab-content').style.display = tab === 'cors' ? 'block' : 'none';
           document.getElementById('hash-tab-content').style.display = tab === 'hash' ? 'block' : 'none';
@@ -1337,9 +1407,11 @@
 
         function setExportFmt(fmt) {
           curExport = fmt;
-          var btns = event.target.parentElement.querySelectorAll('.tab-btn');
-          for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
+          if (window.event && window.event.target) {
+            var btns = window.event.target.parentElement.querySelectorAll('.tab-btn');
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+            window.event.target.classList.add('active');
+          }
           updateServerExport();
         }
 
@@ -1349,7 +1421,9 @@
           if (curExport === 'nginx') {
             el.value = 'add_header Content-Security-Policy "' + pol + '" always;';
           } else if (curExport === 'apache') {
-            el.value = '<IfModule mod_headers.c>\n  Header set Content-Security-Policy "' + pol + '"\n</IfModule>';
+            el.value = '<IfModule mod_headers.c>
+  Header set Content-Security-Policy "' + pol + '"
+</IfModule>';
           } else if (curExport === 'cloudflare') {
             el.value = 'response.headers.set("Content-Security-Policy", "' + pol + '");';
           } else if (curExport === 'meta') {
@@ -1364,22 +1438,38 @@
           var age = document.getElementById('cors-age').value.trim();
           var creds = document.getElementById('cors-credentials').checked;
 
-          var out = '# Nginx Preflight & CORS Block\n' +
-'location /api/ {\n' +
-'    if ($request_method = \'OPTIONS\') {\n' +
-'        add_header \'Access-Control-Allow-Origin\' \'' + origin + '\' always;\n' +
-'        add_header \'Access-Control-Allow-Methods\' \'' + methods + '\' always;\n' +
-'        add_header \'Access-Control-Allow-Headers\' \'' + headers + '\' always;\n' +
-(creds ? '        add_header \'Access-Control-Allow-Credentials\' \'true\' always;\n' : '') +
-'        add_header \'Access-Control-Max-Age\' ' + age + ';\n' +
-'        add_header \'Content-Type\' \'text/plain charset=UTF-8\';\n' +
-'        add_header \'Content-Length\' 0;\n' +
-'        return 204;\n' +
-'    }\n' +
-'    add_header \'Access-Control-Allow-Origin\' \'' + origin + '\' always;\n' +
-(creds ? '    add_header \'Access-Control-Allow-Credentials\' \'true\' always;\n' : '') +
-'    add_header \'Access-Control-Allow-Methods\' \'' + methods + '\' always;\n' +
-'    add_header \'Access-Control-Allow-Headers\' \'' + headers + '\' always;\n' +
+          var out = '# Nginx Preflight & CORS Block
+' +
+'location /api/ {
+' +
+'    if ($request_method = 'OPTIONS') {
+' +
+'        add_header 'Access-Control-Allow-Origin' '' + origin + '' always;
+' +
+'        add_header 'Access-Control-Allow-Methods' '' + methods + '' always;
+' +
+'        add_header 'Access-Control-Allow-Headers' '' + headers + '' always;
+' +
+(creds ? '        add_header 'Access-Control-Allow-Credentials' 'true' always;
+' : '') +
+'        add_header 'Access-Control-Max-Age' ' + age + ';
+' +
+'        add_header 'Content-Type' 'text/plain charset=UTF-8';
+' +
+'        add_header 'Content-Length' 0;
+' +
+'        return 204;
+' +
+'    }
+' +
+'    add_header 'Access-Control-Allow-Origin' '' + origin + '' always;
+' +
+(creds ? '    add_header 'Access-Control-Allow-Credentials' 'true' always;
+' : '') +
+'    add_header 'Access-Control-Allow-Methods' '' + methods + '' always;
+' +
+'    add_header 'Access-Control-Allow-Headers' '' + headers + '' always;
+' +
 '}';
           document.getElementById('cors-output').value = out;
         }
@@ -1402,13 +1492,17 @@
         }
 
         function copyCsp() {
-          navigator.clipboard.writeText(document.getElementById('csp-output').value);
-          alert('CSP Header copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('csp-output').value).then(function() {
+            var fb = document.getElementById('cspCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         function copyCors() {
-          navigator.clipboard.writeText(document.getElementById('cors-output').value);
-          alert('CORS Nginx configuration copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('cors-output').value).then(function() {
+            var fb = document.getElementById('corsCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', function() {
@@ -1434,6 +1528,16 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>How does frame-ancestors protect against clickjacking?</span><span>+</span></div>
             <div class="faq-a">The frame-ancestors directive obsoletes the legacy X-Frame-Options header. Setting frame-ancestors self or none stops malicious third-party websites from framing your application inside transparent iframes to trick authenticated users into clicking unauthorized actions.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the maximum preflight cache duration for Access-Control-Max-Age?</span><span>+</span></div>
+            <div class="faq-a">The Access-Control-Max-Age header tells the browser how many seconds to cache the OPTIONS preflight response. While the specification allows arbitrary values, modern browsers enforce internal caps: Chromium-based browsers cap preflights at 7,200 seconds (2 hours), while Firefox allows up to 86,400 seconds (24 hours).</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Can a strict Content Security Policy break third-party tag managers or analytics?</span><span>+</span></div>
+            <div class="faq-a">Yes. If a tag manager dynamically injects remote scripts or creates inline snippets without matching hashes or nonces, a strict CSP will block them. Production deployments must allowlist the tag manager domains and configure server-side nonce propagation to dynamically generated tags.</div>
           </div>
         
       </div>

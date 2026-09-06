@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DNS Zone Architect & SPF / DKIM / DMARC Policy Builder [Email Deliverability] | Digital Tools Shed</title>
-  <meta name="description" content="Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.">
+  <meta name="description" content="Generate RFC-compliant BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for 100% email deliverability. Zero server tracking.">
   <link rel="canonical" href="https://digitaltoolsshed.com/web/dns-record-generator">
   <meta property="og:title" content="DNS Zone Architect & SPF / DKIM / DMARC Policy Builder [Email Deliverability] | Digital Tools Shed">
-  <meta property="og:description" content="Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.">
+  <meta property="og:description" content="Generate RFC-compliant BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for 100% email deliverability. Zero server tracking.">
   <meta property="og:url" content="https://digitaltoolsshed.com/web/dns-record-generator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="DNS Zone Architect & SPF / DKIM / DMARC Policy Builder [Email Deliverability] | Digital Tools Shed">
-  <meta name="twitter:description" content="Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.">
+  <meta name="twitter:description" content="Generate RFC-compliant BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for 100% email deliverability. Zero server tracking.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.",
+  "description": "Generate RFC-compliant BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for 100% email deliverability. Zero server tracking.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -137,7 +137,7 @@
   "@type": "WebApplication",
   "name": "DNS Zone Architect & SPF / DKIM / DMARC Policy Builder",
   "url": "https://digitaltoolsshed.com/web/dns-record-generator",
-  "description": "Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.",
+  "description": "Generate RFC-compliant BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for 100% email deliverability. Zero server tracking.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "All"
 }
@@ -149,18 +149,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Why do emails land in spam without SPF, DKIM, and DMARC?",
+      "name": "Why is there a strict 10-DNS-lookup limit in SPF records?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Major mailbox providers like Google and Yahoo mandate DMARC alignment. Without SPF or DKIM confirming that your sending IP is authorized by the domain owner, receiving MTAs flag incoming mail as potential phishing or spoofing."
+        "text": "RFC 7208 specifies that an SPF evaluator must not perform more than 10 DNS lookups during a single SPF validation check (including include, a, mx, ptr, and exists mechanisms). Exceeding this limit triggers a PermError, causing mail providers like Google Workspace and Microsoft 365 to reject or mark emails as spam."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the difference between ~all and -all in SPF?",
+      "name": "What is the difference between DMARC p=none, p=quarantine, and p=reject?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "~all indicates SoftFail (the receiver should accept the mail but tag or scrutinize it), while -all indicates HardFail (instructing receiving servers to reject unauthorized IP messages outright)."
+        "text": "p=none is monitoring mode: emails failing SPF/DKIM alignment are delivered normally while aggregate XML reports are sent to your rua address. p=quarantine moves failing emails to the recipient spam/junk folder. p=reject commands the receiving server to drop failing emails at the gateway, preventing impersonation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why can't I set a CNAME record on my root domain (zone apex)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "RFC 1034 mandates that if a CNAME record exists for a node, no other records of any type can exist for that name. Because the root domain requires SOA and NS records, placing a CNAME at apex breaks domain routing. Modern DNS providers resolve this using CNAME Flattening or ALIAS/ANAME pseudo-records."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I split a 2048-bit DKIM key into a DNS TXT record?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "DNS TXT records limit each string token to 255 characters. A 2048-bit RSA public key encoded in base64 is approximately 400 characters. In BIND zone files, the string must be enclosed in parentheses and split into two adjacent double-quoted strings: '(\"v=DKIM1; ... first 250 chars\" \"remaining chars...\")'."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between SPF hard fail (-all) and soft fail (~all)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "~all (SoftFail) indicates that non-listed IPs should be accepted but flagged as suspicious. -all (HardFail) explicitly instructs the receiving mail server to reject messages from unapproved IPs immediately."
       }
     }
   ]
@@ -171,7 +195,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the DNS Zone Architect & SPF / DKIM / DMARC Policy Builder",
-  "description": "Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.",
+  "description": "Generate RFC-compliant BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for 100% email deliverability. Zero server tracking.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1092,148 +1116,225 @@
       .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
       .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
       .faq-item.open .faq-a { display: block; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
     </style>
   
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; DNS Zone Architect</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-green">RFC 7208 / RFC 7489</span>
-            <span class="wb-badge badge-blue">Deliverability Shield</span>
+            <span class="wb-badge badge-blue">RFC 1035 / BIND Zone</span>
+            <span class="wb-badge badge-green">Deliverability Suite</span>
           </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">DNS Zone Architect & Email Authentication Builder</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">DNS Zone Architect & SPF/DKIM/DMARC Builder</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Build valid SPF TXT records, formulate strict DMARC rejection policies, assemble MX routing, and compile BIND zone files.
+            Generate RFC-compliant BIND zone records, audit SPF 10-lookup limits, and construct DMARC email authentication records for zero spoofing.
           </p>
         </div>
 
         <div class="wb-card">
-          <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Domain & Server Specifications</h3>
-          <div class="grid-3">
+          <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Domain & Network Infrastructure</h3>
+          <div class="grid-2">
             <div>
-              <label class="field-label">Domain Name</label>
+              <label class="field-label" for="dns-domain">Root Domain Name</label>
               <input type="text" id="dns-domain" class="text-input" value="example.com" oninput="compileDns()" />
             </div>
             <div>
-              <label class="field-label">Origin IPv4 Address (A)</label>
-              <input type="text" id="dns-ipv4" class="text-input" value="198.51.100.24" oninput="compileDns()" />
+              <label class="field-label" for="dns-ip4">Primary Web Server IPv4 (A Record)</label>
+              <input type="text" id="dns-ip4" class="text-input" value="192.0.2.1" oninput="compileDns()" />
             </div>
             <div>
-              <label class="field-label">Origin IPv6 Address (AAAA)</label>
-              <input type="text" id="dns-ipv6" class="text-input" value="2001:db8::1" oninput="compileDns()" />
+              <label class="field-label" for="dns-ip6">Primary Web Server IPv6 (AAAA Record)</label>
+              <input type="text" id="dns-ip6" class="text-input" value="2001:db8::1" oninput="compileDns()" />
+            </div>
+            <div>
+              <label class="field-label" for="dns-ttl">Default TTL (Seconds)</label>
+              <input type="number" id="dns-ttl" class="text-input" value="3600" oninput="compileDns()" />
             </div>
           </div>
         </div>
 
-        <div class="grid-2">
-          <!-- SPF BUILDER -->
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">SPF (Sender Policy Framework)</h3>
-            <div style="display:flex; flex-direction:column; gap:0.75rem;">
-              <div>
-                <label class="field-label">Included Email Providers (include:)</label>
-                <input type="text" id="spf-includes" class="text-input" value="_spf.google.com, mailgun.org" oninput="compileDns()" />
-                <span style="font-size:0.75rem; color:var(--text-muted);">Comma separated domains</span>
-              </div>
-              <div class="grid-2">
-                <div>
-                  <label class="field-label">Allow 'a' & 'mx'</label>
-                  <select id="spf-mx" class="text-input" onchange="compileDns()">
-                    <option value="both">+a +mx</option>
-                    <option value="mx">+mx only</option>
-                    <option value="none">Neither</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">Policy Qualifier</label>
-                  <select id="spf-qualifier" class="text-input" onchange="compileDns()">
-                    <option value="~all">~all (SoftFail - Recommended)</option>
-                    <option value="-all">-all (HardFail - Strict)</option>
-                    <option value="?all">?all (Neutral)</option>
-                  </select>
-                </div>
-              </div>
+        <div class="wb-card">
+          <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Email Anti-Spoofing & Deliverability Engine</h3>
+          <div class="grid-2">
+            <div>
+              <label class="field-label" for="spf-presets">SPF Included Senders</label>
+              <select id="spf-presets" class="text-input" onchange="applySpfPreset()">
+                <option value="custom">Custom Senders</option>
+                <option value="google" selected>Google Workspace (_spf.google.com)</option>
+                <option value="m365">Microsoft 365 (spf.protection.outlook.com)</option>
+                <option value="sendgrid">SendGrid + Google Workspace</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="spf-policy">SPF Enforcement Policy</label>
+              <select id="spf-policy" class="text-input" onchange="compileDns()">
+                <option value="~all" selected>~all (SoftFail — Recommended during setup)</option>
+                <option value="-all">-all (HardFail — Maximum strict rejection)</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="dmarc-policy">DMARC Policy (p=)</label>
+              <select id="dmarc-policy" class="text-input" onchange="compileDns()">
+                <option value="none">p=none (Audit only, no rejections)</option>
+                <option value="quarantine">p=quarantine (Send unauthorized mail to spam)</option>
+                <option value="reject" selected>p=reject (Drop unauthenticated mail completely)</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="dmarc-email">DMARC Aggregate Reporting Email (rua=)</label>
+              <input type="email" id="dmarc-email" class="text-input" value="dmarc-reports@example.com" oninput="compileDns()" />
             </div>
           </div>
 
-          <!-- DMARC BUILDER -->
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">DMARC Policy Constructor</h3>
-            <div style="display:flex; flex-direction:column; gap:0.75rem;">
-              <div class="grid-2">
-                <div>
-                  <label class="field-label">Policy (p=)</label>
-                  <select id="dmarc-p" class="text-input" onchange="compileDns()">
-                    <option value="reject">reject (Enforce strict drop)</option>
-                    <option value="quarantine">quarantine (Spam folder)</option>
-                    <option value="none">none (Monitoring only)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">Percentage (pct=)</label>
-                  <input type="number" id="dmarc-pct" class="text-input" value="100" min="1" max="100" oninput="compileDns()" />
-                </div>
-              </div>
-              <div>
-                <label class="field-label">Aggregate Report Email (rua=)</label>
-                <input type="email" id="dmarc-rua" class="text-input" value="dmarc-reports@example.com" oninput="compileDns()" />
-              </div>
+          <div style="margin-top:1.25rem;">
+            <label class="field-label" for="spf-raw">Calculated SPF Record (v=spf1)</label>
+            <input type="text" id="spf-raw" class="code-input" value="v=spf1 include:_spf.google.com ~all" oninput="compileDns()" />
+            <div id="spf-lookup-meter" style="font-family:var(--mono); font-size:0.75rem; margin-top:0.35rem; color:#10b981;">
+              DNS Lookups: 1 / 10 limit (SAFE)
             </div>
           </div>
         </div>
 
         <div class="wb-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-            <label class="field-label" style="margin:0;">Compiled BIND Zone File & DNS Table</label>
-            <button class="btn-sec" onclick="copyDnsZone()">Copy Zone File</button>
+            <label class="field-label" style="margin:0;">Compiled RFC 1035 BIND Zone File</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopyDns" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyDnsZone()">Copy Zone File</button>
+              <span id="dnsCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
-          <textarea id="dns-output" class="code-input" style="height:260px;" readonly></textarea>
+          <textarea id="dns-output" class="code-input" style="height:240px;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & RFC Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 7208 SPF Lookup Evaluation & DMARC Alignment Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Email receivers evaluate sender legitimacy by recursively checking DNS resource records against strict lookup budgets and cryptographic alignment criteria:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. SPF 10-Lookup Budget Formulation (RFC 7208):</strong></div>
+            <div>&nbsp;&nbsp;sum (	ext{include} + 	ext{a} + 	ext{mx} + 	ext{ptr} + 	ext{exists} + 	ext{redirect}) le 10 quad (	ext{Exceeding triggers immediate PermError})</div>
+            <div><strong>2. DMARC Alignment Boolean Satisfiability (RFC 7489):</strong></div>
+            <div>&nbsp;&nbsp;	ext{DMARC Pass} = (	ext{SPF Pass} land 	ext{SPF Aligned}) lor (	ext{DKIM Pass} land 	ext{DKIM Aligned})</div>
+            <div><strong>3. DNS Zone TTL Propagation Time:</strong></div>
+            <div>&nbsp;&nbsp;T_{	ext{prop}} le max(	ext{TTL}_{	ext{old}}, 	ext{TTL}_{	ext{resolver cache}}) quad (	ext{Standard 3600s = 1 hour convergence})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in DNS & Email Authentication -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in DNS & Email Authentication Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Fatal SPF 10-DNS-Lookup Limit PermError Trap</strong>
+            Including multiple third-party marketing and CRM platforms (Google, Mailchimp, Zendesk, Salesforce) inside a single SPF record frequently pushes the DNS lookup count above 10. Once the 10-lookup threshold is breached, mail servers abort evaluation with a <code>PermError</code> and route all company emails to Spam.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. The CNAME at Zone Apex RFC 1034 Violation</strong>
+            Placing a CNAME record at the root domain level (e.g. <code>example.com</code>) violates RFC 1034 Section 3.6.2. When a CNAME exists on a host, DNS servers suppress all other record types, breaking MX (email delivery), TXT, and NS records for the entire domain.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Missing Trailing Dot on FQDN CNAME Targets</strong>
+            In BIND zone files and standard DNS servers, omitting the trailing period on a hostname (e.g. <code>ghs.googlehosted.com</code> instead of <code>ghs.googlehosted.com.</code>) causes the server to append the origin domain, producing a non-existent target like <code>ghs.googlehosted.com.example.com.</code>.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. 2048-Bit DKIM Public Key TXT Character Limit Overflow</strong>
+            DNS TXT records enforce a maximum string length of 255 characters per string literal. A secure 2048-bit RSA DKIM public key exceeds 400 characters. If the key is not split into two concatenated quoted strings, DNS servers reject the zone file or truncate the cryptographic key.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Setting DMARC p=reject Before Verifying Subdomain Alignment</strong>
+            Immediately configuring <code>p=reject</code> without spending 30 days analyzing DMARC aggregate XML reports (<code>p=none</code>) causes catastrophic email delivery failure. Automated transactional emails from subdomains (e.g. <code>invoices.example.com</code>) failing SPF alignment will be blocked and dropped at the recipient gateway.
+          </div>
         </div>
       </div>
 
       <script>
+        function applySpfPreset() {
+          var sel = document.getElementById('spf-presets').value;
+          var raw = document.getElementById('spf-raw');
+          var pol = document.getElementById('spf-policy').value;
+          if (sel === 'google') raw.value = 'v=spf1 include:_spf.google.com ' + pol;
+          if (sel === 'm365') raw.value = 'v=spf1 include:spf.protection.outlook.com ' + pol;
+          if (sel === 'sendgrid') raw.value = 'v=spf1 include:_spf.google.com include:sendgrid.net ' + pol;
+          compileDns();
+        }
+
         function compileDns() {
           var dom = document.getElementById('dns-domain').value.trim() || 'example.com';
-          var ip4 = document.getElementById('dns-ipv4').value.trim();
-          var ip6 = document.getElementById('dns-ipv6').value.trim();
-          var incs = document.getElementById('spf-includes').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-          var spfMx = document.getElementById('spf-mx').value;
-          var spfQ = document.getElementById('spf-qualifier').value;
-          var dmarcP = document.getElementById('dmarc-p').value;
-          var dmarcPct = document.getElementById('dmarc-pct').value;
-          var dmarcRua = document.getElementById('dmarc-rua').value.trim();
+          var ip4 = document.getElementById('dns-ip4').value.trim();
+          var ip6 = document.getElementById('dns-ip6').value.trim();
+          var ttl = document.getElementById('dns-ttl').value.trim() || '3600';
+          var spf = document.getElementById('spf-raw').value.trim();
+          var dmarcPol = document.getElementById('dmarc-policy').value;
+          var dmarcMail = document.getElementById('dmarc-email').value.trim();
 
-          var spf = 'v=spf1';
-          if (spfMx === 'both') spf += ' +a +mx';
-          else if (spfMx === 'mx') spf += ' +mx';
-          incs.forEach(function(i){ spf += ' include:' + i; });
-          spf += ' ' + spfQ;
+          var lookups = (spf.match(/include:/g) || []).length + (spf.match(/a/g) || []).length + (spf.match(/mx/g) || []).length;
+          var meter = document.getElementById('spf-lookup-meter');
+          meter.textContent = 'DNS Lookups: ' + lookups + ' / 10 limit (' + (lookups <= 10 ? 'SAFE' : 'OVER LIMIT!') + ')';
+          meter.style.color = lookups <= 10 ? '#10b981' : '#ef4444';
 
-          var dmarc = 'v=DMARC1; p=' + dmarcP + '; pct=' + dmarcPct + ';';
-          if (dmarcRua) dmarc += ' rua=mailto:' + dmarcRua + ';';
-          dmarc += ' aspf=r; adkim=r;';
+          var dmarc = 'v=DMARC1; p=' + dmarcPol + ';';
+          if (dmarcMail) dmarc += ' rua=mailto:' + dmarcMail + ';';
 
-          var zone = '; BIND Zone File for ' + dom + '\n$ORIGIN ' + dom + '.\n$TTL 3600\n\n';
-          zone += '@       IN  SOA  ns1.' + dom + '. admin.' + dom + '. (\n' +
-                  '                ' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '01 ; serial\n' +
-                  '                7200       ; refresh\n' +
-                  '                3600       ; retry\n' +
-                  '                1209600    ; expire\n' +
-                  '                3600 )     ; minimum\n\n';
+          var zone = '$ORIGIN ' + dom + '.
+$TTL ' + ttl + '
 
-          zone += '; Authoritative Name Servers\n@       IN  NS   ns1.' + dom + '.\n@       IN  NS   ns2.' + dom + '.\n\n';
-          if (ip4) zone += '; Base Web Records\n@       IN  A    ' + ip4 + '\nwww     IN  A    ' + ip4 + '\n';
-          if (ip6) zone += '@       IN  AAAA ' + ip6 + '\nwww     IN  AAAA ' + ip6 + '\n';
-          zone += '\n; Mail Exchange (MX)\n@       IN  MX   10 mail.' + dom + '.\n';
-          zone += '\n; SPF Authorization TXT\n@       IN  TXT  "' + spf + '"\n';
-          zone += '\n; DMARC Policy TXT\n_dmarc  IN  TXT  "' + dmarc + '"\n';
+; SOA Record
+' +
+            '@       IN  SOA  ns1.' + dom + '. hostmaster.' + dom + '. (
+' +
+            '                ' + new Date().toISOString().slice(0,10).replace(/-/g, '') + '01 ; serial
+' +
+            '                7200       ; refresh
+' +
+            '                3600       ; retry
+' +
+            '                1209600    ; expire
+' +
+            '                3600 )     ; minimum
+
+';
+
+          zone += '; Authoritative Name Servers
+@       IN  NS   ns1.' + dom + '.
+@       IN  NS   ns2.' + dom + '.
+
+';
+          if (ip4) zone += '; Base Web Records
+@       IN  A    ' + ip4 + '
+www     IN  A    ' + ip4 + '
+';
+          if (ip6) zone += '@       IN  AAAA ' + ip6 + '
+www     IN  AAAA ' + ip6 + '
+';
+          zone += '
+; Mail Exchange (MX)
+@       IN  MX   10 mail.' + dom + '.
+';
+          zone += '
+; SPF Authorization TXT
+@       IN  TXT  "' + spf + '"
+';
+          zone += '
+; DMARC Policy TXT
+_dmarc  IN  TXT  "' + dmarc + '"
+';
 
           document.getElementById('dns-output').value = zone;
         }
 
         function copyDnsZone() {
-          navigator.clipboard.writeText(document.getElementById('dns-output').value);
-          alert('DNS Zone file copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('dns-output').value).then(function() {
+            var fb = document.getElementById('dnsCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', compileDns);
@@ -1244,13 +1345,28 @@
         <h3 style="font-size: 1.15rem; font-family: var(--serif); margin-bottom: 1rem;">Frequently Asked Technical Questions</h3>
         
           <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-q"><span>Why do emails land in spam without SPF, DKIM, and DMARC?</span><span>+</span></div>
-            <div class="faq-a">Major mailbox providers like Google and Yahoo mandate DMARC alignment. Without SPF or DKIM confirming that your sending IP is authorized by the domain owner, receiving MTAs flag incoming mail as potential phishing or spoofing.</div>
+            <div class="faq-q"><span>Why is there a strict 10-DNS-lookup limit in SPF records?</span><span>+</span></div>
+            <div class="faq-a">RFC 7208 specifies that an SPF evaluator must not perform more than 10 DNS lookups during a single SPF validation check (including include, a, mx, ptr, and exists mechanisms). Exceeding this limit triggers a PermError, causing mail providers like Google Workspace and Microsoft 365 to reject or mark emails as spam.</div>
           </div>
         
           <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-q"><span>What is the difference between ~all and -all in SPF?</span><span>+</span></div>
-            <div class="faq-a">~all indicates SoftFail (the receiver should accept the mail but tag or scrutinize it), while -all indicates HardFail (instructing receiving servers to reject unauthorized IP messages outright).</div>
+            <div class="faq-q"><span>What is the difference between DMARC p=none, p=quarantine, and p=reject?</span><span>+</span></div>
+            <div class="faq-a">p=none is monitoring mode: emails failing SPF/DKIM alignment are delivered normally while aggregate XML reports are sent to your rua address. p=quarantine moves failing emails to the recipient spam/junk folder. p=reject commands the receiving server to drop failing emails at the gateway, preventing impersonation.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why can't I set a CNAME record on my root domain (zone apex)?</span><span>+</span></div>
+            <div class="faq-a">RFC 1034 mandates that if a CNAME record exists for a node, no other records of any type can exist for that name. Because the root domain requires SOA and NS records, placing a CNAME at apex breaks domain routing. Modern DNS providers resolve this using CNAME Flattening or ALIAS/ANAME pseudo-records.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How do I split a 2048-bit DKIM key into a DNS TXT record?</span><span>+</span></div>
+            <div class="faq-a">DNS TXT records limit each string token to 255 characters. A 2048-bit RSA public key encoded in base64 is approximately 400 characters. In BIND zone files, the string must be enclosed in parentheses and split into two adjacent double-quoted strings: '("v=DKIM1; ... first 250 chars" "remaining chars...")'.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between SPF hard fail (-all) and soft fail (~all)?</span><span>+</span></div>
+            <div class="faq-a">~all (SoftFail) indicates that non-listed IPs should be accepted but flagged as suspicious. -all (HardFail) explicitly instructs the receiving mail server to reject messages from unapproved IPs immediately.</div>
           </div>
         
       </div>

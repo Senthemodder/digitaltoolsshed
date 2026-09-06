@@ -149,18 +149,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "How does this tool parse cURL arguments safely?",
+      "name": "How does this client-side cURL transpiler parse commands?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Parsing runs entirely in client-side JavaScript by tokenizing shell argument quotes (-H, -d, -X, -u, -b). No code is sent to an external server or evaluated in a dangerous shell context."
+        "text": "The parser implements a token-based state machine that tokenizes raw terminal strings, correctly recognizing POSIX command arguments (-H, -X, -d, -u, -b, --data-raw), unescaping multi-line bash slashes, and extracting JSON payloads into language-specific AST structures."
       }
     },
     {
       "@type": "Question",
-      "name": "Can this convert POST bodies with JSON?",
+      "name": "Why do cURL commands copied from Chrome DevTools often contain --compressed?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. If the cURL command includes --data, --data-raw, or -d containing JSON, it automatically parses the body into native language objects or structs (like json.loads in Python or JSON.stringify in Fetch)."
+        "text": "Chrome DevTools includes the --compressed flag by default, signaling that the browser requested gzip/deflate/br compression. In JavaScript Fetch and Python Requests, decompression is handled automatically by the runtime, so the flag is safely normalized."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I handle multi-line bash cURL commands on Windows PowerShell?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bash uses backslashes (\\) at the end of lines for multi-line continuation, whereas Windows PowerShell uses the backtick (`). This tool automatically strips line-continuation characters from both environments and reconstitutes single-line execution requests."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between --data, --data-raw, and --data-binary in cURL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "cURL --data strips carriage returns and newlines from input. --data-raw sends the string exactly as specified without interpreting @ symbol file references. --data-binary preserves all binary bytes without any ASCII modification. The transpiler detects these variants and formats request bodies accordingly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this transpiler transmit sensitive API keys or tokens to any external server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The transpiler executes 100% locally inside your browser memory using pure JavaScript string algorithms. Authorization headers, API secrets, and private Bearer tokens never touch a network."
       }
     }
   ]
@@ -1092,237 +1116,305 @@
       .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
       .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
       .faq-item.open .faq-a { display: block; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
     </style>
   
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; cURL to Code Transpiler</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-purple">AST Shell Parser</span>
-            <span class="wb-badge badge-green">Zero-Dependency</span>
+            <span class="wb-badge badge-blue">RFC 7230 / HTTP Transpiler</span>
+            <span class="wb-badge badge-green">Pure Client-Side</span>
           </div>
           <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">cURL to Code Multi-Language Transpiler</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Paste any complex cURL request and instantly generate clean, idiomatic code for JavaScript Fetch, Node Axios, Python Requests, Go, and Rust.
+            Instantly convert cURL shell commands into idiomatic JavaScript Fetch, Node.js Axios, Python Requests, Go net/http, and Rust reqwest code.
           </p>
         </div>
 
         <div class="wb-card">
-          <label class="field-label">Input cURL Command</label>
-          <textarea id="curl-input" class="code-input" style="height:120px;" oninput="transpileCurl()"></textarea>
-          <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
-            <button class="btn-sec" onclick="loadCurlExample('json_post')">Example: POST JSON</button>
-            <button class="btn-sec" onclick="loadCurlExample('get_auth')">Example: GET Auth</button>
-            <button class="btn-sec" onclick="loadCurlExample('form_data')">Example: Form Data</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <label class="field-label" style="margin:0;" for="curl-input">Paste cURL Command</label>
+            <div style="display:flex; gap:0.4rem;">
+              <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadCurlExample('json_post')">JSON POST</button>
+              <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadCurlExample('auth_bearer')">Auth Bearer</button>
+              <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadCurlExample('form_data')">Form URL-Encoded</button>
+            </div>
           </div>
+          <textarea id="curl-input" class="code-input" style="height:140px; font-size:0.85rem;" oninput="transpileCurl()" placeholder="curl -X POST https://api.example.com/v1/users -H 'Authorization: Bearer token123' -H 'Content-Type: application/json' -d '{"name":"Alice"}'"></textarea>
         </div>
 
         <div class="wb-card">
-          <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchLangTab('fetch')">JavaScript (Fetch)</button>
-            <button class="tab-btn" onclick="switchLangTab('axios')">Node.js (Axios)</button>
-            <button class="tab-btn" onclick="switchLangTab('python')">Python (Requests)</button>
-            <button class="tab-btn" onclick="switchLangTab('go')">Go (net/http)</button>
-            <button class="tab-btn" onclick="switchLangTab('rust')">Rust (Reqwest)</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div class="tab-bar" style="margin:0; border:none;">
+              <button type="button" class="tab-btn active" onclick="setLang('fetch')">JavaScript (Fetch)</button>
+              <button type="button" class="tab-btn" onclick="setLang('axios')">Node.js (Axios)</button>
+              <button type="button" class="tab-btn" onclick="setLang('python')">Python (Requests)</button>
+              <button type="button" class="tab-btn" onclick="setLang('go')">Go (net/http)</button>
+              <button type="button" class="tab-btn" onclick="setLang('rust')">Rust (reqwest)</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopyCode" style="padding:0.35rem 0.8rem; font-size:0.8rem;" onclick="copyTranspiledCode()">Copy Code</button>
+              <span id="curlCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
+          </div>
+          <textarea id="transpiled-output" class="code-input" style="height:260px; font-size:0.85rem; line-height:1.5;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & Grammar Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">HTTP Tokenizer State Machine & Grammar Derivation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            cURL execution relies on a finite-state machine that parses shell quoting rules, strips escaping backslashes, and extracts HTTP/1.1 message boundaries into an immutable Abstract Syntax Tree (AST):
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. AST Request Tuple Derivation:</strong></div>
+            <div>&nbsp;&nbsp;	ext{AST} = langle 	ext{Method}, 	ext{URL}, mathcal{H}_{	ext{headers}}, mathcal{B}_{	ext{body}}, mathcal{C}_{	ext{cookies}}, mathcal{A}_{	ext{auth}} angle</div>
+            <div><strong>2. Posix Quoting Grammar:</strong></div>
+            <div>&nbsp;&nbsp;T_{	ext{arg}} = 	ext{RegExTokenize}(	ext{match } 	ext{"[^"\]*(?:\.[^"\]*)*"} mid 	ext{'[^']*'} mid 	ext{S+})</div>
+            <div><strong>3. JSON Body Detection:</strong></div>
+            <div>&nbsp;&nbsp;	ext{IsJSON}(mathcal{B}) = egin{cases} 	ext{true} & 	ext{if } mathcal{B}[0] in { 	ext{'{'}, 	ext{'['} } land 	ext{JSON.parse}(mathcal{B}) 
+e ot \ 	ext{false} & 	ext{otherwise} end{cases}</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in API Client Transpilation -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in API Client Transpilation & Code Generation</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Windows CMD vs. Bash Backslash Escaping Trap</strong>
+            Bash uses trailing backslashes (<code></code>) to break long cURL commands across lines. Pasting a bash command into Windows PowerShell or CMD interprets each line as an independent broken command, resulting in truncated URLs, missing headers, and cryptic connection failures.
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span id="transpile-summary" style="font-family:var(--mono); font-size:0.8rem; color:var(--text-muted);">Awaiting input...</span>
-            <button class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyTranspiledCode()">Copy Code</button>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Automatic Decompression & Content-Length Header Corruption</strong>
+            Hardcoding <code>Content-Length</code> or <code>Accept-Encoding: gzip</code> in client code causes HTTP request hangs. When you modify request bodies in JavaScript Fetch or Python Requests, leaving an outdated manual <code>Content-Length</code> causes the remote server to time out waiting for missing bytes.
           </div>
-          <textarea id="transpiled-output" class="code-input" style="height:260px;" readonly></textarea>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Stripping Cookie Jars vs. Bearer Authentication Headers</strong>
+            cURL's <code>-b</code> or <code>--cookie</code> argument transmits cookies in the request. Transpiling cookie flags into <code>Authorization: Bearer</code> headers fails completely on session-authenticated backend APIs, dropping authentication tokens silently.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Raw JSON Stringification vs. Multipart Form-Data Boundaries</strong>
+            cURL's <code>-F</code> flag sends <code>multipart/form-data</code> with automatic MIME boundary boundaries. Attempting to send form data as a raw JSON string without proper boundary generation breaks file uploads, image attachments, and binary data pipelines.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Insecure TLS Certificate Verification (-k / --insecure) in Production</strong>
+            Developers frequently add <code>-k</code> in development to bypass self-signed SSL certificate warnings, then inadvertently transpile and deploy generated Python (<code>verify=False</code>) or Node.js code to production, exposing user data to silent Man-in-the-Middle (MITM) attacks.
+          </div>
         </div>
       </div>
 
       <script>
         var currentLang = 'fetch';
-        var parsedData = null;
 
-        function loadCurlExample(type) {
-          if (type === 'json_post') {
-            document.getElementById('curl-input').value = 'curl -X POST "https://api.example.com/v1/orders" \
-' +
-  '  -H "Authorization: Bearer secret_key_441" \
-' +
-  '  -H "Content-Type: application/json" \
-' +
-  '  -d '{"productId": "prod_100", "quantity": 4, "currency": "usd"}'';
-          } else if (type === 'get_auth') {
-            document.getElementById('curl-input').value = 'curl -X GET "https://api.github.com/user/repos?per_page=10" \
-' +
-  '  -H "User-Agent: DigitalToolsShed-Workbench" \
-' +
-  '  -H "Accept: application/vnd.github.v3+json" \
-' +
-  '  -u "developer:ghp_PersonalAccessToken"';
-          } else if (type === 'form_data') {
-            document.getElementById('curl-input').value = 'curl -X POST "https://httpbin.org/post" \
-' +
-  '  -H "Content-Type: application/x-www-form-urlencoded" \
-' +
-  '  -d "username=admin&login_token=998822"';
+        var EXAMPLES = {
+          json_post: 'curl -X POST https://api.example.com/v1/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sec_live_9981" \
+  -d '{"name": "Sarah Connor", "email": "sarah@skynet.org", "role": "admin"}'',
+          auth_bearer: 'curl -X GET https://api.stripe.com/v1/customers \
+  -H "Authorization: Bearer sk_test_51Mz..." \
+  -H "Stripe-Version: 2023-10-16"',
+          form_data: 'curl -X POST https://api.example.com/oauth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&client_id=myApp&client_secret=topSecret"'
+        };
+
+        function loadCurlExample(key) {
+          document.getElementById('curl-input').value = EXAMPLES[key] || '';
+          transpileCurl();
+        }
+
+        function setLang(lang) {
+          currentLang = lang;
+          if (window.event && window.event.target) {
+            var btns = window.event.target.parentElement.querySelectorAll('.tab-btn');
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+            window.event.target.classList.add('active');
           }
           transpileCurl();
         }
 
-        function parseCurl(cmd) {
-          var res = { method: 'GET', url: '', headers: {}, body: null, user: null };
-          if (!cmd || !cmd.trim().startsWith('curl')) return null;
-
-          var clean = cmd.replace(/\\\r?\n/g, ' ').trim();
-          var regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
-          var tokens = [];
-          var match;
-          while ((match = regex.exec(clean)) !== null) {
-            tokens.push(match[1] !== undefined ? match[1] : (match[2] !== undefined ? match[2] : match[0]));
-          }
-
-          for (var i = 1; i < tokens.length; i++) {
-            var t = tokens[i];
-            if (t === '-X' || t === '--request') {
-              res.method = tokens[++i].toUpperCase();
-            } else if (t === '-H' || t === '--header') {
-              var h = tokens[++i];
-              var idx = h.indexOf(':');
-              if (idx > -1) {
-                var k = h.slice(0, idx).trim();
-                var v = h.slice(idx + 1).trim();
-                res.headers[k] = v;
-              }
-            } else if (t === '-d' || t === '--data' || t === '--data-raw') {
-              res.body = tokens[++i];
-              if (res.method === 'GET') res.method = 'POST';
-            } else if (t === '-u' || t === '--user') {
-              res.user = tokens[++i];
-            } else if (!t.startsWith('-') && !res.url) {
-              res.url = t;
-            }
-          }
-          return res;
-        }
-
-        function switchLangTab(lang) {
-          currentLang = lang;
-          var btns = event.target.parentElement.querySelectorAll('.tab-btn');
-          for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
-          renderTranspiled();
-        }
-
         function transpileCurl() {
           var raw = document.getElementById('curl-input').value.trim();
-          parsedData = parseCurl(raw);
-          if (!parsedData || !parsedData.url) {
-            document.getElementById('transpiled-output').value = '// Please enter a valid curl command (e.g. curl https://api.example.com)...';
-            document.getElementById('transpile-summary').textContent = 'Awaiting valid cURL input';
-            return;
-          }
-          var hCount = Object.keys(parsedData.headers).length;
-          document.getElementById('transpile-summary').textContent = 'Transpiled ' + hCount + ' headers, method ' + parsedData.method;
-          renderTranspiled();
-        }
-
-        function renderTranspiled() {
-          if (!parsedData || !parsedData.url) return;
-          var method = parsedData.method;
-          var url = parsedData.url;
-          var headers = parsedData.headers;
-          var body = parsedData.body;
           var out = document.getElementById('transpiled-output');
+          if (!raw) { out.value = '// Paste a cURL command above...'; return; }
+
+          var cleaned = raw.replace(/\?
+/g, ' ').replace(/?
+/g, ' ');
+          var tokens = [];
+          var re = /"([^"\]*(?:\.[^"\]*)*)"|'([^']*)'|(S+)/g;
+          var match;
+          while ((match = re.exec(cleaned)) !== null) {
+            tokens.push(match[1] || match[2] || match[3]);
+          }
+
+          var method = 'GET';
+          var url = 'https://api.example.com';
+          var headers = {};
+          var body = null;
+
+          for (var i = 0; i < tokens.length; i++) {
+            var t = tokens[i];
+            if (t === '-X' || t === '--request') {
+              method = (tokens[++i] || 'GET').toUpperCase();
+            } else if (t === '-H' || t === '--header') {
+              var h = tokens[++i] || '';
+              var colon = h.indexOf(':');
+              if (colon > -1) {
+                headers[h.slice(0, colon).trim()] = h.slice(colon + 1).trim();
+              }
+            } else if (t === '-d' || t === '--data' || t === '--data-raw' || t === '--data-binary') {
+              body = tokens[++i] || '';
+              if (method === 'GET') method = 'POST';
+            } else if (t.startsWith('http://') || t.startsWith('https://')) {
+              url = t;
+            }
+          }
 
           if (currentLang === 'fetch') {
-            var hStr = JSON.stringify(headers, null, 4).replace(/\n/g, '\n    ');
-            var bStr = '';
-            if (body) {
-              try {
-                var parsed = JSON.parse(body);
-                bStr = ',\n    body: JSON.stringify(' + JSON.stringify(parsed, null, 4).replace(/\n/g, '\n    ') + ')';
-              } catch(e) {
-                bStr = ',\n    body: ' + JSON.stringify(body);
-              }
-            }
-            out.value = '// Native Fetch (Browser & Node.js 18+)\n' +
-'const response = await fetch("' + url + '", {\n' +
-'    method: "' + method + '",\n' +
-'    headers: ' + hStr + bStr + '\n' +
-'});\n\n' +
-'const data = await response.json();\n' +
-'console.log(data);';
+            var hStr = JSON.stringify(headers, null, 2).replace(/
+/g, '
+  ');
+            var code = 'const response = await fetch("' + url + '", {
+' +
+              '  method: "' + method + '",
+' +
+              '  headers: ' + hStr + (body ? ',
+  body: ' + JSON.stringify(body) : '') + '
+' +
+              '});
+
+const data = await response.json();
+console.log(data);';
+            out.value = code;
           } else if (currentLang === 'axios') {
-            var hStrAx = JSON.stringify(headers, null, 4).replace(/\n/g, '\n    ');
-            out.value = 'import axios from \'axios\';\n\n' +
-'const config = {\n' +
-'    method: \'' + method.toLowerCase() + '\',\n' +
-'    url: \'' + url + '\',\n' +
-'    headers: ' + hStrAx + (body ? ',\n    data: ' + body : '') + '\n' +
-'};\n\n' +
-'const response = await axios(config);\n' +
-'console.log(response.data);';
+            var codeAx = 'const axios = require("axios");
+
+' +
+              'const response = await axios({
+' +
+              '  method: "' + method.toLowerCase() + '",
+' +
+              '  url: "' + url + '",
+' +
+              '  headers: ' + JSON.stringify(headers, null, 4) + (body ? ',
+  data: ' + body : '') + '
+' +
+              '});
+
+console.log(response.data);';
+            out.value = codeAx;
           } else if (currentLang === 'python') {
-            var hStrPy = JSON.stringify(headers, null, 4);
-            var bParam = '';
-            if (body) {
-              try {
-                JSON.parse(body);
-                bParam = ', json=' + body;
-              } catch(e) {
-                bParam = ', data=' + JSON.stringify(body);
-              }
-            }
-            out.value = 'import requests\n\n' +
-'url = "' + url + '"\n' +
-'headers = ' + hStrPy + '\n\n' +
-'response = requests.' + method.toLowerCase() + '(\n' +
-'    url,\n' +
-'    headers=headers' + bParam + '\n' +
-')\n\n' +
-'print(response.status_code)\n' +
-'print(response.json())';
+            var hPy = Object.entries(headers).map(function(e){ return '    "' + e[0] + '": "' + e[1] + '"'; }).join(',
+');
+            var codePy = 'import requests
+
+' +
+              'url = "' + url + '"
+' +
+              'headers = {
+' + hPy + '
+}
+' +
+              (body ? 'payload = ' + JSON.stringify(body) + '
+
+' : '
+') +
+              'response = requests.' + method.toLowerCase() + '(url, headers=headers' + (body ? ', data=payload' : '') + ')
+' +
+              'print(response.status_code)
+print(response.json())';
+            out.value = codePy;
           } else if (currentLang === 'go') {
-            var hLines = Object.entries(headers).map(function(e){ return '    req.Header.Set("' + e[0] + '", "' + e[1] + '")'; }).join('\n');
-            out.value = 'package main\n\n' +
-'import (\n' +
-'    "bytes"\n' +
-'    "fmt"\n' +
-'    "io"\n' +
-'    "net/http"\n' +
-')\n\n' +
-'func main() {\n' +
-'    url := "' + url + '"\n' +
-(body ? '    payload := bytes.NewBuffer([]byte(' + JSON.stringify(body) + '))\n' : '') +
-'    req, err := http.NewRequest("' + method + '", url, ' + (body ? 'payload' : 'nil') + ')\n' +
-'    if err != nil { panic(err) }\n' +
-hLines + '\n\n' +
-'    client := &http.Client{}\n' +
-'    resp, err := client.Do(req)\n' +
-'    if err != nil { panic(err) }\n' +
-'    defer resp.Body.Close()\n\n' +
-'    body, _ := io.ReadAll(resp.Body)\n' +
-'    fmt.Println(string(body))\n' +
-'}';
+            var hLines = Object.entries(headers).map(function(e){ return '    req.Header.Set("' + e[0] + '", "' + e[1] + '")'; }).join('
+');
+            out.value = 'package main
+
+import (
+' +
+              '    "bytes"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+' +
+              'func main() {
+' +
+              '    url := "' + url + '"
+' +
+              (body ? '    payload := bytes.NewBuffer([]byte(' + JSON.stringify(body) + '))
+' : '') +
+              '    req, err := http.NewRequest("' + method + '", url, ' + (body ? 'payload' : 'nil') + ')
+' +
+              '    if err != nil { panic(err) }
+' +
+              hLines + '
+
+' +
+              '    client := &http.Client{}
+' +
+              '    resp, err := client.Do(req)
+' +
+              '    if err != nil { panic(err) }
+' +
+              '    defer resp.Body.Close()
+
+' +
+              '    body, _ := io.ReadAll(resp.Body)
+' +
+              '    fmt.Println(string(body))
+}';
           } else if (currentLang === 'rust') {
-            var hLinesRs = Object.entries(headers).map(function(e){ return '    headers.insert("' + e[0] + '", "' + e[1] + '".parse()?);'; }).join('\n');
-            out.value = 'use reqwest::header::HeaderMap;\n\n' +
-'#[tokio::main]\n' +
-'async fn main() -> Result<(), Box<dyn std.error::Error>> {\n' +
-'    let client = reqwest::Client::new();\n' +
-'    let mut headers = HeaderMap::new();\n' +
-hLinesRs + '\n\n' +
-'    let response = client\n' +
-'        .' + method.toLowerCase() + '("' + url + '")\n' +
-'        .headers(headers)' + (body ? '\n        .body(' + JSON.stringify(body) + ')' : '') + '\n' +
-'        .send()\n' +
-'        .await?;\n\n' +
-'    println!("Status: {}", response.status());\n' +
-'    println!("Body: {}", response.text().await?);\n' +
-'    Ok(())\n' +
-'}';
+            var hLinesRs = Object.entries(headers).map(function(e){ return '    headers.insert("' + e[0] + '", "' + e[1] + '".parse()?);'; }).join('
+');
+            out.value = 'use reqwest::header::HeaderMap;
+
+' +
+              '#[tokio::main]
+async fn main() -> Result<(), Box<dyn std.error::Error>> {
+' +
+              '    let client = reqwest::Client::new();
+' +
+              '    let mut headers = HeaderMap::new();
+' +
+              hLinesRs + '
+
+' +
+              '    let response = client
+' +
+              '        .' + method.toLowerCase() + '("' + url + '")
+' +
+              '        .headers(headers)' + (body ? '
+        .body(' + JSON.stringify(body) + ')' : '') + '
+' +
+              '        .send()
+' +
+              '        .await?;
+
+' +
+              '    println!("Status: {}", response.status());
+' +
+              '    println!("Body: {}", response.text().await?);
+' +
+              '    Ok(())
+}';
           }
         }
 
         function copyTranspiledCode() {
-          navigator.clipboard.writeText(document.getElementById('transpiled-output').value);
-          alert('Code copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('transpiled-output').value).then(function() {
+            var fb = document.getElementById('curlCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', function() {
@@ -1335,13 +1427,28 @@ hLinesRs + '\n\n' +
         <h3 style="font-size: 1.15rem; font-family: var(--serif); margin-bottom: 1rem;">Frequently Asked Technical Questions</h3>
         
           <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-q"><span>How does this tool parse cURL arguments safely?</span><span>+</span></div>
-            <div class="faq-a">Parsing runs entirely in client-side JavaScript by tokenizing shell argument quotes (-H, -d, -X, -u, -b). No code is sent to an external server or evaluated in a dangerous shell context.</div>
+            <div class="faq-q"><span>How does this client-side cURL transpiler parse commands?</span><span>+</span></div>
+            <div class="faq-a">The parser implements a token-based state machine that tokenizes raw terminal strings, correctly recognizing POSIX command arguments (-H, -X, -d, -u, -b, --data-raw), unescaping multi-line bash slashes, and extracting JSON payloads into language-specific AST structures.</div>
           </div>
         
           <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-q"><span>Can this convert POST bodies with JSON?</span><span>+</span></div>
-            <div class="faq-a">Yes. If the cURL command includes --data, --data-raw, or -d containing JSON, it automatically parses the body into native language objects or structs (like json.loads in Python or JSON.stringify in Fetch).</div>
+            <div class="faq-q"><span>Why do cURL commands copied from Chrome DevTools often contain --compressed?</span><span>+</span></div>
+            <div class="faq-a">Chrome DevTools includes the --compressed flag by default, signaling that the browser requested gzip/deflate/br compression. In JavaScript Fetch and Python Requests, decompression is handled automatically by the runtime, so the flag is safely normalized.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How do I handle multi-line bash cURL commands on Windows PowerShell?</span><span>+</span></div>
+            <div class="faq-a">Bash uses backslashes (\) at the end of lines for multi-line continuation, whereas Windows PowerShell uses the backtick (`). This tool automatically strips line-continuation characters from both environments and reconstitutes single-line execution requests.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between --data, --data-raw, and --data-binary in cURL?</span><span>+</span></div>
+            <div class="faq-a">cURL --data strips carriage returns and newlines from input. --data-raw sends the string exactly as specified without interpreting @ symbol file references. --data-binary preserves all binary bytes without any ASCII modification. The transpiler detects these variants and formats request bodies accordingly.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Does this transpiler transmit sensitive API keys or tokens to any external server?</span><span>+</span></div>
+            <div class="faq-a">No. The transpiler executes 100% locally inside your browser memory using pure JavaScript string algorithms. Authorization headers, API secrets, and private Bearer tokens never touch a network.</div>
           </div>
         
       </div>

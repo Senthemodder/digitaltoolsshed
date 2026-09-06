@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "This is the classic responsive grid formula: it creates as many columns as will fit in the container, with each column being at least 200px wide, and stretching equally (1fr) to fill any leftover space without media queries."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does text-overflow: ellipsis break inside a Flexbox item without min-width: 0?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "By default, flex items have min-width: auto, meaning their minimum size is bound by the intrinsic width of their contents. Adding min-width: 0 overrides this default, allowing the item to shrink below its text width and enabling text truncation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the performance difference between CSS Grid and Flexbox?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Modern browser layout engines (Blink, Gecko, WebKit) optimize both Grid and Flexbox through native C++ layout trees. Flexbox performs slightly faster for linear lists, while CSS Grid avoids deep DOM nesting, reducing overall render tree depth."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does align-items differ from align-content in Flexbox?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "align-items controls the alignment of individual flex items along the cross-axis within their flex line. align-content only applies when flex-wrap: wrap is enabled and there are multiple lines of items, distributing the lines themselves across the container cross-axis."
+      }
     }
   ]
 }
@@ -1092,142 +1116,163 @@
       .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
       .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
       .faq-item.open .faq-a { display: block; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
     </style>
   
       <style>
-        .layout-preview-box {
-          background: #090d16;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          min-height: 280px;
-          padding: 1rem;
-          transition: all 0.2s ease;
-        }
-        .layout-item {
-          background: #1e293b;
-          border: 1px solid #3b82f6;
-          color: #fff;
-          font-family: var(--mono);
-          font-size: 0.85rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 50px;
-          border-radius: 4px;
-          padding: 0.5rem;
-        }
+        .layout-item { background: #3b82f6; color: #fff; border-radius: 4px; padding: 1.25rem; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 50px; }
       </style>
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; CSS Layout Studio</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-purple">CSS3 / W3C Layout</span>
-            <span class="wb-badge badge-green">Visual Interactive</span>
+            <span class="wb-badge badge-blue">W3C CSS Grid & Flexbox</span>
+            <span class="wb-badge badge-green">Visual Architecture</span>
           </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">CSS Grid & Flexbox Visual Studio</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">CSS Grid & Flexbox Visual Architecture Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Toggle between Flexbox and Grid, visually manipulate alignment, gaps, wrapping, and track templates, and export pristine production CSS.
+            Visually design, test, and extract production-ready CSS Flexbox and 2-dimensional Grid declarations with live layout feedback.
           </p>
         </div>
 
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchLayoutMode('flex')">Flexbox Mode</button>
-          <button class="tab-btn" onclick="switchLayoutMode('grid')">CSS Grid Mode</button>
+          <button type="button" class="tab-btn active" onclick="switchLayoutMode('flex')">Flexbox Layout Mode</button>
+          <button type="button" class="tab-btn" onclick="switchLayoutMode('grid')">CSS 2D Grid Mode</button>
         </div>
 
-        <div class="grid-2">
-          <!-- CONTROLS -->
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);" id="mode-title">Flexbox Controls</h3>
-
-            <!-- FLEX CONTROLS -->
-            <div id="flex-controls">
-              <div class="grid-2" style="margin-bottom:0.75rem;">
-                <div>
-                  <label class="field-label">flex-direction</label>
-                  <select id="flex-dir" class="text-input" onchange="updateLayout()">
-                    <option value="row">row</option>
-                    <option value="column">column</option>
-                    <option value="row-reverse">row-reverse</option>
-                    <option value="column-reverse">column-reverse</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">flex-wrap</label>
-                  <select id="flex-wrap" class="text-input" onchange="updateLayout()">
-                    <option value="wrap">wrap</option>
-                    <option value="nowrap">nowrap</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="grid-2" style="margin-bottom:0.75rem;">
-                <div>
-                  <label class="field-label">justify-content</label>
-                  <select id="flex-justify" class="text-input" onchange="updateLayout()">
-                    <option value="flex-start">flex-start</option>
-                    <option value="center">center</option>
-                    <option value="flex-end">flex-end</option>
-                    <option value="space-between">space-between</option>
-                    <option value="space-around">space-around</option>
-                    <option value="space-evenly">space-evenly</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">align-items</label>
-                  <select id="flex-align" class="text-input" onchange="updateLayout()">
-                    <option value="stretch">stretch</option>
-                    <option value="center">center</option>
-                    <option value="flex-start">flex-start</option>
-                    <option value="flex-end">flex-end</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- GRID CONTROLS -->
-            <div id="grid-controls" style="display:none;">
-              <div style="margin-bottom:0.75rem;">
-                <label class="field-label">grid-template-columns</label>
-                <select id="grid-cols" class="text-input" onchange="updateLayout()">
-                  <option value="repeat(auto-fit, minmax(140px, 1fr))">repeat(auto-fit, minmax(140px, 1fr))</option>
-                  <option value="1fr 1fr 1fr">1fr 1fr 1fr (3 Equal)</option>
-                  <option value="200px 1fr 1fr">200px 1fr 1fr (Sidebar + Content)</option>
-                  <option value="repeat(4, 1fr)">repeat(4, 1fr) (4 Columns)</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="margin-bottom:0.75rem;">
-              <label class="field-label">gap: <span id="gap-val">16</span>px</label>
-              <input type="range" id="layout-gap" min="0" max="48" value="16" style="width:100%;" oninput="updateLayout()" />
-            </div>
-
-            <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-              <button class="btn-sec" onclick="addItem()">+ Add Item</button>
-              <button class="btn-sec" onclick="removeItem()">- Remove Item</button>
-            </div>
-          </div>
-
-          <!-- CODE OUTPUT -->
-          <div class="wb-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-              <label class="field-label" style="margin:0;">Generated CSS</label>
-              <button class="btn-sec" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copyLayoutCss()">Copy CSS</button>
-            </div>
-            <textarea id="layout-css-output" class="code-input" style="height:190px;" readonly></textarea>
-          </div>
-        </div>
-
-        <!-- VISUAL PREVIEW CONTAINER -->
         <div class="wb-card">
-          <label class="field-label">Live Viewport Canvas Preview</label>
-          <div id="layout-preview" class="layout-preview-box">
+          <!-- FLEX CONTROLS -->
+          <div id="ctrls-flex" class="grid-3">
+            <div>
+              <label class="field-label" for="flex-dir">flex-direction</label>
+              <select id="flex-dir" class="text-input" onchange="updateLayout()">
+                <option value="row" selected>row</option>
+                <option value="row-reverse">row-reverse</option>
+                <option value="column">column</option>
+                <option value="column-reverse">column-reverse</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="flex-justify">justify-content</label>
+              <select id="flex-justify" class="text-input" onchange="updateLayout()">
+                <option value="flex-start" selected>flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="space-between">space-between</option>
+                <option value="space-around">space-around</option>
+                <option value="space-evenly">space-evenly</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="flex-align">align-items</label>
+              <select id="flex-align" class="text-input" onchange="updateLayout()">
+                <option value="stretch" selected>stretch</option>
+                <option value="center">center</option>
+                <option value="flex-start">flex-start</option>
+                <option value="flex-end">flex-end</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- GRID CONTROLS -->
+          <div id="ctrls-grid" class="grid-3" style="display:none;">
+            <div>
+              <label class="field-label" for="grid-cols">grid-template-columns</label>
+              <input type="text" id="grid-cols" class="text-input" value="repeat(auto-fit, minmax(180px, 1fr))" oninput="updateLayout()" />
+            </div>
+            <div>
+              <label class="field-label" for="grid-rows">grid-template-rows</label>
+              <input type="text" id="grid-rows" class="text-input" value="auto" oninput="updateLayout()" />
+            </div>
+            <div>
+              <label class="field-label" for="grid-flow">grid-auto-flow</label>
+              <select id="grid-flow" class="text-input" onchange="updateLayout()">
+                <option value="row" selected>row</option>
+                <option value="column">column</option>
+                <option value="dense">dense</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem; display:flex; gap:1.25rem; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:180px;">
+              <label class="field-label" for="layout-gap">gap (Spacing): <span id="gap-val">1rem</span></label>
+              <input type="range" id="layout-gap" min="0" max="32" value="16" style="width:100%;" oninput="updateLayout()" />
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+              <button type="button" class="btn-sec" style="font-size:0.8rem; padding:0.4rem 0.75rem;" onclick="addItem()">+ Add Item</button>
+              <button type="button" class="btn-sec" style="font-size:0.8rem; padding:0.4rem 0.75rem;" onclick="removeItem()">- Remove Item</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE CANVAS PREVIEW -->
+        <div class="wb-card">
+          <label class="field-label" style="margin-bottom:0.75rem;">Live Viewport Simulation Canvas</label>
+          <div id="layout-preview" style="background:var(--bg); border:2px dashed var(--border); border-radius:6px; padding:1.25rem; min-height:220px; transition:all 0.2s ease;">
             <div class="layout-item">Item #1</div>
             <div class="layout-item">Item #2</div>
             <div class="layout-item">Item #3</div>
             <div class="layout-item">Item #4</div>
-            <div class="layout-item">Item #5</div>
+          </div>
+        </div>
+
+        <!-- EXPORT CSS -->
+        <div class="wb-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <label class="field-label" style="margin:0;">Generated Production CSS</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopyCss" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyLayoutCss()">Copy CSS</button>
+              <span id="cssCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
+          </div>
+          <textarea id="layout-css-output" class="code-input" style="height:110px;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & Geometry Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Flex Factor Space Distribution & Grid Fractional Math</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Browsers calculate box layout positions through geometric distribution equations that partition available viewport width among flexible flex factors and fractional (fr) grid tracks:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Flexbox Positive Space Distribution Formula:</strong></div>
+            <div>&nbsp;&nbsp;W_i = 	ext{flex-basis}_i + left( rac{	ext{flex-grow}_i}{sum_{j=1}^N 	ext{flex-grow}_j} 	imes 	ext{Remaining Space} ight)</div>
+            <div><strong>2. Flexbox Negative Shrink Ratio:</strong></div>
+            <div>&nbsp;&nbsp;	ext{ShrinkShare}_i = rac{	ext{flex-shrink}_i 	imes 	ext{flex-basis}_i}{sum (	ext{flex-shrink}_j 	imes 	ext{flex-basis}_j)} 	imes 	ext{Overflow}</div>
+            <div><strong>3. CSS Grid Fractional (1fr) Track Allocation:</strong></div>
+            <div>&nbsp;&nbsp;1	ext{fr} = rac{W_{	ext{container}} - sum W_{	ext{fixed}} - (N_{	ext{cols}} - 1) 	imes 	ext{gap}}{sum 	ext{fr factors}}</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Modern CSS Layout -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Modern CSS Flexbox & Grid Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The min-width: auto Flexbox Text Truncation Blowout Trap</strong>
+            Flex items default to <code>min-width: auto</code> rather than <code>min-width: 0</code>. When a child container contains long strings of text styled with <code>text-overflow: ellipsis</code>, the flex item refuses to shrink below its content width, forcing the entire parent container to blow out horizontally.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Grid 1fr Track Expansion with Large Data Tables or Images</strong>
+            In CSS Grid, <code>1fr</code> is shorthand for <code>minmax(auto, 1fr)</code>. If a grid child contains a wide table, preformatted code snippet, or unconstrained image, the track expands to fit the intrinsic content size rather than obeying the fractional budget. Always specify <code>minmax(0, 1fr)</code> for strict bounding.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Confusing align-content with align-items in Multi-Line Flexbox</strong>
+            Developers often wonder why <code>align-items</code> fails to distribute rows in a wrapping flex container. <code>align-items</code> only positions items inside their individual flex line; distributing the wrapped lines across the container cross-axis requires <code>align-content</code>.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Implicit Track Sparse Gaps & Missing grid-auto-flow: dense</strong>
+            When designing card layouts with varied column/row spans, CSS Grid defaults to sparse placement. If a 2-column card cannot fit in a remaining single-column slot, the engine leaves an empty blank gap. Declaring <code>grid-auto-flow: dense</code> enables packing algorithms to backfill slots.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Subgrid Boundary & Legacy Fallback Layout Collapse</strong>
+            Using <code>grid-template-columns: subgrid</code> without testing in non-supporting browsers causes child grids to collapse to 0-width columns. Production subgrid implementations must provide an explicit fractional fallback rule for robust cross-browser degradation.
           </div>
         </div>
       </div>
@@ -1237,45 +1282,73 @@
 
         function switchLayoutMode(mode) {
           layoutMode = mode;
-          var btns = event.target.parentElement.querySelectorAll('.tab-btn');
+          var btns = document.querySelectorAll('.tab-bar .tab-btn');
           for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
-          document.getElementById('flex-controls').style.display = mode === 'flex' ? 'block' : 'none';
-          document.getElementById('grid-controls').style.display = mode === 'grid' ? 'block' : 'none';
-          document.getElementById('mode-title').textContent = mode === 'flex' ? 'Flexbox Controls' : 'CSS Grid Controls';
+          if (window.event && window.event.target) window.event.target.classList.add('active');
+
+          document.getElementById('ctrls-flex').style.display = mode === 'flex' ? 'grid' : 'none';
+          document.getElementById('ctrls-grid').style.display = mode === 'grid' ? 'grid' : 'none';
           updateLayout();
         }
 
         function updateLayout() {
           var preview = document.getElementById('layout-preview');
-          var gap = document.getElementById('layout-gap').value;
-          document.getElementById('gap-val').textContent = gap;
-          var cssOut = document.getElementById('layout-css-output');
+          var out = document.getElementById('layout-css-output');
+          var gapPx = document.getElementById('layout-gap').value;
+          document.getElementById('gap-val').textContent = (gapPx / 16).toFixed(2) + 'rem (' + gapPx + 'px)';
 
           if (layoutMode === 'flex') {
             var dir = document.getElementById('flex-dir').value;
-            var wrap = document.getElementById('flex-wrap').value;
-            var just = document.getElementById('flex-justify').value;
+            var justify = document.getElementById('flex-justify').value;
             var align = document.getElementById('flex-align').value;
 
             preview.style.display = 'flex';
             preview.style.flexDirection = dir;
-            preview.style.flexWrap = wrap;
-            preview.style.justifyContent = just;
+            preview.style.justifyContent = justify;
             preview.style.alignItems = align;
-            preview.style.gridTemplateColumns = '';
-            preview.style.gap = gap + 'px';
+            preview.style.gap = gapPx + 'px';
+            preview.style.gridTemplateColumns = 'none';
 
-            cssOut.value = '.container {\n  display: flex;\n  flex-direction: ' + dir + ';\n  flex-wrap: ' + wrap + ';\n  justify-content: ' + just + ';\n  align-items: ' + align + ';\n  gap: ' + gap + 'px;\n}';
+            var css = '.flex-container {
+' +
+              '  display: flex;
+' +
+              '  flex-direction: ' + dir + ';
+' +
+              '  justify-content: ' + justify + ';
+' +
+              '  align-items: ' + align + ';
+' +
+              '  gap: ' + (gapPx/16).toFixed(2) + 'rem;
+}';
+            out.value = css;
           } else {
-            var cols = document.getElementById('grid-cols').value;
-            preview.style.display = 'grid';
-            preview.style.gridTemplateColumns = cols;
-            preview.style.gap = gap + 'px';
-            preview.style.flexDirection = '';
-            preview.style.justifyContent = '';
+            var cols = document.getElementById('grid-cols').value.trim() || 'repeat(auto-fit, minmax(180px, 1fr))';
+            var rows = document.getElementById('grid-rows').value.trim() || 'auto';
+            var flow = document.getElementById('grid-flow').value;
 
-            cssOut.value = '.container {\n  display: grid;\n  grid-template-columns: ' + cols + ';\n  gap: ' + gap + 'px;\n}';
+            preview.style.display = 'grid';
+            preview.style.flexDirection = 'row';
+            preview.style.justifyContent = 'normal';
+            preview.style.alignItems = 'normal';
+            preview.style.gridTemplateColumns = cols;
+            preview.style.gridTemplateRows = rows;
+            preview.style.gridAutoFlow = flow;
+            preview.style.gap = gapPx + 'px';
+
+            var cssG = '.grid-container {
+' +
+              '  display: grid;
+' +
+              '  grid-template-columns: ' + cols + ';
+' +
+              '  grid-template-rows: ' + rows + ';
+' +
+              '  grid-auto-flow: ' + flow + ';
+' +
+              '  gap: ' + (gapPx/16).toFixed(2) + 'rem;
+}';
+            out.value = cssG;
           }
         }
 
@@ -1296,8 +1369,10 @@
         }
 
         function copyLayoutCss() {
-          navigator.clipboard.writeText(document.getElementById('layout-css-output').value);
-          alert('CSS copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('layout-css-output').value).then(function() {
+            var fb = document.getElementById('cssCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', updateLayout);
@@ -1315,6 +1390,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>What does repeat(auto-fit, minmax(200px, 1fr)) do?</span><span>+</span></div>
             <div class="faq-a">This is the classic responsive grid formula: it creates as many columns as will fit in the container, with each column being at least 200px wide, and stretching equally (1fr) to fill any leftover space without media queries.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why does text-overflow: ellipsis break inside a Flexbox item without min-width: 0?</span><span>+</span></div>
+            <div class="faq-a">By default, flex items have min-width: auto, meaning their minimum size is bound by the intrinsic width of their contents. Adding min-width: 0 overrides this default, allowing the item to shrink below its text width and enabling text truncation.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the performance difference between CSS Grid and Flexbox?</span><span>+</span></div>
+            <div class="faq-a">Modern browser layout engines (Blink, Gecko, WebKit) optimize both Grid and Flexbox through native C++ layout trees. Flexbox performs slightly faster for linear lists, while CSS Grid avoids deep DOM nesting, reducing overall render tree depth.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How does align-items differ from align-content in Flexbox?</span><span>+</span></div>
+            <div class="faq-a">align-items controls the alignment of individual flex items along the cross-axis within their flex line. align-content only applies when flex-wrap: wrap is enabled and there are multiple lines of items, distributing the lines themselves across the container cross-axis.</div>
           </div>
         
       </div>

@@ -149,18 +149,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Can this tool test secure WebSockets (wss://)?",
+      "name": "How does the WebSocket HTTP/1.1 Upgrade Handshake work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Because it runs directly inside your browser window, it connects to any secure wss:// or ws:// endpoint that permits cross-origin WebSocket handshakes."
+        "text": "The client sends an HTTP GET request with Upgrade: websocket and Connection: Upgrade headers, along with a base64-encoded Sec-WebSocket-Key. The server responds with HTTP 101 Switching Protocols and a Sec-WebSocket-Accept hash, instantaneously transforming the TCP socket into a bi-directional binary/text channel."
       }
     },
     {
       "@type": "Question",
-      "name": "How is ping/pong latency measured?",
+      "name": "What is the difference between WebSocket Opcode 0x1 (Text) and Opcode 0x2 (Binary)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "By transmitting a timestamped JSON heartbeat or text ping frame and recording the delta milliseconds when the remote echo server responds."
+        "text": "Opcode 0x1 frames are required by RFC 6455 to contain valid UTF-8 text strings; if any byte violates UTF-8 encoding, the connection must be terminated immediately. Opcode 0x2 carries raw arbitrary binary bytes (ArrayBuffer or Blob) with no format verification."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do client-to-server WebSocket frames require a 4-byte masking key?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "RFC 6455 mandates that all frames sent from client to server must be masked with a random 32-bit key. This prevents malicious scripts from constructing byte sequences that intermediate proxies might mistake for cached HTTP requests, defeating cache poisoning attacks."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What causes abnormal WebSocket closure code 1006?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Close code 1006 is synthesized locally by the browser when the connection closes abnormally without receiving an official close control frame (Opcode 0x8). Common causes include TCP connection reset, TLS certificate failure, or proxy timeout."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do WebSocket ping/pong heartbeats keep load balancers alive?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Cloud load balancers (such as AWS ALB or Cloudflare) close idle TCP connections after 60 to 120 seconds of inactivity. Sending periodic application-level ping frames keeps the underlying TCP socket active without passing traffic through heavy application logic."
       }
     }
   ]
@@ -1092,60 +1116,122 @@
       .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
       .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
       .faq-item.open .faq-a { display: block; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
     </style>
   
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; WebSocket Inspector</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-blue">RFC 6455</span>
-            <span class="wb-badge badge-green">Live Telemetry</span>
+            <span class="wb-badge badge-blue">RFC 6455 / Full-Duplex</span>
+            <span class="wb-badge badge-green">Real-Time Telemetry</span>
           </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">WebSocket Frame & Handshake Inspector</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Live WebSocket Frame & Handshake Inspector</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Connect to any WebSocket endpoint, send text and JSON frames, monitor roundtrip latency (RTT), and inspect frame transmission metrics.
+            Connect to any WebSocket or WSS server, inspect opening handshake negotiation, stream bi-directional frames, and measure ping/pong latency.
           </p>
         </div>
 
         <div class="wb-card">
-          <label class="field-label">Target WebSocket Endpoint (ws:// or wss://)</label>
+          <label class="field-label" for="ws-url">WebSocket Server Endpoint (ws:// or wss://)</label>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <input type="text" id="ws-url" class="code-input" style="flex:1; min-width:280px;" value="wss://echo.websocket.org" />
-            <button id="ws-connect-btn" class="btn-primary" onclick="toggleWsConnection()">Connect</button>
-            <button class="btn-sec" onclick="clearWsLog()">Clear Log</button>
+            <input type="text" id="ws-url" class="text-input" value="wss://echo.websocket.org" style="flex:1; min-width:260px;" />
+            <button type="button" id="ws-connect-btn" class="btn-primary" onclick="toggleWsConnection()">Connect</button>
+            <button type="button" class="btn-sec" onclick="clearWsLog()">Clear Log</button>
           </div>
-
-          <div style="display:flex; gap:1.5rem; margin-top:1rem; font-family:var(--mono); font-size:0.8rem;">
-            <div>STATUS: <span id="ws-status" class="wb-badge badge-amber">DISCONNECTED</span></div>
-            <div>RTT LATENCY: <span id="ws-latency" style="color:var(--fg); font-weight:600;">-- ms</span></div>
-            <div>MESSAGES: <span id="ws-msg-count" style="color:var(--fg); font-weight:600;">0 (0 B)</span></div>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Send Frame Payload</h3>
-            <textarea id="ws-payload" class="code-input" style="height:120px;" placeholder="{\"action\": \"ping\", \"timestamp\": 12345}"></textarea>
-            <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-              <button class="btn-primary" onclick="sendWsFrame()">Send Frame</button>
-              <button class="btn-sec" onclick="sendPingHeartbeat()">Measure Ping (RTT)</button>
-            </div>
-          </div>
-
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Quick Echo Presets</h3>
-            <div style="display:flex; flex-direction:column; gap:0.5rem;">
-              <button class="btn-sec" style="text-align:left;" onclick="setPreset('wss://echo.websocket.org')">echo.websocket.org (Standard Public Echo)</button>
-              <button class="btn-sec" style="text-align:left;" onclick="setPreset('wss://socketsbay.com/wss/v2/1/demo/')">socketsbay.com (Demo Feed)</button>
-              <button class="btn-sec" style="text-align:left;" onclick="setPreset('ws://localhost:8080')">localhost:8080 (Local Dev Server)</button>
-            </div>
+          <div style="margin-top:0.75rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="setWsEndpoint('wss://echo.websocket.org')">echo.websocket.org</button>
+            <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="setWsEndpoint('wss://ws.postman-echo.com/raw')">Postman Echo</button>
+            <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="setWsEndpoint('wss://socketsbay.com/wss/v2/1/demo/')">SocketsBay Demo</button>
           </div>
         </div>
 
+        <!-- TELEMETRY BAR -->
+        <div class="wb-card" style="padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <span class="field-label" style="margin:0;">Connection Status</span>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.2rem;">
+              <span id="ws-status-dot" style="width:10px; height:10px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
+              <strong id="ws-status-text" style="font-family:var(--mono); font-size:0.9rem;">DISCONNECTED</strong>
+            </div>
+          </div>
+          <div>
+            <span class="field-label" style="margin:0;">Roundtrip RTT</span>
+            <div id="ws-rtt-val" style="font-family:var(--mono); font-size:1.1rem; font-weight:bold; color:var(--btn-bg, #3b82f6); margin-top:0.1rem;">-- ms</div>
+          </div>
+          <div>
+            <span class="field-label" style="margin:0;">Frames Exchanged</span>
+            <div id="ws-msg-count" style="font-family:var(--mono); font-size:1rem; font-weight:bold; color:var(--fg); margin-top:0.1rem;">0 msgs</div>
+          </div>
+          <div>
+            <button type="button" class="btn-sec" style="font-size:0.8rem; padding:0.35rem 0.75rem;" onclick="sendPingHeartbeat()">Send Ping</button>
+          </div>
+        </div>
+
+        <!-- SEND MESSAGE BAR -->
         <div class="wb-card">
-          <label class="field-label">Live Frame Stream Log</label>
-          <div id="ws-log" style="height:260px; overflow-y:auto; background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:0.75rem; font-family:var(--mono); font-size:0.82rem; line-height:1.5;">
-            <div style="color:var(--text-muted);">// Ready to initiate WebSocket handshake...</div>
+          <label class="field-label" for="ws-payload">Send Outbound Message Frame (Text / JSON)</label>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <input type="text" id="ws-payload" class="text-input" value='{"event": "ping", "client": "DigitalToolsShed", "timestamp": Date.now()}' style="flex:1; min-width:240px;" onkeydown="if(event.key==='Enter') sendWsFrame();" />
+            <button type="button" class="btn-primary" onclick="sendWsFrame()">Send Frame</button>
+          </div>
+        </div>
+
+        <!-- FRAME LOG -->
+        <div class="wb-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <label class="field-label" style="margin:0;">Live Frame Stream & Telemetry Inspector</label>
+            <span style="font-size:0.75rem; font-family:var(--mono); color:var(--text-muted);">Auto-scrolling stream</span>
+          </div>
+          <div id="ws-log" style="height:280px; overflow-y:auto; background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:0.75rem; font-family:var(--mono); font-size:0.82rem; line-height:1.6;">
+            <div style="color:var(--text-muted);">// Ready. Connect to an endpoint to begin telemetry capture...</div>
+          </div>
+        </div>
+
+        <!-- Mathematical & Bitwise Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 6455 Framing Protocol & Masking XOR Bitwise Derivation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            WebSockets bypass HTTP request/response overhead through a single persistent TCP socket. Frames are structured with a compact 2-to-14 byte header followed by XOR-masked payload bytes:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Client-to-Server Masking XOR Transformation:</strong></div>
+            <div>&nbsp;&nbsp;M_i = P_i oplus K_{i pmod 4} quad (	ext{Defeats proxy cache poisoning across intermediate hops})</div>
+            <div><strong>2. Extended Payload Length Quantization:</strong></div>
+            <div>&nbsp;&nbsp;	ext{LenField} = egin{cases} L & 	ext{if } L le 125 \ 126 + [16	ext{-bit integer}] & 	ext{if } 126 le L le 65,535 \ 127 + [64	ext{-bit integer}] & 	ext{if } L ge 65,536 end{cases}</div>
+            <div><strong>3. Round-Trip Latency (RTT):</strong></div>
+            <div>&nbsp;&nbsp;	ext{RTT} = T_{	ext{pong received}} - T_{	ext{ping sent}} quad (	ext{Measures single-frame bi-directional wire speed})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in WebSocket Engineering -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Real-Time WebSocket Engineering</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Proxy Buffer & Idle TCP 60-Second Timeout Trap</strong>
+            Load balancers, cloud gateways (AWS ALB, Cloudflare), and reverse proxies terminate idle TCP sockets after 60 seconds of inactivity. Without application-level ping/pong heartbeats scheduled at 25-30 second intervals, connections drop silently without trigger events.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Unhandled Abnormal Closure Code 1006 vs 1000</strong>
+            Code 1000 signifies clean intentional closure. Code 1006 indicates TCP RST, TLS failure, or network drop where no close handshake took place. Naive reconnection logic that reconnects instantly on 1006 without exponential backoff creates self-inflicted DDoS thundering herd outages.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Head-of-Line Blocking over a Single TCP Socket</strong>
+            Because WebSockets run over a single TCP stream, transmitting large binary payloads (e.g. file uploads or webcam streams) blocks critical JSON control messages behind millions of pending bytes. High-throughput apps must partition data across multiple channels or adopt WebTransport.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Unmasked Frame Rejection by Conforming Servers</strong>
+            Sending unmasked frames from browser clients is an instant RFC 6455 violation. Conforming servers must immediately close the connection with Protocol Error 1002 upon receiving unmasked frames from clients to prevent proxy cache pollution.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Memory Leaks from Flapping Event Listeners</strong>
+            Creating new <code>ws.onmessage</code> listeners or DOM logging nodes on reconnection cycles without tearing down previous event handlers produces runaway browser heap growth, crashing mobile browser tabs during spotty mobile cellular handoffs.
           </div>
         </div>
       </div>
@@ -1156,53 +1242,58 @@
         var byteCount = 0;
         var lastPingTime = 0;
 
-        function setPreset(url) {
+        function setWsEndpoint(url) {
           document.getElementById('ws-url').value = url;
           if (ws) toggleWsConnection();
         }
 
         function toggleWsConnection() {
-          var btn = document.getElementById('ws-connect-btn');
-          var status = document.getElementById('ws-status');
-          var url = document.getElementById('ws-url').value.trim();
-
           if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
-            ws.close();
+            ws.close(1000, 'User disconnected');
             return;
           }
 
-          logFrame('SYS', 'Initiating handshake with ' + url);
-          status.className = 'wb-badge badge-amber';
-          status.textContent = 'CONNECTING...';
+          var url = document.getElementById('ws-url').value.trim();
+          if (!url) return;
+
+          logFrame('SYS', 'Initiating handshake with ' + url + '...');
+          document.getElementById('ws-status-text').textContent = 'CONNECTING...';
+          document.getElementById('ws-status-dot').style.background = '#f59e0b';
 
           try {
             ws = new WebSocket(url);
+
             ws.onopen = function() {
-              status.className = 'wb-badge badge-green';
-              status.textContent = 'CONNECTED';
-              btn.textContent = 'Disconnect';
-              btn.className = 'btn-sec';
-              logFrame('SYS', '101 Switching Protocols — Handshake successful');
+              document.getElementById('ws-status-text').textContent = 'CONNECTED';
+              document.getElementById('ws-status-dot').style.background = '#10b981';
+              document.getElementById('ws-connect-btn').textContent = 'Disconnect';
+              document.getElementById('ws-connect-btn').className = 'btn-sec';
+              logFrame('SYS', '101 Switching Protocols — Handshake Accepted!');
             };
+
             ws.onmessage = function(e) {
               msgCount++;
-              byteCount += e.data.length;
+              byteCount += (typeof e.data === 'string' ? e.data.length : e.data.byteLength || 0);
               updateStats();
-              if (lastPingTime && e.data.indexOf('ping-') > -1) {
+
+              if (lastPingTime > 0) {
                 var rtt = Math.round(performance.now() - lastPingTime);
-                document.getElementById('ws-latency').textContent = rtt + ' ms';
+                document.getElementById('ws-rtt-val').textContent = rtt + ' ms';
                 lastPingTime = 0;
               }
-              logFrame('IN', e.data);
+
+              logFrame('IN', typeof e.data === 'string' ? e.data : '[Binary Frame: ' + (e.data.byteLength || 0) + ' bytes]');
             };
+
             ws.onerror = function(err) {
-              logFrame('ERR', 'WebSocket transport error');
+              logFrame('ERR', 'WebSocket error encountered (Code 1006 / Network drop)');
             };
+
             ws.onclose = function(e) {
-              status.className = 'wb-badge badge-red';
-              status.textContent = 'CLOSED (' + e.code + ')';
-              btn.textContent = 'Connect';
-              btn.className = 'btn-primary';
+              document.getElementById('ws-status-text').textContent = 'DISCONNECTED';
+              document.getElementById('ws-status-dot').style.background = '#ef4444';
+              document.getElementById('ws-connect-btn').textContent = 'Connect';
+              document.getElementById('ws-connect-btn').className = 'btn-primary';
               logFrame('SYS', 'Connection closed: Code ' + e.code + ' ' + (e.reason || 'Normal'));
               ws = null;
             };
@@ -1213,7 +1304,7 @@
 
         function sendWsFrame() {
           if (!ws || ws.readyState !== WebSocket.OPEN) {
-            alert('WebSocket is not connected.');
+            logFrame('ERR', 'Cannot send: WebSocket is not connected.');
             return;
           }
           var text = document.getElementById('ws-payload').value;
@@ -1227,11 +1318,11 @@
 
         function sendPingHeartbeat() {
           if (!ws || ws.readyState !== WebSocket.OPEN) {
-            alert('Connect to a WebSocket server first.');
+            logFrame('ERR', 'Cannot ping: WebSocket is not connected.');
             return;
           }
           lastPingTime = performance.now();
-          var pingPayload = JSON.stringify({ type: 'ping-' + Date.now() });
+          var pingPayload = JSON.stringify({ type: 'ping', timestamp: Date.now() });
           ws.send(pingPayload);
           logFrame('OUT', pingPayload);
         }
@@ -1269,13 +1360,28 @@
         <h3 style="font-size: 1.15rem; font-family: var(--serif); margin-bottom: 1rem;">Frequently Asked Technical Questions</h3>
         
           <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-q"><span>Can this tool test secure WebSockets (wss://)?</span><span>+</span></div>
-            <div class="faq-a">Yes. Because it runs directly inside your browser window, it connects to any secure wss:// or ws:// endpoint that permits cross-origin WebSocket handshakes.</div>
+            <div class="faq-q"><span>How does the WebSocket HTTP/1.1 Upgrade Handshake work?</span><span>+</span></div>
+            <div class="faq-a">The client sends an HTTP GET request with Upgrade: websocket and Connection: Upgrade headers, along with a base64-encoded Sec-WebSocket-Key. The server responds with HTTP 101 Switching Protocols and a Sec-WebSocket-Accept hash, instantaneously transforming the TCP socket into a bi-directional binary/text channel.</div>
           </div>
         
           <div class="faq-item" onclick="this.classList.toggle('open')">
-            <div class="faq-q"><span>How is ping/pong latency measured?</span><span>+</span></div>
-            <div class="faq-a">By transmitting a timestamped JSON heartbeat or text ping frame and recording the delta milliseconds when the remote echo server responds.</div>
+            <div class="faq-q"><span>What is the difference between WebSocket Opcode 0x1 (Text) and Opcode 0x2 (Binary)?</span><span>+</span></div>
+            <div class="faq-a">Opcode 0x1 frames are required by RFC 6455 to contain valid UTF-8 text strings; if any byte violates UTF-8 encoding, the connection must be terminated immediately. Opcode 0x2 carries raw arbitrary binary bytes (ArrayBuffer or Blob) with no format verification.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why do client-to-server WebSocket frames require a 4-byte masking key?</span><span>+</span></div>
+            <div class="faq-a">RFC 6455 mandates that all frames sent from client to server must be masked with a random 32-bit key. This prevents malicious scripts from constructing byte sequences that intermediate proxies might mistake for cached HTTP requests, defeating cache poisoning attacks.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What causes abnormal WebSocket closure code 1006?</span><span>+</span></div>
+            <div class="faq-a">Close code 1006 is synthesized locally by the browser when the connection closes abnormally without receiving an official close control frame (Opcode 0x8). Common causes include TCP connection reset, TLS certificate failure, or proxy timeout.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How do WebSocket ping/pong heartbeats keep load balancers alive?</span><span>+</span></div>
+            <div class="faq-a">Cloud load balancers (such as AWS ALB or Cloudflare) close idle TCP connections after 60 to 120 seconds of inactivity. Sending periodic application-level ping frames keeps the underlying TCP socket active without passing traffic through heavy application logic.</div>
           </div>
         
       </div>

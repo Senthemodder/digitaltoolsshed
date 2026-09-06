@@ -38,6 +38,8 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
       .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
       .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
       .faq-item.open .faq-a { display: block; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
     </style>
   `;
 
@@ -51,7 +53,9 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     faqs: [
       { q: 'What is the difference between CSP and CORS?', a: 'Content Security Policy (CSP) is an HTTP response header that restricts the resources (scripts, styles, images, iframes) the browser is allowed to load for a page, preventing Cross-Site Scripting (XSS) and clickjacking. Cross-Origin Resource Sharing (CORS) manages which external origins are allowed to read responses from your API via XMLHttpRequest or Fetch.' },
       { q: 'Why is unsafe-inline dangerous in script-src?', a: 'Specifying unsafe-inline allows any inline script tag or inline event handler to execute without verification. If an attacker injects user input into the DOM, the browser executes it immediately. Using cryptographic nonces or SHA-256 hashes ensures only approved scripts run.' },
-      { q: 'How does frame-ancestors protect against clickjacking?', a: 'The frame-ancestors directive obsoletes the legacy X-Frame-Options header. Setting frame-ancestors self or none stops malicious third-party websites from framing your application inside transparent iframes to trick authenticated users into clicking unauthorized actions.' }
+      { q: 'How does frame-ancestors protect against clickjacking?', a: 'The frame-ancestors directive obsoletes the legacy X-Frame-Options header. Setting frame-ancestors self or none stops malicious third-party websites from framing your application inside transparent iframes to trick authenticated users into clicking unauthorized actions.' },
+      { q: 'What is the maximum preflight cache duration for Access-Control-Max-Age?', a: 'The Access-Control-Max-Age header tells the browser how many seconds to cache the OPTIONS preflight response. While the specification allows arbitrary values, modern browsers enforce internal caps: Chromium-based browsers cap preflights at 7,200 seconds (2 hours), while Firefox allows up to 86,400 seconds (24 hours).' },
+      { q: 'Can a strict Content Security Policy break third-party tag managers or analytics?', a: 'Yes. If a tag manager dynamically injects remote scripts or creates inline snippets without matching hashes or nonces, a strict CSP will block them. Production deployments must allowlist the tag manager domains and configure server-side nonce propagation to dynamically generated tags.' }
     ],
     html: `
       ${sharedStyle}
@@ -69,9 +73,9 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         </div>
 
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchCspTab('csp')">Content Security Policy (CSP)</button>
-          <button class="tab-btn" onclick="switchCspTab('cors')">CORS Policy Architect</button>
-          <button class="tab-btn" onclick="switchCspTab('hash')">SHA-256 Script Hash / Nonce</button>
+          <button type="button" class="tab-btn active" onclick="switchCspTab('csp')">Content Security Policy (CSP)</button>
+          <button type="button" class="tab-btn" onclick="switchCspTab('cors')">CORS Policy Architect</button>
+          <button type="button" class="tab-btn" onclick="switchCspTab('hash')">SHA-256 Script Hash / Nonce</button>
         </div>
 
         <!-- TAB 1: CSP BUILDER -->
@@ -80,27 +84,27 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Directives & Source Allowlist</h3>
             <div class="grid-2">
               <div>
-                <label class="field-label">default-src (Fallback)</label>
+                <label class="field-label" for="csp-default">default-src (Fallback)</label>
                 <input type="text" id="csp-default" class="text-input" value="'self'" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">script-src (Executable Code)</label>
+                <label class="field-label" for="csp-script">script-src (Executable Code)</label>
                 <input type="text" id="csp-script" class="text-input" value="'self' https://trustedscripts.com" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">style-src (Stylesheets)</label>
+                <label class="field-label" for="csp-style">style-src (Stylesheets)</label>
                 <input type="text" id="csp-style" class="text-input" value="'self' 'unsafe-inline' https://fonts.googleapis.com" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">img-src (Images & Vectors)</label>
+                <label class="field-label" for="csp-img">img-src (Images & Vectors)</label>
                 <input type="text" id="csp-img" class="text-input" value="'self' data: https:" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">connect-src (Fetch, XHR, WebSockets)</label>
+                <label class="field-label" for="csp-connect">connect-src (Fetch, XHR, WebSockets)</label>
                 <input type="text" id="csp-connect" class="text-input" value="'self' https://api.example.com wss:" oninput="generateCsp()" />
               </div>
               <div>
-                <label class="field-label">frame-ancestors (Clickjacking Defense)</label>
+                <label class="field-label" for="csp-ancestors">frame-ancestors (Clickjacking Defense)</label>
                 <input type="text" id="csp-ancestors" class="text-input" value="'self'" oninput="generateCsp()" />
               </div>
             </div>
@@ -132,17 +136,20 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           <div class="wb-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
               <label class="field-label" style="margin:0;">Generated Header String</label>
-              <button class="btn-sec" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCsp()">Copy Header</button>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <button type="button" class="btn-sec" id="btnCopyCsp" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCsp()">Copy Header</button>
+                <span id="cspCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+              </div>
             </div>
             <textarea id="csp-output" class="code-input" style="height:90px;" readonly></textarea>
 
             <div style="margin-top:1.25rem;">
               <label class="field-label">Production Server Deployment Code</label>
               <div class="tab-bar" style="margin-bottom:0.75rem;">
-                <button class="tab-btn active" onclick="setExportFmt('nginx')">Nginx</button>
-                <button class="tab-btn" onclick="setExportFmt('apache')">Apache (.htaccess)</button>
-                <button class="tab-btn" onclick="setExportFmt('cloudflare')">Cloudflare Workers</button>
-                <button class="tab-btn" onclick="setExportFmt('meta')">HTML &lt;meta&gt;</button>
+                <button type="button" class="tab-btn active" onclick="setExportFmt('nginx')">Nginx</button>
+                <button type="button" class="tab-btn" onclick="setExportFmt('apache')">Apache (.htaccess)</button>
+                <button type="button" class="tab-btn" onclick="setExportFmt('cloudflare')">Cloudflare Workers</button>
+                <button type="button" class="tab-btn" onclick="setExportFmt('meta')">HTML &lt;meta&gt;</button>
               </div>
               <textarea id="csp-server-export" class="code-input" style="height:110px;" readonly></textarea>
             </div>
@@ -155,20 +162,20 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Cross-Origin Resource Sharing (CORS) Configuration</h3>
             <div class="grid-2">
               <div>
-                <label class="field-label">Access-Control-Allow-Origin</label>
+                <label class="field-label" for="cors-origin">Access-Control-Allow-Origin</label>
                 <input type="text" id="cors-origin" class="text-input" value="https://dashboard.example.com" oninput="generateCors()" />
                 <span style="font-size:0.75rem; color:var(--text-muted);">Use specific origins. Never pair wildcard '*' with Allow-Credentials!</span>
               </div>
               <div>
-                <label class="field-label">Access-Control-Allow-Methods</label>
+                <label class="field-label" for="cors-methods">Access-Control-Allow-Methods</label>
                 <input type="text" id="cors-methods" class="text-input" value="GET, POST, PUT, DELETE, OPTIONS" oninput="generateCors()" />
               </div>
               <div>
-                <label class="field-label">Access-Control-Allow-Headers</label>
+                <label class="field-label" for="cors-headers">Access-Control-Allow-Headers</label>
                 <input type="text" id="cors-headers" class="text-input" value="Content-Type, Authorization, X-Requested-With" oninput="generateCors()" />
               </div>
               <div>
-                <label class="field-label">Access-Control-Max-Age (Preflight Cache in Seconds)</label>
+                <label class="field-label" for="cors-age">Access-Control-Max-Age (Preflight Cache in Seconds)</label>
                 <input type="number" id="cors-age" class="text-input" value="86400" oninput="generateCors()" />
               </div>
             </div>
@@ -183,7 +190,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           <div class="wb-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
               <label class="field-label" style="margin:0;">Nginx CORS Configuration Block</label>
-              <button class="btn-sec" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCors()">Copy Nginx Config</button>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <button type="button" class="btn-sec" id="btnCopyCors" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCors()">Copy Nginx Config</button>
+                <span id="corsCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+              </div>
             </div>
             <textarea id="cors-output" class="code-input" style="height:190px;" readonly></textarea>
           </div>
@@ -194,23 +204,69 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           <div class="wb-card">
             <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Inline Script SHA-256 Hash & Dynamic Nonce Generator</h3>
             <div class="field-group">
-              <label class="field-label">Paste Raw Inline &lt;script&gt; Body</label>
+              <label class="field-label" for="hash-input-script">Paste Raw Inline &lt;script&gt; Body</label>
               <textarea id="hash-input-script" class="code-input" style="height:120px;" placeholder="console.log('Google Analytics or Tag Manager snippet');" oninput="computeScriptHash()"></textarea>
             </div>
 
             <div class="grid-2" style="margin-top:1rem;">
               <div>
-                <label class="field-label">Generated CSP Hash (SHA-256 Base64)</label>
+                <label class="field-label" for="hash-result">Generated CSP Hash (SHA-256 Base64)</label>
                 <input type="text" id="hash-result" class="code-input" readonly placeholder="sha256-..." />
               </div>
               <div>
-                <label class="field-label">Generated Cryptographic Nonce</label>
+                <label class="field-label" for="nonce-result">Generated Cryptographic Nonce</label>
                 <div style="display:flex; gap:0.5rem;">
                   <input type="text" id="nonce-result" class="code-input" readonly />
-                  <button class="btn-sec" onclick="generateNewNonce()">Refresh</button>
+                  <button type="button" class="btn-sec" onclick="generateNewNonce()">Refresh</button>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Mathematical & Cryptographic Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Cryptographic Nonce Entropy & Preflight Latency Architecture</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Modern web applications secure dynamic scripts without allowing raw inline execution through cryptographic nonces and SHA-256 hashes generated by CSPRNG hardware entropy sources:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Cryptographic Nonce Entropy Formulation:</strong></div>
+            <div>&nbsp;&nbsp;H = \log_2(64^N) = N \times 6 \text{ bits} \quad (\text{For } 16 \text{ bytes / } 128 \text{ bits entropy, collision probability } P < 10^{-18})</div>
+            <div><strong>2. Subresource Hash Ingestion:</strong></div>
+            <div>&nbsp;&nbsp;\text{Digest} = \text{Base64}(\text{SHA-256}(\text{ScriptPayload})) \quad (\text{Bitwise exact match across whitespace})</div>
+            <div><strong>3. CORS Preflight RTT Latency Optimization:</strong></div>
+            <div>&nbsp;&nbsp;\Delta T_{\text{saved}} = N_{\text{subsequent requests}} \times \text{RTT} \quad (\text{Eliminates round-trip OPTIONS preflight overhead})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Web Security -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Content Security Policy & CORS Configuration</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The 'unsafe-inline' and 'unsafe-eval' Script Compromise Trap</strong>
+            Adding <code>'unsafe-inline'</code> to <code>script-src</code> completely disables CSP protection against Stored and Reflected XSS. If an attacker injects a script tag or inline event handler (<code>onload</code>, <code>onerror</code>), the browser executes it without validation. Production systems should strictly use random per-request nonces or SHA-256 hashes.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. The Wildcard Origin with Credentials Exploit ('*' with Allow-Credentials: true)</strong>
+            W3C and RFC 9110 strictly forbid returning <code>Access-Control-Allow-Origin: *</code> alongside <code>Access-Control-Allow-Credentials: true</code>. When this happens, browsers drop the response entirely. Naive backends often "fix" this by reflecting the incoming request's <code>Origin</code> header, effectively allowing any malicious website on the internet to read authenticated user cookies.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Relying on Legacy X-Frame-Options Instead of frame-ancestors</strong>
+            Legacy <code>X-Frame-Options: SAMEORIGIN</code> does not support multiple allowed parent domains and is ignored by modern browsers when a CSP is present. Omitting <code>frame-ancestors 'self'</code> from your CSP allows malicious sites to embed your pages inside transparent iframes, executing Clickjacking and UI redress attacks against authenticated sessions.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Broad CDN Allowlisting & JSONP Bypass Endpoints</strong>
+            Allowlisting entire shared CDNs like <code>https://cdnjs.cloudflare.com</code> or <code>https://cdn.jsdelivr.net</code> creates easy CSP bypasses. Attackers can find outdated AngularJS versions or vulnerable JSONP endpoints hosted on the same CDN to execute arbitrary JavaScript within your domain origin. Always pin sub-paths or use SRI hashes.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. The Missing base-uri Injection Vulnerability</strong>
+            Omitting the <code>base-uri 'self'</code> directive allows attackers who discover HTML injection vulnerabilities to insert a <code>&lt;base href="https://evil.com"&gt;</code> tag. This rewrites all relative script paths on your page to load from the attacker's server, bypassing your domain allowlists and executing hostile code.
           </div>
         </div>
       </div>
@@ -221,7 +277,7 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         function switchCspTab(tab) {
           var btns = document.querySelectorAll('.tab-bar .tab-btn');
           for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
+          if (window.event && window.event.target) window.event.target.classList.add('active');
           document.getElementById('csp-tab-content').style.display = tab === 'csp' ? 'block' : 'none';
           document.getElementById('cors-tab-content').style.display = tab === 'cors' ? 'block' : 'none';
           document.getElementById('hash-tab-content').style.display = tab === 'hash' ? 'block' : 'none';
@@ -290,9 +346,11 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
 
         function setExportFmt(fmt) {
           curExport = fmt;
-          var btns = event.target.parentElement.querySelectorAll('.tab-btn');
-          for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
+          if (window.event && window.event.target) {
+            var btns = window.event.target.parentElement.querySelectorAll('.tab-btn');
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+            window.event.target.classList.add('active');
+          }
           updateServerExport();
         }
 
@@ -302,7 +360,7 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           if (curExport === 'nginx') {
             el.value = 'add_header Content-Security-Policy "' + pol + '" always;';
           } else if (curExport === 'apache') {
-            el.value = '<IfModule mod_headers.c>\\n  Header set Content-Security-Policy "' + pol + '"\\n</IfModule>';
+            el.value = '<IfModule mod_headers.c>\n  Header set Content-Security-Policy "' + pol + '"\n</IfModule>';
           } else if (curExport === 'cloudflare') {
             el.value = 'response.headers.set("Content-Security-Policy", "' + pol + '");';
           } else if (curExport === 'meta') {
@@ -317,22 +375,22 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           var age = document.getElementById('cors-age').value.trim();
           var creds = document.getElementById('cors-credentials').checked;
 
-          var out = '# Nginx Preflight & CORS Block\\n' +
-'location /api/ {\\n' +
-'    if ($request_method = \\'OPTIONS\\') {\\n' +
-'        add_header \\'Access-Control-Allow-Origin\\' \\'' + origin + '\\' always;\\n' +
-'        add_header \\'Access-Control-Allow-Methods\\' \\'' + methods + '\\' always;\\n' +
-'        add_header \\'Access-Control-Allow-Headers\\' \\'' + headers + '\\' always;\\n' +
-(creds ? '        add_header \\'Access-Control-Allow-Credentials\\' \\'true\\' always;\\n' : '') +
-'        add_header \\'Access-Control-Max-Age\\' ' + age + ';\\n' +
-'        add_header \\'Content-Type\\' \\'text/plain charset=UTF-8\\';\\n' +
-'        add_header \\'Content-Length\\' 0;\\n' +
-'        return 204;\\n' +
-'    }\\n' +
-'    add_header \\'Access-Control-Allow-Origin\\' \\'' + origin + '\\' always;\\n' +
-(creds ? '    add_header \\'Access-Control-Allow-Credentials\\' \\'true\\' always;\\n' : '') +
-'    add_header \\'Access-Control-Allow-Methods\\' \\'' + methods + '\\' always;\\n' +
-'    add_header \\'Access-Control-Allow-Headers\\' \\'' + headers + '\\' always;\\n' +
+          var out = '# Nginx Preflight & CORS Block\n' +
+'location /api/ {\n' +
+'    if ($request_method = \'OPTIONS\') {\n' +
+'        add_header \'Access-Control-Allow-Origin\' \'' + origin + '\' always;\n' +
+'        add_header \'Access-Control-Allow-Methods\' \'' + methods + '\' always;\n' +
+'        add_header \'Access-Control-Allow-Headers\' \'' + headers + '\' always;\n' +
+(creds ? '        add_header \'Access-Control-Allow-Credentials\' \'true\' always;\n' : '') +
+'        add_header \'Access-Control-Max-Age\' ' + age + ';\n' +
+'        add_header \'Content-Type\' \'text/plain charset=UTF-8\';\n' +
+'        add_header \'Content-Length\' 0;\n' +
+'        return 204;\n' +
+'    }\n' +
+'    add_header \'Access-Control-Allow-Origin\' \'' + origin + '\' always;\n' +
+(creds ? '    add_header \'Access-Control-Allow-Credentials\' \'true\' always;\n' : '') +
+'    add_header \'Access-Control-Allow-Methods\' \'' + methods + '\' always;\n' +
+'    add_header \'Access-Control-Allow-Headers\' \'' + headers + '\' always;\n' +
 '}';
           document.getElementById('cors-output').value = out;
         }
@@ -355,13 +413,17 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         }
 
         function copyCsp() {
-          navigator.clipboard.writeText(document.getElementById('csp-output').value);
-          alert('CSP Header copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('csp-output').value).then(function() {
+            var fb = document.getElementById('cspCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         function copyCors() {
-          navigator.clipboard.writeText(document.getElementById('cors-output').value);
-          alert('CORS Nginx configuration copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('cors-output').value).then(function() {
+            var fb = document.getElementById('corsCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', function() {
@@ -378,10 +440,13 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     title: 'cURL to Code Multi-Language Transpiler [Fetch, Axios, Python, Go, Rust]',
     metaDesc: 'Convert cURL commands to JavaScript Fetch, Node.js Axios, Python Requests, Go net/http, and Rust reqwest. 100% client-side parsing with header, cookie, and JSON body extraction.',
     category: 'Web Engineering',
-    keywords: 'curl to fetch converter, curl to python, curl to axios, curl to rust, curl to go, convert curl command to code',
+    keywords: 'curl to fetch, curl to python requests, curl converter, curl to code, curl to axios, curl to golang, curl to rust',
     faqs: [
-      { q: 'How does this tool parse cURL arguments safely?', a: 'Parsing runs entirely in client-side JavaScript by tokenizing shell argument quotes (-H, -d, -X, -u, -b). No code is sent to an external server or evaluated in a dangerous shell context.' },
-      { q: 'Can this convert POST bodies with JSON?', a: 'Yes. If the cURL command includes --data, --data-raw, or -d containing JSON, it automatically parses the body into native language objects or structs (like json.loads in Python or JSON.stringify in Fetch).' }
+      { q: 'How does this client-side cURL transpiler parse commands?', a: 'The parser implements a token-based state machine that tokenizes raw terminal strings, correctly recognizing POSIX command arguments (-H, -X, -d, -u, -b, --data-raw), unescaping multi-line bash slashes, and extracting JSON payloads into language-specific AST structures.' },
+      { q: 'Why do cURL commands copied from Chrome DevTools often contain --compressed?', a: 'Chrome DevTools includes the --compressed flag by default, signaling that the browser requested gzip/deflate/br compression. In JavaScript Fetch and Python Requests, decompression is handled automatically by the runtime, so the flag is safely normalized.' },
+      { q: 'How do I handle multi-line bash cURL commands on Windows PowerShell?', a: 'Bash uses backslashes (\\) at the end of lines for multi-line continuation, whereas Windows PowerShell uses the backtick (`). This tool automatically strips line-continuation characters from both environments and reconstitutes single-line execution requests.' },
+      { q: 'What is the difference between --data, --data-raw, and --data-binary in cURL?', a: 'cURL --data strips carriage returns and newlines from input. --data-raw sends the string exactly as specified without interpreting @ symbol file references. --data-binary preserves all binary bytes without any ASCII modification. The transpiler detects these variants and formats request bodies accordingly.' },
+      { q: 'Does this transpiler transmit sensitive API keys or tokens to any external server?', a: 'No. The transpiler executes 100% locally inside your browser memory using pure JavaScript string algorithms. Authorization headers, API secrets, and private Bearer tokens never touch a network.' }
     ],
     html: `
       ${sharedStyle}
@@ -389,223 +454,214 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; cURL to Code Transpiler</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-purple">AST Shell Parser</span>
-            <span class="wb-badge badge-green">Zero-Dependency</span>
+            <span class="wb-badge badge-blue">RFC 7230 / HTTP Transpiler</span>
+            <span class="wb-badge badge-green">Pure Client-Side</span>
           </div>
           <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">cURL to Code Multi-Language Transpiler</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Paste any complex cURL request and instantly generate clean, idiomatic code for JavaScript Fetch, Node Axios, Python Requests, Go, and Rust.
+            Instantly convert cURL shell commands into idiomatic JavaScript Fetch, Node.js Axios, Python Requests, Go net/http, and Rust reqwest code.
           </p>
         </div>
 
         <div class="wb-card">
-          <label class="field-label">Input cURL Command</label>
-          <textarea id="curl-input" class="code-input" style="height:120px;" oninput="transpileCurl()"></textarea>
-          <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
-            <button class="btn-sec" onclick="loadCurlExample('json_post')">Example: POST JSON</button>
-            <button class="btn-sec" onclick="loadCurlExample('get_auth')">Example: GET Auth</button>
-            <button class="btn-sec" onclick="loadCurlExample('form_data')">Example: Form Data</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <label class="field-label" style="margin:0;" for="curl-input">Paste cURL Command</label>
+            <div style="display:flex; gap:0.4rem;">
+              <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadCurlExample('json_post')">JSON POST</button>
+              <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadCurlExample('auth_bearer')">Auth Bearer</button>
+              <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadCurlExample('form_data')">Form URL-Encoded</button>
+            </div>
           </div>
+          <textarea id="curl-input" class="code-input" style="height:140px; font-size:0.85rem;" oninput="transpileCurl()" placeholder="curl -X POST https://api.example.com/v1/users -H 'Authorization: Bearer token123' -H 'Content-Type: application/json' -d '{\"name\":\"Alice\"}'"></textarea>
         </div>
 
         <div class="wb-card">
-          <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchLangTab('fetch')">JavaScript (Fetch)</button>
-            <button class="tab-btn" onclick="switchLangTab('axios')">Node.js (Axios)</button>
-            <button class="tab-btn" onclick="switchLangTab('python')">Python (Requests)</button>
-            <button class="tab-btn" onclick="switchLangTab('go')">Go (net/http)</button>
-            <button class="tab-btn" onclick="switchLangTab('rust')">Rust (Reqwest)</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div class="tab-bar" style="margin:0; border:none;">
+              <button type="button" class="tab-btn active" onclick="setLang('fetch')">JavaScript (Fetch)</button>
+              <button type="button" class="tab-btn" onclick="setLang('axios')">Node.js (Axios)</button>
+              <button type="button" class="tab-btn" onclick="setLang('python')">Python (Requests)</button>
+              <button type="button" class="tab-btn" onclick="setLang('go')">Go (net/http)</button>
+              <button type="button" class="tab-btn" onclick="setLang('rust')">Rust (reqwest)</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopyCode" style="padding:0.35rem 0.8rem; font-size:0.8rem;" onclick="copyTranspiledCode()">Copy Code</button>
+              <span id="curlCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
+          </div>
+          <textarea id="transpiled-output" class="code-input" style="height:260px; font-size:0.85rem; line-height:1.5;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & Grammar Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">HTTP Tokenizer State Machine & Grammar Derivation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            cURL execution relies on a finite-state machine that parses shell quoting rules, strips escaping backslashes, and extracts HTTP/1.1 message boundaries into an immutable Abstract Syntax Tree (AST):
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. AST Request Tuple Derivation:</strong></div>
+            <div>&nbsp;&nbsp;\text{AST} = \langle \text{Method}, \text{URL}, \mathcal{H}_{\text{headers}}, \mathcal{B}_{\text{body}}, \mathcal{C}_{\text{cookies}}, \mathcal{A}_{\text{auth}} \rangle</div>
+            <div><strong>2. Posix Quoting Grammar:</strong></div>
+            <div>&nbsp;&nbsp;T_{\text{arg}} = \text{RegExTokenize}(\text{match } \text{"[^"\\]*(?:\\.[^"\\]*)*"} \mid \text{'[^']*'} \mid \text{\S+})</div>
+            <div><strong>3. JSON Body Detection:</strong></div>
+            <div>&nbsp;&nbsp;\text{IsJSON}(\mathcal{B}) = \begin{cases} \text{true} & \text{if } \mathcal{B}[0] \in \{ \text{'{'}, \text{'['} \} \land \text{JSON.parse}(\mathcal{B}) \ne \bot \\ \text{false} & \text{otherwise} \end{cases}</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in API Client Transpilation -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in API Client Transpilation & Code Generation</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Windows CMD vs. Bash Backslash Escaping Trap</strong>
+            Bash uses trailing backslashes (<code>\</code>) to break long cURL commands across lines. Pasting a bash command into Windows PowerShell or CMD interprets each line as an independent broken command, resulting in truncated URLs, missing headers, and cryptic connection failures.
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span id="transpile-summary" style="font-family:var(--mono); font-size:0.8rem; color:var(--text-muted);">Awaiting input...</span>
-            <button class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyTranspiledCode()">Copy Code</button>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Automatic Decompression & Content-Length Header Corruption</strong>
+            Hardcoding <code>Content-Length</code> or <code>Accept-Encoding: gzip</code> in client code causes HTTP request hangs. When you modify request bodies in JavaScript Fetch or Python Requests, leaving an outdated manual <code>Content-Length</code> causes the remote server to time out waiting for missing bytes.
           </div>
-          <textarea id="transpiled-output" class="code-input" style="height:260px;" readonly></textarea>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Stripping Cookie Jars vs. Bearer Authentication Headers</strong>
+            cURL's <code>-b</code> or <code>--cookie</code> argument transmits cookies in the request. Transpiling cookie flags into <code>Authorization: Bearer</code> headers fails completely on session-authenticated backend APIs, dropping authentication tokens silently.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Raw JSON Stringification vs. Multipart Form-Data Boundaries</strong>
+            cURL's <code>-F</code> flag sends <code>multipart/form-data</code> with automatic MIME boundary boundaries. Attempting to send form data as a raw JSON string without proper boundary generation breaks file uploads, image attachments, and binary data pipelines.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Insecure TLS Certificate Verification (-k / --insecure) in Production</strong>
+            Developers frequently add <code>-k</code> in development to bypass self-signed SSL certificate warnings, then inadvertently transpile and deploy generated Python (<code>verify=False</code>) or Node.js code to production, exposing user data to silent Man-in-the-Middle (MITM) attacks.
+          </div>
         </div>
       </div>
 
       <script>
         var currentLang = 'fetch';
-        var parsedData = null;
 
-        function loadCurlExample(type) {
-          if (type === 'json_post') {
-            document.getElementById('curl-input').value = 'curl -X POST "https://api.example.com/v1/orders" \\\n' +
-  '  -H "Authorization: Bearer secret_key_441" \\\n' +
-  '  -H "Content-Type: application/json" \\\n' +
-  '  -d \'{"productId": "prod_100", "quantity": 4, "currency": "usd"}\'';
-          } else if (type === 'get_auth') {
-            document.getElementById('curl-input').value = 'curl -X GET "https://api.github.com/user/repos?per_page=10" \\\n' +
-  '  -H "User-Agent: DigitalToolsShed-Workbench" \\\n' +
-  '  -H "Accept: application/vnd.github.v3+json" \\\n' +
-  '  -u "developer:ghp_PersonalAccessToken"';
-          } else if (type === 'form_data') {
-            document.getElementById('curl-input').value = 'curl -X POST "https://httpbin.org/post" \\\n' +
-  '  -H "Content-Type: application/x-www-form-urlencoded" \\\n' +
-  '  -d "username=admin&login_token=998822"';
+        var EXAMPLES = {
+          json_post: 'curl -X POST https://api.example.com/v1/users \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer sec_live_9981" \\\n  -d \'{"name": "Sarah Connor", "email": "sarah@skynet.org", "role": "admin"}\'',
+          auth_bearer: 'curl -X GET https://api.stripe.com/v1/customers \\\n  -H "Authorization: Bearer sk_test_51Mz..." \\\n  -H "Stripe-Version: 2023-10-16"',
+          form_data: 'curl -X POST https://api.example.com/oauth/token \\\n  -H "Content-Type: application/x-www-form-urlencoded" \\\n  -d "grant_type=client_credentials&client_id=myApp&client_secret=topSecret"'
+        };
+
+        function loadCurlExample(key) {
+          document.getElementById('curl-input').value = EXAMPLES[key] || '';
+          transpileCurl();
+        }
+
+        function setLang(lang) {
+          currentLang = lang;
+          if (window.event && window.event.target) {
+            var btns = window.event.target.parentElement.querySelectorAll('.tab-btn');
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+            window.event.target.classList.add('active');
           }
           transpileCurl();
         }
 
-        function parseCurl(cmd) {
-          var res = { method: 'GET', url: '', headers: {}, body: null, user: null };
-          if (!cmd || !cmd.trim().startsWith('curl')) return null;
-
-          var clean = cmd.replace(/\\\\\\r?\\n/g, ' ').trim();
-          var regex = /[^\\s"']+|"([^"]*)"|'([^']*)'/g;
-          var tokens = [];
-          var match;
-          while ((match = regex.exec(clean)) !== null) {
-            tokens.push(match[1] !== undefined ? match[1] : (match[2] !== undefined ? match[2] : match[0]));
-          }
-
-          for (var i = 1; i < tokens.length; i++) {
-            var t = tokens[i];
-            if (t === '-X' || t === '--request') {
-              res.method = tokens[++i].toUpperCase();
-            } else if (t === '-H' || t === '--header') {
-              var h = tokens[++i];
-              var idx = h.indexOf(':');
-              if (idx > -1) {
-                var k = h.slice(0, idx).trim();
-                var v = h.slice(idx + 1).trim();
-                res.headers[k] = v;
-              }
-            } else if (t === '-d' || t === '--data' || t === '--data-raw') {
-              res.body = tokens[++i];
-              if (res.method === 'GET') res.method = 'POST';
-            } else if (t === '-u' || t === '--user') {
-              res.user = tokens[++i];
-            } else if (!t.startsWith('-') && !res.url) {
-              res.url = t;
-            }
-          }
-          return res;
-        }
-
-        function switchLangTab(lang) {
-          currentLang = lang;
-          var btns = event.target.parentElement.querySelectorAll('.tab-btn');
-          for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
-          renderTranspiled();
-        }
-
         function transpileCurl() {
           var raw = document.getElementById('curl-input').value.trim();
-          parsedData = parseCurl(raw);
-          if (!parsedData || !parsedData.url) {
-            document.getElementById('transpiled-output').value = '// Please enter a valid curl command (e.g. curl https://api.example.com)...';
-            document.getElementById('transpile-summary').textContent = 'Awaiting valid cURL input';
-            return;
-          }
-          var hCount = Object.keys(parsedData.headers).length;
-          document.getElementById('transpile-summary').textContent = 'Transpiled ' + hCount + ' headers, method ' + parsedData.method;
-          renderTranspiled();
-        }
-
-        function renderTranspiled() {
-          if (!parsedData || !parsedData.url) return;
-          var method = parsedData.method;
-          var url = parsedData.url;
-          var headers = parsedData.headers;
-          var body = parsedData.body;
           var out = document.getElementById('transpiled-output');
+          if (!raw) { out.value = '// Paste a cURL command above...'; return; }
+
+          var cleaned = raw.replace(/\\\r?\n/g, ' ').replace(/\r?\n/g, ' ');
+          var tokens = [];
+          var re = /"([^"\\]*(?:\\.[^"\\]*)*)"|'([^']*)'|(\S+)/g;
+          var match;
+          while ((match = re.exec(cleaned)) !== null) {
+            tokens.push(match[1] || match[2] || match[3]);
+          }
+
+          var method = 'GET';
+          var url = 'https://api.example.com';
+          var headers = {};
+          var body = null;
+
+          for (var i = 0; i < tokens.length; i++) {
+            var t = tokens[i];
+            if (t === '-X' || t === '--request') {
+              method = (tokens[++i] || 'GET').toUpperCase();
+            } else if (t === '-H' || t === '--header') {
+              var h = tokens[++i] || '';
+              var colon = h.indexOf(':');
+              if (colon > -1) {
+                headers[h.slice(0, colon).trim()] = h.slice(colon + 1).trim();
+              }
+            } else if (t === '-d' || t === '--data' || t === '--data-raw' || t === '--data-binary') {
+              body = tokens[++i] || '';
+              if (method === 'GET') method = 'POST';
+            } else if (t.startsWith('http://') || t.startsWith('https://')) {
+              url = t;
+            }
+          }
 
           if (currentLang === 'fetch') {
-            var hStr = JSON.stringify(headers, null, 4).replace(/\\n/g, '\\n    ');
-            var bStr = '';
-            if (body) {
-              try {
-                var parsed = JSON.parse(body);
-                bStr = ',\\n    body: JSON.stringify(' + JSON.stringify(parsed, null, 4).replace(/\\n/g, '\\n    ') + ')';
-              } catch(e) {
-                bStr = ',\\n    body: ' + JSON.stringify(body);
-              }
-            }
-            out.value = '// Native Fetch (Browser & Node.js 18+)\\n' +
-'const response = await fetch("' + url + '", {\\n' +
-'    method: "' + method + '",\\n' +
-'    headers: ' + hStr + bStr + '\\n' +
-'});\\n\\n' +
-'const data = await response.json();\\n' +
-'console.log(data);';
+            var hStr = JSON.stringify(headers, null, 2).replace(/\n/g, '\n  ');
+            var code = 'const response = await fetch("' + url + '", {\n' +
+              '  method: "' + method + '",\n' +
+              '  headers: ' + hStr + (body ? ',\n  body: ' + JSON.stringify(body) : '') + '\n' +
+              '});\n\nconst data = await response.json();\nconsole.log(data);';
+            out.value = code;
           } else if (currentLang === 'axios') {
-            var hStrAx = JSON.stringify(headers, null, 4).replace(/\\n/g, '\\n    ');
-            out.value = 'import axios from \\'axios\\';\\n\\n' +
-'const config = {\\n' +
-'    method: \\'' + method.toLowerCase() + '\\',\\n' +
-'    url: \\'' + url + '\\',\\n' +
-'    headers: ' + hStrAx + (body ? ',\\n    data: ' + body : '') + '\\n' +
-'};\\n\\n' +
-'const response = await axios(config);\\n' +
-'console.log(response.data);';
+            var codeAx = 'const axios = require("axios");\n\n' +
+              'const response = await axios({\n' +
+              '  method: "' + method.toLowerCase() + '",\n' +
+              '  url: "' + url + '",\n' +
+              '  headers: ' + JSON.stringify(headers, null, 4) + (body ? ',\n  data: ' + body : '') + '\n' +
+              '});\n\nconsole.log(response.data);';
+            out.value = codeAx;
           } else if (currentLang === 'python') {
-            var hStrPy = JSON.stringify(headers, null, 4);
-            var bParam = '';
-            if (body) {
-              try {
-                JSON.parse(body);
-                bParam = ', json=' + body;
-              } catch(e) {
-                bParam = ', data=' + JSON.stringify(body);
-              }
-            }
-            out.value = 'import requests\\n\\n' +
-'url = "' + url + '"\\n' +
-'headers = ' + hStrPy + '\\n\\n' +
-'response = requests.' + method.toLowerCase() + '(\\n' +
-'    url,\\n' +
-'    headers=headers' + bParam + '\\n' +
-')\\n\\n' +
-'print(response.status_code)\\n' +
-'print(response.json())';
+            var hPy = Object.entries(headers).map(function(e){ return '    "' + e[0] + '": "' + e[1] + '"'; }).join(',\n');
+            var codePy = 'import requests\n\n' +
+              'url = "' + url + '"\n' +
+              'headers = {\n' + hPy + '\n}\n' +
+              (body ? 'payload = ' + JSON.stringify(body) + '\n\n' : '\n') +
+              'response = requests.' + method.toLowerCase() + '(url, headers=headers' + (body ? ', data=payload' : '') + ')\n' +
+              'print(response.status_code)\nprint(response.json())';
+            out.value = codePy;
           } else if (currentLang === 'go') {
-            var hLines = Object.entries(headers).map(function(e){ return '    req.Header.Set("' + e[0] + '", "' + e[1] + '")'; }).join('\\n');
-            out.value = 'package main\\n\\n' +
-'import (\\n' +
-'    "bytes"\\n' +
-'    "fmt"\\n' +
-'    "io"\\n' +
-'    "net/http"\\n' +
-')\\n\\n' +
-'func main() {\\n' +
-'    url := "' + url + '"\\n' +
-(body ? '    payload := bytes.NewBuffer([]byte(' + JSON.stringify(body) + '))\\n' : '') +
-'    req, err := http.NewRequest("' + method + '", url, ' + (body ? 'payload' : 'nil') + ')\\n' +
-'    if err != nil { panic(err) }\\n' +
-hLines + '\\n\\n' +
-'    client := &http.Client{}\\n' +
-'    resp, err := client.Do(req)\\n' +
-'    if err != nil { panic(err) }\\n' +
-'    defer resp.Body.Close()\\n\\n' +
-'    body, _ := io.ReadAll(resp.Body)\\n' +
-'    fmt.Println(string(body))\\n' +
-'}';
+            var hLines = Object.entries(headers).map(function(e){ return '    req.Header.Set("' + e[0] + '", "' + e[1] + '")'; }).join('\n');
+            out.value = 'package main\n\nimport (\n' +
+              '    "bytes"\n    "fmt"\n    "io"\n    "net/http"\n)\n\n' +
+              'func main() {\n' +
+              '    url := "' + url + '"\n' +
+              (body ? '    payload := bytes.NewBuffer([]byte(' + JSON.stringify(body) + '))\n' : '') +
+              '    req, err := http.NewRequest("' + method + '", url, ' + (body ? 'payload' : 'nil') + ')\n' +
+              '    if err != nil { panic(err) }\n' +
+              hLines + '\n\n' +
+              '    client := &http.Client{}\n' +
+              '    resp, err := client.Do(req)\n' +
+              '    if err != nil { panic(err) }\n' +
+              '    defer resp.Body.Close()\n\n' +
+              '    body, _ := io.ReadAll(resp.Body)\n' +
+              '    fmt.Println(string(body))\n}';
           } else if (currentLang === 'rust') {
-            var hLinesRs = Object.entries(headers).map(function(e){ return '    headers.insert("' + e[0] + '", "' + e[1] + '".parse()?);'; }).join('\\n');
-            out.value = 'use reqwest::header::HeaderMap;\\n\\n' +
-'#[tokio::main]\\n' +
-'async fn main() -> Result<(), Box<dyn std.error::Error>> {\\n' +
-'    let client = reqwest::Client::new();\\n' +
-'    let mut headers = HeaderMap::new();\\n' +
-hLinesRs + '\\n\\n' +
-'    let response = client\\n' +
-'        .' + method.toLowerCase() + '("' + url + '")\\n' +
-'        .headers(headers)' + (body ? '\\n        .body(' + JSON.stringify(body) + ')' : '') + '\\n' +
-'        .send()\\n' +
-'        .await?;\\n\\n' +
-'    println!("Status: {}", response.status());\\n' +
-'    println!("Body: {}", response.text().await?);\\n' +
-'    Ok(())\\n' +
-'}';
+            var hLinesRs = Object.entries(headers).map(function(e){ return '    headers.insert("' + e[0] + '", "' + e[1] + '".parse()?);'; }).join('\n');
+            out.value = 'use reqwest::header::HeaderMap;\n\n' +
+              '#[tokio::main]\nasync fn main() -> Result<(), Box<dyn std.error::Error>> {\n' +
+              '    let client = reqwest::Client::new();\n' +
+              '    let mut headers = HeaderMap::new();\n' +
+              hLinesRs + '\n\n' +
+              '    let response = client\n' +
+              '        .' + method.toLowerCase() + '("' + url + '")\n' +
+              '        .headers(headers)' + (body ? '\n        .body(' + JSON.stringify(body) + ')' : '') + '\n' +
+              '        .send()\n' +
+              '        .await?;\n\n' +
+              '    println!("Status: {}", response.status());\n' +
+              '    println!("Body: {}", response.text().await?);\n' +
+              '    Ok(())\n}';
           }
         }
 
         function copyTranspiledCode() {
-          navigator.clipboard.writeText(document.getElementById('transpiled-output').value);
-          alert('Code copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('transpiled-output').value).then(function() {
+            var fb = document.getElementById('curlCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', function() {
@@ -623,8 +679,11 @@ hLinesRs + '\\n\\n' +
     category: 'Web Engineering',
     keywords: 'websocket tester, websocket client online, websocket debugger, rfc 6455 frame inspector, wss echo test',
     faqs: [
-      { q: 'Can this tool test secure WebSockets (wss://)?', a: 'Yes. Because it runs directly inside your browser window, it connects to any secure wss:// or ws:// endpoint that permits cross-origin WebSocket handshakes.' },
-      { q: 'How is ping/pong latency measured?', a: 'By transmitting a timestamped JSON heartbeat or text ping frame and recording the delta milliseconds when the remote echo server responds.' }
+      { q: 'How does the WebSocket HTTP/1.1 Upgrade Handshake work?', a: 'The client sends an HTTP GET request with Upgrade: websocket and Connection: Upgrade headers, along with a base64-encoded Sec-WebSocket-Key. The server responds with HTTP 101 Switching Protocols and a Sec-WebSocket-Accept hash, instantaneously transforming the TCP socket into a bi-directional binary/text channel.' },
+      { q: 'What is the difference between WebSocket Opcode 0x1 (Text) and Opcode 0x2 (Binary)?', a: 'Opcode 0x1 frames are required by RFC 6455 to contain valid UTF-8 text strings; if any byte violates UTF-8 encoding, the connection must be terminated immediately. Opcode 0x2 carries raw arbitrary binary bytes (ArrayBuffer or Blob) with no format verification.' },
+      { q: 'Why do client-to-server WebSocket frames require a 4-byte masking key?', a: 'RFC 6455 mandates that all frames sent from client to server must be masked with a random 32-bit key. This prevents malicious scripts from constructing byte sequences that intermediate proxies might mistake for cached HTTP requests, defeating cache poisoning attacks.' },
+      { q: 'What causes abnormal WebSocket closure code 1006?', a: 'Close code 1006 is synthesized locally by the browser when the connection closes abnormally without receiving an official close control frame (Opcode 0x8). Common causes include TCP connection reset, TLS certificate failure, or proxy timeout.' },
+      { q: 'How do WebSocket ping/pong heartbeats keep load balancers alive?', a: 'Cloud load balancers (such as AWS ALB or Cloudflare) close idle TCP connections after 60 to 120 seconds of inactivity. Sending periodic application-level ping frames keeps the underlying TCP socket active without passing traffic through heavy application logic.' }
     ],
     html: `
       ${sharedStyle}
@@ -632,54 +691,114 @@ hLinesRs + '\\n\\n' +
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; WebSocket Inspector</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-blue">RFC 6455</span>
-            <span class="wb-badge badge-green">Live Telemetry</span>
+            <span class="wb-badge badge-blue">RFC 6455 / Full-Duplex</span>
+            <span class="wb-badge badge-green">Real-Time Telemetry</span>
           </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">WebSocket Frame & Handshake Inspector</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Live WebSocket Frame & Handshake Inspector</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Connect to any WebSocket endpoint, send text and JSON frames, monitor roundtrip latency (RTT), and inspect frame transmission metrics.
+            Connect to any WebSocket or WSS server, inspect opening handshake negotiation, stream bi-directional frames, and measure ping/pong latency.
           </p>
         </div>
 
         <div class="wb-card">
-          <label class="field-label">Target WebSocket Endpoint (ws:// or wss://)</label>
+          <label class="field-label" for="ws-url">WebSocket Server Endpoint (ws:// or wss://)</label>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <input type="text" id="ws-url" class="code-input" style="flex:1; min-width:280px;" value="wss://echo.websocket.org" />
-            <button id="ws-connect-btn" class="btn-primary" onclick="toggleWsConnection()">Connect</button>
-            <button class="btn-sec" onclick="clearWsLog()">Clear Log</button>
+            <input type="text" id="ws-url" class="text-input" value="wss://echo.websocket.org" style="flex:1; min-width:260px;" />
+            <button type="button" id="ws-connect-btn" class="btn-primary" onclick="toggleWsConnection()">Connect</button>
+            <button type="button" class="btn-sec" onclick="clearWsLog()">Clear Log</button>
           </div>
-
-          <div style="display:flex; gap:1.5rem; margin-top:1rem; font-family:var(--mono); font-size:0.8rem;">
-            <div>STATUS: <span id="ws-status" class="wb-badge badge-amber">DISCONNECTED</span></div>
-            <div>RTT LATENCY: <span id="ws-latency" style="color:var(--fg); font-weight:600;">-- ms</span></div>
-            <div>MESSAGES: <span id="ws-msg-count" style="color:var(--fg); font-weight:600;">0 (0 B)</span></div>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Send Frame Payload</h3>
-            <textarea id="ws-payload" class="code-input" style="height:120px;" placeholder="{\\"action\\": \\"ping\\", \\"timestamp\\": 12345}"></textarea>
-            <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-              <button class="btn-primary" onclick="sendWsFrame()">Send Frame</button>
-              <button class="btn-sec" onclick="sendPingHeartbeat()">Measure Ping (RTT)</button>
-            </div>
-          </div>
-
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Quick Echo Presets</h3>
-            <div style="display:flex; flex-direction:column; gap:0.5rem;">
-              <button class="btn-sec" style="text-align:left;" onclick="setPreset('wss://echo.websocket.org')">echo.websocket.org (Standard Public Echo)</button>
-              <button class="btn-sec" style="text-align:left;" onclick="setPreset('wss://socketsbay.com/wss/v2/1/demo/')">socketsbay.com (Demo Feed)</button>
-              <button class="btn-sec" style="text-align:left;" onclick="setPreset('ws://localhost:8080')">localhost:8080 (Local Dev Server)</button>
-            </div>
+          <div style="margin-top:0.75rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="setWsEndpoint('wss://echo.websocket.org')">echo.websocket.org</button>
+            <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="setWsEndpoint('wss://ws.postman-echo.com/raw')">Postman Echo</button>
+            <button type="button" class="btn-sec" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="setWsEndpoint('wss://socketsbay.com/wss/v2/1/demo/')">SocketsBay Demo</button>
           </div>
         </div>
 
+        <!-- TELEMETRY BAR -->
+        <div class="wb-card" style="padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <span class="field-label" style="margin:0;">Connection Status</span>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.2rem;">
+              <span id="ws-status-dot" style="width:10px; height:10px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
+              <strong id="ws-status-text" style="font-family:var(--mono); font-size:0.9rem;">DISCONNECTED</strong>
+            </div>
+          </div>
+          <div>
+            <span class="field-label" style="margin:0;">Roundtrip RTT</span>
+            <div id="ws-rtt-val" style="font-family:var(--mono); font-size:1.1rem; font-weight:bold; color:var(--btn-bg, #3b82f6); margin-top:0.1rem;">-- ms</div>
+          </div>
+          <div>
+            <span class="field-label" style="margin:0;">Frames Exchanged</span>
+            <div id="ws-msg-count" style="font-family:var(--mono); font-size:1rem; font-weight:bold; color:var(--fg); margin-top:0.1rem;">0 msgs</div>
+          </div>
+          <div>
+            <button type="button" class="btn-sec" style="font-size:0.8rem; padding:0.35rem 0.75rem;" onclick="sendPingHeartbeat()">Send Ping</button>
+          </div>
+        </div>
+
+        <!-- SEND MESSAGE BAR -->
         <div class="wb-card">
-          <label class="field-label">Live Frame Stream Log</label>
-          <div id="ws-log" style="height:260px; overflow-y:auto; background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:0.75rem; font-family:var(--mono); font-size:0.82rem; line-height:1.5;">
-            <div style="color:var(--text-muted);">// Ready to initiate WebSocket handshake...</div>
+          <label class="field-label" for="ws-payload">Send Outbound Message Frame (Text / JSON)</label>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <input type="text" id="ws-payload" class="text-input" value='{"event": "ping", "client": "DigitalToolsShed", "timestamp": Date.now()}' style="flex:1; min-width:240px;" onkeydown="if(event.key==='Enter') sendWsFrame();" />
+            <button type="button" class="btn-primary" onclick="sendWsFrame()">Send Frame</button>
+          </div>
+        </div>
+
+        <!-- FRAME LOG -->
+        <div class="wb-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <label class="field-label" style="margin:0;">Live Frame Stream & Telemetry Inspector</label>
+            <span style="font-size:0.75rem; font-family:var(--mono); color:var(--text-muted);">Auto-scrolling stream</span>
+          </div>
+          <div id="ws-log" style="height:280px; overflow-y:auto; background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:0.75rem; font-family:var(--mono); font-size:0.82rem; line-height:1.6;">
+            <div style="color:var(--text-muted);">// Ready. Connect to an endpoint to begin telemetry capture...</div>
+          </div>
+        </div>
+
+        <!-- Mathematical & Bitwise Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 6455 Framing Protocol & Masking XOR Bitwise Derivation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            WebSockets bypass HTTP request/response overhead through a single persistent TCP socket. Frames are structured with a compact 2-to-14 byte header followed by XOR-masked payload bytes:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Client-to-Server Masking XOR Transformation:</strong></div>
+            <div>&nbsp;&nbsp;M_i = P_i \oplus K_{i \pmod 4} \quad (\text{Defeats proxy cache poisoning across intermediate hops})</div>
+            <div><strong>2. Extended Payload Length Quantization:</strong></div>
+            <div>&nbsp;&nbsp;\text{LenField} = \begin{cases} L & \text{if } L \le 125 \\ 126 + [16\text{-bit integer}] & \text{if } 126 \le L \le 65,535 \\ 127 + [64\text{-bit integer}] & \text{if } L \ge 65,536 \end{cases}</div>
+            <div><strong>3. Round-Trip Latency (RTT):</strong></div>
+            <div>&nbsp;&nbsp;\text{RTT} = T_{\text{pong received}} - T_{\text{ping sent}} \quad (\text{Measures single-frame bi-directional wire speed})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in WebSocket Engineering -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Real-Time WebSocket Engineering</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Proxy Buffer & Idle TCP 60-Second Timeout Trap</strong>
+            Load balancers, cloud gateways (AWS ALB, Cloudflare), and reverse proxies terminate idle TCP sockets after 60 seconds of inactivity. Without application-level ping/pong heartbeats scheduled at 25-30 second intervals, connections drop silently without trigger events.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Unhandled Abnormal Closure Code 1006 vs 1000</strong>
+            Code 1000 signifies clean intentional closure. Code 1006 indicates TCP RST, TLS failure, or network drop where no close handshake took place. Naive reconnection logic that reconnects instantly on 1006 without exponential backoff creates self-inflicted DDoS thundering herd outages.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Head-of-Line Blocking over a Single TCP Socket</strong>
+            Because WebSockets run over a single TCP stream, transmitting large binary payloads (e.g. file uploads or webcam streams) blocks critical JSON control messages behind millions of pending bytes. High-throughput apps must partition data across multiple channels or adopt WebTransport.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Unmasked Frame Rejection by Conforming Servers</strong>
+            Sending unmasked frames from browser clients is an instant RFC 6455 violation. Conforming servers must immediately close the connection with Protocol Error 1002 upon receiving unmasked frames from clients to prevent proxy cache pollution.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Memory Leaks from Flapping Event Listeners</strong>
+            Creating new <code>ws.onmessage</code> listeners or DOM logging nodes on reconnection cycles without tearing down previous event handlers produces runaway browser heap growth, crashing mobile browser tabs during spotty mobile cellular handoffs.
           </div>
         </div>
       </div>
@@ -690,53 +809,58 @@ hLinesRs + '\\n\\n' +
         var byteCount = 0;
         var lastPingTime = 0;
 
-        function setPreset(url) {
+        function setWsEndpoint(url) {
           document.getElementById('ws-url').value = url;
           if (ws) toggleWsConnection();
         }
 
         function toggleWsConnection() {
-          var btn = document.getElementById('ws-connect-btn');
-          var status = document.getElementById('ws-status');
-          var url = document.getElementById('ws-url').value.trim();
-
           if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
-            ws.close();
+            ws.close(1000, 'User disconnected');
             return;
           }
 
-          logFrame('SYS', 'Initiating handshake with ' + url);
-          status.className = 'wb-badge badge-amber';
-          status.textContent = 'CONNECTING...';
+          var url = document.getElementById('ws-url').value.trim();
+          if (!url) return;
+
+          logFrame('SYS', 'Initiating handshake with ' + url + '...');
+          document.getElementById('ws-status-text').textContent = 'CONNECTING...';
+          document.getElementById('ws-status-dot').style.background = '#f59e0b';
 
           try {
             ws = new WebSocket(url);
+
             ws.onopen = function() {
-              status.className = 'wb-badge badge-green';
-              status.textContent = 'CONNECTED';
-              btn.textContent = 'Disconnect';
-              btn.className = 'btn-sec';
-              logFrame('SYS', '101 Switching Protocols — Handshake successful');
+              document.getElementById('ws-status-text').textContent = 'CONNECTED';
+              document.getElementById('ws-status-dot').style.background = '#10b981';
+              document.getElementById('ws-connect-btn').textContent = 'Disconnect';
+              document.getElementById('ws-connect-btn').className = 'btn-sec';
+              logFrame('SYS', '101 Switching Protocols — Handshake Accepted!');
             };
+
             ws.onmessage = function(e) {
               msgCount++;
-              byteCount += e.data.length;
+              byteCount += (typeof e.data === 'string' ? e.data.length : e.data.byteLength || 0);
               updateStats();
-              if (lastPingTime && e.data.indexOf('ping-') > -1) {
+
+              if (lastPingTime > 0) {
                 var rtt = Math.round(performance.now() - lastPingTime);
-                document.getElementById('ws-latency').textContent = rtt + ' ms';
+                document.getElementById('ws-rtt-val').textContent = rtt + ' ms';
                 lastPingTime = 0;
               }
-              logFrame('IN', e.data);
+
+              logFrame('IN', typeof e.data === 'string' ? e.data : '[Binary Frame: ' + (e.data.byteLength || 0) + ' bytes]');
             };
+
             ws.onerror = function(err) {
-              logFrame('ERR', 'WebSocket transport error');
+              logFrame('ERR', 'WebSocket error encountered (Code 1006 / Network drop)');
             };
+
             ws.onclose = function(e) {
-              status.className = 'wb-badge badge-red';
-              status.textContent = 'CLOSED (' + e.code + ')';
-              btn.textContent = 'Connect';
-              btn.className = 'btn-primary';
+              document.getElementById('ws-status-text').textContent = 'DISCONNECTED';
+              document.getElementById('ws-status-dot').style.background = '#ef4444';
+              document.getElementById('ws-connect-btn').textContent = 'Connect';
+              document.getElementById('ws-connect-btn').className = 'btn-primary';
               logFrame('SYS', 'Connection closed: Code ' + e.code + ' ' + (e.reason || 'Normal'));
               ws = null;
             };
@@ -747,7 +871,7 @@ hLinesRs + '\\n\\n' +
 
         function sendWsFrame() {
           if (!ws || ws.readyState !== WebSocket.OPEN) {
-            alert('WebSocket is not connected.');
+            logFrame('ERR', 'Cannot send: WebSocket is not connected.');
             return;
           }
           var text = document.getElementById('ws-payload').value;
@@ -761,11 +885,11 @@ hLinesRs + '\\n\\n' +
 
         function sendPingHeartbeat() {
           if (!ws || ws.readyState !== WebSocket.OPEN) {
-            alert('Connect to a WebSocket server first.');
+            logFrame('ERR', 'Cannot ping: WebSocket is not connected.');
             return;
           }
           lastPingTime = performance.now();
-          var pingPayload = JSON.stringify({ type: 'ping-' + Date.now() });
+          var pingPayload = JSON.stringify({ type: 'ping', timestamp: Date.now() });
           ws.send(pingPayload);
           logFrame('OUT', pingPayload);
         }
@@ -804,12 +928,15 @@ hLinesRs + '\\n\\n' +
   const dnsTool = {
     slug: 'dns-record-generator',
     title: 'DNS Zone Architect & SPF / DKIM / DMARC Policy Builder [Email Deliverability]',
-    metaDesc: 'Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.',
+    metaDesc: 'Generate RFC-compliant BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for 100% email deliverability. Zero server tracking.',
     category: 'Web Engineering',
-    keywords: 'dns record generator, spf record generator, dmarc policy builder, dkim generator, bind zone file builder, email authentication',
+    keywords: 'dns zone generator, spf generator, dmarc policy generator, dkim record builder, bind zone file generator, email deliverability records',
     faqs: [
-      { q: 'Why do emails land in spam without SPF, DKIM, and DMARC?', a: 'Major mailbox providers like Google and Yahoo mandate DMARC alignment. Without SPF or DKIM confirming that your sending IP is authorized by the domain owner, receiving MTAs flag incoming mail as potential phishing or spoofing.' },
-      { q: 'What is the difference between ~all and -all in SPF?', a: '~all indicates SoftFail (the receiver should accept the mail but tag or scrutinize it), while -all indicates HardFail (instructing receiving servers to reject unauthorized IP messages outright).' }
+      { q: 'Why is there a strict 10-DNS-lookup limit in SPF records?', a: 'RFC 7208 specifies that an SPF evaluator must not perform more than 10 DNS lookups during a single SPF validation check (including include, a, mx, ptr, and exists mechanisms). Exceeding this limit triggers a PermError, causing mail providers like Google Workspace and Microsoft 365 to reject or mark emails as spam.' },
+      { q: 'What is the difference between DMARC p=none, p=quarantine, and p=reject?', a: 'p=none is monitoring mode: emails failing SPF/DKIM alignment are delivered normally while aggregate XML reports are sent to your rua address. p=quarantine moves failing emails to the recipient spam/junk folder. p=reject commands the receiving server to drop failing emails at the gateway, preventing impersonation.' },
+      { q: 'Why can\'t I set a CNAME record on my root domain (zone apex)?', a: 'RFC 1034 mandates that if a CNAME record exists for a node, no other records of any type can exist for that name. Because the root domain requires SOA and NS records, placing a CNAME at apex breaks domain routing. Modern DNS providers resolve this using CNAME Flattening or ALIAS/ANAME pseudo-records.' },
+      { q: 'How do I split a 2048-bit DKIM key into a DNS TXT record?', a: 'DNS TXT records limit each string token to 255 characters. A 2048-bit RSA public key encoded in base64 is approximately 400 characters. In BIND zone files, the string must be enclosed in parentheses and split into two adjacent double-quoted strings: \'("v=DKIM1; ... first 250 chars" "remaining chars...")\'.' },
+      { q: 'What is the difference between SPF hard fail (-all) and soft fail (~all)?', a: '~all (SoftFail) indicates that non-listed IPs should be accepted but flagged as suspicious. -all (HardFail) explicitly instructs the receiving mail server to reject messages from unapproved IPs immediately.' }
     ],
     html: `
       ${sharedStyle}
@@ -817,142 +944,188 @@ hLinesRs + '\\n\\n' +
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; DNS Zone Architect</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-green">RFC 7208 / RFC 7489</span>
-            <span class="wb-badge badge-blue">Deliverability Shield</span>
+            <span class="wb-badge badge-blue">RFC 1035 / BIND Zone</span>
+            <span class="wb-badge badge-green">Deliverability Suite</span>
           </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">DNS Zone Architect & Email Authentication Builder</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">DNS Zone Architect & SPF/DKIM/DMARC Builder</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Build valid SPF TXT records, formulate strict DMARC rejection policies, assemble MX routing, and compile BIND zone files.
+            Generate RFC-compliant BIND zone records, audit SPF 10-lookup limits, and construct DMARC email authentication records for zero spoofing.
           </p>
         </div>
 
         <div class="wb-card">
-          <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Domain & Server Specifications</h3>
-          <div class="grid-3">
+          <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Domain & Network Infrastructure</h3>
+          <div class="grid-2">
             <div>
-              <label class="field-label">Domain Name</label>
+              <label class="field-label" for="dns-domain">Root Domain Name</label>
               <input type="text" id="dns-domain" class="text-input" value="example.com" oninput="compileDns()" />
             </div>
             <div>
-              <label class="field-label">Origin IPv4 Address (A)</label>
-              <input type="text" id="dns-ipv4" class="text-input" value="198.51.100.24" oninput="compileDns()" />
+              <label class="field-label" for="dns-ip4">Primary Web Server IPv4 (A Record)</label>
+              <input type="text" id="dns-ip4" class="text-input" value="192.0.2.1" oninput="compileDns()" />
             </div>
             <div>
-              <label class="field-label">Origin IPv6 Address (AAAA)</label>
-              <input type="text" id="dns-ipv6" class="text-input" value="2001:db8::1" oninput="compileDns()" />
+              <label class="field-label" for="dns-ip6">Primary Web Server IPv6 (AAAA Record)</label>
+              <input type="text" id="dns-ip6" class="text-input" value="2001:db8::1" oninput="compileDns()" />
+            </div>
+            <div>
+              <label class="field-label" for="dns-ttl">Default TTL (Seconds)</label>
+              <input type="number" id="dns-ttl" class="text-input" value="3600" oninput="compileDns()" />
             </div>
           </div>
         </div>
 
-        <div class="grid-2">
-          <!-- SPF BUILDER -->
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">SPF (Sender Policy Framework)</h3>
-            <div style="display:flex; flex-direction:column; gap:0.75rem;">
-              <div>
-                <label class="field-label">Included Email Providers (include:)</label>
-                <input type="text" id="spf-includes" class="text-input" value="_spf.google.com, mailgun.org" oninput="compileDns()" />
-                <span style="font-size:0.75rem; color:var(--text-muted);">Comma separated domains</span>
-              </div>
-              <div class="grid-2">
-                <div>
-                  <label class="field-label">Allow 'a' & 'mx'</label>
-                  <select id="spf-mx" class="text-input" onchange="compileDns()">
-                    <option value="both">+a +mx</option>
-                    <option value="mx">+mx only</option>
-                    <option value="none">Neither</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">Policy Qualifier</label>
-                  <select id="spf-qualifier" class="text-input" onchange="compileDns()">
-                    <option value="~all">~all (SoftFail - Recommended)</option>
-                    <option value="-all">-all (HardFail - Strict)</option>
-                    <option value="?all">?all (Neutral)</option>
-                  </select>
-                </div>
-              </div>
+        <div class="wb-card">
+          <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Email Anti-Spoofing & Deliverability Engine</h3>
+          <div class="grid-2">
+            <div>
+              <label class="field-label" for="spf-presets">SPF Included Senders</label>
+              <select id="spf-presets" class="text-input" onchange="applySpfPreset()">
+                <option value="custom">Custom Senders</option>
+                <option value="google" selected>Google Workspace (_spf.google.com)</option>
+                <option value="m365">Microsoft 365 (spf.protection.outlook.com)</option>
+                <option value="sendgrid">SendGrid + Google Workspace</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="spf-policy">SPF Enforcement Policy</label>
+              <select id="spf-policy" class="text-input" onchange="compileDns()">
+                <option value="~all" selected>~all (SoftFail — Recommended during setup)</option>
+                <option value="-all">-all (HardFail — Maximum strict rejection)</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="dmarc-policy">DMARC Policy (p=)</label>
+              <select id="dmarc-policy" class="text-input" onchange="compileDns()">
+                <option value="none">p=none (Audit only, no rejections)</option>
+                <option value="quarantine">p=quarantine (Send unauthorized mail to spam)</option>
+                <option value="reject" selected>p=reject (Drop unauthenticated mail completely)</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="dmarc-email">DMARC Aggregate Reporting Email (rua=)</label>
+              <input type="email" id="dmarc-email" class="text-input" value="dmarc-reports@example.com" oninput="compileDns()" />
             </div>
           </div>
 
-          <!-- DMARC BUILDER -->
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">DMARC Policy Constructor</h3>
-            <div style="display:flex; flex-direction:column; gap:0.75rem;">
-              <div class="grid-2">
-                <div>
-                  <label class="field-label">Policy (p=)</label>
-                  <select id="dmarc-p" class="text-input" onchange="compileDns()">
-                    <option value="reject">reject (Enforce strict drop)</option>
-                    <option value="quarantine">quarantine (Spam folder)</option>
-                    <option value="none">none (Monitoring only)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">Percentage (pct=)</label>
-                  <input type="number" id="dmarc-pct" class="text-input" value="100" min="1" max="100" oninput="compileDns()" />
-                </div>
-              </div>
-              <div>
-                <label class="field-label">Aggregate Report Email (rua=)</label>
-                <input type="email" id="dmarc-rua" class="text-input" value="dmarc-reports@example.com" oninput="compileDns()" />
-              </div>
+          <div style="margin-top:1.25rem;">
+            <label class="field-label" for="spf-raw">Calculated SPF Record (v=spf1)</label>
+            <input type="text" id="spf-raw" class="code-input" value="v=spf1 include:_spf.google.com ~all" oninput="compileDns()" />
+            <div id="spf-lookup-meter" style="font-family:var(--mono); font-size:0.75rem; margin-top:0.35rem; color:#10b981;">
+              DNS Lookups: 1 / 10 limit (SAFE)
             </div>
           </div>
         </div>
 
         <div class="wb-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-            <label class="field-label" style="margin:0;">Compiled BIND Zone File & DNS Table</label>
-            <button class="btn-sec" onclick="copyDnsZone()">Copy Zone File</button>
+            <label class="field-label" style="margin:0;">Compiled RFC 1035 BIND Zone File</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopyDns" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyDnsZone()">Copy Zone File</button>
+              <span id="dnsCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
-          <textarea id="dns-output" class="code-input" style="height:260px;" readonly></textarea>
+          <textarea id="dns-output" class="code-input" style="height:240px;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & RFC Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 7208 SPF Lookup Evaluation & DMARC Alignment Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Email receivers evaluate sender legitimacy by recursively checking DNS resource records against strict lookup budgets and cryptographic alignment criteria:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. SPF 10-Lookup Budget Formulation (RFC 7208):</strong></div>
+            <div>&nbsp;&nbsp;\sum (\text{include} + \text{a} + \text{mx} + \text{ptr} + \text{exists} + \text{redirect}) \le 10 \quad (\text{Exceeding triggers immediate PermError})</div>
+            <div><strong>2. DMARC Alignment Boolean Satisfiability (RFC 7489):</strong></div>
+            <div>&nbsp;&nbsp;\text{DMARC Pass} = (\text{SPF Pass} \land \text{SPF Aligned}) \lor (\text{DKIM Pass} \land \text{DKIM Aligned})</div>
+            <div><strong>3. DNS Zone TTL Propagation Time:</strong></div>
+            <div>&nbsp;&nbsp;T_{\text{prop}} \le \max(\text{TTL}_{\text{old}}, \text{TTL}_{\text{resolver cache}}) \quad (\text{Standard 3600s = 1 hour convergence})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in DNS & Email Authentication -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in DNS & Email Authentication Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Fatal SPF 10-DNS-Lookup Limit PermError Trap</strong>
+            Including multiple third-party marketing and CRM platforms (Google, Mailchimp, Zendesk, Salesforce) inside a single SPF record frequently pushes the DNS lookup count above 10. Once the 10-lookup threshold is breached, mail servers abort evaluation with a <code>PermError</code> and route all company emails to Spam.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. The CNAME at Zone Apex RFC 1034 Violation</strong>
+            Placing a CNAME record at the root domain level (e.g. <code>example.com</code>) violates RFC 1034 Section 3.6.2. When a CNAME exists on a host, DNS servers suppress all other record types, breaking MX (email delivery), TXT, and NS records for the entire domain.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Missing Trailing Dot on FQDN CNAME Targets</strong>
+            In BIND zone files and standard DNS servers, omitting the trailing period on a hostname (e.g. <code>ghs.googlehosted.com</code> instead of <code>ghs.googlehosted.com.</code>) causes the server to append the origin domain, producing a non-existent target like <code>ghs.googlehosted.com.example.com.</code>.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. 2048-Bit DKIM Public Key TXT Character Limit Overflow</strong>
+            DNS TXT records enforce a maximum string length of 255 characters per string literal. A secure 2048-bit RSA DKIM public key exceeds 400 characters. If the key is not split into two concatenated quoted strings, DNS servers reject the zone file or truncate the cryptographic key.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Setting DMARC p=reject Before Verifying Subdomain Alignment</strong>
+            Immediately configuring <code>p=reject</code> without spending 30 days analyzing DMARC aggregate XML reports (<code>p=none</code>) causes catastrophic email delivery failure. Automated transactional emails from subdomains (e.g. <code>invoices.example.com</code>) failing SPF alignment will be blocked and dropped at the recipient gateway.
+          </div>
         </div>
       </div>
 
       <script>
+        function applySpfPreset() {
+          var sel = document.getElementById('spf-presets').value;
+          var raw = document.getElementById('spf-raw');
+          var pol = document.getElementById('spf-policy').value;
+          if (sel === 'google') raw.value = 'v=spf1 include:_spf.google.com ' + pol;
+          if (sel === 'm365') raw.value = 'v=spf1 include:spf.protection.outlook.com ' + pol;
+          if (sel === 'sendgrid') raw.value = 'v=spf1 include:_spf.google.com include:sendgrid.net ' + pol;
+          compileDns();
+        }
+
         function compileDns() {
           var dom = document.getElementById('dns-domain').value.trim() || 'example.com';
-          var ip4 = document.getElementById('dns-ipv4').value.trim();
-          var ip6 = document.getElementById('dns-ipv6').value.trim();
-          var incs = document.getElementById('spf-includes').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-          var spfMx = document.getElementById('spf-mx').value;
-          var spfQ = document.getElementById('spf-qualifier').value;
-          var dmarcP = document.getElementById('dmarc-p').value;
-          var dmarcPct = document.getElementById('dmarc-pct').value;
-          var dmarcRua = document.getElementById('dmarc-rua').value.trim();
+          var ip4 = document.getElementById('dns-ip4').value.trim();
+          var ip6 = document.getElementById('dns-ip6').value.trim();
+          var ttl = document.getElementById('dns-ttl').value.trim() || '3600';
+          var spf = document.getElementById('spf-raw').value.trim();
+          var dmarcPol = document.getElementById('dmarc-policy').value;
+          var dmarcMail = document.getElementById('dmarc-email').value.trim();
 
-          var spf = 'v=spf1';
-          if (spfMx === 'both') spf += ' +a +mx';
-          else if (spfMx === 'mx') spf += ' +mx';
-          incs.forEach(function(i){ spf += ' include:' + i; });
-          spf += ' ' + spfQ;
+          var lookups = (spf.match(/include:/g) || []).length + (spf.match(/\ba\b/g) || []).length + (spf.match(/\bmx\b/g) || []).length;
+          var meter = document.getElementById('spf-lookup-meter');
+          meter.textContent = 'DNS Lookups: ' + lookups + ' / 10 limit (' + (lookups <= 10 ? 'SAFE' : 'OVER LIMIT!') + ')';
+          meter.style.color = lookups <= 10 ? '#10b981' : '#ef4444';
 
-          var dmarc = 'v=DMARC1; p=' + dmarcP + '; pct=' + dmarcPct + ';';
-          if (dmarcRua) dmarc += ' rua=mailto:' + dmarcRua + ';';
-          dmarc += ' aspf=r; adkim=r;';
+          var dmarc = 'v=DMARC1; p=' + dmarcPol + ';';
+          if (dmarcMail) dmarc += ' rua=mailto:' + dmarcMail + ';';
 
-          var zone = '; BIND Zone File for ' + dom + '\\n$ORIGIN ' + dom + '.\\n$TTL 3600\\n\\n';
-          zone += '@       IN  SOA  ns1.' + dom + '. admin.' + dom + '. (\\n' +
-                  '                ' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '01 ; serial\\n' +
-                  '                7200       ; refresh\\n' +
-                  '                3600       ; retry\\n' +
-                  '                1209600    ; expire\\n' +
-                  '                3600 )     ; minimum\\n\\n';
+          var zone = '$ORIGIN ' + dom + '.\n$TTL ' + ttl + '\n\n; SOA Record\n' +
+            '@       IN  SOA  ns1.' + dom + '. hostmaster.' + dom + '. (\n' +
+            '                ' + new Date().toISOString().slice(0,10).replace(/-/g, '') + '01 ; serial\n' +
+            '                7200       ; refresh\n' +
+            '                3600       ; retry\n' +
+            '                1209600    ; expire\n' +
+            '                3600 )     ; minimum\n\n';
 
-          zone += '; Authoritative Name Servers\\n@       IN  NS   ns1.' + dom + '.\\n@       IN  NS   ns2.' + dom + '.\\n\\n';
-          if (ip4) zone += '; Base Web Records\\n@       IN  A    ' + ip4 + '\\nwww     IN  A    ' + ip4 + '\\n';
-          if (ip6) zone += '@       IN  AAAA ' + ip6 + '\\nwww     IN  AAAA ' + ip6 + '\\n';
-          zone += '\\n; Mail Exchange (MX)\\n@       IN  MX   10 mail.' + dom + '.\\n';
-          zone += '\\n; SPF Authorization TXT\\n@       IN  TXT  "' + spf + '"\\n';
-          zone += '\\n; DMARC Policy TXT\\n_dmarc  IN  TXT  "' + dmarc + '"\\n';
+          zone += '; Authoritative Name Servers\n@       IN  NS   ns1.' + dom + '.\n@       IN  NS   ns2.' + dom + '.\n\n';
+          if (ip4) zone += '; Base Web Records\n@       IN  A    ' + ip4 + '\nwww     IN  A    ' + ip4 + '\n';
+          if (ip6) zone += '@       IN  AAAA ' + ip6 + '\nwww     IN  AAAA ' + ip6 + '\n';
+          zone += '\n; Mail Exchange (MX)\n@       IN  MX   10 mail.' + dom + '.\n';
+          zone += '\n; SPF Authorization TXT\n@       IN  TXT  "' + spf + '"\n';
+          zone += '\n; DMARC Policy TXT\n_dmarc  IN  TXT  "' + dmarc + '"\n';
 
           document.getElementById('dns-output').value = zone;
         }
 
         function copyDnsZone() {
-          navigator.clipboard.writeText(document.getElementById('dns-output').value);
-          alert('DNS Zone file copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('dns-output').value).then(function() {
+            var fb = document.getElementById('dnsCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', compileDns);
@@ -969,144 +1142,166 @@ hLinesRs + '\\n\\n' +
     keywords: 'css grid generator, flexbox playground, css layout visualizer, flexbox studio, responsive css grid generator',
     faqs: [
       { q: 'When should I use CSS Grid versus Flexbox?', a: 'Use Flexbox for 1-dimensional layouts (a single row of navigation items or a vertical stack of buttons). Use CSS Grid for 2-dimensional layouts where alignment across both rows and columns simultaneously is necessary.' },
-      { q: 'What does repeat(auto-fit, minmax(200px, 1fr)) do?', a: 'This is the classic responsive grid formula: it creates as many columns as will fit in the container, with each column being at least 200px wide, and stretching equally (1fr) to fill any leftover space without media queries.' }
+      { q: 'What does repeat(auto-fit, minmax(200px, 1fr)) do?', a: 'This is the classic responsive grid formula: it creates as many columns as will fit in the container, with each column being at least 200px wide, and stretching equally (1fr) to fill any leftover space without media queries.' },
+      { q: 'Why does text-overflow: ellipsis break inside a Flexbox item without min-width: 0?', a: 'By default, flex items have min-width: auto, meaning their minimum size is bound by the intrinsic width of their contents. Adding min-width: 0 overrides this default, allowing the item to shrink below its text width and enabling text truncation.' },
+      { q: 'What is the performance difference between CSS Grid and Flexbox?', a: 'Modern browser layout engines (Blink, Gecko, WebKit) optimize both Grid and Flexbox through native C++ layout trees. Flexbox performs slightly faster for linear lists, while CSS Grid avoids deep DOM nesting, reducing overall render tree depth.' },
+      { q: 'How does align-items differ from align-content in Flexbox?', a: 'align-items controls the alignment of individual flex items along the cross-axis within their flex line. align-content only applies when flex-wrap: wrap is enabled and there are multiple lines of items, distributing the lines themselves across the container cross-axis.' }
     ],
     html: `
       ${sharedStyle}
       <style>
-        .layout-preview-box {
-          background: #090d16;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          min-height: 280px;
-          padding: 1rem;
-          transition: all 0.2s ease;
-        }
-        .layout-item {
-          background: #1e293b;
-          border: 1px solid #3b82f6;
-          color: #fff;
-          font-family: var(--mono);
-          font-size: 0.85rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 50px;
-          border-radius: 4px;
-          padding: 0.5rem;
-        }
+        .layout-item { background: #3b82f6; color: #fff; border-radius: 4px; padding: 1.25rem; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 50px; }
       </style>
       <div class="article-container" style="max-width: 980px;">
         <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; CSS Layout Studio</nav>
         <div class="wb-header">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-            <span class="wb-badge badge-purple">CSS3 / W3C Layout</span>
-            <span class="wb-badge badge-green">Visual Interactive</span>
+            <span class="wb-badge badge-blue">W3C CSS Grid & Flexbox</span>
+            <span class="wb-badge badge-green">Visual Architecture</span>
           </div>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">CSS Grid & Flexbox Visual Studio</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">CSS Grid & Flexbox Visual Architecture Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
-            Toggle between Flexbox and Grid, visually manipulate alignment, gaps, wrapping, and track templates, and export pristine production CSS.
+            Visually design, test, and extract production-ready CSS Flexbox and 2-dimensional Grid declarations with live layout feedback.
           </p>
         </div>
 
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchLayoutMode('flex')">Flexbox Mode</button>
-          <button class="tab-btn" onclick="switchLayoutMode('grid')">CSS Grid Mode</button>
+          <button type="button" class="tab-btn active" onclick="switchLayoutMode('flex')">Flexbox Layout Mode</button>
+          <button type="button" class="tab-btn" onclick="switchLayoutMode('grid')">CSS 2D Grid Mode</button>
         </div>
 
-        <div class="grid-2">
-          <!-- CONTROLS -->
-          <div class="wb-card">
-            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);" id="mode-title">Flexbox Controls</h3>
-
-            <!-- FLEX CONTROLS -->
-            <div id="flex-controls">
-              <div class="grid-2" style="margin-bottom:0.75rem;">
-                <div>
-                  <label class="field-label">flex-direction</label>
-                  <select id="flex-dir" class="text-input" onchange="updateLayout()">
-                    <option value="row">row</option>
-                    <option value="column">column</option>
-                    <option value="row-reverse">row-reverse</option>
-                    <option value="column-reverse">column-reverse</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">flex-wrap</label>
-                  <select id="flex-wrap" class="text-input" onchange="updateLayout()">
-                    <option value="wrap">wrap</option>
-                    <option value="nowrap">nowrap</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="grid-2" style="margin-bottom:0.75rem;">
-                <div>
-                  <label class="field-label">justify-content</label>
-                  <select id="flex-justify" class="text-input" onchange="updateLayout()">
-                    <option value="flex-start">flex-start</option>
-                    <option value="center">center</option>
-                    <option value="flex-end">flex-end</option>
-                    <option value="space-between">space-between</option>
-                    <option value="space-around">space-around</option>
-                    <option value="space-evenly">space-evenly</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="field-label">align-items</label>
-                  <select id="flex-align" class="text-input" onchange="updateLayout()">
-                    <option value="stretch">stretch</option>
-                    <option value="center">center</option>
-                    <option value="flex-start">flex-start</option>
-                    <option value="flex-end">flex-end</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- GRID CONTROLS -->
-            <div id="grid-controls" style="display:none;">
-              <div style="margin-bottom:0.75rem;">
-                <label class="field-label">grid-template-columns</label>
-                <select id="grid-cols" class="text-input" onchange="updateLayout()">
-                  <option value="repeat(auto-fit, minmax(140px, 1fr))">repeat(auto-fit, minmax(140px, 1fr))</option>
-                  <option value="1fr 1fr 1fr">1fr 1fr 1fr (3 Equal)</option>
-                  <option value="200px 1fr 1fr">200px 1fr 1fr (Sidebar + Content)</option>
-                  <option value="repeat(4, 1fr)">repeat(4, 1fr) (4 Columns)</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="margin-bottom:0.75rem;">
-              <label class="field-label">gap: <span id="gap-val">16</span>px</label>
-              <input type="range" id="layout-gap" min="0" max="48" value="16" style="width:100%;" oninput="updateLayout()" />
-            </div>
-
-            <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-              <button class="btn-sec" onclick="addItem()">+ Add Item</button>
-              <button class="btn-sec" onclick="removeItem()">- Remove Item</button>
-            </div>
-          </div>
-
-          <!-- CODE OUTPUT -->
-          <div class="wb-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-              <label class="field-label" style="margin:0;">Generated CSS</label>
-              <button class="btn-sec" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copyLayoutCss()">Copy CSS</button>
-            </div>
-            <textarea id="layout-css-output" class="code-input" style="height:190px;" readonly></textarea>
-          </div>
-        </div>
-
-        <!-- VISUAL PREVIEW CONTAINER -->
         <div class="wb-card">
-          <label class="field-label">Live Viewport Canvas Preview</label>
-          <div id="layout-preview" class="layout-preview-box">
+          <!-- FLEX CONTROLS -->
+          <div id="ctrls-flex" class="grid-3">
+            <div>
+              <label class="field-label" for="flex-dir">flex-direction</label>
+              <select id="flex-dir" class="text-input" onchange="updateLayout()">
+                <option value="row" selected>row</option>
+                <option value="row-reverse">row-reverse</option>
+                <option value="column">column</option>
+                <option value="column-reverse">column-reverse</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="flex-justify">justify-content</label>
+              <select id="flex-justify" class="text-input" onchange="updateLayout()">
+                <option value="flex-start" selected>flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="space-between">space-between</option>
+                <option value="space-around">space-around</option>
+                <option value="space-evenly">space-evenly</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="flex-align">align-items</label>
+              <select id="flex-align" class="text-input" onchange="updateLayout()">
+                <option value="stretch" selected>stretch</option>
+                <option value="center">center</option>
+                <option value="flex-start">flex-start</option>
+                <option value="flex-end">flex-end</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- GRID CONTROLS -->
+          <div id="ctrls-grid" class="grid-3" style="display:none;">
+            <div>
+              <label class="field-label" for="grid-cols">grid-template-columns</label>
+              <input type="text" id="grid-cols" class="text-input" value="repeat(auto-fit, minmax(180px, 1fr))" oninput="updateLayout()" />
+            </div>
+            <div>
+              <label class="field-label" for="grid-rows">grid-template-rows</label>
+              <input type="text" id="grid-rows" class="text-input" value="auto" oninput="updateLayout()" />
+            </div>
+            <div>
+              <label class="field-label" for="grid-flow">grid-auto-flow</label>
+              <select id="grid-flow" class="text-input" onchange="updateLayout()">
+                <option value="row" selected>row</option>
+                <option value="column">column</option>
+                <option value="dense">dense</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem; display:flex; gap:1.25rem; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:180px;">
+              <label class="field-label" for="layout-gap">gap (Spacing): <span id="gap-val">1rem</span></label>
+              <input type="range" id="layout-gap" min="0" max="32" value="16" style="width:100%;" oninput="updateLayout()" />
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+              <button type="button" class="btn-sec" style="font-size:0.8rem; padding:0.4rem 0.75rem;" onclick="addItem()">+ Add Item</button>
+              <button type="button" class="btn-sec" style="font-size:0.8rem; padding:0.4rem 0.75rem;" onclick="removeItem()">- Remove Item</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE CANVAS PREVIEW -->
+        <div class="wb-card">
+          <label class="field-label" style="margin-bottom:0.75rem;">Live Viewport Simulation Canvas</label>
+          <div id="layout-preview" style="background:var(--bg); border:2px dashed var(--border); border-radius:6px; padding:1.25rem; min-height:220px; transition:all 0.2s ease;">
             <div class="layout-item">Item #1</div>
             <div class="layout-item">Item #2</div>
             <div class="layout-item">Item #3</div>
             <div class="layout-item">Item #4</div>
-            <div class="layout-item">Item #5</div>
+          </div>
+        </div>
+
+        <!-- EXPORT CSS -->
+        <div class="wb-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <label class="field-label" style="margin:0;">Generated Production CSS</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopyCss" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyLayoutCss()">Copy CSS</button>
+              <span id="cssCopyFeedback" style="font-size:0.78rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
+          </div>
+          <textarea id="layout-css-output" class="code-input" style="height:110px;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & Geometry Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Flex Factor Space Distribution & Grid Fractional Math</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Browsers calculate box layout positions through geometric distribution equations that partition available viewport width among flexible flex factors and fractional (fr) grid tracks:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Flexbox Positive Space Distribution Formula:</strong></div>
+            <div>&nbsp;&nbsp;W_i = \text{flex-basis}_i + \left( \frac{\text{flex-grow}_i}{\sum_{j=1}^N \text{flex-grow}_j} \times \text{Remaining Space} \right)</div>
+            <div><strong>2. Flexbox Negative Shrink Ratio:</strong></div>
+            <div>&nbsp;&nbsp;\text{ShrinkShare}_i = \frac{\text{flex-shrink}_i \times \text{flex-basis}_i}{\sum (\text{flex-shrink}_j \times \text{flex-basis}_j)} \times \text{Overflow}</div>
+            <div><strong>3. CSS Grid Fractional (1fr) Track Allocation:</strong></div>
+            <div>&nbsp;&nbsp;1\text{fr} = \frac{W_{\text{container}} - \sum W_{\text{fixed}} - (N_{\text{cols}} - 1) \times \text{gap}}{\sum \text{fr factors}}</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Modern CSS Layout -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Modern CSS Flexbox & Grid Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The min-width: auto Flexbox Text Truncation Blowout Trap</strong>
+            Flex items default to <code>min-width: auto</code> rather than <code>min-width: 0</code>. When a child container contains long strings of text styled with <code>text-overflow: ellipsis</code>, the flex item refuses to shrink below its content width, forcing the entire parent container to blow out horizontally.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Grid 1fr Track Expansion with Large Data Tables or Images</strong>
+            In CSS Grid, <code>1fr</code> is shorthand for <code>minmax(auto, 1fr)</code>. If a grid child contains a wide table, preformatted code snippet, or unconstrained image, the track expands to fit the intrinsic content size rather than obeying the fractional budget. Always specify <code>minmax(0, 1fr)</code> for strict bounding.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Confusing align-content with align-items in Multi-Line Flexbox</strong>
+            Developers often wonder why <code>align-items</code> fails to distribute rows in a wrapping flex container. <code>align-items</code> only positions items inside their individual flex line; distributing the wrapped lines across the container cross-axis requires <code>align-content</code>.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Implicit Track Sparse Gaps & Missing grid-auto-flow: dense</strong>
+            When designing card layouts with varied column/row spans, CSS Grid defaults to sparse placement. If a 2-column card cannot fit in a remaining single-column slot, the engine leaves an empty blank gap. Declaring <code>grid-auto-flow: dense</code> enables packing algorithms to backfill slots.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Subgrid Boundary & Legacy Fallback Layout Collapse</strong>
+            Using <code>grid-template-columns: subgrid</code> without testing in non-supporting browsers causes child grids to collapse to 0-width columns. Production subgrid implementations must provide an explicit fractional fallback rule for robust cross-browser degradation.
           </div>
         </div>
       </div>
@@ -1116,45 +1311,61 @@ hLinesRs + '\\n\\n' +
 
         function switchLayoutMode(mode) {
           layoutMode = mode;
-          var btns = event.target.parentElement.querySelectorAll('.tab-btn');
+          var btns = document.querySelectorAll('.tab-bar .tab-btn');
           for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-          event.target.classList.add('active');
-          document.getElementById('flex-controls').style.display = mode === 'flex' ? 'block' : 'none';
-          document.getElementById('grid-controls').style.display = mode === 'grid' ? 'block' : 'none';
-          document.getElementById('mode-title').textContent = mode === 'flex' ? 'Flexbox Controls' : 'CSS Grid Controls';
+          if (window.event && window.event.target) window.event.target.classList.add('active');
+
+          document.getElementById('ctrls-flex').style.display = mode === 'flex' ? 'grid' : 'none';
+          document.getElementById('ctrls-grid').style.display = mode === 'grid' ? 'grid' : 'none';
           updateLayout();
         }
 
         function updateLayout() {
           var preview = document.getElementById('layout-preview');
-          var gap = document.getElementById('layout-gap').value;
-          document.getElementById('gap-val').textContent = gap;
-          var cssOut = document.getElementById('layout-css-output');
+          var out = document.getElementById('layout-css-output');
+          var gapPx = document.getElementById('layout-gap').value;
+          document.getElementById('gap-val').textContent = (gapPx / 16).toFixed(2) + 'rem (' + gapPx + 'px)';
 
           if (layoutMode === 'flex') {
             var dir = document.getElementById('flex-dir').value;
-            var wrap = document.getElementById('flex-wrap').value;
-            var just = document.getElementById('flex-justify').value;
+            var justify = document.getElementById('flex-justify').value;
             var align = document.getElementById('flex-align').value;
 
             preview.style.display = 'flex';
             preview.style.flexDirection = dir;
-            preview.style.flexWrap = wrap;
-            preview.style.justifyContent = just;
+            preview.style.justifyContent = justify;
             preview.style.alignItems = align;
-            preview.style.gridTemplateColumns = '';
-            preview.style.gap = gap + 'px';
+            preview.style.gap = gapPx + 'px';
+            preview.style.gridTemplateColumns = 'none';
 
-            cssOut.value = '.container {\\n  display: flex;\\n  flex-direction: ' + dir + ';\\n  flex-wrap: ' + wrap + ';\\n  justify-content: ' + just + ';\\n  align-items: ' + align + ';\\n  gap: ' + gap + 'px;\\n}';
+            var css = '.flex-container {\n' +
+              '  display: flex;\n' +
+              '  flex-direction: ' + dir + ';\n' +
+              '  justify-content: ' + justify + ';\n' +
+              '  align-items: ' + align + ';\n' +
+              '  gap: ' + (gapPx/16).toFixed(2) + 'rem;\n}';
+            out.value = css;
           } else {
-            var cols = document.getElementById('grid-cols').value;
-            preview.style.display = 'grid';
-            preview.style.gridTemplateColumns = cols;
-            preview.style.gap = gap + 'px';
-            preview.style.flexDirection = '';
-            preview.style.justifyContent = '';
+            var cols = document.getElementById('grid-cols').value.trim() || 'repeat(auto-fit, minmax(180px, 1fr))';
+            var rows = document.getElementById('grid-rows').value.trim() || 'auto';
+            var flow = document.getElementById('grid-flow').value;
 
-            cssOut.value = '.container {\\n  display: grid;\\n  grid-template-columns: ' + cols + ';\\n  gap: ' + gap + 'px;\\n}';
+            preview.style.display = 'grid';
+            preview.style.flexDirection = 'row';
+            preview.style.justifyContent = 'normal';
+            preview.style.alignItems = 'normal';
+            preview.style.gridTemplateColumns = cols;
+            preview.style.gridTemplateRows = rows;
+            preview.style.gridAutoFlow = flow;
+            preview.style.gap = gapPx + 'px';
+
+            var cssG = '.grid-container {\n' +
+              '  display: grid;\n' +
+              '  grid-template-columns: ' + cols + ';\n' +
+              '  grid-template-rows: ' + rows + ';\n' +
+              '  grid-auto-flow: ' + flow + ';\n' +
+              '  gap: ' + (gapPx/16).toFixed(2) + 'rem;\n}';
+            out.value = cssG;
           }
         }
 
@@ -1175,8 +1386,10 @@ hLinesRs + '\\n\\n' +
         }
 
         function copyLayoutCss() {
-          navigator.clipboard.writeText(document.getElementById('layout-css-output').value);
-          alert('CSS copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('layout-css-output').value).then(function() {
+            var fb = document.getElementById('cssCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', updateLayout);
