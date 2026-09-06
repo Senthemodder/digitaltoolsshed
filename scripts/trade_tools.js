@@ -167037,6 +167037,1720 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (255 calculators in /calc/)');
+    // --- TOOL CA1: VACUUM PRESSURE SWING ADSORPTION (VPSA) OXYGEN GENERATOR CALCULATOR ---
+  (() => {
+    const slug = 'vacuum-pressure-swing-adsorption-vpsa-oxygen-generator-calculator';
+    const title = 'VPSA Oxygen Generator Sizing Calculator | Vacuum Pressure Swing Adsorption';
+    const desc = 'Size industrial Vacuum Pressure Swing Adsorption (VPSA) and PSA oxygen generation plants. Calculate zeolite adsorbent bed mass, feed air blower displacement, vacuum blower power, oxygen recovery, and specific power consumption (kWh/Nm3).';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'VPSA Oxygen Generator Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What distinguishes Vacuum Pressure Swing Adsorption (VPSA) from standard Pressure Swing Adsorption (PSA)?',
+        a: 'Standard PSA pressurizes ambient air to 6 to 8 bar(g) through an air compressor and desorbs nitrogen at atmospheric pressure (1 bar a). In contrast, VPSA operates at very low positive pressure (typically 1.3 to 1.5 bar a) during adsorption and uses a dedicated rotary lobe vacuum blower to evacuate the beds down to deep vacuum (0.35 to 0.45 bar a) during desorption. Because compressing air to only 1.4 bar a requires far less thermodynamic energy than 7 bar g, VPSA cuts electrical power consumption by 40% to 55% (0.38–0.50 kWh/Nm3 O2 versus 0.85–1.15 kWh/Nm3 for standard PSA).'
+      },
+      {
+        q: 'How does LiX zeolite selectively separate nitrogen from oxygen?',
+        a: 'Modern VPSA systems deploy Lithium-exchanged Low Silica X (LiX) zeolite molecular sieves. The exposed extra-framework Li+ cations possess an exceptionally high electric field gradient that strongly interacts with the permanent quadrupole moment of nitrogen (N2) molecules. Nitrogen is preferentially adsorbed into the crystalline zeolite cages, allowing non-polar oxygen (O2) and argon (Ar) to pass straight through the bed as the unadsorbed product gas at 90% to 94% purity.'
+      },
+      {
+        q: 'Why does maximum VPSA oxygen purity plateau at 93% to 95%?',
+        a: 'Ambient air consists of approximately 78.08% nitrogen, 20.95% oxygen, and 0.93% argon. Zeolite molecular sieves exhibit almost identical adsorption selectivity for oxygen and argon because neither has a significant quadrupole moment. Consequently, argon concentrates proportionally alongside oxygen. When all nitrogen is removed, the remaining gas mixture naturally consists of approximately 95.7% O2 and 4.3% Ar.'
+      },
+      {
+        q: 'What is the Linear Driving Force (LDF) mass transfer model in cyclic adsorption?',
+        a: 'The LDF approximation models the rate of gas uptake into porous adsorbent pellets: dq/dt = k_LDF × (q* - q), where q* is the equilibrium adsorbed phase concentration from the multi-component Langmuir isotherm, q is average pellet loading, and k_LDF is the mass transfer coefficient. In rapid-cycle VPSA (cycle times of 30 to 60 seconds), fast macropore diffusion is essential to prevent mass transfer zone broadening from breaking through prematurely.'
+      },
+      {
+        q: 'Why is moisture and CO2 removal crucial upstream of the zeolite bed?',
+        a: 'LiX zeolite has an immense thermodynamic affinity for polar water (H2O) and carbon dioxide (CO2). If feed air containing humidity reaches the main LiX bed, water molecules bind irreversibly to active Li+ cations, permanently destroying nitrogen adsorption capacity. VPSA beds are designed with an inlet guard layer of activated alumina or 13X zeolite to scrub ambient humidity and CO2 before air contacts the LiX layer.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size industrial Vacuum Pressure Swing Adsorption (VPSA) oxygen generation plants. Compute required LiX zeolite adsorbent mass, feed air blower displacement, vacuum blower power, oxygen recovery ratio, and specific power consumption (kWh/Nm³ O₂).' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Oxygen Demand & Process Parameters</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Target Oxygen Generation Rate</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="vpsa_prod" value="1500" min="50" max="25000" step="50" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="vpsa_prod_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="nm3_h" selected>Nm³/h</option>' +
+                '<option value="t_d">ton/day</option>' +
+                '<option value="scfm">SCFM</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Product Purity (% O₂)</label>' +
+              '<input type="number" id="vpsa_purity" value="93.0" min="80.0" max="95.5" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Oxygen Recovery η (%)</label>' +
+              '<input type="number" id="vpsa_rec" value="58" min="35" max="70" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Adsorption Press. (bar a)</label>' +
+              '<input type="number" id="vpsa_pads" value="1.42" min="1.1" max="2.5" step="0.05" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Desorption Vacuum (bar a)</label>' +
+              '<input type="number" id="vpsa_pdes" value="0.38" min="0.2" max="0.8" step="0.02" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Full Cycle Time (seconds)</label>' +
+              '<input type="number" id="vpsa_cycle" value="50" min="20" max="180" step="5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Zeolite Δq_work (Nl/kg)</label>' +
+              '<input type="number" id="vpsa_dq" value="14.0" min="6.0" max="25.0" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">LiX Bulk Density (kg/m³)</label>' +
+              '<input type="number" id="vpsa_rho" value="650" min="550" max="800" step="10" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Power Cost ($/kWh)</label>' +
+              '<input type="number" id="vpsa_cost" value="0.08" min="0.02" max="0.40" step="0.01" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">VPSA Plant Sizing & Energy Outputs</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Total Zeolite Adsorbent</span>' +
+                '<span id="res_vpsa_mass" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_vpsa_bed_vol" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Specific Energy (SEC)</span>' +
+                '<span id="res_vpsa_sec" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_vpsa_sec_ton" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Feed Air Blower Rate</span>' +
+                '<span id="res_vpsa_air_flow" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_vpsa_air_ratio" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Total Electrical Power</span>' +
+                '<span id="res_vpsa_total_kw" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_vpsa_blower_split" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Vessel Sizing (2 Beds):</span>' +
+                '<span id="res_vpsa_vessels" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Daily Production (ton/day):</span>' +
+                '<span id="res_vpsa_tons_day" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Annual Electrical OPEX:</span>' +
+                '<span id="res_vpsa_annual_opex" style="font-weight:600;color:#10b981;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_vpsa" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Dual-Bed VPSA Cyclic Sequence Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Real-time cycle sequence visualizer illustrating Bed A adsorption phase alongside Bed B vacuum regeneration and pressure equalization.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="vpsa_cycle_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in VPSA Oxygen Plants</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Moisture Poisoning of High-Performance LiX Zeolite</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">LiX zeolite has a massive affinity for water molecules. If inlet air pre-cooling or activated alumina guard layer fails, humidity penetrates the LiX bed. Water binds permanently to the lithium cations, causing immediate and irreversible collapse of nitrogen adsorption capacity. The entire 20-ton zeolite charge must be discarded and replaced at immense expense.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Zeolite Pellet Fluidization and Dusting from Pressure Shocks</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">During pressure equalization or rapid valve transitions, gas velocity across the bed must never exceed the minimum fluidization velocity. If valve opening rates are too aggressive, the upward aerodynamic drag lifts and grinds zeolite pellets against one another, turning expensive molecular sieves into fine white powder that destroys downstream blowers and valves.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Vacuum Blower Overheating During Deep Evacuation</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Rotary lobe vacuum blowers compressing evacuated gas from 0.35 bar a up to atmospheric pressure undergo steep adiabatic compression temperature increases. Operating below design vacuum without vacuum relief valves or inter-stage gas injection cooling can cause discharge temperatures to exceed 140°C, triggering rotor thermal expansion galling.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. The Argon Concentration Ceiling Fallacy (Expecting 99% O2)</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Zeolites adsorb nitrogen based on quadrupole interaction, but argon and oxygen have virtually identical lack of quadrupole polarity. Thus, 100% of the 0.93% argon in ambient air concentrates into the oxygen product stream. Trying to force a VPSA system to produce 99% O2 is physically impossible; cryogenic distillation is mandatory for purities exceeding 95.5%.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Incomplete Desorption from High Vacuum Header Backpressure</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">If the vacuum exhaust silencer or piping to atmosphere creates excessive backpressure, the bed cannot reach target regeneration vacuum (e.g. stalling at 0.50 bar a instead of 0.38 bar a). Residual nitrogen remains trapped in the zeolite, shrinking working capacity (Δq) by over 35% and forcing plant production derating.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Thermodynamic Derivations & Adsorption Sizing</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'VPSA plant sizing integrates cyclic equilibrium working capacity, pneumatic blower displacement, and vacuum compression thermodynamics.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Feed Air Requirement (Mass Balance):<br>' +
+          '&nbsp;&nbsp;Q_air = [ Q_O2 · (y_O2 / 100) ] / [ 0.2095 · (η_rec / 100) ]&nbsp;&nbsp;[Nm³/h]<br><br>' +
+          '2. Nitrogen Mass to Adsorb per Half-Cycle:<br>' +
+          '&nbsp;&nbsp;V_N2_cycle = Q_air · 0.7808 · (t_cycle / 3600) / 2&nbsp;&nbsp;[Nm³ N₂]<br><br>' +
+          '3. LiX Zeolite Adsorbent Mass per Bed:<br>' +
+          '&nbsp;&nbsp;M_zeolite_bed = (V_N2_cycle · 1000) / Δq_working&nbsp;&nbsp;[kg]<br>' +
+          '&nbsp;&nbsp;M_zeolite_total = 2 · M_zeolite_bed&nbsp;&nbsp;[metric tons]<br><br>' +
+          '4. Compression Power (Feed Blower + Vacuum Blower):<br>' +
+          '&nbsp;&nbsp;P_feed = [ Q_air · P_atm / (3600 · η_poly) ] · [ γ / (γ - 1) ] · [ (P_ads / P_atm)^((γ-1)/γ) - 1 ]<br>' +
+          '&nbsp;&nbsp;P_vac = [ Q_waste · P_des / (3600 · η_poly) ] · [ γ / (γ - 1) ] · [ (P_atm / P_des)^((γ-1)/γ) - 1 ]<br><br>' +
+          '5. Specific Energy Consumption (SEC):<br>' +
+          '&nbsp;&nbsp;SEC = (P_feed + P_vac) / Q_O2&nbsp;&nbsp;[kWh/Nm³ O₂]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'prod: document.getElementById("vpsa_prod"),' +
+          'prod_unit: document.getElementById("vpsa_prod_unit"),' +
+          'purity: document.getElementById("vpsa_purity"),' +
+          'rec: document.getElementById("vpsa_rec"),' +
+          'pads: document.getElementById("vpsa_pads"),' +
+          'pdes: document.getElementById("vpsa_pdes"),' +
+          'cycle: document.getElementById("vpsa_cycle"),' +
+          'dq: document.getElementById("vpsa_dq"),' +
+          'rho: document.getElementById("vpsa_rho"),' +
+          'cost: document.getElementById("vpsa_cost"),' +
+          'res_mass: document.getElementById("res_vpsa_mass"),' +
+          'res_bed_vol: document.getElementById("res_vpsa_bed_vol"),' +
+          'res_sec: document.getElementById("res_vpsa_sec"),' +
+          'res_sec_ton: document.getElementById("res_vpsa_sec_ton"),' +
+          'res_air_flow: document.getElementById("res_vpsa_air_flow"),' +
+          'res_air_ratio: document.getElementById("res_vpsa_air_ratio"),' +
+          'res_total_kw: document.getElementById("res_vpsa_total_kw"),' +
+          'res_blower_split: document.getElementById("res_vpsa_blower_split"),' +
+          'res_vessels: document.getElementById("res_vpsa_vessels"),' +
+          'res_tons_day: document.getElementById("res_vpsa_tons_day"),' +
+          'res_annual_opex: document.getElementById("res_vpsa_annual_opex"),' +
+          'btn_copy: document.getElementById("btn_copy_vpsa"),' +
+          'canvas: document.getElementById("vpsa_cycle_canvas")' +
+        '};' +
+
+        'let animTick = 0;' +
+        'let animFrameId = null;' +
+
+        'function calc() {' +
+          'let q_o2 = parseFloat(els.prod.value) || 1500;' +
+          'if (els.prod_unit.value === "t_d") q_o2 = (q_o2 * 1000 / 24) / 1.429;' +
+          'else if (els.prod_unit.value === "scfm") q_o2 = q_o2 * 1.699;' +
+
+          'const purity = (parseFloat(els.purity.value) || 93) / 100;' +
+          'const rec = (parseFloat(els.rec.value) || 58) / 100;' +
+          'const p_ads = parseFloat(els.pads.value) || 1.42;' +
+          'const p_des = parseFloat(els.pdes.value) || 0.38;' +
+          'const cycleSec = parseFloat(els.cycle.value) || 50;' +
+          'const dq_nl_kg = parseFloat(els.dq.value) || 14;' +
+          'const rho_zeo = parseFloat(els.rho.value) || 650;' +
+          'const powerCost = parseFloat(els.cost.value) || 0.08;' +
+
+          'const q_air = (0.2095 * rec > 0) ? (q_o2 * purity) / (0.2095 * rec) : 0;' +
+          'const airRatio = (q_o2 > 0) ? q_air / q_o2 : 0;' +
+
+          'const halfCycleSec = cycleSec / 2;' +
+          'const v_n2_half_cycle = q_air * 0.7808 * (halfCycleSec / 3600);' +
+          'const v_n2_liters = v_n2_half_cycle * 1000;' +
+
+          'const mass_zeo_bed_kg = (dq_nl_kg > 0) ? v_n2_liters / dq_nl_kg : 0;' +
+          'const mass_zeo_total_t = (mass_zeo_bed_kg * 2) / 1000;' +
+          'const vol_bed_m3 = (rho_zeo > 0) ? mass_zeo_bed_kg / rho_zeo : 0;' +
+
+          'const dBed = Math.sqrt((vol_bed_m3 / 1.2) / (Math.PI / 4));' +
+          'const hBed = 1.2 * dBed;' +
+
+          'const gamma = 1.4;' +
+          'const eta_blower = 0.72;' +
+
+          'const p_atm = 1.013;' +
+          'const rp_feed = p_ads / p_atm;' +
+          'const w_feed_j_nm3 = (gamma / (gamma - 1)) * 101325 * (Math.pow(rp_feed, (gamma - 1) / gamma) - 1) / eta_blower;' +
+          'const p_feed_kw = (q_air / 3600) * (w_feed_j_nm3 / 1000);' +
+
+          'const q_waste = q_air - q_o2;' +
+          'const rp_vac = p_atm / p_des;' +
+          'const w_vac_j_nm3 = (gamma / (gamma - 1)) * (p_des * 100000) * (Math.pow(rp_vac, (gamma - 1) / gamma) - 1) / eta_blower;' +
+          'const p_vac_kw = (q_waste / 3600) * (w_vac_j_nm3 / 1000);' +
+
+          'const p_total_kw = p_feed_kw + p_vac_kw;' +
+          'const sec_kwh_nm3 = (q_o2 > 0) ? p_total_kw / q_o2 : 0;' +
+          'const sec_kwh_ton = sec_kwh_nm3 * 1.429 * 1000;' +
+
+          'const tons_day = (q_o2 * 1.429 * 24) / 1000;' +
+          'const annual_opex = p_total_kw * 8000 * powerCost;' +
+
+          'els.res_mass.textContent = mass_zeo_total_t.toFixed(1) + " metric tons";' +
+          'els.res_bed_vol.textContent = "2 Beds @ " + vol_bed_m3.toFixed(1) + " m³ each (" + (mass_zeo_bed_kg / 1000).toFixed(1) + " t/bed)";' +
+
+          'els.res_sec.textContent = sec_kwh_nm3.toFixed(3) + " kWh/Nm³ O₂";' +
+          'els.res_sec_ton.textContent = Math.round(sec_kwh_ton).toLocaleString() + " kWh / metric ton O₂";' +
+
+          'els.res_air_flow.textContent = Math.round(q_air).toLocaleString() + " Nm³/h";' +
+          'els.res_air_ratio.textContent = "Air/O₂ Ratio: " + airRatio.toFixed(2) + "x (" + (q_air * 0.588578).toFixed(0) + " SCFM)";' +
+
+          'els.res_total_kw.textContent = Math.round(p_total_kw).toLocaleString() + " kW";' +
+          'els.res_blower_split.textContent = "Feed: " + Math.round(p_feed_kw) + " kW | Vacuum: " + Math.round(p_vac_kw) + " kW";' +
+
+          'els.res_vessels.textContent = "2 × (⌀" + dBed.toFixed(2) + "m × " + hBed.toFixed(2) + "m height)";' +
+          'els.res_tons_day.textContent = tons_day.toFixed(1) + " ton/day pure O₂ equiv.";' +
+          'els.res_annual_opex.textContent = "$" + Math.round(annual_opex).toLocaleString() + "/year (@ 8,000 hrs)";' +
+        '}' +
+
+        'function startCycleAnim() {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+
+          'function render() {' +
+            'ctx.clearRect(0, 0, w, h);' +
+            'animTick += 0.01;' +
+            'if (animTick > 1) animTick -= 1;' +
+
+            'const b1x = 180;' +
+            'const b2x = 420;' +
+            'const by = 60;' +
+            'const bw = 120;' +
+            'const bh = 180;' +
+
+            'const isBedA_Ads = animTick < 0.5;' +
+
+            'ctx.fillStyle = isBedA_Ads ? "#0369a1" : "#1e293b";' +
+            'ctx.strokeStyle = isBedA_Ads ? "#38bdf8" : "#475569";' +
+            'ctx.lineWidth = 3;' +
+            'ctx.beginPath();' +
+            'ctx.roundRect(b1x, by, bw, bh, [15, 15, 15, 15]);' +
+            'ctx.fill();' +
+            'ctx.stroke();' +
+
+            'ctx.fillStyle = !isBedA_Ads ? "#0369a1" : "#1e293b";' +
+            'ctx.strokeStyle = !isBedA_Ads ? "#38bdf8" : "#475569";' +
+            'ctx.lineWidth = 3;' +
+            'ctx.beginPath();' +
+            'ctx.roundRect(b2x, by, bw, bh, [15, 15, 15, 15]);' +
+            'ctx.fill();' +
+            'ctx.stroke();' +
+
+            'ctx.fillStyle = "#f8fafc";' +
+            'ctx.font = "bold 13px sans-serif";' +
+            'ctx.textAlign = "center";' +
+            'ctx.fillText("BED A", b1x + bw / 2, by + 30);' +
+            'ctx.fillText("BED B", b2x + bw / 2, by + 30);' +
+
+            'ctx.font = "11px sans-serif";' +
+            'ctx.fillStyle = isBedA_Ads ? "#34d399" : "#a855f7";' +
+            'ctx.fillText(isBedA_Ads ? "ADSORPTION (1.4 bar)" : "EVACUATION (0.38 bar)", b1x + bw / 2, by + 50);' +
+
+            'ctx.fillStyle = !isBedA_Ads ? "#34d399" : "#a855f7";' +
+            'ctx.fillText(!isBedA_Ads ? "ADSORPTION (1.4 bar)" : "EVACUATION (0.38 bar)", b2x + bw / 2, by + 50);' +
+
+            'ctx.fillStyle = "#cbd5e1";' +
+            'ctx.fillText("LiX Zeolite Bed", b1x + bw / 2, by + bh / 2 + 10);' +
+            'ctx.fillText("LiX Zeolite Bed", b2x + bw / 2, by + bh / 2 + 10);' +
+
+            'ctx.fillStyle = "#10b981";' +
+            'ctx.font = "bold 12px sans-serif";' +
+            'ctx.fillText("PRODUCT O₂ (93% Purity)", (b1x + b2x + bw) / 2, 25);' +
+
+            'ctx.fillStyle = "#94a3b8";' +
+            'ctx.fillText("Feed Air Blower", b1x - 70, by + bh + 45);' +
+            'ctx.fillText("Waste Vacuum Blower", b2x + bw + 70, by + bh + 45);' +
+
+            'animFrameId = requestAnimationFrame(render);' +
+          '}' +
+
+          'render();' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== VPSA OXYGEN GENERATOR DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Total Zeolite Mass: " + els.res_mass.textContent + " (" + els.res_bed_vol.textContent + ")\n" +' +
+            '"Specific Power Consumption: " + els.res_sec.textContent + " (" + els.res_sec_ton.textContent + ")\n" +' +
+            '"Total Electrical Power: " + els.res_total_kw.textContent + " (" + els.res_blower_split.textContent + ")\n" +' +
+            '"Feed Air Flow: " + els.res_air_flow.textContent + " (" + els.res_air_ratio.textContent + ")\n" +' +
+            '"Vessel Dimensions: " + els.res_vessels.textContent + "\n" +' +
+            '"Annual Power OPEX: " + els.res_annual_opex.textContent + "\n" +' +
+            '"Operating Parameters: Production=" + els.prod.value + " " + els.prod_unit.value + " @ " + els.purity.value + "% O2\n" +' +
+            '"Pressures: Ads=" + els.pads.value + " bar a | Des=" + els.pdes.value + " bar a\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.prod, els.prod_unit, els.purity, els.rec, els.pads, els.pdes, els.cycle, els.dq, els.rho, els.cost];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+        'startCycleAnim();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL CA2: CLAUS SULFUR RECOVERY UNIT (SRU) REACTION FURNACE CALCULATOR ---
+  (() => {
+    const slug = 'claus-sulfur-recovery-unit-sru-reaction-furnace-calculator';
+    const title = 'Claus SRU Reaction Furnace Sizing Calculator | Refinery Sulfur Recovery Unit';
+    const desc = 'Size refinery Claus Sulfur Recovery Units (SRU) and thermal reaction furnaces. Calculate stoichiometric combustion air demand, adiabatic flame temperature, thermal stage conversion, waste heat boiler steam generation, and overall sulfur recovery efficiency.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'Claus SRU Furnace Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What is the chemical reaction mechanism of the Claus Sulfur Recovery process?',
+        a: 'The modified Claus process converts toxic hydrogen sulfide (H2S) into harmless elemental sulfur (S) through a two-step sequence: (1) Thermal Stage: In the high-temperature reaction furnace (>1000°C), exactly one-third of the feed H2S is combusted with air to produce sulfur dioxide: H2S + 1.5 O2 -> SO2 + H2O. The generated SO2 reacts thermally with the remaining unburned H2S to convert 65% to 72% of inlet sulfur directly into elemental sulfur vapor: 2 H2S + SO2 <-> 3/x Sx + 2 H2O. (2) Catalytic Stage: The gas is cooled in a waste heat boiler, sulfur is condensed out, and the remaining gas passes through activated alumina catalyst beds at 200°C–320°C to drive equilibrium conversion up to 96%–98.5%.'
+      },
+      {
+        q: 'Why is the strict 2:1 H2S-to-SO2 ratio critical for catalytic conversion?',
+        a: 'The catalytic Claus reaction stoichiometry is 2 H2S + SO2 <-> 3/x Sx + 2 H2O, requiring an exact 2.00:1 molar ratio of H2S to SO2. If combustion air is under-supplied, excess unreacted H2S leaves the plant without enough SO2 partner molecules to react. Conversely, if excess air is injected, surplus SO2 escapes unconverted. An air demand analyzer control loop measuring tail gas H2S and SO2 continuously trims combustion air valves to maintain the 2:1 stoichiometry within ±0.05.'
+      },
+      {
+        q: 'Why must the reaction furnace flame temperature be maintained above 1050°C?',
+        a: 'Refinery acid gas frequently contains trace aromatic hydrocarbons (BTEX: Benzene, Toluene, Ethylbenzene, Xylene) and ammonia (NH3) from sour water strippers. If the furnace flame temperature drops below 1050°C (1922°F), BTEX molecules fail to combust completely, generating fine graphitic soot that deposits on downstream alumina catalyst, permanently blinding catalyst pores. Ammonia requires >1250°C to crack into N2 and H2; uncracked NH3 forms solid ammonium salt deposits that plug condensers.'
+      },
+      {
+        q: 'How does oxygen enrichment boost Claus SRU capacity?',
+        a: 'Ambient air is 78% inert nitrogen. Enriched air (up to 45%–93% O2) replaces inert nitrogen with reactive oxygen, cutting overall process gas volume through the reaction furnace and condensers by 30% to 50%. This frees up volumetric capacity in existing pipes and vessels, allowing an existing refinery SRU train to process up to 100% to 150% more acid gas feed without installing a new multi-million dollar reactor train.'
+      },
+      {
+        q: 'What causes tube sheet failure in the Claus Waste Heat Boiler (WHB)?',
+        a: 'Process gas exits the reaction furnace at 1100°C to 1400°C and enters the Waste Heat Boiler (WHB). Because H2S is intensely corrosive to carbon steel at elevated temperatures (sulfidation attack), ceramic ferrules with refractory paper wrapping must protect the tube sheet and tube entrance joints. If ceramic ferrules crack or dislodge, high-temperature gas directly impinges on carbon steel tube-to-tubesheet welds, causing catastrophic sulfur-induced embrittlement leaks within days.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size refinery Claus Sulfur Recovery Units (SRU) and thermal reaction furnaces. Calculate stoichiometric combustion air demand, adiabatic flame temperature, thermal stage conversion, waste heat boiler steam generation, and overall sulfur recovery efficiency.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Acid Gas Feed & Burner Parameters</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Acid Gas Feed Rate (Q_feed)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="sru_flow" value="2500" min="100" max="80000" step="100" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="sru_flow_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="nm3_h" selected>Nm³/h</option>' +
+                '<option value="mmscfd">MMSCFD</option>' +
+                '<option value="t_d_s">t/d Sulfur</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">H₂S Concentration (mol%)</label>' +
+              '<input type="number" id="sru_h2s" value="75.0" min="20.0" max="99.0" step="1.0" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">CO₂ Content (mol%)</label>' +
+              '<input type="number" id="sru_co2" value="20.0" min="0" max="75.0" step="1.0" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Hydrocarbons (CH₄ eq, mol%)</label>' +
+              '<input type="number" id="sru_hc" value="1.0" min="0" max="6.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Combustion Air O₂ (vol%)</label>' +
+              '<input type="number" id="sru_o2_pct" value="21.0" min="21.0" max="95.0" step="1.0" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Catalytic Stages</label>' +
+              '<select id="sru_stages" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="2" selected>2 Catalytic Beds (96.5% Recovery)</option>' +
+                '<option value="3">3 Catalytic Beds (98.5% Recovery)</option>' +
+              '</select>' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">WHB Steam Press. (bar g)</label>' +
+              '<input type="number" id="sru_psteam" value="40" min="10" max="65" step="5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Furnace Residence Time (sec)</label>' +
+            '<input type="number" id="sru_restime" value="1.5" min="0.8" max="3.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">SRU Sizing & Sulfur Yield Outputs</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Sulfur Production Rate</span>' +
+                '<span id="res_sru_prod_tpd" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_sru_prod_lt" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Overall Sulfur Recovery</span>' +
+                '<span id="res_sru_recovery" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_sru_thermal_conv" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Furnace Flame Temp</span>' +
+                '<span id="res_sru_flame_temp" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_sru_btex_status" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Combustion Air Rate</span>' +
+                '<span id="res_sru_air_flow" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_sru_air_scfm" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">WHB High-Pressure Steam Generation:</span>' +
+                '<span id="res_sru_steam_rate" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Reaction Furnace Firebox Volume:</span>' +
+                '<span id="res_sru_vol" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Furnace Dimensions (D × L):</span>' +
+                '<span id="res_sru_dims" style="font-weight:600;color:#38bdf8;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_sru" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Claus Sulfur Recovery Unit (SRU) Process Flow Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Process flow schematic featuring thermal reaction furnace, waste heat boiler steam drum, catalytic converter bed, and liquid sulfur collection pit.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="sru_flow_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in Claus SRU Design</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Flame Temperature Dropping Below 1050°C (BTEX Soot Poisoning)</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">When treating lean acid gas (<45% H2S), adiabatic flame temperature can collapse below 980°C. Heavy aromatics (BTEX) do not thermally combust; instead, they pyrolyze into black graphitic soot. The soot travels into the first Claus converter, coating spherical alumina catalyst in an impervious carbon jacket and destroying recovery within 72 hours.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. The 2:1 H2S to SO2 Ratio Control Hunting Trap</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">The catalytic Claus reaction is strictly bound by 2 H2S + SO2 <-> 3 S + 2 H2O. A minor 2% error in combustion air flow upsets this exact 2:1 ratio. Operating with ratio swings drops overall sulfur recovery from 96.5% down to under 88%, massively overloading the downstream Tail Gas Treating Unit (TGTU) and flaring SO2 into violation territory.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Waste Heat Boiler Tube Sheet Sulfidation Catastrophe</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Gases entering the WHB at 1200°C contain corrosive elemental sulfur and H2S. If ceramic inlet ferrules fail to insulate the carbon steel tubesheet, localized metal temperatures exceed 370°C (700°F). At this temperature, high-temperature sulfur corrosion thins tubesheet welds at up to 10 mm/year, leading to explosive high-pressure boiler tube ruptures.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Sub-Dew-Point Sulfur Condensation in Catalytic Beds</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">While lower catalyst bed temperatures thermodynamically favor the exothermic Claus reaction, operating bed inlet temperatures below the sulfur dew point (~180°C to 210°C) condenses liquid sulfur directly inside catalyst pores. Capillary condensation plugs the active micropores completely, causing instantaneous 90% loss of catalytic activity.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Solid Ammonium Salt Plugging in Sour Gas Stripping</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">If sour water stripper (SWS) gas containing ammonia is co-fed into an acid gas burner without achieving high-intensity mixing (>1300°C core flame), NH3 slips past the furnace. Downstream in the second or third sulfur condenser (<140°C), NH3 reacts with SO2 and moisture to precipitate solid ammonium salts that choke condenser tubes completely.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Thermodynamic Derivations & Sizing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'The modified Claus reaction furnace balances stoichiometry, adiabatic combustion enthalpy, and thermal sulfur vapor equilibrium.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Stoichiometric Oxygen Demand for Thermal Stage:<br>' +
+          '&nbsp;&nbsp;O₂_demand = Q_feed · [ (y_H2S / 3) · 1.5 + (y_HC · 2.0) ]&nbsp;&nbsp;[Nm³/h O₂]<br>' +
+          '&nbsp;&nbsp;Air_demand = O₂_demand / (y_O2_air / 100)&nbsp;&nbsp;[Nm³/h air]<br><br>' +
+          '2. Daily Elemental Sulfur Production (M_sulfur):<br>' +
+          '&nbsp;&nbsp;M_sulfur = Q_feed · (y_H2S / 100) · (32.065 / 22.414) · (η_recovery / 100) · (24 / 1000)&nbsp;&nbsp;[metric tons/day]<br><br>' +
+          '3. Reaction Furnace Adiabatic Flame Temperature (T_flame):<br>' +
+          '&nbsp;&nbsp;ΔH_comb = Q_H2S_comb · 518,000 kJ/kmol + Q_HC · 802,000 kJ/kmol<br>' +
+          '&nbsp;&nbsp;T_flame = T_inlet + [ ΔH_comb / (Q_total_flue · Cp_flue) ]&nbsp;&nbsp;(typically 1050°C to 1350°C)<br><br>' +
+          '4. Waste Heat Boiler HP Steam Generation:<br>' +
+          '&nbsp;&nbsp;Q_WHB = Q_total_flue · Cp_flue · (T_flame - 315°C)<br>' +
+          '&nbsp;&nbsp;Steam_rate = Q_WHB / Δh_vap(P_steam)&nbsp;&nbsp;[ton/hour 40 barg steam]<br><br>' +
+          '5. Firebox Volume & Diameter:<br>' +
+          '&nbsp;&nbsp;V_firebox = Q_total_flue_actual · t_residence&nbsp;&nbsp;[m³]<br>' +
+          '&nbsp;&nbsp;D_furnace = √[ V_firebox / (2.8 · π / 4) ]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'flow: document.getElementById("sru_flow"),' +
+          'flow_unit: document.getElementById("sru_flow_unit"),' +
+          'h2s: document.getElementById("sru_h2s"),' +
+          'co2: document.getElementById("sru_co2"),' +
+          'hc: document.getElementById("sru_hc"),' +
+          'o2_pct: document.getElementById("sru_o2_pct"),' +
+          'stages: document.getElementById("sru_stages"),' +
+          'psteam: document.getElementById("sru_psteam"),' +
+          'restime: document.getElementById("sru_restime"),' +
+          'res_prod_tpd: document.getElementById("res_sru_prod_tpd"),' +
+          'res_prod_lt: document.getElementById("res_sru_prod_lt"),' +
+          'res_recovery: document.getElementById("res_sru_recovery"),' +
+          'res_thermal_conv: document.getElementById("res_sru_thermal_conv"),' +
+          'res_flame_temp: document.getElementById("res_sru_flame_temp"),' +
+          'res_btex_status: document.getElementById("res_sru_btex_status"),' +
+          'res_air_flow: document.getElementById("res_sru_air_flow"),' +
+          'res_air_scfm: document.getElementById("res_sru_air_scfm"),' +
+          'res_steam_rate: document.getElementById("res_sru_steam_rate"),' +
+          'res_vol: document.getElementById("res_sru_vol"),' +
+          'res_dims: document.getElementById("res_sru_dims"),' +
+          'btn_copy: document.getElementById("btn_copy_sru"),' +
+          'canvas: document.getElementById("sru_flow_canvas")' +
+        '};' +
+
+        'function calc() {' +
+          'let q_feed_nm3h = parseFloat(els.flow.value) || 2500;' +
+          'const h2s_pct = parseFloat(els.h2s.value) || 75;' +
+          'const h2s_frac = h2s_pct / 100;' +
+
+          'if (els.flow_unit.value === "mmscfd") {' +
+            'q_feed_nm3h = (q_feed_nm3h * 1e6 / 24) * 0.0283168;' +
+          '} else if (els.flow_unit.value === "t_d_s") {' +
+            'const sulfur_kg_h = (q_feed_nm3h * 1000) / 24;' +
+            'const kmol_s_h = sulfur_kg_h / 32.065;' +
+            'const nm3_h2s_h = kmol_s_h * 22.414;' +
+            'q_feed_nm3h = (h2s_frac > 0) ? nm3_h2s_h / h2s_frac : 0;' +
+          '}' +
+
+          'const hc_frac = (parseFloat(els.hc.value) || 1.0) / 100;' +
+          'const o2_air_pct = parseFloat(els.o2_pct.value) || 21.0;' +
+          'const o2_air_frac = o2_air_pct / 100;' +
+          'const stages = parseInt(els.stages.value) || 2;' +
+          'const psteam_barg = parseFloat(els.psteam.value) || 40;' +
+          'const resTimeSec = parseFloat(els.restime.value) || 1.5;' +
+
+          'const o2_h2s_demand = (q_feed_nm3h * h2s_frac / 3) * 1.5;' +
+          'const o2_hc_demand = (q_feed_nm3h * hc_frac) * 2.0;' +
+          'const total_o2_nm3h = o2_h2s_demand + o2_hc_demand;' +
+
+          'const air_nm3h = (o2_air_frac > 0) ? total_o2_nm3h / o2_air_frac : 0;' +
+          'const air_scfm = air_nm3h * 0.588578;' +
+
+          'let eta_recovery = (stages === 3) ? 98.6 : 96.5;' +
+          'const thermal_conv = Math.min(72.0, Math.max(62.0, 60.0 + 0.12 * h2s_pct));' +
+
+          'const sulfur_nm3h = q_feed_nm3h * h2s_frac * (eta_recovery / 100);' +
+          'const sulfur_tpd = (sulfur_nm3h * 32.065 / 22.414 * 24) / 1000;' +
+          'const sulfur_ltpd = sulfur_tpd * 0.984207;' +
+
+          'const t_flame_c = Math.min(1500, Math.max(850, 750 + (h2s_pct * 5.2) + (o2_air_pct - 21) * 6.5));' +
+          'const t_flame_f = t_flame_c * 1.8 + 32;' +
+
+          'const total_flue_nm3h = q_feed_nm3h + air_nm3h - (sulfur_nm3h * 0.7);' +
+          'const t_flame_k = t_flame_c + 273.15;' +
+          'const flue_actual_m3s = (total_flue_nm3h / 3600) * (t_flame_k / 273.15);' +
+
+          'const firebox_vol_m3 = flue_actual_m3s * resTimeSec;' +
+          'const l_over_d = 2.8;' +
+          'const d_furnace = Math.cbrt(firebox_vol_m3 / (l_over_d * Math.PI / 4));' +
+          'const l_furnace = l_over_d * d_furnace;' +
+
+          'const cp_flue_kj_nm3 = 1.6;' +
+          'const t_whb_out = 315;' +
+          'const q_whb_kw = (total_flue_nm3h / 3600) * cp_flue_kj_nm3 * (t_flame_c - t_whb_out);' +
+          'const h_fg_steam = Math.max(1600, 2100 - (psteam_barg * 10));' +
+          'const steam_ton_h = (q_whb_kw * 3.6) / h_fg_steam;' +
+
+          'els.res_prod_tpd.textContent = sulfur_tpd.toFixed(1) + " t/day elemental S";' +
+          'els.res_prod_lt.textContent = sulfur_ltpd.toFixed(1) + " long tons/day (" + (sulfur_tpd / 24).toFixed(2) + " t/h)";' +
+
+          'els.res_recovery.textContent = eta_recovery.toFixed(1) + "% Total SRU";' +
+          'els.res_thermal_conv.textContent = "Thermal Stage: " + thermal_conv.toFixed(1) + "% S conversion";' +
+
+          'els.res_flame_temp.textContent = Math.round(t_flame_c) + " °C (" + Math.round(t_flame_f) + " °F)";' +
+          'if (t_flame_c < 1050) {' +
+            'els.res_btex_status.innerHTML = "<span style=\"color:#ef4444;font-weight:700;\">⚠️ Below 1050°C: BTEX Soot Risk!</span>";' +
+          '} else if (t_flame_c < 1250) {' +
+            'els.res_btex_status.innerHTML = "<span style=\"color:#10b981;font-weight:600;\">✓ Clean BTEX Destruction</span>";' +
+          '} else {' +
+            'els.res_btex_status.innerHTML = "<span style=\"color:#34d399;font-weight:600;\">✓ High Temp Ammonia Cracking Zone</span>";' +
+          '}' +
+
+          'els.res_air_flow.textContent = Math.round(air_nm3h).toLocaleString() + " Nm³/h";' +
+          'els.res_air_scfm.textContent = Math.round(air_scfm).toLocaleString() + " SCFM (" + o2_air_pct.toFixed(0) + "% O₂)";' +
+
+          'els.res_steam_rate.textContent = steam_ton_h.toFixed(1) + " t/h HP Steam (" + (q_whb_kw / 1000).toFixed(1) + " MW_th)";' +
+          'els.res_vol.textContent = firebox_vol_m3.toFixed(1) + " m³ (" + (firebox_vol_m3 * 35.3147).toFixed(0) + " cu ft)";' +
+          'els.res_dims.textContent = "⌀" + d_furnace.toFixed(2) + "m ID × " + l_furnace.toFixed(2) + "m length";' +
+
+          'drawSRU(t_flame_c, steam_ton_h, sulfur_tpd);' +
+        '}' +
+
+        'function drawSRU(flameT, steamRate, sulfurTpd) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const fx = 80;' +
+          'const fy = 60;' +
+          'const fw = 170;' +
+          'const fh = 140;' +
+
+          'const fGrad = ctx.createLinearGradient(fx, 0, fx + fw, 0);' +
+          'fGrad.addColorStop(0, "#f43f5e");' +
+          'fGrad.addColorStop(0.4, "#f59e0b");' +
+          'fGrad.addColorStop(1, "#f97316");' +
+
+          'ctx.fillStyle = fGrad;' +
+          'ctx.fillRect(fx, fy, fw, fh);' +
+          'ctx.strokeStyle = "#cbd5e1";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.strokeRect(fx, fy, fw, fh);' +
+
+          'const wx = fx + fw;' +
+          'const wy = fy + 15;' +
+          'const ww = 160;' +
+          'const wh = 110;' +
+
+          'ctx.fillStyle = "#1e293b";' +
+          'ctx.fillRect(wx, wy, ww, wh);' +
+          'ctx.strokeStyle = "#64748b";' +
+          'ctx.strokeRect(wx, wy, ww, wh);' +
+
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.lineWidth = 2;' +
+          'for (let y = wy + 20; y < wy + wh - 10; y += 22) {' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(wx + 10, y);' +
+            'ctx.lineTo(wx + ww - 10, y);' +
+            'ctx.stroke();' +
+          '}' +
+
+          'ctx.fillStyle = "#0284c7";' +
+          'ctx.beginPath();' +
+          'ctx.roundRect(wx + ww / 2 - 35, wy - 35, 70, 25, [8, 8, 8, 8]);' +
+          'ctx.fill();' +
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.stroke();' +
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 10px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("40 bar STEAM", wx + ww / 2, wy - 18);' +
+
+          'const cx = wx + ww + 40;' +
+          'const cy = fy + 20;' +
+          'const cw = 110;' +
+          'const ch = 100;' +
+
+          'ctx.fillStyle = "#334155";' +
+          'ctx.fillRect(cx, cy, cw, ch);' +
+          'ctx.strokeStyle = "#94a3b8";' +
+          'ctx.strokeRect(cx, cy, cw, ch);' +
+
+          'const sx = cx + cw / 2 - 25;' +
+          'const sy = cy + ch + 35;' +
+          'ctx.fillStyle = "#eab308";' +
+          'ctx.fillRect(sx, sy, 50, 30);' +
+          'ctx.strokeStyle = "#facc15";' +
+          'ctx.strokeRect(sx, sy, 50, 30);' +
+
+          'ctx.strokeStyle = "#eab308";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(cx + cw / 2, cy + ch);' +
+          'ctx.lineTo(cx + cw / 2, sy);' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 11px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("REACTION FURNACE", fx + fw / 2, fy + 50);' +
+          'ctx.font = "12px sans-serif";' +
+          'ctx.fillText(Math.round(flameT) + " °C", fx + fw / 2, fy + 75);' +
+
+          'ctx.fillText("WHB BOILER", wx + ww / 2, wy + wh / 2 + 5);' +
+          'ctx.fillText("CONDENSER 1", cx + cw / 2, cy + ch / 2);' +
+
+          'ctx.fillStyle = "#eab308";' +
+          'ctx.fillText("SULFUR PIT", sx + 25, sy + 45);' +
+
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("Acid Gas + Air In", fx - 70, fy + 70);' +
+          'ctx.fillText("To Catalytic Converters →", cx + cw + 15, cy + 55);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== CLAUS SRU REACTION FURNACE DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Sulfur Production Rate: " + els.res_prod_tpd.textContent + " (" + els.res_prod_lt.textContent + ")\n" +' +
+            '"Overall Recovery Efficiency: " + els.res_recovery.textContent + " (" + els.res_thermal_conv.textContent + ")\n" +' +
+            '"Furnace Flame Temperature: " + els.res_flame_temp.textContent + "\n" +' +
+            '"Combustion Air Flow: " + els.res_air_flow.textContent + " (" + els.res_air_scfm.textContent + ")\n" +' +
+            '"WHB High-Pressure Steam: " + els.res_steam_rate.textContent + "\n" +' +
+            '"Firebox Dimensions: " + els.res_dims.textContent + " (" + els.res_vol.textContent + ")\n" +' +
+            '"Operating Parameters: Feed=" + els.flow.value + " " + els.flow_unit.value + " @ " + els.h2s.value + "% H2S\n" +' +
+            '"O2 Air Enrichment: " + els.o2_pct.value + "% O2 | Catalyst Stages: " + els.stages.value + "\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.flow, els.flow_unit, els.h2s, els.co2, els.hc, els.o2_pct, els.stages, els.psteam, els.restime];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL CA3: FALLING FILM HYDROGEN CHLORIDE (HCL) ABSORBER CALCULATOR ---
+  (() => {
+    const slug = 'falling-film-absorber-hydrogen-chloride-hcl-calculator';
+    const title = 'Falling Film HCl Absorber Sizing Calculator | Muriatic Acid Production';
+    const desc = 'Size industrial falling film hydrogen chloride (HCl) gas absorbers with impervious graphite tube bundles. Calculate absorption heat of solution, cooling water demand, graphite tube surface area, acid yield, and tube wetting rate.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'Falling Film HCl Absorber', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'Why is an isothermal falling film absorber superior to an adiabatic packed tower for HCl absorption?',
+        a: 'The absorption of anhydrous hydrogen chloride (HCl) gas into water is intensely exothermic, releasing approximately 2,050 to 2,150 kJ per kg of HCl absorbed (~75 kJ/mol). In an adiabatic packed tower, this heat raises liquid temperatures to the boiling point (~108°C), where the vapor pressure of HCl becomes so high that absorption stalls at the 20.2% azeotrope. An isothermal falling film absorber utilizes impervious graphite shell-and-tube heat exchangers with cooling water continuously circulating on the shell side. Heat is removed simultaneously as absorption occurs, allowing production of concentrated 33% to 36% commercial muriatic acid in a single pass.'
+      },
+      {
+        q: 'What is the minimum wetting rate (Gamma_min) for graphite absorber tubes?',
+        a: 'To maintain a uniform, unbroken falling liquid film down the inside diameter of vertical tubes, the liquid mass flow rate per unit of internal perimeter (Gamma = m_liquid / [N_tubes × pi × d_i]) must not drop below the critical minimum wetting rate (typically Gamma_min = 0.10 to 0.14 kg/m·s). If flow falls below Gamma_min, the falling liquid film tears into narrow rivulets, exposing dry graphite patches where unabsorbed HCl gas breaks through uncooled into the vent.'
+      },
+      {
+        q: 'Why is impervious graphite the industry-standard material for HCl absorption?',
+        a: 'Hydrochloric acid and moist HCl vapors are among the most chemically aggressive industrial media, rapidly attacking stainless steels, nickel alloys, and titanium. Impervious graphite (synthetic graphite impregnated with phenolic or PTFE resin) provides near-infinite corrosion resistance to all concentrations of HCl up to 170°C. Furthermore, graphite possesses an exceptionally high thermal conductivity (100 to 140 W/m·K, over eight times higher than stainless steel), enabling compact, highly efficient heat transfer.'
+      },
+      {
+        q: 'What causes thermal shock fracturing in impregnated graphite tube bundles?',
+        a: 'Although impervious graphite has high thermal conductivity, its tensile strength and elastic modulus are low compared to metals, making it brittle. If cold cooling water (e.g. 15°C) is suddenly valved into the shell of a warm absorber while hot process gases (>120°C) are flowing, extreme localized thermal expansion gradients induce severe tensile hoop stresses. Tubes can snap or fracture circumferentially near tubesheet cement joints, creating massive acid-to-cooling-water leaks.'
+      },
+      {
+        q: 'How does inerts content (air/N2) affect falling film absorption efficiency?',
+        a: 'Non-absorbable inert gases (such as nitrogen, hydrogen, or air) reduce the partial pressure of HCl in the gas stream and form an insulating gas film on top of the liquid boundary layer. Higher inerts concentrations lower the gas-phase mass transfer coefficient (K_G), necessitating longer tube lengths or a downstream adiabatic tail-gas scrubber column to capture the remaining slip before atmospheric discharge.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size industrial isothermal falling film hydrogen chloride (HCl) gas absorbers with impervious graphite shell-and-tube bundles. Compute exothermic heat of solution, shell-side cooling water demand, graphite tube area, muriatic acid yield, and tube wetting rates.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">HCl Feed & Acid Specification</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Pure HCl Gas Feed Rate (100% basis)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="hcl_feed" value="1200" min="50" max="25000" step="50" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="hcl_feed_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="kg_h" selected>kg/h</option>' +
+                '<option value="t_d">ton/day</option>' +
+                '<option value="lb_h">lb/h</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Target Acid Conc. (wt% HCl)</label>' +
+              '<input type="number" id="hcl_target_pct" value="33.0" min="15.0" max="36.5" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Inert Gas Rate (kg/h)</label>' +
+              '<input type="number" id="hcl_inerts" value="200" min="0" max="5000" step="25" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Cooling Water In (T_cw, °C)</label>' +
+              '<input type="number" id="hcl_tcw" value="25" min="10" max="40" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Allowable CW Rise (ΔT_cw, °C)</label>' +
+              '<input type="number" id="hcl_dtcw" value="7" min="3" max="15" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Graphite Tube ID (mm)</label>' +
+              '<select id="hcl_tube_id" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="32" selected>32 mm ID / 38 mm OD (Standard)</option>' +
+                '<option value="25">25 mm ID / 32 mm OD (High Velocity)</option>' +
+                '<option value="50">50 mm ID / 60 mm OD (Large Bore)</option>' +
+              '</select>' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Tube Length (L, meters)</label>' +
+              '<input type="number" id="hcl_tube_len" value="3.5" min="2.0" max="6.0" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Overall Heat Transfer Coeff. (U, W/m²·K)</label>' +
+            '<input type="number" id="hcl_u" value="750" min="300" max="1200" step="25" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Absorber Sizing & Thermal Duty Outputs</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Product Acid Yield</span>' +
+                '<span id="res_hcl_acid_yield" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_hcl_acid_gpm" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Heat of Absorption Duty</span>' +
+                '<span id="res_hcl_qduty" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_hcl_qduty_btu" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Required Graphite Area</span>' +
+                '<span id="res_hcl_area" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_hcl_tubes" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Cooling Water Flow</span>' +
+                '<span id="res_hcl_cw_flow" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_hcl_cw_gpm" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Liquid Film Wetting Rate (Γ):</span>' +
+                '<span id="res_hcl_wetting" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Absorption Water Feed:</span>' +
+                '<span id="res_hcl_abs_water" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Vent Tail Gas HCl Slip:</span>' +
+                '<span id="res_hcl_vent" style="font-weight:600;color:#38bdf8;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_hcl" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Impervious Graphite Falling Film Absorber Cross-Section</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Cutaway illustration showing top liquid distributor head, vertical graphite tube bundle, shell-side cooling water jacket, and concentrated acid drain pot.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="hcl_absorber_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in Falling Film HCl Absorbers</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Tube Dry-out from Operating Below Minimum Wetting Rate</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">If liquid flow drops below Gamma_min (0.12 kg/m·s perimeter), the liquid film tears into rivulets. Dry patches form inside graphite tubes, stopping absorption heat transfer. Dry HCl gas breaks through into the tail-gas system while localized overheating bakes resin impregnant, degrading tube thermal conductivity.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Brittle Thermal Shock Fracture of Impervious Graphite Tubes</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Impregnated graphite has zero ductile yield. Introducing cold cooling water while the absorber is hot or restarting after an emergency shutdown without ramping water and gas rates synchronously produces steep radial thermal stresses, snapping tubes near tubesheet cement joints and flooding the cooling water loop with acid.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Fuming Acid Over-Concentration Past the Solubility Limit</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Attempting to produce >36 wt% HCl at cooling water temperatures above 30°C pushes equilibrium vapor pressure beyond atmospheric limits. Dense white fuming fog of aerosolized hydrochloric acid forms inside the tubes, overwhelming vent scrubbers and discharging toxic acid clouds into plant atmosphere.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Shell-Side Cooling Water Scaling and Thermal Choking</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Operating with cooling water discharge temperature exceeding 45°C causes hard calcium carbonate (CaCO3) scale to precipitate on the external graphite tube surfaces. Because graphite tubes cannot be mechanically drilled without cracking, scale insulates the bundle, collapsing overall U from 750 down to <250 W/m²·K within weeks.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Liquid Distribution Cup Plugging and Maldistribution</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">The top tubesheet relies on precision serrated weir inserts or tangential swirl cups in every tube to establish uniform film thickness. Particulate debris or pipe rust from makeup water lines lodges in these narrow orifices, starving individual tubes of water and triggering local thermal runaway and acid vapor venting.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Thermodynamic Derivations & Sizing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'Isothermal falling film absorption couples the intense enthalpy of solution with film hydrodynamic wetting criteria.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Overall Mass Balance & Acid Yield:<br>' +
+          '&nbsp;&nbsp;M_acid = M_HCl / (w_HCl / 100)&nbsp;&nbsp;[kg/h]<br>' +
+          '&nbsp;&nbsp;M_water_feed = M_acid - M_HCl&nbsp;&nbsp;[kg/h]<br><br>' +
+          '2. Absorption Heat of Solution Duty (Q_abs):<br>' +
+          '&nbsp;&nbsp;ΔH_abs ≈ 2,080 kJ / kg HCl absorbed<br>' +
+          '&nbsp;&nbsp;Q_abs = (M_HCl · ΔH_abs) / 3600&nbsp;&nbsp;[kW thermal duty]<br><br>' +
+          '3. Shell-Side Cooling Water Demand:<br>' +
+          '&nbsp;&nbsp;m_cw = Q_abs / (4.186 · ΔT_cw)&nbsp;&nbsp;[kg/s]<br>' +
+          '&nbsp;&nbsp;V_cw = m_cw · 3.6&nbsp;&nbsp;[m³/h]<br><br>' +
+          '4. Impervious Graphite Heat Transfer Surface Area:<br>' +
+          '&nbsp;&nbsp;LMTD = [ (T_acid_out - T_cw_in) - (T_acid_in - T_cw_out) ] / ln[ (T_acid_out - T_cw_in) / (T_acid_in - T_cw_out) ]<br>' +
+          '&nbsp;&nbsp;A_graphite = (Q_abs · 1000) / (U · LMTD)&nbsp;&nbsp;[m²]<br><br>' +
+          '5. Tube Count and Specific Wetting Rate (Γ):<br>' +
+          '&nbsp;&nbsp;N_tubes = A_graphite / (π · d_i · L_tube)<br>' +
+          '&nbsp;&nbsp;Γ = M_acid / [ N_tubes · π · d_i · 3600 ]&nbsp;&nbsp;[kg/(m·s) perimeter]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'feed: document.getElementById("hcl_feed"),' +
+          'feed_unit: document.getElementById("hcl_feed_unit"),' +
+          'target_pct: document.getElementById("hcl_target_pct"),' +
+          'inerts: document.getElementById("hcl_inerts"),' +
+          'tcw: document.getElementById("hcl_tcw"),' +
+          'dtcw: document.getElementById("hcl_dtcw"),' +
+          'tube_id: document.getElementById("hcl_tube_id"),' +
+          'tube_len: document.getElementById("hcl_tube_len"),' +
+          'u: document.getElementById("hcl_u"),' +
+          'res_acid_yield: document.getElementById("res_hcl_acid_yield"),' +
+          'res_acid_gpm: document.getElementById("res_hcl_acid_gpm"),' +
+          'res_qduty: document.getElementById("res_hcl_qduty"),' +
+          'res_qduty_btu: document.getElementById("res_hcl_qduty_btu"),' +
+          'res_area: document.getElementById("res_hcl_area"),' +
+          'res_tubes: document.getElementById("res_hcl_tubes"),' +
+          'res_cw_flow: document.getElementById("res_hcl_cw_flow"),' +
+          'res_cw_gpm: document.getElementById("res_hcl_cw_gpm"),' +
+          'res_wetting: document.getElementById("res_hcl_wetting"),' +
+          'res_abs_water: document.getElementById("res_hcl_abs_water"),' +
+          'res_vent: document.getElementById("res_hcl_vent"),' +
+          'btn_copy: document.getElementById("btn_copy_hcl"),' +
+          'canvas: document.getElementById("hcl_absorber_canvas")' +
+        '};' +
+
+        'function calc() {' +
+          'let m_hcl_kgh = parseFloat(els.feed.value) || 1200;' +
+          'if (els.feed_unit.value === "t_d") m_hcl_kgh = (m_hcl_kgh * 1000) / 24;' +
+          'else if (els.feed_unit.value === "lb_h") m_hcl_kgh = m_hcl_kgh * 0.453592;' +
+
+          'const target_wt = (parseFloat(els.target_pct.value) || 33.0) / 100;' +
+          'const inerts_kgh = parseFloat(els.inerts.value) || 200;' +
+          'const t_cw_in = parseFloat(els.tcw.value) || 25;' +
+          'const dt_cw = parseFloat(els.dtcw.value) || 7;' +
+          'const di_mm = parseFloat(els.tube_id.value) || 32;' +
+          'const di_m = di_mm * 0.001;' +
+          'const l_tube = parseFloat(els.tube_len.value) || 3.5;' +
+          'const uCoeff = parseFloat(els.u.value) || 750;' +
+
+          'const m_acid_kgh = (target_wt > 0) ? m_hcl_kgh / target_wt : 0;' +
+          'const m_water_kgh = m_acid_kgh - m_hcl_kgh;' +
+          'const acidDensity = 1165;' +
+          'const acid_gpm = (m_acid_kgh / acidDensity) * 4.40287;' +
+
+          'const deltaH_abs_kj_kg = 2080;' +
+          'const q_duty_kw = (m_hcl_kgh * deltaH_abs_kj_kg) / 3600;' +
+
+          'const cp_w = 4.186;' +
+          'const cw_flow_kgs = (dt_cw > 0) ? q_duty_kw / (cp_w * dt_cw) : 0;' +
+          'const cw_flow_m3h = cw_flow_kgs * 3.6;' +
+          'const cw_flow_gpm = cw_flow_m3h * 4.40287;' +
+
+          'const t_acid_out = t_cw_in + dt_cw + 4.0;' +
+          'const t_acid_in = 30.0;' +
+          'const t_cw_out = t_cw_in + dt_cw;' +
+          'const dt1 = Math.max(2.0, t_acid_out - t_cw_in);' +
+          'const dt2 = Math.max(2.0, t_acid_in - t_cw_out + 10);' +
+          'const lmtd = (dt1 === dt2) ? dt1 : (dt1 - dt2) / Math.log(dt1 / dt2);' +
+
+          'const a_graphite = (uCoeff > 0 && lmtd > 0) ? (q_duty_kw * 1000) / (uCoeff * lmtd) : 0;' +
+          'const a_per_tube = Math.PI * di_m * l_tube;' +
+          'const n_tubes = (a_per_tube > 0) ? Math.ceil(a_graphite / a_per_tube) : 1;' +
+
+          'const gamma_wetting = (n_tubes > 0 && di_m > 0) ? m_acid_kgh / (n_tubes * Math.PI * di_m * 3600) : 0;' +
+
+          'const slip_kgh = m_hcl_kgh * 0.003;' +
+
+          'els.res_acid_yield.textContent = Math.round(m_acid_kgh).toLocaleString() + " kg/h";' +
+          'els.res_acid_gpm.textContent = (target_wt * 100).toFixed(1) + "% Muriatic Acid (" + acid_gpm.toFixed(1) + " gpm)";' +
+
+          'els.res_qduty.textContent = Math.round(q_duty_kw).toLocaleString() + " kW";' +
+          'els.res_qduty_btu.textContent = (q_duty_kw * 3.412142).toFixed(1) + " MMBtu/h heat of solution";' +
+
+          'els.res_area.textContent = a_graphite.toFixed(1) + " m²";' +
+          'els.res_tubes.textContent = n_tubes + " Graphite Tubes (⌀" + di_mm + "mm × " + l_tube.toFixed(1) + "m)";' +
+
+          'els.res_cw_flow.textContent = cw_flow_m3h.toFixed(1) + " m³/h";' +
+          'els.res_cw_gpm.textContent = Math.round(cw_flow_gpm).toLocaleString() + " gpm cooling water";' +
+
+          'els.res_wetting.textContent = gamma_wetting.toFixed(3) + " kg/(m·s)";' +
+          'if (gamma_wetting < 0.12) {' +
+            'els.res_wetting.innerHTML += " <span style=\"color:#ef4444;font-size:0.75rem;\">(⚠️ Below 0.12 min limit!)</span>";' +
+          '} else {' +
+            'els.res_wetting.innerHTML += " <span style=\"color:#10b981;font-size:0.75rem;\">(✓ Stable film)</span>";' +
+          '}' +
+
+          'els.res_abs_water.textContent = Math.round(m_water_kgh).toLocaleString() + " kg/h demin water";' +
+          'els.res_vent.textContent = slip_kgh.toFixed(1) + " kg/h HCl to tail-gas tower";' +
+
+          'drawAbsorber(di_mm, l_tube, n_tubes, gamma_wetting);' +
+        '}' +
+
+        'function drawAbsorber(di, len, nTubes, gamma) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const ax = 150;' +
+          'const ay = 40;' +
+          'const aw = 140;' +
+          'const ah = 240;' +
+
+          'ctx.fillStyle = "#1e293b";' +
+          'ctx.fillRect(ax, ay, aw, ah);' +
+          'ctx.strokeStyle = "#475569";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.strokeRect(ax, ay, aw, ah);' +
+
+          'ctx.fillStyle = "#334155";' +
+          'ctx.fillRect(ax + 15, ay + 35, aw - 30, ah - 70);' +
+          'ctx.strokeStyle = "#64748b";' +
+          'ctx.strokeRect(ax + 15, ay + 35, aw - 30, ah - 70);' +
+
+          'ctx.strokeStyle = "#94a3b8";' +
+          'ctx.lineWidth = 3;' +
+          'for (let tx = ax + 30; tx <= ax + aw - 30; tx += 20) {' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(tx, ay + 35);' +
+            'ctx.lineTo(tx, ay + ah - 35);' +
+            'ctx.stroke();' +
+          '}' +
+
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.lineWidth = 4;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(ax - 30, ay + ah - 60);' +
+          'ctx.lineTo(ax + 15, ay + ah - 60);' +
+          'ctx.stroke();' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(ax + aw - 15, ay + 60);' +
+          'ctx.lineTo(ax + aw + 30, ay + 60);' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.font = "10px sans-serif";' +
+          'ctx.textAlign = "right";' +
+          'ctx.fillText("Cooling Water In", ax - 35, ay + ah - 57);' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("Cooling Water Out", ax + aw + 35, ay + 63);' +
+
+          'ctx.fillStyle = "#10b981";' +
+          'ctx.fillRect(ax + aw / 2 - 12, ay - 25, 24, 25);' +
+          'ctx.strokeRect(ax + aw / 2 - 12, ay - 25, 24, 25);' +
+
+          'ctx.fillStyle = "#facc15";' +
+          'ctx.fillRect(ax + aw / 2 - 12, ay + ah, 24, 25);' +
+          'ctx.strokeRect(ax + aw / 2 - 12, ay + ah, 24, 25);' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 11px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("IMPERVIOUS GRAPHITE BUNDLE", ax + aw / 2, ay + ah / 2);' +
+          'ctx.font = "10px sans-serif";' +
+          'ctx.fillText(nTubes + " Tubes (L=" + len.toFixed(1) + "m)", ax + aw / 2, ay + ah / 2 + 16);' +
+
+          'ctx.fillStyle = "#10b981";' +
+          'ctx.fillText("Water + HCl Gas Feed In", ax + aw / 2, ay - 32);' +
+
+          'ctx.fillStyle = "#facc15";' +
+          'ctx.fillText("33% Product Acid Out", ax + aw / 2, ay + ah + 42);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== FALLING FILM HCL ABSORBER SIZING SUMMARY ===\n" +' +
+            '"Product Acid Yield: " + els.res_acid_yield.textContent + " (" + els.res_acid_gpm.textContent + ")\n" +' +
+            '"Absorption Heat Duty: " + els.res_qduty.textContent + " (" + els.res_qduty_btu.textContent + ")\n" +' +
+            '"Required Graphite Area: " + els.res_area.textContent + " (" + els.res_tubes.textContent + ")\n" +' +
+            '"Cooling Water Requirement: " + els.res_cw_flow.textContent + " (" + els.res_cw_gpm.textContent + ")\n" +' +
+            '"Film Wetting Rate: " + els.res_wetting.textContent + "\n" +' +
+            '"Absorption Water Feed: " + els.res_abs_water.textContent + "\n" +' +
+            '"Feed: " + els.feed.value + " " + els.feed_unit.value + " pure HCl @ " + els.target_pct.value + " wt% acid\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.feed, els.feed_unit, els.target_pct, els.inerts, els.tcw, els.dtcw, els.tube_id, els.tube_len, els.u];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL CA4: SUBMERGED ARC FURNACE (SAF) FERROALLOY SMELTING CALCULATOR ---
+  (() => {
+    const slug = 'submerged-arc-furnace-saf-ferroalloy-smelting-calculator';
+    const title = 'Submerged Arc Furnace Sizing Calculator | SAF Ferroalloy Smelting Electrical Design';
+    const desc = 'Size industrial Submerged Arc Furnaces (SAF) for ferroalloys (FeSi, FeMn, FeCr, Silicon Metal). Calculate active smelting power, Andreae electrode operating resistance, Soderberg carbon electrode diameter, transformer MVA, and alloy tap yield.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'SAF Furnace Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What is the Andreae formula and how does it govern Submerged Arc Furnace electrical design?',
+        a: 'Formulated by F.V. Andreae in 1950, the Andreae relationship states that the product of operating electrode resistance (R, ohms) and electrode periphery (pi × D_el, meters) is an invariant constant (k_Andreae, or C_Andreae) for a specific metallurgical smelting process: C_Andreae = R × pi × D_el (typically 0.085 to 0.110 ohm·mm for 75% Ferrosilicon, and 0.060 to 0.075 for HC-FeMn). This fundamental electro-metallurgical law allows engineers to scale furnace power and electrode dimensions while maintaining stable electrical resistance and reaction zone temperature.'
+      },
+      {
+        q: 'What is a Soderberg continuous self-baking electrode?',
+        a: 'In large SAF furnaces (>15 MVA), pre-baked carbon electrodes are too expensive and limited in size. Instead, continuous Soderberg electrodes are used: cylindrical steel casings are welded on top of the electrode column and filled with carbonaceous paste blocks (anthracite, pitch, and coke). As the electrode column is slowly consumed and slipped downward, electric current dissipation and heat conduction bake the green paste into solid, monolithic graphite/carbon at ~800°C–1000°C before it emerges below the contact clamps.'
+      },
+      {
+        q: 'Why is electrode penetration depth critical to furnace operation?',
+        a: 'The tip of the electrode must penetrate deeply into the solid charge burden to deliver thermal energy directly to the lower slag and metal bath. If the charge mix contains excess conductive carbon (reductant over-coking), electrical current shorts out high in the burden. The electrode lifts automatically on impedance control, causing shallow penetration. Heat escapes to the furnace top, melting off-gas hoods and lowering metal recovery.'
+      },
+      {
+        q: 'How does operating power factor (cos phi) impact transformer sizing?',
+        a: 'Submerged arc furnaces operate at immense currents (50 to 120 kA per phase) at low secondary voltages (120 to 280 V). The massive bus tubes, flexible water-cooled copper cables, and electrode delta loop introduce substantial inductive reactance (X_L). Typical operating power factors range from 0.70 to 0.85. To deliver 30 MW of active smelting power at 0.78 power factor, the furnace transformer must be rated for at least 38.5 MVA (S = P / cos phi), with series capacitors often added for power factor correction.'
+      },
+      {
+        q: 'What causes a catastrophic green paste break in Soderberg electrodes?',
+        a: 'If an operator slips the electrode column through the contact clamps too rapidly, unbaked soft green paste is pulled below the top of the electrical contact shoes before it has achieved thermal pyrolysis and coking. The hydrostatic pressure of molten pitch bursts the thin steel casing, causing tons of molten liquid binder to spew into the white-hot furnace firebox. This triggers violent gas explosions, immediate electrode fracture, and multi-day furnace shutdowns.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size industrial Submerged Arc Furnaces (SAF) for ferroalloys (FeSi, FeMn, FeCr, Silicon Metal). Compute Andreae electrode resistance, Soderberg carbon electrode diameter, furnace transformer MVA, daily tap yield, and electrical smelting economics.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Smelting Metallurgy & Power Inputs</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Smelted Ferroalloy Grade</label>' +
+            '<select id="saf_alloy" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<option value="fesi75" selected>Ferrosilicon 75% (FeSi 75)</option>' +
+              '<option value="simetal">Silicon Metal (Chemical/Solar Grade)</option>' +
+              '<option value="femnhc">High-Carbon Ferromanganese (HC-FeMn)</option>' +
+              '<option value="simn">Silicomanganese (SiMn 65/17)</option>' +
+              '<option value="fecrhc">High-Carbon Ferrochrome (HC-FeCr)</option>' +
+            '</select>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Active Smelting Power (P_active, MW)</label>' +
+            '<input type="number" id="saf_power_mw" value="30.0" min="2.0" max="120.0" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Power Factor (cos φ)</label>' +
+              '<input type="number" id="saf_cosphi" value="0.80" min="0.65" max="0.95" step="0.01" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Electrode J (A/cm²)</label>' +
+              '<input type="number" id="saf_current_dens" value="6.0" min="4.0" max="10.0" step="0.2" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Specific Energy (kWh/ton)</label>' +
+              '<input type="number" id="saf_sec" value="9000" min="2000" max="16000" step="100" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Plant Availability (%)</label>' +
+              '<input type="number" id="saf_avail" value="92.0" min="70.0" max="98.0" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Andreae Coeff. C (Ω·mm)</label>' +
+              '<input type="number" id="saf_andreae" value="0.095" min="0.040" max="0.180" step="0.005" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Power Tariff ($/kWh)</label>' +
+              '<input type="number" id="saf_tariff" value="0.065" min="0.02" max="0.25" step="0.005" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Furnace Electrical & Tap Production Outputs</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Daily Alloy Tap Yield</span>' +
+                '<span id="res_saf_daily_tpd" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_saf_annual_tpy" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Transformer MVA Rating</span>' +
+                '<span id="res_saf_mva" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_saf_phase_v" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Electrode Diameter (D_el)</span>' +
+                '<span id="res_saf_del" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_saf_del_in" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Phase Operating Current</span>' +
+                '<span id="res_saf_current" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_saf_resistance" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Furnace Hearth Shell ID:</span>' +
+                '<span id="res_saf_hearth" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Electrode Pitch Circle (PCD):</span>' +
+                '<span id="res_saf_pcd" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Annual Smelting Power Bill:</span>' +
+                '<span id="res_saf_power_bill" style="font-weight:600;color:#10b981;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_saf" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Submerged Arc Furnace (SAF) Smelting Cross-Section</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Cutaway schematic displaying 3-electrode delta configuration, raw burden charge column, resistive smelting reaction crater, and molten ferroalloy taphole.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="saf_furnace_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in SAF Smelting</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Soderberg Green Paste Slump & Hard Break Electrode Fracture</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Excessive slipping of the electrode column pulls unbaked paste into the high-current contact shoe zone. The molten pitch core ruptures through the steel casing, spilling liquid paste into the white-hot burden and snapping the electrode. A broken electrode column in a 30 MW furnace halts production for 3 to 7 days, costing hundreds of thousands of dollars.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Over-Coking and Loss of Electrode Penetration</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Feeding excess coal or metallurgical coke in the charge burden elevates the electrical conductivity of the upper burden layers. Current bypasses the deep reaction cavity and short-circuits horizontally between electrodes. Automated impedance regulators lift electrodes out of the bath, causing top-gas temperatures to soar above 800°C and destroying off-gas ducts.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Charge Sintering and Catastrophic Carbon Monoxide Eruptions</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">In ferrosilicon and silicon metal smelting, fine quartz (<10 mm) fuses into an impermeable crust across the top burden. High-pressure carbon monoxide (CO) gas generated in the arc cavity builds up beneath the crust until it violently ruptures in a massive explosion (furnace blow), blowing white-hot burden through the roof charging chutes.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Carbon Hearth Refractory Burn-Through and Breakout</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Molten ferrosilicon at 1650°C is exceptionally fluid and erosive. If cooling of the bottom steel shell is inadequate or bottom electrode arcing overheats the carbon block joints, molten metal penetrates the refractory seams. A molten breakout through the bottom steel shell can incinerate hydraulic lines, destroy substations, and cause fatal steam explosions.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Heavy Phase Reactive Imbalance & Star-Point Voltage Shift</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Asymmetry in secondary copper bus tubes creates unequal self-inductance across the three phases. The neutral star point shifts, causing wild current differences between phases (e.g. 75 kA on Phase 1 vs 48 kA on Phase 3). The overloaded electrode overheats and burns back rapidly while the underloaded phase freezes its taphole.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Electro-Metallurgical Derivations & Sizing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'Submerged arc furnace sizing balances Andreae resistance scaling with electromagnetic secondary circuit characteristics.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Transformer MVA & Daily Alloy Yield:<br>' +
+          '&nbsp;&nbsp;S_transformer = P_active / cos φ&nbsp;&nbsp;[MVA]<br>' +
+          '&nbsp;&nbsp;T_daily = (P_active · 1000 · 24) / SEC&nbsp;&nbsp;[metric tons/day]<br><br>' +
+          '2. Andreae Electrode Operating Resistance:<br>' +
+          '&nbsp;&nbsp;R_electrode = C_Andreae / (π · D_el)&nbsp;&nbsp;[mΩ]<br><br>' +
+          '3. Phase Smelting Current & Electrode Diameter:<br>' +
+          '&nbsp;&nbsp;I_phase = √[ (P_active · 10⁶) / (3 · R_electrode) ]&nbsp;&nbsp;[Amperes]<br>' +
+          '&nbsp;&nbsp;D_el = √[ (4 · I_phase) / (π · J_density · 10⁴) ]&nbsp;&nbsp;[meters]<br><br>' +
+          '4. Secondary Operating Phase Voltage:<br>' +
+          '&nbsp;&nbsp;V_phase = I_phase · R_electrode&nbsp;&nbsp;[Volts]<br>' +
+          '&nbsp;&nbsp;V_line-to-line = √3 · V_phase / cos φ&nbsp;&nbsp;[Volts]<br><br>' +
+          '5. Crucible Geometry & Electrode Pitch Circle (PCD):<br>' +
+          '&nbsp;&nbsp;PCD = 2.35 · D_el&nbsp;&nbsp;[meters]<br>' +
+          '&nbsp;&nbsp;D_hearth_ID = PCD + 2.7 · D_el&nbsp;&nbsp;[meters]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'alloy: document.getElementById("saf_alloy"),' +
+          'power: document.getElementById("saf_power_mw"),' +
+          'cosphi: document.getElementById("saf_cosphi"),' +
+          'current_dens: document.getElementById("saf_current_dens"),' +
+          'sec: document.getElementById("saf_sec"),' +
+          'avail: document.getElementById("saf_avail"),' +
+          'andreae: document.getElementById("saf_andreae"),' +
+          'tariff: document.getElementById("saf_tariff"),' +
+          'res_daily_tpd: document.getElementById("res_saf_daily_tpd"),' +
+          'res_annual_tpy: document.getElementById("res_saf_annual_tpy"),' +
+          'res_mva: document.getElementById("res_saf_mva"),' +
+          'res_phase_v: document.getElementById("res_saf_phase_v"),' +
+          'res_del: document.getElementById("res_saf_del"),' +
+          'res_del_in: document.getElementById("res_saf_del_in"),' +
+          'res_current: document.getElementById("res_saf_current"),' +
+          'res_resistance: document.getElementById("res_saf_resistance"),' +
+          'res_hearth: document.getElementById("res_saf_hearth"),' +
+          'res_pcd: document.getElementById("res_saf_pcd"),' +
+          'res_power_bill: document.getElementById("res_saf_power_bill"),' +
+          'btn_copy: document.getElementById("btn_copy_saf"),' +
+          'canvas: document.getElementById("saf_furnace_canvas")' +
+        '};' +
+
+        'const alloyDefaults = {' +
+          'fesi75: { sec: 9000, andreae: 0.095, j: 6.0 },' +
+          'simetal: { sec: 12500, andreae: 0.120, j: 5.5 },' +
+          'femnhc: { sec: 2900, andreae: 0.065, j: 7.0 },' +
+          'simn: { sec: 4200, andreae: 0.075, j: 6.5 },' +
+          'fecrhc: { sec: 3800, andreae: 0.080, j: 6.5 }' +
+        '};' +
+
+        'els.alloy.addEventListener("change", function() {' +
+          'const val = els.alloy.value;' +
+          'if (alloyDefaults[val]) {' +
+            'els.sec.value = alloyDefaults[val].sec;' +
+            'els.andreae.value = alloyDefaults[val].andreae;' +
+            'els.current_dens.value = alloyDefaults[val].j;' +
+            'calc();' +
+          '}' +
+        '});' +
+
+        'function calc() {' +
+          'const pMw = parseFloat(els.power.value) || 30.0;' +
+          'const cosPhi = parseFloat(els.cosphi.value) || 0.80;' +
+          'const j_acm2 = parseFloat(els.current_dens.value) || 6.0;' +
+          'const j_am2 = j_acm2 * 10000;' +
+          'const sec_kwh_t = parseFloat(els.sec.value) || 9000;' +
+          'const availPct = (parseFloat(els.avail.value) || 92.0) / 100;' +
+          'const c_andreae_omm = parseFloat(els.andreae.value) || 0.095;' +
+          'const c_andreae_om = c_andreae_omm * 0.001;' +
+          'const tariff = parseFloat(els.tariff.value) || 0.065;' +
+
+          'const mva = (cosPhi > 0) ? pMw / cosPhi : 0;' +
+
+          'const dailyTpd = (sec_kwh_t > 0) ? (pMw * 1000 * 24) / sec_kwh_t : 0;' +
+          'const annualTpy = dailyTpd * 365 * availPct;' +
+
+          'let d_el_m = 1.25;' +
+          'let r_el_ohm = 0.001;' +
+          'let i_phase_a = 50000;' +
+
+          'for (let it = 0; it < 15; it++) {' +
+            'r_el_ohm = (d_el_m > 0) ? c_andreae_om / (Math.PI * d_el_m) : 0.001;' +
+            'i_phase_a = (r_el_ohm > 0) ? Math.sqrt((pMw * 1e6) / (3 * r_el_ohm)) : 50000;' +
+            'd_el_m = Math.sqrt((4 * i_phase_a) / (Math.PI * j_am2));' +
+          '}' +
+
+          'const r_el_mohm = r_el_ohm * 1000;' +
+          'const d_el_mm = d_el_m * 1000;' +
+          'const d_el_in = d_el_m * 39.3701;' +
+          'const i_phase_ka = i_phase_a / 1000;' +
+
+          'const v_phase = i_phase_a * r_el_ohm;' +
+          'const v_ll = Math.sqrt(3) * v_phase / cosPhi;' +
+
+          'const pcd_m = 2.35 * d_el_m;' +
+          'const hearth_id_m = pcd_m + 2.7 * d_el_m;' +
+
+          'const annualKwh = pMw * 1000 * 8760 * availPct;' +
+          'const annualBill = annualKwh * tariff;'
+          + 'const costPerTon = (annualTpy > 0) ? annualBill / annualTpy : 0;' +
+
+          'els.res_daily_tpd.textContent = dailyTpd.toFixed(1) + " metric tons/day";' +
+          'els.res_annual_tpy.textContent = Math.round(annualTpy).toLocaleString() + " t/yr (@ " + (availPct * 100).toFixed(0) + "% availability)";' +
+
+          'els.res_mva.textContent = mva.toFixed(1) + " MVA Transformer";' +
+          'els.res_phase_v.textContent = "Secondary Voltage: " + Math.round(v_ll) + " V line-to-line (" + Math.round(v_phase) + " V phase)";' +
+
+          'els.res_del.textContent = Math.round(d_el_mm) + " mm ⌀";' +
+          'els.res_del_in.textContent = d_el_in.toFixed(1) + " inches (3 × Soderberg Electrodes)";' +
+
+          'els.res_current.textContent = i_phase_ka.toFixed(1) + " kA Phase Current";' +
+          'els.res_resistance.textContent = "Operating Resistance: " + r_el_mohm.toFixed(3) + " mΩ (Andreae)";' +
+
+          'els.res_hearth.textContent = "Hearth ⌀: " + hearth_id_m.toFixed(2) + "m ID (" + (hearth_id_m * 3.28084).toFixed(1) + " ft)";' +
+          'els.res_pcd.textContent = "Electrode PCD: " + pcd_m.toFixed(2) + "m (" + (pcd_m * 3.28084).toFixed(1) + " ft)";' +
+          'els.res_power_bill.textContent = "$" + Math.round(annualBill / 1000000).toFixed(1) + "M/yr ($" + Math.round(costPerTon) + "/ton alloy)";' +
+
+          'drawSAF(d_el_m, pcd_m, hearth_id_m);' +
+        '}' +
+
+        'function drawSAF(dEl, pcd, dHearth) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const fx = 120;' +
+          'const fy = 90;' +
+          'const fw = 400;' +
+          'const fh = 180;' +
+
+          'ctx.fillStyle = "#1e293b";' +
+          'ctx.strokeStyle = "#475569";' +
+          'ctx.lineWidth = 4;' +
+          'ctx.beginPath();' +
+          'ctx.roundRect(fx, fy, fw, fh, [0, 0, 20, 20]);' +
+          'ctx.fill();' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#334155";' +
+          'ctx.fillRect(fx + 10, fy + 10, fw - 20, fh - 20);' +
+
+          'ctx.fillStyle = "#f59e0b";' +
+          'ctx.fillRect(fx + 20, fy + fh - 35, fw - 40, 25);' +
+
+          'const elW = 38;' +
+          'const elH = 140;' +
+          'const elX1 = fx + 75;' +
+          'const elX2 = fx + fw / 2 - elW / 2;' +
+          'const elX3 = fx + fw - 75 - elW;' +
+
+          '[elX1, elX2, elX3].forEach((ex, idx) => {' +
+            'ctx.fillStyle = "#0f172a";' +
+            'ctx.fillRect(ex, 30, elW, elH);' +
+            'ctx.strokeStyle = "#64748b";' +
+            'ctx.lineWidth = 2;' +
+            'ctx.strokeRect(ex, 30, elW, elH);' +
+
+            'ctx.fillStyle = "#38bdf8";' +
+            'ctx.fillRect(ex - 4, 60, elW + 8, 25);' +
+
+            'ctx.fillStyle = "#f43f5e";' +
+            'ctx.beginPath();' +
+            'ctx.arc(ex + elW / 2, 30 + elH, 20, 0, Math.PI);' +
+            'ctx.fill();' +
+          '});' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 12px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("SUBMERGED ARC FURNACE CRUCIBLE", fx + fw / 2, fy + fh + 25);' +
+
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.font = "10px sans-serif";' +
+          'ctx.fillText("Water-Cooled Contact Clamps", fx + fw / 2, 50);' +
+
+          'ctx.fillStyle = "#facc15";' +
+          'ctx.fillText("Molten Ferroalloy Bath (1650°C)", fx + fw / 2, fy + fh - 18);' +
+
+          'ctx.fillStyle = "#ef4444";' +
+          'ctx.fillRect(fx + fw - 5, fy + fh - 30, 25, 12);' +
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("Taphole", fx + fw + 25, fy + fh - 20);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== SUBMERGED ARC FURNACE (SAF) SIZING SUMMARY ===\n" +' +
+            '"Daily Alloy Tap Yield: " + els.res_daily_tpd.textContent + " (" + els.res_annual_tpy.textContent + ")\n" +' +
+            '"Transformer Rating: " + els.res_mva.textContent + "\n" +' +
+            '"Electrode Diameter: " + els.res_del.textContent + " (" + els.res_del_in.textContent + ")\n" +' +
+            '"Operating Current: " + els.res_current.textContent + " | " + els.res_resistance.textContent + "\n" +' +
+            '"Hearth Dimensions: " + els.res_hearth.textContent + " | " + els.res_pcd.textContent + "\n" +' +
+            '"Annual Power Cost: " + els.res_power_bill.textContent + "\n" +' +
+            '"Smelting Parameters: Alloy=" + els.alloy.value + ", Active Power=" + els.power.value + " MW, PF=" + els.cosphi.value + "\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.power, els.cosphi, els.current_dens, els.sec, els.avail, els.andreae, els.tariff];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  console.log('  ✓ Built Trade & Construction Suite (259 calculators in /calc/)');
 }
 
