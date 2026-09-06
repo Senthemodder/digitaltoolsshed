@@ -1032,6 +1032,14 @@
       .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
       .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
       .result-val { font-family: var(--mono); font-size: 2.5rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+      .faq-item { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden; }
+      .faq-item summary { padding: 0.85rem 1.15rem; font-weight: 600; cursor: pointer; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+      .faq-item summary::-webkit-details-marker { display: none; }
+      .faq-item summary::after { content: "+"; font-family: var(--mono); font-size: 1.2rem; }
+      .faq-item[open] summary::after { content: "−"; }
+      .faq-item div { padding: 0.85rem 1.15rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
     </style>
   
     <div class="article-container" style="max-width: 900px;">
@@ -1043,23 +1051,23 @@
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
         
     <a href="/util/stopwatch" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Online Stopwatch with Lap Times</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Millisecond-accurate online stopwatch with split lap tracking, pause/resume, and zero battery drain.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Online Stopwatch with Milliseconds & Split Lap Times (No Lag)</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">High-precision online digital stopwatch with millisecond accuracy, split lap tracking, copyable logs, and zero battery drain. Runs 100% locally in browser.</p>
     </a>
   
     <a href="/util/pomodoro-timer" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Pomodoro Focus Timer & Productivity Clock</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Stay focused with 25-minute Pomodoro study intervals, 5-minute short breaks, and audio alert notifications.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Pomodoro Focus Timer & Productivity Clock with Audio Chimes</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Boost study focus and deep work productivity with 25-minute Pomodoro intervals, custom short and long breaks, zero ads, and gentle Web Audio chimes.</p>
     </a>
   
     <a href="/util/wheel-spinner" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Random Decision Wheel & Prize Spinner</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Spin the wheel for random decisions, raffle winner pickers, classroom selections, and game choices with custom options.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Random Decision Wheel & Prize Spinner (Custom Choices & Fair RNG)</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Spin the wheel to make random decisions, pick raffle winners, choose dinners, or run classroom games. Features customizable slices, fair RNG physics, and instant winner copying.</p>
     </a>
   
     <a href="/util/coin-flipper" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Coin Flipper & Probability Simulator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Flip a coin online with 3D animation, streak counting, probability statistics, and multiple flips simulator.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cryptographic Coin Flipper & Heads/Tails Probability Simulator</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Flip a coin online with cryptographically secure CSPRNG fairness, 3D flip animation, streak tracker, and 1,000x Monte Carlo probability simulation.</p>
     </a>
   
     <a href="/util/timezone-converter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
