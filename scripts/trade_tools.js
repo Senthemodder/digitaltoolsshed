@@ -4116,6 +4116,2108 @@ export function buildTradeTools() {
   }));
 
 
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 26. CONCRETE COMPRESSIVE STRENGTH & 28-DAY CYLINDER BREAK CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const concreteStrengthBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Concrete Strength Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Structural Concrete Testing</span>
+          <span class="badge badge-green">ASTM C39 &amp; ACI 209R</span>
+          <span class="badge badge-blue">7-Day to 28-Day Curing Curve</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Concrete Compressive Strength &amp; Cylinder Break Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Determine exact concrete compressive strength (PSI &amp; MPa) from compression machine break loads. Predict 28-day design strength from 3-day or 7-day breaks using ACI 209R logarithmic curing curves, water-cement ratio (w/c) Abrams' Law, and core sample L/D corrections (ASTM C42).
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Cylinder Specimen Size:</label>
+            <select id="cs-cyl-size" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="updateCylinderSize()">
+              <option value="6x12" selected>Standard 6" × 12" Cylinder (Area: 28.27 in²)</option>
+              <option value="4x8">Standard 4" × 8" Cylinder (Area: 12.57 in²)</option>
+              <option value="3x6">Small 3" × 6" Cylinder (Area: 7.07 in²)</option>
+              <option value="150x300">Metric 150mm × 300mm (Area: 17,671 mm²)</option>
+              <option value="100x200">Metric 100mm × 200mm (Area: 7,854 mm²)</option>
+              <option value="custom">Custom Diameter &amp; Core Length</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Maximum Break Load:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="cs-break-load" value="115000" step="1000" min="1000" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcConcreteStrength()" />
+              <select id="cs-load-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcConcreteStrength()">
+                <option value="lbf" selected>lbf (lbs)</option>
+                <option value="kn">kN</option>
+                <option value="kip">kips</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Specimen Age at Break (Days):</label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="range" id="cs-age-slider" min="1" max="56" value="7" step="1" style="flex: 1; cursor: pointer;" oninput="syncAgeSlider(this.value)" />
+              <input type="number" id="cs-age-val" value="7" min="1" max="365" step="1" style="width: 65px; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem; text-align: center;" oninput="syncAgeInput(this.value)" />
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Specified 28-Day f'c Design Target:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="cs-design-fc" value="4000" step="250" min="1500" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcConcreteStrength()" />
+              <span style="width: 40%; display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">PSI</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MIX TYPE & ASTM C42 CORE OPTIONS -->
+        <div style="border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Cement / Mix Type:</label>
+            <select id="cs-cement-type" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcConcreteStrength()">
+              <option value="type1" selected>Type I Normal Portland (Standard Curing)</option>
+              <option value="type3">Type III High Early Strength (Fast Cure)</option>
+              <option value="flyash">Type I + 20% Fly Ash / Slag (Slow Early Cure)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Curing Environment:</label>
+            <select id="cs-curing-env" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcConcreteStrength()">
+              <option value="standard" selected>Standard Moist Room / 73°F Water Bath (ASTM C511)</option>
+              <option value="field">Field Cured (Ambient Jobsite Conditions)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Core L/D Ratio (ASTM C42):</label>
+            <input type="number" id="cs-ld-ratio" value="2.00" step="0.05" min="1.0" max="2.2" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcConcreteStrength()" />
+            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">2.0 = Standard cylinder (no correction)</span>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Fracture Pattern (ASTM C39):</label>
+            <select id="cs-fracture-type" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;">
+              <option value="cone" selected>Type 1: Well-Formed Cone (<1" cracking)</option>
+              <option value="cone-split">Type 2: Cone and Vertical Split</option>
+              <option value="columnar">Type 3: Columnar Vertical Cracking</option>
+              <option value="shear">Type 4: Diagonal Shear Plane</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Current Tested Strength</div>
+            <div id="cs-res-cur-psi" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">4,068 PSI</div>
+            <div id="cs-res-cur-mpa" style="font-size: 0.85rem; color: var(--text-muted);">28.05 MPa (Day 7 Break)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Projected 28-Day Strength</div>
+            <div id="cs-res-proj-28" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">5,811 PSI</div>
+            <div id="cs-res-proj-mpa" style="font-size: 0.85rem; color: var(--text-muted);">40.07 MPa (ACI 209R Model)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Target Compliance Ratio</div>
+            <div id="cs-res-target-pct" style="font-family: var(--mono); font-size: 2.0rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">145.3%</div>
+            <div id="cs-res-compliance-sub" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">PASSED (Exceeds 4,000 Target)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #8b5cf6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Estimated w/c Ratio</div>
+            <div id="cs-res-wc-ratio" style="font-family: var(--mono); font-size: 2.0rem; font-weight: bold; color: #8b5cf6; margin-bottom: 0.2rem;">0.43 w/c</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Abrams' Law Prediction</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE 28-DAY CURING CURVE SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.35rem; margin: 0; color: var(--fg);">
+            📈 ACI 209R Logarithmic Concrete Curing Gain Curve
+          </h2>
+          <div style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+            <span style="color: #3b82f6; font-weight: bold;">■ Curing Curve</span> &nbsp;|&nbsp; 
+            <span style="color: #ef4444; font-weight: bold;">-- Design Target</span> &nbsp;|&nbsp; 
+            <span style="color: #10b981; font-weight: bold;">● Current Test Point</span>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Models hydration strength gain from day 1 to day 56. Displays the design target line (red dashed), current tested break point (green dot), and projected 28-day compliance envelope.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="cs-curing-svg" viewBox="0 0 800 260" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step ASTM C39 &amp; Curing Derivations
+        </h3>
+        <div id="cs-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating concrete compressive strength mechanics...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="cs-copy-btn" onclick="copyConcreteStrengthReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Concrete Cylinder Break Report
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Testing Errors in Concrete Compressive Strength
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The "7-Day 70% Rule" Fallacy in Supplementary Cementitious Mixes</strong>
+            Tradition says concrete reaches 65% to 70% of its 28-day strength at 7 days. However, modern sustainable mixes containing 20% to 40% fly ash or ground granulated blast furnace slag (GGBFS) hydrate much more slowly. A slag mix might achieve only 45% to 55% at 7 days, causing panic and unwarranted structure rejection, but later surges to 125% of design strength at 56 days.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Unbonded Neoprene Cap Durometer Breakdown (ASTM C1231)</strong>
+            Laboratories using unbonded elastomeric neoprene pads must strictly track pad reuse counts (typically 50 to 100 breaks maximum). Overused neoprene caps develop permanent grooving and lose elasticity, creating point stress concentrations that prematurely crush cylinder edges, artificially dropping measured break strength by 10% to 15%.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Loading Rate Acceleration Distortion (ASTM C39 Speed Limit)</strong>
+            ASTM C39 strictly mandates a compressive hydraulic loading rate of 28 to 42 PSI per second (0.20 to 0.30 MPa/s). Rushing tests on high-capacity hydraulic break machines by applying load at 100+ PSI/second exploits the strain-rate sensitivity of brittle concrete, artificially inflating apparent strength by 15% to 20% and masking genuinely substandard concrete.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Moisture Loss in Field-Cured Cylinders vs Lab Moist Room</strong>
+            Leaving test cylinders sitting on the jobsite in direct sun or windy trailers without moisture protection causes water evaporation before initial hydration finishes. Concrete ceases strength development once internal relative humidity drops below 80%. Field-baked cylinders can test 20% to 30% lower than identical concrete cured in an ASTM C511 100% humidity fog room.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Neglecting ASTM C42 Length-to-Diameter (L/D) Core Corrections</strong>
+            Drilled structural cores rarely have an exact 2.0 L/D aspect ratio (e.g. 4" diameter core from an 5.5" slab has L/D = 1.38). Shorter cores experience restraint from testing machine platens, which artificially elevates break strength. ASTM C42 mandates applying explicit multiplication correction factors (e.g. 0.94 for L/D 1.50, 0.87 for L/D 1.00) before certifying structural adequacy.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function updateCylinderSize() {
+        calcConcreteStrength();
+      }
+
+      function syncAgeSlider(val) {
+        document.getElementById('cs-age-val').value = val;
+        calcConcreteStrength();
+      }
+
+      function syncAgeInput(val) {
+        var n = parseInt(val, 10);
+        if (!isNaN(n)) {
+          document.getElementById('cs-age-slider').value = Math.min(56, Math.max(1, n));
+        }
+        calcConcreteStrength();
+      }
+
+      function calcConcreteStrength() {
+        var sz = document.getElementById('cs-cyl-size').value;
+        var loadRaw = parseFloat(document.getElementById('cs-break-load').value) || 115000;
+        var loadUnit = document.getElementById('cs-load-unit').value;
+        var age = parseInt(document.getElementById('cs-age-val').value, 10) || 7;
+        var targetDesign = parseFloat(document.getElementById('cs-design-fc').value) || 4000;
+        var mixType = document.getElementById('cs-cement-type').value;
+        var ldRatio = parseFloat(document.getElementById('cs-ld-ratio').value) || 2.0;
+
+        // Convert load to lbf (pounds-force)
+        var loadLbf = loadRaw;
+        if (loadUnit === 'kn') loadLbf = loadRaw * 224.809;
+        else if (loadUnit === 'kip') loadLbf = loadRaw * 1000;
+
+        // Determine cross-sectional area (sq in)
+        var areaSqIn = 28.274; // default 6x12 (pi * 3^2)
+        if (sz === '4x8') areaSqIn = 12.566;
+        else if (sz === '3x6') areaSqIn = 7.069;
+        else if (sz === '150x300') areaSqIn = 27.39; // 17671 mm2 -> in2
+        else if (sz === '100x200') areaSqIn = 12.17; // 7854 mm2 -> in2
+
+        // Raw Compressive Strength
+        var rawPsi = loadLbf / areaSqIn;
+
+        // ASTM C42 L/D Core Correction Factor
+        var ldFactor = 1.0;
+        if (ldRatio < 1.94) {
+          // Linear interpolation between standard ASTM C42 factors:
+          // 1.75 -> 0.98; 1.50 -> 0.96; 1.25 -> 0.93; 1.00 -> 0.87
+          if (ldRatio >= 1.75) ldFactor = 0.98 + (ldRatio - 1.75) * (0.02 / 0.25);
+          else if (ldRatio >= 1.50) ldFactor = 0.96 + (ldRatio - 1.50) * (0.02 / 0.25);
+          else if (ldRatio >= 1.25) ldFactor = 0.93 + (ldRatio - 1.25) * (0.03 / 0.25);
+          else ldFactor = 0.87 + (ldRatio - 1.00) * (0.06 / 0.25);
+        }
+        var curPsi = rawPsi * ldFactor;
+        var curMpa = curPsi * 0.00689476;
+
+        // ACI 209R Curing Hydration Model: f'(t) = f'(28) * [t / (a + b*t)]
+        // Type I: a = 4.0, b = 0.85
+        // Type III: a = 2.3, b = 0.92
+        // Fly ash / Slag: a = 6.0, b = 0.78
+        var aParam = 4.0, bParam = 0.85;
+        if (mixType === 'type3') { aParam = 2.3; bParam = 0.92; }
+        else if (mixType === 'flyash') { aParam = 6.0; bParam = 0.78; }
+
+        var curFrac28 = age / (aParam + bParam * age);
+        var norm28Frac = 28 / (aParam + bParam * 28);
+        var relRatio = curFrac28 / norm28Frac; // fraction of 28-day strength at current age
+
+        var proj28Psi = curPsi / relRatio;
+        var proj28Mpa = proj28Psi * 0.00689476;
+
+        // Compliance Ratio
+        var targetPct = (proj28Psi / targetDesign) * 100;
+
+        // Estimated w/c ratio via Abrams' Law approximation: f'c = 14000 / 7^(1.5*wc)
+        // wc approx = (ln(14000 / proj28Psi) / ln(7)) / 1.5
+        var wcEstimate = 0.45;
+        if (proj28Psi > 1000 && proj28Psi < 12000) {
+          wcEstimate = (Math.log(14000 / proj28Psi) / Math.log(7)) / 1.5;
+          wcEstimate = Math.max(0.30, Math.min(0.75, wcEstimate));
+        }
+
+        // Update KPIs
+        document.getElementById('cs-res-cur-psi').textContent = Math.round(curPsi).toLocaleString() + ' PSI';
+        document.getElementById('cs-res-cur-mpa').textContent = curMpa.toFixed(2) + ' MPa (Day ' + age + ' Break)';
+
+        document.getElementById('cs-res-proj-28').textContent = Math.round(proj28Psi).toLocaleString() + ' PSI';
+        document.getElementById('cs-res-proj-mpa').textContent = proj28Mpa.toFixed(2) + ' MPa (ACI 209R Model)';
+
+        document.getElementById('cs-res-target-pct').textContent = targetPct.toFixed(1) + '%';
+        var compSub = document.getElementById('cs-res-compliance-sub');
+        if (targetPct >= 100) {
+          compSub.textContent = 'PASSED (Exceeds ' + Math.round(targetDesign).toLocaleString() + ' Target)';
+          compSub.style.color = '#10b981';
+        } else if (targetPct >= 85) {
+          compSub.textContent = 'MARGINAL (' + (100 - targetPct).toFixed(1) + '% Below Target)';
+          compSub.style.color = '#f59e0b';
+        } else {
+          compSub.textContent = 'DEFICIENT SPECIMEN (Structural Review)';
+          compSub.style.color = '#ef4444';
+        }
+
+        document.getElementById('cs-res-wc-ratio').textContent = wcEstimate.toFixed(2) + ' w/c';
+
+        // Derivations Box
+        var dBox = document.getElementById('cs-derivation-box');
+        dBox.innerHTML = '<strong>1. Raw Tested Stress (ASTM C39):</strong><br>' +
+          '• σ_raw = Maximum Load / Area = ' + Math.round(loadLbf).toLocaleString() + ' lbf / ' + areaSqIn.toFixed(3) + ' in² = <strong>' + Math.round(rawPsi).toLocaleString() + ' PSI</strong>.<br>' +
+          (ldFactor < 1.0 ? '<strong>2. ASTM C42 Core L/D Correction:</strong><br>• L/D ratio is ' + ldRatio.toFixed(2) + ' &rarr; Correction factor = ' + ldFactor.toFixed(3) + ' &rarr; Corrected σ = <strong>' + Math.round(curPsi).toLocaleString() + ' PSI</strong>.<br>' : '') +
+          '<strong>3. ACI 209R Hydration Age Factor:</strong><br>' +
+          '• At Day ' + age + ', mix develops <strong>' + (relRatio * 100).toFixed(1) + '%</strong> of standard 28-day strength.<br>' +
+          '<strong>4. Projected 28-Day Strength:</strong><br>' +
+          '• f\\\'c(28) = ' + Math.round(curPsi).toLocaleString() + ' PSI / ' + relRatio.toFixed(3) + ' = <strong>' + Math.round(proj28Psi).toLocaleString() + ' PSI</strong> (' + proj28Mpa.toFixed(2) + ' MPa).<br>' +
+          '<strong>5. Design Target Ratio:</strong><br>' +
+          '• ' + Math.round(proj28Psi).toLocaleString() + ' PSI / ' + targetDesign + ' PSI specified = <strong>' + targetPct.toFixed(1) + '%</strong> compliance.';
+
+        renderCuringCurveSvg(curPsi, proj28Psi, age, targetDesign, aParam, bParam);
+      }
+
+      function renderCuringCurveSvg(curPsi, proj28, curAge, targetDesign, a, b) {
+        var svg = document.getElementById('cs-curing-svg');
+        if (!svg) return;
+
+        var w = 800, h = 260;
+        var padL = 65, padR = 40, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        var maxDays = 56;
+        var maxY = Math.max(targetDesign * 1.3, proj28 * 1.2);
+
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+
+        // Design Target Line (Red Dashed)
+        var targetYPx = padT + plotH - (targetDesign / maxY) * plotH;
+        svgHtml += '<line x1="' + padL + '" y1="' + targetYPx + '" x2="' + (padL + plotW) + '" y2="' + targetYPx + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,4" />';
+        svgHtml += '<text x="' + (padL + plotW - 10) + '" y="' + (targetYPx - 8) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="end">Target f\'c = ' + Math.round(targetDesign).toLocaleString() + ' PSI</text>';
+
+        // Curing Curve Path
+        var pts = [];
+        var norm28 = 28 / (a + b * 28);
+        for (var d = 1; d <= maxDays; d++) {
+          var frac = (d / (a + b * d)) / norm28;
+          var str = proj28 * frac;
+          var x = padL + (d / maxDays) * plotW;
+          var y = padT + plotH - (str / maxY) * plotH;
+          pts.push(x.toFixed(1) + ',' + y.toFixed(1));
+        }
+        svgHtml += '<path d="M ' + pts.join(' L ') + '" fill="none" stroke="#3b82f6" stroke-width="3" />';
+
+        // Current Tested Dot
+        if (curAge <= maxDays) {
+          var curX = padL + (curAge / maxDays) * plotW;
+          var curY = padT + plotH - (curPsi / maxY) * plotH;
+          svgHtml += '<circle cx="' + curX + '" cy="' + curY + '" r="6" fill="#10b981" />';
+          svgHtml += '<line x1="' + curX + '" y1="' + curY + '" x2="' + curX + '" y2="' + (padT + plotH) + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,3" />';
+          svgHtml += '<text x="' + curX + '" y="' + (curY - 12) + '" fill="#10b981" font-size="11" font-weight="bold" text-anchor="middle">Day ' + curAge + ' Break (' + Math.round(curPsi) + ' PSI)</text>';
+        }
+
+        // Ticks
+        var dayTicks = [7, 14, 28, 56];
+        dayTicks.forEach(function(dt) {
+          var tx = padL + (dt / maxDays) * plotW;
+          svgHtml += '<text x="' + tx + '" y="' + (padT + plotH + 18) + '" fill="var(--text-muted)" font-size="10.5" text-anchor="middle">Day ' + dt + '</text>';
+        });
+        svgHtml += '<text x="' + (padL - 10) + '" y="' + (padT + 12) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="end">Strength (PSI)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyConcreteStrengthReport(btn) {
+        var cur = document.getElementById('cs-res-cur-psi').textContent;
+        var curMpa = document.getElementById('cs-res-cur-mpa').textContent;
+        var p28 = document.getElementById('cs-res-proj-28').textContent;
+        var p28Mpa = document.getElementById('cs-res-proj-mpa').textContent;
+        var target = document.getElementById('cs-res-target-pct').textContent;
+        var comp = document.getElementById('cs-res-compliance-sub').textContent;
+        var age = document.getElementById('cs-age-val').value;
+        var load = document.getElementById('cs-break-load').value;
+
+        var text = '🏗️ CONCRETE COMPRESSIVE STRENGTH CYLINDER REPORT\\n' +
+          '====================================================\\n' +
+          '• Specimen Age at Break: Day ' + age + '\\n' +
+          '• Ultimate Break Load: ' + parseFloat(load).toLocaleString() + ' lbs\\n' +
+          '• Tested Strength: ' + cur + ' (' + curMpa + ')\\n' +
+          '• Projected 28-Day Strength: ' + p28 + ' (' + p28Mpa + ')\\n' +
+          '• Target Design Status: ' + target + ' — ' + comp + '\\n' +
+          '----------------------------------------------------\\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/concrete-compressive-strength-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Break Report Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcConcreteStrength);
+      } else {
+        calcConcreteStrength();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'concrete-compressive-strength-calculator.html'), renderTradePage({
+    title: "Concrete Compressive Strength & 28-Day Cylinder Break Calculator (ASTM C39) | Digital Tools Shed",
+    metaDesc: "Calculate concrete compressive strength in PSI and MPa, project 28-day strength from 7-day cylinder breaks using ACI 209R, and verify ASTM C39 compliance.",
+    canonical: `${DOMAIN}/calc/concrete-compressive-strength-calculator`,
+    bodyContent: concreteStrengthBody,
+    currentPath: '/calc/concrete-compressive-strength-calculator',
+    faq: [
+      {
+        "q": "What percentage of 28-day strength should concrete reach at 7 days?",
+        "a": "Standard Type I Portland cement concrete typically achieves approximately 65% to 70% of its specified 28-day design compressive strength at 7 days. High-early-strength Type III cement can reach 80% to 90% at 7 days, while blended mixes with high fly ash or slag content may only reach 50% to 55% at 7 days."
+      },
+      {
+        "q": "How do you calculate concrete compressive strength from a cylinder break test?",
+        "a": "Compressive strength is calculated by dividing the maximum failure load by the cross-sectional area of the cylinder: f'c = P / A. For a standard 6-inch by 12-inch cylinder (area = 28.27 in²), a failure load of 113,000 lbs produces exactly 4,000 PSI (27.6 MPa)."
+      },
+      {
+        "q": "What is the difference between testing 4x8 and 6x12 concrete cylinders?",
+        "a": "Both 4x8 and 6x12 cylinders are approved under ASTM C39 for concrete with maximum aggregate size up to 1 inch. 4x8 cylinders are lighter and easier to transport, but exhibit slightly higher testing variability (+2% to +3% strength) due to edge boundary effects."
+      },
+      {
+        "q": "How does core length-to-diameter (L/D) ratio affect measured concrete strength?",
+        "a": "According to ASTM C42, drilled cores with an L/D ratio less than 1.94 experience platen restraint friction that artificially inflates measured strength. Cores must be corrected using ASTM multiplication factors (e.g. 0.98 for L/D 1.75, 0.96 for L/D 1.50, and 0.87 for L/D 1.00)."
+      },
+      {
+        "q": "What is Abrams' Law relating water-cement ratio to concrete strength?",
+        "a": "Abrams' Law states that concrete compressive strength is inversely proportional to the water-cementitious materials ratio (w/c): lower water content yields higher strength and lower permeability, provided the concrete is fully consolidated without voids."
+      }
+    ]
+  }));
+
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 27. ELECTRICAL CONDUIT FILL & JAM RATIO CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const conduitFillBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Conduit Fill Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">National Electrical Code (NEC)</span>
+          <span class="badge badge-green">Chapter 9 Table 1 &amp; 4</span>
+          <span class="badge badge-blue">3-Conductor Jam Ratio</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Electrical Conduit Fill &amp; Jam Ratio Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Calculate allowable wire capacity and conduit percentage fill across EMT, PVC Schedule 40/80, RMC, and FMC under NEC 2023/2026 standards (53% for 1 wire, 31% for 2 wires, 40% for 3+ wires). Includes mixed wire gauge summing and the critical 3-conductor Jam Ratio (1.05 to 1.30 danger zone).
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Conduit Raceway Type:</label>
+            <select id="cf-conduit-type" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcConduitFill()">
+              <option value="emt" selected>EMT (Electrical Metallic Tubing)</option>
+              <option value="pvc40">PVC Schedule 40 (Rigid Nonmetallic)</option>
+              <option value="pvc80">PVC Schedule 80 (Heavy Wall Nonmetallic)</option>
+              <option value="rmc">RMC (Rigid Metal Conduit)</option>
+              <option value="fmc">FMC (Flexible Metal Conduit)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Trade Size of Conduit:</label>
+            <select id="cf-conduit-size" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcConduitFill()">
+              <option value="0.5">1/2" Trade Size</option>
+              <option value="0.75" selected>3/4" Trade Size</option>
+              <option value="1.0">1" Trade Size</option>
+              <option value="1.25">1-1/4" Trade Size</option>
+              <option value="1.5">1-1/2" Trade Size</option>
+              <option value="2.0">2" Trade Size</option>
+              <option value="2.5">2-1/2" Trade Size</option>
+              <option value="3.0">3" Trade Size</option>
+              <option value="4.0">4" Trade Size</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Conductor Insulation Type:</label>
+            <select id="cf-wire-type" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcConduitFill()">
+              <option value="thhn" selected>THHN / THWN / THWN-2 (Standard Compact)</option>
+              <option value="xhhw">XHHW / XHHW-2 (Cross-linked Polyethylene)</option>
+              <option value="use">USE-2 / RHW-2 (Thick Insulation)</option>
+              <option value="bare">Bare Copper Grounding Conductor</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Primary Wire Gauge (AWG/kcmil):</label>
+            <select id="cf-wire-gauge" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcConduitFill()">
+              <option value="14">#14 AWG (15A Circuit)</option>
+              <option value="12" selected>#12 AWG (20A Circuit)</option>
+              <option value="10">#10 AWG (30A Circuit)</option>
+              <option value="8">#8 AWG (40A-50A Circuit)</option>
+              <option value="6">#6 AWG (60A Circuit)</option>
+              <option value="4">#4 AWG (70A-85A Feeder)</option>
+              <option value="3">#3 AWG (100A Feeder)</option>
+              <option value="2">#2 AWG (115A Feeder)</option>
+              <option value="1">#1 AWG (130A Feeder)</option>
+              <option value="1/0">1/0 AWG (150A Service)</option>
+              <option value="2/0">2/0 AWG (175A Service)</option>
+              <option value="3/0">3/0 AWG (200A Service)</option>
+              <option value="4/0">4/0 AWG (225A Service)</option>
+              <option value="250">250 kcmil</option>
+              <option value="350">350 kcmil</option>
+              <option value="500">500 kcmil</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- WIRE COUNTS & SECONDARY GROUND WIRE -->
+        <div style="border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Number of Primary Conductors:</label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="range" id="cf-wire-count-slider" min="1" max="24" value="4" step="1" style="flex: 1; cursor: pointer;" oninput="syncWireSlider(this.value)" />
+              <input type="number" id="cf-wire-count" value="4" min="1" max="50" step="1" style="width: 65px; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem; text-align: center;" oninput="syncWireInput(this.value)" />
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Equipment Grounding Wire:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="cf-ground-gauge" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcConduitFill()">
+                <option value="none">None / Conduit is Ground</option>
+                <option value="12" selected>1× #12 AWG Ground</option>
+                <option value="10">1× #10 AWG Ground</option>
+                <option value="8">1× #8 AWG Ground</option>
+                <option value="6">1× #6 AWG Ground</option>
+              </select>
+              <select id="cf-ground-type" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcConduitFill()">
+                <option value="insulated" selected>THHN</option>
+                <option value="bare">Bare Cu</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">NEC Max Fill Allowed:</label>
+            <div id="cf-max-fill-allowed" style="padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+              40% (3+ Conductors)
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Current Conduit Fill</div>
+            <div id="cf-res-fill-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">12.3%</div>
+            <div id="cf-res-fill-status" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">NEC COMPLIANT (Passes 40% Max)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Total Wire Area vs Allowed</div>
+            <div id="cf-res-wire-area" style="font-family: var(--mono); font-size: 2.0rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">0.0665 in²</div>
+            <div id="cf-res-area-allowed" style="font-size: 0.85rem; color: var(--text-muted);">Max Allowed: 0.213 in² (40%)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Max Additional Wires</div>
+            <div id="cf-res-extra-wires" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">+11 Wires</div>
+            <div id="cf-res-max-total" style="font-size: 0.85rem; color: var(--text-muted);">Capacity: 16 total #12 THHN</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #8b5cf6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Jam Ratio (3-Wire Pull)</div>
+            <div id="cf-res-jam-ratio" style="font-family: var(--mono); font-size: 2.0rem; font-weight: bold; color: #8b5cf6; margin-bottom: 0.2rem;">6.32</div>
+            <div id="cf-res-jam-status" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">Safe Clearance (&gt; 1.30)</div>
+          </div>
+        </div>
+
+        <!-- RACEWAY DETAILS STRIP -->
+        <div style="margin-top: 1.25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div>Conduit ID: <strong id="cf-res-conduit-id" style="color: var(--fg);">0.824 in</strong></div>
+          <div>Total Conduit Area: <strong id="cf-res-conduit-total-area" style="color: var(--fg);">0.533 in²</strong></div>
+          <div>Single Wire OD: <strong id="cf-res-wire-od" style="color: var(--fg);">0.130 in</strong></div>
+          <div>Single Wire Area: <strong id="cf-res-single-area" style="color: #3b82f6;">0.0133 in²</strong></div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE CONDUIT CROSS-SECTION SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          🔌 Visual Conduit Cross-Section &amp; Fill Capacity
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Vector schematic illustrating conduit boundary, conductor bundle cross-sectional distribution, and 40% NEC safety margin threshold.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="cf-conduit-svg" viewBox="0 0 800 240" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step NEC Chapter 9 Calculations
+        </h3>
+        <div id="cf-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating raceway fill and cross-sectional areas...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="cf-copy-btn" onclick="copyConduitReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Conduit Fill &amp; Jam Ratio Takeoff
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Code Violations in Conduit Fill &amp; Wire Pulling
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The 3-Conductor "Jam Ratio" Wedge Trap (1.05 to 1.30 Danger Zone)</strong>
+            When pulling exactly 3 conductors into a conduit, if the ratio of conduit inside diameter to conductor outside diameter (D / d) falls between 1.05 and 1.30, the conductors will inevitably wedge themselves side-by-side across the apex of a bend. The wedge locks solidly inside the raceway, causing pulling tension to spike exponentially until the winch rope snaps or the conductor insulation tears open.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Schedule 80 PVC Internal Diameter Reduction Trap</strong>
+            Contractors installing exposed PVC risers subject to physical damage must use Schedule 80 PVC per NEC 352.10(F). However, Schedule 80 has much thicker walls, reducing internal diameter by 10% to 15% compared to Schedule 40 or EMT. A 2-inch EMT holds up to 26 #10 THHN wires; 2-inch Schedule 80 holds only 19. Sizing Schedule 80 using standard EMT tables results in instant inspection red-tags.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Ignoring Ground Wire in Total Cross-Sectional Area</strong>
+            A widespread myth among residential apprentices claims that the Equipment Grounding Conductor (EGC) does not count toward conduit fill because it carries no continuous operating current. Under NEC Chapter 9, Note 1, ALL conductors (including bare or insulated grounding wires) MUST be included in the total cross-sectional area calculation without exception.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Overlooking NEC 310.15(C)(1) Ampacity Derating with 4+ Current-Carrying Wires</strong>
+            While a conduit may physically accommodate up to 40% fill, bundling more than 3 current-carrying conductors in the same raceway triggers mandatory ampacity derating: 4–6 wires must be derated to 80%, 7–9 wires to 70%, and 10–20 wires down to 50%! Filling a 3/4" pipe with twelve #12 THHN wires derates their allowable ampacity from 30A down to only 15A.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Exceeding 360 Degrees of Total Bends Between Pull Points</strong>
+            NEC 358.26 (and matching sections for PVC and RMC) strictly mandates that the total sum of bends between pull points (pull boxes, conduit bodies, or panels) cannot exceed 360 degrees (four 90° bends). Exceeding 360° crushes cables against the conduit sidewall during pulling, causing dielectric insulation breakdown and catastrophic ground faults when energized.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // NEC Chapter 9 Table 4 Internal Diameters (Inches)
+      var CONDUIT_DATA = {
+        emt: { "0.5": 0.622, "0.75": 0.824, "1.0": 1.049, "1.25": 1.380, "1.5": 1.610, "2.0": 2.067, "2.5": 2.731, "3.0": 3.356, "4.0": 4.310 },
+        pvc40: { "0.5": 0.602, "0.75": 0.804, "1.0": 1.029, "1.25": 1.360, "1.5": 1.590, "2.0": 2.047, "2.5": 2.445, "3.0": 3.042, "4.0": 3.998 },
+        pvc80: { "0.5": 0.526, "0.75": 0.722, "1.0": 0.936, "1.25": 1.255, "1.5": 1.476, "2.0": 1.913, "2.5": 2.290, "3.0": 2.864, "4.0": 3.786 },
+        rmc: { "0.5": 0.632, "0.75": 0.836, "1.0": 1.063, "1.25": 1.394, "1.5": 1.624, "2.0": 2.083, "2.5": 2.489, "3.0": 3.090, "4.0": 4.050 },
+        fmc: { "0.5": 0.625, "0.75": 0.812, "1.0": 1.000, "1.25": 1.250, "1.5": 1.500, "2.0": 2.000, "2.5": 2.500, "3.0": 3.000, "4.0": 4.000 }
+      };
+
+      // NEC Chapter 9 Table 5 Conductor Areas (sq inches) & OD (inches)
+      var WIRE_DATA = {
+        thhn: {
+          "14": { area: 0.0097, od: 0.111 }, "12": { area: 0.0133, od: 0.130 }, "10": { area: 0.0211, od: 0.164 },
+          "8": { area: 0.0366, od: 0.216 }, "6": { area: 0.0507, od: 0.254 }, "4": { area: 0.0824, od: 0.324 },
+          "3": { area: 0.0973, od: 0.352 }, "2": { area: 0.1158, od: 0.384 }, "1": { area: 0.1562, od: 0.446 },
+          "1/0": { area: 0.1855, od: 0.486 }, "2/0": { area: 0.2223, od: 0.532 }, "3/0": { area: 0.2679, od: 0.584 },
+          "4/0": { area: 0.3237, od: 0.642 }, "250": { area: 0.3970, od: 0.711 }, "350": { area: 0.5242, od: 0.817 },
+          "500": { area: 0.7073, od: 0.949 }
+        },
+        xhhw: {
+          "14": { area: 0.0139, od: 0.133 }, "12": { area: 0.0181, od: 0.152 }, "10": { area: 0.0243, od: 0.176 },
+          "8": { area: 0.0437, od: 0.236 }, "6": { area: 0.0590, od: 0.274 }, "4": { area: 0.0814, od: 0.322 },
+          "3": { area: 0.0962, od: 0.350 }, "2": { area: 0.1146, od: 0.382 }, "1": { area: 0.1534, od: 0.442 },
+          "1/0": { area: 0.1825, od: 0.482 }, "2/0": { area: 0.2190, od: 0.528 }, "3/0": { area: 0.2642, od: 0.580 },
+          "4/0": { area: 0.3197, od: 0.638 }, "250": { area: 0.3904, od: 0.705 }, "350": { area: 0.5166, od: 0.811 },
+          "500": { area: 0.6984, od: 0.943 }
+        },
+        use: {
+          "14": { area: 0.0206, od: 0.162 }, "12": { area: 0.0260, od: 0.182 }, "10": { area: 0.0333, od: 0.206 },
+          "8": { area: 0.0556, od: 0.266 }, "6": { area: 0.0735, od: 0.306 }, "4": { area: 0.0984, od: 0.354 },
+          "3": { area: 0.1146, od: 0.382 }, "2": { area: 0.1346, od: 0.414 }, "1": { area: 0.1840, od: 0.484 },
+          "1/0": { area: 0.2156, od: 0.524 }, "2/0": { area: 0.2552, od: 0.570 }, "3/0": { area: 0.3039, od: 0.622 },
+          "4/0": { area: 0.3632, od: 0.680 }, "250": { area: 0.4477, od: 0.755 }, "350": { area: 0.5782, od: 0.858 },
+          "500": { area: 0.7713, od: 0.991 }
+        },
+        bare: {
+          "14": { area: 0.0032, od: 0.064 }, "12": { area: 0.0051, od: 0.081 }, "10": { area: 0.0082, od: 0.102 },
+          "8": { area: 0.0130, od: 0.129 }, "6": { area: 0.0270, od: 0.185 }, "4": { area: 0.0420, od: 0.232 },
+          "3": { area: 0.0530, od: 0.260 }, "2": { area: 0.0670, od: 0.292 }, "1": { area: 0.0850, od: 0.328 },
+          "1/0": { area: 0.1090, od: 0.372 }, "2/0": { area: 0.1370, od: 0.418 }, "3/0": { area: 0.1730, od: 0.470 },
+          "4/0": { area: 0.2190, od: 0.528 }, "250": { area: 0.2600, od: 0.575 }, "350": { area: 0.3640, od: 0.681 },
+          "500": { area: 0.5180, od: 0.813 }
+        }
+      };
+
+      function syncWireSlider(val) {
+        document.getElementById('cf-wire-count').value = val;
+        calcConduitFill();
+      }
+
+      function syncWireInput(val) {
+        var n = parseInt(val, 10);
+        if (!isNaN(n)) {
+          document.getElementById('cf-wire-count-slider').value = Math.min(24, Math.max(1, n));
+        }
+        calcConduitFill();
+      }
+
+      function calcConduitFill() {
+        var cType = document.getElementById('cf-conduit-type').value;
+        var cSize = document.getElementById('cf-conduit-size').value;
+        var wType = document.getElementById('cf-wire-type').value;
+        var wGauge = document.getElementById('cf-wire-gauge').value;
+        var wCount = parseInt(document.getElementById('cf-wire-count').value, 10) || 1;
+        var gGauge = document.getElementById('cf-ground-gauge').value;
+        var gType = document.getElementById('cf-ground-type').value;
+
+        // Lookup Conduit ID
+        var cId = (CONDUIT_DATA[cType] && CONDUIT_DATA[cType][cSize]) || 0.824;
+        var conduitTotalArea = (Math.PI * Math.pow(cId, 2)) / 4;
+
+        // Lookup Primary Wire Area and OD
+        var wObj = (WIRE_DATA[wType] && WIRE_DATA[wType][wGauge]) || { area: 0.0133, od: 0.130 };
+        var primaryTotalArea = wObj.area * wCount;
+
+        // Ground wire calculation
+        var groundArea = 0;
+        var totalConductorCount = wCount;
+        if (gGauge !== 'none') {
+          totalConductorCount += 1;
+          var gObj = (WIRE_DATA[gType === 'bare' ? 'bare' : 'thhn'] && WIRE_DATA[gType === 'bare' ? 'bare' : 'thhn'][gGauge]) || { area: 0.0133, od: 0.130 };
+          groundArea = gObj.area;
+        }
+
+        var totalWireArea = primaryTotalArea + groundArea;
+
+        // NEC Table 1 Allowable Fill %
+        var maxFillPct = 40;
+        if (totalConductorCount === 1) maxFillPct = 53;
+        else if (totalConductorCount === 2) maxFillPct = 31;
+        else maxFillPct = 40;
+
+        document.getElementById('cf-max-fill-allowed').textContent = maxFillPct + '% (' + totalConductorCount + ' Conductor' + (totalConductorCount !== 1 ? 's' : '') + ')';
+
+        var allowedArea = conduitTotalArea * (maxFillPct / 100);
+        var currentFillPct = (totalWireArea / conduitTotalArea) * 100;
+
+        // Max Additional Wires of primary type
+        var remainArea = allowedArea - totalWireArea;
+        var extraWires = Math.floor(remainArea / wObj.area);
+        var maxTotalWires = Math.floor(allowedArea / wObj.area);
+
+        // Jam Ratio: D / d
+        var jamRatio = cId / wObj.od;
+
+        // Update KPIs
+        document.getElementById('cf-res-fill-pct').textContent = currentFillPct.toFixed(1) + '%';
+        var statusEl = document.getElementById('cf-res-fill-status');
+        if (currentFillPct <= maxFillPct) {
+          statusEl.textContent = 'NEC COMPLIANT (Passes ' + maxFillPct + '% Max)';
+          statusEl.style.color = '#10b981';
+        } else {
+          statusEl.textContent = 'VIOLATION (' + (currentFillPct - maxFillPct).toFixed(1) + '% Over Limit)';
+          statusEl.style.color = '#ef4444';
+        }
+
+        document.getElementById('cf-res-wire-area').textContent = totalWireArea.toFixed(4) + ' in²';
+        document.getElementById('cf-res-area-allowed').textContent = 'Max Allowed: ' + allowedArea.toFixed(4) + ' in² (' + maxFillPct + '%)';
+
+        document.getElementById('cf-res-extra-wires').textContent = (extraWires >= 0 ? '+' + extraWires : extraWires) + ' Wires';
+        document.getElementById('cf-res-max-total').textContent = 'Total Capacity: ' + Math.max(0, maxTotalWires) + ' wires of #' + wGauge;
+
+        document.getElementById('cf-res-jam-ratio').textContent = jamRatio.toFixed(2);
+        var jamStatusEl = document.getElementById('cf-res-jam-status');
+        if (totalConductorCount === 3 && jamRatio >= 1.05 && jamRatio <= 1.30) {
+          jamStatusEl.textContent = 'DANGER: CRITICAL JAM ZONE (1.05–1.30)';
+          jamStatusEl.style.color = '#ef4444';
+        } else if (jamRatio < 1.05) {
+          jamStatusEl.textContent = 'Too Tight (<1.05)';
+          jamStatusEl.style.color = '#f59e0b';
+        } else {
+          jamStatusEl.textContent = 'Safe Clearance (> 1.30)';
+          jamStatusEl.style.color = '#10b981';
+        }
+
+        // Details Strip
+        document.getElementById('cf-res-conduit-id').textContent = cId.toFixed(3) + ' in';
+        document.getElementById('cf-res-conduit-total-area').textContent = conduitTotalArea.toFixed(3) + ' in²';
+        document.getElementById('cf-res-wire-od').textContent = wObj.od.toFixed(3) + ' in';
+        document.getElementById('cf-res-single-area').textContent = wObj.area.toFixed(4) + ' in²';
+
+        // Derivations Box
+        var dBox = document.getElementById('cf-derivation-box');
+        dBox.innerHTML = '<strong>1. Total Raceway Cross-Sectional Area (NEC Chapter 9 Table 4):</strong><br>' +
+          '• ' + cSize + '\\" ' + cType.toUpperCase() + ' Inside Diameter = ' + cId.toFixed(3) + ' in &rarr; Total Area = π × (' + (cId/2).toFixed(3) + ')² = <strong>' + conduitTotalArea.toFixed(4) + ' in²</strong>.<br>' +
+          '<strong>2. Conductor Areas (NEC Table 5):</strong><br>' +
+          '• ' + wCount + '× #' + wGauge + ' ' + wType.toUpperCase() + ' @ ' + wObj.area.toFixed(4) + ' in² = ' + primaryTotalArea.toFixed(4) + ' in²' + (groundArea > 0 ? ' + 1× ground (' + groundArea.toFixed(4) + ' in²)' : '') + ' = <strong>' + totalWireArea.toFixed(4) + ' in² total</strong>.<br>' +
+          '<strong>3. NEC Table 1 Allowable Limit:</strong><br>' +
+          '• For ' + totalConductorCount + ' conductors, max allowable fill is <strong>' + maxFillPct + '%</strong> (' + allowedArea.toFixed(4) + ' in²).<br>' +
+          '• Current fill percentage = (' + totalWireArea.toFixed(4) + ' in² / ' + conduitTotalArea.toFixed(4) + ' in²) × 100 = <strong>' + currentFillPct.toFixed(1) + '%</strong>.<br>' +
+          '<strong>4. 3-Conductor Jam Ratio Check:</strong><br>' +
+          '• J = Conduit ID / Conductor OD = ' + cId.toFixed(3) + ' in / ' + wObj.od.toFixed(3) + ' in = <strong>' + jamRatio.toFixed(2) + '</strong>.<br>' +
+          '• NEC Informative Annex B identifies ratios between 1.05 and 1.30 as the fatal jam zone where cables wedge in bends.';
+
+        renderConduitSvg(cId, wObj.od, wCount, totalConductorCount, currentFillPct, maxFillPct);
+      }
+
+      function renderConduitSvg(cId, wOd, wCount, totalCount, fillPct, maxPct) {
+        var svg = document.getElementById('cf-conduit-svg');
+        if (!svg) return;
+
+        var w = 800, h = 240;
+        var svgHtml = '';
+
+        // Draw Conduit Circle on Left
+        var cX = 140, cY = 120, cR = 85;
+        svgHtml += '<circle cx="' + cX + '" cy="' + cY + '" r="' + (cR + 8) + '" fill="#64748b" />';
+        svgHtml += '<circle cx="' + cX + '" cy="' + cY + '" r="' + cR + '" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="2" />';
+
+        // Pack circles inside
+        var wireR = Math.min(22, Math.max(6, (wOd / cId) * cR));
+        var drawCount = Math.min(18, totalCount);
+
+        for (var i = 0; i < drawCount; i++) {
+          var angle = (i / drawCount) * 2 * Math.PI;
+          var dist = drawCount === 1 ? 0 : Math.min(cR - wireR - 4, wireR * 1.6 + (i % 2) * 12);
+          var wx = cX + Math.cos(angle) * dist;
+          var wy = cY + Math.sin(angle) * dist;
+          var color = i === (drawCount - 1) && totalCount > wCount ? '#10b981' : '#3b82f6';
+          svgHtml += '<circle cx="' + wx.toFixed(1) + '" cy="' + wy.toFixed(1) + '" r="' + wireR.toFixed(1) + '" fill="' + color + '" stroke="#1e293b" stroke-width="1.5" />';
+          svgHtml += '<circle cx="' + wx.toFixed(1) + '" cy="' + wy.toFixed(1) + '" r="' + (wireR * 0.45).toFixed(1) + '" fill="#f59e0b" />';
+        }
+
+        // Labels on Left
+        svgHtml += '<text x="' + cX + '" y="' + (cY + cR + 25) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">Conduit Bore (' + cId.toFixed(3) + '\\")</text>';
+
+        // Fill Capacity Progress Bar on Right
+        var barX = 300, barY = 90, barW = 440, barH = 35;
+        svgHtml += '<text x="' + barX + '" y="' + (barY - 15) + '" fill="var(--fg)" font-size="13" font-weight="bold">Conduit Cross-Sectional Fill Capacity</text>';
+
+        // Background Track
+        svgHtml += '<rect x="' + barX + '" y="' + barY + '" width="' + barW + '" height="' + barH + '" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5" rx="6" />';
+
+        // Fill Fill Bar
+        var curBarW = Math.min(barW, (fillPct / 100) * barW);
+        var barColor = fillPct <= maxPct ? '#10b981' : '#ef4444';
+        svgHtml += '<rect x="' + barX + '" y="' + barY + '" width="' + curBarW + '" height="' + barH + '" fill="' + barColor + '" rx="5" />';
+
+        // 40% NEC Max Line
+        var maxLineX = barX + (maxPct / 100) * barW;
+        svgHtml += '<line x1="' + maxLineX + '" y1="' + (barY - 8) + '" x2="' + maxLineX + '" y2="' + (barY + barH + 8) + '" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4,2" />';
+        svgHtml += '<text x="' + maxLineX + '" y="' + (barY + barH + 24) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="middle">NEC Limit: ' + maxPct + '%</text>';
+
+        // Current Fill Text inside or above bar
+        svgHtml += '<text x="' + (barX + 15) + '" y="' + (barY + 22) + '" fill="#ffffff" font-size="12" font-weight="bold">' + fillPct.toFixed(1) + '% Filled</text>';
+        svgHtml += '<text x="' + (barX + barW) + '" y="' + (barY - 15) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">100% Total Area</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyConduitReport(btn) {
+        var pct = document.getElementById('cf-res-fill-pct').textContent;
+        var status = document.getElementById('cf-res-fill-status').textContent;
+        var area = document.getElementById('cf-res-wire-area').textContent;
+        var allowed = document.getElementById('cf-res-area-allowed').textContent;
+        var jam = document.getElementById('cf-res-jam-ratio').textContent;
+        var jamStat = document.getElementById('cf-res-jam-status').textContent;
+        var cType = document.getElementById('cf-conduit-type').value.toUpperCase();
+        var cSize = document.getElementById('cf-conduit-size').value;
+
+        var text = '⚡ NEC CONDUIT FILL & JAM RATIO TAKEOFF\\n' +
+          '====================================================\\n' +
+          '• Raceway: ' + cSize + '" ' + cType + '\\n' +
+          '• Fill Percentage: ' + pct + ' — ' + status + '\\n' +
+          '• Wire Area: ' + area + ' (' + allowed + ')\\n' +
+          '• 3-Conductor Jam Ratio: ' + jam + ' (' + jamStat + ')\\n' +
+          '• Standard Compliance: NEC Chapter 9 Table 1 & 4\\n' +
+          '----------------------------------------------------\\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/conduit-fill-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Conduit Spec Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcConduitFill);
+      } else {
+        calcConduitFill();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'conduit-fill-calculator.html'), renderTradePage({
+    title: "Electrical Conduit Fill & Jam Ratio Calculator (NEC 2023/2026 Tables) | Digital Tools Shed",
+    metaDesc: "Calculate electrical conduit fill percentage across EMT, PVC 40/80, and RMC under NEC Chapter 9 Tables 1, 4, and 5. Includes 3-conductor Jam Ratio warning.",
+    canonical: `${DOMAIN}/calc/conduit-fill-calculator`,
+    bodyContent: conduitFillBody,
+    currentPath: '/calc/conduit-fill-calculator',
+    faq: [
+      {
+        "q": "What is the maximum conduit fill percentage according to the NEC?",
+        "a": "Under National Electrical Code (NEC) Chapter 9, Table 1: 1 conductor allows up to 53% conduit fill; 2 conductors allow up to 31% fill (to prevent twisting and binding); and 3 or more conductors allow up to 40% fill."
+      },
+      {
+        "q": "What is the 3-conductor Jam Ratio and why is it dangerous?",
+        "a": "The Jam Ratio is the ratio of conduit inside diameter to cable outside diameter (J = D / d). When pulling exactly 3 conductors into a conduit, if the ratio falls between 1.05 and 1.30, the cables will wedge side-by-side across bends, jamming solidly and tearing wire insulation."
+      },
+      {
+        "q": "Does a bare copper ground wire count toward conduit fill?",
+        "a": "Yes. According to NEC Chapter 9, Note 1, all conductors (including insulated and bare equipment grounding conductors) must be counted in the total cross-sectional area calculation when determining raceway fill."
+      },
+      {
+        "q": "Why does Schedule 80 PVC hold fewer wires than EMT conduit?",
+        "a": "Schedule 80 PVC has substantially thicker walls than EMT or Schedule 40 PVC to provide physical impact protection. Because the outside diameter remains standard, the thicker wall reduces the internal diameter (ID), decreasing available fill area by up to 25%."
+      },
+      {
+        "q": "When does bundling wires in conduit trigger ampacity derating?",
+        "a": "Under NEC 310.15(C)(1), when more than 3 current-carrying conductors are installed in the same raceway, individual conductor ampacity must be derated: 4 to 6 wires are derated to 80%, 7 to 9 wires to 70%, and 10 to 20 wires down to 50% of their table ampacity."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 28. HVAC AIR DUCT SIZING & EQUAL FRICTION CFM CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const ductSizeBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; HVAC Duct Sizing Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">HVAC &amp; Mechanical Engineering</span>
+          <span class="badge badge-green">ASHRAE Fundamentals &amp; SMACNA</span>
+          <span class="badge badge-blue">Huebscher Equivalent Diameter</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">HVAC Air Duct Sizing &amp; CFM Velocity Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Size supply, return, and branch ducts using the industry-standard <strong>Equal Friction Method</strong> or <strong>Target Velocity Method</strong>. Accurately convert between round and rectangular duct sizes with the Huebscher equivalent diameter equation, monitor air velocity acoustic whistling limits, and detect aspect ratio pressure collapse.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Calculation Mode</label>
+            <select id="duct-calc-mode" class="input-field" style="width: 100%;" onchange="calcDuctSize()">
+              <option value="equal_friction" selected>Equal Friction Method (Specify CFM &amp; Friction Rate)</option>
+              <option value="target_velocity">Target Velocity Method (Specify CFM &amp; Velocity FPM)</option>
+              <option value="known_size">Analyze Existing Duct (Specify Dimensions &amp; CFM)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Airflow Volume (CFM)</label>
+            <input type="number" id="duct-cfm" class="input-field" value="800" min="10" max="50000" step="10" style="width: 100%;" oninput="calcDuctSize()">
+            <small style="color: var(--text-muted);">Cubic Feet per Minute (e.g. 400 CFM per ton of cooling)</small>
+          </div>
+        </div>
+
+        <div id="friction-controls-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div id="col-friction-rate">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Friction Loss Rate (in. w.g. / 100 ft)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="duct-friction" class="input-field" value="0.10" min="0.01" max="1.0" step="0.01" style="width: 100%;" oninput="calcDuctSize()">
+              <select id="duct-friction-preset" class="input-field" style="width: 180px;" onchange="applyFrictionPreset()">
+                <option value="custom">Preset...</option>
+                <option value="0.08">0.08 (Quiet Residential)</option>
+                <option value="0.10" selected>0.10 (Standard ASHRAE)</option>
+                <option value="0.15">0.15 (Commercial Supply)</option>
+                <option value="0.05">0.05 (Low Resistance Return)</option>
+              </select>
+            </div>
+            <small style="color: var(--text-muted);">Static pressure loss per 100 feet of equivalent straight duct</small>
+          </div>
+          <div id="col-target-velocity" style="display: none;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Target Air Velocity (FPM)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="duct-target-fpm" class="input-field" value="800" min="200" max="4000" step="25" style="width: 100%;" oninput="calcDuctSize()">
+              <select id="duct-velocity-preset" class="input-field" style="width: 180px;" onchange="applyVelocityPreset()">
+                <option value="custom">Preset...</option>
+                <option value="600">600 FPM (Branch Run)</option>
+                <option value="800" selected>800 FPM (Res Trunk)</option>
+                <option value="1200">1200 FPM (Comm Main)</option>
+              </select>
+            </div>
+            <small style="color: var(--text-muted);">Feet per minute air velocity</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Rectangular Duct Constraint</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <select id="duct-constraint-type" class="input-field" style="width: 140px;" onchange="calcDuctSize()">
+                <option value="height" selected>Fixed Height</option>
+                <option value="width">Fixed Width</option>
+              </select>
+              <input type="number" id="duct-constraint-val" class="input-field" value="8" min="4" max="60" step="1" style="width: 100%;" oninput="calcDuctSize()">
+              <span style="font-weight: bold;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Joist space limitation (e.g. 8" or 10" depth limit)</small>
+          </div>
+        </div>
+
+        <!-- Diagnostic Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Equivalent Round Diameter</div>
+            <div id="res-round-diam" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-round-std" style="font-size: 0.8rem; color: var(--text-muted);">Nearest standard: --</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Rectangular Dimensions</div>
+            <div id="res-rect-size" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-aspect-ratio" style="font-size: 0.8rem; color: var(--text-muted);">Aspect ratio: --</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Airflow Velocity</div>
+            <div id="res-velocity-fpm" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-velocity-rating" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Friction Rate</div>
+            <div id="res-friction-rate" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-total-area" style="font-size: 0.8rem; color: var(--text-muted);">Area: -- sq ft</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-duct-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyDuctSummary()">
+            <span>📋</span> Copy Full HVAC Duct Sizing Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Duct Cross-Section &amp; Airflow Velocity Dynamics</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Visual comparison of calculated rectangular duct profile against equivalent hydraulic round diameter, with real-time acoustic velocity boundary warnings.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="duct-vis-svg" viewBox="0 0 700 320" style="width: 100%; max-width: 700px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Mathematical Derivation &amp; Engineering Formulas</h3>
+        <div id="duct-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal HVAC Duct Sizing Traps &amp; Static Pressure Pitfalls</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Air duct systems that ignore aerodynamic principles cause high electric bills, blower motor burnout, whistling grilles, and frozen A/C coils.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 1. The 4:1 Aspect Ratio Pressure Collapse &amp; Sheet Metal Rumble
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Designing rectangular ducts with an aspect ratio (width to height) greater than <strong>4:1</strong> drastically multiplies wetted surface friction. A wide, shallow duct (e.g. 24" x 4") has an area of 96 sq in and a perimeter of 56 inches, whereas a square 10" x 10" duct has 100 sq in of area with only 40 inches of perimeter. The excessive flat span in high-aspect-ratio ducts creates "oil-canning"—a loud, repeating booming or popping sound every time the blower turns on and off due to pressure pulses. Keep aspect ratios below 2:1 whenever possible, and never exceed 4:1.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔊</span> 2. Velocity Acoustic Whistling &amp; Grille Jet Noise (&gt;900 FPM Residential)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Duct air velocity exceeding <strong>900 FPM in residential supply trunks</strong> and <strong>600 FPM in branch runs</strong> generates noticeable airborne turbulence noise. When high-velocity air impinges on stamped metal face dampers and supply grilles, it produces an annoying high-frequency whistle or persistent roaring drone (NC-35 to NC-45). If a 3-ton system (1,200 CFM) is forced into an undersized 8-inch round duct, velocity spikes to 3,437 FPM—sounding like an active jet engine in the living space.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🌀</span> 3. Flexible Duct Compression Drag (15% Compression = 400% Friction Spike)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Standard duct calculators and friction charts assume smooth galvanized sheet metal. Flexible ducting features a helical wire core that creates internal spiral ribbing. According to ACCA Manual D and Texas A&amp;M laboratory research, if a flexible duct is not stretched tight with at least 4% tension, internal friction multiplies exponentially. Just <strong>15% longitudinal compression increases static pressure friction loss by over 400%</strong>. Never calculate flexible duct using smooth metal friction rates without adding a 1.5x to 2.0x size multiplier.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>❄️</span> 4. Uninsulated Attic Duct Thermal Parasitic Loss (30% Capacity Steal)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Installing supply ductwork in an unconditioned attic space (which reaches 140°F in summer) without R-8 minimum insulation creates massive sensible heat gain. Supply air chilled to 55°F at the evaporator coil can warm up to 66°F before reaching the furthest bedroom register. This conductive thermal gain destroys system efficiency, runs the compressor non-stop, causes condensation dripping on sheetrock ceilings ("sweating ducts"), and fosters black mold growth inside fibrous duct liners.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🛑</span> 5. Return Grille Face Velocity Static Starvation (&gt;300 FPM Freezes Coils)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              A system can have a perfectly sized supply trunk, but if the central return air grille is undersized, the entire HVAC unit suffocates. Filter grilles must be sized for a maximum face velocity of <strong>300 to 400 FPM</strong> (e.g., minimum 2.0 to 2.5 sq ft of filter grille per ton of cooling). When homeowners install high-MERV (MERV 11 to 13) 1-inch filters into undersized return grilles, total external static pressure (TESP) shoots above 0.8 in. w.g., drastically dropping CFM across the indoor cooling coil and causing the refrigerant coil to freeze into a solid block of ice.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: HVAC Duct Sizing</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How many CFM of airflow are required per ton of air conditioning?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Standard residential air conditioning systems require approximately <strong>400 CFM per ton</strong> (12,000 BTU/hr) of nominal cooling capacity under standard humidity conditions. In hot, humid climates (like the US Southeast), systems are frequently configured for 350 CFM per ton to enhance latent dehumidification. In arid desert climates, airflow may be elevated to 425–450 CFM per ton to maximize sensible cooling capacity.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the standard friction rate used in residential duct sizing?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The standard rule-of-thumb friction rate is <strong>0.10 inches of water column (in. w.g.) per 100 feet</strong> of equivalent length for supply ducts, and <strong>0.08 in. w.g. / 100 ft</strong> for return ducts. However, ACCA Manual D requires calculating the actual Available Static Pressure (ASP) divided by Total Equivalent Length (TEL) to derive the precise design friction rate, which often falls between 0.06 and 0.08 in. w.g. / 100 ft in systems with restrictive high-efficiency filters and secondary coils.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How is equivalent round diameter converted to rectangular duct dimensions?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              The conversion uses the <strong>Huebscher equation</strong>: <code>D_e = 1.30 * (a * b)^0.625 / (a + b)^0.25</code>, where <em>a</em> and <em>b</em> are the rectangular width and height, and <em>D_e</em> is the circular diameter that yields identical friction loss at equal airflow. Because rectangular ducts possess greater surface area per unit volume, a rectangular duct must have a larger cross-sectional area than a round duct to carry identical CFM at the same static pressure drop.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Why is round ductwork superior to rectangular ductwork?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              A circle provides the maximum cross-sectional area with the minimum perimeter, minimizing surface boundary layer friction. Spiral round metal pipe contains internal pressure more effectively without flexing, creates no high-resistance 90-degree internal corner vortices, and uses 20% to 30% less sheet metal by weight compared to rectangular ducting for identical airflow capacity. Rectangular ducts are primarily used when ceiling joist height or vertical wall studs physically restrict vertical clearance.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What maximum air velocity should be allowed in residential ductwork?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Under ASHRAE and SMACNA acoustic design standards: residential main supply trunks should not exceed <strong>700 to 900 FPM</strong>; branch supply runs should stay below <strong>500 to 600 FPM</strong>; and central return ducts should stay below <strong>600 to 700 FPM</strong>. Velocities exceeding 1,000 FPM create turbulent rushing noise and register whistling that transmits into bedrooms and living spaces.
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function applyFrictionPreset() {
+        var p = document.getElementById('duct-friction-preset').value;
+        if (p !== 'custom') {
+          document.getElementById('duct-friction').value = p;
+          calcDuctSize();
+        }
+      }
+
+      function applyVelocityPreset() {
+        var p = document.getElementById('duct-velocity-preset').value;
+        if (p !== 'custom') {
+          document.getElementById('duct-target-fpm').value = p;
+          calcDuctSize();
+        }
+      }
+
+      function calcDuctSize() {
+        var mode = document.getElementById('duct-calc-mode').value;
+        var cfm = parseFloat(document.getElementById('duct-cfm').value) || 400;
+        var friction = parseFloat(document.getElementById('duct-friction').value) || 0.10;
+        var targetFpm = parseFloat(document.getElementById('duct-target-fpm').value) || 800;
+        var constraintType = document.getElementById('duct-constraint-type').value;
+        var constraintVal = parseFloat(document.getElementById('duct-constraint-val').value) || 8;
+
+        var colFriction = document.getElementById('col-friction-rate');
+        var colVelocity = document.getElementById('col-target-velocity');
+
+        if (mode === 'target_velocity') {
+          colFriction.style.display = 'none';
+          colVelocity.style.display = 'block';
+        } else {
+          colFriction.style.display = 'block';
+          colVelocity.style.display = 'none';
+        }
+
+        var roundDiam = 0;
+        var velocityFpm = 0;
+        var calcFrictionRate = friction;
+
+        if (mode === 'equal_friction') {
+          var dPow = (0.109136 * Math.pow(cfm, 1.9)) / Math.max(0.005, friction);
+          roundDiam = Math.pow(dPow, 1 / 5.02);
+          var areaSqFt = Math.PI * Math.pow(roundDiam / 24, 2);
+          velocityFpm = cfm / areaSqFt;
+          calcFrictionRate = friction;
+        } else if (mode === 'target_velocity') {
+          velocityFpm = targetFpm;
+          var areaSqFt = cfm / velocityFpm;
+          var areaSqIn = areaSqFt * 144;
+          roundDiam = Math.sqrt((4 * areaSqIn) / Math.PI);
+          calcFrictionRate = (0.109136 * Math.pow(cfm, 1.9)) / Math.pow(roundDiam, 5.02);
+        } else {
+          roundDiam = constraintVal;
+          var areaSqFt = Math.PI * Math.pow(roundDiam / 24, 2);
+          velocityFpm = cfm / areaSqFt;
+          calcFrictionRate = (0.109136 * Math.pow(cfm, 1.9)) / Math.pow(roundDiam, 5.02);
+        }
+
+        var bFixed = constraintVal;
+        var aCalc = bFixed;
+
+        function getHuebscherDe(w, h) {
+          return 1.30 * (Math.pow(w * h, 0.625) / Math.pow(w + h, 0.25));
+        }
+
+        var low = 2, high = 120;
+        for (var iter = 0; iter < 30; iter++) {
+          var mid = (low + high) / 2;
+          var testDe = getHuebscherDe(mid, bFixed);
+          if (testDe < roundDiam) {
+            low = mid;
+          } else {
+            high = mid;
+          }
+        }
+        aCalc = (low + high) / 2;
+
+        var stdRound = Math.round(roundDiam);
+        var stdRectA = Math.round(aCalc);
+        var stdRectB = Math.round(bFixed);
+
+        var aspect = Math.max(stdRectA, stdRectB) / Math.min(stdRectA, stdRectB);
+        var rectAreaSqFt = (stdRectA * stdRectB) / 144;
+        var rectVelocityFpm = cfm / rectAreaSqFt;
+
+        document.getElementById('res-round-diam').textContent = roundDiam.toFixed(1) + '"';
+        document.getElementById('res-round-std').textContent = 'Nearest standard: ' + stdRound + '" Round';
+
+        if (constraintType === 'height') {
+          document.getElementById('res-rect-size').textContent = stdRectA + '"W × ' + stdRectB + '"H';
+        } else {
+          document.getElementById('res-rect-size').textContent = stdRectB + '"W × ' + stdRectA + '"H';
+        }
+        
+        var aspectEl = document.getElementById('res-aspect-ratio');
+        aspectEl.textContent = 'Aspect Ratio: ' + aspect.toFixed(2) + ':1 ' + (aspect > 4 ? '❌ DANGER (>4:1)' : (aspect > 2.5 ? '⚠️ Warning' : '✓ Optimal'));
+        aspectEl.style.color = aspect > 4 ? '#ef4444' : (aspect > 2.5 ? '#f59e0b' : '#10b981');
+
+        var velEl = document.getElementById('res-velocity-fpm');
+        velEl.textContent = Math.round(velocityFpm) + ' FPM';
+        var velRating = document.getElementById('res-velocity-rating');
+        if (velocityFpm < 700) {
+          velRating.textContent = '✓ Quiet (Residential Standard)';
+          velRating.style.color = '#10b981';
+        } else if (velocityFpm <= 900) {
+          velRating.textContent = '✓ Moderate (Trunk Maximum)';
+          velRating.style.color = '#3b82f6';
+        } else if (velocityFpm <= 1200) {
+          velRating.textContent = '⚠️ Loud / Commercial Only';
+          velRating.style.color = '#f59e0b';
+        } else {
+          velRating.textContent = '❌ Whistle Hazard (>1200 FPM)';
+          velRating.style.color = '#ef4444';
+        }
+
+        document.getElementById('res-friction-rate').textContent = calcFrictionRate.toFixed(3) + ' in/100\'';
+        document.getElementById('res-total-area').textContent = 'Round Area: ' + (Math.PI * Math.pow(roundDiam / 24, 2)).toFixed(2) + ' sq ft';
+
+        renderDuctSvg(roundDiam, stdRectA, stdRectB, aspect, velocityFpm);
+        renderDuctDerivation(cfm, friction, roundDiam, stdRound, stdRectA, stdRectB, aspect, velocityFpm, calcFrictionRate);
+      }
+
+      function renderDuctSvg(roundD, rectW, rectH, aspect, vel) {
+        var svg = document.getElementById('duct-vis-svg');
+        if (!svg) return;
+        var maxDim = Math.max(roundD, rectW, rectH, 12);
+        var scale = 140 / maxDim;
+
+        var rWidth = rectW * scale;
+        var rHeight = rectH * scale;
+        var rRadius = (roundD * scale) / 2;
+
+        var cx = 220;
+        var cy = 160;
+        var rectX = cx - rWidth / 2;
+        var rectY = cy - rHeight / 2;
+
+        var velColor = vel < 700 ? '#10b981' : (vel <= 900 ? '#3b82f6' : (vel <= 1200 ? '#f59e0b' : '#ef4444'));
+
+        var svgHtml = '';
+        svgHtml += '<line x1="40" y1="160" x2="400" y2="160" stroke="#334155" stroke-width="1" stroke-dasharray="4,4" />';
+        svgHtml += '<line x1="220" y1="30" x2="220" y2="290" stroke="#334155" stroke-width="1" stroke-dasharray="4,4" />';
+        svgHtml += '<rect x="' + rectX + '" y="' + rectY + '" width="' + rWidth + '" height="' + rHeight + '" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="2.5" rx="4" />';
+        svgHtml += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rRadius + '" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="6,4" />';
+        svgHtml += '<text x="' + cx + '" y="' + (rectY - 12) + '" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">Width: ' + rectW + '\\" (Rectangular)</text>';
+        svgHtml += '<text x="' + (rectX + rWidth + 12) + '" y="' + (cy + 4) + '" fill="#10b981" font-size="12" font-weight="bold">Height: ' + rectH + '\\"</text>';
+        svgHtml += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">∅ ' + roundD.toFixed(1) + '\\" Round (De)</text>';
+
+        svgHtml += '<g transform="translate(440, 40)">';
+        svgHtml += '<rect x="0" y="0" width="230" height="240" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1" />';
+        svgHtml += '<text x="115" y="28" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="bold">Acoustic Velocity Rating</text>';
+        svgHtml += '<rect x="25" y="50" width="180" height="16" rx="8" fill="#0f172a" />';
+        svgHtml += '<rect x="25" y="50" width="70" height="16" rx="8" fill="#10b981" opacity="0.6" />';
+        svgHtml += '<rect x="95" y="50" width="30" height="16" fill="#3b82f6" opacity="0.6" />';
+        svgHtml += '<rect x="125" y="50" width="35" height="16" fill="#f59e0b" opacity="0.6" />';
+        svgHtml += '<rect x="160" y="50" width="45" height="16" rx="8" fill="#ef4444" opacity="0.6" />';
+
+        var needleX = Math.min(200, Math.max(25, 25 + (vel / 1600) * 180));
+        svgHtml += '<line x1="' + needleX + '" y1="44" x2="' + needleX + '" y2="72" stroke="#ffffff" stroke-width="3" />';
+        svgHtml += '<text x="25" y="82" fill="#94a3b8" font-size="9">0 FPM</text>';
+        svgHtml += '<text x="95" y="82" fill="#94a3b8" font-size="9">700</text>';
+        svgHtml += '<text x="160" y="82" fill="#94a3b8" font-size="9">1200+</text>';
+
+        svgHtml += '<text x="115" y="115" text-anchor="middle" fill="' + velColor + '" font-size="18" font-weight="bold">' + Math.round(vel) + ' FPM</text>';
+        svgHtml += '<rect x="20" y="135" width="190" height="85" rx="6" fill="#0f172a" stroke="#334155" stroke-width="0.5" />';
+        svgHtml += '<text x="30" y="155" fill="#94a3b8" font-size="10.5">• Aspect Ratio: <tspan fill="' + (aspect > 4 ? '#ef4444' : '#10b981') + '" font-weight="bold">' + aspect.toFixed(1) + ':1</tspan></text>';
+        svgHtml += '<text x="30" y="175" fill="#94a3b8" font-size="10.5">• Noise Criteria: <tspan fill="' + velColor + '" font-weight="bold">' + (vel < 700 ? 'NC-25 (Whisper)' : (vel < 900 ? 'NC-30 (Quiet)' : 'NC-40 (Whistle)')) + '</tspan></text>';
+        svgHtml += '<text x="30" y="195" fill="#94a3b8" font-size="10.5">• Equal Friction: <tspan fill="#8b5cf6" font-weight="bold">ASHRAE / SMACNA</tspan></text>';
+        svgHtml += '<text x="30" y="212" fill="#94a3b8" font-size="9.5">• Status: <tspan fill="' + (vel < 900 && aspect <= 4 ? '#10b981' : '#f59e0b') + '">' + (vel < 900 && aspect <= 4 ? 'Optimal Design' : 'Check Restrictions') + '</tspan></text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderDuctDerivation(cfm, friction, roundD, stdR, rectA, rectB, aspect, vel, actualFriction) {
+        var el = document.getElementById('duct-derivation-content');
+        if (!el) return;
+        var roundArea = (Math.PI * Math.pow(roundD / 24, 2)).toFixed(3);
+        var rectArea = ((rectA * rectB) / 144).toFixed(3);
+
+        var html = '';
+        html += '<p><strong>Step 1: Determine Required Round Duct Diameter via Equal Friction Equation</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$\\\\Delta h_f = 0.109136 \\\\times \\\\frac{Q^{1.9}}{D^{5.02}}\\\\quad\\\\implies\\\\quad D = \\\\left( \\\\frac{0.109136 \\\\times ' + cfm + '^{1.9}}{' + friction.toFixed(2) + '} \\\\right)^{\\\\frac{1}{5.02}} = \\\\mathbf{' + roundD.toFixed(2) + '\\\\text{ inches}}$$<br>';
+        html += 'Standard Commercial Spiral Pipe Selection = <strong>' + stdR + '\\" Round</strong> (Cross-sectional Area = ' + roundArea + ' sq ft)';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Convert to Equivalent Rectangular Duct via Huebscher Equation</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$D_e = 1.30 \\\\times \\\\frac{(a \\\\cdot b)^{0.625}}{(a + b)^{0.25}}\\\\quad\\\\text{with } b = ' + rectB + '\\" \\\\implies a = \\\\mathbf{' + rectA + '\\"}$$<br>';
+        html += 'Rectangular Profile = <strong>' + rectA + '\\" Wide &times; ' + rectB + '\\" Deep</strong> (Area = ' + rectArea + ' sq ft)';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Verify Aerodynamic Air Velocity &amp; Aspect Ratio</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$v = \\\\frac{Q}{A} = \\\\frac{' + cfm + '\\\\text{ CFM}}{' + roundArea + '\\\\text{ ft}^2} = \\\\mathbf{' + Math.round(vel) + '\\\\text{ FPM}}$$<br>';
+        html += '$$\\\\text{Aspect Ratio } AR = \\\\frac{\\\\max(a, b)}{\\\\min(a, b)} = \\\\frac{' + Math.max(rectA, rectB) + '}{' + Math.min(rectA, rectB) + '} = \\\\mathbf{' + aspect.toFixed(2) + ' : 1}$$';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyDuctSummary() {
+        var cfm = document.getElementById('duct-cfm').value;
+        var roundD = document.getElementById('res-round-diam').textContent;
+        var roundStd = document.getElementById('res-round-std').textContent;
+        var rectSize = document.getElementById('res-rect-size').textContent;
+        var aspect = document.getElementById('res-aspect-ratio').textContent;
+        var vel = document.getElementById('res-velocity-fpm').textContent;
+        var velRating = document.getElementById('res-velocity-rating').textContent;
+        var friction = document.getElementById('res-friction-rate').textContent;
+
+        var text = '=== HVAC AIR DUCT SIZING & FRICTION REPORT ===\\n' +
+          'Airflow Volume: ' + cfm + ' CFM\\n' +
+          'Design Friction Rate: ' + friction + '\\n' +
+          '--------------------------------------------\\n' +
+          'Calculated Round Diameter: ' + roundD + ' (' + roundStd + ')\\n' +
+          'Rectangular Duct Size: ' + rectSize + '\\n' +
+          aspect + '\\n' +
+          'Air Velocity: ' + vel + ' (' + velRating + ')\\n' +
+          'Aerodynamic Standard: ASHRAE Fundamentals / SMACNA\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/duct-size-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-duct-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied HVAC Duct Sizing!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcDuctSize);
+      } else {
+        calcDuctSize();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'duct-size-calculator.html'), renderTradePage({
+    title: "HVAC Duct Sizing & CFM Air Velocity Calculator (ASHRAE / SMACNA) | Digital Tools Shed",
+    metaDesc: "Size HVAC supply and return air ducts by CFM and friction rate using the Equal Friction and Huebscher equivalent diameter methods. Monitor velocity noise limits.",
+    canonical: `${DOMAIN}/calc/duct-size-calculator`,
+    bodyContent: ductSizeBody,
+    currentPath: '/calc/duct-size-calculator',
+    faq: [
+      {
+        "q": "How many CFM of airflow are required per ton of air conditioning?",
+        "a": "Standard residential air conditioning systems require approximately 400 CFM per ton (12,000 BTU/hr) of nominal cooling capacity under standard humidity conditions. In humid climates, 350 CFM/ton improves dehumidification, while in dry desert climates, 450 CFM/ton maximizes efficiency."
+      },
+      {
+        "q": "What is the standard friction rate used in residential duct sizing?",
+        "a": "The standard rule-of-thumb friction rate is 0.10 inches of water column (in. w.g.) per 100 feet of equivalent straight duct length for supply trunks, and 0.08 in. w.g. / 100 ft for return trunks."
+      },
+      {
+        "q": "How is equivalent round diameter converted to rectangular duct dimensions?",
+        "a": "The conversion uses the Huebscher equation: D_e = 1.30 * (a * b)^0.625 / (a + b)^0.25, where a and b are rectangular width and height, and D_e is the circular diameter yielding equal friction loss at identical airflow."
+      },
+      {
+        "q": "Why is round ductwork superior to rectangular ductwork?",
+        "a": "A circular duct provides the maximum cross-sectional area with the minimum perimeter, minimizing surface boundary friction. Round spiral ducting requires 20% to 30% less sheet metal by weight and eliminates noisy 90-degree corner eddy turbulence."
+      },
+      {
+        "q": "What maximum air velocity should be allowed in residential ductwork?",
+        "a": "Under ASHRAE standards, residential main supply trunks should stay below 700 to 900 FPM, branch runs below 500 to 600 FPM, and central return ducts below 600 to 700 FPM to prevent acoustic whistling and rumble."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 29. BEAM DEFLECTION, BENDING STRESS & MOMENT OF INERTIA CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const beamDeflectionBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Beam Deflection Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Structural Engineering &amp; Carpentry</span>
+          <span class="badge badge-green">AISC &amp; NDS Timber Standards</span>
+          <span class="badge badge-blue">Euler-Bernoulli Elastic Beam Theory</span>
+        </div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem; line-height: 1.2;">Beam Deflection, Bending Stress &amp; Section Modulus Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; max-width: 820px;">
+          Calculate maximum elastic deflection ($\delta_{\max}$), bending moment ($M_{\max}$), and flexural fiber stress ($\sigma_{\max}$) across simply supported and cantilever beams. Accurately verify code deflection thresholds ($L/360$, $L/240$, $L/180$) using authentic nominal lumber dimensions, engineered LVL, and structural steel sections.
+        </p>
+      </header>
+
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <!-- Configuration Row 1 -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Beam Support &amp; Loading Condition</label>
+            <select id="beam-load-condition" class="input-field" style="width: 100%;" onchange="calcBeamDeflection()">
+              <option value="ss_point" selected>Simply Supported — Center Point Load (P)</option>
+              <option value="ss_uniform">Simply Supported — Uniform Distributed Load (w)</option>
+              <option value="cant_point">Cantilever — End Point Load (P)</option>
+              <option value="cant_uniform">Cantilever — Uniform Distributed Load (w)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Clear Span Length (L)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="beam-span-ft" class="input-field" value="14" min="1" max="100" step="0.5" style="width: 100%;" oninput="calcBeamDeflection()">
+              <span style="font-weight: bold; min-width: 25px;">ft</span>
+              <input type="number" id="beam-span-in" class="input-field" value="0" min="0" max="11.875" step="0.5" style="width: 80px;" oninput="calcBeamDeflection()">
+              <span style="font-weight: bold; min-width: 25px;">in</span>
+            </div>
+            <small style="color: var(--text-muted);">Total unsupported span distance between bearings</small>
+          </div>
+        </div>
+
+        <!-- Configuration Row 2 -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label id="lbl-beam-load-val" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Applied Load (P)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="beam-load-input" class="input-field" value="1200" min="1" max="500000" step="25" style="width: 100%;" oninput="calcBeamDeflection()">
+              <span id="beam-load-unit" style="font-weight: bold; min-width: 50px;">lbs</span>
+            </div>
+            <small id="lbl-beam-load-hint" style="color: var(--text-muted);">Concentrated point load applied at beam midspan</small>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Material &amp; Elastic Modulus (E)</label>
+            <select id="beam-material-preset" class="input-field" style="width: 100%;" onchange="applyMaterialPreset()">
+              <option value="1600000,900" selected>Douglas Fir-Larch #2 (E=1.6M PSI, Fb=900 PSI)</option>
+              <option value="1400000,850">Southern Yellow Pine #2 (E=1.4M PSI, Fb=850 PSI)</option>
+              <option value="1300000,850">Hem-Fir #2 (E=1.3M PSI, Fb=850 PSI)</option>
+              <option value="2000000,2600">Engineered LVL 2.0E (E=2.0M PSI, Fb=2600 PSI)</option>
+              <option value="1800000,2400">Glulam 24F-V4 (E=1.8M PSI, Fb=2400 PSI)</option>
+              <option value="29000000,36000">Structural Steel A36 (E=29M PSI, Fy=36,000 PSI)</option>
+              <option value="10000000,35000">6061-T6 Aluminum (E=10M PSI, Fy=35,000 PSI)</option>
+              <option value="custom">Custom Modulus &amp; Allowable Stress...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Material Inputs (Conditional) -->
+        <div id="custom-material-row" style="display: none; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Custom Modulus of Elasticity E (PSI)</label>
+            <input type="number" id="beam-custom-e" class="input-field" value="1600000" min="100000" max="50000000" step="50000" style="width: 100%;" oninput="calcBeamDeflection()">
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Allowable Bending Stress Fb (PSI)</label>
+            <input type="number" id="beam-custom-fb" class="input-field" value="1000" min="100" max="100000" step="50" style="width: 100%;" oninput="calcBeamDeflection()">
+          </div>
+        </div>
+
+        <!-- Section Geometry Row -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Cross-Section Preset</label>
+            <select id="beam-section-preset" class="input-field" style="width: 100%;" onchange="applySectionPreset()">
+              <option value="1.5,5.5">Single 2x6 (Actual: 1.5" × 5.5")</option>
+              <option value="1.5,7.25">Single 2x8 (Actual: 1.5" × 7.25")</option>
+              <option value="1.5,9.25">Single 2x10 (Actual: 1.5" × 9.25")</option>
+              <option value="1.5,11.25">Single 2x12 (Actual: 1.5" × 11.25")</option>
+              <option value="3.0,7.25">Double 2x8 (Actual: 3.0" × 7.25")</option>
+              <option value="3.0,9.25" selected>Double 2x10 (Actual: 3.0" × 9.25")</option>
+              <option value="4.5,9.25">Triple 2x10 (Actual: 4.5" × 9.25")</option>
+              <option value="3.0,11.25">Double 2x12 (Actual: 3.0" × 11.25")</option>
+              <option value="4.5,11.25">Triple 2x12 (Actual: 4.5" × 11.25")</option>
+              <option value="1.75,9.5">Single 1-3/4" × 9-1/2" LVL</option>
+              <option value="3.5,9.5">Double 1-3/4" × 9-1/2" LVL (3.5" × 9.5")</option>
+              <option value="3.5,11.875">Double 1-3/4" × 11-7/8" LVL (3.5" × 11.875")</option>
+              <option value="custom_rect">Custom Rectangular (Width × Depth)...</option>
+              <option value="custom_inertia">Direct Moment of Inertia (I &amp; S)...</option>
+            </select>
+          </div>
+          <div id="col-rect-dims">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Actual Cross-Section Dimensions (b × d)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="beam-dim-b" class="input-field" value="3.0" min="0.5" max="48" step="0.25" style="width: 100%;" oninput="calcBeamDeflection()">
+              <span style="font-weight: bold;">"W ×</span>
+              <input type="number" id="beam-dim-d" class="input-field" value="9.25" min="1" max="60" step="0.25" style="width: 100%;" oninput="calcBeamDeflection()">
+              <span style="font-weight: bold;">"D</span>
+            </div>
+            <small style="color: var(--text-muted);">Actual dressed timber width (b) and vertical depth (d)</small>
+          </div>
+          <div id="col-custom-inertia" style="display: none;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Direct Moment of Inertia (I) &amp; Section Modulus (S)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="beam-custom-i" class="input-field" value="197.8" min="0.1" max="100000" step="1" style="width: 100%;" oninput="calcBeamDeflection()">
+              <span style="font-weight: bold;">in⁴</span>
+              <input type="number" id="beam-custom-s" class="input-field" value="42.7" min="0.1" max="10000" step="0.5" style="width: 100%;" oninput="calcBeamDeflection()">
+              <span style="font-weight: bold;">in³</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Diagnostic Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Max Deflection (δ_max)</div>
+            <div id="res-beam-deflection" style="font-size: 1.6rem; font-weight: 700; color: #3b82f6; margin: 0.2rem 0;">--</div>
+            <div id="res-beam-fraction" style="font-size: 0.85rem; color: var(--text-muted);">-- in fractional inches</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Deflection Span Ratio</div>
+            <div id="res-beam-span-ratio" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin: 0.2rem 0;">--</div>
+            <div id="res-beam-l360-status" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Max Bending Moment (M)</div>
+            <div id="res-beam-moment" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin: 0.2rem 0;">--</div>
+            <div id="res-beam-moment-inlbs" style="font-size: 0.8rem; color: var(--text-muted);">-- in-lbs</div>
+          </div>
+
+          <div class="metric-card" style="padding: 1rem; text-align: center; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Max Bending Stress (σ)</div>
+            <div id="res-beam-stress" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin: 0.2rem 0;">--</div>
+            <div id="res-beam-stress-ratio" style="font-size: 0.8rem; font-weight: 600;">--</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button id="copy-beam-summary-btn" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem;" onclick="copyBeamSummary()">
+            <span>📋</span> Copy Beam Structural Analysis Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SVG Visualization -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Elastic Deflection Curve &amp; Loading Profile</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Real-time Euler-Bernoulli elastic curve showing undeformed neutral axis, boundary supports, load vectors, and magnified vertical sag plotted against the L/360 code threshold limit.
+        </p>
+        <div style="width: 100%; overflow-x: auto; background: var(--surface-bg, #0f172a); border-radius: 8px; padding: 1rem 0;">
+          <svg id="beam-vis-svg" viewBox="0 0 720 300" style="width: 100%; max-width: 720px; display: block; margin: 0 auto; font-family: var(--font-sans, sans-serif);">
+            <!-- Rendered dynamically in JS -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Mathematical Derivation -->
+      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Live Engineering Derivation &amp; Section Mechanics</h3>
+        <div id="beam-derivation-content" style="line-height: 1.7; font-size: 0.95rem; color: var(--text);">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">5 Fatal Beam Deflection Traps &amp; Structural Pitfalls</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Structural framing failures rarely stem from pure tensile rupture&mdash;they fail due to dimensional misunderstandings, long-term creep, unbraced torsional twisting, and horizontal shear.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️</span> 1. Nominal vs. Actual Lumber Dimension Trap (63% Inertia Overestimate)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Beginner builders often use nominal dimensions (2&quot; &times; 10&quot;) instead of actual dressed lumber dimensions (1.5&quot; &times; 9.25&quot;). Because the area moment of inertia depends on the cube of the depth ($I = b d^3 / 12$), a nominal 2&times;10 would have $I = (2 \times 10^3)/12 = 166.7\text{ in}^4$, whereas an actual dressed 2&times;10 has $I = (1.5 \times 9.25^3)/12 = 98.9\text{ in}^4$. Sizing beams with nominal dimensions leads to an <strong>overestimation of beam stiffness by 68%</strong>, resulting in severe ceiling sagging and cracked finishes.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⏳</span> 2. L/360 Live Load vs Total Load Long-Term Creep (2x Permanent Sag)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Building codes dictate that live load deflection shall not exceed $L/360$ (or $L/240$ for total load). However, wood is a viscoelastic material subject to <strong>creep deformation</strong> under sustained permanent dead loads (furniture, framing weight, tile, drywall). Under continuous loading, unseasoned lumber will experience long-term creep equal to <strong>1.5&times; to 2.0&times;</strong> the initial instantaneous elastic deflection. If long-term dead load deflection is ignored, doors and windows beneath the beam will bind and jam shut within 2 to 5 years.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔄</span> 3. Lateral-Torsional Buckling of Deep Unbraced Beams
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              Deep, slender beams (such as a single 2&times;12 or multi-ply LVL with depth-to-width ratio $d/b \ge 4$) are vulnerable to <strong>lateral-torsional buckling (LTB)</strong>. Under extreme flexural compression along the top flange, the beam will buckle sideways and twist torsionally long before reaching its allowable extreme fiber bending stress ($F_b$). Solid wood blocking, diagonal bridging, or direct structural subfloor sheathing fastened every 12 inches is mandatory to restrain compression edge rotation.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>✂️</span> 4. Horizontal Shear Stress Failure Near Bearings (Fv Violation)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              On short, heavily loaded spans, beams almost never fail from bending stress ($\sigma = M/S$) or midspan deflection. Instead, they fail in <strong>longitudinal horizontal shear</strong> ($\tau = 1.5 V / A$ for rectangular sections) directly adjacent to the end bearing supports. Wood possesses weak shear strength parallel to the grain ($F_v \approx 135\text{ to }180\text{ PSI}$). Heavy point loads placed within a distance $d$ of the support can split the beam horizontally down its neutral axis like firewood.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1.25rem; border-radius: 0 8px 8px 0;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📳</span> 5. Dynamic Floor Resonance &amp; &quot;Bouncy Floor&quot; Low Natural Frequency (&lt;8 Hz)
+            </h4>
+            <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+              A floor joist system may strictly satisfy static deflection limits ($L/360$), yet feel unbearably springy, bouncy, and cheap to walk on. When the natural fundamental vibration frequency of a floor falls below <strong>8 Hz</strong>, normal human walking cadence (1.8 to 2.2 steps per second) excites sub-harmonics that trigger resonant oscillation, causing chinaware to rattle and occupants to feel motion sickness. To prevent bouncy floors, design for $L/480$ or $L/600$ and glue-and-screw 3/4-inch tongue-and-groove subflooring.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <section class="faq-section" style="margin-top: 2rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Frequently Asked Questions: Beam Deflection &amp; Sizing</h2>
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the difference between L/360, L/240, and L/180 deflection limits?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              These are International Building Code (IBC) maximum allowable deflection fractions based on span length ($L$ in inches):<br>
+              &bull; <strong>L/360</strong>: Standard limit for floor joists carrying brittle plaster or tile ceilings under live load (e.g. 15 ft span allows max 0.50" deflection).<br>
+              &bull; <strong>L/240</strong>: Standard limit for total combined load (dead + live) with drywall ceilings, or roof rafters supporting plaster.<br>
+              &bull; <strong>L/180</strong>: Standard limit for roof rafters without ceiling finish, agricultural structures, or cantilever decks.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How do you calculate the moment of inertia for a rectangular wood beam?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              For any solid rectangular section bent about its strong horizontal axis, the Area Moment of Inertia is calculated as: <code>I = (b * d³) / 12</code>, where <em>b</em> is the actual dressed width and <em>d</em> is the actual dressed vertical depth. For a built-up multi-ply beam (e.g. double 2x10), <em>b</em> is the combined thickness (1.5" + 1.5" = 3.0"), yielding <code>I = (3.0 * 9.25³) / 12 = 197.86 in⁴</code>.
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">Why does beam depth matter much more than beam width?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Stiffness and bending resistance increase linearly with width ($b$), but increase with the <strong>cube of depth ($d^3$)</strong>. Doubling the width of a beam (e.g. sistering two 2x8s) doubles its stiffness ($2\times$). However, doubling the depth of a beam (e.g. upgrading from a 4-inch deep beam to an 8-inch deep beam) increases stiffness by $2^3 = \mathbf{8\times}$ while using the exact same volume of lumber!
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">What is the modulus of elasticity (E) of wood and steel?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Modulus of Elasticity ($E$) measures a material's intrinsic resistance to elastic bending deformation:<br>
+              &bull; <strong>Dimension Lumber (Douglas Fir / Yellow Pine)</strong>: $E \approx 1,400,000 \text{ to } 1,600,000 \text{ PSI}$<br>
+              &bull; <strong>Engineered LVL (Laminated Veneer Lumber)</strong>: $E \approx 2,000,000 \text{ PSI}$<br>
+              &bull; <strong>Structural Steel (A36, Grade 50)</strong>: $E \approx 29,000,000 \text{ PSI}$ (over 18&times; stiffer than timber)<br>
+              &bull; <strong>Structural Aluminum (6061-T6)</strong>: $E \approx 10,000,000 \text{ PSI}$
+            </div>
+          </details>
+
+          <details class="faq-item glass-panel" style="padding: 1rem;">
+            <summary style="font-weight: 600; cursor: pointer;">How does cantilever deflection compare to simply supported beam deflection?</summary>
+            <div style="margin-top: 0.75rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted);">
+              Cantilevers deflect drastically more because they are supported at only one end. Under an identical point load $P$ and span $L$, a cantilever end deflection is $\delta = \frac{PL^3}{3EI}$, which is <strong>16 times greater</strong> than the midspan deflection of a simply supported beam ($\delta = \frac{PL^3}{48EI}$). Under uniform load, a cantilever tip deflector is <strong>9.6 times greater</strong> than simply supported center deflection.
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function applyMaterialPreset() {
+        var val = document.getElementById('beam-material-preset').value;
+        var customRow = document.getElementById('custom-material-row');
+        if (val === 'custom') {
+          customRow.style.display = 'grid';
+        } else {
+          customRow.style.display = 'none';
+        }
+        calcBeamDeflection();
+      }
+
+      function applySectionPreset() {
+        var val = document.getElementById('beam-section-preset').value;
+        var colRect = document.getElementById('col-rect-dims');
+        var colInertia = document.getElementById('col-custom-inertia');
+
+        if (val === 'custom_inertia') {
+          colRect.style.display = 'none';
+          colInertia.style.display = 'block';
+        } else if (val === 'custom_rect') {
+          colRect.style.display = 'block';
+          colInertia.style.display = 'none';
+        } else {
+          colRect.style.display = 'block';
+          colInertia.style.display = 'none';
+          var parts = val.split(',');
+          document.getElementById('beam-dim-b').value = parts[0];
+          document.getElementById('beam-dim-d').value = parts[1];
+        }
+        calcBeamDeflection();
+      }
+
+      function toFraction(val) {
+        var whole = Math.floor(val);
+        var rem = val - whole;
+        var sixteenths = Math.round(rem * 16);
+        if (sixteenths === 16) {
+          whole++;
+          sixteenths = 0;
+        }
+        if (sixteenths === 0) {
+          return whole === 0 ? '0\\"' : whole + '\\"';
+        }
+        var num = sixteenths;
+        var den = 16;
+        while (num % 2 === 0 && den % 2 === 0) {
+          num /= 2;
+          den /= 2;
+        }
+        return (whole > 0 ? whole + ' ' : '') + num + '/' + den + '\\"';
+      }
+
+      function calcBeamDeflection() {
+        var condition = document.getElementById('beam-load-condition').value;
+        var spanFt = parseFloat(document.getElementById('beam-span-ft').value) || 0;
+        var spanIn = parseFloat(document.getElementById('beam-span-in').value) || 0;
+        var L = (spanFt * 12) + spanIn;
+        if (L <= 0) L = 12;
+
+        var rawLoad = parseFloat(document.getElementById('beam-load-input').value) || 0;
+        var matPreset = document.getElementById('beam-material-preset').value;
+
+        var lblLoad = document.getElementById('lbl-beam-load-val');
+        var unitLoad = document.getElementById('beam-load-unit');
+        var hintLoad = document.getElementById('lbl-beam-load-hint');
+
+        if (condition === 'ss_point') {
+          lblLoad.textContent = 'Concentrated Center Load (P)';
+          unitLoad.textContent = 'lbs';
+          hintLoad.textContent = 'Point load applied at midspan of the simply supported beam';
+        } else if (condition === 'ss_uniform') {
+          lblLoad.textContent = 'Uniform Distributed Load (w)';
+          unitLoad.textContent = 'lbs/ft';
+          hintLoad.textContent = 'Distributed load along the entire span (e.g. 50 lbs/ft dead + live)';
+        } else if (condition === 'cant_point') {
+          lblLoad.textContent = 'Tip Point Load (P)';
+          unitLoad.textContent = 'lbs';
+          hintLoad.textContent = 'Point load applied at the cantilever free end';
+        } else {
+          lblLoad.textContent = 'Uniform Distributed Load (w)';
+          unitLoad.textContent = 'lbs/ft';
+          hintLoad.textContent = 'Distributed load along the entire cantilever beam length';
+        }
+
+        var E = 1600000;
+        var Fb = 900;
+        if (matPreset === 'custom') {
+          E = parseFloat(document.getElementById('beam-custom-e').value) || 1600000;
+          Fb = parseFloat(document.getElementById('beam-custom-fb').value) || 1000;
+        } else {
+          var mp = matPreset.split(',');
+          E = parseFloat(mp[0]);
+          Fb = parseFloat(mp[1]);
+        }
+
+        var secPreset = document.getElementById('beam-section-preset').value;
+        var I = 0;
+        var S = 0;
+        var depth = 9.25;
+        var width = 3.0;
+
+        if (secPreset === 'custom_inertia') {
+          I = parseFloat(document.getElementById('beam-custom-i').value) || 100;
+          S = parseFloat(document.getElementById('beam-custom-s').value) || 20;
+          depth = (I / S) * 2;
+        } else {
+          width = parseFloat(document.getElementById('beam-dim-b').value) || 1.5;
+          depth = parseFloat(document.getElementById('beam-dim-d').value) || 9.25;
+          I = (width * Math.pow(depth, 3)) / 12;
+          S = (width * Math.pow(depth, 2)) / 6;
+        }
+
+        var delta = 0;
+        var M_inlbs = 0;
+
+        if (condition === 'ss_point') {
+          var P = rawLoad;
+          delta = (P * Math.pow(L, 3)) / (48 * E * I);
+          M_inlbs = (P * L) / 4;
+        } else if (condition === 'ss_uniform') {
+          var w_in = rawLoad / 12;
+          delta = (5 * w_in * Math.pow(L, 4)) / (384 * E * I);
+          M_inlbs = (w_in * Math.pow(L, 2)) / 8;
+        } else if (condition === 'cant_point') {
+          var P = rawLoad;
+          delta = (P * Math.pow(L, 3)) / (3 * E * I);
+          M_inlbs = P * L;
+        } else {
+          var w_in = rawLoad / 12;
+          delta = (w_in * Math.pow(L, 4)) / (8 * E * I);
+          M_inlbs = (w_in * Math.pow(L, 2)) / 2;
+        }
+
+        var M_ftlbs = M_inlbs / 12;
+        var stressPsi = M_inlbs / S;
+        var spanRatio = delta > 0 ? Math.round(L / delta) : 9999;
+        var stressRatio = (stressPsi / Fb) * 100;
+
+        document.getElementById('res-beam-deflection').textContent = delta.toFixed(3) + '\\"';
+        document.getElementById('res-beam-fraction').textContent = '≈ ' + toFraction(delta) + ' sag';
+
+        var ratioEl = document.getElementById('res-beam-span-ratio');
+        ratioEl.textContent = 'L / ' + spanRatio;
+        var l360Status = document.getElementById('res-beam-l360-status');
+        if (spanRatio >= 360) {
+          l360Status.textContent = '✓ PASS (Exceeds L/360 & L/240)';
+          l360Status.style.color = '#10b981';
+        } else if (spanRatio >= 240) {
+          l360Status.textContent = '⚠️ PASS L/240 (Fails L/360 Plaster)';
+          l360Status.style.color = '#f59e0b';
+        } else {
+          l360Status.textContent = '❌ FAILS L/240 & L/360 Code';
+          l360Status.style.color = '#ef4444';
+        }
+
+        document.getElementById('res-beam-moment').textContent = Math.round(M_ftlbs).toLocaleString() + ' ft-lbs';
+        document.getElementById('res-beam-moment-inlbs').textContent = Math.round(M_inlbs).toLocaleString() + ' in-lbs';
+
+        var stressEl = document.getElementById('res-beam-stress');
+        stressEl.textContent = Math.round(stressPsi).toLocaleString() + ' PSI';
+        var stressRatioEl = document.getElementById('res-beam-stress-ratio');
+        stressRatioEl.textContent = stressRatio.toFixed(1) + '% of Fb (' + Fb + ' PSI) ' + (stressRatio <= 100 ? '✓ Safe' : '❌ OVERSTRESSED');
+        stressRatioEl.style.color = stressRatio <= 100 ? '#10b981' : '#ef4444';
+
+        renderBeamSvg(condition, L, delta, spanRatio, rawLoad, M_ftlbs, stressRatio);
+        renderBeamDerivation(condition, spanFt, spanIn, L, rawLoad, E, I, S, delta, spanRatio, M_inlbs, M_ftlbs, stressPsi, Fb, stressRatio);
+      }
+
+      function renderBeamSvg(condition, L, delta, spanRatio, loadVal, M_ftlbs, stressRatio) {
+        var svg = document.getElementById('beam-vis-svg');
+        if (!svg) return;
+        var isCant = condition.indexOf('cant') === 0;
+
+        var startX = isCant ? 120 : 80;
+        var endX = 640;
+        var beamY = 120;
+        var beamLen = endX - startX;
+
+        var l360_px = Math.min(60, (beamLen / 360) * 15);
+        var defl_px = Math.min(85, Math.max(4, (delta / (L / 360)) * l360_px));
+
+        var curvePath = '';
+        if (!isCant) {
+          var midX = (startX + endX) / 2;
+          curvePath = 'M ' + startX + ' ' + beamY + ' Q ' + midX + ' ' + (beamY + defl_px * 2) + ' ' + endX + ' ' + beamY;
+        } else {
+          curvePath = 'M ' + startX + ' ' + beamY + ' C ' + (startX + beamLen * 0.4) + ' ' + beamY + ' ' + (startX + beamLen * 0.8) + ' ' + (beamY + defl_px * 0.6) + ' ' + endX + ' ' + (beamY + defl_px);
+        }
+
+        var statusColor = spanRatio >= 360 ? '#10b981' : (spanRatio >= 240 ? '#f59e0b' : '#ef4444');
+
+        var svgHtml = '';
+        svgHtml += '<line x1="' + startX + '" y1="' + (beamY + l360_px) + '" x2="' + endX + '" y2="' + (beamY + l360_px) + '" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.7" />';
+        svgHtml += '<text x="' + (endX + 8) + '" y="' + (beamY + l360_px + 4) + '" fill="#f59e0b" font-size="10">L/360 Limit (' + (L / 360).toFixed(2) + '\\")</text>';
+        svgHtml += '<line x1="' + startX + '" y1="' + beamY + '" x2="' + endX + '" y2="' + beamY + '" stroke="#475569" stroke-width="2" stroke-dasharray="3,3" />';
+        svgHtml += '<path d="' + curvePath + '" fill="none" stroke="' + statusColor + '" stroke-width="4" stroke-linecap="round" />';
+        svgHtml += '<path d="' + curvePath + '" fill="none" stroke="' + statusColor + '" stroke-width="10" opacity="0.25" />';
+
+        if (!isCant) {
+          svgHtml += '<polygon points="' + startX + ',' + beamY + ' ' + (startX - 12) + ',' + (beamY + 22) + ' ' + (startX + 12) + ',' + (beamY + 22) + '" fill="#64748b" stroke="#334155" stroke-width="1.5" />';
+          svgHtml += '<line x1="' + (startX - 16) + '" y1="' + (beamY + 24) + '" x2="' + (startX + 16) + '" y2="' + (beamY + 24) + '" stroke="#64748b" stroke-width="2" />';
+          svgHtml += '<polygon points="' + endX + ',' + beamY + ' ' + (endX - 12) + ',' + (beamY + 16) + ' ' + (endX + 12) + ',' + (beamY + 16) + '" fill="#64748b" stroke="#334155" stroke-width="1.5" />';
+          svgHtml += '<circle cx="' + (endX - 6) + '" cy="' + (beamY + 20) + '" r="3" fill="#94a3b8" />';
+          svgHtml += '<circle cx="' + (endX + 6) + '" cy="' + (beamY + 20) + '" r="3" fill="#94a3b8" />';
+          svgHtml += '<line x1="' + (endX - 16) + '" y1="' + (beamY + 24) + '" x2="' + (endX + 16) + '" y2="' + (beamY + 24) + '" stroke="#64748b" stroke-width="2" />';
+        } else {
+          svgHtml += '<rect x="' + (startX - 24) + '" y="' + (beamY - 40) + '" width="24" height="90" fill="#334155" stroke="#475569" stroke-width="1.5" />';
+          svgHtml += '<line x1="' + (startX - 24) + '" y1="' + (beamY - 30) + '" x2="' + (startX - 12) + '" y2="' + (beamY - 42) + '" stroke="#64748b" stroke-width="1.5" />';
+          svgHtml += '<line x1="' + (startX - 24) + '" y1="' + (beamY - 10) + '" x2="' + (startX - 6) + '" y2="' + (beamY - 28) + '" stroke="#64748b" stroke-width="1.5" />';
+          svgHtml += '<line x1="' + (startX - 24) + '" y1="' + (beamY + 10) + '" x2="' + startX + '" y2="' + (beamY - 14) + '" stroke="#64748b" stroke-width="1.5" />';
+          svgHtml += '<line x1="' + (startX - 24) + '" y1="' + (beamY + 30) + '" x2="' + startX + '" y2="' + (beamY + 6) + '" stroke="#64748b" stroke-width="1.5" />';
+        }
+
+        if (condition === 'ss_point') {
+          var midX = (startX + endX) / 2;
+          svgHtml += '<line x1="' + midX + '" y1="50" x2="' + midX + '" y2="' + (beamY - 4) + '" stroke="#ef4444" stroke-width="3" />';
+          svgHtml += '<polygon points="' + midX + ',' + (beamY - 2) + ' ' + (midX - 6) + ',' + (beamY - 14) + ' ' + (midX + 6) + ',' + (beamY - 14) + '" fill="#ef4444" />';
+          svgHtml += '<text x="' + midX + '" y="42" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">P = ' + loadVal.toLocaleString() + ' lbs</text>';
+        } else if (condition === 'cant_point') {
+          svgHtml += '<line x1="' + endX + '" y1="50" x2="' + endX + '" y2="' + (beamY - 4) + '" stroke="#ef4444" stroke-width="3" />';
+          svgHtml += '<polygon points="' + endX + ',' + (beamY - 2) + ' ' + (endX - 6) + ',' + (beamY - 14) + ' ' + (endX + 6) + ',' + (beamY - 14) + '" fill="#ef4444" />';
+          svgHtml += '<text x="' + endX + '" y="42" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">P = ' + loadVal.toLocaleString() + ' lbs</text>';
+        } else {
+          for (var i = 0; i <= 8; i++) {
+            var lx = startX + (beamLen / 8) * i;
+            svgHtml += '<line x1="' + lx + '" y1="70" x2="' + lx + '" y2="' + (beamY - 4) + '" stroke="#ef4444" stroke-width="1.5" />';
+            svgHtml += '<polygon points="' + lx + ',' + (beamY - 2) + ' ' + (lx - 3) + ',' + (beamY - 8) + ' ' + (lx + 3) + ',' + (beamY - 8) + '" fill="#ef4444" />';
+          }
+          svgHtml += '<line x1="' + startX + '" y1="70" x2="' + endX + '" y2="70" stroke="#ef4444" stroke-width="2" />';
+          svgHtml += '<text x="' + ((startX + endX) / 2) + '" y="60" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">w = ' + loadVal + ' lbs/ft (Uniform)</text>';
+        }
+
+        svgHtml += '<line x1="' + startX + '" y1="' + (beamY + 65) + '" x2="' + endX + '" y2="' + (beamY + 65) + '" stroke="#94a3b8" stroke-width="1.5" />';
+        svgHtml += '<line x1="' + startX + '" y1="' + (beamY + 58) + '" x2="' + startX + '" y2="' + (beamY + 72) + '" stroke="#94a3b8" stroke-width="1.5" />';
+        svgHtml += '<line x1="' + endX + '" y1="' + (beamY + 58) + '" x2="' + endX + '" y2="' + (beamY + 72) + '" stroke="#94a3b8" stroke-width="1.5" />';
+        svgHtml += '<text x="' + ((startX + endX) / 2) + '" y="' + (beamY + 82) + '" text-anchor="middle" fill="#94a3b8" font-size="12">Span L = ' + L.toFixed(1) + '\\" (' + (L / 12).toFixed(2) + ' ft)</text>';
+
+        var badgeX = isCant ? (endX - 110) : ((startX + endX) / 2 - 55);
+        svgHtml += '<g transform="translate(' + badgeX + ', ' + (beamY + defl_px + 14) + ')">';
+        svgHtml += '<rect x="0" y="0" width="110" height="24" rx="4" fill="#0f172a" stroke="' + statusColor + '" stroke-width="1" />';
+        svgHtml += '<text x="55" y="16" text-anchor="middle" fill="' + statusColor + '" font-size="11" font-weight="bold">δ = ' + delta.toFixed(3) + '\\"</text>';
+        svgHtml += '</g>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function renderBeamDerivation(cond, ft, inch, L, load, E, I, S, delta, spanRatio, M_inlbs, M_ftlbs, stress, Fb, stressRatio) {
+        var el = document.getElementById('beam-derivation-content');
+        if (!el) return;
+
+        var formDefl = '';
+        var formM = '';
+
+        if (cond === 'ss_point') {
+          formDefl = '\\\\delta_{\\\\max} = \\\\frac{P L^3}{48 E I}';
+          formM = 'M_{\\\\max} = \\\\frac{P L}{4}';
+        } else if (cond === 'ss_uniform') {
+          formDefl = '\\\\delta_{\\\\max} = \\\\frac{5 w L^4}{384 E I}';
+          formM = 'M_{\\\\max} = \\\\frac{w L^2}{8}';
+        } else if (cond === 'cant_point') {
+          formDefl = '\\\\delta_{\\\\max} = \\\\frac{P L^3}{3 E I}';
+          formM = 'M_{\\\\max} = P L';
+        } else {
+          formDefl = '\\\\delta_{\\\\max} = \\\\frac{w L^4}{8 E I}';
+          formM = 'M_{\\\\max} = \\\\frac{w L^2}{2}';
+        }
+
+        var html = '';
+        html += '<p><strong>Step 1: Compute Cross-Section Moment of Inertia (I) and Section Modulus (S)</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$I = \\\\frac{b \\\\cdot d^3}{12} = \\\\mathbf{' + I.toFixed(2) + '\\\\text{ in}^4} \\\\quad S = \\\\frac{b \\\\cdot d^2}{6} = \\\\mathbf{' + S.toFixed(2) + '\\\\text{ in}^3}$$<br>';
+        html += 'Modulus of Elasticity $E = \\\\mathbf{' + (E / 1000000).toFixed(2) + '\\\\times 10^6\\\\text{ PSI}}$ | Total Span $L = \\\\mathbf{' + L.toFixed(1) + '\\\\text{ inches}}$';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 2: Calculate Maximum Elastic Deflection &amp; Code Span Ratio</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$' + formDefl + ' = \\\\mathbf{' + delta.toFixed(3) + '\\\\text{ inches}}$$<br>';
+        html += '$$\\\\text{Span-to-Deflection Ratio} = \\\\frac{L}{\\\\delta} = \\\\frac{' + L.toFixed(1) + '}{' + delta.toFixed(3) + '} = \\\\mathbf{L / ' + spanRatio + '}$$<br>';
+        html += 'Allowable $L/360$ Threshold = $' + (L / 360).toFixed(3) + '\\\\text{ in}$ &rarr; <strong>' + (spanRatio >= 360 ? 'PASS (Stiff)' : (spanRatio >= 240 ? 'Marginal (Drywall Only)' : 'FAIL')) + '</strong>';
+        html += '</p>';
+
+        html += '<p style="margin-top: 1rem;"><strong>Step 3: Calculate Maximum Bending Moment &amp; Extreme Fiber Flexural Stress</strong></p>';
+        html += '<p style="font-family: var(--mono); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">';
+        html += '$$' + formM + ' = \\\\mathbf{' + Math.round(M_inlbs).toLocaleString() + '\\\\text{ in-lbs}} \\\\quad (' + Math.round(M_ftlbs).toLocaleString() + '\\\\text{ ft-lbs})$$<br>';
+        html += '$$\\\\sigma_{\\\\max} = \\\\frac{M_{\\\\max}}{S} = \\\\frac{' + Math.round(M_inlbs) + '}{' + S.toFixed(2) + '} = \\\\mathbf{' + Math.round(stress).toLocaleString() + '\\\\text{ PSI}}$$<br>';
+        html += 'Allowable Bending Stress $F_b = ' + Fb + '\\\\text{ PSI}$ &rarr; Stress Utilization = $\\\\mathbf{' + stressRatio.toFixed(1) + '\\\\%}$ (' + (stressRatio <= 100 ? 'Adequate Bending Strength' : 'Overstressed Section') + ')';
+        html += '</p>';
+
+        el.innerHTML = html;
+      }
+
+      function copyBeamSummary() {
+        var cond = document.getElementById('beam-load-condition').selectedOptions[0].text;
+        var spanFt = document.getElementById('beam-span-ft').value;
+        var spanIn = document.getElementById('beam-span-in').value;
+        var loadVal = document.getElementById('beam-load-input').value;
+        var loadUnit = document.getElementById('beam-load-unit').textContent;
+        var delta = document.getElementById('res-beam-deflection').textContent;
+        var frac = document.getElementById('res-beam-fraction').textContent;
+        var ratio = document.getElementById('res-beam-span-ratio').textContent;
+        var status = document.getElementById('res-beam-l360-status').textContent;
+        var moment = document.getElementById('res-beam-moment').textContent;
+        var stress = document.getElementById('res-beam-stress').textContent;
+        var stressRatio = document.getElementById('res-beam-stress-ratio').textContent;
+
+        var text = '=== BEAM DEFLECTION & STRUCTURAL ANALYSIS REPORT ===\\n' +
+          'Condition: ' + cond + '\\n' +
+          'Clear Span: ' + spanFt + ' ft ' + spanIn + ' in\\n' +
+          'Applied Load: ' + loadVal + ' ' + loadUnit + '\\n' +
+          '--------------------------------------------------\\n' +
+          'Max Elastic Deflection (δ): ' + delta + ' (' + frac + ')\\n' +
+          'Deflection Ratio: ' + ratio + ' [' + status + ']\\n' +
+          'Max Bending Moment (M): ' + moment + '\\n' +
+          'Extreme Fiber Stress (σ): ' + stress + '\\n' +
+          'Stress Check: ' + stressRatio + '\\n' +
+          'Engineering Standard: AISC / NDS Timber Specifications\\n' +
+          'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/beam-deflection-calculator)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copy-beam-summary-btn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Copied Beam Structural Report!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcBeamDeflection);
+      } else {
+        calcBeamDeflection();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'beam-deflection-calculator.html'), renderTradePage({
+    title: "Beam Deflection, Bending Stress & Moment of Inertia Calculator | Digital Tools Shed",
+    metaDesc: "Calculate beam deflection, bending stress, and moment of inertia for simply supported and cantilever wood, LVL, and steel beams. Check L/360 and L/240 limits.",
+    canonical: `${DOMAIN}/calc/beam-deflection-calculator`,
+    bodyContent: beamDeflectionBody,
+    currentPath: '/calc/beam-deflection-calculator',
+    faq: [
+      {
+        "q": "What is the difference between L/360, L/240, and L/180 deflection limits?",
+        "a": "Under building codes: L/360 is the live load deflection limit for floors with brittle plaster or tile ceilings; L/240 is the total load limit for drywall ceilings; and L/180 is the total load limit for roof rafters without ceilings."
+      },
+      {
+        "q": "How do you calculate the moment of inertia for a rectangular wood beam?",
+        "a": "For any rectangular beam bent about its strong axis: I = (b * d³) / 12, where b is actual dressed width and d is actual dressed depth (e.g. 1.5\" x 9.25\" for a nominal 2x10)."
+      },
+      {
+        "q": "Why does beam depth matter much more than beam width?",
+        "a": "Stiffness increases linearly with width, but increases with the cube of depth (d³). Doubling beam depth increases bending resistance eightfold (8x) using the same volume of material as doubling beam width."
+      },
+      {
+        "q": "What is the modulus of elasticity (E) of wood versus steel?",
+        "a": "Standard framing lumber has an elastic modulus of 1.4 to 1.6 million PSI, while structural steel has an E of 29 million PSI—making steel over 18 times stiffer than timber of identical dimensions."
+      },
+      {
+        "q": "How does cantilever deflection compare to simply supported beam deflection?",
+        "a": "A cantilever beam subjected to a concentrated end point load deflects 16 times more than an identical simply supported beam with a center point load over the same span length."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
