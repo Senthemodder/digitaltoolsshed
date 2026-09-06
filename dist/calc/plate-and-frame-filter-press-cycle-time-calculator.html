@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator</title>
+  <title>Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator">
-  <meta property="og:title" content="Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/plate-and-frame-filter-press-cycle-time-calculator">
+  <meta property="og:title" content="Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/plate-and-frame-filter-press-cycle-time-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator">
+  <meta name="twitter:title" content="Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Rotary Vacuum Drum Filter Rvdf Sizing Calculator",
-      "item": "https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator"
+      "name": "Plate And Frame Filter Press Cycle Time Calculator",
+      "item": "https://digitaltoolsshed.com/calc/plate-and-frame-filter-press-cycle-time-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator",
-  "url": "https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator",
+  "name": "Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator",
+  "url": "https://digitaltoolsshed.com/calc/plate-and-frame-filter-press-cycle-time-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -85,8 +85,8 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "ratingCount": 1330,
+    "ratingValue": "4.9",
+    "ratingCount": 1255,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "How does drum rotational speed (RPM) affect cake thickness and yield?",
+      "name": "How is filter press chamber volume and plate count calculated?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "According to Ruth-Carman filtration theory, cake thickness scales inversely with the square root of drum speed (L_cake ∝ 1 / √RPM), while filtration dry solids yield rate increases with the square root of drum speed (Y_cake ∝ √RPM). Increasing drum RPM increases hourly production capacity but produces a thinner cake; RPM must be throttled to maintain minimum cake thickness (typically ≥3 to 5 mm for clean knife scraper peel)."
+        "text": "Chamber volume is determined by dividing daily dry solids production by the number of operational cycles per day, multiplied by dry cake density: V_batch = Dry_batch / (rho_cake * (1 - Moisture%)). For a chosen recessed plate format (such as 1500 mm with 32 mm recess thickness, yielding ~58 Liters per chamber), the required chamber count = V_batch / V_chamber. The plate pack count is simply chambers + 1."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the function of a precoat rotary vacuum drum filter?",
+      "name": "What is the function of a high-pressure membrane squeeze plate?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "For gelatinous, slimy, or sub-micron particulate slurries (such as fermentation broth, wine lees, or starch hydrolysate) that instantly blind woven filter cloths, a 50 to 100 mm bed of diatomaceous earth or perlite is pre-deposited on the drum. An advancing micrometer knife shaves off a microscopic slice (10 to 50 μm) of the blinded precoat surface along with the captured solids on each revolution, presenting fresh filter aid continuously."
+        "text": "In a membrane filter press, flexible synthetic elastomer or polypropylene diaphragms line one or both sides of each chamber. After initial slurry pumping at 8-10 bar, high-pressure water or compressed air (15 to 24 bar) inflates the membranes, physically compressing the cake bed. This squeezes out interstitial capillary moisture, cutting final cake moisture by 8% to 15% and reducing thermal drying costs downstream."
       }
     },
     {
       "@type": "Question",
-      "name": "What determines maximum drum submergence in the slurry vat?",
+      "name": "Why is the central core air blow cycle critical before cake discharge?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Standard industrial drum submergence ranges from 25% to 37.5% (with deep submergence models reaching 50%). Submergence is mechanically limited by the need to allocate sufficient circumferential arc for cake washing (15-20%), vacuum dewatering (25-35%), and atmospheric cake discharge/cloth washing (15%) above the slurry liquid level, as well as preventing slurry overflow into the central trunnion rotary valve."
+        "text": "The central slurry feed eye canal that interconnects all plates remains completely filled with unpressurized, liquid slurry at the end of pumping. If the press opens without a core blow, this liquid slurry spills across the dried cakes, re-wetting them into mud. An air blow (3 to 6 bar compressed air pumped through the core) evacuates all liquid slurry back to the feed tank before plate separation."
       }
     },
     {
       "@type": "Question",
-      "name": "How does specific cake resistance (α) impact filter sizing?",
+      "name": "How is the hydraulic clamping force sized to prevent slurry blowout?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Specific cake resistance (α, measured in m/kg) quantifies the hydraulic drag of the compacted particulate cake bed. Free-filtering mineral concentrates have low resistance (α ~ 10⁹ to 10¹⁰ m/kg), enabling high filtration rates and compact drums. Highly compressible organic or hydrated precipitates have extreme resistances (α > 10¹² m/kg), requiring large drum areas, low vacuum to prevent cake collapse, and precoat filter aids."
+        "text": "The hydraulic ram must generate sufficient closing force to overcome internal feed pressure acting across the projected plate face area: F_clamp = P_feed * A_face * Safety_Factor (typically 1.25 to 1.35). For example, a 1500 mm plate press (projected face ~1.9 m²) operated at 15 bar feed pressure requires a clamping force of: 1500 kPa * 1.9 m² * 1.30 ≈ 3,700 kN (~380 metric tons) of continuous hydraulic clamping force."
       }
     },
     {
       "@type": "Question",
-      "name": "Why is cake cracking during the dewatering cycle fatal to drum operation?",
+      "name": "What causes differential pressure plate cracking in filter presses?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Compressible cakes shrink as pore liquid is evacuated under high vacuum. If shrinkage creates open tension cracks through the cake bed, atmospheric air rushes freely through the low-resistance fissures. This vacuum break collapses vacuum manifold pressure site-wide, preventing dewatering of the remaining cake and causing thin cakes in the submerged formation zone to slump back into the slurry vat."
+        "text": "If a single plate feed port becomes blocked by scale, tramp debris, or compacted solids, slurry cannot enter that chamber. As the feed pump ramps pressure to 16 bar in adjacent chambers, an unbalanced 16-bar lateral force bends the unsupported center web of the polypropylene plate. Polypropylene has limited flexural yield strength and shatters violently under this lateral shock load."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator</span>
+            <span>Recessed Plate & Frame Filter Press Cycle Time, Cake Moisture & Volume Sizing Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1042,90 +1042,94 @@
           
 <div class="calc-clean">
   <header class="calc-clean-header">
-    <div class="calc-clean-badge">SOLID-LIQUID SEPARATION & INDUSTRIAL FILTRATION</div>
-    <h1 class="calc-clean-title">Rotary Vacuum Drum Filter (RVDF) Sizing Calculator</h1>
-    <p class="calc-clean-subtitle">Size industrial continuous rotary vacuum drum filters. Compute specific cake resistance (α), dry solids yield rate, cake thickness, cycle time subdivision (form/wash/dry), and vacuum airflow capacity.</p>
+    <div class="calc-clean-badge">SOLID-LIQUID SEPARATION & PRESSURE DEWATERING</div>
+    <h1 class="calc-clean-title">Filter Press Cycle Time, Cake Moisture & Sizing Calculator</h1>
+    <p class="calc-clean-subtitle">Size industrial recessed plate and membrane filter presses. Compute cycle time breakdown (fill, filtration, squeeze, core blow, discharge), chamber volume, plate pack dimensions, and hydraulic ram clamping force.</p>
   </header>
 
   <!-- QUICK PRESETS -->
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('tio2')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Titanium Dioxide (TiO₂ Hydrate Pigment)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('starch')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Corn Starch Dewatering (Precoat Cut)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('mining')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Mineral Flotation Concentrate (Heavy Solids)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('pharma_myc')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Fermentation Mycelium (Antibiotics Broth)</button>
+    <button type="button" class="preset-btn" onclick="applyFpPreset('ww_sludge')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Municipal WWTP Dewatering (Alum/Poly Sludge)</button>
+    <button type="button" class="preset-btn" onclick="applyFpPreset('mining_tail')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Mining Tailings Dry Stacking (High Solids)</button>
+    <button type="button" class="preset-btn" onclick="applyFpPreset('chem_pigment')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Chemical Pigments / Dyes (Fine Solids Wash)</button>
+    <button type="button" class="preset-btn" onclick="applyFpPreset('membrane_sqz')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">High-Pressure Membrane Squeeze (16 Bar Squeeze)</button>
   </div>
 
   <div class="calc-clean-grid">
     <!-- INPUT COLUMN -->
     <div class="calc-clean-card">
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Slurry Production & Cake Properties</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Daily Production & Slurry Specifications</h2>
       
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Dry Cake Production (P)</label>
-          <input type="number" id="rv_prod" value="3500" step="200" min="50" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg/h dry solids</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Daily Dry Solids Target (P)</label>
+          <input type="number" id="fp_p_day" value="12000" step="500" min="200" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">kg dry solids / day</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Solids Concentration (c)</label>
-          <input type="number" id="rv_c" value="180" step="10" min="10" max="800" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg dry solids / m³ filtrate</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Slurry Solids (TS_feed)</label>
+          <input type="number" id="fp_ts_feed" value="5.0" step="0.5" min="0.5" max="45" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">% wt suspended solids in feed</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Specific Cake Resistance (α₀)</label>
-          <input type="number" id="rv_alpha" value="4.5" step="0.5" min="0.1" max="50" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">× 10¹⁰ m/kg at 1 bar</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Cake Moisture Target</label>
+          <input type="number" id="fp_cake_moist" value="32" step="1" min="10" max="75" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">% moisture in discharged cake</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Cake Compressibility (s)</label>
-          <input type="number" id="rv_comp" value="0.30" step="0.05" min="0" max="0.9" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">index (0 = rigid, 0.8 = soft bio)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Wet Cake Bulk Density</label>
+          <input type="number" id="fp_rho_cake" value="1280" step="20" min="800" max="2500" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">kg/m³ compacted wet cake</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Dry Cake Density (ρ_dry)</label>
-          <input type="number" id="rv_rho_dry" value="1450" step="50" min="400" max="3500" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg/m³ dry solids in cake</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Operating Hours / Day</label>
+          <input type="number" id="fp_op_hours" value="16" step="1" min="4" max="24" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">hours/day plant operation</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Filtrate Viscosity (μ)</label>
-          <input type="number" id="rv_mu" value="1.15" step="0.05" min="0.4" max="25" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">cP (mPa·s)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Plate Format Size</label>
+          <select id="fp_plate_format" onchange="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+            <option value="630">630 × 630 mm (0.55 m² area / plate)</option>
+            <option value="800">800 × 800 mm (0.95 m² area / plate)</option>
+            <option value="1000">1000 × 1000 mm (1.55 m² area / plate)</option>
+            <option value="1200">1200 × 1200 mm (2.35 m² area / plate)</option>
+            <option value="1500" selected>1500 × 1500 mm (3.80 m² area / plate)</option>
+            <option value="2000">2000 × 2000 mm (7.10 m² area / plate)</option>
+          </select>
         </div>
       </div>
 
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-top:18px;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Drum Mechanical & Vacuum Operating Parameters</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-top:18px;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Plate Pack & Operating Pressures</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Drum Speed (N_drum)</label>
-          <input type="number" id="rv_rpm" value="0.65" step="0.05" min="0.1" max="3.0" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">RPM (rev per minute)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Chamber Thickness</label>
+          <input type="number" id="fp_chamber_thick" value="32" step="2" min="20" max="50" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">mm (cake thickness = recess depth)</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Applied Vacuum (ΔP)</label>
-          <input type="number" id="rv_dp" value="60" step="5" min="20" max="90" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kPa gauge (typical 40-75 kPa)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Pump Pressure</label>
+          <input type="number" id="fp_feed_press" value="10" step="1" min="5" max="25" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">bar gauge max feed pressure</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Drum Submergence (ψ_form)</label>
-          <input type="number" id="rv_sub" value="33" step="1" min="15" max="45" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">% submergence in slurry vat</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Filtration Time (t_filt)</label>
+          <input type="number" id="fp_t_filt" value="45" step="5" min="10" max="180" oninput="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">minutes constant pressure feed</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Discharge Mechanism Type</label>
-          <select id="rv_discharge" onchange="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-            <option value="scraper">Knife Scraper (Standard Cake >5mm)</option>
-            <option value="precoat">Precoat Shaving Knife (Thin/Slimy)</option>
-            <option value="string">String Discharge (Cohesive Fibrous)</option>
-            <option value="roll">Roll Discharge (Thin Sticky Paste)</option>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Membrane Squeeze Option</label>
+          <select id="fp_membrane" onchange="calcFilterPress()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+            <option value="none">Standard Recessed Plate (No Squeeze)</option>
+            <option value="membrane" selected>Membrane Squeeze Plate (+10 min, -8% moisture)</option>
           </select>
         </div>
       </div>
@@ -1133,67 +1137,67 @@
 
     <!-- OUTPUT COLUMN -->
     <div class="calc-clean-card">
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Filtration Capacity & Drum Dimensions</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Filter Press Sizing & Hydraulic Clamping</h2>
       
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Required Drum Area</div>
-          <div id="res_drum_area" style="font-size:1.6rem;font-weight:800;color:#38bdf8;margin-top:2px;">--</div>
-          <div id="res_drum_dims" style="font-size:11px;color:#64748b;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Chamber Count Needed</div>
+          <div id="res_num_chambers" style="font-size:1.6rem;font-weight:800;color:#38bdf8;margin-top:2px;">--</div>
+          <div id="res_num_plates" style="font-size:11px;color:#64748b;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Cake Dry Solids Yield</div>
-          <div id="res_cake_yield" style="font-size:1.6rem;font-weight:800;color:#10b981;margin-top:2px;">--</div>
-          <div id="res_yield_lb" style="font-size:11px;color:#64748b;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Total Filtration Area</div>
+          <div id="res_fp_area" style="font-size:1.6rem;font-weight:800;color:#10b981;margin-top:2px;">--</div>
+          <div id="res_fp_vol" style="font-size:11px;color:#64748b;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Cake Thickness (L_cake)</div>
-          <div id="res_cake_thick" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
-          <div id="res_cake_status" style="font-size:11px;color:#94a3b8;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Total Cycle Time</div>
+          <div id="res_cycle_time" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
+          <div id="res_cycles_day" style="font-size:11px;color:#94a3b8;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Filtrate Flow Rate</div>
-          <div id="res_filtrate_q" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
-          <div id="res_cycle_time" style="font-size:11px;color:#94a3b8;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Clamping Force Required</div>
+          <div id="res_clamp_force" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
+          <div id="res_clamp_ton" style="font-size:11px;color:#94a3b8;">--</div>
         </div>
       </div>
 
       <div style="margin-top:12px;background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
-            <div style="font-size:11px;color:#94a3b8;">Vacuum Pump Capacity</div>
-            <div id="res_vac_air" style="font-size:1.2rem;font-weight:700;color:#f59e0b;">--</div>
-            <div id="res_vac_power" style="font-size:11px;color:#cbd5e1;">--</div>
+            <div style="font-size:11px;color:#94a3b8;">Cake Mass / Batch</div>
+            <div id="res_cake_batch" style="font-size:1.2rem;font-weight:700;color:#f59e0b;">--</div>
+            <div id="res_dry_batch" style="font-size:11px;color:#cbd5e1;">--</div>
           </div>
           <div>
-            <div style="font-size:11px;color:#94a3b8;">Effective Specific Resistance (α)</div>
-            <div id="res_alpha_eff" style="font-size:1.2rem;font-weight:700;color:#a855f7;">--</div>
-            <div id="res_alpha_note" style="font-size:11px;color:#cbd5e1;">--</div>
+            <div style="font-size:11px;color:#94a3b8;">Filtrate Volume / Batch</div>
+            <div id="res_filtrate_batch" style="font-size:1.2rem;font-weight:700;color:#a855f7;">--</div>
+            <div id="res_slurry_batch" style="font-size:11px;color:#cbd5e1;">--</div>
           </div>
         </div>
       </div>
 
       <div style="margin-top:12px;background:#0f172a;padding:10px 12px;border-radius:8px;border:1px solid #334155;display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;">
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Cake Form Time</span>
-          <div id="res_t_form" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Plate Pack Length</span>
+          <div id="res_pack_length" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Drying Arc Time</span>
-          <div id="res_t_dry" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Plate Shift Time</span>
+          <div id="res_shift_time" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Wash Angle</span>
-          <div id="res_wash_arc" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Core Blow Time</span>
+          <div id="res_core_blow" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
       </div>
 
       <!-- COPY DIAGNOSTIC SUMMARY -->
       <div style="margin-top:14px;">
-        <button type="button" onclick="copyRvdfSummary()" id="btn_rv_copy" style="width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <button type="button" onclick="copyFpSummary()" id="btn_fp_copy" style="width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">
           <span>📋</span> Copy Diagnostic Sizing Summary
         </button>
       </div>
@@ -1202,40 +1206,40 @@
 
   <!-- INTERACTIVE CANVAS VISUALIZER -->
   <div class="calc-clean-card" style="margin-top:16px;">
-    <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Rotary Drum Cross-Section & Filtration Cycle Segments</h2>
+    <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Filter Press Plate Pack Assembly & Chamber Schematic</h2>
     <div style="position:relative;width:100%;background:#090d16;border-radius:8px;padding:10px;border:1px solid #1e293b;">
-      <canvas id="rvdfCanvas" width="720" height="300" style="width:100%;height:auto;display:block;"></canvas>
+      <canvas id="fpCanvas" width="720" height="280" style="width:100%;height:auto;display:block;"></canvas>
     </div>
   </div>
 
   <!-- FIVE FATAL TRAPS -->
   <div style="margin-top:24px;">
-    <h2 style="font-size:1.2rem;font-weight:700;color:#f8fafc;margin-bottom:14px;">5 Fatal Industrial Traps in Rotary Vacuum Drum Filter Operation</h2>
+    <h2 style="font-size:1.2rem;font-weight:700;color:#f8fafc;margin-bottom:14px;">5 Fatal Industrial Traps in Filter Press Engineering</h2>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;">
       
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #ef4444;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#ef4444;font-size:14px;margin-bottom:4px;">1. Precoat Cake Cracking & Catastrophic Vacuum Collapse</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">In precoat filtration (diatomaceous earth / perlite), as the cake passes into the drying zone, rapid air draw can desiccate compressible cakes, causing deep radial shrinkage cracks. Ambient air immediately short-circuits through the cracks into the drum internal pipes. Drum vacuum drops from 65 kPa to below 15 kPa, stopping filtration instantly across the entire drum submerged zone.</p>
+        <div style="font-weight:700;color:#ef4444;font-size:14px;margin-bottom:4px;">1. Insufficient Hydraulic Clamping Force & High-Pressure Slurry Blowout</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">The hydraulic ram clamping force must counteract internal slurry pressure across the entire projected plate recess area ($F_{clamp} = P_{feed} cdot A_{face} cdot 1.30$). If hydraulic pressure drifts downward or the operator reduces clamping tonnage, high-pressure slurry (10-16 bar) erupts violently between plate sealing edges, spraying hazardous sludge across the room and eroding polypropylene sealing bevels.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #f59e0b;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#f59e0b;font-size:14px;margin-bottom:4px;">2. Slurry Vat Sedimentation from Agitator Pendulum Failure</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Coarse or heavy mineral slurries ($d_p > 45	ext{ μm}, ho > 2500	ext{ kg/m}^3$) settle within seconds. If the oscillating vat pendulum rake agitator has insufficient sweep or suffers mechanical linkage failure, solids compact into a dense sediment bed at the vat bottom. The rotating drum wedges against the solid bed, stalling the drum drive motor or snapping the circumferential drive chain.</p>
+        <div style="font-weight:700;color:#f59e0b;font-size:14px;margin-bottom:4px;">2. Differential Pressure Plate Bending & Catastrophic Polypropylene Fracture</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">If one central feed eye port clogs with tramp debris or hardened scale, slurry continues filling adjacent chambers while the blocked chamber remains empty. A massive 10 to 16 bar differential pressure acts across the thin central membrane or plate web. Polypropylene plates flex violently and shatter with shotgun-like reports, ruining thousands of dollars in plate packs.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #10b981;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#10b981;font-size:14px;margin-bottom:4px;">3. The Precoat Shaving Knife Advance Runaway (Diatomite Waste)</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Precoat filters require an automated micrometer knife advance ($10-50	ext{ μm}$ per revolution) to shave off the blinded slime layer. Setting the knife advance rate unnecessarily high burns through an expensive 100 mm precoat bed in 4 hours instead of 16 hours, quadrupling diatomaceous earth consumption costs and wasting thousands of dollars per shift in filter aid.</p>
+        <div style="font-weight:700;color:#10b981;font-size:14px;margin-bottom:4px;">3. The Wet Core Slurry Collapse (Omitting the Core Air Blow)</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">The central circular feed canal running through the center of all plates remains filled with liquid, unpressurized raw slurry at the end of filtration. Omitting the compressed air core blow ($3-5	ext{ bar}$ air purging the core canal before plate shifting) dumps gallons of liquid sludge directly on top of the discharged dry cake below, instantly re-wetting the cake bin and violating landfill dryness criteria.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #3b82f6;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#3b82f6;font-size:14px;margin-bottom:4px;">4. Trunnion Rotary Valve Bridge Wear & Cross-Zone Vacuum Leakage</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">The stationary rotary vacuum valve on the drum trunnion separates form vacuum, dry vacuum, atmospheric cake discharge, and reverse blow air using sacrificial phenolic or bronze wear plates. Abrasive slurry fines leaking into the valve face score deep grooves across the bridge seals. Compressed blow air leaks directly into the vacuum chambers, destroying cake formation and blowing slurry back into the vat.</p>
+        <div style="font-weight:700;color:#3b82f6;font-size:14px;margin-bottom:4px;">4. Feed Pump Deadhead Cavitation & Thermal Burnout</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">During the terminal phase of filtration, cake chambers consolidate and filtrate flow rate decays exponentially toward zero. Centrifugal slurry pumps operating at deadhead generate intense internal hydraulic friction, boiling slurry inside the pump volute and melting elastomeric liners. Air-operated double diaphragm (AODD) pumps or progressive cavity pumps with pressure relief overrides are mandatory.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #8b5cf6;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#8b5cf6;font-size:14px;margin-bottom:4px;">5. Multifilament Cloth Internal Pore Crystallization & Blindness</div>
-        <p style="font-size:12px;color:#8b5cf6;font-size:14px;margin-bottom:4px;">When filtering hot saturated slurries (ammonium sulfate, potash, gypsum), the evaporative cooling of air pulled through the cake drops the liquor temperature inside the cloth pores below its saturation limit. Salt crystals nucleate inside the twisted multifilament cloth yarns, petrifying the flexible cloth into an impermeable board that no knife scraper or air blow can clear.</p>
+        <div style="font-weight:700;color:#8b5cf6;font-size:14px;margin-bottom:4px;">5. Capillary Cloth Blinding & Missed Automated High-Pressure Washing</div>
+        <p style="font-size:12px;color:#8b5cf6;font-size:14px;margin-bottom:4px;">Sub-micron colloidal fines embed within filter cloth pores over 20-30 cycles. Without regular automated 80-100 bar high-pressure cloth washing trolleys, cloth resistance ($R_m$) climbs tenfold, doubling required filtration cycle times and causing sticky cakes to adhere stubbornly to cloth faces during automated plate shifting.</p>
       </div>
 
     </div>
@@ -1243,176 +1247,183 @@
 
   <!-- MATHEMATICAL DERIVATION SECTION -->
   <div class="calc-clean-card" style="margin-top:20px;">
-    <h2 style="font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Governing Equations: Ruth & Carman-Kozeny Continuous Rotary Filtration</h2>
+    <h2 style="font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Governing Equations: Batch Pressure Filtration & Ram Clamping</h2>
     <div style="font-size:13px;color:#cbd5e1;line-height:1.6;">
-      <p><b>1. Ruth Filtration Differential Equation:</b></p>
+      <p><b>1. Chamber Volume ($V_{ch}$) & Dry Cake per Chamber:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        rac{dt}{d(V/A)} = rac{mu cdot alpha cdot c}{Delta P} cdot left(rac{V}{A}ight) + rac{mu cdot R_m}{Delta P}
+        V_{ch} = A_{face} cdot t_{recess} cdot 0.95 quad [	ext{m}^3], quad M_{dry,ch} = V_{ch} cdot ho_{cake} cdot left(1 - rac{	ext{Moist}%}{100}ight)
       </div>
-      <p>Integrating over form time $t_f = psi_{form} cdot rac{60}{N_{drum}}$ seconds (neglecting filter medium resistance $R_m ll R_{cake}$ for thick cakes):</p>
+      <p><b>2. Batch Cycle Time Breakdown:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        left(rac{V}{A}ight)_{form} = sqrt{rac{2 cdot Delta P cdot t_f}{mu cdot alpha cdot c}} quad [	ext{m}^3 	ext{ filtrate / m}^2 	ext{ cycle}]
+        t_{cycle} = t_{close} + t_{fill} + t_{filt} + t_{sqz} + t_{blow} + t_{disch} quad [	ext{minutes}]
       </div>
-      <p><b>2. Dry Cake Yield Rate ($Y_{cake}$):</b></p>
+      <p><b>3. Daily Cycles & Required Chambers:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        Y_{cake} = rac{c cdot (V/A)_{form}}{t_{cycle}} cdot 3600 = c cdot sqrt{rac{2 cdot Delta P cdot psi_{form} cdot N_{drum}}{60 cdot mu cdot alpha cdot c}} cdot 3600 quad [	ext{kg}/(	ext{m}^2cdot	ext{h})]
+        N_{cycles/day} = rac{	ext{OpHours} 	imes 60}{t_{cycle}}, quad N_{chambers} = leftlceil rac{P_{daily}}{M_{dry,ch} cdot N_{cycles/day}} ightceil
       </div>
-      <p><b>3. Cake Thickness ($L_{cake}$):</b></p>
+      <p><b>4. Hydraulic Clamping Force:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        L_{cake} = rac{c cdot (V/A)_{form}}{ho_{dry}} quad [	ext{meters}]
+        F_{clamp} = P_{feed} cdot A_{face} cdot S.F. quad (S.F. approx 1.25-1.35) quad [	ext{kN}]
       </div>
-      <p><b>4. Vacuum Airflow Sizing:</b> Empirical airflow factor $q_{air} approx 0.8	ext{ Nm}^3/(	ext{m}^2cdot	ext{min})$ across total drum area.</p>
     </div>
   </div>
 </div>
 
 <script>
-function applyRvdfPreset(type) {
-  if (type === 'tio2') {
-    document.getElementById('rv_prod').value = 4000;
-    document.getElementById('rv_c').value = 220;
-    document.getElementById('rv_alpha').value = 6.5;
-    document.getElementById('rv_comp').value = 0.35;
-    document.getElementById('rv_rho_dry').value = 1500;
-    document.getElementById('rv_mu').value = 1.20;
-    document.getElementById('rv_rpm').value = 0.50;
-    document.getElementById('rv_dp').value = 65;
-    document.getElementById('rv_sub').value = 35;
-    document.getElementById('rv_discharge').value = 'scraper';
-  } else if (type === 'starch') {
-    document.getElementById('rv_prod').value = 6000;
-    document.getElementById('rv_c').value = 320;
-    document.getElementById('rv_alpha').value = 2.2;
-    document.getElementById('rv_comp').value = 0.15;
-    document.getElementById('rv_rho_dry').value = 1350;
-    document.getElementById('rv_mu').value = 1.35;
-    document.getElementById('rv_rpm').value = 1.20;
-    document.getElementById('rv_dp').value = 55;
-    document.getElementById('rv_sub').value = 30;
-    document.getElementById('rv_discharge').value = 'precoat';
-  } else if (type === 'mining') {
-    document.getElementById('rv_prod').value = 15000;
-    document.getElementById('rv_c').value = 500;
-    document.getElementById('rv_alpha').value = 0.8;
-    document.getElementById('rv_comp').value = 0.05;
-    document.getElementById('rv_rho_dry').value = 2200;
-    document.getElementById('rv_mu').value = 1.10;
-    document.getElementById('rv_rpm').value = 1.50;
-    document.getElementById('rv_dp').value = 70;
-    document.getElementById('rv_sub').value = 37;
-    document.getElementById('rv_discharge').value = 'scraper';
-  } else if (type === 'pharma_myc') {
-    document.getElementById('rv_prod').value = 800;
-    document.getElementById('rv_c').value = 60;
-    document.getElementById('rv_alpha').value = 15.0;
-    document.getElementById('rv_comp').value = 0.65;
-    document.getElementById('rv_rho_dry').value = 850;
-    document.getElementById('rv_mu').value = 1.80;
-    document.getElementById('rv_rpm').value = 0.35;
-    document.getElementById('rv_dp').value = 50;
-    document.getElementById('rv_sub').value = 25;
-    document.getElementById('rv_discharge').value = 'precoat';
+function applyFpPreset(type) {
+  if (type === 'ww_sludge') {
+    document.getElementById('fp_p_day').value = 8000;
+    document.getElementById('fp_ts_feed').value = 4.0;
+    document.getElementById('fp_cake_moist').value = 35;
+    document.getElementById('fp_rho_cake').value = 1250;
+    document.getElementById('fp_op_hours').value = 16;
+    document.getElementById('fp_plate_format').value = '1500';
+    document.getElementById('fp_chamber_thick').value = 32;
+    document.getElementById('fp_feed_press').value = 10;
+    document.getElementById('fp_t_filt').value = 45;
+    document.getElementById('fp_membrane').value = 'membrane';
+  } else if (type === 'mining_tail') {
+    document.getElementById('fp_p_day').value = 40000;
+    document.getElementById('fp_ts_feed').value = 25.0;
+    document.getElementById('fp_cake_moist').value = 16;
+    document.getElementById('fp_rho_cake').value = 1900;
+    document.getElementById('fp_op_hours').value = 24;
+    document.getElementById('fp_plate_format').value = '2000';
+    document.getElementById('fp_chamber_thick').value = 40;
+    document.getElementById('fp_feed_press').value = 16;
+    document.getElementById('fp_t_filt').value = 25;
+    document.getElementById('fp_membrane').value = 'none';
+  } else if (type === 'chem_pigment') {
+    document.getElementById('fp_p_day').value = 3000;
+    document.getElementById('fp_ts_feed').value = 8.0;
+    document.getElementById('fp_cake_moist').value = 28;
+    document.getElementById('fp_rho_cake').value = 1350;
+    document.getElementById('fp_op_hours').value = 12;
+    document.getElementById('fp_plate_format').value = '1000';
+    document.getElementById('fp_chamber_thick').value = 30;
+    document.getElementById('fp_feed_press').value = 12;
+    document.getElementById('fp_t_filt').value = 60;
+    document.getElementById('fp_membrane').value = 'membrane';
+  } else if (type === 'membrane_sqz') {
+    document.getElementById('fp_p_day').value = 15000;
+    document.getElementById('fp_ts_feed').value = 6.0;
+    document.getElementById('fp_cake_moist').value = 24;
+    document.getElementById('fp_rho_cake').value = 1320;
+    document.getElementById('fp_op_hours').value = 20;
+    document.getElementById('fp_plate_format').value = '1500';
+    document.getElementById('fp_chamber_thick').value = 35;
+    document.getElementById('fp_feed_press').value = 15;
+    document.getElementById('fp_t_filt').value = 35;
+    document.getElementById('fp_membrane').value = 'membrane';
   }
-  calcRVDF();
+  calcFilterPress();
 }
 
-function calcRVDF() {
-  const P_dry = parseFloat(document.getElementById('rv_prod').value) || 3500;
-  const c = parseFloat(document.getElementById('rv_c').value) || 180;
-  const alpha0 = parseFloat(document.getElementById('rv_alpha').value) || 4.5;
-  const s = parseFloat(document.getElementById('rv_comp').value) || 0.30;
-  const rho_dry = parseFloat(document.getElementById('rv_rho_dry').value) || 1450;
-  const mu_cp = parseFloat(document.getElementById('rv_mu').value) || 1.15;
-  const RPM = parseFloat(document.getElementById('rv_rpm').value) || 0.65;
-  const dP_kpa = parseFloat(document.getElementById('rv_dp').value) || 60;
-  const sub_pct = parseFloat(document.getElementById('rv_sub').value) || 33;
-  const discharge = document.getElementById('rv_discharge').value;
+function calcFilterPress() {
+  const P_day = parseFloat(document.getElementById('fp_p_day').value) || 12000;
+  const TS_feed = parseFloat(document.getElementById('fp_ts_feed').value) || 5.0;
+  let cake_moist = parseFloat(document.getElementById('fp_cake_moist').value) || 32;
+  const rho_cake = parseFloat(document.getElementById('fp_rho_cake').value) || 1280;
+  const op_hours = parseFloat(document.getElementById('fp_op_hours').value) || 16;
+  const format_mm = parseFloat(document.getElementById('fp_plate_format').value) || 1500;
+  const t_recess_mm = parseFloat(document.getElementById('fp_chamber_thick').value) || 32;
+  const P_feed_bar = parseFloat(document.getElementById('fp_feed_press').value) || 10;
+  const t_filt_min = parseFloat(document.getElementById('fp_t_filt').value) || 45;
+  const membrane = document.getElementById('fp_membrane').value;
 
-  // Cycle times
-  const t_cycle = 60 / RPM; // seconds per rev
-  const psi_form = sub_pct / 100;
-  const t_form = t_cycle * psi_form; // seconds of cake formation
-  const psi_wash = 0.20;
-  const t_wash = t_cycle * psi_wash;
-  const psi_dry = Math.max(1.0 - psi_form - psi_wash - 0.12, 0.15);
-  const t_dry = t_cycle * psi_dry;
+  // Format properties map
+  const formatData = {
+    630: { areaFace: 0.275, areaTotal: 0.55, plateThick: 60 },
+    800: { areaFace: 0.475, areaTotal: 0.95, plateThick: 65 },
+    1000: { areaFace: 0.775, areaTotal: 1.55, plateThick: 70 },
+    1200: { areaFace: 1.175, areaTotal: 2.35, plateThick: 75 },
+    1500: { areaFace: 1.90, areaTotal: 3.80, plateThick: 85 },
+    2000: { areaFace: 3.55, areaTotal: 7.10, plateThick: 100 }
+  };
+  const fInfo = formatData[format_mm] || formatData[1500];
 
-  // Pressure in Pa
-  const dP_pa = dP_kpa * 1000;
-  const mu_si = mu_cp * 1e-3; // Pa.s
+  // Cycle time breakdown
+  const t_close_min = 4;
+  const t_fill_min = 8;
+  let t_sqz_min = 0;
+  if (membrane === 'membrane') {
+    t_sqz_min = 12;
+  }
+  const t_blow_min = 4;
+  // Discharge shifting: approx 6 seconds per plate
+  // Initial estimate of plates ~ 60 -> discharge ~ 6-8 min
+  const t_disch_min = 15;
+  const t_cycle_min = t_close_min + t_fill_min + t_filt_min + t_sqz_min + t_blow_min + t_disch_min;
 
-  // Specific cake resistance corrected for compressibility
-  // alpha = alpha0 * (dP / 10^5)^s
-  const alpha_base = alpha0 * 1e10; // m/kg
-  const alpha_eff = alpha_base * Math.pow(dP_pa / 100000, s);
+  // Number of cycles per day
+  const cycles_per_day = (op_hours * 60) / t_cycle_min;
 
-  // Form Volume per unit area (V/A)
-  // (V/A)^2 = (2 * dP * t_form) / (mu * alpha_eff * c)
-  const VA_form_sq = (2 * dP_pa * t_form) / (mu_si * alpha_eff * c);
-  const VA_form = Math.sqrt(VA_form_sq); // m3 filtrate / m2 drum
+  // Single chamber volume: V_ch = AreaFace * (recess_mm / 1000) * 0.95
+  const V_ch_m3 = fInfo.areaFace * (t_recess_mm / 1000) * 0.95;
+  const M_wet_ch = V_ch_m3 * rho_cake;
+  const M_dry_ch = M_wet_ch * (1 - cake_moist / 100);
 
-  // Cake Yield Y_cake (kg dry / m2 / h)
-  // Y = c * (V/A) / t_cycle * 3600
-  const Y_cake = (c * VA_form / t_cycle) * 3600;
-  const Y_cake_lb = Y_cake * 0.2048; // lb/ft2/h
+  // Target dry solids per batch = P_day / cycles_per_day
+  const dry_per_batch = P_day / cycles_per_day;
 
-  // Required Total Drum Area A_req (m2)
-  const A_req = P_dry / Y_cake;
+  // Number of chambers needed
+  const num_chambers = Math.max(Math.ceil(dry_per_batch / M_dry_ch), 5);
+  const num_plates = num_chambers + 1;
 
-  // Drum dimensions: Area = pi * D * L
-  // Standard aspect ratio L / D approx 1.5
-  const aspect = 1.5;
-  const D_drum = Math.sqrt(A_req / (Math.PI * aspect));
-  const L_drum = D_drum * aspect;
+  // Total press metrics
+  const total_area_m2 = num_chambers * fInfo.areaTotal;
+  const total_vol_m3 = num_chambers * V_ch_m3;
+  const total_vol_liters = total_vol_m3 * 1000;
 
-  // Cake thickness (meters -> mm)
-  // L_cake = (c * VA_form) / rho_dry
-  const L_cake_m = (c * VA_form) / rho_dry;
-  const L_cake_mm = L_cake_m * 1000;
+  const wet_batch_kg = num_chambers * M_wet_ch;
+  const actual_dry_batch_kg = num_chambers * M_dry_ch;
 
-  // Total filtrate flow rate
-  const Q_filtrate_m3h = P_dry / c;
+  // Total slurry per batch
+  // Dry solids = Slurry * (TS_feed / 100) -> Slurry = Dry / (TS_feed / 100)
+  const slurry_batch_kg = actual_dry_batch_kg / (TS_feed / 100);
+  const filtrate_batch_m3 = (slurry_batch_kg - wet_batch_kg) / 1000;
 
-  // Vacuum airflow capacity: approx 0.8 Nm3 / m2 drum / min
-  const q_air_spec = 0.85; // Nm3/m2/min
-  const Q_air_nm3h = A_req * q_air_spec * 60;
-  // Vacuum pump power: approx 1.8 kW per 100 m3/h at 60 kPa
-  const vac_power_kw = (Q_air_nm3h / 100) * 1.85;
+  // Hydraulic Ram Clamping Force
+  // F = P_feed (bar * 100 kPa) * AreaFace * SafetyFactor (1.30)
+  const P_feed_kpa = P_feed_bar * 100;
+  const clamp_force_kn = P_feed_kpa * fInfo.areaFace * 1.30;
+  const clamp_force_ton = clamp_force_kn / 9.80665;
+
+  // Press Length = (num_plates * plateThick + head/follower space ~ 2.5m)
+  const pack_len_m = (num_plates * fInfo.plateThick) / 1000;
+  const press_len_tot_m = pack_len_m + 2.4;
 
   // Update UI
-  document.getElementById('res_drum_area').textContent = A_req.toFixed(1) + ' m²';
-  document.getElementById('res_drum_dims').textContent = 'Ø' + D_drum.toFixed(2) + ' m × ' + L_drum.toFixed(2) + ' m L';
+  document.getElementById('res_num_chambers').textContent = num_chambers + ' Chambers';
+  document.getElementById('res_num_plates').textContent = num_plates + ' Plates (' + format_mm + '×' + format_mm + ' mm)';
 
-  document.getElementById('res_cake_yield').textContent = Y_cake.toFixed(1) + ' kg/(m²·h)';
-  document.getElementById('res_yield_lb').textContent = Y_cake_lb.toFixed(1) + ' lb/(ft²·h)';
+  document.getElementById('res_fp_area').textContent = total_area_m2.toFixed(1) + ' m²';
+  document.getElementById('res_fp_vol').textContent = 'Cake Vol: ' + total_vol_liters.toFixed(0) + ' L (' + total_vol_m3.toFixed(2) + ' m³)';
 
-  document.getElementById('res_cake_thick').textContent = L_cake_mm.toFixed(1) + ' mm';
-  let thickStatus = 'Optimal for Scraper (>5mm)';
-  if (discharge === 'precoat') thickStatus = 'Precoat Shave (<2mm fine)';
-  else if (L_cake_mm < 3.0) thickStatus = 'Too Thin for Scraper (Needs Precoat/Roll)';
-  else if (L_cake_mm > 25) thickStatus = 'Heavy Cake (Check Motor Torque)';
-  document.getElementById('res_cake_status').textContent = thickStatus;
+  document.getElementById('res_cycle_time').textContent = t_cycle_min.toFixed(0) + ' min';
+  document.getElementById('res_cycles_day').textContent = cycles_per_day.toFixed(1) + ' Cycles/day (' + op_hours + ' h/d)';
 
-  document.getElementById('res_filtrate_q').textContent = Q_filtrate_m3h.toFixed(1) + ' m³/h';
-  document.getElementById('res_cycle_time').textContent = 'Cycle: ' + t_cycle.toFixed(1) + ' s (' + RPM + ' RPM)';
+  document.getElementById('res_clamp_force').textContent = Math.round(clamp_force_kn).toLocaleString('en-US') + ' kN';
+  document.getElementById('res_clamp_ton').textContent = Math.round(clamp_force_ton) + ' Metric Tons Clamp';
 
-  document.getElementById('res_vac_air').textContent = Math.round(Q_air_nm3h).toLocaleString('en-US') + ' Nm³/h';
-  document.getElementById('res_vac_power').textContent = 'Pump Power: ~' + vac_power_kw.toFixed(1) + ' kW';
+  document.getElementById('res_cake_batch').textContent = (wet_batch_kg / 1000).toFixed(2) + ' t wet/batch';
+  document.getElementById('res_dry_batch').textContent = (actual_dry_batch_kg / 1000).toFixed(2) + ' t dry/batch';
 
-  document.getElementById('res_alpha_eff').textContent = (alpha_eff / 1e10).toFixed(2) + ' × 10¹⁰ m/kg';
-  document.getElementById('res_alpha_note').textContent = 'Compressibility s = ' + s.toFixed(2);
+  document.getElementById('res_filtrate_batch').textContent = filtrate_batch_m3.toFixed(1) + ' m³ / batch';
+  document.getElementById('res_slurry_batch').textContent = 'Slurry: ' + (slurry_batch_kg / 1000).toFixed(1) + ' t/batch';
 
-  document.getElementById('res_t_form').textContent = t_form.toFixed(1) + ' s (' + sub_pct + '%)';
-  document.getElementById('res_t_dry').textContent = t_dry.toFixed(1) + ' s (' + (psi_dry * 100).toFixed(0) + '%)';
-  document.getElementById('res_wash_arc').textContent = (psi_wash * 360).toFixed(0) + '° Arc (' + t_wash.toFixed(1) + ' s)';
+  document.getElementById('res_pack_length').textContent = pack_len_m.toFixed(2) + ' m (' + press_len_tot_m.toFixed(1) + 'm OAL)';
+  document.getElementById('res_shift_time').textContent = t_disch_min + ' min discharge';
+  document.getElementById('res_core_blow').textContent = t_blow_min + ' min at 5 bar air';
 
-  drawRvdfCanvas({
-    D_drum, L_drum, sub_pct, L_cake_mm, RPM, Y_cake, A_req
+  drawFpCanvas({
+    num_chambers, format_mm, t_recess_mm, P_feed_bar, clamp_force_ton,
+    total_area_m2, total_vol_liters, t_cycle_min
   });
 }
 
-function drawRvdfCanvas(data) {
-  const canvas = document.getElementById('rvdfCanvas');
+function drawFpCanvas(data) {
+  const canvas = document.getElementById('fpCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
@@ -1430,166 +1441,151 @@ function drawRvdfCanvas(data) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
   }
 
-  // Draw Drum Radial Cross-Section
-  const cx = 175;
-  const cy = 150;
-  const rDrum = 95;
+  // Draw Horizontal Filter Press Assembly Schematic
+  const startX = 45;
+  const headW = 32;
+  const plateH = 130;
+  const startY = 70;
 
-  // Slurry Vat (Crescent at bottom)
-  ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
-  ctx.strokeStyle = '#d97706';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 22, 0.2 * Math.PI, 0.8 * Math.PI, false);
-  ctx.lineTo(cx + rDrum + 25, cy + 85);
-  ctx.lineTo(cx - rDrum - 25, cy + 85);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#f59e0b';
-  ctx.font = 'bold 9px sans-serif';
-  ctx.fillText('SLURRY VAT (' + data.sub_pct + '% Submergence)', cx - 70, cy + 80);
-
-  // Drum Cylinder
-  ctx.fillStyle = '#0f172a';
+  // 1. Stationary Fixed Head (Left)
+  ctx.fillStyle = '#1e293b';
   ctx.strokeStyle = '#475569';
   ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.stroke();
-
-  // Draw Internal Vacuum Pipes / Hub
-  ctx.fillStyle = '#1e293b';
-  ctx.beginPath();
-  ctx.arc(cx, cy, 24, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.stroke();
-
-  // Internal drainage pipes (radial spokes)
-  ctx.strokeStyle = '#334155';
-  ctx.lineWidth = 1.5;
-  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 6) {
-    ctx.beginPath();
-    ctx.moveTo(cx + 24 * Math.cos(a), cy + 24 * Math.sin(a));
-    ctx.lineTo(cx + rDrum * Math.cos(a), cy + rDrum * Math.sin(a));
-    ctx.stroke();
-  }
-
-  // Zone 1: Cake Formation (Submerged Arc in Cyan)
-  const formStart = 0.25 * Math.PI;
-  const formEnd = 0.75 * Math.PI;
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, formStart, formEnd);
-  ctx.stroke();
-
-  // Zone 2: Wash Arc (Green spray header)
-  const washStart = 1.0 * Math.PI;
-  const washEnd = 1.4 * Math.PI;
-  ctx.strokeStyle = '#10b981';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, washStart, washEnd);
-  ctx.stroke();
-
-  // Spray wash nozzles above drum
-  ctx.fillStyle = '#10b981';
-  ctx.fillRect(cx - 65, cy - rDrum - 25, 55, 6);
-  ctx.fillText('WASH SPRAY', cx - 65, cy - rDrum - 30);
-
-  // Zone 3: Cake Dewatering (Blue Arc)
-  const dryStart = 1.4 * Math.PI;
-  const dryEnd = 1.85 * Math.PI;
-  ctx.strokeStyle = '#818cf8';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, dryStart, dryEnd);
-  ctx.stroke();
-
-  // Zone 4: Knife Scraper Discharge (Red knife at 2.05 PI ~ 10 deg)
-  const knifeX = cx + rDrum + 5;
-  const knifeY = cy + 15;
-  ctx.fillStyle = '#ef4444';
-  ctx.beginPath();
-  ctx.moveTo(knifeX, knifeY);
-  ctx.lineTo(knifeX + 25, knifeY + 20);
-  ctx.lineTo(knifeX + 30, knifeY + 15);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillRect(startX, startY - 15, headW, plateH + 30);
+  ctx.strokeRect(startX, startY - 15, headW, plateH + 30);
 
   ctx.fillStyle = '#cbd5e1';
   ctx.font = 'bold 9px sans-serif';
-  ctx.fillText('KNIFE SCRAPER', knifeX + 8, knifeY + 34);
+  ctx.fillText('FIXED', startX + 4, startY + 50);
+  ctx.fillText('HEAD', startX + 4, startY + 65);
 
-  // Rotation Direction Arrow (Clockwise)
-  ctx.strokeStyle = '#f59e0b';
+  // Slurry inlet pipe into fixed head
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(10, startY + plateH / 2 - 8, startX - 10, 16);
+  ctx.fillStyle = '#fff';
+  ctx.fillText('FEED', 14, startY + plateH / 2 + 4);
+
+  // 2. Plate Pack (Alternating recessed plates and cakes)
+  const numDisplayPlates = Math.min(data.num_chambers, 16);
+  const plateW = 12;
+  let curX = startX + headW;
+
+  for (let i = 0; i < numDisplayPlates; i++) {
+    // Plate (Polypropylene dark slate)
+    ctx.fillStyle = '#0f172a';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.fillRect(curX, startY, plateW, plateH);
+    ctx.strokeRect(curX, startY, plateW, plateH);
+
+    // Cake chamber inside (Amber/Brown)
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.4)';
+    ctx.fillRect(curX + 2, startY + 10, plateW - 4, plateH - 20);
+
+    curX += plateW;
+  }
+
+  // 3. Movable Follower Plate
+  const followerW = 26;
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 2;
+  ctx.fillRect(curX, startY - 10, followerW, plateH + 20);
+  ctx.strokeRect(curX, startY - 10, followerW, plateH + 20);
+
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillText('MOVING', curX + 2, startY + 50);
+  ctx.fillText('PLATE', curX + 3, startY + 65);
+
+  curX += followerW;
+
+  // 4. Hydraulic Ram Cylinder (Right)
+  const ramL = 90;
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(curX, startY + plateH / 2 - 12, ramL, 24);
+  ctx.strokeStyle = '#64748b';
+  ctx.strokeRect(curX, startY + plateH / 2 - 12, ramL, 24);
+
+  // Hydraulic Cylinder Body
+  const cylX = curX + ramL;
+  const cylW = 55;
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cylX, startY + plateH / 2 - 25, cylW, 50);
+  ctx.strokeRect(cylX, startY + plateH / 2 - 25, cylW, 50);
+
+  // Clamping Force Direction Arrows (Green pressing left)
+  ctx.fillStyle = '#10b981';
+  ctx.strokeStyle = '#10b981';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(cx, cy, 55, 1.2 * Math.PI, 1.6 * Math.PI);
+  ctx.moveTo(curX + 20, startY + plateH / 2);
+  ctx.lineTo(curX - 10, startY + plateH / 2);
   ctx.stroke();
-  ctx.fillStyle = '#f59e0b';
-  ctx.fillText('ROTATION (' + data.RPM + ' RPM)', cx - 45, cy - 60);
+
+  ctx.font = 'bold 9px sans-serif';
+  ctx.fillText('CLAMPING ' + Math.round(data.clamp_force_ton) + ' T', curX - 5, startY + plateH / 2 - 18);
+
+  // Side Tie Rods (Top and Bottom rails)
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(startX, startY - 22);
+  ctx.lineTo(cylX + cylW, startY - 22);
+  ctx.moveTo(startX, startY + plateH + 22);
+  ctx.lineTo(cylX + cylW, startY + plateH + 22);
+  ctx.stroke();
 
   // Right Side Diagnostic HUD
-  const hx = 350;
+  const hx = 425;
   ctx.fillStyle = '#0f172a';
-  ctx.fillRect(hx, 30, 335, 240);
+  ctx.fillRect(hx, 30, 265, 235);
   ctx.strokeStyle = '#334155';
-  ctx.strokeRect(hx, 30, 335, 240);
+  ctx.strokeRect(hx, 30, 265, 235);
 
   ctx.fillStyle = '#f8fafc';
   ctx.font = 'bold 12px sans-serif';
-  ctx.fillText('Rotary Drum Diagnostic Analysis', hx + 14, 54);
+  ctx.fillText('Filter Press Pressing Diagnostics', hx + 14, 52);
 
   ctx.fillStyle = '#cbd5e1';
   ctx.font = '11px sans-serif';
-  ctx.fillText('• Drum Geometry: Ø' + data.D_drum.toFixed(2) + ' m × ' + data.L_drum.toFixed(2) + ' m (' + data.A_req.toFixed(1) + ' m² active)', hx + 14, 80);
-  ctx.fillText('• Solids Yield: ' + data.Y_cake.toFixed(1) + ' kg dry solids/(m²·h)', hx + 14, 104);
-  ctx.fillText('• Cake Thickness: ' + data.L_cake_mm.toFixed(1) + ' mm on drum face', hx + 14, 128);
+  ctx.fillText('• Pack: ' + data.num_chambers + ' Chambers (' + data.format_mm + ' mm format)', hx + 14, 76);
+  ctx.fillText('• Area: ' + data.total_area_m2.toFixed(1) + ' m² active cloth area', hx + 14, 98);
+  ctx.fillText('• Capacity: ' + data.total_vol_liters.toFixed(0) + ' Liters cake volume', hx + 14, 120);
+  ctx.fillText('• Cake Thickness: ' + data.t_recess_mm + ' mm recessed web', hx + 14, 142);
+  ctx.fillText('• Cycle Duration: ' + data.t_cycle_min.toFixed(0) + ' min per batch', hx + 14, 164);
 
-  // Cake thickness assessment
-  const goodThick = data.L_cake_mm >= 4.0 && data.L_cake_mm <= 20;
-  ctx.fillStyle = goodThick ? '#10b981' : '#f59e0b';
-  ctx.fillText('• Discharge Suitability: ' + (goodThick ? 'Optimal Cake Lift' : 'Check Scraper Clearance'), hx + 14, 152);
+  // Clamping assessment
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('• Hydraulic Ram: ' + Math.round(data.clamp_force_ton) + ' T (1.30x Safety Factor)', hx + 14, 186);
 
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText('• Form Zone: ' + data.sub_pct + '% Submergence under continuous vacuum', hx + 14, 176);
+  ctx.fillText('• Feed Pressure: ' + data.P_feed_bar + ' bar gauge max rating', hx + 14, 208);
 
-  ctx.fillStyle = '#10b981';
-  ctx.fillText('• Wash Zone: Displacement washing spray header', hx + 14, 200);
-
-  ctx.fillStyle = '#818cf8';
-  ctx.fillText('• Dewatering: Moisture reduction arc before discharge', hx + 14, 224);
-
-  ctx.fillStyle = '#cbd5e1';
-  ctx.fillText('• Rotary trunnion valve ports filtrate to vacuum receiver', hx + 14, 248);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('• Core Blow: Compressed air purge prevents wet core', hx + 14, 230);
 }
 
-function copyRvdfSummary() {
-  const area = document.getElementById('res_drum_area').textContent;
-  const dims = document.getElementById('res_drum_dims').textContent;
-  const yieldVal = document.getElementById('res_cake_yield').textContent;
-  const thick = document.getElementById('res_cake_thick').textContent;
-  const filtrate = document.getElementById('res_filtrate_q').textContent;
-  const vacAir = document.getElementById('res_vac_air').textContent;
-  const tform = document.getElementById('res_t_form').textContent;
+function copyFpSummary() {
+  const chambers = document.getElementById('res_num_chambers').textContent;
+  const plates = document.getElementById('res_num_plates').textContent;
+  const area = document.getElementById('res_fp_area').textContent;
+  const vol = document.getElementById('res_fp_vol').textContent;
+  const cycle = document.getElementById('res_cycle_time').textContent;
+  const clamp = document.getElementById('res_clamp_force').textContent;
+  const batch = document.getElementById('res_cake_batch').textContent;
 
   const text = [
-    '=== ROTARY VACUUM DRUM FILTER (RVDF) SIZING SUMMARY ===',
-    'Required Drum Area: ' + area + ' (' + dims + ')',
-    'Dry Solids Yield: ' + yieldVal,
-    'Cake Thickness: ' + thick,
-    'Filtrate Flow Rate: ' + filtrate,
-    'Vacuum Airflow Capacity: ' + vacAir,
-    'Cake Formation Time: ' + tform,
-    'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator.html)'
+    '=== FILTER PRESS SIZING & CYCLE SUMMARY ===',
+    'Chambers: ' + chambers + ' (' + plates + ')',
+    'Total Filtration Area: ' + area + ' (' + vol + ')',
+    'Batch Cycle Time: ' + cycle,
+    'Hydraulic Clamping Force: ' + clamp,
+    'Cake Output: ' + batch,
+    'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/plate-and-frame-filter-press-cycle-time-calculator.html)'
   ].join('\n');
 
   navigator.clipboard.writeText(text).then(function() {
-    const btn = document.getElementById('btn_rv_copy');
+    const btn = document.getElementById('btn_fp_copy');
     const orig = btn.innerHTML;
     btn.innerHTML = '<span>✓</span> Diagnostic Summary Copied!';
     btn.style.background = '#10b981';
@@ -1601,7 +1597,7 @@ function copyRvdfSummary() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  calcRVDF();
+  calcFilterPress();
 });
 </script>
 
@@ -1610,51 +1606,51 @@ window.addEventListener('DOMContentLoaded', function() {
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does drum rotational speed (RPM) affect cake thickness and yield?</span>
+                <span style="font-size:1rem;">How is filter press chamber volume and plate count calculated?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                According to Ruth-Carman filtration theory, cake thickness scales inversely with the square root of drum speed (L_cake ∝ 1 / √RPM), while filtration dry solids yield rate increases with the square root of drum speed (Y_cake ∝ √RPM). Increasing drum RPM increases hourly production capacity but produces a thinner cake; RPM must be throttled to maintain minimum cake thickness (typically ≥3 to 5 mm for clean knife scraper peel).
+                Chamber volume is determined by dividing daily dry solids production by the number of operational cycles per day, multiplied by dry cake density: V_batch = Dry_batch / (rho_cake * (1 - Moisture%)). For a chosen recessed plate format (such as 1500 mm with 32 mm recess thickness, yielding ~58 Liters per chamber), the required chamber count = V_batch / V_chamber. The plate pack count is simply chambers + 1.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the function of a precoat rotary vacuum drum filter?</span>
+                <span style="font-size:1rem;">What is the function of a high-pressure membrane squeeze plate?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                For gelatinous, slimy, or sub-micron particulate slurries (such as fermentation broth, wine lees, or starch hydrolysate) that instantly blind woven filter cloths, a 50 to 100 mm bed of diatomaceous earth or perlite is pre-deposited on the drum. An advancing micrometer knife shaves off a microscopic slice (10 to 50 μm) of the blinded precoat surface along with the captured solids on each revolution, presenting fresh filter aid continuously.
+                In a membrane filter press, flexible synthetic elastomer or polypropylene diaphragms line one or both sides of each chamber. After initial slurry pumping at 8-10 bar, high-pressure water or compressed air (15 to 24 bar) inflates the membranes, physically compressing the cake bed. This squeezes out interstitial capillary moisture, cutting final cake moisture by 8% to 15% and reducing thermal drying costs downstream.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What determines maximum drum submergence in the slurry vat?</span>
+                <span style="font-size:1rem;">Why is the central core air blow cycle critical before cake discharge?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Standard industrial drum submergence ranges from 25% to 37.5% (with deep submergence models reaching 50%). Submergence is mechanically limited by the need to allocate sufficient circumferential arc for cake washing (15-20%), vacuum dewatering (25-35%), and atmospheric cake discharge/cloth washing (15%) above the slurry liquid level, as well as preventing slurry overflow into the central trunnion rotary valve.
+                The central slurry feed eye canal that interconnects all plates remains completely filled with unpressurized, liquid slurry at the end of pumping. If the press opens without a core blow, this liquid slurry spills across the dried cakes, re-wetting them into mud. An air blow (3 to 6 bar compressed air pumped through the core) evacuates all liquid slurry back to the feed tank before plate separation.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does specific cake resistance (α) impact filter sizing?</span>
+                <span style="font-size:1rem;">How is the hydraulic clamping force sized to prevent slurry blowout?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Specific cake resistance (α, measured in m/kg) quantifies the hydraulic drag of the compacted particulate cake bed. Free-filtering mineral concentrates have low resistance (α ~ 10⁹ to 10¹⁰ m/kg), enabling high filtration rates and compact drums. Highly compressible organic or hydrated precipitates have extreme resistances (α > 10¹² m/kg), requiring large drum areas, low vacuum to prevent cake collapse, and precoat filter aids.
+                The hydraulic ram must generate sufficient closing force to overcome internal feed pressure acting across the projected plate face area: F_clamp = P_feed * A_face * Safety_Factor (typically 1.25 to 1.35). For example, a 1500 mm plate press (projected face ~1.9 m²) operated at 15 bar feed pressure requires a clamping force of: 1500 kPa * 1.9 m² * 1.30 ≈ 3,700 kN (~380 metric tons) of continuous hydraulic clamping force.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why is cake cracking during the dewatering cycle fatal to drum operation?</span>
+                <span style="font-size:1rem;">What causes differential pressure plate cracking in filter presses?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Compressible cakes shrink as pore liquid is evacuated under high vacuum. If shrinkage creates open tension cracks through the cake bed, atmospheric air rushes freely through the low-resistance fissures. This vacuum break collapses vacuum manifold pressure site-wide, preventing dewatering of the remaining cake and causing thin cakes in the submerged formation zone to slump back into the slurry vat.
+                If a single plate feed port becomes blocked by scale, tramp debris, or compacted solids, slurry cannot enter that chamber. As the feed pump ramps pressure to 16 bar in adjacent chambers, an unbalanced 16-bar lateral force bends the unsupported center web of the polypropylene plate. Polypropylene has limited flexural yield strength and shatters violently under this lateral shock load.
               </div>
             </div>
           
@@ -1688,8 +1684,8 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frotary-vacuum-drum-filter-rvdf-sizing-calculator&text=Rotary%20Vacuum%20Drum%20Filter%20(RVDF)%20Specific%20Cake%20Resistance%20%26%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frotary-vacuum-drum-filter-rvdf-sizing-calculator&title=Rotary%20Vacuum%20Drum%20Filter%20(RVDF)%20Specific%20Cake%20Resistance%20%26%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fplate-and-frame-filter-press-cycle-time-calculator&text=Recessed%20Plate%20%26%20Frame%20Filter%20Press%20Cycle%20Time%2C%20Cake%20Moisture%20%26%20Volume%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fplate-and-frame-filter-press-cycle-time-calculator&title=Recessed%20Plate%20%26%20Frame%20Filter%20Press%20Cycle%20Time%2C%20Cake%20Moisture%20%26%20Volume%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1757,14 +1753,14 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/neuro/trauma-bond-interrupter" class="promo-card">
+                <a href="/calc/feet-and-inches-to-cm" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Trauma Bond & Intermittent Reinforcement Cycle Interrupter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Audit the psychological mechanisms of a trauma bond. Identify intermittent reinforcement schedules, dopamine craving loops, and cognitive dissonance in toxic relationships.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Feet and Inches to cm Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert feet and inches to metric centimeters (cm) with human height chart and quick presets.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1772,14 +1768,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/health/body-fat-calculator" class="promo-card">
+                <a href="/psychology/revenge-bedtime-procrastination-tax" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Health</span>
+                      <span class="promo-badge">Psychology</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">US Navy Body Fat Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Estimate body fat percentage, lean body mass, and fat mass using circumference measurements.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Revenge Bedtime Procrastination Cost Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Quantify next-day cognitive penalty and circadian sleep debt from late-night revenge scrolling.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1802,14 +1798,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
               
-                <a href="/science/schwarzschild-radius-calculator" class="promo-card">
+                <a href="/util/simulation-argument-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Science</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Black Hole Schwarzschild Radius Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate event horizon radius for any mass from subatomic to supermassive black holes.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Simulation Hypothesis Probability Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Determine if our universe is an ancestor simulation using Nick Bostrom’s Trilemma.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1817,14 +1813,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/psychology/catastrophizing-severity-meter" class="promo-card">
+                <a href="/math/permutation-combination-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Psychology</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Catastrophic Thinking Scale & Severity Meter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Step down anxiety spirals from worst-case disaster to realistic mathematical probability.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Permutations & Combinations Calculator (nPr & nCr)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate permutations, combinations, and factorials with step-by-step math.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;

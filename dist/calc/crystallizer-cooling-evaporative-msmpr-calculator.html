@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator</title>
+  <title>Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator">
-  <meta property="og:title" content="Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/crystallizer-cooling-evaporative-msmpr-calculator">
+  <meta property="og:title" content="Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/crystallizer-cooling-evaporative-msmpr-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator">
+  <meta name="twitter:title" content="Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Rotary Vacuum Drum Filter Rvdf Sizing Calculator",
-      "item": "https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator"
+      "name": "Crystallizer Cooling Evaporative Msmpr Calculator",
+      "item": "https://digitaltoolsshed.com/calc/crystallizer-cooling-evaporative-msmpr-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator",
-  "url": "https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator",
+  "name": "Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator",
+  "url": "https://digitaltoolsshed.com/calc/crystallizer-cooling-evaporative-msmpr-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -85,8 +85,8 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "ratingCount": 1330,
+    "ratingValue": "4.9",
+    "ratingCount": 996,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "How does drum rotational speed (RPM) affect cake thickness and yield?",
+      "name": "What is the MSMPR crystallizer model and how does it predict crystal size?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "According to Ruth-Carman filtration theory, cake thickness scales inversely with the square root of drum speed (L_cake ∝ 1 / √RPM), while filtration dry solids yield rate increases with the square root of drum speed (Y_cake ∝ √RPM). Increasing drum RPM increases hourly production capacity but produces a thinner cake; RPM must be throttled to maintain minimum cake thickness (typically ≥3 to 5 mm for clean knife scraper peel)."
+        "text": "The Mixed Suspension Mixed Product Removal (MSMPR) model is the fundamental chemical engineering framework for continuous crystallization. Based on population balance theory, it assumes perfect macromixing and unclassified slurry discharge. It proves that the crystal population density follows an exponential decay: n(L) = n0 * exp(-L / (G * tau)), resulting in a mass-mean crystal size L_43 = 4 * G * tau and a dominant mass peak at L_D = 3 * G * tau."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the function of a precoat rotary vacuum drum filter?",
+      "name": "What causes secondary contact nucleation in industrial crystallizers?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "For gelatinous, slimy, or sub-micron particulate slurries (such as fermentation broth, wine lees, or starch hydrolysate) that instantly blind woven filter cloths, a 50 to 100 mm bed of diatomaceous earth or perlite is pre-deposited on the drum. An advancing micrometer knife shaves off a microscopic slice (10 to 50 μm) of the blinded precoat surface along with the captured solids on each revolution, presenting fresh filter aid continuously."
+        "text": "Secondary contact nucleation occurs when existing growing crystals collide with high-speed impeller blades or baffles. Microscopic surface clusters are mechanically sheared off, creating millions of secondary nuclei without requiring homogeneous supersaturation. If impeller tip speed exceeds 4.5 to 5.5 m/s in dense slurries, an uncontrollable nucleation explosion occurs, collapsing the crystal product into fine dust."
       }
     },
     {
       "@type": "Question",
-      "name": "What determines maximum drum submergence in the slurry vat?",
+      "name": "How does Magma Density (M_T) influence crystallizer volume and performance?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Standard industrial drum submergence ranges from 25% to 37.5% (with deep submergence models reaching 50%). Submergence is mechanically limited by the need to allocate sufficient circumferential arc for cake washing (15-20%), vacuum dewatering (25-35%), and atmospheric cake discharge/cloth washing (15%) above the slurry liquid level, as well as preventing slurry overflow into the central trunnion rotary valve."
+        "text": "Magma density (M_T, typically 200 to 350 kg crystals per m³ of slurry) represents the concentration of suspended solids. Higher magma density provides massive total crystal surface area, which rapidly absorbs incoming supersaturation and suppresses excessive nucleation. Sizing active vessel volume V = P / (M_T * tau) balances total crystal growth area against slurry pumping rheology and settling risks."
       }
     },
     {
       "@type": "Question",
-      "name": "How does specific cake resistance (α) impact filter sizing?",
+      "name": "What is the Metastable Zone Width (MSZW) and why is it critical?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Specific cake resistance (α, measured in m/kg) quantifies the hydraulic drag of the compacted particulate cake bed. Free-filtering mineral concentrates have low resistance (α ~ 10⁹ to 10¹⁰ m/kg), enabling high filtration rates and compact drums. Highly compressible organic or hydrated precipitates have extreme resistances (α > 10¹² m/kg), requiring large drum areas, low vacuum to prevent cake collapse, and precoat filter aids."
+        "text": "The Metastable Zone Width is the temperature or concentration interval between the thermodynamic solubility curve and the spinodal limit where spontaneous primary nucleation occurs. To grow large, pure crystals without wall encrustation or uncontrolled shower nucleation, the crystallizer bulk supersaturation must be strictly maintained within this metastable zone through controlled heat removal and high internal recirculation."
       }
     },
     {
       "@type": "Question",
-      "name": "Why is cake cracking during the dewatering cycle fatal to drum operation?",
+      "name": "Why do Draft-Tube Baffle (DTB) crystallizers incorporate fines destruction?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Compressible cakes shrink as pore liquid is evacuated under high vacuum. If shrinkage creates open tension cracks through the cake bed, atmospheric air rushes freely through the low-resistance fissures. This vacuum break collapses vacuum manifold pressure site-wide, preventing dewatering of the remaining cake and causing thin cakes in the submerged formation zone to slump back into the slurry vat."
+        "text": "In a DTB crystallizer, an internal annular baffle creates a quiet settling zone where coarse product crystals settle downward, while slow upward velocity carries only sub-50 μm fines to the top overflow. This fines-rich stream is pumped through an external heat exchanger or dilution loop to dissolve the nuclei before recycling back into the draft tube, effectively shifting the crystal size distribution toward much coarser product crystals."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator</span>
+            <span>Industrial Crystallizer Sizing & MSMPR Crystal Size Distribution (CSD) Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1042,90 +1042,89 @@
           
 <div class="calc-clean">
   <header class="calc-clean-header">
-    <div class="calc-clean-badge">SOLID-LIQUID SEPARATION & INDUSTRIAL FILTRATION</div>
-    <h1 class="calc-clean-title">Rotary Vacuum Drum Filter (RVDF) Sizing Calculator</h1>
-    <p class="calc-clean-subtitle">Size industrial continuous rotary vacuum drum filters. Compute specific cake resistance (α), dry solids yield rate, cake thickness, cycle time subdivision (form/wash/dry), and vacuum airflow capacity.</p>
+    <div class="calc-clean-badge">CHEMICAL CRYSTALLIZATION & PARTICLE TECHNOLOGY</div>
+    <h1 class="calc-clean-title">Industrial Crystallizer Sizing & MSMPR CSD Calculator</h1>
+    <p class="calc-clean-subtitle">Size industrial continuous cooling and evaporative crystallizers (DTB, Oslo, Forced Circulation). Compute MSMPR population balance crystal size distribution, nucleation rate, linear growth rate, and magma density.</p>
   </header>
 
   <!-- QUICK PRESETS -->
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('tio2')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Titanium Dioxide (TiO₂ Hydrate Pigment)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('starch')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Corn Starch Dewatering (Precoat Cut)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('mining')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Mineral Flotation Concentrate (Heavy Solids)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('pharma_myc')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Fermentation Mycelium (Antibiotics Broth)</button>
+    <button type="button" class="preset-btn" onclick="applyCrystPreset('amsul')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Ammonium Sulfate ((NH₄)₂SO₄ Fertilizer)</button>
+    <button type="button" class="preset-btn" onclick="applyCrystPreset('lioh')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Lithium Hydroxide Monohydrate (LiOH·H₂O)</button>
+    <button type="button" class="preset-btn" onclick="applyCrystPreset('niso4')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Nickel Sulfate Hexahydrate (NiSO₄·6H₂O Battery Grade)</button>
+    <button type="button" class="preset-btn" onclick="applyCrystPreset('kcl')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Potassium Chloride (KCl Potash Cooling)</button>
   </div>
 
   <div class="calc-clean-grid">
     <!-- INPUT COLUMN -->
     <div class="calc-clean-card">
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Slurry Production & Cake Properties</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Production & Feed Slurry Parameters</h2>
       
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Dry Cake Production (P)</label>
-          <input type="number" id="rv_prod" value="3500" step="200" min="50" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg/h dry solids</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Crystal Production Rate (P)</label>
+          <input type="number" id="cr_prod" value="4000" step="200" min="50" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">kg/h dry crystal product</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Solids Concentration (c)</label>
-          <input type="number" id="rv_c" value="180" step="10" min="10" max="800" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg dry solids / m³ filtrate</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Target Mean Size (L_mean)</label>
+          <input type="number" id="cr_lmean" value="650" step="25" min="50" max="2500" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">microns (μm, L_43 = 4 G τ)</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Specific Cake Resistance (α₀)</label>
-          <input type="number" id="rv_alpha" value="4.5" step="0.5" min="0.1" max="50" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">× 10¹⁰ m/kg at 1 bar</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Crystal Density (ρ_c)</label>
+          <input type="number" id="cr_rho_c" value="1770" step="20" min="800" max="4000" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">kg/m³</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Cake Compressibility (s)</label>
-          <input type="number" id="rv_comp" value="0.30" step="0.05" min="0" max="0.9" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">index (0 = rigid, 0.8 = soft bio)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Mother Liquor Density (ρ_L)</label>
+          <input type="number" id="cr_rho_l" value="1220" step="10" min="900" max="1800" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">kg/m³</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Dry Cake Density (ρ_dry)</label>
-          <input type="number" id="rv_rho_dry" value="1450" step="50" min="400" max="3500" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg/m³ dry solids in cake</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Target Magma Density (M_T)</label>
+          <input type="number" id="cr_mt" value="250" step="10" min="50" max="600" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">kg crystals / m³ slurry</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Filtrate Viscosity (μ)</label>
-          <input type="number" id="rv_mu" value="1.15" step="0.05" min="0.4" max="25" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">cP (mPa·s)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Crystal Volume Shape Factor (k_v)</label>
+          <input type="number" id="cr_kv" value="0.5236" step="0.02" min="0.1" max="1.0" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">(Sphere/Cube = π/6 ≈ 0.524, Octahedral ≈ 0.47)</span>
         </div>
       </div>
 
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-top:18px;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Drum Mechanical & Vacuum Operating Parameters</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-top:18px;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Kinetics & Crystallizer Hydrodynamics</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Drum Speed (N_drum)</label>
-          <input type="number" id="rv_rpm" value="0.65" step="0.05" min="0.1" max="3.0" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">RPM (rev per minute)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Linear Growth Rate (G)</label>
+          <input type="number" id="cr_growth_rate" value="5.5" step="0.5" min="0.5" max="30" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">× 10⁻⁸ m/s (typical 1 - 20)</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Applied Vacuum (ΔP)</label>
-          <input type="number" id="rv_dp" value="60" step="5" min="20" max="90" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kPa gauge (typical 40-75 kPa)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Vessel Aspect Ratio (H/D)</label>
+          <input type="number" id="cr_aspect" value="2.2" step="0.1" min="1.0" max="4.0" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">slurry height / vessel diameter</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Drum Submergence (ψ_form)</label>
-          <input type="number" id="rv_sub" value="33" step="1" min="15" max="45" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">% submergence in slurry vat</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Draft-Tube Turnover Ratio</label>
+          <input type="number" id="cr_turnover" value="120" step="10" min="30" max="300" oninput="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">internal circulation / slurry discharge</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Discharge Mechanism Type</label>
-          <select id="rv_discharge" onchange="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-            <option value="scraper">Knife Scraper (Standard Cake >5mm)</option>
-            <option value="precoat">Precoat Shaving Knife (Thin/Slimy)</option>
-            <option value="string">String Discharge (Cohesive Fibrous)</option>
-            <option value="roll">Roll Discharge (Thin Sticky Paste)</option>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Evaporation / Cooling Type</label>
+          <select id="cr_type" onchange="calcCryst()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+            <option value="dtb">Draft-Tube Baffle (DTB)</option>
+            <option value="oslo">Oslo Growth Bed (Classified)</option>
+            <option value="fc">Forced Circulation (FC)</option>
           </select>
         </div>
       </div>
@@ -1133,67 +1132,67 @@
 
     <!-- OUTPUT COLUMN -->
     <div class="calc-clean-card">
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Filtration Capacity & Drum Dimensions</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Active Sizing & MSMPR Population Dynamics</h2>
       
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Required Drum Area</div>
-          <div id="res_drum_area" style="font-size:1.6rem;font-weight:800;color:#38bdf8;margin-top:2px;">--</div>
-          <div id="res_drum_dims" style="font-size:11px;color:#64748b;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Active Slurry Volume (V)</div>
+          <div id="res_vol_cryst" style="font-size:1.6rem;font-weight:800;color:#38bdf8;margin-top:2px;">--</div>
+          <div id="res_dims" style="font-size:11px;color:#64748b;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Cake Dry Solids Yield</div>
-          <div id="res_cake_yield" style="font-size:1.6rem;font-weight:800;color:#10b981;margin-top:2px;">--</div>
-          <div id="res_yield_lb" style="font-size:11px;color:#64748b;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Mean Residence Time (τ)</div>
+          <div id="res_tau_cryst" style="font-size:1.6rem;font-weight:800;color:#10b981;margin-top:2px;">--</div>
+          <div id="res_slurry_flow" style="font-size:11px;color:#64748b;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Cake Thickness (L_cake)</div>
-          <div id="res_cake_thick" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
-          <div id="res_cake_status" style="font-size:11px;color:#94a3b8;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Nucleation Rate (B₀)</div>
+          <div id="res_b0" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
+          <div id="res_n0" style="font-size:11px;color:#94a3b8;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Filtrate Flow Rate</div>
-          <div id="res_filtrate_q" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
-          <div id="res_cycle_time" style="font-size:11px;color:#94a3b8;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Circulation Pumping Flow</div>
+          <div id="res_circ_q" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
+          <div id="res_circ_power" style="font-size:11px;color:#94a3b8;">--</div>
         </div>
       </div>
 
       <div style="margin-top:12px;background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
-            <div style="font-size:11px;color:#94a3b8;">Vacuum Pump Capacity</div>
-            <div id="res_vac_air" style="font-size:1.2rem;font-weight:700;color:#f59e0b;">--</div>
-            <div id="res_vac_power" style="font-size:11px;color:#cbd5e1;">--</div>
+            <div style="font-size:11px;color:#94a3b8;">Dominant Crystal Size (L_D = 3 G τ)</div>
+            <div id="res_ld" style="font-size:1.2rem;font-weight:700;color:#f59e0b;">--</div>
+            <div id="res_cryst_growth_hr" style="font-size:11px;color:#cbd5e1;">--</div>
           </div>
           <div>
-            <div style="font-size:11px;color:#94a3b8;">Effective Specific Resistance (α)</div>
-            <div id="res_alpha_eff" style="font-size:1.2rem;font-weight:700;color:#a855f7;">--</div>
-            <div id="res_alpha_note" style="font-size:11px;color:#cbd5e1;">--</div>
+            <div style="font-size:11px;color:#94a3b8;">Volumetric Solids Fraction</div>
+            <div id="res_solids_vol" style="font-size:1.2rem;font-weight:700;color:#a855f7;">--</div>
+            <div id="res_cryst_area" style="font-size:11px;color:#cbd5e1;">--</div>
           </div>
         </div>
       </div>
 
       <div style="margin-top:12px;background:#0f172a;padding:10px 12px;border-radius:8px;border:1px solid #334155;display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;">
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Cake Form Time</span>
-          <div id="res_t_form" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Tank Diameter</span>
+          <div id="res_diam" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Drying Arc Time</span>
-          <div id="res_t_dry" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Straight Height</span>
+          <div id="res_height" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Wash Angle</span>
-          <div id="res_wash_arc" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">D10 / D90 Spread</span>
+          <div id="res_spread" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
       </div>
 
       <!-- COPY DIAGNOSTIC SUMMARY -->
       <div style="margin-top:14px;">
-        <button type="button" onclick="copyRvdfSummary()" id="btn_rv_copy" style="width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <button type="button" onclick="copyCrystSummary()" id="btn_cr_copy" style="width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">
           <span>📋</span> Copy Diagnostic Sizing Summary
         </button>
       </div>
@@ -1202,40 +1201,40 @@
 
   <!-- INTERACTIVE CANVAS VISUALIZER -->
   <div class="calc-clean-card" style="margin-top:16px;">
-    <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Rotary Drum Cross-Section & Filtration Cycle Segments</h2>
+    <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">MSMPR Population Density & Cumulative Mass Undersize Distribution</h2>
     <div style="position:relative;width:100%;background:#090d16;border-radius:8px;padding:10px;border:1px solid #1e293b;">
-      <canvas id="rvdfCanvas" width="720" height="300" style="width:100%;height:auto;display:block;"></canvas>
+      <canvas id="crystCanvas" width="720" height="280" style="width:100%;height:auto;display:block;"></canvas>
     </div>
   </div>
 
   <!-- FIVE FATAL TRAPS -->
   <div style="margin-top:24px;">
-    <h2 style="font-size:1.2rem;font-weight:700;color:#f8fafc;margin-bottom:14px;">5 Fatal Industrial Traps in Rotary Vacuum Drum Filter Operation</h2>
+    <h2 style="font-size:1.2rem;font-weight:700;color:#f8fafc;margin-bottom:14px;">5 Fatal Industrial Traps in Crystallizer Design</h2>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;">
       
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #ef4444;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#ef4444;font-size:14px;margin-bottom:4px;">1. Precoat Cake Cracking & Catastrophic Vacuum Collapse</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">In precoat filtration (diatomaceous earth / perlite), as the cake passes into the drying zone, rapid air draw can desiccate compressible cakes, causing deep radial shrinkage cracks. Ambient air immediately short-circuits through the cracks into the drum internal pipes. Drum vacuum drops from 65 kPa to below 15 kPa, stopping filtration instantly across the entire drum submerged zone.</p>
+        <div style="font-weight:700;color:#ef4444;font-size:14px;margin-bottom:4px;">1. Secondary Contact Nucleation Explosion from High Impeller Tip Speed</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">In high-magma crystallizers ($M_T > 200	ext{ kg/m}^3$), crystal collisions with draft-tube impeller blades cause catastrophic secondary contact nucleation when blade tip speed exceeds $4.5-5.5	ext{ m/s}$. Billions of micro-nuclei are sheared off existing crystal faces every second, consuming all available supersaturation and collapsing the product mean size from coarse $800	ext{ μm}$ crystals to unfilterable $40	ext{ μm}$ sludge.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #f59e0b;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#f59e0b;font-size:14px;margin-bottom:4px;">2. Slurry Vat Sedimentation from Agitator Pendulum Failure</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Coarse or heavy mineral slurries ($d_p > 45	ext{ μm}, ho > 2500	ext{ kg/m}^3$) settle within seconds. If the oscillating vat pendulum rake agitator has insufficient sweep or suffers mechanical linkage failure, solids compact into a dense sediment bed at the vat bottom. The rotating drum wedges against the solid bed, stalling the drum drive motor or snapping the circumferential drive chain.</p>
+        <div style="font-weight:700;color:#f59e0b;font-size:14px;margin-bottom:4px;">2. Heat Exchanger Encrustation & Metastable Zone Limit (MSZL) Breach</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Pushing the temperature difference between circulating slurry and cooling water / steam condensing surface above the Metastable Zone Width ($Delta T_{hx} > Delta T_{MSZL}$) triggers spontaneous primary homogeneous nucleation directly on metal tube walls. Within hours, a hard, rock-solid mineral crust coats tube surfaces, dropping overall heat transfer coefficient ($U$) by 80% and causing thermal choke.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #10b981;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#10b981;font-size:14px;margin-bottom:4px;">3. The Precoat Shaving Knife Advance Runaway (Diatomite Waste)</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Precoat filters require an automated micrometer knife advance ($10-50	ext{ μm}$ per revolution) to shave off the blinded slime layer. Setting the knife advance rate unnecessarily high burns through an expensive 100 mm precoat bed in 4 hours instead of 16 hours, quadrupling diatomaceous earth consumption costs and wasting thousands of dollars per shift in filter aid.</p>
+        <div style="font-weight:700;color:#10b981;font-size:14px;margin-bottom:4px;">3. Mother Liquor Inclusion & Agglomeration Impurity Trapping</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">When crystal growth rates are driven too aggressively by excessive localized supersaturation ($G > 1.5 	imes 10^{-7}	ext{ m/s}$), adjacent crystals agglomerate, trapping droplets of mother liquor inside internal crystal fissures and cavities. Even exhaustive cake washing on downstream centrifuges cannot remove trapped interior liquor, permanently contaminating battery-grade chemicals ($LiOH, NiSO_4$) with sodium, chloride, and heavy metals.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #3b82f6;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#3b82f6;font-size:14px;margin-bottom:4px;">4. Trunnion Rotary Valve Bridge Wear & Cross-Zone Vacuum Leakage</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">The stationary rotary vacuum valve on the drum trunnion separates form vacuum, dry vacuum, atmospheric cake discharge, and reverse blow air using sacrificial phenolic or bronze wear plates. Abrasive slurry fines leaking into the valve face score deep grooves across the bridge seals. Compressed blow air leaks directly into the vacuum chambers, destroying cake formation and blowing slurry back into the vat.</p>
+        <div style="font-weight:700;color:#3b82f6;font-size:14px;margin-bottom:4px;">4. Circulation Loop Salting-Out & Draft-Tube Settling Blockage</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Coarse crystals ($d > 500	ext{ μm}$) have high terminal settling velocities ($v_t > 0.08	ext{ m/s}$). If internal circulation turnover drops below the suspension threshold during operational turndown, the draft-tube annulus turns into a settling bed. Compacted crystals bridge over the lower draft-tube bell entrance, overloading the drive motor gearbox and cementing the impeller into solid rock upon shutdown.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #8b5cf6;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#8b5cf6;font-size:14px;margin-bottom:4px;">5. Multifilament Cloth Internal Pore Crystallization & Blindness</div>
-        <p style="font-size:12px;color:#8b5cf6;font-size:14px;margin-bottom:4px;">When filtering hot saturated slurries (ammonium sulfate, potash, gypsum), the evaporative cooling of air pulled through the cake drops the liquor temperature inside the cloth pores below its saturation limit. Salt crystals nucleate inside the twisted multifilament cloth yarns, petrifying the flexible cloth into an impermeable board that no knife scraper or air blow can clear.</p>
+        <div style="font-weight:700;color:#8b5cf6;font-size:14px;margin-bottom:4px;">5. Fines Dissolution Loop Over-Sizing & Thermal Energy Waste</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">In DTB and Oslo crystallizers with external settling zones, an internal baffle decants mother liquor containing sub-$50	ext{ μm}$ fines through a destruction loop (steam heating or water dilution). Sizing the fines withdrawal rate too high (>30% of total circulation) dissolves growing medium crystals and creates massive parasitic steam re-heating loops, ruining the thermal coefficient of performance.</p>
       </div>
 
     </div>
@@ -1243,176 +1242,169 @@
 
   <!-- MATHEMATICAL DERIVATION SECTION -->
   <div class="calc-clean-card" style="margin-top:20px;">
-    <h2 style="font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Governing Equations: Ruth & Carman-Kozeny Continuous Rotary Filtration</h2>
+    <h2 style="font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Governing Equations: Randolph & Larson MSMPR Population Balance</h2>
     <div style="font-size:13px;color:#cbd5e1;line-height:1.6;">
-      <p><b>1. Ruth Filtration Differential Equation:</b></p>
+      <p><b>1. Population Balance Equation (PBE) for Ideal MSMPR:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        rac{dt}{d(V/A)} = rac{mu cdot alpha cdot c}{Delta P} cdot left(rac{V}{A}ight) + rac{mu cdot R_m}{Delta P}
+        rac{d(G cdot n)}{dL} + rac{n}{	au} = 0 implies n(L) = n_0 cdot expleft(-rac{L}{G cdot 	au}ight)
       </div>
-      <p>Integrating over form time $t_f = psi_{form} cdot rac{60}{N_{drum}}$ seconds (neglecting filter medium resistance $R_m ll R_{cake}$ for thick cakes):</p>
+      <p>where $n(L)$ is crystal population density ($	ext{number}/(	ext{m}^3 cdot 	ext{m})$), $n_0 = B_0 / G$ is zero-size nuclei density, and $	au = V / Q$ is mean residence time.</p>
+      <p><b>2. Moments of Crystal Size Distribution & Mean Size:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        left(rac{V}{A}ight)_{form} = sqrt{rac{2 cdot Delta P cdot t_f}{mu cdot alpha cdot c}} quad [	ext{m}^3 	ext{ filtrate / m}^2 	ext{ cycle}]
+        ar{L}_{43} = rac{mu_4}{mu_3} = 4 cdot G cdot 	au, quad L_{dominant} = 3 cdot G cdot 	au
       </div>
-      <p><b>2. Dry Cake Yield Rate ($Y_{cake}$):</b></p>
+      <p><b>3. Magma Density ($M_T$) & Nucleation Rate ($B_0$):</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        Y_{cake} = rac{c cdot (V/A)_{form}}{t_{cycle}} cdot 3600 = c cdot sqrt{rac{2 cdot Delta P cdot psi_{form} cdot N_{drum}}{60 cdot mu cdot alpha cdot c}} cdot 3600 quad [	ext{kg}/(	ext{m}^2cdot	ext{h})]
+        M_T = 6 cdot k_v cdot ho_c cdot n_0 cdot (G cdot 	au)^4 implies B_0 = n_0 cdot G = rac{M_T cdot G}{6 cdot k_v cdot ho_c cdot (G cdot 	au)^4}
       </div>
-      <p><b>3. Cake Thickness ($L_{cake}$):</b></p>
+      <p><b>4. Cumulative Mass Undersize Distribution ($W(L)$):</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        L_{cake} = rac{c cdot (V/A)_{form}}{ho_{dry}} quad [	ext{meters}]
+        W(L) = 1 - exp(-x) cdot left(1 + x + rac{x^2}{2} + rac{x^3}{6}ight), quad 	ext{where } x = rac{L}{G cdot 	au}
       </div>
-      <p><b>4. Vacuum Airflow Sizing:</b> Empirical airflow factor $q_{air} approx 0.8	ext{ Nm}^3/(	ext{m}^2cdot	ext{min})$ across total drum area.</p>
     </div>
   </div>
 </div>
 
 <script>
-function applyRvdfPreset(type) {
-  if (type === 'tio2') {
-    document.getElementById('rv_prod').value = 4000;
-    document.getElementById('rv_c').value = 220;
-    document.getElementById('rv_alpha').value = 6.5;
-    document.getElementById('rv_comp').value = 0.35;
-    document.getElementById('rv_rho_dry').value = 1500;
-    document.getElementById('rv_mu').value = 1.20;
-    document.getElementById('rv_rpm').value = 0.50;
-    document.getElementById('rv_dp').value = 65;
-    document.getElementById('rv_sub').value = 35;
-    document.getElementById('rv_discharge').value = 'scraper';
-  } else if (type === 'starch') {
-    document.getElementById('rv_prod').value = 6000;
-    document.getElementById('rv_c').value = 320;
-    document.getElementById('rv_alpha').value = 2.2;
-    document.getElementById('rv_comp').value = 0.15;
-    document.getElementById('rv_rho_dry').value = 1350;
-    document.getElementById('rv_mu').value = 1.35;
-    document.getElementById('rv_rpm').value = 1.20;
-    document.getElementById('rv_dp').value = 55;
-    document.getElementById('rv_sub').value = 30;
-    document.getElementById('rv_discharge').value = 'precoat';
-  } else if (type === 'mining') {
-    document.getElementById('rv_prod').value = 15000;
-    document.getElementById('rv_c').value = 500;
-    document.getElementById('rv_alpha').value = 0.8;
-    document.getElementById('rv_comp').value = 0.05;
-    document.getElementById('rv_rho_dry').value = 2200;
-    document.getElementById('rv_mu').value = 1.10;
-    document.getElementById('rv_rpm').value = 1.50;
-    document.getElementById('rv_dp').value = 70;
-    document.getElementById('rv_sub').value = 37;
-    document.getElementById('rv_discharge').value = 'scraper';
-  } else if (type === 'pharma_myc') {
-    document.getElementById('rv_prod').value = 800;
-    document.getElementById('rv_c').value = 60;
-    document.getElementById('rv_alpha').value = 15.0;
-    document.getElementById('rv_comp').value = 0.65;
-    document.getElementById('rv_rho_dry').value = 850;
-    document.getElementById('rv_mu').value = 1.80;
-    document.getElementById('rv_rpm').value = 0.35;
-    document.getElementById('rv_dp').value = 50;
-    document.getElementById('rv_sub').value = 25;
-    document.getElementById('rv_discharge').value = 'precoat';
+function applyCrystPreset(type) {
+  if (type === 'amsul') {
+    document.getElementById('cr_prod').value = 5000;
+    document.getElementById('cr_lmean').value = 850;
+    document.getElementById('cr_rho_c').value = 1770;
+    document.getElementById('cr_rho_l').value = 1240;
+    document.getElementById('cr_mt').value = 320;
+    document.getElementById('cr_kv').value = 0.5236;
+    document.getElementById('cr_growth_rate').value = 6.2;
+    document.getElementById('cr_aspect').value = 2.2;
+    document.getElementById('cr_turnover').value = 140;
+    document.getElementById('cr_type').value = 'dtb';
+  } else if (type === 'lioh') {
+    document.getElementById('cr_prod').value = 2500;
+    document.getElementById('cr_lmean').value = 450;
+    document.getElementById('cr_rho_c').value = 1510;
+    document.getElementById('cr_rho_l').value = 1180;
+    document.getElementById('cr_mt').value = 220;
+    document.getElementById('cr_kv').value = 0.48;
+    document.getElementById('cr_growth_rate').value = 4.0;
+    document.getElementById('cr_aspect').value = 2.4;
+    document.getElementById('cr_turnover').value = 160;
+    document.getElementById('cr_type').value = 'dtb';
+  } else if (type === 'niso4') {
+    document.getElementById('cr_prod').value = 3500;
+    document.getElementById('cr_lmean').value = 700;
+    document.getElementById('cr_rho_c').value = 2070;
+    document.getElementById('cr_rho_l').value = 1350;
+    document.getElementById('cr_mt').value = 280;
+    document.getElementById('cr_kv').value = 0.50;
+    document.getElementById('cr_growth_rate').value = 5.0;
+    document.getElementById('cr_aspect').value = 2.0;
+    document.getElementById('cr_turnover').value = 120;
+    document.getElementById('cr_type').value = 'oslo';
+  } else if (type === 'kcl') {
+    document.getElementById('cr_prod').value = 10000;
+    document.getElementById('cr_lmean').value = 1100;
+    document.getElementById('cr_rho_c').value = 1980;
+    document.getElementById('cr_rho_l').value = 1200;
+    document.getElementById('cr_mt').value = 350;
+    document.getElementById('cr_kv').value = 0.5236;
+    document.getElementById('cr_growth_rate').value = 8.5;
+    document.getElementById('cr_aspect').value = 2.0;
+    document.getElementById('cr_turnover').value = 100;
+    document.getElementById('cr_type').value = 'fc';
   }
-  calcRVDF();
+  calcCryst();
 }
 
-function calcRVDF() {
-  const P_dry = parseFloat(document.getElementById('rv_prod').value) || 3500;
-  const c = parseFloat(document.getElementById('rv_c').value) || 180;
-  const alpha0 = parseFloat(document.getElementById('rv_alpha').value) || 4.5;
-  const s = parseFloat(document.getElementById('rv_comp').value) || 0.30;
-  const rho_dry = parseFloat(document.getElementById('rv_rho_dry').value) || 1450;
-  const mu_cp = parseFloat(document.getElementById('rv_mu').value) || 1.15;
-  const RPM = parseFloat(document.getElementById('rv_rpm').value) || 0.65;
-  const dP_kpa = parseFloat(document.getElementById('rv_dp').value) || 60;
-  const sub_pct = parseFloat(document.getElementById('rv_sub').value) || 33;
-  const discharge = document.getElementById('rv_discharge').value;
+function calcCryst() {
+  const P_kgh = parseFloat(document.getElementById('cr_prod').value) || 4000;
+  const Lmean_um = parseFloat(document.getElementById('cr_lmean').value) || 650;
+  const rho_c = parseFloat(document.getElementById('cr_rho_c').value) || 1770;
+  const rho_l = parseFloat(document.getElementById('cr_rho_l').value) || 1220;
+  const MT = parseFloat(document.getElementById('cr_mt').value) || 250;
+  const kv = parseFloat(document.getElementById('cr_kv').value) || 0.5236;
+  const G_input = parseFloat(document.getElementById('cr_growth_rate').value) || 5.5;
+  const aspect = parseFloat(document.getElementById('cr_aspect').value) || 2.2;
+  const turnover = parseFloat(document.getElementById('cr_turnover').value) || 120;
 
-  // Cycle times
-  const t_cycle = 60 / RPM; // seconds per rev
-  const psi_form = sub_pct / 100;
-  const t_form = t_cycle * psi_form; // seconds of cake formation
-  const psi_wash = 0.20;
-  const t_wash = t_cycle * psi_wash;
-  const psi_dry = Math.max(1.0 - psi_form - psi_wash - 0.12, 0.15);
-  const t_dry = t_cycle * psi_dry;
+  // G in m/s: input is in x 10^-8 m/s
+  const G = G_input * 1e-8;
+  const G_um_h = G * 1e6 * 3600; // microns / hour
 
-  // Pressure in Pa
-  const dP_pa = dP_kpa * 1000;
-  const mu_si = mu_cp * 1e-3; // Pa.s
+  // In ideal MSMPR: L_43 = 4 * G * tau -> tau = L_43 / (4 * G)
+  const Lmean_m = Lmean_um * 1e-6;
+  const tau_sec = Lmean_m / (4 * G);
+  const tau_hr = tau_sec / 3600;
 
-  // Specific cake resistance corrected for compressibility
-  // alpha = alpha0 * (dP / 10^5)^s
-  const alpha_base = alpha0 * 1e10; // m/kg
-  const alpha_eff = alpha_base * Math.pow(dP_pa / 100000, s);
+  // Slurry discharge rate Q (m3/h) = P (kg/h) / MT (kg/m3)
+  const Q_slurry_m3h = P_kgh / MT;
+  const Q_slurry_m3s = Q_slurry_m3h / 3600;
 
-  // Form Volume per unit area (V/A)
-  // (V/A)^2 = (2 * dP * t_form) / (mu * alpha_eff * c)
-  const VA_form_sq = (2 * dP_pa * t_form) / (mu_si * alpha_eff * c);
-  const VA_form = Math.sqrt(VA_form_sq); // m3 filtrate / m2 drum
+  // Active crystallizer volume V = Q * tau
+  const V_cryst_m3 = Q_slurry_m3h * tau_hr;
 
-  // Cake Yield Y_cake (kg dry / m2 / h)
-  // Y = c * (V/A) / t_cycle * 3600
-  const Y_cake = (c * VA_form / t_cycle) * 3600;
-  const Y_cake_lb = Y_cake * 0.2048; // lb/ft2/h
+  // Tank geometry sizing (Cylindrical tank with aspect ratio H/D)
+  // V = pi * (D/2)^2 * H = pi * D^3 * (aspect) / 4
+  const Diam = Math.pow((4 * V_cryst_m3) / (Math.PI * aspect), 1 / 3);
+  const Height = Diam * aspect;
 
-  // Required Total Drum Area A_req (m2)
-  const A_req = P_dry / Y_cake;
+  // Population Balance Metrics:
+  // G * tau in meters
+  const Gtau = G * tau_sec;
+  const Gtau_um = Gtau * 1e6;
+  const L_dom_um = 3 * Gtau_um; // Dominant size in mass distribution L_D = 3 G tau
 
-  // Drum dimensions: Area = pi * D * L
-  // Standard aspect ratio L / D approx 1.5
-  const aspect = 1.5;
-  const D_drum = Math.sqrt(A_req / (Math.PI * aspect));
-  const L_drum = D_drum * aspect;
+  // MT = 6 * kv * rho_c * n0 * (G * tau)^4
+  // n0 = MT / (6 * kv * rho_c * (G * tau)^4) [number / m3 / m]
+  const n0 = MT / (6 * kv * rho_c * Math.pow(Gtau, 4));
+  // Nucleation rate B0 = n0 * G [number / m3 / s]
+  const B0 = n0 * G;
 
-  // Cake thickness (meters -> mm)
-  // L_cake = (c * VA_form) / rho_dry
-  const L_cake_m = (c * VA_form) / rho_dry;
-  const L_cake_mm = L_cake_m * 1000;
+  // Volumetric solids fraction (phi = MT / rho_c)
+  const phi_solids = (MT / rho_c) * 100;
 
-  // Total filtrate flow rate
-  const Q_filtrate_m3h = P_dry / c;
+  // Total specific surface area of crystals A_spec = 6 / (rho_c * (Gtau * 4)) approx
+  const A_spec_m2_m3 = (MT * 6) / (rho_c * Lmean_m);
 
-  // Vacuum airflow capacity: approx 0.8 Nm3 / m2 drum / min
-  const q_air_spec = 0.85; // Nm3/m2/min
-  const Q_air_nm3h = A_req * q_air_spec * 60;
-  // Vacuum pump power: approx 1.8 kW per 100 m3/h at 60 kPa
-  const vac_power_kw = (Q_air_nm3h / 100) * 1.85;
+  // Internal circulation pumping rate (Q_circ = turnover * Q_slurry)
+  const Q_circ_m3h = turnover * Q_slurry_m3h;
+  // Pumping power approx (head ~ 1.5 - 2.5 m, efficiency 60%)
+  const p_circ_kw = (Q_circ_m3h * rho_l * 9.81 * 2.0) / (3600 * 1000 * 0.60);
+
+  // D10 and D90 spread from MSMPR cumulative distribution
+  // In MSMPR: D10 ~ 1.74 G tau, D50 ~ 3.67 G tau, D90 ~ 6.68 G tau
+  const d10_um = 1.74 * Gtau_um;
+  const d90_um = 6.68 * Gtau_um;
 
   // Update UI
-  document.getElementById('res_drum_area').textContent = A_req.toFixed(1) + ' m²';
-  document.getElementById('res_drum_dims').textContent = 'Ø' + D_drum.toFixed(2) + ' m × ' + L_drum.toFixed(2) + ' m L';
+  document.getElementById('res_vol_cryst').textContent = V_cryst_m3.toFixed(1) + ' m³';
+  document.getElementById('res_dims').textContent = 'Ø' + Diam.toFixed(2) + ' m × ' + Height.toFixed(2) + ' m H';
 
-  document.getElementById('res_cake_yield').textContent = Y_cake.toFixed(1) + ' kg/(m²·h)';
-  document.getElementById('res_yield_lb').textContent = Y_cake_lb.toFixed(1) + ' lb/(ft²·h)';
+  document.getElementById('res_tau_cryst').textContent = tau_hr.toFixed(2) + ' hours';
+  document.getElementById('res_slurry_flow').textContent = 'Slurry Q: ' + Q_slurry_m3h.toFixed(1) + ' m³/h';
 
-  document.getElementById('res_cake_thick').textContent = L_cake_mm.toFixed(1) + ' mm';
-  let thickStatus = 'Optimal for Scraper (>5mm)';
-  if (discharge === 'precoat') thickStatus = 'Precoat Shave (<2mm fine)';
-  else if (L_cake_mm < 3.0) thickStatus = 'Too Thin for Scraper (Needs Precoat/Roll)';
-  else if (L_cake_mm > 25) thickStatus = 'Heavy Cake (Check Motor Torque)';
-  document.getElementById('res_cake_status').textContent = thickStatus;
+  document.getElementById('res_b0').textContent = B0.toExponential(2) + ' #/(m³·s)';
+  document.getElementById('res_n0').textContent = 'n₀ = ' + n0.toExponential(2) + ' #/(m³·m)';
 
-  document.getElementById('res_filtrate_q').textContent = Q_filtrate_m3h.toFixed(1) + ' m³/h';
-  document.getElementById('res_cycle_time').textContent = 'Cycle: ' + t_cycle.toFixed(1) + ' s (' + RPM + ' RPM)';
+  document.getElementById('res_circ_q').textContent = Math.round(Q_circ_m3h).toLocaleString('en-US') + ' m³/h';
+  document.getElementById('res_circ_power').textContent = 'Impeller Power: ~' + p_circ_kw.toFixed(1) + ' kW';
 
-  document.getElementById('res_vac_air').textContent = Math.round(Q_air_nm3h).toLocaleString('en-US') + ' Nm³/h';
-  document.getElementById('res_vac_power').textContent = 'Pump Power: ~' + vac_power_kw.toFixed(1) + ' kW';
+  document.getElementById('res_ld').textContent = L_dom_um.toFixed(0) + ' μm';
+  document.getElementById('res_cryst_growth_hr').textContent = 'Growth: ' + G_um_h.toFixed(1) + ' μm/h';
 
-  document.getElementById('res_alpha_eff').textContent = (alpha_eff / 1e10).toFixed(2) + ' × 10¹⁰ m/kg';
-  document.getElementById('res_alpha_note').textContent = 'Compressibility s = ' + s.toFixed(2);
+  document.getElementById('res_solids_vol').textContent = phi_solids.toFixed(1) + ' % vol';
+  document.getElementById('res_cryst_area').textContent = 'Specific Area: ' + (A_spec_m2_m3 / 1000).toFixed(1) + 'k m²/m³';
 
-  document.getElementById('res_t_form').textContent = t_form.toFixed(1) + ' s (' + sub_pct + '%)';
-  document.getElementById('res_t_dry').textContent = t_dry.toFixed(1) + ' s (' + (psi_dry * 100).toFixed(0) + '%)';
-  document.getElementById('res_wash_arc').textContent = (psi_wash * 360).toFixed(0) + '° Arc (' + t_wash.toFixed(1) + ' s)';
+  document.getElementById('res_diam').textContent = Diam.toFixed(2) + ' m';
+  document.getElementById('res_height').textContent = Height.toFixed(2) + ' m';
+  document.getElementById('res_spread').textContent = d10_um.toFixed(0) + ' / ' + d90_um.toFixed(0) + ' μm';
 
-  drawRvdfCanvas({
-    D_drum, L_drum, sub_pct, L_cake_mm, RPM, Y_cake, A_req
+  drawCrystCanvas({
+    Gtau_um, Lmean_um, L_dom_um, n0, B0, d10_um, d90_um
   });
 }
 
-function drawRvdfCanvas(data) {
-  const canvas = document.getElementById('rvdfCanvas');
+function drawCrystCanvas(data) {
+  const canvas = document.getElementById('crystCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
@@ -1430,166 +1422,126 @@ function drawRvdfCanvas(data) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
   }
 
-  // Draw Drum Radial Cross-Section
-  const cx = 175;
-  const cy = 150;
-  const rDrum = 95;
+  // Plot Cumulative Mass Undersize W(L) and Mass Density dw/dL
+  const mx1 = 65, mx2 = w - 80, my1 = 35, my2 = h - 45;
+  const pw = mx2 - mx1, ph = my2 - my1;
 
-  // Slurry Vat (Crescent at bottom)
-  ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
-  ctx.strokeStyle = '#d97706';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 22, 0.2 * Math.PI, 0.8 * Math.PI, false);
-  ctx.lineTo(cx + rDrum + 25, cy + 85);
-  ctx.lineTo(cx - rDrum - 25, cy + 85);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#f59e0b';
-  ctx.font = 'bold 9px sans-serif';
-  ctx.fillText('SLURRY VAT (' + data.sub_pct + '% Submergence)', cx - 70, cy + 80);
-
-  // Drum Cylinder
-  ctx.fillStyle = '#0f172a';
+  // Axes
   ctx.strokeStyle = '#475569';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.stroke();
-
-  // Draw Internal Vacuum Pipes / Hub
-  ctx.fillStyle = '#1e293b';
-  ctx.beginPath();
-  ctx.arc(cx, cy, 24, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.stroke();
-
-  // Internal drainage pipes (radial spokes)
-  ctx.strokeStyle = '#334155';
   ctx.lineWidth = 1.5;
-  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 6) {
-    ctx.beginPath();
-    ctx.moveTo(cx + 24 * Math.cos(a), cy + 24 * Math.sin(a));
-    ctx.lineTo(cx + rDrum * Math.cos(a), cy + rDrum * Math.sin(a));
-    ctx.stroke();
-  }
-
-  // Zone 1: Cake Formation (Submerged Arc in Cyan)
-  const formStart = 0.25 * Math.PI;
-  const formEnd = 0.75 * Math.PI;
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, formStart, formEnd);
+  ctx.moveTo(mx1, my1);
+  ctx.lineTo(mx1, my2);
+  ctx.lineTo(mx2, my2);
   ctx.stroke();
 
-  // Zone 2: Wash Arc (Green spray header)
-  const washStart = 1.0 * Math.PI;
-  const washEnd = 1.4 * Math.PI;
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px sans-serif';
+  ctx.fillText('Cumulative Mass Undersize W(L) %', mx1 - 50, my1 - 10);
+  ctx.fillText('Crystal Size L (microns)', mx2 - 120, my2 + 25);
+  ctx.fillText('0', mx1 - 12, my2 + 12);
+  ctx.fillText('100%', mx1 - 32, my1 + 6);
+
+  // Max crystal size on x-axis ~ 8 * G * tau
+  const maxL = Math.max(data.Gtau_um * 8, 1000);
+
+  // Function for W(L) in MSMPR: W(x) = 1 - e^-x * (1 + x + x^2/2 + x^3/6)
+  const getW = (L) => {
+    const x = L / data.Gtau_um;
+    return 1 - Math.exp(-x) * (1 + x + (x * x) / 2 + (x * x * x) / 6);
+  };
+
+  // Draw Cumulative W(L) Curve (Emerald Green)
   ctx.strokeStyle = '#10b981';
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, washStart, washEnd);
+  for (let px = 0; px <= pw; px += 4) {
+    const L = (px / pw) * maxL;
+    const wVal = getW(L);
+    const py = my2 - wVal * ph;
+    if (px === 0) ctx.moveTo(mx1 + px, py);
+    else ctx.lineTo(mx1 + px, py);
+  }
   ctx.stroke();
 
-  // Spray wash nozzles above drum
-  ctx.fillStyle = '#10b981';
-  ctx.fillRect(cx - 65, cy - rDrum - 25, 55, 6);
-  ctx.fillText('WASH SPRAY', cx - 65, cy - rDrum - 30);
-
-  // Zone 3: Cake Dewatering (Blue Arc)
-  const dryStart = 1.4 * Math.PI;
-  const dryEnd = 1.85 * Math.PI;
-  ctx.strokeStyle = '#818cf8';
-  ctx.lineWidth = 6;
+  // Draw Differential Mass Density dw/dL curve (Blue)
+  // dw/dL = (1/6) * x^3 * e^-x / Gtau
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.0;
   ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, dryStart, dryEnd);
+  // Peak occurs at x = 3 (L_dom = 3 G tau) where peak height = (27/6)*e^-3 = 0.224
+  const maxDensity = 0.23;
+  for (let px = 0; px <= pw; px += 4) {
+    const L = (px / pw) * maxL;
+    const x = L / data.Gtau_um;
+    const densityVal = (1 / 6) * Math.pow(x, 3) * Math.exp(-x);
+    const py = my2 - (densityVal / maxDensity) * ph * 0.85;
+    if (px === 0) ctx.moveTo(mx1 + px, py);
+    else ctx.lineTo(mx1 + px, py);
+  }
   ctx.stroke();
 
-  // Zone 4: Knife Scraper Discharge (Red knife at 2.05 PI ~ 10 deg)
-  const knifeX = cx + rDrum + 5;
-  const knifeY = cy + 15;
-  ctx.fillStyle = '#ef4444';
-  ctx.beginPath();
-  ctx.moveTo(knifeX, knifeY);
-  ctx.lineTo(knifeX + 25, knifeY + 20);
-  ctx.lineTo(knifeX + 30, knifeY + 15);
-  ctx.closePath();
-  ctx.fill();
+  // Highlight Key Cut Points (D10, D50, D90, L_mean)
+  const drawVerticalMarker = (L, color, label) => {
+    const px = mx1 + (L / maxL) * pw;
+    if (px > mx2) return;
+    ctx.strokeStyle = color;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(px, my1);
+    ctx.lineTo(px, my2);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-  ctx.fillStyle = '#cbd5e1';
-  ctx.font = 'bold 9px sans-serif';
-  ctx.fillText('KNIFE SCRAPER', knifeX + 8, knifeY + 34);
+    ctx.fillStyle = color;
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillText(label + ' (' + L.toFixed(0) + 'μm)', px - 25, my1 - 2);
+  };
 
-  // Rotation Direction Arrow (Clockwise)
-  ctx.strokeStyle = '#f59e0b';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 55, 1.2 * Math.PI, 1.6 * Math.PI);
-  ctx.stroke();
-  ctx.fillStyle = '#f59e0b';
-  ctx.fillText('ROTATION (' + data.RPM + ' RPM)', cx - 45, cy - 60);
+  drawVerticalMarker(data.d10_um, '#94a3b8', 'D10');
+  drawVerticalMarker(data.L_dom_um, '#38bdf8', 'Dominant LD');
+  drawVerticalMarker(data.Lmean_um, '#f59e0b', 'Mean L43');
+  drawVerticalMarker(data.d90_um, '#a855f7', 'D90');
 
-  // Right Side Diagnostic HUD
-  const hx = 350;
+  // Legend Box
   ctx.fillStyle = '#0f172a';
-  ctx.fillRect(hx, 30, 335, 240);
+  ctx.fillRect(mx2 - 205, my1 + 15, 195, 62);
   ctx.strokeStyle = '#334155';
-  ctx.strokeRect(hx, 30, 335, 240);
+  ctx.strokeRect(mx2 - 205, my1 + 15, 195, 62);
 
-  ctx.fillStyle = '#f8fafc';
-  ctx.font = 'bold 12px sans-serif';
-  ctx.fillText('Rotary Drum Diagnostic Analysis', hx + 14, 54);
+  ctx.fillStyle = '#10b981'; ctx.fillRect(mx2 - 195, my1 + 25, 12, 4);
+  ctx.fillStyle = '#cbd5e1'; ctx.font = '10px sans-serif'; ctx.fillText('Cumulative Mass W(L) %', mx2 - 175, my1 + 30);
 
-  ctx.fillStyle = '#cbd5e1';
-  ctx.font = '11px sans-serif';
-  ctx.fillText('• Drum Geometry: Ø' + data.D_drum.toFixed(2) + ' m × ' + data.L_drum.toFixed(2) + ' m (' + data.A_req.toFixed(1) + ' m² active)', hx + 14, 80);
-  ctx.fillText('• Solids Yield: ' + data.Y_cake.toFixed(1) + ' kg dry solids/(m²·h)', hx + 14, 104);
-  ctx.fillText('• Cake Thickness: ' + data.L_cake_mm.toFixed(1) + ' mm on drum face', hx + 14, 128);
+  ctx.fillStyle = '#38bdf8'; ctx.fillRect(mx2 - 195, my1 + 42, 12, 4);
+  ctx.fillStyle = '#cbd5e1'; ctx.fillText('Differential Frequency dw/dL', mx2 - 175, my1 + 47);
 
-  // Cake thickness assessment
-  const goodThick = data.L_cake_mm >= 4.0 && data.L_cake_mm <= 20;
-  ctx.fillStyle = goodThick ? '#10b981' : '#f59e0b';
-  ctx.fillText('• Discharge Suitability: ' + (goodThick ? 'Optimal Cake Lift' : 'Check Scraper Clearance'), hx + 14, 152);
-
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillText('• Form Zone: ' + data.sub_pct + '% Submergence under continuous vacuum', hx + 14, 176);
-
-  ctx.fillStyle = '#10b981';
-  ctx.fillText('• Wash Zone: Displacement washing spray header', hx + 14, 200);
-
-  ctx.fillStyle = '#818cf8';
-  ctx.fillText('• Dewatering: Moisture reduction arc before discharge', hx + 14, 224);
-
-  ctx.fillStyle = '#cbd5e1';
-  ctx.fillText('• Rotary trunnion valve ports filtrate to vacuum receiver', hx + 14, 248);
+  ctx.fillStyle = '#f59e0b'; ctx.fillRect(mx2 - 195, my1 + 59, 12, 4);
+  ctx.fillStyle = '#cbd5e1'; ctx.fillText('Mean Crystal Size L₄₃ (4 G τ)', mx2 - 175, my1 + 64);
 }
 
-function copyRvdfSummary() {
-  const area = document.getElementById('res_drum_area').textContent;
-  const dims = document.getElementById('res_drum_dims').textContent;
-  const yieldVal = document.getElementById('res_cake_yield').textContent;
-  const thick = document.getElementById('res_cake_thick').textContent;
-  const filtrate = document.getElementById('res_filtrate_q').textContent;
-  const vacAir = document.getElementById('res_vac_air').textContent;
-  const tform = document.getElementById('res_t_form').textContent;
+function copyCrystSummary() {
+  const vol = document.getElementById('res_vol_cryst').textContent;
+  const dims = document.getElementById('res_dims').textContent;
+  const tau = document.getElementById('res_tau_cryst').textContent;
+  const b0 = document.getElementById('res_b0').textContent;
+  const ld = document.getElementById('res_ld').textContent;
+  const spread = document.getElementById('res_spread').textContent;
+  const circ = document.getElementById('res_circ_q').textContent;
 
   const text = [
-    '=== ROTARY VACUUM DRUM FILTER (RVDF) SIZING SUMMARY ===',
-    'Required Drum Area: ' + area + ' (' + dims + ')',
-    'Dry Solids Yield: ' + yieldVal,
-    'Cake Thickness: ' + thick,
-    'Filtrate Flow Rate: ' + filtrate,
-    'Vacuum Airflow Capacity: ' + vacAir,
-    'Cake Formation Time: ' + tform,
-    'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator.html)'
+    '=== INDUSTRIAL CRYSTALLIZER MSMPR SIZING SUMMARY ===',
+    'Active Slurry Volume: ' + vol + ' (' + dims + ')',
+    'Mean Residence Time (tau): ' + tau,
+    'Nucleation Rate (B0): ' + b0,
+    'Dominant Crystal Size (LD = 3 G tau): ' + ld,
+    'Crystal Size Spread (D10 / D90): ' + spread,
+    'Internal Circulation Rate: ' + circ,
+    'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/crystallizer-cooling-evaporative-msmpr-calculator.html)'
   ].join('\n');
 
   navigator.clipboard.writeText(text).then(function() {
-    const btn = document.getElementById('btn_rv_copy');
+    const btn = document.getElementById('btn_cr_copy');
     const orig = btn.innerHTML;
     btn.innerHTML = '<span>✓</span> Diagnostic Summary Copied!';
     btn.style.background = '#10b981';
@@ -1601,7 +1553,7 @@ function copyRvdfSummary() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  calcRVDF();
+  calcCryst();
 });
 </script>
 
@@ -1610,51 +1562,51 @@ window.addEventListener('DOMContentLoaded', function() {
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does drum rotational speed (RPM) affect cake thickness and yield?</span>
+                <span style="font-size:1rem;">What is the MSMPR crystallizer model and how does it predict crystal size?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                According to Ruth-Carman filtration theory, cake thickness scales inversely with the square root of drum speed (L_cake ∝ 1 / √RPM), while filtration dry solids yield rate increases with the square root of drum speed (Y_cake ∝ √RPM). Increasing drum RPM increases hourly production capacity but produces a thinner cake; RPM must be throttled to maintain minimum cake thickness (typically ≥3 to 5 mm for clean knife scraper peel).
+                The Mixed Suspension Mixed Product Removal (MSMPR) model is the fundamental chemical engineering framework for continuous crystallization. Based on population balance theory, it assumes perfect macromixing and unclassified slurry discharge. It proves that the crystal population density follows an exponential decay: n(L) = n0 * exp(-L / (G * tau)), resulting in a mass-mean crystal size L_43 = 4 * G * tau and a dominant mass peak at L_D = 3 * G * tau.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the function of a precoat rotary vacuum drum filter?</span>
+                <span style="font-size:1rem;">What causes secondary contact nucleation in industrial crystallizers?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                For gelatinous, slimy, or sub-micron particulate slurries (such as fermentation broth, wine lees, or starch hydrolysate) that instantly blind woven filter cloths, a 50 to 100 mm bed of diatomaceous earth or perlite is pre-deposited on the drum. An advancing micrometer knife shaves off a microscopic slice (10 to 50 μm) of the blinded precoat surface along with the captured solids on each revolution, presenting fresh filter aid continuously.
+                Secondary contact nucleation occurs when existing growing crystals collide with high-speed impeller blades or baffles. Microscopic surface clusters are mechanically sheared off, creating millions of secondary nuclei without requiring homogeneous supersaturation. If impeller tip speed exceeds 4.5 to 5.5 m/s in dense slurries, an uncontrollable nucleation explosion occurs, collapsing the crystal product into fine dust.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What determines maximum drum submergence in the slurry vat?</span>
+                <span style="font-size:1rem;">How does Magma Density (M_T) influence crystallizer volume and performance?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Standard industrial drum submergence ranges from 25% to 37.5% (with deep submergence models reaching 50%). Submergence is mechanically limited by the need to allocate sufficient circumferential arc for cake washing (15-20%), vacuum dewatering (25-35%), and atmospheric cake discharge/cloth washing (15%) above the slurry liquid level, as well as preventing slurry overflow into the central trunnion rotary valve.
+                Magma density (M_T, typically 200 to 350 kg crystals per m³ of slurry) represents the concentration of suspended solids. Higher magma density provides massive total crystal surface area, which rapidly absorbs incoming supersaturation and suppresses excessive nucleation. Sizing active vessel volume V = P / (M_T * tau) balances total crystal growth area against slurry pumping rheology and settling risks.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does specific cake resistance (α) impact filter sizing?</span>
+                <span style="font-size:1rem;">What is the Metastable Zone Width (MSZW) and why is it critical?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Specific cake resistance (α, measured in m/kg) quantifies the hydraulic drag of the compacted particulate cake bed. Free-filtering mineral concentrates have low resistance (α ~ 10⁹ to 10¹⁰ m/kg), enabling high filtration rates and compact drums. Highly compressible organic or hydrated precipitates have extreme resistances (α > 10¹² m/kg), requiring large drum areas, low vacuum to prevent cake collapse, and precoat filter aids.
+                The Metastable Zone Width is the temperature or concentration interval between the thermodynamic solubility curve and the spinodal limit where spontaneous primary nucleation occurs. To grow large, pure crystals without wall encrustation or uncontrolled shower nucleation, the crystallizer bulk supersaturation must be strictly maintained within this metastable zone through controlled heat removal and high internal recirculation.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why is cake cracking during the dewatering cycle fatal to drum operation?</span>
+                <span style="font-size:1rem;">Why do Draft-Tube Baffle (DTB) crystallizers incorporate fines destruction?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Compressible cakes shrink as pore liquid is evacuated under high vacuum. If shrinkage creates open tension cracks through the cake bed, atmospheric air rushes freely through the low-resistance fissures. This vacuum break collapses vacuum manifold pressure site-wide, preventing dewatering of the remaining cake and causing thin cakes in the submerged formation zone to slump back into the slurry vat.
+                In a DTB crystallizer, an internal annular baffle creates a quiet settling zone where coarse product crystals settle downward, while slow upward velocity carries only sub-50 μm fines to the top overflow. This fines-rich stream is pumped through an external heat exchanger or dilution loop to dissolve the nuclei before recycling back into the draft tube, effectively shifting the crystal size distribution toward much coarser product crystals.
               </div>
             </div>
           
@@ -1688,8 +1640,8 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frotary-vacuum-drum-filter-rvdf-sizing-calculator&text=Rotary%20Vacuum%20Drum%20Filter%20(RVDF)%20Specific%20Cake%20Resistance%20%26%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frotary-vacuum-drum-filter-rvdf-sizing-calculator&title=Rotary%20Vacuum%20Drum%20Filter%20(RVDF)%20Specific%20Cake%20Resistance%20%26%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcrystallizer-cooling-evaporative-msmpr-calculator&text=Industrial%20Crystallizer%20Sizing%20%26%20MSMPR%20Crystal%20Size%20Distribution%20(CSD)%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcrystallizer-cooling-evaporative-msmpr-calculator&title=Industrial%20Crystallizer%20Sizing%20%26%20MSMPR%20Crystal%20Size%20Distribution%20(CSD)%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1757,14 +1709,14 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/neuro/trauma-bond-interrupter" class="promo-card">
+                <a href="/util/date-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Trauma Bond & Intermittent Reinforcement Cycle Interrupter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Audit the psychological mechanisms of a trauma bond. Identify intermittent reinforcement schedules, dopamine craving loops, and cognitive dissonance in toxic relationships.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Date Calculator (Days Between & Add Days)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate exact calendar days, working business days, and project future dates.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1772,14 +1724,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/health/body-fat-calculator" class="promo-card">
+                <a href="/util/infinite-monkey-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Health</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">US Navy Body Fat Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Estimate body fat percentage, lean body mass, and fat mass using circumference measurements.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Infinite Monkey Theorem Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate the probability and years required for random typing to produce any text.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1802,14 +1754,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
               
-                <a href="/science/schwarzschild-radius-calculator" class="promo-card">
+                <a href="/dev/diff-checker" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Science</span>
+                      <span class="promo-badge">Developer</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Black Hole Schwarzschild Radius Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate event horizon radius for any mass from subatomic to supermassive black holes.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Online Text & Code Diff Checker</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Compare two text files or code snippets side-by-side with instant additions and deletions.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1817,14 +1769,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/psychology/catastrophizing-severity-meter" class="promo-card">
+                <a href="/math/percentage-increase-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Psychology</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Catastrophic Thinking Scale & Severity Meter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Step down anxiety spirals from worst-case disaster to realistic mathematical probability.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Percentage Increase Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate percentage growth, price rises, and revenue increases between two numbers.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;

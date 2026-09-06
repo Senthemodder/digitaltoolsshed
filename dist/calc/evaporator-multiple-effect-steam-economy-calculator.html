@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator</title>
+  <title>Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator">
-  <meta property="og:title" content="Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/evaporator-multiple-effect-steam-economy-calculator">
+  <meta property="og:title" content="Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/evaporator-multiple-effect-steam-economy-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator">
+  <meta name="twitter:title" content="Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Rotary Vacuum Drum Filter Rvdf Sizing Calculator",
-      "item": "https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator"
+      "name": "Evaporator Multiple Effect Steam Economy Calculator",
+      "item": "https://digitaltoolsshed.com/calc/evaporator-multiple-effect-steam-economy-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator",
-  "url": "https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator",
+  "name": "Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator",
+  "url": "https://digitaltoolsshed.com/calc/evaporator-multiple-effect-steam-economy-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -86,7 +86,7 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.8",
-    "ratingCount": 1330,
+    "ratingCount": 1020,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "How does drum rotational speed (RPM) affect cake thickness and yield?",
+      "name": "What is Steam Economy (SE) and what limits its maximum value?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "According to Ruth-Carman filtration theory, cake thickness scales inversely with the square root of drum speed (L_cake ∝ 1 / √RPM), while filtration dry solids yield rate increases with the square root of drum speed (Y_cake ∝ √RPM). Increasing drum RPM increases hourly production capacity but produces a thinner cake; RPM must be throttled to maintain minimum cake thickness (typically ≥3 to 5 mm for clean knife scraper peel)."
+        "text": "Steam Economy is the mass ratio of total water evaporated across all effects to the mass of live motive steam supplied to the first effect: SE = W_tot / S_live. In an ideal N-effect evaporator without losses, SE would equal N. In practice, heat losses, sensible heating of dilute feed liquor, and boiling point elevation reduce per-stage efficiency to ~0.80-0.88, yielding practical steam economies of ~2.4 for triple-effect and ~3.2 for quadruple-effect."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the function of a precoat rotary vacuum drum filter?",
+      "name": "How does Boiling Point Elevation (BPE) reduce multi-effect evaporator capacity?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "For gelatinous, slimy, or sub-micron particulate slurries (such as fermentation broth, wine lees, or starch hydrolysate) that instantly blind woven filter cloths, a 50 to 100 mm bed of diatomaceous earth or perlite is pre-deposited on the drum. An advancing micrometer knife shaves off a microscopic slice (10 to 50 μm) of the blinded precoat surface along with the captured solids on each revolution, presenting fresh filter aid continuously."
+        "text": "Dissolved solutes raise the boiling temperature of liquor above pure water saturation temperature. While the liquor boils at this elevated temperature, the vapor generated leaves at the pure saturation temperature corresponding to vessel pressure. This temperature penalty (BPE) is permanently lost at every stage: Net ΔT = (T_steam - T_condenser) - Σ BPE. In high-solids caustic or salt evaporation, cumulative BPE can exceed 40°C, choking multi-effect trains."
       }
     },
     {
       "@type": "Question",
-      "name": "What determines maximum drum submergence in the slurry vat?",
+      "name": "When should forward feed vs backward feed liquor flow be selected?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Standard industrial drum submergence ranges from 25% to 37.5% (with deep submergence models reaching 50%). Submergence is mechanically limited by the need to allocate sufficient circumferential arc for cake washing (15-20%), vacuum dewatering (25-35%), and atmospheric cake discharge/cloth washing (15%) above the slurry liquid level, as well as preventing slurry overflow into the central trunnion rotary valve."
+        "text": "Forward feed (feed enters Effect 1 at highest pressure/temperature and flows down to the final vacuum effect) eliminates inter-stage liquor pumps because pressure differences drive liquid flow. However, backward feed (feed enters the cold final vacuum effect and finishes at Effect 1) is chosen for highly viscous liquors (such as 50% caustic or concentrated black liquor) so the most viscous stream is heated by the hottest steam, drastically improving the heat transfer coefficient (U)."
       }
     },
     {
       "@type": "Question",
-      "name": "How does specific cake resistance (α) impact filter sizing?",
+      "name": "How does Thermo-Vapor Recompression (TVR) improve steam economy?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Specific cake resistance (α, measured in m/kg) quantifies the hydraulic drag of the compacted particulate cake bed. Free-filtering mineral concentrates have low resistance (α ~ 10⁹ to 10¹⁰ m/kg), enabling high filtration rates and compact drums. Highly compressible organic or hydrated precipitates have extreme resistances (α > 10¹² m/kg), requiring large drum areas, low vacuum to prevent cake collapse, and precoat filter aids."
+        "text": "A TVR steam ejector uses high-pressure motive steam (8 to 12 bar) to entrain and recompress a portion of the low-pressure vapor generated in Effect 1, discharging it back into Effect 1 calandria steam chest. This re-uses the latent heat of evaporation within the very same stage, boosting effective steam economy by approximately +0.8 to +1.1 without adding an extra physical evaporator vessel."
       }
     },
     {
       "@type": "Question",
-      "name": "Why is cake cracking during the dewatering cycle fatal to drum operation?",
+      "name": "Why are non-condensable gas vents essential in evaporator calandrias?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Compressible cakes shrink as pore liquid is evacuated under high vacuum. If shrinkage creates open tension cracks through the cake bed, atmospheric air rushes freely through the low-resistance fissures. This vacuum break collapses vacuum manifold pressure site-wide, preventing dewatering of the remaining cake and causing thin cakes in the submerged formation zone to slump back into the slurry vat."
+        "text": "Gases dissolved in the feed (air, carbon dioxide) or leaking into vacuum stages do not condense on calandria tubes. Stagnant non-condensables form an insulating gaseous film that cuts heat transfer coefficients by over 60%. Continuous venting orifices must be placed at the coldest corners of the calandria tube nest (opposite the steam inlet) to vent non-condensables into the next effect or vacuum condenser."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Rotary Vacuum Drum Filter (RVDF) Specific Cake Resistance & Sizing Calculator</span>
+            <span>Multiple-Effect Evaporator (MEE) Steam Economy & Area Distribution Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1042,90 +1042,96 @@
           
 <div class="calc-clean">
   <header class="calc-clean-header">
-    <div class="calc-clean-badge">SOLID-LIQUID SEPARATION & INDUSTRIAL FILTRATION</div>
-    <h1 class="calc-clean-title">Rotary Vacuum Drum Filter (RVDF) Sizing Calculator</h1>
-    <p class="calc-clean-subtitle">Size industrial continuous rotary vacuum drum filters. Compute specific cake resistance (α), dry solids yield rate, cake thickness, cycle time subdivision (form/wash/dry), and vacuum airflow capacity.</p>
+    <div class="calc-clean-badge">THERMAL PROCESS & EVAPORATION TECHNOLOGY</div>
+    <h1 class="calc-clean-title">Multiple-Effect Evaporator (MEE) Steam Economy Calculator</h1>
+    <p class="calc-clean-subtitle">Size industrial multi-effect evaporator trains (2 to 6 effects). Compute steam economy, motive live steam consumption, boiling point elevation (BPE) temperature drops, and calandria heat transfer areas.</p>
   </header>
 
   <!-- QUICK PRESETS -->
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('tio2')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Titanium Dioxide (TiO₂ Hydrate Pigment)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('starch')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Corn Starch Dewatering (Precoat Cut)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('mining')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Mineral Flotation Concentrate (Heavy Solids)</button>
-    <button type="button" class="preset-btn" onclick="applyRvdfPreset('pharma_myc')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Fermentation Mycelium (Antibiotics Broth)</button>
+    <button type="button" class="preset-btn" onclick="applyMeePreset('triple_caustic')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Triple-Effect Caustic Soda (NaOH 10% to 50%)</button>
+    <button type="button" class="preset-btn" onclick="applyMeePreset('quad_zld')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Quad-Effect ZLD Wastewater (TDS 4% to 35%)</button>
+    <button type="button" class="preset-btn" onclick="applyMeePreset('quint_sugar')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Quintuple-Effect Sugar Juice (15° to 68° Brix)</button>
+    <button type="button" class="preset-btn" onclick="applyMeePreset('double_eff')" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Double-Effect Compact Concentration</button>
   </div>
 
   <div class="calc-clean-grid">
     <!-- INPUT COLUMN -->
     <div class="calc-clean-card">
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Slurry Production & Cake Properties</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Feed Liquor & Evaporation Duty</h2>
       
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Dry Cake Production (P)</label>
-          <input type="number" id="rv_prod" value="3500" step="200" min="50" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg/h dry solids</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Flow Rate (F)</label>
+          <input type="number" id="mee_f" value="25000" step="1000" min="500" oninput="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">kg/h dilute feed liquor</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Solids Concentration (c)</label>
-          <input type="number" id="rv_c" value="180" step="10" min="10" max="800" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg dry solids / m³ filtrate</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Number of Effects (N)</label>
+          <select id="mee_effects" onchange="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+            <option value="2">2 Effects (Double)</option>
+            <option value="3" selected>3 Effects (Triple)</option>
+            <option value="4">4 Effects (Quadruple)</option>
+            <option value="5">5 Effects (Quintuple)</option>
+            <option value="6">6 Effects (Sextuple)</option>
+          </select>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Specific Cake Resistance (α₀)</label>
-          <input type="number" id="rv_alpha" value="4.5" step="0.5" min="0.1" max="50" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">× 10¹⁰ m/kg at 1 bar</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Concentration (x_F)</label>
+          <input type="number" id="mee_xf" value="10" step="1" min="1" max="50" oninput="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">% wt dissolved solids</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Cake Compressibility (s)</label>
-          <input type="number" id="rv_comp" value="0.30" step="0.05" min="0" max="0.9" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">index (0 = rigid, 0.8 = soft bio)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Product Concentration (x_P)</label>
+          <input type="number" id="mee_xp" value="50" step="1" min="5" max="80" oninput="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">% wt concentrated product</span>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
-        <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Dry Cake Density (ρ_dry)</label>
-          <input type="number" id="rv_rho_dry" value="1450" step="50" min="400" max="3500" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kg/m³ dry solids in cake</span>
-        </div>
-        <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Filtrate Viscosity (μ)</label>
-          <input type="number" id="rv_mu" value="1.15" step="0.05" min="0.4" max="25" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">cP (mPa·s)</span>
-        </div>
-      </div>
-
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-top:18px;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Drum Mechanical & Vacuum Operating Parameters</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-top:18px;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Steam, Vacuum & Boiling Point Elevation</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Drum Speed (N_drum)</label>
-          <input type="number" id="rv_rpm" value="0.65" step="0.05" min="0.1" max="3.0" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">RPM (rev per minute)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Motive Live Steam Temp (T_s)</label>
+          <input type="number" id="mee_ts" value="145" step="2" min="100" max="180" oninput="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">°C (sat steam ~ 4.1 bar abs)</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Applied Vacuum (ΔP)</label>
-          <input type="number" id="rv_dp" value="60" step="5" min="20" max="90" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">kPa gauge (typical 40-75 kPa)</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Condenser Sat. Temp (T_c)</label>
+          <input type="number" id="mee_tc" value="50" step="2" min="35" max="75" oninput="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">°C (vac ~ 0.12 bar abs)</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Drum Submergence (ψ_form)</label>
-          <input type="number" id="rv_sub" value="33" step="1" min="15" max="45" oninput="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-          <span style="font-size:10px;color:#64748b;">% submergence in slurry vat</span>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Final Effect BPE (ΔT_bpe)</label>
+          <input type="number" id="mee_bpe_final" value="18" step="1" min="0" max="45" oninput="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">°C elevation at product discharge</span>
         </div>
         <div>
-          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Discharge Mechanism Type</label>
-          <select id="rv_discharge" onchange="calcRVDF()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
-            <option value="scraper">Knife Scraper (Standard Cake >5mm)</option>
-            <option value="precoat">Precoat Shaving Knife (Thin/Slimy)</option>
-            <option value="string">String Discharge (Cohesive Fibrous)</option>
-            <option value="roll">Roll Discharge (Thin Sticky Paste)</option>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Average Overall U (Effect 1)</label>
+          <input type="number" id="mee_u1" value="2200" step="100" min="800" max="4000" oninput="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+          <span style="font-size:10px;color:#64748b;">W/(m²·K) calandria heat transfer</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
+        <div>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Feed Flow Arrangement</label>
+          <select id="mee_flow_type" onchange="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+            <option value="forward">Forward Feed (1 → 2 → 3)</option>
+            <option value="backward">Backward Feed (3 → 2 → 1 High Visc)</option>
+            <option value="mixed">Mixed Feed</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:4px;">Thermo-Vapor Recompression</label>
+          <select id="mee_tvr" onchange="calcMEE()" style="width:100%;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f8fafc;font-size:13px;">
+            <option value="none">None (Standard MEE)</option>
+            <option value="tvr1">TVR on Effect 1 (+1.0 SE boost)</option>
           </select>
         </div>
       </div>
@@ -1133,67 +1139,67 @@
 
     <!-- OUTPUT COLUMN -->
     <div class="calc-clean-card">
-      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Filtration Capacity & Drum Dimensions</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:14px;border-bottom:1px solid #334155;padding-bottom:8px;">Steam Economy & Calandria Sizing</h2>
       
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Required Drum Area</div>
-          <div id="res_drum_area" style="font-size:1.6rem;font-weight:800;color:#38bdf8;margin-top:2px;">--</div>
-          <div id="res_drum_dims" style="font-size:11px;color:#64748b;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Steam Economy (SE)</div>
+          <div id="res_steam_econ" style="font-size:1.6rem;font-weight:800;color:#38bdf8;margin-top:2px;">--</div>
+          <div id="res_se_theor" style="font-size:11px;color:#64748b;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Cake Dry Solids Yield</div>
-          <div id="res_cake_yield" style="font-size:1.6rem;font-weight:800;color:#10b981;margin-top:2px;">--</div>
-          <div id="res_yield_lb" style="font-size:11px;color:#64748b;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Live Steam Required</div>
+          <div id="res_steam_flow" style="font-size:1.6rem;font-weight:800;color:#10b981;margin-top:2px;">--</div>
+          <div id="res_steam_duty" style="font-size:11px;color:#64748b;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Cake Thickness (L_cake)</div>
-          <div id="res_cake_thick" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
-          <div id="res_cake_status" style="font-size:11px;color:#94a3b8;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Total Water Evaporated</div>
+          <div id="res_we_tot" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
+          <div id="res_prod_flow" style="font-size:11px;color:#94a3b8;">--</div>
         </div>
 
         <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Filtrate Flow Rate</div>
-          <div id="res_filtrate_q" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
-          <div id="res_cycle_time" style="font-size:11px;color:#94a3b8;">--</div>
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;">Calandria Area / Effect</div>
+          <div id="res_area_effect" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:2px;">--</div>
+          <div id="res_area_tot" style="font-size:11px;color:#94a3b8;">--</div>
         </div>
       </div>
 
       <div style="margin-top:12px;background:#0f172a;padding:12px;border-radius:8px;border:1px solid #334155;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
-            <div style="font-size:11px;color:#94a3b8;">Vacuum Pump Capacity</div>
-            <div id="res_vac_air" style="font-size:1.2rem;font-weight:700;color:#f59e0b;">--</div>
-            <div id="res_vac_power" style="font-size:11px;color:#cbd5e1;">--</div>
+            <div style="font-size:11px;color:#94a3b8;">Effective Available ΔT (Net)</div>
+            <div id="res_dt_net" style="font-size:1.2rem;font-weight:700;color:#f59e0b;">--</div>
+            <div id="res_bpe_loss_tot" style="font-size:11px;color:#cbd5e1;">--</div>
           </div>
           <div>
-            <div style="font-size:11px;color:#94a3b8;">Effective Specific Resistance (α)</div>
-            <div id="res_alpha_eff" style="font-size:1.2rem;font-weight:700;color:#a855f7;">--</div>
-            <div id="res_alpha_note" style="font-size:11px;color:#cbd5e1;">--</div>
+            <div style="font-size:11px;color:#94a3b8;">Condenser Cooling Duty</div>
+            <div id="res_cond_duty" style="font-size:1.2rem;font-weight:700;color:#a855f7;">--</div>
+            <div id="res_cw_flow" style="font-size:11px;color:#cbd5e1;">--</div>
           </div>
         </div>
       </div>
 
       <div style="margin-top:12px;background:#0f172a;padding:10px 12px;border-radius:8px;border:1px solid #334155;display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;">
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Cake Form Time</span>
-          <div id="res_t_form" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Gross ΔT</span>
+          <div id="res_dt_gross" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Drying Arc Time</span>
-          <div id="res_t_dry" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Avg Evap / Effect</span>
+          <div id="res_evap_per_eff" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
         <div>
-          <span style="font-size:10px;color:#94a3b8;">Wash Angle</span>
-          <div id="res_wash_arc" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
+          <span style="font-size:10px;color:#94a3b8;">Specific Steam</span>
+          <div id="res_spec_steam" style="font-size:12px;font-weight:600;color:#e2e8f0;">--</div>
         </div>
       </div>
 
       <!-- COPY DIAGNOSTIC SUMMARY -->
       <div style="margin-top:14px;">
-        <button type="button" onclick="copyRvdfSummary()" id="btn_rv_copy" style="width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <button type="button" onclick="copyMeeSummary()" id="btn_mee_copy" style="width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">
           <span>📋</span> Copy Diagnostic Sizing Summary
         </button>
       </div>
@@ -1202,40 +1208,40 @@
 
   <!-- INTERACTIVE CANVAS VISUALIZER -->
   <div class="calc-clean-card" style="margin-top:16px;">
-    <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Rotary Drum Cross-Section & Filtration Cycle Segments</h2>
+    <h2 style="font-size:1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Multiple-Effect Temperature Gradient & Stage Calandria Profile</h2>
     <div style="position:relative;width:100%;background:#090d16;border-radius:8px;padding:10px;border:1px solid #1e293b;">
-      <canvas id="rvdfCanvas" width="720" height="300" style="width:100%;height:auto;display:block;"></canvas>
+      <canvas id="meeCanvas" width="720" height="280" style="width:100%;height:auto;display:block;"></canvas>
     </div>
   </div>
 
   <!-- FIVE FATAL TRAPS -->
   <div style="margin-top:24px;">
-    <h2 style="font-size:1.2rem;font-weight:700;color:#f8fafc;margin-bottom:14px;">5 Fatal Industrial Traps in Rotary Vacuum Drum Filter Operation</h2>
+    <h2 style="font-size:1.2rem;font-weight:700;color:#f8fafc;margin-bottom:14px;">5 Fatal Industrial Traps in Multi-Effect Evaporator Design</h2>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;">
       
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #ef4444;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#ef4444;font-size:14px;margin-bottom:4px;">1. Precoat Cake Cracking & Catastrophic Vacuum Collapse</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">In precoat filtration (diatomaceous earth / perlite), as the cake passes into the drying zone, rapid air draw can desiccate compressible cakes, causing deep radial shrinkage cracks. Ambient air immediately short-circuits through the cracks into the drum internal pipes. Drum vacuum drops from 65 kPa to below 15 kPa, stopping filtration instantly across the entire drum submerged zone.</p>
+        <div style="font-weight:700;color:#ef4444;font-size:14px;margin-bottom:4px;">1. Cumulative Boiling Point Elevation (BPE) ΔT Choke</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">In concentrated solutions (caustic soda, aluminate, black liquor, crystallizing ZLD brine), dissolved solids cause immense boiling point elevations ($Delta T_{BPE} = 15^circ-30^circ	ext{C}$). Because vapor boils at saturation temperature but the liquid boils at $T_{sat} + Delta T_{BPE}$, this temperature jump is permanently deducted from the available driving force in every single effect. If too many effects are specified, $sum Delta T_{BPE}$ exhausts the total available thermal head, dropping effective $Delta T$ to near-zero.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #f59e0b;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#f59e0b;font-size:14px;margin-bottom:4px;">2. Slurry Vat Sedimentation from Agitator Pendulum Failure</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Coarse or heavy mineral slurries ($d_p > 45	ext{ μm}, ho > 2500	ext{ kg/m}^3$) settle within seconds. If the oscillating vat pendulum rake agitator has insufficient sweep or suffers mechanical linkage failure, solids compact into a dense sediment bed at the vat bottom. The rotating drum wedges against the solid bed, stalling the drum drive motor or snapping the circumferential drive chain.</p>
+        <div style="font-weight:700;color:#f59e0b;font-size:14px;margin-bottom:4px;">2. Non-Condensable Gas (NCG) Air-Binding in Calandria Steam Chests</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Vapors generated from chemical feeds carry dissolved atmospheric gases ($CO_2, O_2, N_2$) or vacuum in-leakage. Even a 0.5% concentration of non-condensable gas creates a stagnant insulating boundary layer over condensing calandria tubes, dropping the steam-side condensing film coefficient by 50% to 75%. Continuous top and bottom calandria vent orifices piped to the next effect or vacuum condenser are mandatory.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #10b981;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#10b981;font-size:14px;margin-bottom:4px;">3. The Precoat Shaving Knife Advance Runaway (Diatomite Waste)</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">Precoat filters require an automated micrometer knife advance ($10-50	ext{ μm}$ per revolution) to shave off the blinded slime layer. Setting the knife advance rate unnecessarily high burns through an expensive 100 mm precoat bed in 4 hours instead of 16 hours, quadrupling diatomaceous earth consumption costs and wasting thousands of dollars per shift in filter aid.</p>
+        <div style="font-weight:700;color:#10b981;font-size:14px;margin-bottom:4px;">3. Falling Film Tube Dry-Out & Caramelization / Polymerization</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">In falling film evaporators, liquor must maintain a continuous wetting rate per tube circumference ($w_{min} ge 150-200	ext{ kg}/(	ext{m}cdot	ext{h})$). If liquid distribution trays suffer clogging, unlevel installation, or low feed rate, the falling liquid film breaks into dry rivulets. The bare metal tube overheats, baking organic syrups, proteins, or polymers into rock-hard burnt crusts that choke tube bundles.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #3b82f6;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#3b82f6;font-size:14px;margin-bottom:4px;">4. Trunnion Rotary Valve Bridge Wear & Cross-Zone Vacuum Leakage</div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">The stationary rotary vacuum valve on the drum trunnion separates form vacuum, dry vacuum, atmospheric cake discharge, and reverse blow air using sacrificial phenolic or bronze wear plates. Abrasive slurry fines leaking into the valve face score deep grooves across the bridge seals. Compressed blow air leaks directly into the vacuum chambers, destroying cake formation and blowing slurry back into the vat.</p>
+        <div style="font-weight:700;color:#3b82f6;font-size:14px;margin-bottom:4px;">4. Droplet Entrainment Carryover & Clean Condensate Contamination</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin:0;">High vapor release velocities from boiling liquor generate fine aerosol mists. Without high-efficiency demister chevron pads or tangential vapor separator bodies sized for low vapor velocity ($v_{vap} < 0.05 sqrt{(ho_L - ho_V)/ho_V}$), concentrated chemical liquor carries over into the next calandria steam chest. This contaminates pure boiler-return condensate, forcing contaminated condensate dumping and creating severe boiler feedwater treatment costs.</p>
       </div>
 
       <div class="trap-card" style="background:#1e293b;border-left:4px solid #8b5cf6;padding:14px;border-radius:6px;">
-        <div style="font-weight:700;color:#8b5cf6;font-size:14px;margin-bottom:4px;">5. Multifilament Cloth Internal Pore Crystallization & Blindness</div>
-        <p style="font-size:12px;color:#8b5cf6;font-size:14px;margin-bottom:4px;">When filtering hot saturated slurries (ammonium sulfate, potash, gypsum), the evaporative cooling of air pulled through the cake drops the liquor temperature inside the cloth pores below its saturation limit. Salt crystals nucleate inside the twisted multifilament cloth yarns, petrifying the flexible cloth into an impermeable board that no knife scraper or air blow can clear.</p>
+        <div style="font-weight:700;color:#8b5cf6;font-size:14px;margin-bottom:4px;">5. Caustic Embrittlement & Chloride Stress Corrosion in Austenitic Stainless</div>
+        <p style="font-size:12px;color:#8b5cf6;font-size:14px;margin-bottom:4px;">Standard austenitic stainless steels (304L, 316L) suffer violent transgranular stress corrosion cracking (SCC) when exposed to hot chloride or alkaline solutions at temperatures above $60^circ-70^circ	ext{C}$. High-temperature effects ($T > 100^circ	ext{C}$) in caustic soda or salt evaporation must utilize pure Nickel 200/201 or Titanium Grade 2 metallurgy; using 316L results in catastrophic calandria tube fracture within months.</p>
       </div>
 
     </div>
@@ -1243,176 +1249,191 @@
 
   <!-- MATHEMATICAL DERIVATION SECTION -->
   <div class="calc-clean-card" style="margin-top:20px;">
-    <h2 style="font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Governing Equations: Ruth & Carman-Kozeny Continuous Rotary Filtration</h2>
+    <h2 style="font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:10px;">Governing Equations: Multi-Effect Thermal & Heat Balance</h2>
     <div style="font-size:13px;color:#cbd5e1;line-height:1.6;">
-      <p><b>1. Ruth Filtration Differential Equation:</b></p>
+      <p><b>1. Overall Evaporation Mass Balance:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        rac{dt}{d(V/A)} = rac{mu cdot alpha cdot c}{Delta P} cdot left(rac{V}{A}ight) + rac{mu cdot R_m}{Delta P}
+        W_{tot} = F cdot left(1 - rac{x_F}{x_P}ight) quad [	ext{kg/h}], quad L_{product} = F - W_{tot}
       </div>
-      <p>Integrating over form time $t_f = psi_{form} cdot rac{60}{N_{drum}}$ seconds (neglecting filter medium resistance $R_m ll R_{cake}$ for thick cakes):</p>
+      <p><b>2. Gross & Net Available Temperature Driving Force:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        left(rac{V}{A}ight)_{form} = sqrt{rac{2 cdot Delta P cdot t_f}{mu cdot alpha cdot c}} quad [	ext{m}^3 	ext{ filtrate / m}^2 	ext{ cycle}]
+        Delta T_{gross} = T_{steam} - T_{condenser}, quad Delta T_{net} = Delta T_{gross} - sum_{i=1}^N Delta T_{BPE,i}
       </div>
-      <p><b>2. Dry Cake Yield Rate ($Y_{cake}$):</b></p>
+      <p><b>3. Equal Area Calandria Temperature Allocation:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        Y_{cake} = rac{c cdot (V/A)_{form}}{t_{cycle}} cdot 3600 = c cdot sqrt{rac{2 cdot Delta P cdot psi_{form} cdot N_{drum}}{60 cdot mu cdot alpha cdot c}} cdot 3600 quad [	ext{kg}/(	ext{m}^2cdot	ext{h})]
+        Delta T_i = Delta T_{net} cdot rac{1 / U_i}{sum_{j=1}^N (1 / U_j)}, quad A_i = rac{Q_i}{U_i cdot Delta T_i}
       </div>
-      <p><b>3. Cake Thickness ($L_{cake}$):</b></p>
+      <p><b>4. Steam Economy ($SE$) & Live Steam Consumption:</b></p>
       <div style="background:#0f172a;padding:8px 12px;border-radius:6px;font-family:monospace;margin:6px 0;color:#38bdf8;">
-        L_{cake} = rac{c cdot (V/A)_{form}}{ho_{dry}} quad [	ext{meters}]
+        SE approx N cdot eta_{stage} quad (eta_{stage} approx 0.82-0.88), quad S_{live} = rac{W_{tot}}{SE} quad [	ext{kg/h}]
       </div>
-      <p><b>4. Vacuum Airflow Sizing:</b> Empirical airflow factor $q_{air} approx 0.8	ext{ Nm}^3/(	ext{m}^2cdot	ext{min})$ across total drum area.</p>
     </div>
   </div>
 </div>
 
 <script>
-function applyRvdfPreset(type) {
-  if (type === 'tio2') {
-    document.getElementById('rv_prod').value = 4000;
-    document.getElementById('rv_c').value = 220;
-    document.getElementById('rv_alpha').value = 6.5;
-    document.getElementById('rv_comp').value = 0.35;
-    document.getElementById('rv_rho_dry').value = 1500;
-    document.getElementById('rv_mu').value = 1.20;
-    document.getElementById('rv_rpm').value = 0.50;
-    document.getElementById('rv_dp').value = 65;
-    document.getElementById('rv_sub').value = 35;
-    document.getElementById('rv_discharge').value = 'scraper';
-  } else if (type === 'starch') {
-    document.getElementById('rv_prod').value = 6000;
-    document.getElementById('rv_c').value = 320;
-    document.getElementById('rv_alpha').value = 2.2;
-    document.getElementById('rv_comp').value = 0.15;
-    document.getElementById('rv_rho_dry').value = 1350;
-    document.getElementById('rv_mu').value = 1.35;
-    document.getElementById('rv_rpm').value = 1.20;
-    document.getElementById('rv_dp').value = 55;
-    document.getElementById('rv_sub').value = 30;
-    document.getElementById('rv_discharge').value = 'precoat';
-  } else if (type === 'mining') {
-    document.getElementById('rv_prod').value = 15000;
-    document.getElementById('rv_c').value = 500;
-    document.getElementById('rv_alpha').value = 0.8;
-    document.getElementById('rv_comp').value = 0.05;
-    document.getElementById('rv_rho_dry').value = 2200;
-    document.getElementById('rv_mu').value = 1.10;
-    document.getElementById('rv_rpm').value = 1.50;
-    document.getElementById('rv_dp').value = 70;
-    document.getElementById('rv_sub').value = 37;
-    document.getElementById('rv_discharge').value = 'scraper';
-  } else if (type === 'pharma_myc') {
-    document.getElementById('rv_prod').value = 800;
-    document.getElementById('rv_c').value = 60;
-    document.getElementById('rv_alpha').value = 15.0;
-    document.getElementById('rv_comp').value = 0.65;
-    document.getElementById('rv_rho_dry').value = 850;
-    document.getElementById('rv_mu').value = 1.80;
-    document.getElementById('rv_rpm').value = 0.35;
-    document.getElementById('rv_dp').value = 50;
-    document.getElementById('rv_sub').value = 25;
-    document.getElementById('rv_discharge').value = 'precoat';
+function applyMeePreset(type) {
+  if (type === 'triple_caustic') {
+    document.getElementById('mee_f').value = 25000;
+    document.getElementById('mee_effects').value = '3';
+    document.getElementById('mee_xf').value = 10;
+    document.getElementById('mee_xp').value = 50;
+    document.getElementById('mee_ts').value = 150;
+    document.getElementById('mee_tc').value = 50;
+    document.getElementById('mee_bpe_final').value = 22;
+    document.getElementById('mee_u1').value = 2000;
+    document.getElementById('mee_flow_type').value = 'backward';
+    document.getElementById('mee_tvr').value = 'none';
+  } else if (type === 'quad_zld') {
+    document.getElementById('mee_f').value = 40000;
+    document.getElementById('mee_effects').value = '4';
+    document.getElementById('mee_xf').value = 4;
+    document.getElementById('mee_xp').value = 35;
+    document.getElementById('mee_ts').value = 140;
+    document.getElementById('mee_tc').value = 48;
+    document.getElementById('mee_bpe_final').value = 14;
+    document.getElementById('mee_u1').value = 2400;
+    document.getElementById('mee_flow_type').value = 'forward';
+    document.getElementById('mee_tvr').value = 'none';
+  } else if (type === 'quint_sugar') {
+    document.getElementById('mee_f').value = 80000;
+    document.getElementById('mee_effects').value = '5';
+    document.getElementById('mee_xf').value = 15;
+    document.getElementById('mee_xp').value = 68;
+    document.getElementById('mee_ts').value = 135;
+    document.getElementById('mee_tc').value = 52;
+    document.getElementById('mee_bpe_final').value = 8;
+    document.getElementById('mee_u1').value = 2600;
+    document.getElementById('mee_flow_type').value = 'forward';
+    document.getElementById('mee_tvr').value = 'tvr1';
+  } else if (type === 'double_eff') {
+    document.getElementById('mee_f').value = 12000;
+    document.getElementById('mee_effects').value = '2';
+    document.getElementById('mee_xf').value = 8;
+    document.getElementById('mee_xp').value = 40;
+    document.getElementById('mee_ts').value = 130;
+    document.getElementById('mee_tc').value = 55;
+    document.getElementById('mee_bpe_final').value = 6;
+    document.getElementById('mee_u1').value = 2200;
+    document.getElementById('mee_flow_type').value = 'forward';
+    document.getElementById('mee_tvr').value = 'none';
   }
-  calcRVDF();
+  calcMEE();
 }
 
-function calcRVDF() {
-  const P_dry = parseFloat(document.getElementById('rv_prod').value) || 3500;
-  const c = parseFloat(document.getElementById('rv_c').value) || 180;
-  const alpha0 = parseFloat(document.getElementById('rv_alpha').value) || 4.5;
-  const s = parseFloat(document.getElementById('rv_comp').value) || 0.30;
-  const rho_dry = parseFloat(document.getElementById('rv_rho_dry').value) || 1450;
-  const mu_cp = parseFloat(document.getElementById('rv_mu').value) || 1.15;
-  const RPM = parseFloat(document.getElementById('rv_rpm').value) || 0.65;
-  const dP_kpa = parseFloat(document.getElementById('rv_dp').value) || 60;
-  const sub_pct = parseFloat(document.getElementById('rv_sub').value) || 33;
-  const discharge = document.getElementById('rv_discharge').value;
+function calcMEE() {
+  const F = parseFloat(document.getElementById('mee_f').value) || 25000;
+  const N = parseInt(document.getElementById('mee_effects').value) || 3;
+  const xf = parseFloat(document.getElementById('mee_xf').value) || 10;
+  const xp = parseFloat(document.getElementById('mee_xp').value) || 50;
+  const Ts = parseFloat(document.getElementById('mee_ts').value) || 145;
+  const Tc = parseFloat(document.getElementById('mee_tc').value) || 50;
+  const BPE_final = parseFloat(document.getElementById('mee_bpe_final').value) || 18;
+  const U1 = parseFloat(document.getElementById('mee_u1').value) || 2200;
+  const flowType = document.getElementById('mee_flow_type').value;
+  const tvr = document.getElementById('mee_tvr').value;
 
-  // Cycle times
-  const t_cycle = 60 / RPM; // seconds per rev
-  const psi_form = sub_pct / 100;
-  const t_form = t_cycle * psi_form; // seconds of cake formation
-  const psi_wash = 0.20;
-  const t_wash = t_cycle * psi_wash;
-  const psi_dry = Math.max(1.0 - psi_form - psi_wash - 0.12, 0.15);
-  const t_dry = t_cycle * psi_dry;
+  // Mass Balance
+  // Total water evaporated W_tot = F * (1 - xf / xp)
+  const W_tot = Math.max(F * (1 - (xf / xp)), 10);
+  const L_prod = F - W_tot;
 
-  // Pressure in Pa
-  const dP_pa = dP_kpa * 1000;
-  const mu_si = mu_cp * 1e-3; // Pa.s
+  // Boiling point elevation across each effect
+  // Approx distribution: BPE scales with concentration
+  let bpe_sum = 0;
+  const bpe_arr = [];
+  for (let i = 1; i <= N; i++) {
+    // Fraction of concentration
+    let frac = i / N;
+    if (flowType === 'backward') {
+      // In backward feed, effect 1 has highest concentration
+      frac = (N - i + 1) / N;
+    }
+    const bpe_i = BPE_final * Math.pow(frac, 1.3);
+    bpe_arr.push(bpe_i);
+    bpe_sum += bpe_i;
+  }
 
-  // Specific cake resistance corrected for compressibility
-  // alpha = alpha0 * (dP / 10^5)^s
-  const alpha_base = alpha0 * 1e10; // m/kg
-  const alpha_eff = alpha_base * Math.pow(dP_pa / 100000, s);
+  // Temperatures
+  const DT_gross = Math.max(Ts - Tc, 10);
+  const DT_net = Math.max(DT_gross - bpe_sum, 5);
 
-  // Form Volume per unit area (V/A)
-  // (V/A)^2 = (2 * dP * t_form) / (mu * alpha_eff * c)
-  const VA_form_sq = (2 * dP_pa * t_form) / (mu_si * alpha_eff * c);
-  const VA_form = Math.sqrt(VA_form_sq); // m3 filtrate / m2 drum
+  // Overall U decay across effects (e.g. U1=2200, drops down in later effects due to viscosity/temperature)
+  const u_arr = [];
+  let sum_inv_u = 0;
+  for (let i = 0; i < N; i++) {
+    // Decay factor
+    const decay = Math.pow(0.82, i);
+    const Ui = U1 * decay;
+    u_arr.push(Ui);
+    sum_inv_u += (1 / Ui);
+  }
 
-  // Cake Yield Y_cake (kg dry / m2 / h)
-  // Y = c * (V/A) / t_cycle * 3600
-  const Y_cake = (c * VA_form / t_cycle) * 3600;
-  const Y_cake_lb = Y_cake * 0.2048; // lb/ft2/h
+  // Temperature drop per effect for equal calandria area:
+  // DT_i = DT_net * (1 / Ui) / sum_inv_u
+  const dt_arr = [];
+  for (let i = 0; i < N; i++) {
+    const dti = DT_net * ((1 / u_arr[i]) / sum_inv_u);
+    dt_arr.push(dti);
+  }
 
-  // Required Total Drum Area A_req (m2)
-  const A_req = P_dry / Y_cake;
+  // Steam Economy (SE): Approx N * 0.85 (or +1.0 for TVR)
+  let base_stage_eff = 0.84;
+  if (flowType === 'backward') base_stage_eff = 0.81; // slight preheat penalty
+  let SE = N * base_stage_eff;
+  if (tvr === 'tvr1') {
+    SE += 0.95;
+  }
 
-  // Drum dimensions: Area = pi * D * L
-  // Standard aspect ratio L / D approx 1.5
-  const aspect = 1.5;
-  const D_drum = Math.sqrt(A_req / (Math.PI * aspect));
-  const L_drum = D_drum * aspect;
+  // Live steam required
+  const live_steam_kgh = W_tot / SE;
+  // Latent heat of steam at Ts: approx h_fg ~ 2140 kJ/kg
+  const h_fg_steam = 2140; // kJ/kg
+  const steam_duty_kw = (live_steam_kgh * h_fg_steam) / 3600;
 
-  // Cake thickness (meters -> mm)
-  // L_cake = (c * VA_form) / rho_dry
-  const L_cake_m = (c * VA_form) / rho_dry;
-  const L_cake_mm = L_cake_m * 1000;
+  // Heat transfer area per effect:
+  // In equal area design: A = Q_total / (N * U_avg * DT_avg)
+  // Q per effect approx steam_duty_kw
+  const Q_effect_watts = steam_duty_kw * 1000;
+  const A_effect = Q_effect_watts / (u_arr[0] * dt_arr[0]);
+  const A_tot = A_effect * N;
 
-  // Total filtrate flow rate
-  const Q_filtrate_m3h = P_dry / c;
-
-  // Vacuum airflow capacity: approx 0.8 Nm3 / m2 drum / min
-  const q_air_spec = 0.85; // Nm3/m2/min
-  const Q_air_nm3h = A_req * q_air_spec * 60;
-  // Vacuum pump power: approx 1.8 kW per 100 m3/h at 60 kPa
-  const vac_power_kw = (Q_air_nm3h / 100) * 1.85;
+  // Final vapor to condenser
+  const vapor_cond_kgh = W_tot / N;
+  const cond_duty_kw = (vapor_cond_kgh * 2380) / 3600;
+  // Cooling water flow (assuming 10C temp rise, cp=4.18)
+  const cw_m3h = (cond_duty_kw * 3600) / (4.18 * 1000 * 10);
 
   // Update UI
-  document.getElementById('res_drum_area').textContent = A_req.toFixed(1) + ' m²';
-  document.getElementById('res_drum_dims').textContent = 'Ø' + D_drum.toFixed(2) + ' m × ' + L_drum.toFixed(2) + ' m L';
+  document.getElementById('res_steam_econ').textContent = SE.toFixed(2) + ' kg/kg';
+  document.getElementById('res_se_theor').textContent = 'Theor max: ' + (N * 1.0).toFixed(1) + ' (ideal)';
 
-  document.getElementById('res_cake_yield').textContent = Y_cake.toFixed(1) + ' kg/(m²·h)';
-  document.getElementById('res_yield_lb').textContent = Y_cake_lb.toFixed(1) + ' lb/(ft²·h)';
+  document.getElementById('res_steam_flow').textContent = (live_steam_kgh / 1000).toFixed(2) + ' t/h';
+  document.getElementById('res_steam_duty').textContent = 'Thermal Duty: ' + (steam_duty_kw / 1000).toFixed(2) + ' MW';
 
-  document.getElementById('res_cake_thick').textContent = L_cake_mm.toFixed(1) + ' mm';
-  let thickStatus = 'Optimal for Scraper (>5mm)';
-  if (discharge === 'precoat') thickStatus = 'Precoat Shave (<2mm fine)';
-  else if (L_cake_mm < 3.0) thickStatus = 'Too Thin for Scraper (Needs Precoat/Roll)';
-  else if (L_cake_mm > 25) thickStatus = 'Heavy Cake (Check Motor Torque)';
-  document.getElementById('res_cake_status').textContent = thickStatus;
+  document.getElementById('res_we_tot').textContent = (W_tot / 1000).toFixed(2) + ' t/h H₂O';
+  document.getElementById('res_prod_flow').textContent = 'Product: ' + (L_prod / 1000).toFixed(2) + ' t/h at ' + xp + '%';
 
-  document.getElementById('res_filtrate_q').textContent = Q_filtrate_m3h.toFixed(1) + ' m³/h';
-  document.getElementById('res_cycle_time').textContent = 'Cycle: ' + t_cycle.toFixed(1) + ' s (' + RPM + ' RPM)';
+  document.getElementById('res_area_effect').textContent = A_effect.toFixed(0) + ' m² / effect';
+  document.getElementById('res_area_tot').textContent = 'Total Area: ' + A_tot.toFixed(0) + ' m² (' + N + ' calandrias)';
 
-  document.getElementById('res_vac_air').textContent = Math.round(Q_air_nm3h).toLocaleString('en-US') + ' Nm³/h';
-  document.getElementById('res_vac_power').textContent = 'Pump Power: ~' + vac_power_kw.toFixed(1) + ' kW';
+  document.getElementById('res_dt_net').textContent = DT_net.toFixed(1) + ' °C';
+  document.getElementById('res_bpe_loss_tot').textContent = 'Σ BPE Loss: ' + bpe_sum.toFixed(1) + ' °C';
 
-  document.getElementById('res_alpha_eff').textContent = (alpha_eff / 1e10).toFixed(2) + ' × 10¹⁰ m/kg';
-  document.getElementById('res_alpha_note').textContent = 'Compressibility s = ' + s.toFixed(2);
+  document.getElementById('res_cond_duty').textContent = (cond_duty_kw / 1000).toFixed(2) + ' MW';
+  document.getElementById('res_cw_flow').textContent = 'Cooling Water: ' + cw_m3h.toFixed(0) + ' m³/h';
 
-  document.getElementById('res_t_form').textContent = t_form.toFixed(1) + ' s (' + sub_pct + '%)';
-  document.getElementById('res_t_dry').textContent = t_dry.toFixed(1) + ' s (' + (psi_dry * 100).toFixed(0) + '%)';
-  document.getElementById('res_wash_arc').textContent = (psi_wash * 360).toFixed(0) + '° Arc (' + t_wash.toFixed(1) + ' s)';
+  document.getElementById('res_dt_gross').textContent = DT_gross.toFixed(1) + ' °C';
+  document.getElementById('res_evap_per_eff').textContent = (W_tot / N / 1000).toFixed(2) + ' t/h';
+  document.getElementById('res_spec_steam').textContent = (1 / SE).toFixed(3) + ' kg steam/kg evap';
 
-  drawRvdfCanvas({
-    D_drum, L_drum, sub_pct, L_cake_mm, RPM, Y_cake, A_req
+  drawMeeCanvas({
+    N, Ts, Tc, DT_gross, DT_net, bpe_arr, dt_arr, u_arr, SE
   });
 }
 
-function drawRvdfCanvas(data) {
-  const canvas = document.getElementById('rvdfCanvas');
+function drawMeeCanvas(data) {
+  const canvas = document.getElementById('meeCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
@@ -1430,166 +1451,133 @@ function drawRvdfCanvas(data) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
   }
 
-  // Draw Drum Radial Cross-Section
-  const cx = 175;
-  const cy = 150;
-  const rDrum = 95;
+  // Draw Evaporator Vessels in Train
+  const N = data.N;
+  const leftX = 50;
+  const rightX = w - 60;
+  const spacing = (rightX - leftX) / N;
+  const vesselW = Math.min(spacing * 0.65, 80);
+  const vesselH = 150;
+  const startY = 60;
 
-  // Slurry Vat (Crescent at bottom)
-  ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
-  ctx.strokeStyle = '#d97706';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 22, 0.2 * Math.PI, 0.8 * Math.PI, false);
-  ctx.lineTo(cx + rDrum + 25, cy + 85);
-  ctx.lineTo(cx - rDrum - 25, cy + 85);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
+  // Title
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.fillText('Multi-Effect Train Temperature Cascade & Calandria Profile', leftX, 28);
 
-  ctx.fillStyle = '#f59e0b';
-  ctx.font = 'bold 9px sans-serif';
-  ctx.fillText('SLURRY VAT (' + data.sub_pct + '% Submergence)', cx - 70, cy + 80);
+  for (let i = 0; i < N; i++) {
+    const cx = leftX + i * spacing + spacing / 2;
+    const vx = cx - vesselW / 2;
 
-  // Drum Cylinder
-  ctx.fillStyle = '#0f172a';
-  ctx.strokeStyle = '#475569';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.stroke();
+    // Vessel Body (Steel cylinder)
+    ctx.fillStyle = '#0f172a';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.8;
+    ctx.fillRect(vx, startY, vesselW, vesselH);
+    ctx.strokeRect(vx, startY, vesselW, vesselH);
 
-  // Draw Internal Vacuum Pipes / Hub
-  ctx.fillStyle = '#1e293b';
-  ctx.beginPath();
-  ctx.arc(cx, cy, 24, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.stroke();
+    // Calandria tube bundle (bottom half)
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+    ctx.fillRect(vx + 4, startY + vesselH * 0.45, vesselW - 8, vesselH * 0.48);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(vx + 4, startY + vesselH * 0.45, vesselW - 8, vesselH * 0.48);
 
-  // Internal drainage pipes (radial spokes)
-  ctx.strokeStyle = '#334155';
-  ctx.lineWidth = 1.5;
-  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 6) {
-    ctx.beginPath();
-    ctx.moveTo(cx + 24 * Math.cos(a), cy + 24 * Math.sin(a));
-    ctx.lineTo(cx + rDrum * Math.cos(a), cy + rDrum * Math.sin(a));
-    ctx.stroke();
+    // Effect Number
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('EFF ' + (i + 1), cx - 18, startY + 22);
+
+    // Driving delta T on effect
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('ΔT: ' + data.dt_arr[i].toFixed(1) + '°C', cx - 22, startY + 40);
+
+    // U value
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('U: ' + data.u_arr[i].toFixed(0), cx - 20, startY + vesselH * 0.7);
+
+    // BPE Callout
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('+' + data.bpe_arr[i].toFixed(1) + '° BPE', cx - 22, startY + vesselH + 18);
+
+    // Vapor interconnection line to next effect
+    if (i < N - 1) {
+      const nextVx = cx + spacing - vesselW / 2;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // From top of effect i to calandria of effect i+1
+      ctx.moveTo(cx, startY);
+      ctx.lineTo(cx, startY - 18);
+      ctx.lineTo(nextVx, startY - 18);
+      ctx.lineTo(nextVx, startY + vesselH * 0.55);
+      ctx.stroke();
+    }
   }
 
-  // Zone 1: Cake Formation (Submerged Arc in Cyan)
-  const formStart = 0.25 * Math.PI;
-  const formEnd = 0.75 * Math.PI;
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 6;
+  // Live Steam Line into Effect 1
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2.5;
+  const firstCx = leftX + spacing / 2;
+  const firstVx = firstCx - vesselW / 2;
   ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, formStart, formEnd);
+  ctx.moveTo(10, startY + vesselH * 0.55);
+  ctx.lineTo(firstVx, startY + vesselH * 0.55);
   ctx.stroke();
 
-  // Zone 2: Wash Arc (Green spray header)
-  const washStart = 1.0 * Math.PI;
-  const washEnd = 1.4 * Math.PI;
-  ctx.strokeStyle = '#10b981';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, washStart, washEnd);
-  ctx.stroke();
-
-  // Spray wash nozzles above drum
-  ctx.fillStyle = '#10b981';
-  ctx.fillRect(cx - 65, cy - rDrum - 25, 55, 6);
-  ctx.fillText('WASH SPRAY', cx - 65, cy - rDrum - 30);
-
-  // Zone 3: Cake Dewatering (Blue Arc)
-  const dryStart = 1.4 * Math.PI;
-  const dryEnd = 1.85 * Math.PI;
-  ctx.strokeStyle = '#818cf8';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.arc(cx, cy, rDrum + 3, dryStart, dryEnd);
-  ctx.stroke();
-
-  // Zone 4: Knife Scraper Discharge (Red knife at 2.05 PI ~ 10 deg)
-  const knifeX = cx + rDrum + 5;
-  const knifeY = cy + 15;
   ctx.fillStyle = '#ef4444';
-  ctx.beginPath();
-  ctx.moveTo(knifeX, knifeY);
-  ctx.lineTo(knifeX + 25, knifeY + 20);
-  ctx.lineTo(knifeX + 30, knifeY + 15);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = '#cbd5e1';
   ctx.font = 'bold 9px sans-serif';
-  ctx.fillText('KNIFE SCRAPER', knifeX + 8, knifeY + 34);
+  ctx.fillText('LIVE STEAM (' + data.Ts + '°C)', 5, startY + vesselH * 0.55 - 6);
 
-  // Rotation Direction Arrow (Clockwise)
-  ctx.strokeStyle = '#f59e0b';
+  // Final Vapor Line to Condenser
+  const lastCx = leftX + (N - 1) * spacing + spacing / 2;
+  ctx.strokeStyle = '#38bdf8';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(cx, cy, 55, 1.2 * Math.PI, 1.6 * Math.PI);
+  ctx.moveTo(lastCx, startY);
+  ctx.lineTo(lastCx, startY - 25);
+  ctx.lineTo(w - 25, startY - 25);
+  ctx.lineTo(w - 25, startY + vesselH * 0.4);
   ctx.stroke();
-  ctx.fillStyle = '#f59e0b';
-  ctx.fillText('ROTATION (' + data.RPM + ' RPM)', cx - 45, cy - 60);
-
-  // Right Side Diagnostic HUD
-  const hx = 350;
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(hx, 30, 335, 240);
-  ctx.strokeStyle = '#334155';
-  ctx.strokeRect(hx, 30, 335, 240);
-
-  ctx.fillStyle = '#f8fafc';
-  ctx.font = 'bold 12px sans-serif';
-  ctx.fillText('Rotary Drum Diagnostic Analysis', hx + 14, 54);
-
-  ctx.fillStyle = '#cbd5e1';
-  ctx.font = '11px sans-serif';
-  ctx.fillText('• Drum Geometry: Ø' + data.D_drum.toFixed(2) + ' m × ' + data.L_drum.toFixed(2) + ' m (' + data.A_req.toFixed(1) + ' m² active)', hx + 14, 80);
-  ctx.fillText('• Solids Yield: ' + data.Y_cake.toFixed(1) + ' kg dry solids/(m²·h)', hx + 14, 104);
-  ctx.fillText('• Cake Thickness: ' + data.L_cake_mm.toFixed(1) + ' mm on drum face', hx + 14, 128);
-
-  // Cake thickness assessment
-  const goodThick = data.L_cake_mm >= 4.0 && data.L_cake_mm <= 20;
-  ctx.fillStyle = goodThick ? '#10b981' : '#f59e0b';
-  ctx.fillText('• Discharge Suitability: ' + (goodThick ? 'Optimal Cake Lift' : 'Check Scraper Clearance'), hx + 14, 152);
-
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillText('• Form Zone: ' + data.sub_pct + '% Submergence under continuous vacuum', hx + 14, 176);
 
   ctx.fillStyle = '#10b981';
-  ctx.fillText('• Wash Zone: Displacement washing spray header', hx + 14, 200);
+  ctx.fillRect(w - 45, startY + vesselH * 0.4, 40, 50);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.fillText('VAC COND', w - 44, startY + vesselH * 0.4 + 28);
+  ctx.fillText(data.Tc + '°C', w - 36, startY + vesselH * 0.4 + 42);
 
-  ctx.fillStyle = '#818cf8';
-  ctx.fillText('• Dewatering: Moisture reduction arc before discharge', hx + 14, 224);
-
+  // Footer Legend
   ctx.fillStyle = '#cbd5e1';
-  ctx.fillText('• Rotary trunnion valve ports filtrate to vacuum receiver', hx + 14, 248);
+  ctx.font = '11px sans-serif';
+  ctx.fillText('• Net Driving Head: ' + data.DT_net.toFixed(1) + '°C (Gross: ' + data.DT_gross.toFixed(1) + '°C)', leftX, h - 12);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('• Steam Economy: ' + data.SE.toFixed(2) + ' kg evaporated / kg live steam', leftX + 280, h - 12);
 }
 
-function copyRvdfSummary() {
-  const area = document.getElementById('res_drum_area').textContent;
-  const dims = document.getElementById('res_drum_dims').textContent;
-  const yieldVal = document.getElementById('res_cake_yield').textContent;
-  const thick = document.getElementById('res_cake_thick').textContent;
-  const filtrate = document.getElementById('res_filtrate_q').textContent;
-  const vacAir = document.getElementById('res_vac_air').textContent;
-  const tform = document.getElementById('res_t_form').textContent;
+function copyMeeSummary() {
+  const se = document.getElementById('res_steam_econ').textContent;
+  const steam = document.getElementById('res_steam_flow').textContent;
+  const we = document.getElementById('res_we_tot').textContent;
+  const prod = document.getElementById('res_prod_flow').textContent;
+  const area = document.getElementById('res_area_effect').textContent;
+  const dtnet = document.getElementById('res_dt_net').textContent;
+  const cond = document.getElementById('res_cond_duty').textContent;
 
   const text = [
-    '=== ROTARY VACUUM DRUM FILTER (RVDF) SIZING SUMMARY ===',
-    'Required Drum Area: ' + area + ' (' + dims + ')',
-    'Dry Solids Yield: ' + yieldVal,
-    'Cake Thickness: ' + thick,
-    'Filtrate Flow Rate: ' + filtrate,
-    'Vacuum Airflow Capacity: ' + vacAir,
-    'Cake Formation Time: ' + tform,
-    'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/rotary-vacuum-drum-filter-rvdf-sizing-calculator.html)'
+    '=== MULTIPLE-EFFECT EVAPORATOR (MEE) SIZING SUMMARY ===',
+    'Steam Economy: ' + se,
+    'Live Motive Steam Demand: ' + steam,
+    'Total Evaporated Water: ' + we,
+    prod,
+    'Calandria Heat Transfer Area: ' + area,
+    'Net Temperature Driving Force: ' + dtnet,
+    'Condenser Duty: ' + cond,
+    'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/evaporator-multiple-effect-steam-economy-calculator.html)'
   ].join('\n');
 
   navigator.clipboard.writeText(text).then(function() {
-    const btn = document.getElementById('btn_rv_copy');
+    const btn = document.getElementById('btn_mee_copy');
     const orig = btn.innerHTML;
     btn.innerHTML = '<span>✓</span> Diagnostic Summary Copied!';
     btn.style.background = '#10b981';
@@ -1601,7 +1589,7 @@ function copyRvdfSummary() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  calcRVDF();
+  calcMEE();
 });
 </script>
 
@@ -1610,51 +1598,51 @@ window.addEventListener('DOMContentLoaded', function() {
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does drum rotational speed (RPM) affect cake thickness and yield?</span>
+                <span style="font-size:1rem;">What is Steam Economy (SE) and what limits its maximum value?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                According to Ruth-Carman filtration theory, cake thickness scales inversely with the square root of drum speed (L_cake ∝ 1 / √RPM), while filtration dry solids yield rate increases with the square root of drum speed (Y_cake ∝ √RPM). Increasing drum RPM increases hourly production capacity but produces a thinner cake; RPM must be throttled to maintain minimum cake thickness (typically ≥3 to 5 mm for clean knife scraper peel).
+                Steam Economy is the mass ratio of total water evaporated across all effects to the mass of live motive steam supplied to the first effect: SE = W_tot / S_live. In an ideal N-effect evaporator without losses, SE would equal N. In practice, heat losses, sensible heating of dilute feed liquor, and boiling point elevation reduce per-stage efficiency to ~0.80-0.88, yielding practical steam economies of ~2.4 for triple-effect and ~3.2 for quadruple-effect.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the function of a precoat rotary vacuum drum filter?</span>
+                <span style="font-size:1rem;">How does Boiling Point Elevation (BPE) reduce multi-effect evaporator capacity?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                For gelatinous, slimy, or sub-micron particulate slurries (such as fermentation broth, wine lees, or starch hydrolysate) that instantly blind woven filter cloths, a 50 to 100 mm bed of diatomaceous earth or perlite is pre-deposited on the drum. An advancing micrometer knife shaves off a microscopic slice (10 to 50 μm) of the blinded precoat surface along with the captured solids on each revolution, presenting fresh filter aid continuously.
+                Dissolved solutes raise the boiling temperature of liquor above pure water saturation temperature. While the liquor boils at this elevated temperature, the vapor generated leaves at the pure saturation temperature corresponding to vessel pressure. This temperature penalty (BPE) is permanently lost at every stage: Net ΔT = (T_steam - T_condenser) - Σ BPE. In high-solids caustic or salt evaporation, cumulative BPE can exceed 40°C, choking multi-effect trains.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What determines maximum drum submergence in the slurry vat?</span>
+                <span style="font-size:1rem;">When should forward feed vs backward feed liquor flow be selected?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Standard industrial drum submergence ranges from 25% to 37.5% (with deep submergence models reaching 50%). Submergence is mechanically limited by the need to allocate sufficient circumferential arc for cake washing (15-20%), vacuum dewatering (25-35%), and atmospheric cake discharge/cloth washing (15%) above the slurry liquid level, as well as preventing slurry overflow into the central trunnion rotary valve.
+                Forward feed (feed enters Effect 1 at highest pressure/temperature and flows down to the final vacuum effect) eliminates inter-stage liquor pumps because pressure differences drive liquid flow. However, backward feed (feed enters the cold final vacuum effect and finishes at Effect 1) is chosen for highly viscous liquors (such as 50% caustic or concentrated black liquor) so the most viscous stream is heated by the hottest steam, drastically improving the heat transfer coefficient (U).
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does specific cake resistance (α) impact filter sizing?</span>
+                <span style="font-size:1rem;">How does Thermo-Vapor Recompression (TVR) improve steam economy?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Specific cake resistance (α, measured in m/kg) quantifies the hydraulic drag of the compacted particulate cake bed. Free-filtering mineral concentrates have low resistance (α ~ 10⁹ to 10¹⁰ m/kg), enabling high filtration rates and compact drums. Highly compressible organic or hydrated precipitates have extreme resistances (α > 10¹² m/kg), requiring large drum areas, low vacuum to prevent cake collapse, and precoat filter aids.
+                A TVR steam ejector uses high-pressure motive steam (8 to 12 bar) to entrain and recompress a portion of the low-pressure vapor generated in Effect 1, discharging it back into Effect 1 calandria steam chest. This re-uses the latent heat of evaporation within the very same stage, boosting effective steam economy by approximately +0.8 to +1.1 without adding an extra physical evaporator vessel.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why is cake cracking during the dewatering cycle fatal to drum operation?</span>
+                <span style="font-size:1rem;">Why are non-condensable gas vents essential in evaporator calandrias?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Compressible cakes shrink as pore liquid is evacuated under high vacuum. If shrinkage creates open tension cracks through the cake bed, atmospheric air rushes freely through the low-resistance fissures. This vacuum break collapses vacuum manifold pressure site-wide, preventing dewatering of the remaining cake and causing thin cakes in the submerged formation zone to slump back into the slurry vat.
+                Gases dissolved in the feed (air, carbon dioxide) or leaking into vacuum stages do not condense on calandria tubes. Stagnant non-condensables form an insulating gaseous film that cuts heat transfer coefficients by over 60%. Continuous venting orifices must be placed at the coldest corners of the calandria tube nest (opposite the steam inlet) to vent non-condensables into the next effect or vacuum condenser.
               </div>
             </div>
           
@@ -1688,8 +1676,8 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frotary-vacuum-drum-filter-rvdf-sizing-calculator&text=Rotary%20Vacuum%20Drum%20Filter%20(RVDF)%20Specific%20Cake%20Resistance%20%26%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frotary-vacuum-drum-filter-rvdf-sizing-calculator&title=Rotary%20Vacuum%20Drum%20Filter%20(RVDF)%20Specific%20Cake%20Resistance%20%26%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fevaporator-multiple-effect-steam-economy-calculator&text=Multiple-Effect%20Evaporator%20(MEE)%20Steam%20Economy%20%26%20Area%20Distribution%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fevaporator-multiple-effect-steam-economy-calculator&title=Multiple-Effect%20Evaporator%20(MEE)%20Steam%20Economy%20%26%20Area%20Distribution%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1757,14 +1745,14 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/neuro/trauma-bond-interrupter" class="promo-card">
+                <a href="/neuro/status-anxiety-deconstructor" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                       <span class="promo-badge">Neurobiology & Mind</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Trauma Bond & Intermittent Reinforcement Cycle Interrupter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Audit the psychological mechanisms of a trauma bond. Identify intermittent reinforcement schedules, dopamine craving loops, and cognitive dissonance in toxic relationships.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Status Anxiety & Meritocracy Fallacy Auditor</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Deconstruct status anxiety, peer comparison pressure, and the insidious psychological trap of meritocracy using Alain de Botton’s philosophical framework.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1772,14 +1760,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/health/body-fat-calculator" class="promo-card">
+                <a href="/health/noise-exposure-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                       <span class="promo-badge">Health</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">US Navy Body Fat Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Estimate body fat percentage, lean body mass, and fat mass using circumference measurements.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Decibel Sound Dose & Hearing Damage Estimator (OSHA/NIOSH)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate safe listening duration for headphones and concerts before irreversible stereocilia damage.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1802,14 +1790,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
               
-                <a href="/science/schwarzschild-radius-calculator" class="promo-card">
+                <a href="/trade/concrete-curing-maturity-index" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Science</span>
+                      <span class="promo-badge">Trade Math</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Black Hole Schwarzschild Radius Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate event horizon radius for any mass from subatomic to supermassive black holes.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Concrete Curing Maturity Index (Nurse-Saul)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Predict compressive strength gain from in-place curing temperature history.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1817,14 +1805,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/psychology/catastrophizing-severity-meter" class="promo-card">
+                <a href="/calc/cm-to-inches" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Psychology</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Catastrophic Thinking Scale & Severity Meter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Step down anxiety spirals from worst-case disaster to realistic mathematical probability.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Centimeters to Inches (cm to in)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert metric centimeters to imperial inches.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
