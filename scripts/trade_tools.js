@@ -16043,6 +16043,2176 @@ export function buildTradeTools() {
   }));
 
 
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // HEAT PUMP COP, SEER2 & ECONOMIC BALANCE POINT CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const heatPumpEffBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Heat Pump Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Heat Pump COP, SEER2 & Economic Balance Point Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate Coefficient of Performance (COP), HSPF2/SEER2 efficiency, cold-climate heating capacity derating, thermal balance point (T_bal), and the exact economic switchover temperature where dual-fuel gas/propane beats electric heat pump operation.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2v20\"/><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"/></svg>
+        Heat Pump & Home Specifications
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpRatedCap">Nominal Cooling/Heating (Tons)</label>
+          <select id="hpRatedCap" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="2.0">2.0 Ton (24,000 BTU/h)</option>
+            <option value="2.5">2.5 Ton (30,000 BTU/h)</option>
+            <option value="3.0" selected>3.0 Ton (36,000 BTU/h)</option>
+            <option value="3.5">3.5 Ton (42,000 BTU/h)</option>
+            <option value="4.0">4.0 Ton (48,000 BTU/h)</option>
+            <option value="5.0">5.0 Ton (60,000 BTU/h)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpCompressorType">Compressor Technology</label>
+          <select id="hpCompressorType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="cold_inverter" selected>Cold-Climate Inverter (Maintains 100% @ 5&deg;F)</option>
+            <option value="std_inverter">Standard Variable Inverter (80% @ 17&deg;F)</option>
+            <option value="single_stage">Single-Stage Legacy (60% @ 17&deg;F)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpHSPF2">HSPF2 Rating</label>
+          <input type="number" id="hpHSPF2" value="9.5" min="6.0" max="15.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Seasonal heating performance</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpHeatLossRate">Home Heat Loss (BTU/h / &deg;F)</label>
+          <input type="number" id="hpHeatLossRate" value="650" min="100" max="3000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Building envelope heat loss rate</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Utility Rates & Backup Heating</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpElectricRate">Electricity Cost ($ / kWh)</label>
+          <input type="number" id="hpElectricRate" value="0.16" min="0.05" max="0.60" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpFuelType">Dual-Fuel Backup Source</label>
+          <select id="hpFuelType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="nat_gas" selected>Natural Gas ($1.30/therm @ 95% AFUE)</option>
+            <option value="propane">Propane ($2.80/gal @ 95% AFUE)</option>
+            <option value="resistance">Electric Resistance Strips ($/kWh @ 100%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hpCurrentOutdoor">Current Outdoor Temp (&deg;F)</label>
+        <input type="number" id="hpCurrentOutdoor" value="25" min="-25" max="65" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Efficiency & Balance Points
+          </h2>
+          <button id="copyHpBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Heat Pump Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Current Real COP</span>
+            <span id="hpRealCOP" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#10b981;display:block;">2.84 COP</span>
+            <span id="hpHeatBtu" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">32,400 BTU/h @ 25&deg;F</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Thermal Balance Point</span>
+            <span id="hpThermalBalance" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">18.5 &deg;F</span>
+            <span id="hpBalanceSub" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Backup heat kicks in below</span>
+          </div>
+        </div>
+
+        <!-- DETAILED THERMAL & ECONOMIC SPECS -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Economic Switchover Point:</span>
+            <strong id="hpEconomicBalance" style="font-family:var(--mono);color:#f59e0b;">22.0 &deg;F (Dual-Fuel Trigger)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Current Heat Pump Cost / 100k BTU:</span>
+            <strong id="hpCostHeatPump" style="font-family:var(--mono);">$1.65 / therm equivalent</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Backup Furnace Cost / 100k BTU:</span>
+            <strong id="hpCostBackup" style="font-family:var(--mono);">$1.37 / therm equivalent</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">House Heat Loss Demand:</span>
+            <strong id="hpHouseDemand" style="font-family:var(--mono);">29,250 BTU/h (at 25&deg;F)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Supplemental Deficit / Surplus:</span>
+            <strong id="hpDeficit" style="font-family:var(--mono);color:#10b981;">+3,150 BTU/h (Self-Sufficient)</strong>
+          </div>
+        </div>
+
+        <!-- THERMAL STATUS BADGE -->
+        <div id="hpBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG CAPACITY VS HEAT LOSS CURVE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Heat Pump Heating Capacity vs Home Heat Loss Curve</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector performance curve illustrating diminishing heat pump output versus escalating building envelope heat loss across outdoor temperatures, identifying thermal balance point and backup heat requirements.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="hpCurveSvg" viewBox="0 0 800 320" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & THERMODYNAMIC FORMULAS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Thermodynamic Principles: Real COP & Economic Switchover</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Heat pumps do not create heat&mdash;they pump ambient thermal energy uphill against temperature gradients. As outdoor temperature drops, compression ratios spike and COP diminishes.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Coefficient of Performance (COP):</strong><br>
+      \\text{COP} = \\frac{Q_{\\text{heating thermal output}}}{W_{\\text{electrical compressor work}}} = \\frac{\\text{BTU/h}}{3412 \\times \\text{kW}}<br><br>
+      <strong>2. Heating Cost per 100,000 BTU (Heat Pump):</strong><br>
+      \\text{Cost}_{\\text{HP}} = \\frac{100,000}{3412 \\times \\text{COP}} \\times \\$\\text{/kWh} = \\frac{29.30}{\\text{COP}} \\times \\$\\text{/kWh}<br><br>
+      <strong>3. Heating Cost per 100,000 BTU (Natural Gas / Propane):</strong><br>
+      \\text{Cost}_{\\text{Furnace}} = \\frac{\\text{Fuel Unit Cost}}{\\text{AFUE}} \\times \\text{Unit Factor}<br><br>
+      <strong>4. Economic Balance Point (COP_{switch}):</strong><br>
+      \\text{COP}_{\\text{switch}} = \\frac{29.30 \\times \\$\\text{/kWh}}{\\text{Cost}_{\\text{Furnace}}} \\quad (\\text{Switch to backup when actual COP drops below this})
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL HEAT PUMP TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The Deep Nighttime Setback Strip Heat Trap</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Lowering your thermostat by 8&deg;F at night works for gas furnaces, but DESTROYS heat pump efficiency. In the morning, a smart thermostat seeing an 8&deg;F deficit engages emergency 10 kW electric resistance heat strips ($COP = 1.0$) to recover quickly, erasing all nighttime energy savings.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. The Economic Balance Point Inversion</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        If electric rates are high ($0.28/kWh) and natural gas is cheap ($1.10/therm), running a heat pump below 35&deg;F costs MORE per BTU than firing the gas furnace, even though the heat pump is thermally capable. Failing to program dual-fuel lockouts spikes utility bills.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Sizing for Summer Cooling Creating Winter Deficit</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Sizing a heat pump strictly for peak summer cooling (e.g. 2.5 tons) leaves older, leaky homes with massive heat deficits when winter temperatures plunge to 0&deg;F. Unless cold-climate inverter technology is selected, you become 100% dependent on expensive supplemental heat.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Ignoring Snow Drift Airflow Choke</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Installing outdoor heat pump condensers flat on a concrete pad at ground level in northern snow country is disastrous. Snow drifts bury the bottom of the coil, restricting airflow, causing endless defrost cycles, and allowing freezing condensate to bend aluminum fins into a solid block of ice.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. The Defrost Cycle Cold Air Dump</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        When an outdoor coil frosts over, the heat pump reverses into air-conditioning mode to melt the ice with hot indoor gas. If the indoor auxiliary electric strip staging control fails, the heat pump blows frigid 45&deg;F air out of supply registers into living rooms every 60 minutes.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcHeatPump() {
+        var nominalTons = parseFloat(document.getElementById('hpRatedCap').value) || 3.0;
+        var compType = document.getElementById('hpCompressorType').value;
+        var hspf2 = parseFloat(document.getElementById('hpHSPF2').value) || 9.5;
+        var heatLossPerDeg = parseFloat(document.getElementById('hpHeatLossRate').value) || 650;
+        var elecrate = parseFloat(document.getElementById('hpElectricRate').value) || 0.16;
+        var backupType = document.getElementById('hpFuelType').value;
+        var outdoorT = parseFloat(document.getElementById('hpCurrentOutdoor').value) || 25;
+
+        var indoorSetpoint = 70;
+        var ratedBtu47 = nominalTons * 12000;
+
+        // Capacity at current outdoor temp based on compressor type
+        var capFraction = 1.0;
+        if (compType === 'cold_inverter') {
+          // Cold climate: 100% capacity down to 5F, 80% at -15F
+          if (outdoorT >= 47) capFraction = 1.10;
+          else if (outdoorT >= 5) capFraction = 1.0 - (47 - outdoorT) * 0.002;
+          else capFraction = 0.92 - (5 - outdoorT) * 0.008;
+        } else if (compType === 'std_inverter') {
+          // Standard inverter: 80% at 17F, 50% at 0F
+          if (outdoorT >= 47) capFraction = 1.0;
+          else if (outdoorT >= 17) capFraction = 1.0 - (47 - outdoorT) * 0.0067;
+          else capFraction = 0.80 - (17 - outdoorT) * 0.0176;
+        } else {
+          // Single stage: 60% at 17F, 35% at 0F
+          if (outdoorT >= 47) capFraction = 1.0;
+          else if (outdoorT >= 17) capFraction = 1.0 - (47 - outdoorT) * 0.0133;
+          else capFraction = 0.60 - (17 - outdoorT) * 0.015;
+        }
+        capFraction = Math.max(0.10, capFraction);
+        var currentCapBtu = ratedBtu47 * capFraction;
+
+        // COP at current outdoor temp: baseline COP at 47F ~ HSPF2 / 3.1
+        var cop47 = hspf2 / 3.0;
+        // COP derates with outdoor temp drop
+        var copCurrent = Math.max(1.1, cop47 - (47 - outdoorT) * 0.035);
+
+        // House heat loss at current outdoor temp
+        var deltaT = Math.max(0, indoorSetpoint - outdoorT);
+        var houseLossBtu = deltaT * heatLossPerDeg;
+
+        // Thermal Balance Point: where currentCapBtu == houseLossBtu
+        // Linear solve approximation
+        var tBal = 15;
+        for (var t = 60; t >= -20; t -= 0.5) {
+          var loss = (indoorSetpoint - t) * heatLossPerDeg;
+          var frac = compType === 'cold_inverter' ? (t >= 5 ? 1.0 - (47 - t) * 0.002 : 0.92 - (5 - t) * 0.008) :
+                     compType === 'std_inverter' ? (t >= 17 ? 1.0 - (47 - t) * 0.0067 : 0.80 - (17 - t) * 0.0176) :
+                     (t >= 17 ? 1.0 - (47 - t) * 0.0133 : 0.60 - (17 - t) * 0.015);
+          var cap = ratedBtu47 * Math.max(0.1, frac);
+          if (cap <= loss) {
+            tBal = t;
+            break;
+          }
+        }
+
+        // Heating cost per 100k BTU (Heat Pump)
+        var hpCostPerTherm = (29.30 / copCurrent) * elecrate;
+
+        // Backup cost per 100k BTU
+        var backupCostPerTherm = 1.37;
+        if (backupType === 'nat_gas') {
+          backupCostPerTherm = (1.30 / 0.95); // $1.30/therm @ 95% AFUE = $1.37
+        } else if (backupType === 'propane') {
+          backupCostPerTherm = (2.80 / 0.915) / 0.95; // ~$3.22
+        } else {
+          // Electric resistance: COP = 1.0
+          backupCostPerTherm = 29.30 * elecrate;
+        }
+
+        // Economic balance switchover temp: where hpCostPerTherm == backupCostPerTherm
+        // COP_switch = (29.30 * elecrate) / backupCostPerTherm
+        var copSwitch = (29.30 * elecrate) / backupCostPerTherm;
+        var tEcon = 10;
+        // Solve for outdoor temp that gives copCurrent == copSwitch
+        // cop(t) = cop47 - (47 - t) * 0.035 => t = 47 - (cop47 - copSwitch)/0.035
+        if (backupType === 'resistance') {
+          tEcon = -20; // Heat pump is ALWAYS cheaper than resistance strips down to COP 1.0
+        } else {
+          var calculatedEconT = 47 - ((cop47 - copSwitch) / 0.035);
+          tEcon = Math.min(50, Math.max(-20, calculatedEconT));
+        }
+
+        var deficitBtu = currentCapBtu - houseLossBtu;
+
+        // DOM updates
+        document.getElementById('hpRealCOP').textContent = copCurrent.toFixed(2) + ' COP';
+        document.getElementById('hpHeatBtu').textContent = Math.round(currentCapBtu).toLocaleString() + ' BTU/h @ ' + outdoorT + '\u00B0F';
+
+        document.getElementById('hpThermalBalance').textContent = tBal.toFixed(1) + ' \u00B0F';
+        document.getElementById('hpBalanceSub').textContent = 'Deficit begins below ' + tBal.toFixed(1) + '\u00B0F';
+
+        if (backupType === 'resistance') {
+          document.getElementById('hpEconomicBalance').textContent = 'N/A (HP Always Cheaper than Strips)';
+        } else {
+          document.getElementById('hpEconomicBalance').textContent = tEcon.toFixed(1) + ' \u00B0F (Switch to ' + (backupType === 'nat_gas' ? 'Gas' : 'Propane') + ')';
+        }
+
+        document.getElementById('hpCostHeatPump').textContent = '$' + hpCostPerTherm.toFixed(2) + ' / 100k BTU';
+        document.getElementById('hpCostBackup').textContent = '$' + backupCostPerTherm.toFixed(2) + ' / 100k BTU';
+        document.getElementById('hpHouseDemand').textContent = Math.round(houseLossBtu).toLocaleString() + ' BTU/h (at ' + outdoorT + '\u00B0F)';
+
+        var defEl = document.getElementById('hpDeficit');
+        if (deficitBtu >= 0) {
+          defEl.textContent = '+' + Math.round(deficitBtu).toLocaleString() + ' BTU/h (100% Self-Sufficient)';
+          defEl.style.color = '#10b981';
+        } else {
+          defEl.textContent = Math.round(deficitBtu).toLocaleString() + ' BTU/h (Auxiliary Deficit)';
+          defEl.style.color = '#ef4444';
+        }
+
+        // Badge
+        var badge = document.getElementById('hpBadge');
+        if (outdoorT > tBal && hpCostPerTherm <= backupCostPerTherm) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Optimum Heat Pump Operation' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Heat pump has sufficient thermal capacity (' + Math.round(currentCapBtu).toLocaleString() + ' BTU/h) and produces heat cheaper than backup fuel. Auxiliary heat remains off.' +
+            '</div>';
+        } else if (outdoorT <= tBal && hpCostPerTherm <= backupCostPerTherm) {
+          badge.style.background = 'rgba(245, 158, 11, 0.1)';
+          badge.style.border = '1px solid #f59e0b';
+          badge.style.color = '#f59e0b';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Supplemental Heat Required (' + Math.abs(Math.round(deficitBtu)).toLocaleString() + ' BTU/h Deficit)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Temperature is below the thermal balance point (' + tBal.toFixed(1) + '&deg;F). Run heat pump continuously while staging supplemental backup to meet house load.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'ECONOMIC INVERSION (Switch to Furnace)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Outdoor temperature (' + outdoorT + '&deg;F) is below the economic balance point (' + tEcon.toFixed(1) + '&deg;F). Running the heat pump costs $' + hpCostPerTherm.toFixed(2) + '/therm vs $' + backupCostPerTherm.toFixed(2) + ' for the furnace. Lock out heat pump.' +
+            '</div>';
+        }
+
+        renderCurve(tBal, tEcon, ratedBtu47, heatLossPerDeg);
+      }
+
+      function renderCurve(tBal, tEcon, ratedBtu, heatLossRate) {
+        var svg = document.getElementById('hpCurveSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 320;
+        var ox = 80;
+        var oy = 260;
+        var pW = 660;
+        var pH = 200;
+
+        var minT = -15;
+        var maxT = 60;
+        var maxBtu = ratedBtu * 1.3;
+
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1=\"' + ox + '\" y1=\"' + oy + '\" x2=\"' + (ox + pW) + '\" y2=\"' + oy + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';
+        svgHtml += '<line x1=\"' + ox + '\" y1=\"' + oy + '\" x2=\"' + ox + '\" y2=\"' + (oy - pH) + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';
+
+        svgHtml += '<text x=\"' + (ox + pW/2) + '\" y=\"' + (oy + 38) + '\" fill=\"var(--fg)\" font-size=\"12\" font-weight=\"bold\" text-anchor=\"middle\">Outdoor Temperature (&deg;F)</text>';
+        svgHtml += '<text x=\"' + (ox - 45) + '\" y=\"' + (oy - pH/2) + '\" fill=\"var(--fg)\" font-size=\"12\" font-weight=\"bold\" text-anchor=\"middle\" transform=\"rotate(-90 ' + (ox - 45) + ' ' + (oy - pH/2) + ')\">Capacity & Load (BTU/h)</text>';
+
+        // House Heat Loss Line (slopes down as outdoor temp rises)
+        // Loss = (70 - T) * heatLossRate
+        var x1 = ox;
+        var yLoss1 = oy - (((70 - minT) * heatLossRate) / maxBtu) * pH;
+        var x2 = ox + pW;
+        var yLoss2 = oy - (((70 - maxT) * heatLossRate) / maxBtu) * pH;
+
+        svgHtml += '<line x1=\"' + x1 + '\" y1=\"' + Math.max(oy - pH, yLoss1) + '\" x2=\"' + x2 + '\" y2=\"' + yLoss2 + '\" stroke=\"#ef4444\" stroke-width=\"3\"/>';
+        svgHtml += '<text x=\"' + (ox + 40) + '\" y=\"' + (oy - pH + 20) + '\" fill=\"#ef4444\" font-size=\"11\" font-weight=\"bold\">House Heat Loss Curve</text>';
+
+        // Heat Pump Capacity Curve (slopes up as outdoor temp rises)
+        var pathHp = 'M ';
+        for (var t = minT; t <= maxT; t += 5) {
+          var frac = t >= 5 ? 1.0 - (47 - t) * 0.002 : 0.92 - (5 - t) * 0.008;
+          var cap = ratedBtu * Math.max(0.1, frac);
+          var px = ox + ((t - minT) / (maxT - minT)) * pW;
+          var py = oy - (cap / maxBtu) * pH;
+          pathHp += (t === minT ? '' : ' L ') + px.toFixed(1) + ' ' + py.toFixed(1);
+        }
+        svgHtml += '<path d=\"' + pathHp + '\" fill=\"none\" stroke=\"#10b981\" stroke-width=\"3\"/>';
+        svgHtml += '<text x=\"' + (ox + pW - 80) + '\" y=\"' + (oy - (ratedBtu / maxBtu) * pH - 15) + '\" fill=\"#10b981\" font-size=\"11\" font-weight=\"bold\">Heat Pump Output</text>';
+
+        // Thermal Balance Point Marker
+        var balX = ox + ((tBal - minT) / (maxT - minT)) * pW;
+        var balBtu = (70 - tBal) * heatLossRate;
+        var balY = oy - (balBtu / maxBtu) * pH;
+
+        svgHtml += '<circle cx=\"' + balX + '\" cy=\"' + balY + '\" r=\"7\" fill=\"#3b82f6\" stroke=\"#ffffff\" stroke-width=\"2\"/>';
+        svgHtml += '<line x1=\"' + balX + '\" y1=\"' + balY + '\" x2=\"' + balX + '\" y2=\"' + oy + '\" stroke=\"#3b82f6\" stroke-dasharray=\"3,3\" stroke-width=\"1.5\"/>';
+        svgHtml += '<text x=\"' + (balX + 8) + '\" y=\"' + (balY - 12) + '\" fill=\"#3b82f6\" font-size=\"11\" font-weight=\"bold\">Thermal Balance (' + tBal.toFixed(1) + '&deg;F)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyHpSpec() {
+        var cop = document.getElementById('hpRealCOP').textContent;
+        var btu = document.getElementById('hpHeatBtu').textContent;
+        var tbal = document.getElementById('hpThermalBalance').textContent;
+        var tecon = document.getElementById('hpEconomicBalance').textContent;
+        var costHp = document.getElementById('hpCostHeatPump').textContent;
+        var costBk = document.getElementById('hpCostBackup').textContent;
+        var demand = document.getElementById('hpHouseDemand').textContent;
+        var def = document.getElementById('hpDeficit').textContent;
+
+        var text = '❄️ Heat Pump COP & Economic Balance Spec\\n' +
+          '• Current Real COP: ' + cop + ' (' + btu + ')\\n' +
+          '• Thermal Balance Point: ' + tbal + '\\n' +
+          '• Economic Switchover: ' + tecon + '\\n\\n' +
+          'Operating Economics:\\n' +
+          '• Heat Pump Heating Cost: ' + costHp + '\\n' +
+          '• Backup Furnace Cost: ' + costBk + '\\n' +
+          '• House Heat Demand: ' + demand + '\\n' +
+          '• Capacity Margin/Deficit: ' + def + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/heat-pump-efficiency-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyHpBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Heat Pump Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['hpRatedCap', 'hpCompressorType', 'hpHSPF2', 'hpHeatLossRate', 'hpElectricRate', 'hpFuelType', 'hpCurrentOutdoor'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcHeatPump);
+          el.addEventListener('change', calcHeatPump);
+        }
+      });
+
+      document.getElementById('copyHpBtn').addEventListener('click', copyHpSpec);
+
+      calcHeatPump();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'heat-pump-efficiency-calculator.html'), renderTradePage({
+    title: "Heat Pump COP & Balance Point Calculator: SEER2, HSPF2 | Digital Tools Shed",
+    metaDesc: "Calculate heat pump Coefficient of Performance (COP), cold climate capacity derating, thermal balance point (T_bal), and dual-fuel economic switchover temperatures.",
+    canonical: `${DOMAIN}/calc/heat-pump-efficiency-calculator`,
+    bodyContent: heatPumpEffBody,
+    currentPath: '/calc/heat-pump-efficiency-calculator',
+    faq: [
+      {
+        "q": "What is the Coefficient of Performance (COP) in a heat pump?",
+        "a": "Coefficient of Performance (COP) is the ratio of useful heating energy output to electrical energy consumed: $\\text{COP} = \\frac{\\text{Heating BTU/h}}{3412 \\times \\text{kW}}$. A heat pump with a COP of 3.0 delivers 300% efficiency&mdash;producing 3 units of thermal heat for every 1 unit of electric energy input."
+      },
+      {
+        "q": "What is a heat pump thermal balance point?",
+        "a": "The thermal balance point is the specific outdoor temperature where a heat pump's diminishing heating capacity exactly equals the home's escalating heat loss. Above this temperature, the heat pump heats the entire home on its own; below this temperature, supplemental auxiliary heat (such as electric resistance strips or a gas furnace) must engage to bridge the deficit."
+      },
+      {
+        "q": "What is an economic balance point in dual-fuel systems?",
+        "a": "The economic balance point is the outdoor temperature where heating with electricity via the heat pump costs the exact same dollar amount per BTU as burning natural gas or propane in the furnace. Below this temperature, it is cheaper to shut off the heat pump and run the furnace, even if the heat pump is still thermally capable of operating."
+      },
+      {
+        "q": "Why do heat pumps lose heating capacity in freezing weather?",
+        "a": "As outdoor temperatures drop, refrigerant boiling pressure inside the outdoor evaporator coil decreases, causing suction vapor to become less dense. The compressor pumps less mass flow of refrigerant with each stroke, reducing net heat delivered to indoor living spaces."
+      },
+      {
+        "q": "How does HSPF2 relate to real COP?",
+        "a": "Heating Seasonal Performance Factor (HSPF2) is an AHRI seasonal test rating measured in BTU per watt-hour across an entire heating season. As a quick rule of thumb, dividing HSPF2 by 3.1 to 3.4 approximates the seasonal average Coefficient of Performance (e.g. an HSPF2 of 9.5 yields a seasonal average COP of approximately 2.9 to 3.0)."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TRANSFORMER SIZING, FLA, SHORT-CIRCUIT & OVERCURRENT PROTECTION CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const transformerCalcBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Transformer Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Transformer Sizing, FLA & Short-Circuit Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate single-phase and three-phase transformer kVA ratings, primary & secondary Full Load Amps (FLA), impedance (%Z) voltage drop, maximum available symmetrical short-circuit fault current (I_sc / AIC rating), and NEC Article 450 primary/secondary breaker & fuse sizing.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="12" r="3"/><circle cx="15" cy="12" r="3"/><path d="M9 9v6M15 9v6"/></svg>
+        Transformer Electrical Specifications
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txPhase">Phase Configuration</label>
+          <select id="txPhase" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;font-weight:600;">
+            <option value="3" selected>3-Phase (Delta / Wye)</option>
+            <option value="1">1-Phase (Single-Phase)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txKva">Transformer Rating (kVA)</label>
+          <select id="txKva" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="15">15 kVA</option>
+            <option value="25">25 kVA</option>
+            <option value="30">30 kVA</option>
+            <option value="37.5">37.5 kVA</option>
+            <option value="45">45 kVA</option>
+            <option value="50">50 kVA</option>
+            <option value="75" selected>75 kVA</option>
+            <option value="112.5">112.5 kVA</option>
+            <option value="150">150 kVA</option>
+            <option value="225">225 kVA</option>
+            <option value="300">300 kVA</option>
+            <option value="500">500 kVA</option>
+            <option value="750">750 kVA</option>
+            <option value="1000">1000 kVA</option>
+            <option value="1500">1500 kVA</option>
+            <option value="2000">2000 kVA</option>
+            <option value="2500">2500 kVA</option>
+            <option value="custom">Custom kVA...</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="txCustomKvaRow" style="display:none;margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txCustomKva">Custom Transformer kVA</label>
+        <input type="number" id="txCustomKva" value="75" min="1" max="10000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txVprim">Primary Voltage (V_pri)</label>
+          <select id="txVprim" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="480" selected>480 V</option>
+            <option value="240">240 V</option>
+            <option value="208">208 V</option>
+            <option value="600">600 V</option>
+            <option value="2400">2,400 V (2.4 kV)</option>
+            <option value="4160">4,160 V (4.16 kV)</option>
+            <option value="12470">12,470 V (12.47 kV)</option>
+            <option value="13200">13,200 V (13.2 kV)</option>
+            <option value="13800">13,800 V (13.8 kV)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txVsec">Secondary Voltage (V_sec)</label>
+          <select id="txVsec" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="208" selected>208 V (208Y/120V)</option>
+            <option value="480">480 V (480Y/277V)</option>
+            <option value="240">240 V (120/240V split/delta)</option>
+            <option value="120">120 V Single Phase</option>
+            <option value="600">600 V</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txZpct">Nameplate Impedance (%Z)</label>
+          <input type="number" id="txZpct" value="5.75" min="1.0" max="15.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Standard commercial dry: 4.5%–6.0%</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txOcpdType">NEC 450 Protection Mode</label>
+          <select id="txOcpdType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="prim_only" selected>Primary Only (Max 125% per 450.3(B))</option>
+            <option value="prim_sec">Primary + Secondary (250% Pri / 125% Sec)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="txConnectedKw">Connected Operating Load (kW / kVA)</label>
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+          <input type="number" id="txConnectedKw" value="52" min="1" max="10000" step="1" style="flex:1;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+          <select id="txPf" style="width:120px;padding:0.65rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+            <option value="0.80">0.80 PF</option>
+            <option value="0.85">0.85 PF</option>
+            <option value="0.90" selected>0.90 PF</option>
+            <option value="0.95">0.95 PF</option>
+            <option value="1.00">1.00 PF</option>
+          </select>
+        </div>
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Used to verify transformer operating loading percentage</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Full Load Amps & Short-Circuit Rating
+        </h2>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;margin-bottom:0.25rem;">Primary Full Load (FLA)</div>
+            <div id="outPriFla" style="font-size:1.75rem;font-weight:700;font-family:var(--mono);color:var(--fg);">90.2 A</div>
+            <div id="outPriVoltageSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">@ 480V 3-Phase</div>
+          </div>
+          <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;margin-bottom:0.25rem;">Secondary Full Load (FLA)</div>
+            <div id="outSecFla" style="font-size:1.75rem;font-weight:700;font-family:var(--mono);color:#2563eb;">208.2 A</div>
+            <div id="outSecVoltageSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">@ 208V 3-Phase</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Available Fault Current (I_sc / AIC)</div>
+            <span id="outAicBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#ef444420;color:#ef4444;">INFINITE BUS</span>
+          </div>
+          <div id="outIscSec" style="font-size:2rem;font-weight:800;font-family:var(--mono);color:#dc2626;">3,621 A</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">
+            Secondary bolted fault (I_sc = Sec FLA / %Z). Downstream gear must be rated &ge; <strong id="outMinAic">10 kAIC</strong>.
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Max Primary Breaker (NEC 450)</div>
+            <div id="outMaxPriOcpd" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">125 A</div>
+            <div id="outPriOcpdNote" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">125% max rule (Standard size)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Max Secondary Breaker (NEC 450)</div>
+            <div id="outMaxSecOcpd" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">250 A</div>
+            <div id="outSecOcpdNote" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">125% standard breaker size</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Operating Transformer Loading</div>
+            <div id="outLoadingPct" style="font-size:1.2rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;color:#10b981;">77.0%</div>
+            <div id="outLoadingSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">57.8 kVA demand</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Min GEC Copper (NEC 250.66)</div>
+            <div id="outGecSize" style="font-size:1.2rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">#4 AWG Cu</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Grounding Electrode Conductor</div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyTxBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Transformer Spec Summary</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: DELTA-WYE TRANSFORMER CORE & FAULT ARCHITECTURE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Interactive Magnetic Core, Delta-Wye & Available Fault Current Schematic
+    </h3>
+    <div id="txSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Transformer Engineering Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Under-Rating Downstream Equipment AIC (Arc Flash & Explosive Arc Hazard)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Downstream panelboards and molded case circuit breakers (MCCBs) must withstand the maximum available short-circuit current delivered by the transformer secondary during a bolted three-phase fault. If a 75 kVA 480&ndash;208V transformer with 5.75% impedance delivers 3,621 A of fault current, standard 10 kAIC gear is compliant; however, a 500 kVA transformer delivers over 24,000 A of symmetrical fault current! Installing a standard 10 kAIC breaker on a 24 kA bus results in catastrophic breaker housing rupture, molten copper plasma ejection, and severe arc-flash blast during an electrical fault.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Inrush Magnetizing Current Tripping Primary Breakers (10x&ndash;12x Inrush)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When an unenergized transformer is switched onto the line at voltage zero-crossing, the magnetic core drives deep into saturation. The resulting instantaneous magnetizing inrush current can reach 10 to 12 times rated primary FLA for 0.1 seconds (6 cycles). Sizing the primary breaker strictly at 100% or using fast-acting instantaneous trip breakers causes nuisance trips every time the building main disconnect cycles. NEC Article 450 allows primary breakers to be sized up to 125% (or 250% if secondary protection is provided) precisely to clear this magnetic saturation curve.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Floating Neutrals & Missing System Bonding Jumpers (NEC 250.30)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          A Delta-Wye transformer establishes a Separately Derived System (SDS). The secondary neutral (X0 point) is completely electrically isolated from the primary utility neutral. You MUST install a properly sized System Bonding Jumper (SBJ per NEC 250.28 / 250.102(C)) connecting the X0 neutral terminal to the transformer equipment ground enclosure and run a Grounding Electrode Conductor (GEC per NEC 250.66) to building structural steel or cold water pipe. Omitting this bonding jumper leaves the secondary system floating: line-to-neutral voltages fluctuate wildly across unbalanced loads (e.g. 80V on phase A, 160V on phase B), frying connected 120V electronics.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>❄️ Trap 4: Non-Linear Harmonic Heating & K-Factor Derating</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Commercial facilities with heavy non-linear loads (variable frequency drives, LED drivers, server power supplies) generate severe 3rd, 5th, and 9th order harmonic currents. Triplen harmonics (3rd, 9th, 15th) do not cancel in the neutral; they add algebraically, creating neutral currents that can exceed 173% of phase FLA! Furthermore, high-frequency harmonic eddy currents cause intense core and winding heating. Loading a standard general-purpose K-1 transformer above 60% with heavy electronic loads causes thermal breakdown and insulation fire. Use K-13 or K-20 rated transformers with 200% rated neutral lugs for data centers and commercial tech facilities.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>📏 Trap 5: Forgetting the \u221A3 (1.732) Multiplier in 3-Phase Power Equations</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          The single most common rookie electrical calculation error is calculating 3-phase current using single-phase math: dividing total kVA by line-to-line voltage directly ($I = kVA / V$). In a three-phase system, current is divided across three 120&deg; alternating sinusoidal waveforms, requiring division by $\\sqrt{3} \\times V_{LL}$ (1.73205). Forgetting $\\sqrt{3}$ results in an ampacity that is 42.3% too high ($1 / 1.732 = 0.577$), leading to vastly oversized conductors, oversized conduit, and unnecessary tens of thousands of dollars in wasted copper installation costs.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Full Load Amps (FLA) Equations</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      For a <strong>Single-Phase</strong> transformer:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      I_{FLA} = \\frac{\\text{kVA} \\times 1000}{V}
+    </div>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      For a <strong>Three-Phase</strong> transformer across line-to-line voltage ($V_{LL}$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      I_{FLA} = \\frac{\\text{kVA} \\times 1000}{\\sqrt{3} \\times V_{LL}} = \\frac{\\text{kVA} \\times 1000}{1.73205 \\times V_{LL}}
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Available Symmetrical Short-Circuit Fault Current (I_sc)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Using the standard conservative <em>Infinite Primary Bus</em> assumption (which assumes the utility substation can deliver infinite current, making transformer winding impedance the sole current limiter):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      I_{sc} = \\frac{I_{sec\\_FLA}}{\\%Z / 100} = \\frac{I_{sec\\_FLA} \\times 100}{\\%Z}
+    </div>
+    <p style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.5rem;">
+      For the active inputs: <span id="derivIscCalc" style="font-family:var(--mono);color:var(--fg);font-weight:600;">208.2 A / 0.0575 = 3,621 A</span>.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Overcurrent Protection Sizing (NEC Table 450.3(B))</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      For low-voltage transformers (600V or less):
+    </p>
+    <ul style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);padding-left:1.25rem;">
+      <li><strong>Primary Only Protection (FLA &ge; 9A):</strong> Maximum breaker rating is 125% of primary FLA. If 125% does not correspond to a standard ampere rating, NEC 450.3(B) Note 1 permits rounding up to the next standard breaker size listed in NEC 240.6.</li>
+      <li><strong>Primary + Secondary Protection:</strong> Primary breaker may be sized up to 250% of primary FLA provided secondary conductors are protected by a breaker rated at no more than 125% of secondary FLA.</li>
+    </ul>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What does percent impedance (%Z) mean on a transformer nameplate?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Percent impedance (%Z) represents the percentage of rated primary voltage required to circulate rated full-load current through the primary winding when the secondary terminals are short-circuited. It directly governs the transformer internal voltage drop under full load and dictates the maximum available short-circuit current during an electrical fault: lower impedance allows higher fault current, requiring higher AIC rated breakers.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How do I calculate 3-phase transformer secondary Full Load Amps (FLA)?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Divide the transformer volt-amperes (kVA &times; 1000) by line-to-line voltage multiplied by the square root of 3 (1.73205). For example, for a 75 kVA 208V 3-phase secondary: $I = \\frac{75,000}{1.73205 \\times 208} = 208.2\\text{ Amperes}$.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why is primary overcurrent protection allowed up to 250% when secondary protection exists?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Under NEC 450.3(B), when the secondary winding is protected against continuous thermal overloads by a secondary breaker rated at 125%, the primary breaker no longer needs to provide overload protection. Its primary duty shifts strictly to clearing short circuits and ground faults. Sizing the primary breaker at 250% guarantees it will ride through heavy transformer magnetizing inrush current without tripping.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is an Ampere Interrupting Capacity (AIC) rating?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        AIC (Ampere Interrupting Capacity) is the maximum symmetrical fault current that a circuit breaker or fuse can safely interrupt at rated voltage without exploding, catching fire, or welding its contacts shut. Downstream electrical panels must have an AIC rating equal to or higher than the available short-circuit current delivered by the transformer.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between Delta and Wye transformer connections?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        In a <strong>Delta (\\Delta)</strong> connection, three phase windings are connected head-to-tail in a closed triangle with no neutral point; line-to-line voltage equals phase voltage. In a <strong>Wye (Y)</strong> connection, one terminal of each winding is tied together at a central common neutral (X0); line-to-line voltage is $\\sqrt{3} \\approx 1.732$ times higher than line-to-neutral voltage (e.g. 208V line-to-line vs 120V line-to-neutral). Commercial buildings overwhelmingly use Delta primary and Wye secondary (e.g. 480V Delta to 208Y/120V Wye).
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // NEC Standard Breaker Sizes (NEC 240.6)
+      var standardBreakers = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500, 600, 700, 800, 1000, 1200, 1600, 2000, 2500, 3000, 4000, 5000, 6000];
+
+      function getNextStandardBreaker(amps) {
+        for (var i = 0; i < standardBreakers.length; i++) {
+          if (standardBreakers[i] >= amps) {
+            return standardBreakers[i];
+          }
+        }
+        return Math.ceil(amps / 100) * 100;
+      }
+
+      function getGecCopperSize(secFla) {
+        // Approximate NEC 250.66 sizing based on secondary service conductor ampacity
+        if (secFla <= 100) return '#8 AWG Cu';
+        if (secFla <= 150) return '#6 AWG Cu';
+        if (secFla <= 200) return '#4 AWG Cu';
+        if (secFla <= 350) return '#2 AWG Cu';
+        if (secFla <= 600) return '1/0 AWG Cu';
+        if (secFla <= 900) return '2/0 AWG Cu';
+        return '3/0 AWG Cu';
+      }
+
+      function calcTransformer() {
+        var phase = parseInt(document.getElementById('txPhase').value);
+        var kvaSelect = document.getElementById('txKva').value;
+        var customKvaRow = document.getElementById('txCustomKvaRow');
+        var kva = 75;
+        if (kvaSelect === 'custom') {
+          customKvaRow.style.display = 'block';
+          kva = parseFloat(document.getElementById('txCustomKva').value) || 75;
+        } else {
+          customKvaRow.style.display = 'none';
+          kva = parseFloat(kvaSelect) || 75;
+        }
+
+        var vPrim = parseFloat(document.getElementById('txVprim').value) || 480;
+        var vSec = parseFloat(document.getElementById('txVsec').value) || 208;
+        var zPct = parseFloat(document.getElementById('txZpct').value) || 5.75;
+        var ocpdMode = document.getElementById('txOcpdType').value;
+        var connectedKw = parseFloat(document.getElementById('txConnectedKw').value) || 0;
+        var pf = parseFloat(document.getElementById('txPf').value) || 0.90;
+
+        // Calculate Full Load Amps
+        var priFla = 0;
+        var secFla = 0;
+        if (phase === 3) {
+          priFla = (kva * 1000) / (Math.sqrt(3) * vPrim);
+          secFla = (kva * 1000) / (Math.sqrt(3) * vSec);
+        } else {
+          priFla = (kva * 1000) / vPrim;
+          secFla = (kva * 1000) / vSec;
+        }
+
+        // Available Short Circuit Current (Infinite Bus)
+        var zFraction = (zPct > 0) ? (zPct / 100) : 0.0575;
+        var iscSec = secFla / zFraction;
+
+        // OCPD Sizing per NEC 450.3(B)
+        var maxPriBreaker = 0;
+        var maxSecBreaker = 0;
+        var priMultiplier = (ocpdMode === 'prim_only') ? 1.25 : 2.50;
+        var rawPriOcpd = priFla * priMultiplier;
+        maxPriBreaker = getNextStandardBreaker(rawPriOcpd);
+
+        var rawSecOcpd = secFla * 1.25;
+        maxSecBreaker = getNextStandardBreaker(rawSecOcpd);
+
+        // Connected load analysis
+        var connectedKva = (pf > 0) ? (connectedKw / pf) : connectedKw;
+        var loadingPct = (kva > 0) ? ((connectedKva / kva) * 100) : 0;
+
+        // Update UI
+        document.getElementById('outPriFla').textContent = priFla.toFixed(1) + ' A';
+        document.getElementById('outPriVoltageSub').textContent = '@ ' + vPrim + 'V ' + (phase === 3 ? '3-Phase' : '1-Phase');
+
+        document.getElementById('outSecFla').textContent = secFla.toFixed(1) + ' A';
+        document.getElementById('outSecVoltageSub').textContent = '@ ' + vSec + 'V ' + (phase === 3 ? '3-Phase' : '1-Phase');
+
+        document.getElementById('outIscSec').textContent = Math.round(iscSec).toLocaleString() + ' A';
+        
+        var minAic = Math.ceil(iscSec / 1000) * 1000;
+        if (minAic < 10000) minAic = 10000;
+        else if (minAic < 14000) minAic = 14000;
+        else if (minAic < 18000) minAic = 18000;
+        else if (minAic < 22000) minAic = 22000;
+        else if (minAic < 25000) minAic = 25000;
+        else if (minAic < 35000) minAic = 35000;
+        else if (minAic < 42000) minAic = 42000;
+        else if (minAic < 65000) minAic = 65000;
+        else minAic = 100000;
+        document.getElementById('outMinAic').textContent = (minAic / 1000) + ' kAIC';
+
+        document.getElementById('outMaxPriOcpd').textContent = maxPriBreaker + ' A';
+        document.getElementById('outPriOcpdNote').textContent = (ocpdMode === 'prim_only' ? '125% max rule (NEC 450.3(B))' : '250% max with secondary OCPD');
+
+        document.getElementById('outMaxSecOcpd').textContent = maxSecBreaker + ' A';
+        document.getElementById('outSecOcpdNote').textContent = '125% standard breaker size';
+
+        document.getElementById('outLoadingPct').textContent = loadingPct.toFixed(1) + '%';
+        document.getElementById('outLoadingPct').style.color = (loadingPct > 100) ? '#dc2626' : (loadingPct > 80 ? '#d97706' : '#10b981');
+        document.getElementById('outLoadingSub').textContent = connectedKva.toFixed(1) + ' kVA demand';
+
+        document.getElementById('outGecSize').textContent = getGecCopperSize(secFla);
+
+        document.getElementById('derivIscCalc').textContent = secFla.toFixed(1) + ' A / ' + zFraction.toFixed(4) + ' = ' + Math.round(iscSec).toLocaleString() + ' A';
+
+        renderTxSvg(phase, vPrim, vSec, priFla, secFla, zPct, iscSec);
+      }
+
+      function renderTxSvg(phase, vPrim, vSec, priFla, secFla, zPct, iscSec) {
+        var w = 820;
+        var h = 300;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:320px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<marker id="arrowFlux" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#3b82f6"/></marker>';
+        svg += '<marker id="arrowFault" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#ef4444"/></marker>';
+        svg += '</defs>';
+
+        // Magnetic Core Rectangle
+        svg += '<rect x="260" y="40" width="300" height="220" rx="12" fill="none" stroke="#64748b" stroke-width="24"/>';
+        svg += '<rect x="300" y="80" width="220" height="140" rx="6" fill="var(--bg)" stroke="#94a3b8" stroke-width="2"/>';
+
+        // Magnetic Flux Arrows in core
+        svg += '<path d="M 410,52 L 420,52" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowFlux)"/>';
+        svg += '<path d="M 548,150 L 548,160" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowFlux)"/>';
+        svg += '<path d="M 420,248 L 410,248" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowFlux)"/>';
+        svg += '<path d="M 272,160 L 272,150" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowFlux)"/>';
+        svg += '<text x="410" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#64748b">LAMINATED STEEL CORE</text>';
+        svg += '<text x="410" y="175" text-anchor="middle" font-size="11" fill="var(--text-muted)">Impedance %Z = ' + zPct.toFixed(2) + '%</text>';
+
+        // Primary Winding (Left Column)
+        svg += '<g transform="translate(244, 70)">';
+        for (var i = 0; i < 7; i++) {
+          var yPos = i * 22;
+          svg += '<rect x="0" y="' + yPos + '" width="32" height="14" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/>';
+        }
+        svg += '</g>';
+
+        // Secondary Winding (Right Column)
+        svg += '<g transform="translate(544, 70)">';
+        for (var j = 0; j < 7; j++) {
+          var yPos2 = j * 22;
+          svg += '<rect x="0" y="' + yPos2 + '" width="32" height="14" rx="4" fill="#3b82f6" stroke="#1d4ed8" stroke-width="1.5"/>';
+        }
+        svg += '</g>';
+
+        // Primary Incoming Lines (Left)
+        svg += '<line x1="60" y1="85" x2="244" y2="85" stroke="#f59e0b" stroke-width="3"/>';
+        svg += '<line x1="60" y1="145" x2="244" y2="145" stroke="#f59e0b" stroke-width="3"/>';
+        svg += '<line x1="60" y1="205" x2="244" y2="205" stroke="#f59e0b" stroke-width="3"/>';
+        svg += '<text x="70" y="75" font-size="12" font-weight="700" fill="#f59e0b">PRIMARY H1</text>';
+        svg += '<text x="70" y="135" font-size="12" font-weight="700" fill="#f59e0b">PRIMARY H2</text>';
+        svg += '<text x="70" y="195" font-size="12" font-weight="700" fill="#f59e0b">PRIMARY H3</text>';
+        svg += '<text x="70" y="240" font-size="12" font-weight="800" fill="var(--fg)">' + vPrim + 'V (' + priFla.toFixed(1) + ' A FLA)</text>';
+
+        // Secondary Outgoing Lines (Right)
+        svg += '<line x1="576" y1="85" x2="760" y2="85" stroke="#3b82f6" stroke-width="3"/>';
+        svg += '<line x1="576" y1="145" x2="760" y2="145" stroke="#3b82f6" stroke-width="3"/>';
+        svg += '<line x1="576" y1="205" x2="760" y2="205" stroke="#3b82f6" stroke-width="3"/>';
+        svg += '<text x="630" y="75" font-size="12" font-weight="700" fill="#3b82f6">SECONDARY X1</text>';
+        svg += '<text x="630" y="135" font-size="12" font-weight="700" fill="#3b82f6">SECONDARY X2</text>';
+        svg += '<text x="630" y="195" font-size="12" font-weight="700" fill="#3b82f6">SECONDARY X3</text>';
+        svg += '<text x="630" y="240" font-size="12" font-weight="800" fill="var(--fg)">' + vSec + 'V (' + secFla.toFixed(1) + ' A FLA)</text>';
+
+        // Neutral X0 and Grounding
+        svg += '<line x1="576" y1="220" x2="760" y2="220" stroke="#10b981" stroke-width="2" stroke-dasharray="4,4"/>';
+        svg += '<text x="630" y="228" font-size="11" font-weight="700" fill="#10b981">NEUTRAL (X0) & BONDING JUMPER</text>';
+
+        // Fault vector callout
+        svg += '<path d="M 740,110 L 740,180" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="3,3"/>';
+        svg += '<text x="750" y="150" font-size="11" font-weight="800" fill="#ef4444">BOLTED FAULT: ' + Math.round(iscSec).toLocaleString() + ' A</text>';
+
+        svg += '</svg>';
+        document.getElementById('txSvgWrapper').innerHTML = svg;
+      }
+
+      function copyTxSpec() {
+        var phase = document.getElementById('txPhase').value;
+        var kvaVal = (document.getElementById('txKva').value === 'custom') ? document.getElementById('txCustomKva').value : document.getElementById('txKva').value;
+        var vPrim = document.getElementById('txVprim').value;
+        var vSec = document.getElementById('txVsec').value;
+        var zPct = document.getElementById('txZpct').value;
+        var priFla = document.getElementById('outPriFla').textContent;
+        var secFla = document.getElementById('outSecFla').textContent;
+        var isc = document.getElementById('outIscSec').textContent;
+        var aic = document.getElementById('outMinAic').textContent;
+        var priOcpd = document.getElementById('outMaxPriOcpd').textContent;
+        var secOcpd = document.getElementById('outMaxSecOcpd').textContent;
+        var gec = document.getElementById('outGecSize').textContent;
+
+        var text = 'TRANSFORMER ENGINEERING SPECIFICATION SUMMARY\\n';
+        text += '---------------------------------------------------\\n';
+        text += 'Rating: ' + kvaVal + ' kVA (' + (phase === '3' ? '3-Phase' : '1-Phase') + ')\\n';
+        text += 'Primary Voltage: ' + vPrim + ' V | Primary FLA: ' + priFla + '\\n';
+        text += 'Secondary Voltage: ' + vSec + ' V | Secondary FLA: ' + secFla + '\\n';
+        text += 'Nameplate Impedance (%Z): ' + zPct + '%\\n';
+        text += 'Available Short-Circuit Current (I_sc): ' + isc + '\\n';
+        text += 'Minimum Downstream Gear AIC Rating: ' + aic + '\\n';
+        text += 'Max Primary Breaker (NEC 450): ' + priOcpd + '\\n';
+        text += 'Max Secondary Breaker (NEC 450): ' + secOcpd + '\\n';
+        text += 'Grounding Electrode Conductor (NEC 250.66): ' + gec + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyTxBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Transformer Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['txPhase', 'txKva', 'txCustomKva', 'txVprim', 'txVsec', 'txZpct', 'txOcpdType', 'txConnectedKw', 'txPf'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcTransformer);
+          el.addEventListener('change', calcTransformer);
+        }
+      });
+
+      document.getElementById('copyTxBtn').addEventListener('click', copyTxSpec);
+
+      calcTransformer();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'transformer-calculator.html'), renderTradePage({
+    title: "Transformer Sizing & FLA Calculator: kVA, Short-Circuit, NEC 450 | Digital Tools Shed",
+    metaDesc: "Calculate single and three-phase transformer kVA ratings, primary and secondary Full Load Amps (FLA), impedance %Z, available short-circuit current (I_sc), and NEC 450 breaker sizing.",
+    canonical: `${DOMAIN}/calc/transformer-calculator`,
+    bodyContent: transformerCalcBody,
+    currentPath: '/calc/transformer-calculator',
+    faq: [
+      {
+        "q": "What does percent impedance (%Z) mean on a transformer nameplate?",
+        "a": "Percent impedance (%Z) represents the percentage of rated primary voltage required to circulate rated full-load current through the primary winding when the secondary terminals are short-circuited. It directly governs the transformer internal voltage drop under full load and dictates the maximum available short-circuit current during an electrical fault: lower impedance allows higher fault current, requiring higher AIC rated breakers."
+      },
+      {
+        "q": "How do I calculate 3-phase transformer secondary Full Load Amps (FLA)?",
+        "a": "Divide the transformer volt-amperes (kVA &times; 1000) by line-to-line voltage multiplied by the square root of 3 (1.73205). For example, for a 75 kVA 208V 3-phase secondary: $I = \\frac{75,000}{1.73205 \\times 208} = 208.2\\text{ Amperes}$."
+      },
+      {
+        "q": "Why is primary overcurrent protection allowed up to 250% when secondary protection exists?",
+        "a": "Under NEC 450.3(B), when the secondary winding is protected against continuous thermal overloads by a secondary breaker rated at 125%, the primary breaker no longer needs to provide overload protection. Its primary duty shifts strictly to clearing short circuits and ground faults. Sizing the primary breaker at 250% guarantees it will ride through heavy transformer magnetizing inrush current without tripping."
+      },
+      {
+        "q": "What is an Ampere Interrupting Capacity (AIC) rating?",
+        "a": "AIC (Ampere Interrupting Capacity) is the maximum symmetrical fault current that a circuit breaker or fuse can safely interrupt at rated voltage without exploding, catching fire, or welding its contacts shut. Downstream electrical panels must have an AIC rating equal to or higher than the available short-circuit current delivered by the transformer."
+      },
+      {
+        "q": "What is the difference between Delta and Wye transformer connections?",
+        "a": "In a <strong>Delta (\\Delta)</strong> connection, three phase windings are connected head-to-tail in a closed triangle with no neutral point; line-to-line voltage equals phase voltage. In a <strong>Wye (Y)</strong> connection, one terminal of each winding is tied together at a central common neutral (X0); line-to-line voltage is $\\sqrt{3} \\approx 1.732$ times higher than line-to-neutral voltage (e.g. 208V line-to-line vs 120V line-to-neutral). Commercial buildings overwhelmingly use Delta primary and Wye secondary (e.g. 480V Delta to 208Y/120V Wye)."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // HYDRAULIC HOSE SIZING, VELOCITY, SAE 100R & PRESSURE DROP CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const hydraulicHoseBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Hydraulic Hose Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Hydraulic Hose Sizing, Velocity & Pressure Drop Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate hydraulic fluid velocity, SAE dash size (-04 to -32), SAE 100R working & 4:1 burst pressure ratings, Darcy-Weisbach flow line pressure drop, and minimum bend radius to prevent pump cavitation and hose blowout.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="2"/></svg>
+        Hydraulic Flow & Line Parameters
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hoseFlowGpm">System Flow Rate (GPM)</label>
+          <input type="number" id="hoseFlowGpm" value="15" min="0.5" max="500" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Pump volumetric delivery</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hoseLineType">Line Circuit Function</label>
+          <select id="hoseLineType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;font-weight:600;">
+            <option value="pressure" selected>Pressure Line (15–20 ft/s max)</option>
+            <option value="return">Return Line (10–15 ft/s max)</option>
+            <option value="suction">Suction / Intake Line (2–4 ft/s max)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hoseDashSize">SAE Dash Hose Size</label>
+          <select id="hoseDashSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.25">-04 (1/4" / 6.35 mm)</option>
+            <option value="0.375">-06 (3/8" / 9.53 mm)</option>
+            <option value="0.50" selected>-08 (1/2" / 12.7 mm)</option>
+            <option value="0.625">-10 (5/8" / 15.88 mm)</option>
+            <option value="0.75">-12 (3/4" / 19.05 mm)</option>
+            <option value="1.00">-16 (1" / 25.4 mm)</option>
+            <option value="1.25">-20 (1-1/4" / 31.75 mm)</option>
+            <option value="1.50">-24 (1-1/2" / 38.1 mm)</option>
+            <option value="2.00">-32 (2" / 50.8 mm)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hoseSpecStandard">SAE 100R Construction</label>
+          <select id="hoseSpecStandard" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="100R2" selected>SAE 100R2 (2-Wire Braid - 3500 PSI @ 1/2")</option>
+            <option value="100R1">SAE 100R1 (1-Wire Braid - 2000 PSI @ 1/2")</option>
+            <option value="100R12">SAE 100R12 (4-Spiral Heavy - 4000 PSI Constant)</option>
+            <option value="100R13">SAE 100R13 (4/6-Spiral - 5000 PSI Constant)</option>
+            <option value="100R15">SAE 100R15 (6-Spiral Extreme - 6000 PSI Constant)</option>
+            <option value="100R4">SAE 100R4 (Suction Wire Helix - 300 PSI / Vacuum)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hoseRunLength">Hose Run Length (Feet)</label>
+          <input type="number" id="hoseRunLength" value="12" min="1" max="200" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Total physical hose span</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="oilViscosity">Oil Viscosity (ISO VG @ Temp)</label>
+          <select id="oilViscosity" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+            <option value="20">20 cSt (ISO 32 @ 55&deg;C / Hot)</option>
+            <option value="32">32 cSt (ISO 46 @ 50&deg;C / Normal Op)</option>
+            <option value="46" selected>46 cSt (ISO 46 @ 40&deg;C / Standard)</option>
+            <option value="68">68 cSt (ISO 68 @ 40&deg;C)</option>
+            <option value="150">150 cSt (Cold Morning Startup)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hoseSystemPressure">Circuit Operating Pressure (PSI)</label>
+        <input type="number" id="hoseSystemPressure" value="2500" min="50" max="10000" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Relief valve or maximum operating pressure setting</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Velocity & Pressure Verification
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Fluid Velocity (v)</div>
+            <span id="outVelocityStatus" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#10b98120;color:#10b981;">OPTIMAL RANGE</span>
+          </div>
+          <div id="outVelocityFps" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">24.5 ft/s</div>
+          <div id="outVelocityMsSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">7.47 m/s (Line Target: 15–20 ft/s max)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Max Working Pressure</div>
+            <div id="outWorkingPsi" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">3,500 PSI</div>
+            <div id="outBurstPsiSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Min Burst: 14,000 PSI (4:1)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Hose Safety Margin</div>
+            <div id="outPressureMargin" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">+1,000 PSI</div>
+            <div id="outMarginSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Above 2,500 PSI system</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Line Friction Loss (&Delta;P)</div>
+            <div id="outPressureDrop" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">38.4 PSI</div>
+            <div id="outDropPerFoot" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">3.2 PSI per foot (2.65 bar total)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Minimum Bend Radius</div>
+            <div id="outBendRadius" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">7.0 inches</div>
+            <div id="outBendMmSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">178 mm (SAE J517 standard)</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Reynolds Number & Flow Regime</div>
+            <span id="outFlowRegime" style="font-size:0.75rem;font-weight:700;font-family:var(--mono);color:#3b82f6;">Re = 2,068 (Transitional)</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyHoseBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Hydraulic Hose Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: HOSE CUTAWAY & FLUID VELOCITY NOMOGRAPH -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Interactive Hydraulic Hose Cross-Section & Velocity Profile Architecture
+    </h3>
+    <div id="hoseSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & HYDRAULIC ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Hydraulic Hose Failure Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Suction Line Undersizing & Micro-Diesel Cavitation Destruction</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Sizing a pump suction line using pressure line velocity rules (e.g. 15 ft/s instead of the strict 2 to 4 ft/s limit) causes immense suction inlet vacuum. When fluid pressure drops below the vapor pressure of the hydraulic oil, microscopic vapor bubbles form. As these bubbles enter the high-pressure side of the gear or piston pump, they collapse violently at 100,000+ PSI micro-jets. Even worse, adiabatic compression of entrained air bubbles causes "micro-dieseling" (internal temperatures exceeding 1,800&deg;F), incinerating pump seals, pitting bronze valve plates, and destroying a $4,000 pump in under 20 operating hours.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Twisting Hoses During Installation (7&deg; Twist = 90% Life Reduction)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Hydraulic hoses must bend in a single plane. When tightening female swivel fittings without using a backup wrench on the hose ferrule, the hose is torqued into an axial twist. A twist of merely <strong>7 degrees</strong> degrades high-pressure impulse fatigue life by up to <strong>90%</strong>. Under high-pressure cycling, twisted braided steel wires rub directly against one another, creating wire-fret fatigue fractures and causing catastrophic pinhole punctures through the outer cover within weeks. Always align the layline printed on the hose so it remains completely straight.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Violating SAE Minimum Bend Radius & Inner Tube Kinking</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Forcing a 1/2" hydraulic hose into a 4-inch radius bend when the SAE J517 minimum specification is 7.0 inches causes the inner nitrile rubber tube to ovalize and kink. The outer wire braid is stretched past its yield limit while the inner wire braid buckles inward into the fluid stream. The resulting restriction throttles flow, generates extreme fluid turbulence and localized heat, and leads to rapid structural detachment of the inner liner from the wire reinforcement.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🔥 Trap 4: High-Pressure Fluid Injection Injury (3,000 PSI Pinhole Leaks)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Never, under any circumstances, use bare hands or gloves to check for hydraulic leaks! A pinhole leak at 3,000 PSI discharges oil at over 600 feet per second&mdash;behaving exactly like a hypodermic needle that penetrates skin, muscle, and bone with zero initial pain. Because petroleum oil and toxic additives enter deep tissue, failure to obtain emergency surgical decompression and wide debridement within 6 hours frequently results in limb amputation or systemic sepsis. Always pass cardboard or wood along pressurized lines to locate weeping leaks.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 5: Ignoring Water Hammer Pressure Impulse Spikes (The 4:1 Factor)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When a directional solenoid valve shifts rapidly under full flow, fluid kinetic energy instantaneously converts to acoustic pressure wave spikes (water hammer) that can reach <strong>150% to 250%</strong> of the static relief setting. A machine set to 2,500 PSI regularly experiences shock spikes up to 4,500 PSI during cylinder stops. This is precisely why SAE J517 mandates a strict 4:1 minimum burst safety factor (e.g. 10,000 PSI minimum burst for a 2,500 PSI working line). Using single-braid hose (100R1) on high-cycle rapid-reversing valves guarantees premature fatigue blowout.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Hydraulic Nomograph Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Fluid Velocity Equation</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Fluid velocity ($v$) in feet per second is derived from volumetric flow rate ($Q$) in GPM and hose internal diameter ($d$) in inches:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      v = \\frac{0.3208 \\times Q}{A} = \\frac{0.3208 \\times Q}{\\frac{\\pi}{4} \\times d^2} = \\frac{0.4085 \\times Q}{d^2}
+    </div>
+    <p style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.5rem;">
+      For <span id="derivFlowGpm">15</span> GPM through a <span id="derivHoseId">0.50</span>" ID hose:
+      <span id="derivVelocityCalc" style="font-family:var(--mono);color:var(--fg);font-weight:600;">(0.4085 &times; 15) / (0.50)&sup2; = 24.51 ft/s</span>.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Reynolds Number & Friction Pressure Drop (&Delta;P)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      The dimensionless Reynolds number ($Re$) dictates whether fluid flow is laminar ($Re &lt; 2000$), transitional ($2000 &le; Re &le; 4000$), or turbulent ($Re &gt; 4000$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      Re = \\frac{7745.8 \\times v \\times d}{\\nu}
+    </div>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Where $\\nu$ is kinematic viscosity in centistokes (cSt). Friction head loss is calculated via the Darcy-Weisbach equation converted to PSI:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      \\Delta P = f \\times \\left(\\frac{L}{d}\\right) \\times \\left(\\frac{\\rho \\times v^2}{2}\\right) \\approx \\frac{0.001294 \\times f \\times L \\times \\text{SG} \\times Q^2}{d^5}
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. SAE Dash Size Architecture</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      SAE dash sizes directly denote the hose inner diameter in increments of sixteenths of an inch ($1/16"$). For example: <strong>-04 = 4/16" (1/4")</strong>, <strong>-08 = 8/16" (1/2")</strong>, <strong>-16 = 16/16" (1")</strong>, and <strong>-32 = 32/16" (2")</strong>.
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What are the recommended fluid velocity limits for hydraulic hoses?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Per hydraulic engineering standards (NFPA and SAE J1273): <strong>Suction Lines: 2 to 4 ft/s (0.6 to 1.2 m/s)</strong> to eliminate pump inlet cavitation; <strong>Return Lines: 10 to 15 ft/s (3 to 4.5 m/s)</strong> to prevent tank foaming and aeration; <strong>Pressure Lines: 15 to 20 ft/s (4.5 to 6 m/s)</strong> for continuous duty, with up to 25 ft/s permitted for intermittent operation.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between SAE 100R1, 100R2, and 100R12?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        <strong>SAE 100R1</strong> uses a single braid of high-tensile steel wire for medium pressure applications; <strong>SAE 100R2</strong> incorporates two braids of high-tensile steel wire for high pressure up to 5,000 PSI (in small diameters); <strong>SAE 100R12</strong> features four alternating spiral layers of heavy steel wire designed for extreme high-impulse and severe cyclic pressure surges up to 4,000 PSI constant.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why do hydraulic hoses have a 4:1 safety factor?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        SAE J517 establishes that the minimum burst pressure of any hydraulic hose must be at least 4 times the maximum continuous working pressure rating (e.g. a 3,000 PSI hose bursts at &ge; 12,000 PSI). This buffer absorbs sudden fluid pressure spikes, valve shifts, mechanical vibration, thermal expansion, and natural material fatigue over millions of pressure cycles.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What causes hydraulic oil to overheat in undersized lines?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        When fluid travels through undersized hoses at excessive velocities (&gt; 25 ft/s), high friction creates significant pressure drop (&Delta;P). Because fluid power is lost as friction according to $kW_{loss} = \\frac{\\Delta P \\times GPM}{1714 \\times 1.341}$, this wasted energy converts 100% into heat. This rapidly degrades oil additives, oxidizes seals, and boils off moisture, leading to premature component failure.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How do you measure the minimum bend radius of a hydraulic hose?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Minimum bend radius is measured from the center of curvature to the <strong>inside edge</strong> of the curved hose. Bending tighter than manufacturer specifications collapses the internal cross-section, tears the inner tube, and drastically accelerates fatigue failure of the steel wire reinforcement.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // SAE 100R Pressure & Bend Data Lookup
+      // [Working PSI, Min Bend Radius in inches]
+      var hoseRatings = {
+        '100R1': {
+          0.25: [2750, 4.0],
+          0.375: [2250, 5.0],
+          0.50: [2000, 7.0],
+          0.625: [1500, 8.0],
+          0.75: [1250, 9.5],
+          1.00: [1000, 12.0],
+          1.25: [625, 16.5],
+          1.50: [500, 20.0],
+          2.00: [375, 25.0]
+        },
+        '100R2': {
+          0.25: [5000, 4.0],
+          0.375: [4000, 5.0],
+          0.50: [3500, 7.0],
+          0.625: [2750, 8.0],
+          0.75: [2250, 9.5],
+          1.00: [2000, 12.0],
+          1.25: [1250, 16.5],
+          1.50: [1000, 20.0],
+          2.00: [800, 25.0]
+        },
+        '100R12': {
+          0.25: [4000, 5.0],
+          0.375: [4000, 5.0],
+          0.50: [4000, 7.0],
+          0.625: [4000, 8.0],
+          0.75: [4000, 9.5],
+          1.00: [4000, 12.0],
+          1.25: [3000, 16.5],
+          1.50: [2500, 20.0],
+          2.00: [2500, 25.0]
+        },
+        '100R13': {
+          0.25: [5000, 5.0],
+          0.375: [5000, 5.0],
+          0.50: [5000, 7.0],
+          0.625: [5000, 8.0],
+          0.75: [5000, 9.5],
+          1.00: [5000, 12.0],
+          1.25: [5000, 16.5],
+          1.50: [5000, 20.0],
+          2.00: [5000, 25.0]
+        },
+        '100R15': {
+          0.25: [6000, 6.0],
+          0.375: [6000, 6.0],
+          0.50: [6000, 8.0],
+          0.625: [6000, 9.0],
+          0.75: [6000, 10.5],
+          1.00: [6000, 13.0],
+          1.25: [6000, 17.5],
+          1.50: [6000, 21.0],
+          2.00: [6000, 26.0]
+        },
+        '100R4': {
+          0.25: [300, 3.0],
+          0.375: [300, 3.5],
+          0.50: [300, 4.0],
+          0.625: [250, 5.0],
+          0.75: [250, 6.0],
+          1.00: [200, 8.0],
+          1.25: [150, 10.0],
+          1.50: [100, 12.0],
+          2.00: [60, 14.0]
+        }
+      };
+
+      function calcHose() {
+        var gpm = parseFloat(document.getElementById('hoseFlowGpm').value) || 15;
+        var lineType = document.getElementById('hoseLineType').value;
+        var id = parseFloat(document.getElementById('hoseDashSize').value) || 0.50;
+        var spec = document.getElementById('hoseSpecStandard').value;
+        var length = parseFloat(document.getElementById('hoseRunLength').value) || 12;
+        var visc = parseFloat(document.getElementById('oilViscosity').value) || 46;
+        var sysPsi = parseFloat(document.getElementById('hoseSystemPressure').value) || 2500;
+
+        // Velocity equation: v = 0.4085 * Q / d^2 (ft/s)
+        var vFps = (0.4085 * gpm) / (id * id);
+        var vMs = vFps * 0.3048;
+
+        // Velocity status limits
+        var maxRecFps = 20;
+        var minRecFps = 10;
+        if (lineType === 'suction') {
+          minRecFps = 2;
+          maxRecFps = 4;
+        } else if (lineType === 'return') {
+          minRecFps = 8;
+          maxRecFps = 15;
+        }
+
+        var velStatusEl = document.getElementById('outVelocityStatus');
+        if (vFps > (maxRecFps * 1.25)) {
+          velStatusEl.textContent = 'EXCESSIVE VELOCITY (OVERHEATING)';
+          velStatusEl.style.background = '#ef444420';
+          velStatusEl.style.color = '#ef4444';
+        } else if (vFps > maxRecFps) {
+          velStatusEl.textContent = 'SLIGHTLY ELEVATED';
+          velStatusEl.style.background = '#f59e0b20';
+          velStatusEl.style.color = '#f59e0b';
+        } else if (vFps < minRecFps && lineType !== 'pressure') {
+          velStatusEl.textContent = 'UNDERSIZED FLOW RATE';
+          velStatusEl.style.background = '#3b82f620';
+          velStatusEl.style.color = '#3b82f6';
+        } else {
+          velStatusEl.textContent = 'OPTIMAL RANGE';
+          velStatusEl.style.background = '#10b98120';
+          velStatusEl.style.color = '#10b981';
+        }
+
+        // Pressure Rating Lookup
+        var ratingData = (hoseRatings[spec] && hoseRatings[spec][id]) ? hoseRatings[spec][id] : [3000, 7.0];
+        var workingPsi = ratingData[0];
+        var bendRadiusIn = ratingData[1];
+        var burstPsi = workingPsi * 4;
+        var marginPsi = workingPsi - sysPsi;
+
+        // Reynolds Number: Re = 7745.8 * v * d / cSt
+        var re = (7745.8 * vFps * id) / visc;
+        var f = 0.03;
+        var flowRegimeStr = '';
+        if (re < 2000) {
+          f = 64 / re;
+          flowRegimeStr = 'Re = ' + Math.round(re).toLocaleString() + ' (Laminar)';
+        } else if (re <= 4000) {
+          f = 0.035;
+          flowRegimeStr = 'Re = ' + Math.round(re).toLocaleString() + ' (Transitional)';
+        } else {
+          f = 0.316 / Math.pow(re, 0.25);
+          flowRegimeStr = 'Re = ' + Math.round(re).toLocaleString() + ' (Turbulent)';
+        }
+
+        // Pressure drop (Darcy-Weisbach in PSI)
+        // SG ~ 0.88 for hydraulic mineral oil
+        var sg = 0.88;
+        var deltaPsi = (0.001294 * f * length * sg * (gpm * gpm)) / Math.pow(id, 5);
+        var dropPerFt = deltaPsi / length;
+        var deltaBar = deltaPsi * 0.0689476;
+
+        // Update UI
+        document.getElementById('outVelocityFps').textContent = vFps.toFixed(1) + ' ft/s';
+        document.getElementById('outVelocityMsSub').textContent = vMs.toFixed(2) + ' m/s (Line Target: ' + minRecFps + '–' + maxRecFps + ' ft/s)';
+
+        document.getElementById('outWorkingPsi').textContent = workingPsi.toLocaleString() + ' PSI';
+        document.getElementById('outBurstPsiSub').textContent = 'Min Burst: ' + burstPsi.toLocaleString() + ' PSI (4:1)';
+
+        var marginEl = document.getElementById('outPressureMargin');
+        if (marginPsi >= 0) {
+          marginEl.textContent = '+' + marginPsi.toLocaleString() + ' PSI';
+          marginEl.style.color = '#10b981';
+          document.getElementById('outMarginSub').textContent = 'Compliant for ' + sysPsi.toLocaleString() + ' PSI system';
+        } else {
+          marginEl.textContent = marginPsi.toLocaleString() + ' PSI';
+          marginEl.style.color = '#dc2626';
+          document.getElementById('outMarginSub').textContent = 'DANGER: Exceeds hose rating!';
+        }
+
+        document.getElementById('outPressureDrop').textContent = deltaPsi.toFixed(1) + ' PSI';
+        document.getElementById('outDropPerFoot').textContent = dropPerFt.toFixed(2) + ' PSI/ft (' + deltaBar.toFixed(2) + ' bar total)';
+
+        document.getElementById('outBendRadius').textContent = bendRadiusIn.toFixed(1) + ' inches';
+        document.getElementById('outBendMmSub').textContent = Math.round(bendRadiusIn * 25.4) + ' mm (SAE J517 standard)';
+
+        document.getElementById('outFlowRegime').textContent = flowRegimeStr;
+
+        // Update Derivations
+        document.getElementById('derivFlowGpm').textContent = gpm;
+        document.getElementById('derivHoseId').textContent = id.toFixed(3);
+        document.getElementById('derivVelocityCalc').textContent = '(0.4085 * ' + gpm + ') / (' + id.toFixed(3) + ')^2 = ' + vFps.toFixed(2) + ' ft/s';
+
+        renderHoseSvg(id, vFps, workingPsi, bendRadiusIn, spec);
+      }
+
+      function renderHoseSvg(id, vFps, workingPsi, bendRadiusIn, spec) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<marker id="arrowVel" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/></marker>';
+        svg += '<pattern id="wireBraid" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0,12 L12,0 M0,0 L12,12" stroke="#64748b" stroke-width="1.5"/></pattern>';
+        svg += '</defs>';
+
+        // Outer Rubber Cover
+        svg += '<rect x="60" y="50" width="700" height="160" rx="14" fill="#334155" stroke="#1e293b" stroke-width="3"/>';
+
+        // Steel Wire Reinforcement Layer
+        svg += '<rect x="60" y="65" width="700" height="130" fill="url(#wireBraid)" stroke="#475569" stroke-width="1"/>';
+
+        // Inner Nitrile Rubber Tube
+        svg += '<rect x="60" y="80" width="700" height="100" fill="#0f172a"/>';
+
+        // Fluid Channel Core
+        svg += '<rect x="60" y="92" width="700" height="76" fill="#1e3a8a" opacity="0.65"/>';
+
+        // Fluid Velocity Arrows
+        svg += '<line x1="100" y1="130" x2="320" y2="130" stroke="#60a5fa" stroke-width="4" marker-end="url(#arrowVel)"/>';
+        svg += '<line x1="380" y1="130" x2="600" y2="130" stroke="#60a5fa" stroke-width="4" marker-end="url(#arrowVel)"/>';
+
+        // Text Annotations
+        svg += '<text x="410" y="115" text-anchor="middle" font-size="14" font-weight="800" fill="#ffffff">FLUID VELOCITY: ' + vFps.toFixed(1) + ' FT/S</text>';
+        svg += '<text x="410" y="150" text-anchor="middle" font-size="12" font-weight="600" fill="#93c5fd">ID: ' + id.toFixed(3) + ' in | ' + spec + ' Rating: ' + workingPsi.toLocaleString() + ' PSI</text>';
+
+        // Callouts for layers
+        svg += '<text x="120" y="42" font-size="11" font-weight="700" fill="#94a3b8">SYNTHETIC ABRASION COVER</text>';
+        svg += '<text x="480" y="42" font-size="11" font-weight="700" fill="#cbd5e1">HIGH-TENSILE STEEL BRAID / SPIRAL</text>';
+        svg += '<text x="410" y="235" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Min Bend Radius: ' + bendRadiusIn.toFixed(1) + '" (' + Math.round(bendRadiusIn * 25.4) + ' mm) | 4:1 Burst Safety Factor</text>';
+
+        svg += '</svg>';
+        document.getElementById('hoseSvgWrapper').innerHTML = svg;
+      }
+
+      function copyHoseSpec() {
+        var gpm = document.getElementById('hoseFlowGpm').value;
+        var lineType = document.getElementById('hoseLineType').value;
+        var dash = document.getElementById('hoseDashSize').selectedOptions[0].text;
+        var spec = document.getElementById('hoseSpecStandard').value;
+        var vel = document.getElementById('outVelocityFps').textContent;
+        var wp = document.getElementById('outWorkingPsi').textContent;
+        var burst = document.getElementById('outBurstPsiSub').textContent;
+        var dp = document.getElementById('outPressureDrop').textContent;
+        var mbr = document.getElementById('outBendRadius').textContent;
+
+        var text = 'HYDRAULIC HOSE ENGINEERING SPECIFICATION\\n';
+        text += '-------------------------------------------------\\n';
+        text += 'Flow Rate: ' + gpm + ' GPM (' + lineType.toUpperCase() + ' LINE)\\n';
+        text += 'Selected Size: ' + dash + '\\n';
+        text += 'Specification: ' + spec + '\\n';
+        text += 'Fluid Velocity: ' + vel + '\\n';
+        text += 'Max Working Pressure: ' + wp + '\\n';
+        text += 'Burst Pressure: ' + burst + '\\n';
+        text += 'Friction Head Loss: ' + dp + '\\n';
+        text += 'Min Bend Radius: ' + mbr + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyHoseBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Hose Specification!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['hoseFlowGpm', 'hoseLineType', 'hoseDashSize', 'hoseSpecStandard', 'hoseRunLength', 'oilViscosity', 'hoseSystemPressure'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcHose);
+          el.addEventListener('change', calcHose);
+        }
+      });
+
+      document.getElementById('copyHoseBtn').addEventListener('click', copyHoseSpec);
+
+      calcHose();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'hydraulic-hose-calculator.html'), renderTradePage({
+    title: "Hydraulic Hose Sizing Calculator: Velocity, SAE 100R & Flow Drop | Digital Tools Shed",
+    metaDesc: "Calculate hydraulic fluid velocity, SAE dash size (-04 to -32), SAE 100R working & burst pressure, Darcy-Weisbach pressure drop, and minimum bend radius.",
+    canonical: `${DOMAIN}/calc/hydraulic-hose-calculator`,
+    bodyContent: hydraulicHoseBody,
+    currentPath: '/calc/hydraulic-hose-calculator',
+    faq: [
+      {
+        "q": "What are the recommended fluid velocity limits for hydraulic hoses?",
+        "a": "Per hydraulic engineering standards (NFPA and SAE J1273): <strong>Suction Lines: 2 to 4 ft/s (0.6 to 1.2 m/s)</strong> to eliminate pump inlet cavitation; <strong>Return Lines: 10 to 15 ft/s (3 to 4.5 m/s)</strong> to prevent tank foaming and aeration; <strong>Pressure Lines: 15 to 20 ft/s (4.5 to 6 m/s)</strong> for continuous duty, with up to 25 ft/s permitted for intermittent operation."
+      },
+      {
+        "q": "What is the difference between SAE 100R1, 100R2, and 100R12?",
+        "a": "<strong>SAE 100R1</strong> uses a single braid of high-tensile steel wire for medium pressure applications; <strong>SAE 100R2</strong> incorporates two braids of high-tensile steel wire for high pressure up to 5,000 PSI (in small diameters); <strong>SAE 100R12</strong> features four alternating spiral layers of heavy steel wire designed for extreme high-impulse and severe cyclic pressure surges up to 4,000 PSI constant."
+      },
+      {
+        "q": "Why do hydraulic hoses have a 4:1 safety factor?",
+        "a": "SAE J517 establishes that the minimum burst pressure of any hydraulic hose must be at least 4 times the maximum continuous working pressure rating (e.g. a 3,000 PSI hose bursts at &ge; 12,000 PSI). This buffer absorbs sudden fluid pressure spikes, valve shifts, mechanical vibration, thermal expansion, and natural material fatigue over millions of pressure cycles."
+      },
+      {
+        "q": "What causes hydraulic oil to overheat in undersized lines?",
+        "a": "When fluid travels through undersized hoses at excessive velocities (&gt; 25 ft/s), high friction creates significant pressure drop (&Delta;P). Because fluid power is lost as friction according to $kW_{loss} = \\frac{\\Delta P \\times GPM}{1714 \\times 1.341}$, this wasted energy converts 100% into heat. This rapidly degrades oil additives, oxidizes seals, and boils off moisture, leading to premature component failure."
+      },
+      {
+        "q": "How do you measure the minimum bend radius of a hydraulic hose?",
+        "a": "Minimum bend radius is measured from the center of curvature to the <strong>inside edge</strong> of the curved hose. Bending tighter than manufacturer specifications collapses the internal cross-section, tears the inner tube, and drastically accelerates fatigue failure of the steel wire reinforcement."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SOLAR BATTERY STORAGE, LIFEP04 DOD, AUTONOMY & INVERTER SIZING CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const solarBatteryBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Solar Battery Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Solar Battery Storage & Backup Bank Sizing Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate required battery bank capacity (kWh and Amp-Hours @ 12V/24V/48V), LiFePO4 vs AGM/lead-acid usable Depth of Discharge (DoD), days of autonomy, inverter continuous & surge wattage, and solar recharge array size.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 3v4M8 3v4"/></svg>
+        Energy Load & Battery Specifications
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sbDailyKwh">Daily Energy Use (kWh/day)</label>
+          <input type="number" id="sbDailyKwh" value="18" min="1" max="150" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Critical backup loads consumption</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sbAutonomyDays">Days of Autonomy (Reserve)</label>
+          <select id="sbAutonomyDays" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.0" selected>1 Day (Standard Grid-Tied)</option>
+            <option value="1.5">1.5 Days (Mild Rainy Spells)</option>
+            <option value="2.0">2 Days (Robust Off-Grid)</option>
+            <option value="3.0">3 Days (Critical Remote Off-Grid)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sbChemistry">Battery Chemistry</label>
+          <select id="sbChemistry" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="lifepo4" selected>LiFePO4 Lithium (90% DoD, 95% Eff)</option>
+            <option value="nmc">NMC Lithium-Ion (80% DoD, 92% Eff)</option>
+            <option value="agm">AGM Sealed Lead-Acid (50% DoD, 80% Eff)</option>
+            <option value="flooded">Flooded Lead-Acid (50% DoD, 75% Eff)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sbBusVoltage">System DC Bus Voltage</label>
+          <select id="sbBusVoltage" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="48" selected>48V (Modern Home Standard)</option>
+            <option value="24">24V (Cabin / Small Off-Grid)</option>
+            <option value="12">12V (Van / RV / Small Mobile)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sbContinuousKw">Peak Continuous Load (kW)</label>
+          <input type="number" id="sbContinuousKw" value="5.5" min="0.5" max="30" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Simultaneous active electrical devices</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sbPeakSunHours">Peak Sun Hours (Recharge)</label>
+          <input type="number" id="sbPeakSunHours" value="4.2" min="1.5" max="7.0" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Winter daily equivalent solar hours</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sbSurgeMultiplier">Motor Surge Multiplier</label>
+        <select id="sbSurgeMultiplier" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="2.0" selected>2.0x (Standard Well Pump / Refrigerator)</option>
+          <option value="2.5">2.5x (Large AC Compressor / Air Compressor)</option>
+          <option value="1.5">1.5x (Inverter Appliances / Resistive Loads)</option>
+        </select>
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Inverter surge headroom for inductive motor startup</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Required Battery Bank & Solar Array
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Nameplate Battery Capacity</div>
+            <span id="outDodBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#10b98120;color:#10b981;">90% USABLE DOD</span>
+          </div>
+          <div id="outRawKwh" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">22.4 kWh</div>
+          <div id="outUsableKwhSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Usable Capacity: 19.1 kWh delivered to AC loads</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Battery Bank Amp-Hours</div>
+            <div id="outBankAh" style="font-size:1.45rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">466 Ah</div>
+            <div id="outBusVoltageSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">@ 48V DC Bus</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Server Rack 5kWh Units</div>
+            <div id="outModuleCount" style="font-size:1.45rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">5 Modules</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Standard 48V 100Ah LiFePO4</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Min Inverter Continuous</div>
+            <div id="outInverterCont" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">6.9 kW</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Includes 25% safety margin</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Inverter Peak Surge</div>
+            <div id="outInverterSurge" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#ef4444;margin-top:0.25rem;">11.0 kW</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">5-second motor starting surge</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Solar Array Recharge Size</div>
+              <div id="outSolarPvKw" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#f59e0b;margin-top:0.25rem;">5.9 kW PV</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Recharge in 1 sunny day</div>
+              <div id="outPanelCountSub" style="font-size:0.8rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">~15 &times; 400W Panels</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copySbBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Solar Battery Bank Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: POWER FLOW & STATE OF CHARGE ARCHITECTURE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+      Interactive Solar Microgrid & Usable Depth-of-Discharge (DoD) Architecture
+    </h3>
+    <div id="sbSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & SOLAR STORAGE ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Solar Battery Failure Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Sub-Freezing Lithium Plating & Thermal Runaway Hazard</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          While Lithium Iron Phosphate (LiFePO4) can safely discharge down to -4&deg;F (-20&deg;C), you must <strong>NEVER charge LiFePO4 below 32&deg;F (0&deg;C)</strong>! Forcing solar charge current into freezing lithium cells causes lithium ions to plate out as pure metallic lithium dendrites on the graphite anode instead of intercalating safely. These needle-sharp metallic crystals pierce the microscopic polymer separator, creating direct internal dead shorts and catastrophic thermal runaway fire. Always install batteries inside climate-controlled living envelopes or specify battery racks with built-in internal heating pads and low-temperature BMS charge cutoffs.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Sizing for Summer Solstice Sun & Winter Solstice Blackouts</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          A solar array generating 30 kWh/day in June with 5.8 peak sun hours may deliver less than 9 kWh/day in December when solar insolation drops to 1.8 peak sun hours due to low solar zenith angles, heavy overcast skies, and shortened daylight. Sizing battery storage and PV panels based on annual average sun hours guarantees off-grid battery bank depletion, inverter shutdown, and frozen pipes during winter storms. Off-grid systems must always be sized to the <strong>worst-month (December/January) solar insolation profile</strong>.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Lead-Acid Depth of Discharge (DoD) & Sulfation Death</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Traditional lead-acid (AGM and flooded) batteries are rated at a nominal 20-hour discharge rate, but their usable capacity is strictly capped at <strong>50% DoD</strong>. Discharging lead-acid batteries to 80% or 100% capacity precipitates hard lead sulfate crystals onto the lead plates. These crystals cannot be broken down during normal recharging, causing permanent capacity loss within 30 to 50 deep cycles. In contrast, modern LiFePO4 can be cycled repeatedly to 90% DoD for 5,000+ cycles with zero sulfation degradation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 4: Inductive Motor Surge & Inverter Overload Faults</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          A 1.5 HP deep well pump or central AC compressor may only consume 1,800 watts while running continuously, but its Locked Rotor Amps (LRA) demands an instantaneous starting surge of 7,000 to 9,000 watts for 200 milliseconds. Sizing an off-grid hybrid inverter strictly based on continuous operating wattage (e.g. buying a 3,000W inverter for a 2,200W load) results in instant inverter overload shutdown, brownout dips, and failure to start the water pump. Always verify that the inverter 5-second surge rating exceeds peak motor LRA.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>📏 Trap 5: High-Current DC Cable Heating & 12V Bus Limitations</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Power equals voltage times current ($P = V \\times I$). Supplying a 5,000-watt continuous inverter load from a 12V battery bank requires an astonishing <strong>416 Amperes</strong> of continuous DC current, demanding massive 4/0 AWG welding cables, specialized heavy-duty T-class fusing, and generating extreme $I^2 R$ heat loss. Migrating to a 48V bus slashes that current by 75% down to just 104 Amperes, allowing smaller #2 AWG copper conductors, drastically reducing thermal losses, and improving system round-trip efficiency by up to 8%.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Solar Battery Bank Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Nameplate Battery Capacity Equation</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Raw nameplate battery capacity ($C_{\\text{raw}}$ in kWh) accounts for daily energy demand, days of autonomy ($N_{\\text{days}}$), inverter inversion efficiency ($\\eta_{\\text{inv}} \\approx 0.94$), usable Depth of Discharge (DoD), and battery coulombic round-trip efficiency ($\\eta_{\\text{bat}}$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      C_{\\text{raw}} = \\frac{E_{\\text{daily}} \\times N_{\\text{days}}}{\\eta_{\\text{inv}} \\times \\text{DoD} \\times \\eta_{\\text{bat}}}
+    </div>
+    <p style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.5rem;">
+      For <span id="derivDailyKwh">18</span> kWh/day with <span id="derivAutonomy">1.0</span> day autonomy:
+      <span id="derivCapacityCalc" style="font-family:var(--mono);color:var(--fg);font-weight:600;">(18 &times; 1.0) / (0.94 &times; 0.90 &times; 0.95) = 22.4 kWh</span>.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Amp-Hour (Ah) Rating @ System Bus Voltage</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      To size battery bank Amp-Hours ($Ah$) at the selected DC operating bus voltage ($V_{\\text{bus}}$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      Ah = \\frac{C_{\\text{raw}} \\times 1000}{V_{\\text{bus}}}
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Solar Array Sizing for Battery Recharge</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      To replenish the daily consumed energy in the available winter peak sun hours ($PSH$), accounting for solar derating factors (dust, temperature coefficient, MPPT efficiency $\\approx 0.82$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      P_{\\text{PV}} = \\frac{E_{\\text{daily}}}{PSH \\times \\eta_{\\text{system}}} = \\frac{E_{\\text{daily}}}{PSH \\times 0.82}
+    </div>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why is 48V the industry standard for residential solar battery storage?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        A 48V system reduces current by 75% compared to 12V for the exact same power output ($P = V \\times I$). Lower current slashes $I^2 R$ electrical wire heating losses by a factor of 16 ($4^2 = 16$), allows significantly thinner copper cabling, enables higher inverter power capacities (up to 15 kW per inverter), and simplifies battery management across modular server-rack units.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between usable capacity and nameplate capacity?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        <strong>Nameplate capacity</strong> is the total chemical energy stored inside the battery cells. <strong>Usable capacity</strong> is the portion that can be safely withdrawn without shortening the lifespan of the battery. For example, a 10 kWh lead-acid battery only provides 5.0 kWh of usable energy (50% DoD), whereas a 10 kWh LiFePO4 battery safely provides 9.0 kWh of usable energy (90% DoD).
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How many days of autonomy should an off-grid solar system have?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        For grid-tied backup systems with an emergency generator, <strong>1 day of autonomy</strong> is standard. For full off-grid cabins and rural homesteads without reliable backup generation, <strong>2 to 3 days of autonomy</strong> is recommended to carry the household through extended multi-day winter storms and dense overcast weather.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is round-trip efficiency in solar batteries?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Round-trip efficiency represents the percentage of energy put into the battery during solar charging that is successfully retrieved during discharge. LiFePO4 batteries exhibit exceptional round-trip efficiency of 95% to 98%, whereas lead-acid batteries waste 15% to 25% of all incoming solar power as internal electrochemical heat and gas bubbling.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What are server rack LiFePO4 batteries?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Server rack batteries are standard 19-inch rack-mountable 48V (or 51.2V nominal) 100Ah LiFePO4 lithium battery modules (each storing 5.12 kWh). They feature integrated Battery Management Systems (BMS), CAN/RS485 closed-loop inverter communications, and can be wired in parallel up to 16+ units to scale storage seamlessly from 5 kWh to over 80 kWh.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // Chemistry Specs: [DoD, Round-Trip Eff]
+      var chemSpecs = {
+        'lifepo4': [0.90, 0.95],
+        'nmc': [0.80, 0.92],
+        'agm': [0.50, 0.80],
+        'flooded': [0.50, 0.75]
+      };
+
+      function calcBattery() {
+        var dailyKwh = parseFloat(document.getElementById('sbDailyKwh').value) || 18;
+        var autonomy = parseFloat(document.getElementById('sbAutonomyDays').value) || 1.0;
+        var chem = document.getElementById('sbChemistry').value;
+        var vBus = parseFloat(document.getElementById('sbBusVoltage').value) || 48;
+        var contKw = parseFloat(document.getElementById('sbContinuousKw').value) || 5.5;
+        var psh = parseFloat(document.getElementById('sbPeakSunHours').value) || 4.2;
+        var surgeMult = parseFloat(document.getElementById('sbSurgeMultiplier').value) || 2.0;
+
+        var spec = chemSpecs[chem] || [0.90, 0.95];
+        var dod = spec[0];
+        var batEff = spec[1];
+        var invEff = 0.94; // Modern hybrid inverter efficiency
+
+        // Usable storage required at AC loads
+        var usableKwh = (dailyKwh * autonomy);
+
+        // Nameplate (Raw) storage required accounting for DoD and efficiencies
+        var rawKwh = usableKwh / (invEff * dod * batEff);
+
+        // Amp-Hours @ DC Bus Voltage
+        var bankAh = (rawKwh * 1000) / vBus;
+
+        // Number of standard 5.12 kWh (48V 100Ah) or equivalent modules
+        var moduleCount = Math.ceil(rawKwh / 5.12);
+
+        // Inverter Sizing
+        var invContReq = contKw * 1.25; // 25% continuous headroom
+        var invSurgeReq = contKw * surgeMult;
+
+        // Solar Array Sizing to recharge in peak sun hours
+        // System derate factor ~ 0.82 (temperature, dirt, MPPT)
+        var pvKwReq = dailyKwh / (psh * 0.82);
+        var panelCount = Math.ceil((pvKwReq * 1000) / 400); // Standard 400W panels
+
+        // Update UI
+        document.getElementById('outRawKwh').textContent = rawKwh.toFixed(1) + ' kWh';
+        document.getElementById('outUsableKwhSub').textContent = 'Usable Capacity: ' + usableKwh.toFixed(1) + ' kWh delivered to loads';
+        document.getElementById('outDodBadge').textContent = Math.round(dod * 100) + '% USABLE DOD';
+
+        document.getElementById('outBankAh').textContent = Math.round(bankAh).toLocaleString() + ' Ah';
+        document.getElementById('outBusVoltageSub').textContent = '@ ' + vBus + 'V DC Bus';
+
+        document.getElementById('outModuleCount').textContent = moduleCount + ' Modules';
+
+        document.getElementById('outInverterCont').textContent = invContReq.toFixed(1) + ' kW';
+        document.getElementById('outInverterSurge').textContent = invSurgeReq.toFixed(1) + ' kW';
+
+        document.getElementById('outSolarPvKw').textContent = pvKwReq.toFixed(1) + ' kW PV';
+        document.getElementById('outPanelCountSub').textContent = '~' + panelCount + ' \u00D7 400W Panels';
+
+        // Update derivations
+        document.getElementById('derivDailyKwh').textContent = dailyKwh;
+        document.getElementById('derivAutonomy').textContent = autonomy.toFixed(1);
+        document.getElementById('derivCapacityCalc').textContent = '(' + dailyKwh + ' * ' + autonomy.toFixed(1) + ') / (' + invEff + ' * ' + dod.toFixed(2) + ' * ' + batEff.toFixed(2) + ') = ' + rawKwh.toFixed(1) + ' kWh';
+
+        renderSbSvg(rawKwh, usableKwh, dod, vBus, pvKwReq);
+      }
+
+      function renderSbSvg(rawKwh, usableKwh, dod, vBus, pvKwReq) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<marker id="arrowFlow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#3b82f6"/></marker>';
+        svg += '</defs>';
+
+        // Block 1: Solar PV Array
+        svg += '<rect x="40" y="50" width="130" height="150" rx="8" fill="var(--surface)" stroke="#f59e0b" stroke-width="2"/>';
+        svg += '<text x="105" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#f59e0b">SOLAR ARRAY</text>';
+        svg += '<text x="105" y="105" text-anchor="middle" font-size="16" font-weight="800" fill="var(--fg)">' + pvKwReq.toFixed(1) + ' kW</text>';
+        svg += '<text x="105" y="130" text-anchor="middle" font-size="11" fill="var(--text-muted)">Peak Sun Hours</text>';
+        svg += '<rect x="55" y="150" width="100" height="30" rx="4" fill="#f59e0b20" stroke="#f59e0b" stroke-width="1"/>';
+        svg += '<text x="105" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#f59e0b">PV GENERATION</text>';
+
+        // Flow line 1 -> 2
+        svg += '<line x1="170" y1="125" x2="230" y2="125" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowFlow)"/>';
+
+        // Block 2: MPPT & Hybrid Inverter
+        svg += '<rect x="240" y="50" width="140" height="150" rx="8" fill="var(--surface)" stroke="#3b82f6" stroke-width="2"/>';
+        svg += '<text x="310" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#3b82f6">HYBRID INVERTER</text>';
+        svg += '<text x="310" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="var(--fg)">' + vBus + 'V DC \u2194 240V AC</text>';
+        svg += '<text x="310" y="130" text-anchor="middle" font-size="11" fill="var(--text-muted)">94% Efficiency</text>';
+        svg += '<rect x="255" y="150" width="110" height="30" rx="4" fill="#3b82f620" stroke="#3b82f6" stroke-width="1"/>';
+        svg += '<text x="310" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82f6">MPPT CONTROLLER</text>';
+
+        // Flow line 2 -> 3 (Battery)
+        svg += '<line x1="380" y1="125" x2="440" y2="125" stroke="#10b981" stroke-width="3" marker-end="url(#arrowFlow)"/>';
+
+        // Block 3: Battery Bank Storage
+        svg += '<rect x="450" y="50" width="150" height="150" rx="8" fill="var(--surface)" stroke="#10b981" stroke-width="2"/>';
+        svg += '<text x="525" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#10b981">BATTERY BANK</text>';
+        svg += '<text x="525" y="105" text-anchor="middle" font-size="16" font-weight="800" fill="var(--fg)">' + rawKwh.toFixed(1) + ' kWh</text>';
+        svg += '<text x="525" y="125" text-anchor="middle" font-size="11" fill="var(--text-muted)">Usable: ' + usableKwh.toFixed(1) + ' kWh</text>';
+        // Battery bar gauge
+        var barW = 110;
+        var fillW = barW * dod;
+        svg += '<rect x="470" y="145" width="' + barW + '" height="18" rx="3" fill="#334155"/>';
+        svg += '<rect x="470" y="145" width="' + fillW + '" height="18" rx="3" fill="#10b981"/>';
+        svg += '<text x="525" y="180" text-anchor="middle" font-size="10" font-weight="700" fill="#10b981">' + Math.round(dod * 100) + '% USABLE DOD</text>';
+
+        // Flow line 3 -> 4 (Loads)
+        svg += '<line x1="600" y1="125" x2="660" y2="125" stroke="#ef4444" stroke-width="3" marker-end="url(#arrowFlow)"/>';
+
+        // Block 4: Critical Loads Panel
+        svg += '<rect x="670" y="50" width="120" height="150" rx="8" fill="var(--surface)" stroke="#ef4444" stroke-width="2"/>';
+        svg += '<text x="730" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#ef4444">CRITICAL LOADS</text>';
+        svg += '<text x="730" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="var(--fg)">120/240V AC</text>';
+        svg += '<text x="730" y="130" text-anchor="middle" font-size="11" fill="var(--text-muted)">Subpanel Backfeed</text>';
+        svg += '<rect x="680" y="150" width="100" height="30" rx="4" fill="#ef444420" stroke="#ef4444" stroke-width="1"/>';
+        svg += '<text x="730" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#ef4444">24/7 RUNTIME</text>';
+
+        svg += '<text x="410" y="235" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">DC-Coupled Architecture | Inverter Round-Trip Efficiency: ~90% System Net</text>';
+
+        svg += '</svg>';
+        document.getElementById('sbSvgWrapper').innerHTML = svg;
+      }
+
+      function copySbSpec() {
+        var daily = document.getElementById('sbDailyKwh').value;
+        var autonomy = document.getElementById('sbAutonomyDays').value;
+        var chem = document.getElementById('sbChemistry').selectedOptions[0].text;
+        var vBus = document.getElementById('sbBusVoltage').value;
+        var rawKwh = document.getElementById('outRawKwh').textContent;
+        var usable = document.getElementById('outUsableKwhSub').textContent;
+        var ah = document.getElementById('outBankAh').textContent;
+        var modules = document.getElementById('outModuleCount').textContent;
+        var invCont = document.getElementById('outInverterCont').textContent;
+        var invSurge = document.getElementById('outInverterSurge').textContent;
+        var pv = document.getElementById('outSolarPvKw').textContent;
+
+        var text = 'SOLAR BATTERY STORAGE SPECIFICATION SUMMARY\\n';
+        text += '-------------------------------------------------\\n';
+        text += 'Daily Consumption: ' + daily + ' kWh/day | Autonomy: ' + autonomy + ' Days\\n';
+        text += 'Battery Chemistry: ' + chem + '\\n';
+        text += 'DC Bus Voltage: ' + vBus + 'V\\n';
+        text += 'Required Nameplate Capacity: ' + rawKwh + '\\n';
+        text += usable + '\\n';
+        text += 'Amp-Hours @ ' + vBus + 'V: ' + ah + '\\n';
+        text += 'Recommended Modules (5.12 kWh rack): ' + modules + '\\n';
+        text += 'Inverter Continuous Rating: ' + invCont + ' | Peak Surge: ' + invSurge + '\\n';
+        text += 'Required Solar Array: ' + pv + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copySbBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Battery Bank Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['sbDailyKwh', 'sbAutonomyDays', 'sbChemistry', 'sbBusVoltage', 'sbContinuousKw', 'sbPeakSunHours', 'sbSurgeMultiplier'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcBattery);
+          el.addEventListener('change', calcBattery);
+        }
+      });
+
+      document.getElementById('copySbBtn').addEventListener('click', copySbSpec);
+
+      calcBattery();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'solar-battery-calculator.html'), renderTradePage({
+    title: "Solar Battery Storage Sizing Calculator: LiFePO4, kWh & Ah | Digital Tools Shed",
+    metaDesc: "Calculate solar battery bank capacity (kWh and Ah @ 12V/24V/48V), LiFePO4 vs AGM usable Depth of Discharge (DoD), days of autonomy, inverter surge, and solar recharge size.",
+    canonical: `${DOMAIN}/calc/solar-battery-calculator`,
+    bodyContent: solarBatteryBody,
+    currentPath: '/calc/solar-battery-calculator',
+    faq: [
+      {
+        "q": "Why is 48V the industry standard for residential solar battery storage?",
+        "a": "A 48V system reduces current by 75% compared to 12V for the exact same power output ($P = V \\times I$). Lower current slashes $I^2 R$ electrical wire heating losses by a factor of 16 ($4^2 = 16$), allows significantly thinner copper cabling, enables higher inverter power capacities (up to 15 kW per inverter), and simplifies battery management across modular server-rack units."
+      },
+      {
+        "q": "What is the difference between usable capacity and nameplate capacity?",
+        "a": "<strong>Nameplate capacity</strong> is the total chemical energy stored inside the battery cells. <strong>Usable capacity</strong> is the portion that can be safely withdrawn without shortening the lifespan of the battery. For example, a 10 kWh lead-acid battery only provides 5.0 kWh of usable energy (50% DoD), whereas a 10 kWh LiFePO4 battery safely provides 9.0 kWh of usable energy (90% DoD)."
+      },
+      {
+        "q": "How many days of autonomy should an off-grid solar system have?",
+        "a": "For grid-tied backup systems with an emergency generator, <strong>1 day of autonomy</strong> is standard. For full off-grid cabins and rural homesteads without reliable backup generation, <strong>2 to 3 days of autonomy</strong> is recommended to carry the household through extended multi-day winter storms and dense overcast weather."
+      },
+      {
+        "q": "What is round-trip efficiency in solar batteries?",
+        "a": "Round-trip efficiency represents the percentage of energy put into the battery during solar charging that is successfully retrieved during discharge. LiFePO4 batteries exhibit exceptional round-trip efficiency of 95% to 98%, whereas lead-acid batteries waste 15% to 25% of all incoming solar power as internal electrochemical heat and gas bubbling."
+      },
+      {
+        "q": "What are server rack LiFePO4 batteries?",
+        "a": "Server rack batteries are standard 19-inch rack-mountable 48V (or 51.2V nominal) 100Ah LiFePO4 lithium battery modules (each storing 5.12 kWh). They feature integrated Battery Management Systems (BMS), CAN/RS485 closed-loop inverter communications, and can be wired in parallel up to 16+ units to scale storage seamlessly from 5 kWh to over 80 kWh."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
