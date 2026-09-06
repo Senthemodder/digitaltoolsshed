@@ -1429,237 +1429,758 @@ export function buildMinecraftTools() {
   
   // ─── 5. BEDROCK /TELLRAW GENERATOR ─────────────────────────────────────────
   const tellrawBody = `
-    <div class="article-container" style="max-width: 900px;">
+    <div class="article-container" style="max-width: 950px;">
       <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Bedrock Tellraw Generator
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; /tellraw Generator
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /tellraw Generator</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Minecraft Bedrock Command Utility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /tellraw Generator (Rawtext JSON)</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Generate Bedrock-compatible <code>rawtext</code> JSON commands with color codes (§), selector targets (@p, @a), and scoreboards.
+          Construct valid <code>rawtext</code> JSON AST commands for Minecraft Bedrock Edition with support for formatted text, target selectors, translation keys, and live chat previews.
         </p>
       </header>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
             <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Target Selector</label>
-            <select id="tellTarget" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updateTellraw()">
-              <option value="@a">@a (All Players)</option>
-              <option value="@p" selected>@p (Nearest Player)</option>
-              <option value="@s">@s (Self / Executing Entity)</option>
-              <option value="@e">@e (All Entities)</option>
+            <select id="tellTarget" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateTellraw()">
+              <option value="@a" selected>@a (All Players)</option>
+              <option value="@p">@p (Nearest Player)</option>
+              <option value="@s">@s (Executing Entity)</option>
+              <option value="@r">@r (Random Player)</option>
+              <option value="@e[type=player]">@e[type=player] (All Player Entities)</option>
             </select>
           </div>
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Text Color</label>
-            <select id="tellColor" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updateTellraw()">
-              <option value="§f">White (§f)</option>
-              <option value="§a">Green (§a)</option>
-              <option value="§b">Aqua (§b)</option>
-              <option value="§c">Red (§c)</option>
-              <option value="§d">Light Purple (§d)</option>
-              <option value="§e" selected>Yellow (§e)</option>
-              <option value="§6">Gold (§6)</option>
-              <option value="§g">Minecoin Gold (§g)</option>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Prefix Style</label>
+            <select id="tellPrefix" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateTellraw()">
+              <option value="none">No Prefix</option>
+              <option value="admin" selected>[ADMIN] (Red Bold)</option>
+              <option value="server">[SERVER] (Gold Bold)</option>
+              <option value="system">[SYSTEM] (Aqua Bold)</option>
+              <option value="tip">[TIP] (Green Italic)</option>
             </select>
           </div>
         </div>
 
-        <div style="margin-bottom: 1.25rem;">
-          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Message Content</label>
-          <input type="text" id="tellMsg" value="Welcome to the Server!" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 1rem;" oninput="updateTellraw()" />
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Message Content (Use § for colors or plain text)</label>
+          <input type="text" id="tellMessage" value="Welcome to the realm! Please read the rules at spawn." class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-family: var(--mono); font-size: 1rem;" oninput="updateTellraw()" />
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">In-Game Chat Visual Simulation:</span>
+          <div id="tellChatPreview" style="background: rgba(0, 0, 0, 0.75); color: #fff; font-family: 'Minecraft', var(--mono); padding: 0.85rem 1.25rem; border-radius: 4px; font-size: 1.05rem; min-height: 42px; border-left: 3px solid #f59e0b;"></div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-          <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">Generated Command:</span>
-          <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('tellOutput').value); alert('Copied tellraw command!');">Copy Command</button>
+          <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">Generated Bedrock Command:</span>
+          <button type="button" class="btn-primary" id="copyTellrawBtn" onclick="copyTellrawCommand()" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">Copy Command</button>
         </div>
-        <textarea id="tellOutput" style="width: 100%; height: 120px; padding: 0.75rem; font-family: var(--mono); font-size: 0.85rem;" readonly></textarea>
+        <textarea id="tellOutput" style="width: 100%; height: 120px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; resize: vertical;" readonly></textarea>
+      </div>
+
+      <!-- STEP-BY-STEP RAWTEXT AST DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Bedrock Rawtext Abstract Syntax Tree (AST) Architecture</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. The <code>rawtext</code> Root Envelope</strong>
+            Unlike Minecraft Java Edition which allows direct JSON objects like <code>{"text": "Hello"}</code>, Minecraft Bedrock Edition strictly requires every payload to be wrapped in a <code>rawtext</code> array:
+            <pre style="margin: 0.5rem 0 0; color: #10b981; overflow-x: auto;">{"rawtext": [{"text": "Hello "}, {"selector": "@p"}]}</pre>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Component Tag Types</strong>
+            <ul>
+              <li><code>{"text": "string"}</code>: Plain or formatted text with section sign codes (§).</li>
+              <li><code>{"selector": "@p"}</code>: Evaluates target selector dynamically into the player's gamer tag.</li>
+              <li><code>{"score": {"name": "*", "objective": "coins"}}</code>: Renders live scoreboard objective integers.</li>
+              <li><code>{"translate": "item.apple.name"}</code>: Resolves localization keys into the client's language.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & BEDROCK TELLRAW PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Bedrock /tellraw Command Traps</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Missing "rawtext" Array Root (Java vs Bedrock)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The #1 error in Bedrock tellraw commands is copying Java JSON syntax: <code>tellraw @a {"text": "hello"}</code>. In Bedrock, this fails with "Syntax error: Unexpected token". Bedrock commands require <code>{"rawtext": [{"text": "hello"}]}</code>.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Unescaped Double Quotes in Command Blocks</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If your message contains quotes (e.g. He said "hi"), you must escape them as <code>\\"hi\\"</code> inside the JSON string. Failure to escape quotes terminates the string token early, corrupting command execution.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Scoreboard Objective Discrepancy & Silent Failures</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Using <code>{"score": {"name": "@s", "objective": "level"}}</code> will output nothing (blank text) if the objective does not exist or if the target player has never had their score initialized. Always initialize scores with <code>scoreboard players add @s level 0</code> first.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. ClickEvent & HoverEvent Non-Support in Bedrock</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Java Edition supports interactive JSON text components like <code>clickEvent</code> (run command, open URL) and <code>hoverEvent</code> (show item tooltip). <strong>Minecraft Bedrock does NOT support click or hover events in tellraw</strong>. Adding them is silently ignored by the Bedrock engine.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Line Break '\\n' Escaping in .mcfunction Files</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When writing <code>/tellraw</code> commands inside an add-on's <code>.mcfunction</code> script, multi-line formatting requires literal <code>\\n</code> inside the JSON string. Using raw multi-line string breaks in the text file terminates the function command line prematurely.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Bedrock /tellraw</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the difference between Java and Bedrock /tellraw?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Java Edition accepts direct JSON objects with color keys and click events. Bedrock Edition requires all components wrapped inside a <code>rawtext</code> array and uses section sign codes (§) for text styling.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can I use click events or hover events in Bedrock /tellraw?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              No. Bedrock Edition chat and command architecture does not support <code>clickEvent</code> or <code>hoverEvent</code> in /tellraw. Interactive dialogs must be created using NPC dialogs or Script API Server Forms (@minecraft/server-ui).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I display a player's scoreboard score in chat?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Insert a score component into the rawtext array: <code>{"score": {"name": "@s", "objective": "objective_name"}}</code>. The engine resolves and prints the integer value dynamically.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I color text in Bedrock tellraw?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Embed section sign formatting codes (§) directly in the <code>text</code> property, for example <code>§cRed §aGreen §eYellow</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can /tellraw show player names dynamically?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. Use <code>{"selector": "@p"}</code> to output the nearest player's name, or <code>{"selector": "@s"}</code> to output the name of the entity executing the command.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       function updateTellraw() {
         var target = document.getElementById('tellTarget').value;
-        var color = document.getElementById('tellColor').value;
-        var msg = document.getElementById('tellMsg').value;
+        var prefix = document.getElementById('tellPrefix').value;
+        var msg = document.getElementById('tellMessage').value;
 
-        var payload = {
-          rawtext: [
-            { text: color + msg }
-          ]
+        var prefixStr = '';
+        if (prefix === 'admin') prefixStr = '§c§l[ADMIN]§r ';
+        else if (prefix === 'server') prefixStr = '§6§l[SERVER]§r ';
+        else if (prefix === 'system') prefixStr = '§b§l[SYSTEM]§r ';
+        else if (prefix === 'tip') prefixStr = '§a§o[TIP]§r ';
+
+        var fullText = prefixStr + msg;
+        var escaped = fullText.replace(/\\\\/g, '\\\\\\\\').replace(/"/g, '\\\\\\"');
+
+        var cmd = 'tellraw ' + target + ' {"rawtext":[{"text":"' + escaped + '"}]}';
+        document.getElementById('tellOutput').value = cmd;
+
+        // Render preview
+        renderTellPreview(fullText);
+      }
+
+      function renderTellPreview(raw) {
+        var colorMap = {
+          '0': '#000000', '1': '#0000AA', '2': '#00AA00', '3': '#00AAAA',
+          '4': '#AA0000', '5': '#AA00AA', '6': '#FFAA00', '7': '#AAAAAA',
+          '8': '#555555', '9': '#5555FF', 'a': '#55FF55', 'b': '#55FFFF',
+          'c': '#FF5555', 'd': '#FF55FF', 'e': '#FFFF55', 'f': '#FFFFFF'
         };
 
-        var cmd = 'tellraw ' + target + ' ' + JSON.stringify(payload);
-        document.getElementById('tellOutput').value = cmd;
+        var html = '';
+        var color = '#FFFFFF';
+        var bold = false;
+        var italic = false;
+
+        var i = 0;
+        while (i < raw.length) {
+          if (raw[i] === '§' && i + 1 < raw.length) {
+            var c = raw[i + 1].toLowerCase();
+            i += 2;
+            if (colorMap[c]) {
+              color = colorMap[c];
+              bold = false;
+              italic = false;
+            } else if (c === 'l') {
+              bold = true;
+            } else if (c === 'o') {
+              italic = true;
+            } else if (c === 'r') {
+              color = '#FFFFFF';
+              bold = false;
+              italic = false;
+            }
+            continue;
+          }
+
+          var ch = raw[i];
+          var style = 'color: ' + color + ';';
+          if (bold) style += ' font-weight: bold;';
+          if (italic) style += ' font-style: italic;';
+          html += '<span style="' + style + '">' + (ch === ' ' ? '&nbsp;' : ch.replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span>';
+          i++;
+        }
+
+        document.getElementById('tellChatPreview').innerHTML = html || '<span style="color: #888;">Empty chat message</span>';
       }
+
+      function copyTellrawCommand() {
+        navigator.clipboard.writeText(document.getElementById('tellOutput').value).then(function() {
+          var btn = document.getElementById('copyTellrawBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', updateTellraw);
       updateTellraw();
     </script>
   `;
 
   writeFileSync(join(mcDir, 'tellraw-gen.html'), renderPage({
     title: 'Minecraft Bedrock /tellraw Generator (Rawtext JSON) | Digital Tools Shed',
-    metaDesc: 'Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors.',
+    metaDesc: 'Generate formatted /tellraw JSON rawtext commands for Minecraft Bedrock Edition with live chat simulation, color formatting, and target selectors.',
     canonical: `${DOMAIN}/mc/tellraw-gen`,
     bodyContent: tellrawBody,
-    currentPath: '/mc/tellraw-gen'
+    currentPath: '/mc/tellraw-gen',
+    faqSchema: [
+      {
+        q: "What is the difference between Java and Bedrock /tellraw?",
+        a: "Java accepts direct JSON objects, while Bedrock strictly requires the rawtext root array envelope."
+      },
+      {
+        q: "Can I use click events or hover events in Bedrock /tellraw?",
+        a: "No, Bedrock Edition chat architecture does not support clickEvent or hoverEvent in /tellraw."
+      },
+      {
+        q: "How do I display a player's scoreboard score in chat?",
+        a: "Use the rawtext score component: {\"score\": {\"name\": \"@s\", \"objective\": \"score_name\"}}."
+      },
+      {
+        q: "How do I color text in Bedrock tellraw?",
+        a: "Embed section sign formatting codes (§) directly within the text property string."
+      },
+      {
+        q: "Can /tellraw show player names dynamically?",
+        a: "Yes, using the selector component {\"selector\": \"@p\"} evaluates dynamically to the player's gamer tag."
+      }
+    ]
   }));
 
   // ─── 6. BEDROCK /PLAYSOUND PICKER ──────────────────────────────────────────
   const playsoundBody = `
-    <div class="article-container" style="max-width: 900px;">
+    <div class="article-container" style="max-width: 950px;">
       <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Bedrock Playsound Generator
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; /playsound Picker
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /playsound Command Generator</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ec4899; margin-bottom: 0.5rem;">Minecraft Bedrock Audio Utility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /playsound Generator & Sound List</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Search official vanilla sound event definitions with interactive pitch, volume, and player selectors.
+          Search authentic Bedrock sound identifiers from <code>sound_definitions.json</code>, configure attenuation volume radius, pitch shifting, and generate valid <code>/playsound</code> commands.
         </p>
       </header>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-        <div style="margin-bottom: 1.25rem;">
-          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Sound Event ID</label>
-          <select id="soundId" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updatePlaysound()">
-            <option value="random.levelup">random.levelup (Experience Level Up Chime)</option>
-            <option value="random.orb">random.orb (XP Orb Pickup)</option>
-            <option value="random.explode">random.explode (Explosion)</option>
-            <option value="random.totem">random.totem (Totem of Undying Activation)</option>
-            <option value="mob.warden.heartbeat">mob.warden.heartbeat (Warden Heartbeat)</option>
-            <option value="mob.enderdragon.growl">mob.enderdragon.growl (Ender Dragon Growl)</option>
-            <option value="block.bell.hit">block.bell.hit (Village Bell Ding)</option>
-            <option value="ui.toast.challenge_complete">ui.toast.challenge_complete (Challenge Fanfare)</option>
-          </select>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Volume (0.0 to 1.0+)</label>
-            <input type="number" id="soundVol" value="1.0" step="0.1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" oninput="updatePlaysound()" />
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Sound Identifier</label>
+            <select id="psSound" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updatePlaysound()">
+              <option value="random.orb" selected>random.orb (XP Orb Pickup)</option>
+              <option value="random.levelup">random.levelup (Level Up Chime)</option>
+              <option value="random.totem">random.totem (Totem of Undying)</option>
+              <option value="ambient.cave">ambient.cave (Eerie Cave Ambience)</option>
+              <option value="mob.wither.spawn">mob.wither.spawn (Wither Boss Spawn)</option>
+              <option value="mob.enderdragon.growl">mob.enderdragon.growl (Dragon Growl)</option>
+              <option value="beacon.activate">beacon.activate (Beacon Activate)</option>
+              <option value="ui.toast.challenge_complete">ui.toast.challenge_complete (Challenge Fanfare)</option>
+              <option value="note.harp">note.harp (Noteblock Harp)</option>
+              <option value="note.pling">note.pling (Noteblock Pling)</option>
+              <option value="block.bell.hit">block.bell.hit (Village Bell Strike)</option>
+              <option value="raid.horn">raid.horn (Illager Raid Horn)</option>
+            </select>
           </div>
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Pitch (0.0 to 2.0)</label>
-            <input type="number" id="soundPitch" value="1.0" step="0.1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" oninput="updatePlaysound()" />
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Target Player</label>
+            <input type="text" id="psTarget" value="@a" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" oninput="updatePlaysound()" />
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Position (X Y Z or Tildes)</label>
+            <input type="text" id="psPos" value="~ ~ ~" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" oninput="updatePlaysound()" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Volume: <span id="psVolVal" style="color: #ec4899; font-weight: bold;">1.0</span></label>
+              <span id="psRadiusVal" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">(Radius: 16 blocks)</span>
+            </div>
+            <input type="range" id="psVolume" min="0.1" max="10.0" step="0.1" value="1.0" oninput="updatePlaysound()" style="width: 100%; cursor: pointer;" />
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Pitch: <span id="psPitchVal" style="color: #3b82f6; font-weight: bold;">1.0</span></label>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">(0.0 to 2.0)</span>
+            </div>
+            <input type="range" id="psPitch" min="0.0" max="2.0" step="0.05" value="1.0" oninput="updatePlaysound()" style="width: 100%; cursor: pointer;" />
           </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-          <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">/playsound Command:</span>
-          <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('playsoundOutput').value); alert('Copied /playsound command!');">Copy Command</button>
+          <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">Generated /playsound Command:</span>
+          <button type="button" class="btn-primary" id="copyPlaysoundBtn" onclick="copyPlaysoundCmd()" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">Copy Command</button>
         </div>
-        <textarea id="playsoundOutput" style="width: 100%; height: 80px; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem;" readonly></textarea>
+        <textarea id="playsoundOutput" style="width: 100%; height: 90px; padding: 0.85rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; resize: vertical;" readonly></textarea>
+      </div>
+
+      <!-- STEP-BY-STEP PLAYSOUND DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Bedrock /playsound Syntax & Attenuation Mathematics</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ec4899;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Full Command Syntax Structure</strong>
+            <code>/playsound &lt;sound: string&gt; [player: target] [position: x y z] [volume: float] [pitch: float] [minimumVolume: float]</code>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Volume-Distance Attenuation Formula</strong>
+            For volume values \(V > 1.0\), the maximum audible radius scales linearly:
+            $$\\text{Audible Radius (blocks)} = V \\times 16$$
+            At \(V = 1.0\), the sound can be heard up to 16 blocks away. At \(V = 5.0\), it can be heard up to 80 blocks away without increasing the peak decibel volume at the epicenter.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Frequency & Pitch Scaling</strong>
+            $$\\text{Playback Speed} = P \\quad (0.0 \\le P \\le 2.0)$$
+            A pitch of 1.0 represents standard playback speed (normal pitch). Pitch 0.5 halves the playback speed (one octave down), while pitch 2.0 doubles the playback speed (one octave up).
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & PLAYSOUND PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Bedrock /playsound Traps</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. Volume Scaling Does Not Increase Decibel Loudness</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Setting volume to <code>10.0</code> does NOT make the audio ten times louder to a player standing next to the command block. Instead, it extends the spatial spherical boundary of audibility to \(10 \\times 16 = 160\) blocks away. To play audio at fixed volume to all players everywhere, use <code>~ ~ ~ 1000000 1.0</code>.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Dot Notation vs Slash Notation in Sound Identifiers</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Java Edition uses colon and slash notation (e.g. <code>minecraft:entity.experience_orb.pickup</code>). Bedrock Edition uses dot notation (e.g. <code>random.orb</code>). Using Java namespaces in Bedrock results in silent failure.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Sound Definitions Registration Requirement</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Placing an <code>.ogg</code> file into a Resource Pack's <code>sounds/</code> folder is not enough. You must register the sound event identifier inside <code>RP/sounds/sound_definitions.json</code>. Without this registration mapping, the command engine cannot locate the sound asset.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Pitch Range Clamping Beyond 2.0</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Bedrock limits pitch to the range \([0.0, 2.0]\). Entering pitch values greater than 2.0 or negative numbers causes syntax errors. If you need hyper-fast playback, you must resample the audio file in an external editor like Audacity before packaging.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Omitting Position Relative Coordinates (~ ~ ~)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If you specify volume and pitch parameters, you MUST provide the position argument. Running <code>/playsound random.orb @a 1.0 1.0</code> will fail because the engine parses <code>1.0</code> as the X coordinate. The correct syntax is <code>/playsound random.orb @a ~ ~ ~ 1.0 1.0</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Bedrock /playsound</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the syntax for the Bedrock /playsound command?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The format is: <code>/playsound &lt;sound&gt; [player] [position] [volume] [pitch] [minimumVolume]</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How does volume affect the distance sounds are heard?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              For volumes greater than 1.0, maximum audible distance equals volume × 16 blocks. Setting volume to 10 allows players up to 160 blocks away to hear the sound.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I play a sound globally across the entire world?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Specify a massive volume like <code>100000</code>: <code>/playsound random.levelup @a ~ ~ ~ 100000 1.0</code>, or omit position parameters so it plays directly to the player's personal audio channel.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the pitch range in Minecraft Bedrock?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Pitch ranges from 0.0 (slow/deep) to 2.0 (high/fast), with 1.0 being normal playback pitch.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can I play custom sounds with /playsound?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. By defining custom sound event keys in your Resource Pack's <code>sound_definitions.json</code>, you can trigger custom audio files using /playsound.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
-      function updatePlaysound() {
-        var sound = document.getElementById('soundId').value;
-        var vol = document.getElementById('soundVol').value || '1.0';
-        var pitch = document.getElementById('soundPitch').value || '1.0';
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
 
-        var cmd = 'playsound ' + sound + ' @a ~ ~ ~ ' + vol + ' ' + pitch;
+      function updatePlaysound() {
+        var sound = document.getElementById('psSound').value;
+        var target = document.getElementById('psTarget').value || '@a';
+        var pos = document.getElementById('psPos').value || '~ ~ ~';
+        var vol = parseFloat(document.getElementById('psVolume').value) || 1.0;
+        var pitch = parseFloat(document.getElementById('psPitch').value) || 1.0;
+
+        document.getElementById('psVolVal').textContent = vol.toFixed(1);
+        document.getElementById('psRadiusVal').textContent = '(Radius: ' + Math.round(vol * 16) + ' blocks)';
+        document.getElementById('psPitchVal').textContent = pitch.toFixed(2);
+
+        var cmd = '/playsound ' + sound + ' ' + target + ' ' + pos + ' ' + vol.toFixed(1) + ' ' + pitch.toFixed(2);
         document.getElementById('playsoundOutput').value = cmd;
       }
+
+      function copyPlaysoundCmd() {
+        navigator.clipboard.writeText(document.getElementById('playsoundOutput').value).then(function() {
+          var btn = document.getElementById('copyPlaysoundBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', updatePlaysound);
       updatePlaysound();
     </script>
   `;
 
   writeFileSync(join(mcDir, 'playsound-gen.html'), renderPage({
     title: 'Minecraft Bedrock /playsound Generator & Sound List | Digital Tools Shed',
-    metaDesc: 'Generate Bedrock /playsound commands with sound event IDs, pitch, volume, and coordinates.',
+    metaDesc: 'Generate /playsound commands for Minecraft Bedrock Edition with volume attenuation math, pitch controls, and sound event definitions.',
     canonical: `${DOMAIN}/mc/playsound-gen`,
     bodyContent: playsoundBody,
-    currentPath: '/mc/playsound-gen'
+    currentPath: '/mc/playsound-gen',
+    faqSchema: [
+      {
+        q: "What is the syntax for the Bedrock /playsound command?",
+        a: "The format is: /playsound <sound> [player] [position] [volume] [pitch] [minimumVolume]."
+      },
+      {
+        q: "How does volume affect the distance sounds are heard?",
+        a: "For volumes greater than 1.0, maximum audible distance equals volume × 16 blocks."
+      },
+      {
+        q: "How do I play a sound globally across the entire world?",
+        a: "Specify a massive volume like 100000 so the radius encompasses the entire active simulation distance."
+      },
+      {
+        q: "What is the pitch range in Minecraft Bedrock?",
+        a: "Pitch ranges from 0.0 (slow/deep) to 2.0 (high/fast), with 1.0 being normal playback pitch."
+      },
+      {
+        q: "Can I play custom sounds with /playsound?",
+        a: "Yes, by defining sound events in your Resource Pack's sound_definitions.json file."
+      }
+    ]
   }));
 
   // ─── 7. MINECRAFT COLOR & FORMATTING CODES (§) ─────────────────────────────
   const colorCodesBody = `
     <style>
-      .color-swatch-btn { border: 1px solid var(--border); padding: 0.4rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: bold; background: var(--surface); transition: transform 0.1s, border-color 0.2s; }
-      .color-swatch-btn:hover { transform: translateY(-1px); border-color: var(--fg); }
-      .color-dot { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid rgba(0,0,0,0.2); }
-      .mc-preview-box { background: rgba(0, 0, 0, 0.82); border: 2px solid #555; padding: 1.25rem; border-radius: 4px; font-family: monospace, 'Courier New', sans-serif; font-size: 1.15rem; min-height: 70px; display: flex; align-items: center; word-break: break-word; line-height: 1.4; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); }
+      .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+      .color-swatch-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; text-align: left; width: 100%; transition: transform 0.1s ease; }
+      .color-swatch-btn:hover { border-color: var(--fg); transform: translateY(-1px); }
+      .color-dot { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
+      .mc-preview-box { font-family: 'Minecraft', var(--mono); font-size: 1.1rem; line-height: 1.5; padding: 1rem 1.25rem; background: #111; color: #fff; border-radius: 4px; min-height: 60px; border: 1px solid var(--border); word-break: break-all; }
     </style>
 
     <div class="article-container" style="max-width: 950px;">
       <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Color Codes & Formatting
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Color Codes (§)
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock & Java Color Codes (§)</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">Minecraft Formatting Reference</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Color Codes & Formatting (§ Codes)</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Interactive Minecraft section sign (§) formatting cheat sheet, live chat box simulator, and multi-format text exporter.
+          Complete reference for Minecraft section sign (<code>§0</code>–<code>§u</code>) color codes and text formatting styles, including all 11 Bedrock-exclusive material colors, live chat preview, and multi-format exporters.
         </p>
       </header>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Standard Palette (Click to insert code):</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;">
-          <button class="color-swatch-btn" onclick="insertCode('§0')"><span class="color-dot" style="background: #000000;"></span>§0 Black</button>
-          <button class="color-swatch-btn" onclick="insertCode('§1')"><span class="color-dot" style="background: #0000AA;"></span>§1 Dark Blue</button>
-          <button class="color-swatch-btn" onclick="insertCode('§2')"><span class="color-dot" style="background: #00AA00;"></span>§2 Dark Green</button>
-          <button class="color-swatch-btn" onclick="insertCode('§3')"><span class="color-dot" style="background: #00AAAA;"></span>§3 Dark Aqua</button>
-          <button class="color-swatch-btn" onclick="insertCode('§4')"><span class="color-dot" style="background: #AA0000;"></span>§4 Dark Red</button>
-          <button class="color-swatch-btn" onclick="insertCode('§5')"><span class="color-dot" style="background: #AA00AA;"></span>§5 Dark Purple</button>
-          <button class="color-swatch-btn" onclick="insertCode('§6')"><span class="color-dot" style="background: #FFAA00;"></span>§6 Gold</button>
-          <button class="color-swatch-btn" onclick="insertCode('§7')"><span class="color-dot" style="background: #AAAAAA;"></span>§7 Gray</button>
-          <button class="color-swatch-btn" onclick="insertCode('§8')"><span class="color-dot" style="background: #555555;"></span>§8 Dark Gray</button>
-          <button class="color-swatch-btn" onclick="insertCode('§9')"><span class="color-dot" style="background: #5555FF;"></span>§9 Blue</button>
-          <button class="color-swatch-btn" onclick="insertCode('§a')"><span class="color-dot" style="background: #55FF55;"></span>§a Green</button>
-          <button class="color-swatch-btn" onclick="insertCode('§b')"><span class="color-dot" style="background: #55FFFF;"></span>§b Aqua</button>
-          <button class="color-swatch-btn" onclick="insertCode('§c')"><span class="color-dot" style="background: #FF5555;"></span>§c Red</button>
-          <button class="color-swatch-btn" onclick="insertCode('§d')"><span class="color-dot" style="background: #FF55FF;"></span>§d Light Purple</button>
-          <button class="color-swatch-btn" onclick="insertCode('§e')"><span class="color-dot" style="background: #FFFF55;"></span>§e Yellow</button>
-          <button class="color-swatch-btn" onclick="insertCode('§f')"><span class="color-dot" style="background: #FFFFFF;"></span>§f White</button>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Standard Minecraft Colors (§0 – §f):</h3>
+        <div class="color-grid">
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§0')"><span class="color-dot" style="background: #000000;"></span>§0 Black</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§1')"><span class="color-dot" style="background: #0000AA;"></span>§1 Dark Blue</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§2')"><span class="color-dot" style="background: #00AA00;"></span>§2 Dark Green</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§3')"><span class="color-dot" style="background: #00AAAA;"></span>§3 Dark Aqua</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§4')"><span class="color-dot" style="background: #AA0000;"></span>§4 Dark Red</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§5')"><span class="color-dot" style="background: #AA00AA;"></span>§5 Dark Purple</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§6')"><span class="color-dot" style="background: #FFAA00;"></span>§6 Gold</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§7')"><span class="color-dot" style="background: #AAAAAA;"></span>§7 Gray</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§8')"><span class="color-dot" style="background: #555555;"></span>§8 Dark Gray</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§9')"><span class="color-dot" style="background: #5555FF;"></span>§9 Blue</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§a')"><span class="color-dot" style="background: #55FF55;"></span>§a Green</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§b')"><span class="color-dot" style="background: #55FFFF;"></span>§b Aqua</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§c')"><span class="color-dot" style="background: #FF5555;"></span>§c Red</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§d')"><span class="color-dot" style="background: #FF55FF;"></span>§d Light Purple</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§e')"><span class="color-dot" style="background: #FFFF55;"></span>§e Yellow</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§f')"><span class="color-dot" style="background: #FFFFFF;"></span>§f White</button>
         </div>
 
-        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Bedrock Material Colors:</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;">
-          <button class="color-swatch-btn" onclick="insertCode('§g')"><span class="color-dot" style="background: #DDD605;"></span>§g Minecoin Gold</button>
-          <button class="color-swatch-btn" onclick="insertCode('§h')"><span class="color-dot" style="background: #E3D4D1;"></span>§h Quartz</button>
-          <button class="color-swatch-btn" onclick="insertCode('§i')"><span class="color-dot" style="background: #CECACA;"></span>§i Iron</button>
-          <button class="color-swatch-btn" onclick="insertCode('§j')"><span class="color-dot" style="background: #443A3B;"></span>§j Netherite</button>
-          <button class="color-swatch-btn" onclick="insertCode('§m')"><span class="color-dot" style="background: #971607;"></span>§m Redstone</button>
-          <button class="color-swatch-btn" onclick="insertCode('§n')"><span class="color-dot" style="background: #B4684D;"></span>§n Copper</button>
-          <button class="color-swatch-btn" onclick="insertCode('§p')"><span class="color-dot" style="background: #DEB12D;"></span>§p Gold</button>
-          <button class="color-swatch-btn" onclick="insertCode('§q')"><span class="color-dot" style="background: #47A036;"></span>§q Emerald</button>
-          <button class="color-swatch-btn" onclick="insertCode('§s')"><span class="color-dot" style="background: #2CBAA8;"></span>§s Diamond</button>
-          <button class="color-swatch-btn" onclick="insertCode('§t')"><span class="color-dot" style="background: #21497B;"></span>§t Lapis</button>
-          <button class="color-swatch-btn" onclick="insertCode('§u')"><span class="color-dot" style="background: #9A5CC6;"></span>§u Amethyst</button>
+        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Bedrock Edition Material Colors (§g – §u):</h3>
+        <div class="color-grid">
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§g')"><span class="color-dot" style="background: #DDD605;"></span>§g Minecoin Gold</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§h')"><span class="color-dot" style="background: #E3D4D1;"></span>§h Quartz</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§i')"><span class="color-dot" style="background: #CECACA;"></span>§i Iron</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§j')"><span class="color-dot" style="background: #443A3B;"></span>§j Netherite</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§m')"><span class="color-dot" style="background: #971607;"></span>§m Redstone</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§n')"><span class="color-dot" style="background: #B4684D;"></span>§n Copper</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§p')"><span class="color-dot" style="background: #DEB12D;"></span>§p Gold</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§q')"><span class="color-dot" style="background: #47A036;"></span>§q Emerald</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§s')"><span class="color-dot" style="background: #2CBAA8;"></span>§s Diamond</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§t')"><span class="color-dot" style="background: #21497B;"></span>§t Lapis</button>
+          <button type="button" class="color-swatch-btn" onclick="insertCode('§u')"><span class="color-dot" style="background: #9A5CC6;"></span>§u Amethyst</button>
         </div>
 
-        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Text Formatting:</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-          <button class="color-swatch-btn" onclick="insertCode('§l')"><strong>§l Bold</strong></button>
-          <button class="color-swatch-btn" onclick="insertCode('§o')"><em>§o Italic</em></button>
-          <button class="color-swatch-btn" onclick="insertCode('§k')">§k Obfuscated</button>
-          <button class="color-swatch-btn" onclick="insertCode('§r')" style="color: #ef4444;">§r Reset</button>
+        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Text Formatting & Styles:</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
+          <button type="button" class="color-swatch-btn" style="width: auto;" onclick="insertCode('§l')"><strong>§l Bold</strong></button>
+          <button type="button" class="color-swatch-btn" style="width: auto;" onclick="insertCode('§o')"><em>§o Italic</em></button>
+          <button type="button" class="color-swatch-btn" style="width: auto;" onclick="insertCode('§k')">§k Obfuscated</button>
+          <button type="button" class="color-swatch-btn" style="width: auto; color: #ef4444;" onclick="insertCode('§r')">§r Reset</button>
+        </div>
+
+        <div>
+          <label style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem; text-transform: uppercase;">Type with § codes or click swatches above:</label>
+          <textarea id="mcTextInput" style="width: 100%; height: 90px; padding: 0.75rem; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box;" oninput="renderMCPreview()">§l§c[ADMIN] §r§eWelcome to the server! §bEnjoy §3your §aquests.</textarea>
+
+          <div style="margin-top: 1.25rem;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem;">Live In-Game Chat / Sign Preview:</span>
+            <div id="mcPreview" class="mc-preview-box"></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn-primary" id="copyBedrockBtn" onclick="copyBedrock()">Copy Bedrock Raw (§)</button>
+            <button type="button" class="btn-secondary" id="copyJavaBtn" onclick="copyJava()">Copy Java Escaped (\\u00A7)</button>
+            <button type="button" class="btn-secondary" id="copyTellrawBtn2" onclick="copyTellraw()">Copy /tellraw Command</button>
+          </div>
         </div>
       </div>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <label style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem; text-transform: uppercase;">Type with § codes or click swatches above:</label>
-        <textarea id="mcTextInput" style="width: 100%; height: 90px; padding: 0.75rem; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box;" oninput="renderMCPreview()">§l§c[ADMIN] §r§eWelcome to the server! §bEnjoy §3your §aquester.</textarea>
-
-        <div style="margin-top: 1.5rem;">
-          <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem;">Live In-Game Chat / Sign Preview:</span>
-          <div id="mcPreview" class="mc-preview-box"></div>
+      <!-- STEP-BY-STEP FORMATTING HIERARCHY DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Formatting Precedence & Section Sign Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #a855f7;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Character Encoding (Unicode U+00A7)</strong>
+            The section sign symbol (<code>§</code>) is encoded as two bytes in UTF-8: <code>0xC2 0xA7</code>. On Windows keyboards with numeric keypads, hold <kbd>Alt</kbd> and type <kbd>0167</kbd>. On macOS, press <kbd>Option</kbd> + <kbd>6</kbd>.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Style Precedence Law: Color First, Formatting Second</strong>
+            Whenever a color code (<code>§0</code>–<code>§f</code>) is parsed by the Minecraft text renderer, it automatically clears all active style flags (bold, italic, underline). Therefore, always apply color BEFORE styling:
+            $$\\text{Correct: } \\text{§c§lBold Red} \\quad \\Longleftrightarrow \\quad \\text{Incorrect: } \\text{§l§cBold is Cancelled}$$
+          </div>
         </div>
+      </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 1.5rem;">
-          <button class="btn-primary" onclick="copyBedrock()">Copy Bedrock Raw (§)</button>
-          <button class="btn-sec" onclick="copyJava()">Copy Java Escaped (\\u00A7)</button>
-          <button class="btn-sec" onclick="copyTellraw()">Copy /tellraw Command</button>
+      <!-- 5 FATAL TRAPS & COLOR CODE PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Minecraft Color Code Traps</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. Precedence Inversion: Color Cancels Formatting</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Applying a style code before a color code (e.g. <code>§l§cText</code>) cancels the bold style because the color code resets internal font flags. The golden rule is always COLOR FIRST, STYLE SECOND (e.g. <code>§c§lText</code>).
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Section Sign (§) Stripping in Chat & Anvils</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Typing raw <code>§</code> into ordinary survival chat or anvil item renaming is stripped by the game client as an anti-spoofing security measure. Colored item names must be applied via commands (<code>/give</code> with lore NBT), command blocks, or server plugins.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Bedrock-Exclusive Colors Rendering As Garbage on Java</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Bedrock Edition includes 11 material colors (<code>§g</code> through <code>§u</code> like Netherite and Amethyst). These codes are not supported in vanilla Java Edition and will display as missing glyphs or unformatted white text on Java and Geyser cross-play servers.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Forgetting the §r Reset Code on Multi-Tier Menus</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When formatting custom item lore, NPC dialogs, or scoreboard titles, omitting <code>§r</code> before normal text bleeds preceding colors and styles into subsequent words, creating messy visual output across client interfaces.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Obfuscated Text (§k) Performance Spikes</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The <code>§k</code> obfuscated code forces the client renderer to generate new pseudorandom font characters on every single animation frame. Excessive use on multi-line floating text entities causes measurable FPS drops on mobile devices and low-end PCs.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Minecraft Color Codes</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do you type the section sign (§) on a keyboard?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              On Windows, hold Alt and type 0167 on the numeric keypad. On macOS, press Option + 6. On iOS and Android virtual keyboards, press and hold the &amp; key to reveal the § symbol.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What are the Bedrock-exclusive material color codes?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Bedrock Edition features 11 material colors: §g (Minecoin Gold), §h (Quartz), §i (Iron), §j (Netherite), §m (Redstone), §n (Copper), §p (Gold), §q (Emerald), §s (Diamond), §t (Lapis), and §u (Amethyst).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why should color codes always precede style codes?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              In Minecraft's font engine, applying any color code automatically resets all active formatting styles (bold, italic). Placing color before style (e.g. §c§l) ensures both color and style apply properly.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I reset text formatting back to default?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Use the <code>§r</code> reset code to return text color and styles back to standard white unstyled chat font.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can I use color codes in item names and lore?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. Custom item display names and lore in behavior pack item JSON definitions or /give commands support § color codes directly.
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       var mcColorMap = {
         '0': '#000000', '1': '#0000AA', '2': '#00AA00', '3': '#00AAAA',
         '4': '#AA0000', '5': '#AA00AA', '6': '#FFAA00', '7': '#AAAAAA',
@@ -1713,30 +2234,42 @@ export function buildMinecraftTools() {
           var style = 'color: ' + curColor + ';';
           if (isBold) style += ' font-weight: bold;';
           if (isItalic) style += ' font-style: italic;';
-          outHtml += '<span style=\"' + style + '\">' + (ch === ' ' ? '&nbsp;' : ch.replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span>';
+          outHtml += '<span style="' + style + '">' + (ch === ' ' ? '&nbsp;' : ch.replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span>';
           i++;
         }
 
-        document.getElementById('mcPreview').innerHTML = outHtml || '<span style=\"color:#888;\">Empty preview</span>';
+        document.getElementById('mcPreview').innerHTML = outHtml || '<span style="color:#888;">Empty preview</span>';
       }
 
       function copyBedrock() {
-        navigator.clipboard.writeText(document.getElementById('mcTextInput').value);
-        alert('Copied Bedrock formatted string (§)!');
+        navigator.clipboard.writeText(document.getElementById('mcTextInput').value).then(function() {
+          var btn = document.getElementById('copyBedrockBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied (§)!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
       }
 
       function copyJava() {
         var s = document.getElementById('mcTextInput').value.replace(/§/g, '\\\\u00A7');
-        navigator.clipboard.writeText(s);
-        alert('Copied Java escaped string (\\\\u00A7)!');
+        navigator.clipboard.writeText(s).then(function() {
+          var btn = document.getElementById('copyJavaBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied (\\\\u00A7)!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
       }
 
       function copyTellraw() {
         var raw = document.getElementById('mcTextInput').value;
-        var escaped = raw.replace(/\"/g, '\\\\\"');
-        var cmd = 'tellraw @a {\"rawtext\":[{\"text\":\"' + escaped + '\"}]}';
-        navigator.clipboard.writeText(cmd);
-        alert('Copied /tellraw command!');
+        var escaped = raw.replace(/\\\\/g, '\\\\\\\\').replace(/"/g, '\\\\\\"');
+        var cmd = 'tellraw @a {"rawtext":[{"text":"' + escaped + '"}]}';
+        navigator.clipboard.writeText(cmd).then(function() {
+          var btn = document.getElementById('copyTellrawBtn2');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied /tellraw!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', renderMCPreview);
@@ -1746,14 +2279,31 @@ export function buildMinecraftTools() {
 
   writeFileSync(join(mcDir, 'color-codes.html'), renderPage({
     title: 'Minecraft Color Codes & Formatting (§ Codes) | Digital Tools Shed',
-    metaDesc: 'Complete Minecraft section sign (§0-§u) color codes and formatting cheat sheet with live chat simulator and multi-platform text exporter.',
+    metaDesc: 'Complete Minecraft section sign (§0-§u) color codes and formatting cheat sheet with live chat simulator, Bedrock material colors, and multi-platform text exporter.',
     canonical: `${DOMAIN}/mc/color-codes`,
     bodyContent: colorCodesBody,
     currentPath: '/mc/color-codes',
-    faq: [
-      { q: 'How do you type the section sign (§) on a keyboard?', a: 'On Windows, hold Alt and type 0167 on the number pad. On Mac, press Option + 6. On iOS and Android keyboards, tap and hold the & key.' },
-      { q: 'What are the Bedrock-exclusive material color codes?', a: 'Bedrock Edition includes §g (Minecoin Gold), §h (Quartz), §i (Iron), §j (Netherite), §m (Redstone), §n (Copper), §p (Gold), §q (Emerald), §s (Diamond), §t (Lapis), and §u (Amethyst).' },
-      { q: 'How do I reset text formatting back to default in Minecraft?', a: 'Use the §r code to reset all previous colors and styles (bold, italic, obfuscated) back to the standard white chat color.' }
+    faqSchema: [
+      {
+        q: "How do you type the section sign (§) on a keyboard?",
+        a: "On Windows, hold Alt and type 0167 on the number pad. On Mac, press Option + 6. On mobile keyboards, tap and hold the & key."
+      },
+      {
+        q: "What are the Bedrock-exclusive material color codes?",
+        a: "Bedrock Edition includes §g (Minecoin Gold), §h (Quartz), §i (Iron), §j (Netherite), §m (Redstone), §n (Copper), §p (Gold), §q (Emerald), §s (Diamond), §t (Lapis), and §u (Amethyst)."
+      },
+      {
+        q: "Why should color codes always precede style codes?",
+        a: "In Minecraft's font engine, applying any color code automatically resets all active formatting styles (bold, italic)."
+      },
+      {
+        q: "How do I reset text formatting back to default in Minecraft?",
+        a: "Use the §r code to reset all previous colors and styles back to standard white unstyled chat font."
+      },
+      {
+        q: "Can I use color codes in item names and lore?",
+        a: "Yes, custom item display names and lore in behavior pack item JSON definitions or /give commands support § color codes directly."
+      }
     ]
   }));
 

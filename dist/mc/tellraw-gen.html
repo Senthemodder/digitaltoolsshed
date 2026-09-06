@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minecraft Bedrock /tellraw Generator (Rawtext JSON) | Digital Tools Shed</title>
-  <meta name="description" content="Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="description" content="Generate formatted /tellraw JSON rawtext commands for Minecraft Bedrock Edition with live chat simulation, color formatting, and target selectors.">
   <link rel="canonical" href="https://digitaltoolsshed.com/mc/tellraw-gen">
   <meta property="og:title" content="Minecraft Bedrock /tellraw Generator (Rawtext JSON) | Digital Tools Shed">
-  <meta property="og:description" content="Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta property="og:description" content="Generate formatted /tellraw JSON rawtext commands for Minecraft Bedrock Edition with live chat simulation, color formatting, and target selectors.">
   <meta property="og:url" content="https://digitaltoolsshed.com/mc/tellraw-gen">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Minecraft Bedrock /tellraw Generator (Rawtext JSON) | Digital Tools Shed">
-  <meta name="twitter:description" content="Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="twitter:description" content="Generate formatted /tellraw JSON rawtext commands for Minecraft Bedrock Edition with live chat simulation, color formatting, and target selectors.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors.",
+  "description": "Generate formatted /tellraw JSON rawtext commands for Minecraft Bedrock Edition with live chat simulation, color formatting, and target selectors.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -136,7 +136,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Minecraft Bedrock /tellraw Generator (Rawtext JSON)",
-  "description": "Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors.",
+  "description": "Generate formatted /tellraw JSON rawtext commands for Minecraft Bedrock Edition with live chat simulation, color formatting, and target selectors.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1025,72 +1025,263 @@
           
 
           
-    <div class="article-container" style="max-width: 900px;">
+    <div class="article-container" style="max-width: 950px;">
       <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Bedrock Tellraw Generator
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; /tellraw Generator
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /tellraw Generator</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Minecraft Bedrock Command Utility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /tellraw Generator (Rawtext JSON)</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Generate Bedrock-compatible <code>rawtext</code> JSON commands with color codes (§), selector targets (@p, @a), and scoreboards.
+          Construct valid <code>rawtext</code> JSON AST commands for Minecraft Bedrock Edition with support for formatted text, target selectors, translation keys, and live chat previews.
         </p>
       </header>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
             <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Target Selector</label>
-            <select id="tellTarget" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updateTellraw()">
-              <option value="@a">@a (All Players)</option>
-              <option value="@p" selected>@p (Nearest Player)</option>
-              <option value="@s">@s (Self / Executing Entity)</option>
-              <option value="@e">@e (All Entities)</option>
+            <select id="tellTarget" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateTellraw()">
+              <option value="@a" selected>@a (All Players)</option>
+              <option value="@p">@p (Nearest Player)</option>
+              <option value="@s">@s (Executing Entity)</option>
+              <option value="@r">@r (Random Player)</option>
+              <option value="@e[type=player]">@e[type=player] (All Player Entities)</option>
             </select>
           </div>
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Text Color</label>
-            <select id="tellColor" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updateTellraw()">
-              <option value="§f">White (§f)</option>
-              <option value="§a">Green (§a)</option>
-              <option value="§b">Aqua (§b)</option>
-              <option value="§c">Red (§c)</option>
-              <option value="§d">Light Purple (§d)</option>
-              <option value="§e" selected>Yellow (§e)</option>
-              <option value="§6">Gold (§6)</option>
-              <option value="§g">Minecoin Gold (§g)</option>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Prefix Style</label>
+            <select id="tellPrefix" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateTellraw()">
+              <option value="none">No Prefix</option>
+              <option value="admin" selected>[ADMIN] (Red Bold)</option>
+              <option value="server">[SERVER] (Gold Bold)</option>
+              <option value="system">[SYSTEM] (Aqua Bold)</option>
+              <option value="tip">[TIP] (Green Italic)</option>
             </select>
           </div>
         </div>
 
-        <div style="margin-bottom: 1.25rem;">
-          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Message Content</label>
-          <input type="text" id="tellMsg" value="Welcome to the Server!" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 1rem;" oninput="updateTellraw()" />
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Message Content (Use § for colors or plain text)</label>
+          <input type="text" id="tellMessage" value="Welcome to the realm! Please read the rules at spawn." class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-family: var(--mono); font-size: 1rem;" oninput="updateTellraw()" />
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">In-Game Chat Visual Simulation:</span>
+          <div id="tellChatPreview" style="background: rgba(0, 0, 0, 0.75); color: #fff; font-family: 'Minecraft', var(--mono); padding: 0.85rem 1.25rem; border-radius: 4px; font-size: 1.05rem; min-height: 42px; border-left: 3px solid #f59e0b;"></div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-          <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">Generated Command:</span>
-          <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('tellOutput').value); alert('Copied tellraw command!');">Copy Command</button>
+          <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">Generated Bedrock Command:</span>
+          <button type="button" class="btn-primary" id="copyTellrawBtn" onclick="copyTellrawCommand()" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">Copy Command</button>
         </div>
-        <textarea id="tellOutput" style="width: 100%; height: 120px; padding: 0.75rem; font-family: var(--mono); font-size: 0.85rem;" readonly></textarea>
+        <textarea id="tellOutput" style="width: 100%; height: 120px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; resize: vertical;" readonly></textarea>
+      </div>
+
+      <!-- STEP-BY-STEP RAWTEXT AST DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Bedrock Rawtext Abstract Syntax Tree (AST) Architecture</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. The <code>rawtext</code> Root Envelope</strong>
+            Unlike Minecraft Java Edition which allows direct JSON objects like <code>{"text": "Hello"}</code>, Minecraft Bedrock Edition strictly requires every payload to be wrapped in a <code>rawtext</code> array:
+            <pre style="margin: 0.5rem 0 0; color: #10b981; overflow-x: auto;">{"rawtext": [{"text": "Hello "}, {"selector": "@p"}]}</pre>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Component Tag Types</strong>
+            <ul>
+              <li><code>{"text": "string"}</code>: Plain or formatted text with section sign codes (§).</li>
+              <li><code>{"selector": "@p"}</code>: Evaluates target selector dynamically into the player's gamer tag.</li>
+              <li><code>{"score": {"name": "*", "objective": "coins"}}</code>: Renders live scoreboard objective integers.</li>
+              <li><code>{"translate": "item.apple.name"}</code>: Resolves localization keys into the client's language.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & BEDROCK TELLRAW PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Bedrock /tellraw Command Traps</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Missing "rawtext" Array Root (Java vs Bedrock)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The #1 error in Bedrock tellraw commands is copying Java JSON syntax: <code>tellraw @a {"text": "hello"}</code>. In Bedrock, this fails with "Syntax error: Unexpected token". Bedrock commands require <code>{"rawtext": [{"text": "hello"}]}</code>.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Unescaped Double Quotes in Command Blocks</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If your message contains quotes (e.g. He said "hi"), you must escape them as <code>\"hi\"</code> inside the JSON string. Failure to escape quotes terminates the string token early, corrupting command execution.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Scoreboard Objective Discrepancy & Silent Failures</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Using <code>{"score": {"name": "@s", "objective": "level"}}</code> will output nothing (blank text) if the objective does not exist or if the target player has never had their score initialized. Always initialize scores with <code>scoreboard players add @s level 0</code> first.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. ClickEvent & HoverEvent Non-Support in Bedrock</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Java Edition supports interactive JSON text components like <code>clickEvent</code> (run command, open URL) and <code>hoverEvent</code> (show item tooltip). <strong>Minecraft Bedrock does NOT support click or hover events in tellraw</strong>. Adding them is silently ignored by the Bedrock engine.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Line Break '\n' Escaping in .mcfunction Files</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When writing <code>/tellraw</code> commands inside an add-on's <code>.mcfunction</code> script, multi-line formatting requires literal <code>\n</code> inside the JSON string. Using raw multi-line string breaks in the text file terminates the function command line prematurely.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Bedrock /tellraw</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the difference between Java and Bedrock /tellraw?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Java Edition accepts direct JSON objects with color keys and click events. Bedrock Edition requires all components wrapped inside a <code>rawtext</code> array and uses section sign codes (§) for text styling.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can I use click events or hover events in Bedrock /tellraw?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              No. Bedrock Edition chat and command architecture does not support <code>clickEvent</code> or <code>hoverEvent</code> in /tellraw. Interactive dialogs must be created using NPC dialogs or Script API Server Forms (@minecraft/server-ui).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I display a player's scoreboard score in chat?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Insert a score component into the rawtext array: <code>{"score": {"name": "@s", "objective": "objective_name"}}</code>. The engine resolves and prints the integer value dynamically.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I color text in Bedrock tellraw?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Embed section sign formatting codes (§) directly in the <code>text</code> property, for example <code>§cRed §aGreen §eYellow</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can /tellraw show player names dynamically?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. Use <code>{"selector": "@p"}</code> to output the nearest player's name, or <code>{"selector": "@s"}</code> to output the name of the entity executing the command.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       function updateTellraw() {
         var target = document.getElementById('tellTarget').value;
-        var color = document.getElementById('tellColor').value;
-        var msg = document.getElementById('tellMsg').value;
+        var prefix = document.getElementById('tellPrefix').value;
+        var msg = document.getElementById('tellMessage').value;
 
-        var payload = {
-          rawtext: [
-            { text: color + msg }
-          ]
+        var prefixStr = '';
+        if (prefix === 'admin') prefixStr = '§c§l[ADMIN]§r ';
+        else if (prefix === 'server') prefixStr = '§6§l[SERVER]§r ';
+        else if (prefix === 'system') prefixStr = '§b§l[SYSTEM]§r ';
+        else if (prefix === 'tip') prefixStr = '§a§o[TIP]§r ';
+
+        var fullText = prefixStr + msg;
+        var escaped = fullText.replace(/\\/g, '\\\\').replace(/"/g, '\\\"');
+
+        var cmd = 'tellraw ' + target + ' {"rawtext":[{"text":"' + escaped + '"}]}';
+        document.getElementById('tellOutput').value = cmd;
+
+        // Render preview
+        renderTellPreview(fullText);
+      }
+
+      function renderTellPreview(raw) {
+        var colorMap = {
+          '0': '#000000', '1': '#0000AA', '2': '#00AA00', '3': '#00AAAA',
+          '4': '#AA0000', '5': '#AA00AA', '6': '#FFAA00', '7': '#AAAAAA',
+          '8': '#555555', '9': '#5555FF', 'a': '#55FF55', 'b': '#55FFFF',
+          'c': '#FF5555', 'd': '#FF55FF', 'e': '#FFFF55', 'f': '#FFFFFF'
         };
 
-        var cmd = 'tellraw ' + target + ' ' + JSON.stringify(payload);
-        document.getElementById('tellOutput').value = cmd;
+        var html = '';
+        var color = '#FFFFFF';
+        var bold = false;
+        var italic = false;
+
+        var i = 0;
+        while (i < raw.length) {
+          if (raw[i] === '§' && i + 1 < raw.length) {
+            var c = raw[i + 1].toLowerCase();
+            i += 2;
+            if (colorMap[c]) {
+              color = colorMap[c];
+              bold = false;
+              italic = false;
+            } else if (c === 'l') {
+              bold = true;
+            } else if (c === 'o') {
+              italic = true;
+            } else if (c === 'r') {
+              color = '#FFFFFF';
+              bold = false;
+              italic = false;
+            }
+            continue;
+          }
+
+          var ch = raw[i];
+          var style = 'color: ' + color + ';';
+          if (bold) style += ' font-weight: bold;';
+          if (italic) style += ' font-style: italic;';
+          html += '<span style="' + style + '">' + (ch === ' ' ? '&nbsp;' : ch.replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span>';
+          i++;
+        }
+
+        document.getElementById('tellChatPreview').innerHTML = html || '<span style="color: #888;">Empty chat message</span>';
       }
+
+      function copyTellrawCommand() {
+        navigator.clipboard.writeText(document.getElementById('tellOutput').value).then(function() {
+          var btn = document.getElementById('copyTellrawBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', updateTellraw);
       updateTellraw();
     </script>
   
