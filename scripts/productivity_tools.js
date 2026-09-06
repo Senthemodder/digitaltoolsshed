@@ -2379,7 +2379,176 @@ function buildProductivitySuite() {
     writeFileSync(join(prodDist, `${page.slug}.html`), html);
   }
 
-  console.log("  \u2713 Built Productivity Suite (" + pages.length + " tools in /productivity/)");
+  // Build Productivity Suite Hub Page at /productivity/index.html
+  const hubListHtml = pages.map(p => {
+    return `<a href="/productivity/${p.slug}.html" style="display:block;padding:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;text-decoration:none;color:inherit;transition:transform 0.15s ease,border-color 0.15s ease;">
+      <span class="badge badge-green" style="font-size:0.7rem;margin-bottom:0.4rem;display:inline-block;">100% Free & Private</span>
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:600;line-height:1.3;margin-bottom:0.4rem;color:var(--fg);">${p.title.split('(')[0].split('|')[0].trim()}</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin:0;line-height:1.4;">${p.metaDesc}</p>
+    </a>`;
+  }).join('');
+
+  const hubFaq = [
+    {
+      q: "What tools are included in the Productivity Suite?",
+      a: "The suite includes 9 professional workflow utilities: Text Deduplicator, Billable Time Tracker, Free Invoice Generator, Time Log to Invoice Converter, Freelance Self-Employment Tax Calculator, Kanban Task Manager, Weekly Timetable Generator, ATS Resume Keyword Scanner, and Group Expense Splitter."
+    },
+    {
+      q: "Do I need to create an account or provide payment information?",
+      a: "No. All tools are 100% free with zero registration, zero accounts, and zero subscription paywalls."
+    },
+    {
+      q: "Where is my client, tax, or invoice data stored?",
+      a: "Everything executes entirely inside your device's browser memory or local storage. No client names, hourly rates, invoices, or resumes are ever sent to or stored on our servers."
+    },
+    {
+      q: "Can I print or export my invoices, schedules, and time reports?",
+      a: "Yes. Every tool features one-click clipboard copying, PDF printing, or downloadable text and data formats formatted for immediate business use."
+    },
+    {
+      q: "Are these tools mobile-friendly?",
+      a: "Yes. Every calculator, scanner, and generator is built with responsive HTML and CSS optimized for mobile smartphones, tablets, and desktop workstations."
+    }
+  ];
+
+  const hubFaqMarkup = hubFaq.map((f, idx) => {
+    return `<details class="faq-item" style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"${idx === 0 ? ' open' : ''}>
+      <summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">${f.q}</summary>
+      <div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">${f.a}</div>
+    </details>`;
+  }).join('');
+
+  const hubTrapsMarkup = `
+    <div style="margin:2.5rem 0;">
+      <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">5 Fatal Traps of Freelance & Daily Office Productivity</h2>
+      <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:4px;">
+        <h4 style="margin:0 0 0.4rem 0;color:#ef4444;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">
+          <span>⚠️</span> Fatal Trap 1: Failing to Log Micro-Billable Increments
+        </h4>
+        <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">
+          Freelancers and contractors who reconstruct billing logs at the end of the week lose 15-25% of billable time due to forgotten 10-15 minute email consultations, revisions, and project management tasks. Active timers prevent revenue leakage.
+        </p>
+      </div>
+      <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:4px;">
+        <h4 style="margin:0 0 0.4rem 0;color:#f59e0b;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">
+          <span>⚠️</span> Fatal Trap 2: Two-Column Complex ATS Resume Templates
+        </h4>
+        <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">
+          Many applicant tracking systems read resumes horizontally across columns. A two-column graphic template scrambles experience bullet points across unrelated dates, causing automated ATS parser rejections before a human recruiter ever sees it.
+        </p>
+      </div>
+      <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:4px;">
+        <h4 style="margin:0 0 0.4rem 0;color:#10b981;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">
+          <span>⚠️</span> Fatal Trap 3: Neglecting Quarterly Self-Employment Estimated Taxes
+        </h4>
+        <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">
+          Failing to reserve 25-30% of gross freelance earnings for quarterly IRS and state estimated taxes results in statutory underpayment penalties and surprise year-end liquidity crises.
+        </p>
+      </div>
+      <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:4px;">
+        <h4 style="margin:0 0 0.4rem 0;color:#3b82f6;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">
+          <span>⚠️</span> Fatal Trap 4: Circular Debt Loops in Group Expense Splitting
+        </h4>
+        <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">
+          Splitting shared expenses manually creates multiple redundant peer-to-peer payments. Graph-minimized settlement algorithms consolidate circular debts, reducing 10+ confusing transactions down to the mathematical minimum.
+        </p>
+      </div>
+      <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:4px;">
+        <h4 style="margin:0 0 0.4rem 0;color:#8b5cf6;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">
+          <span>⚠️</span> Fatal Trap 5: Fragmented SaaS Subscription Sprawl
+        </h4>
+        <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">
+          Paying monthly subscription fees for standalone invoice, time tracking, and expense apps creates recurring overhead and data lock-in. Lightweight client-side browser tools provide instant utility without account friction.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const hubBody = `
+    <div class="article-container" style="max-width:1000px;">
+      <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+        <a href="/">Home</a> &gt; Productivity Suite Hub
+      </nav>
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">
+        <span class="badge badge-green">9 Free Business Tools</span>
+        <span class="badge badge-blue">Zero Account Required</span>
+        <span class="badge badge-purple">100% Private Client-Side</span>
+      </div>
+      <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;">Productivity & Freelance Workflow Hub</h1>
+      <p style="color:var(--text-muted);font-size:1rem;line-height:1.6;margin-bottom:1.5rem;">
+        Suite of 9 free, client-side tools for freelancers, remote workers, and students. Generate professional PDF invoices, track billable hours, parse ATS resumes, split group debts, and calculate quarterly self-employment taxes locally in your browser.
+      </p>
+      <div style="margin-bottom:2rem;">
+        <button type="button" class="btn-copy" onclick="copyProdDirectory(this)" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;font-size:0.85rem;font-family:var(--mono);font-weight:600;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);cursor:pointer;transition:all 0.2s;">
+          <span>📋</span> Copy Productivity Suite Directory
+        </button>
+      </div>
+
+      ${hubTrapsMarkup}
+
+      <h2 style="font-family:var(--serif);font-size:1.6rem;margin:2rem 0 1rem 0;color:var(--fg);">All Productivity Tools & Utilities</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;">
+        ${hubListHtml}
+      </div>
+
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">Frequently Asked Questions</h2>
+        ${hubFaqMarkup}
+      </div>
+    </div>
+    <script>
+      function copyProdDirectory(btn) {
+        var text = [
+          "DIGITAL TOOLS SHED — PRODUCTIVITY & FREELANCE SUITE",
+          "====================================================",
+          "9 Free Client-Side Professional Workflow Tools",
+          "Domain: https://digitaltoolsshed.com/productivity/",
+          "",
+          "- Free PDF Invoice Generator",
+          "- Billable Time Tracker & Session Logger",
+          "- Time Log to Invoice Converter",
+          "- Freelance & Self-Employment Tax Estimator",
+          "- Kanban Task & Project Board",
+          "- Weekly Class & Work Timetable Builder",
+          "- ATS Resume Keyword & Format Scanner",
+          "- Group Expense Splitter & Debt Minimizer",
+          "- Text Deduplicator & List Cleaner",
+          "",
+          "All tools run 100% locally in browser memory with zero accounts and zero tracking."
+        ].join("\\n");
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var old = btn.innerHTML;
+            btn.innerHTML = "<span>✓</span> Directory Copied!";
+            btn.style.borderColor = "#10b981";
+            btn.style.color = "#10b981";
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.borderColor = "var(--border)";
+              btn.style.color = "var(--fg)";
+            }, 2500);
+          }
+        });
+      }
+    </script>
+  `;
+
+  const hubHtml = renderPage({
+    title: 'Productivity & Freelance Workflow Hub — Free Invoice, Time & Tax Tools',
+    metaDesc: 'Explore 9 free client-side tools for freelancers and remote teams: PDF invoice generator, billable time tracker, ATS resume scanner, expense splitter, and tax calculators.',
+    canonical: `${DOMAIN}/productivity/`,
+    currentPath: '/productivity/',
+    bodyContent: hubBody,
+    faq: hubFaq,
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Productivity Hub', url: '/productivity/' }
+    ]
+  });
+
+  writeFileSync(join(prodDist, 'index.html'), hubHtml, 'utf8');
+
+  console.log("  \u2713 Built Productivity Suite (" + pages.length + " tools + hub in /productivity/)");
 }
 
 // ─── TRUST & LEGAL PAGES ──────────────────────────────────────────────────
