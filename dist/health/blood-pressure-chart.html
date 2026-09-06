@@ -1358,6 +1358,53 @@
       </section>
     </div>
 
+    
+    <!-- Mathematical Hemodynamic Derivation -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+      <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">Hemodynamic Perfusion &amp; Pulse Pressure Formulations</h2>
+      <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+        Blood pressure evaluation extends beyond simple systolic/diastolic thresholds to vital perfusion indices:
+      </p>
+      <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+        <div><strong>1. Mean Arterial Pressure (MAP):</strong></div>
+        <div>&nbsp;&nbsp;MAP = DBP + 1/3(SBP - DBP) = (2 &times; DBP + SBP) / 3</div>
+        <div>&nbsp;&nbsp;Normal Physiological Range: 70 - 100 mmHg. Minimum required to perfuse brain and kidneys: 60 mmHg.</div>
+        <div><strong>2. Pulse Pressure (Aortic Stiffness Marker):</strong></div>
+        <div>&nbsp;&nbsp;PP = SBP - DBP &nbsp;&rarr;&nbsp; Values &gt; 60 mmHg indicate arterial stiffening and elevated cardiovascular risk.</div>
+      </div>
+    </div>
+
+    <!-- 5 Fatal Blood Pressure Traps -->
+    <div style="margin-top:2rem; margin-bottom:2rem;">
+      <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Blood Pressure Monitoring &amp; Senior Hypertension</h2>
+      
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <strong style="color: #ef4444;">1. &quot;White Coat&quot; vs. &quot;Masked&quot; Hypertension Errors</strong>
+        Up to 20% of patients experience anxiety-induced blood pressure spikes in a clinic (&quot;white coat&quot; hypertension), while others show normal clinic readings but dangerous nocturnal spikes at home (&quot;masked&quot; hypertension). Relying on a single doctor's office measurement leads to inappropriate medication dosing. Home ambulatory monitoring is essential.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <strong style="color: #f59e0b;">2. The Isolated Systolic Hypertension &quot;J-Curve&quot; Trap in Seniors</strong>
+        In adults over 65, arterial calcification causes systolic pressure to rise while diastolic pressure falls (e.g. 160/65 mmHg). Overly aggressive blood pressure medication aimed at pushing systolic below 120 can drive diastolic below 60 mmHg, starving coronary arteries of oxygen and triggering dizziness, syncope, and fall-related fractures.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <strong style="color: #10b981;">3. Cuff Sizing &amp; Hydrostatic Arm Placement Artifacts</strong>
+        Using a standard cuff on an arm with a circumference greater than 32 cm falsely elevates systolic readings by 10 to 15 mmHg. Similarly, allowing the arm to dangle below heart level falsely adds 7 to 10 mmHg due to hydrostatic fluid weight. The cuff must always be positioned at mid-sternum heart level.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <strong style="color: #3b82f6;">4. Overlooking Wide Pulse Pressure (&gt; 60 mmHg)</strong>
+        While Mean Arterial Pressure (MAP) reflects tissue perfusion, Pulse Pressure (Systolic minus Diastolic) reflects aortic compliance. A pulse pressure exceeding 60 mmHg in elderly patients is an independent risk factor for congestive heart failure and stroke, even when diastolic pressure appears reassuringly low.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">5. Cold Medication &amp; NSAID Vasoconstriction Spikes</strong>
+        Over-the-counter decongestants containing pseudoephedrine or phenylephrine, along with daily NSAID pain relievers (ibuprofen, naproxen), cause systemic vasoconstriction and renal sodium retention, spiking blood pressure by 5 to 15 mmHg and negating the effects of prescription ACE inhibitors or beta-blockers.
+      </div>
+    </div>
+
+
     <script>
       function setBp(s, d) {
         document.getElementById('bp-sys').value = s;
@@ -1565,6 +1612,80 @@
       document.addEventListener('DOMContentLoaded', calcBP);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What are the official blood pressure categories according to the American Heart Association (AHA)?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under the 2017 ACC/AHA guidelines, blood pressure is classified into five categories: Normal (less than 120/80 mmHg), Elevated (Systolic 120–129 and Diastolic less than 80), Stage 1 Hypertension (Systolic 130–139 or Diastolic 80–89), Stage 2 Hypertension (Systolic 140 or higher or Diastolic 90 or higher), and Hypertensive Crisis (Systolic higher than 180 and/or Diastolic higher than 120).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Mean Arterial Pressure (MAP) and why is it important?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Mean Arterial Pressure (MAP) represents the average arterial pressure throughout a complete cardiac cycle of contraction and relaxation. It is calculated as MAP = Diastolic + (1/3 × Pulse Pressure). Normal MAP ranges between 70 and 100 mmHg. A MAP of at least 60 mmHg is essential to maintain adequate blood perfusion to vital organs such as the brain, kidneys, and coronary arteries.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is pulse pressure and what does a high number mean?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Pulse pressure is the difference between your systolic (top) and diastolic (bottom) blood pressure readings (PP = SBP - DBP). A normal pulse pressure is approximately 40 to 50 mmHg. A consistently high pulse pressure (greater than 60 mmHg) is a clinical marker of arterial stiffness and atherosclerosis, and serves as an independent predictor of cardiovascular risk and stroke, particularly in older adults.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Isolated Systolic Hypertension (ISH)?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Isolated Systolic Hypertension is a condition where the systolic pressure is elevated (130 mmHg or higher) while the diastolic pressure remains normal or low (less than 80 mmHg). It is the most common form of hypertension in adults over the age of 60, primarily caused by age-related stiffening of the aorta and large conduit arteries.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What should I do if my reading indicates a Hypertensive Crisis?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                If your reading is higher than 180 mmHg systolic and/or higher than 120 mmHg diastolic, wait 5 minutes and take a second reading. If readings remain elevated without symptoms (headache, chest pain, shortness of breath, vision changes), contact your physician immediately. If accompanied by any of these emergency symptoms, call 911 or seek immediate emergency medical care.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

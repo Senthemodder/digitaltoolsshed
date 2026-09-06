@@ -1315,6 +1315,54 @@
       </section>
     </div>
 
+    
+    <!-- Cardiovascular Exercise & Target Heart Rate Derivations -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+      <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">Cardiovascular Heart Rate Formulas &amp; Karvonen Formulations</h2>
+      <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+        Modern geriatric exercise physiology uses validated regressions rather than archaic formulas:
+      </p>
+      <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+        <div><strong>1. Tanaka Maximum Heart Rate Formula:</strong></div>
+        <div>&nbsp;&nbsp;HR<sub>max</sub> = 208 - (0.7 &times; Age) &nbsp;&rarr;&nbsp; For Age 70: HR<sub>max</sub> = 208 - 49 = 159 BPM (vs. 150 BPM under Fox 220-Age)</div>
+        <div><strong>2. Karvonen Heart Rate Reserve (HRR) Equation:</strong></div>
+        <div>&nbsp;&nbsp;Target HR = HR<sub>rest</sub> + Intensity% &times; (HR<sub>max</sub> - HR<sub>rest</sub>)</div>
+        <div><strong>3. 1-Minute Heart Rate Recovery (Parasympathetic Tone):</strong></div>
+        <div>&nbsp;&nbsp;&Delta;HR<sub>1-min</sub> = HR<sub>peak</sub> - HR<sub>post-1min</sub> &nbsp;&rarr;&nbsp; &ge; 12 BPM indicates normal vagal reactivation; &lt; 12 BPM indicates autonomic dysfunction.</div>
+      </div>
+    </div>
+
+    <!-- 5 Fatal Senior Heart Rate Traps -->
+    <div style="margin-top:2rem; margin-bottom:2rem;">
+      <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Senior Heart Rate Monitoring &amp; Exercise</h2>
+      
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <strong style="color: #ef4444;">1. Beta-Blocker Heart Rate Blunting (The 220-Age Danger)</strong>
+        Millions of older adults take beta-blockers (metoprolol, atenolol, carvedilol) that chemically depress sinus node firing, blunting peak heart rate by 20 to 35 BPM. Attempting to force heart rate into theoretical 220-minus-age training zones will cause severe physical exhaustion, collapse, or cardiac ischemia. Always use the Borg Rating of Perceived Exertion (RPE) instead.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <strong style="color: #f59e0b;">2. Relying on the Inaccurate Fox &quot;220 - Age&quot; Formula</strong>
+        The popular Fox-Haskel formula (220 - age) was developed in 1971 using small, unrepresentative cohorts. It significantly underestimates maximum heart rate in older adults. Cardiologists recommend the Tanaka formula (208 - 0.7 &times; Age), which accurately benchmarks cardiovascular capacity in seniors.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <strong style="color: #10b981;">3. Missing Silent Atrial Fibrillation (AFib) Spikes</strong>
+        A sudden jump in resting heart rate to 120–160 BPM accompanied by an irregular cadence is frequently a sign of atrial fibrillation rather than simple physical exertion. AFib increases the risk of embolic ischemic stroke fivefold due to clot formation in the left atrial appendage.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <strong style="color: #3b82f6;">4. Ignoring Heart Rate Recovery (HRR) as a Mortality Predictor</strong>
+        How rapidly your heart rate slows down during the first 60 seconds of post-exercise rest measures parasympathetic tone. A drop of less than 12 BPM in the first minute is a powerful independent predictor of cardiovascular mortality.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">5. Severe Resting Bradycardia (&lt; 50 BPM) in Non-Athletes</strong>
+        While resting bradycardia is common in competitive endurance athletes, an unexpected heart rate below 50 BPM in a typical senior often indicates sick sinus syndrome, thyroid hypofunction, or medication toxicity, causing cerebral hypoperfusion, dizziness, and dangerous fall risks.
+      </div>
+    </div>
+
+
     <script>
       function setAge(a) {
         document.getElementById('hr-age').value = a;
@@ -1488,6 +1536,80 @@
       document.addEventListener('DOMContentLoaded', calcHR);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the best formula to calculate maximum heart rate for seniors?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                While the traditional Fox formula (220 - Age) is widely cited, the American College of Sports Medicine (ACSM) recommends the Tanaka formula: HRmax = 208 - (0.7 × Age), or the Gellish formula: HRmax = 207 - (0.7 × Age). These formulas were clinically validated on older adults and provide significantly more accurate cardiovascular targets than the 1971 Fox formula.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does the Karvonen formula differ from standard percent-of-max calculations?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Standard percent-of-max only considers your theoretical peak heart rate. The Karvonen formula incorporates your actual resting heart rate (RHR) to compute Heart Rate Reserve (HRR = HRmax - RHR). Target heart rate is then calculated as THR = (HRR × %) + RHR. This personalization ensures that an individual with an athletic low resting heart rate receives appropriately challenging zones, while someone with an elevated resting rate is not overstressed.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do beta-blockers and blood pressure medications affect exercise heart rate?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Beta-blockers (such as Metoprolol, Atenolol, and Carvedilol) and non-dihydropyridine calcium channel blockers (Diltiazem, Verapamil) block adrenergic receptors in the heart, blunting your heart's ability to accelerate during physical activity by 15 to 30+ BPM. If you take these medications, standard heart rate zones are invalid. Cardiologists advise using the Borg Rating of Perceived Exertion (RPE) or the 'Talk Test' instead.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the 'Talk Test' for exercise intensity?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The Talk Test is a simple, clinically validated method to measure aerobic intensity: In Moderate Intensity (50%–70% capacity), you can comfortably speak in full sentences but cannot sing. In Vigorous Intensity (70%–85% capacity), you can only say a few words before needing to take a breath. If you cannot speak without gasping, you have exceeded safe aerobic limits.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the safest target heart rate zone for seniors starting a fitness program?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                For older adults beginning an exercise regimen, the American Heart Association recommends starting in Zone 1 to Zone 2 (50% to 65% of Heart Rate Reserve) with low-impact activities such as brisk walking, swimming, or stationary cycling for 20 to 30 minutes, 3 to 5 days per week, before gradually progressing to moderate-intensity aerobic conditioning.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
