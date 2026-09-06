@@ -132177,6 +132177,3266 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (199 calculators in /calc/)');
+    // ==========================================
+  // Tool BM1: Shell and Tube Heat Exchanger Bell-Delaware Shellside Pressure Drop & Heat Transfer Calculator
+  // ==========================================
+  (() => {
+    const slug = 'bell-delaware-heat-exchanger-calculator';
+    const title = 'Bell-Delaware Heat Exchanger Shellside Performance Calculator';
+    const metaDescription = 'Calculate shell-and-tube heat exchanger shellside convective heat transfer coefficient, Bell-Delaware stream correction factors (Jc, Jl, Jb, Js), and shellside pressure drop per TEMA Standards and ASME Section VIII.';
+
+    const faq = [
+      {
+        q: 'What is the Bell-Delaware method and why is it superior to the Kern method?',
+        a: 'The Kern method is a simple empirical shortcut that assumes idealized pure cross-flow across the entire tube bundle, ignoring mechanical clearances and manufacturing tolerances. In real industrial heat exchangers, fluid does not flow uniformly across the tubes; significant portions bypass through the bundle-to-shell annular gap (Stream C), leak through tube-to-baffle hole clearances (Stream A), bypass through baffle-to-shell clearances (Stream E), or pass through the window turnaround zone (Stream B). The Bell-Delaware method (developed by K.J. Bell at the University of Delaware) calculates individual correction factors for each flow stream: Jc for baffle cut geometry, Jl for baffle leakage, Jb for bundle bypass, Js for unequal inlet/outlet baffle spacing, and Jr for laminar adverse temperature gradients. By modifying the ideal tube-bank heat transfer coefficient (ho = h_ideal * Jc * Jl * Jb * Js * Jr), the Bell-Delaware method predicts real-world shellside performance within 10% to 15% accuracy, compared to Kern errors exceeding 40% to 100%.'
+      },
+      {
+        q: 'What are the five Bell-Delaware flow streams inside a shell-and-tube heat exchanger?',
+        a: 'The Delaware model partitions total shellside flow into five distinct parallel and serial streams: Stream A (tube-to-baffle hole leakage flowing parallel to tubes), Stream B (the true cross-flow stream that contacts the active tube bank and provides primary thermal performance), Stream C (bundle-to-shell bypass stream flowing through the annular gap between the outer tube limit OTL and the shell inner wall), Stream E (baffle-to-shell leakage stream flowing between the baffle perimeter and shell wall, causing severe thermal degradation), and Stream F (pass-partition bypass stream in multi-pass tube arrangements). In a poorly baffled exchanger, Stream B may represent less than 50% of the total flow, severely penalizing heat transfer.'
+      },
+      {
+        q: 'How do sealing strips improve shellside heat transfer efficiency?',
+        a: 'Sealing strips (or dummy tie-rods with spacer sleeves) are longitudinal metal strips installed in the annular clearance between the outer tube limit (OTL) and the shell inner wall. Because the open gap offers much lower hydraulic resistance than the packed tube matrix, fluid naturally diverts into bypass Stream C. Sealing strips physically block this bypass lane at periodic intervals, forcing the fluid back into the tube bank to contact active heat transfer surface. By installing sealing strip pairs (typically one pair for every 5 to 7 tube rows in the cross-flow direction), the bypass correction factor Jb is restored from as low as 0.60 back up to 0.85 to 0.95.'
+      },
+      {
+        q: 'What is the optimal baffle cut and baffle spacing per TEMA standards?',
+        a: 'TEMA (Tubular Exchanger Manufacturers Association) standards recommend segmented baffle cuts between 20% and 35% of the shell internal diameter (25% being the standard design optimum). Baffle cuts below 20% create excessive window velocities, extreme turnaround pressure drop, and high fluid shear. Baffle cuts above 35% produce poor cross-flow velocity and large stagnant dead zones behind baffle tips. Baffle spacing (B) should typically be between 20% and 100% of the shell diameter (0.2 * Ds <= B <= 1.0 * Ds), and must never exceed the TEMA maximum unsupported tube span (typically 52 inches for 0.75-inch steel tubes) to prevent flow-induced tube vibration and mechanical failure.'
+      },
+      {
+        q: 'How does acoustic resonance and fluidelastic instability cause tube failure?',
+        a: 'As shellside fluid flows across the tube array, alternate periodic vortices are shed behind each tube (von Karman vortex shedding). If the vortex shedding frequency matches the natural mechanical frequency of the tube bundle, severe fluidelastic instability (FEI) occurs, causing tubes to oscillate violently with large amplitudes and collide with neighboring tubes. Simultaneously, if vortex shedding couples with the acoustic natural frequency of the gas column inside the shell cavity, standing acoustic waves (acoustic resonance) produce deafening sound pressure levels exceeding 130 dB and catastrophic acoustic fatigue in shell nozzles. Countermeasures include installing acoustic detuning baffles, reducing baffle spacing, or using no-tubes-in-window (NTIW) configurations.'
+      }
+    ];
+
+    const content = `
+<style>
+.he-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.he-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.he-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.he-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .he-grid-2, .he-grid-3, .he-grid-4 { grid-template-columns: 1fr; }
+}
+.he-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.he-input, .he-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.he-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.he-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.he-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.he-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.he-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="he-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Shell & Tube Heat Exchanger Bell-Delaware Analysis</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Shellside Stream Leakages (Jc, Jl, Jb), Convective Coefficient & Pressure Drop</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="he-units" class="he-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="heCalc()">
+        <option value="us" selected>US Customary (in, lb/hr, Btu/hr·ft²·°F, psi)</option>
+        <option value="si">Metric / SI (mm, kg/s, W/m²·K, kPa)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="he-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="he-label"><span id="lbl-ds">Shell Inner Diameter (Ds, in)</span></div>
+      <input type="number" id="he-ds" class="he-input" value="25.0" step="0.5" min="6.0" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span id="lbl-do">Tube Outer Diameter (do, in)</span></div>
+      <input type="number" id="he-do" class="he-input" value="0.75" step="0.125" min="0.25" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span id="lbl-pt">Tube Pitch (Pt, in)</span></div>
+      <input type="number" id="he-pt" class="he-input" value="1.00" step="0.0625" min="0.3" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span>Pitch Layout Angle</span></div>
+      <select id="he-layout" class="he-select" onchange="heCalc()">
+        <option value="tri30" selected>30° Triangular (Staggered)</option>
+        <option value="sq90">90° Inline Square (Cleanable)</option>
+        <option value="rot45">45° Rotated Square</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="he-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="he-label"><span id="lbl-b">Central Baffle Spacing (B, in)</span></div>
+      <input type="number" id="he-b" class="he-input" value="10.0" step="0.5" min="2.0" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span>Baffle Cut (% of Ds)</span></div>
+      <input type="number" id="he-bc" class="he-input" value="25.0" step="1.0" min="15.0" max="45.0" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span id="lbl-len">Tube Length (L, ft)</span></div>
+      <input type="number" id="he-len" class="he-input" value="16.0" step="1.0" min="4.0" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span>Number of Tubes (Nt)</span></div>
+      <input type="number" id="he-nt" class="he-input" value="380" step="10" min="10" oninput="heCalc()">
+    </div>
+  </div>
+
+  <div class="he-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="he-label"><span id="lbl-flow">Shellside Flow Rate</span></div>
+      <input type="number" id="he-flow" class="he-input" value="120000" step="5000" min="1000" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span id="lbl-rho">Fluid Density</span></div>
+      <input type="number" id="he-rho" class="he-input" value="62.4" step="0.5" min="1.0" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span>Viscosity (cp / mPa·s)</span></div>
+      <input type="number" id="he-mu" class="he-input" value="0.85" step="0.05" min="0.01" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span id="lbl-cp">Specific Heat (Cp)</span></div>
+      <input type="number" id="he-cp" class="he-input" value="1.00" step="0.05" min="0.1" oninput="heCalc()">
+    </div>
+  </div>
+
+  <div class="he-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="he-label"><span id="lbl-k">Thermal Conductivity (k)</span></div>
+      <input type="number" id="he-k" class="he-input" value="0.36" step="0.01" min="0.01" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span>Sealing Strip Pairs (Nss)</span></div>
+      <input type="number" id="he-nss" class="he-input" value="2" step="1" min="0" max="10" oninput="heCalc()">
+    </div>
+    <div>
+      <div class="he-label"><span>Shell Clearance Class</span></div>
+      <select id="he-clearance" class="he-select" onchange="heCalc()">
+        <option value="tema_std" selected>TEMA Standard Clearances</option>
+        <option value="tight">Precision Machined (Tight)</option>
+        <option value="loose">Corroded / Loose Tolerances</option>
+      </select>
+    </div>
+    <div>
+      <div class="he-label"><span>Allowable Shell Delta P</span></div>
+      <input type="number" id="he-allow-dp" class="he-input" value="10.0" step="0.5" min="1.0" oninput="heCalc()">
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="he-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="he-kpi">
+      <div class="he-kpi-lbl">Shellside Coeff (ho)</div>
+      <div class="he-kpi-val" id="kpi-ho">384.2</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-ho-unit">Btu/hr·ft²·°F (Ideal: 512.4)</div>
+    </div>
+    <div class="he-kpi">
+      <div class="he-kpi-lbl">Shell Pressure Drop (Delta P)</div>
+      <div class="he-kpi-val" id="kpi-dp">6.84 psi</div>
+      <div style="font-size: 0.75rem;" id="kpi-dp-status"><span class="status-pill status-pass">Within Allowable (10 psi)</span></div>
+    </div>
+    <div class="he-kpi">
+      <div class="he-kpi-lbl">Crossflow Stream B Fraction</div>
+      <div class="he-kpi-val" id="kpi-streamb">68.5%</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-bypass-status">Leakage/Bypass: 31.5%</div>
+    </div>
+    <div class="he-kpi">
+      <div class="he-kpi-lbl">Overall Delaware J-Factor</div>
+      <div class="he-kpi-val" id="kpi-jtotal">0.750</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-jbreakdown">Jc: 1.02 | Jl: 0.82 | Jb: 0.90</div>
+    </div>
+  </div>
+
+  <!-- STREAM DISTRIBUTION TABLE & REYNOLDS NUMBER -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Bell-Delaware Stream Analysis & Correction Factors</h4>
+    <div class="he-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Shellside Reynolds & Area:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-re">Re = 14,820 (Turbulent)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-sm">Crossflow Area Sm: 0.434 ft²</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Total Heat Transfer Area:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-area">1,193.8 ft² (110.9 m²)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-tubespan">Baffle Spacing: 40.0% of Ds</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Baffle Leakage Areas:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #3b82f6;" id="val-leakage-area">Stb: 0.051 ft² | Ssb: 0.087 ft²</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-rb">Pressure Drop Factor Rb: 0.62</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="he-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Bell-Delaware Stream Flow Breakdown</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Streams B, A, C, E</span>
+      </div>
+      <canvas id="he-stream-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Heat Transfer Coeff (ho) vs Baffle Spacing</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Thermal vs Hydraulic Tradeoff</span>
+      </div>
+      <canvas id="he-curve-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="he-btn" onclick="heCopySummary()">
+      <span>📋 Copy Bell-Delaware Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Heat Exchanger Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Baffle Leakage (Stream E & A) Degrading Thermal Rating by Over 35%</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Designing exchangers with simplified formulas like Kern assumes zero bypass. In reality, manufacturing tolerances leave clearances between tube holes and tubes (Stream A) and between the baffle outer diameter and the shell inside wall (Stream E). In high viscosity or fouled exchangers, Stream E fluid flows entirely around the baffle tips without ever touching the active tube surface. If shell-to-baffle diametral clearance exceeds TEMA standards due to corrosion or poor fabrication, Stream E can absorb up to 25% of the total shell flow, reducing effective thermal duty by 30% to 40% while operating pumps at full power.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Flow-Induced Tube Vibration & Acoustic Resonance Puncturing Tubes</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      When fluid velocities in the baffle window or crossflow zone exceed critical thresholds, vortex shedding frequency couples with the structural natural frequency of unsupported tube spans. Fluidelastic instability produces rapid tube whipping, causing neighboring tubes to collide and abrade each other until wall thinning causes pinhole punctures. In gas phase services, vortex shedding can excite acoustic standing waves inside the shell cavity, generating intense 140+ dB sonic vibrations that crack nozzle welds and destroy instrument sensors.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Exceeding TEMA Maximum Unsupported Tube Span Causing Mid-Span Sagging</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      To reduce shellside pressure drop, inexperienced engineers often widen central baffle spacing (B) beyond TEMA limits (e.g. 52 inches for 0.75-inch steel tubes). In horizontal exchangers, excessive unsupported spans cause tubes to sag under their own weight and fluid inventory. Sagging tubes touch adjacent rows, causing localized crevice corrosion and galvanic cell formation. Furthermore, in the baffle window zone where tubes are only supported by every second baffle, the effective unsupported span is doubled (2 * B), dramatically lowering the critical velocity for vibration damage.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Neglecting Sealing Strips in Wide Outer-Tube-Limit (OTL) Clearances</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      In pull-through floating head (TEMA S and T) exchangers, a large annular gap (often 1.5 to 2.5 inches) exists between the shell inner diameter and the outer tube limit to allow bundle extraction. Without sealing strips, fluid naturally flows down this wide annular clearance (Stream C), because its hydraulic resistance is a tiny fraction of the dense tube array. Operating without sealing strip pairs can degrade the bundle bypass correction factor Jb to below 0.65, rendering a newly purchased heat exchanger incapable of meeting its design temperature approach.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Nozzle Impingement Erosion from High Velocity Two-Phase or Particulate Inflow</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      TEMA Section 5 specifies strict limits on shell inlet nozzle kinetic energy (rho * v^2). For non-corrosive, non-abrasive single-phase liquids, rho * v^2 must not exceed 1,500 lb/(ft·s²); for gases or two-phase mixtures, it must remain below 500 lb/(ft·s²). Violating this limit without installing an impingement plate or an annular distributor belt causes incoming high-velocity fluid jets to directly erode and scallop the outermost row of tubes, leading to catastrophic tube rupture within months of plant startup.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive Bell-Delaware Mathematical Formulations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    The Bell-Delaware method computes convective heat transfer and pressure drop by evaluating ideal crossflow performance across an ideal tube bank, and applying five rigorous hydrodynamic correction factors:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Shell Geometry & Cross-Flow Area (Sm)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Crossflow Flow Area at Centerline: Sm = B * [ (Ds - D_otl) + (D_otl - do) / Pt' * (Pt - do) ]<br>
+    where Pt' is effective transverse pitch (Pt for square, Pt*cos(30) for triangular).<br>
+    Shellside Mass Velocity: Gs = m_dot / Sm<br>
+    Reynolds Number: Re_s = (Gs * do) / mu
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Ideal Heat Transfer Coefficient (h_ideal)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Colburn Factor: j_H = a1 * (1.33 / (Pt / do))^a2 * Re_s^a3<br>
+    Ideal Heat Transfer Coeff: h_ideal = j_H * Cp * Gs * Pr^(-2/3) * (mu / mu_w)^0.14<br>
+    Prandtl Number: Pr = (Cp * mu) / k
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Bell-Delaware Correction Factors</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Jc (Baffle Cut Factor): Jc = 0.55 + 0.72 * (1 - 2 * Fw)<br>
+    Jl (Baffle Leakage Factor): Jl = 0.44 * (1 - rs) + [1 - 0.44 * (1 - rs)] * exp(-2.2 * rlm)<br>
+    &nbsp;&nbsp;where rlm = (Stb + Ssb) / Sm, and rs = Ssb / (Stb + Ssb)<br>
+    Jb (Bundle Bypass Factor): Jb = exp(-Cbh * Fbp * [1 - (2 * Nss / Nc)^(1/3)])<br>
+    Js (Unequal Baffle Spacing Factor): Js = (Nb - 1 + (B_in/B)^(1-n) + (B_out/B)^(1-n)) / (Nb - 1 + B_in/B + B_out/B)<br>
+    Jr (Laminar Temperature Gradient Factor): Jr = 1.0 (for Re_s &gt; 100)
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Actual Shellside Heat Transfer & Pressure Drop</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Actual Heat Transfer Coefficient: ho = h_ideal * Jc * Jl * Jb * Js * Jr<br>
+    Shellside Pressure Drop: Delta_P_s = Delta_P_cross * R_b * R_l + Delta_P_window * R_l + Delta_P_end<br>
+    where Rb and Rl are pressure drop reduction factors corresponding to bundle bypass and baffle leakage.
+  </div>
+</div>
+
+<script>
+var heLastCalc = null;
+
+function heCalc() {
+  var units = document.getElementById('he-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-ds').innerText = isMetric ? 'Shell Inner Diameter (Ds, mm)' : 'Shell Inner Diameter (Ds, in)';
+  document.getElementById('lbl-do').innerText = isMetric ? 'Tube Outer Diameter (do, mm)' : 'Tube Outer Diameter (do, mm)';
+  document.getElementById('lbl-pt').innerText = isMetric ? 'Tube Pitch (Pt, mm)' : 'Tube Pitch (Pt, in)';
+  document.getElementById('lbl-b').innerText = isMetric ? 'Central Baffle Spacing (B, mm)' : 'Central Baffle Spacing (B, in)';
+  document.getElementById('lbl-len').innerText = isMetric ? 'Tube Length (L, m)' : 'Tube Length (L, ft)';
+  document.getElementById('lbl-flow').innerText = isMetric ? 'Shellside Flow Rate (kg/s)' : 'Shellside Flow Rate (lb/hr)';
+  document.getElementById('lbl-rho').innerText = isMetric ? 'Fluid Density (kg/m³)' : 'Fluid Density (lb/ft³)';
+  document.getElementById('lbl-cp').innerText = isMetric ? 'Specific Heat (kJ/kg·K)' : 'Specific Heat (Btu/lb·°F)';
+  document.getElementById('lbl-k').innerText = isMetric ? 'Thermal Cond (W/m·K)' : 'Thermal Cond (Btu/hr·ft·°F)';
+
+  var dsRaw = parseFloat(document.getElementById('he-ds').value) || 25;
+  var doRaw = parseFloat(document.getElementById('he-do').value) || 0.75;
+  var ptRaw = parseFloat(document.getElementById('he-pt').value) || 1.0;
+  var layout = document.getElementById('he-layout').value;
+  var bRaw = parseFloat(document.getElementById('he-b').value) || 10;
+  var bcPct = parseFloat(document.getElementById('he-bc').value) || 25;
+  var lenRaw = parseFloat(document.getElementById('he-len').value) || 16;
+  var nt = parseFloat(document.getElementById('he-nt').value) || 380;
+  var flowRaw = parseFloat(document.getElementById('he-flow').value) || 120000;
+  var rhoRaw = parseFloat(document.getElementById('he-rho').value) || 62.4;
+  var muRaw = parseFloat(document.getElementById('he-mu').value) || 0.85; // cp
+  var cpRaw = parseFloat(document.getElementById('he-cp').value) || 1.0;
+  var kRaw = parseFloat(document.getElementById('he-k').value) || 0.36;
+  var nss = parseFloat(document.getElementById('he-nss').value) || 2;
+  var clrClass = document.getElementById('he-clearance').value;
+  var allowDpRaw = parseFloat(document.getElementById('he-allow-dp').value) || 10;
+
+  // Convert to US Customary internal units (in, ft, lb, hr, Btu)
+  var dsIn, doIn, ptIn, bIn, lenFt, flowLbHr, rhoLbFt3, cpBtu, kBtu, allowDpPsi;
+  if (isMetric) {
+    dsIn = dsRaw / 25.4;
+    doIn = doRaw / 25.4;
+    ptIn = ptRaw / 25.4;
+    bIn = bRaw / 25.4;
+    lenFt = lenRaw * 3.28084;
+    flowLbHr = flowRaw * 7936.64;
+    rhoLbFt3 = rhoRaw * 0.062428;
+    cpBtu = cpRaw * 0.238846;
+    kBtu = kRaw * 0.578176;
+    allowDpPsi = allowDpRaw * 0.145038;
+  } else {
+    dsIn = dsRaw;
+    doIn = doRaw;
+    ptIn = ptRaw;
+    bIn = bRaw;
+    lenFt = lenRaw;
+    flowLbHr = flowRaw;
+    rhoLbFt3 = rhoRaw;
+    cpBtu = cpRaw;
+    kBtu = kRaw;
+    allowDpPsi = allowDpRaw;
+  }
+
+  // Outer Tube Limit (OTL) diametral clearance
+  // TEMA standard: for 25" split-ring/floating head ~ 1.5 in diametral clearance
+  var clrOTL = 1.25; // in
+  if (clrClass === 'tight') clrOTL = 0.85;
+  else if (clrClass === 'loose') clrOTL = 1.75;
+  var dotlIn = Math.max(doIn * 2, dsIn - clrOTL);
+
+  // Leakage clearances
+  // delta_tb: tube-to-baffle hole diametral clearance (TEMA std: 0.031 in)
+  // delta_sb: shell-to-baffle diametral clearance (TEMA std: 0.160 in)
+  var deltaTb = 0.031;
+  var deltaSb = 0.160;
+  if (clrClass === 'tight') { deltaTb = 0.020; deltaSb = 0.100; }
+  else if (clrClass === 'loose') { deltaTb = 0.050; deltaSb = 0.250; }
+
+  // Fraction of tubes in window (Fw) from baffle cut Bc
+  var bcFrac = bcPct / 100.0;
+  var thetaB = 2.0 * Math.acos(Math.max(-1.0, Math.min(1.0, 1.0 - 2.0 * bcFrac)));
+  var Fw = (thetaB - Math.sin(thetaB)) / (2.0 * Math.PI);
+  var Fc = 1.0 - 2.0 * Fw; // Fraction of tubes in crossflow between baffle tips
+
+  // Effective pitch in crossflow
+  var ptPrime = ptIn;
+  if (layout === 'tri30') ptPrime = ptIn * 0.866;
+  else if (layout === 'rot45') ptPrime = ptIn * 0.7071;
+
+  // Crossflow flow area Sm (at centerline) in ft²
+  var smIn2 = bIn * ((dsIn - dotlIn) + ((dotlIn - doIn) / ptPrime) * (ptIn - doIn));
+  var smFt2 = smIn2 / 144.0;
+
+  // Mass velocity Gs in lb / (hr * ft²)
+  var gs = flowLbHr / Math.max(0.01, smFt2);
+
+  // Viscosity conversion: cp to lb / (ft * hr) -> 1 cp = 2.41909 lb/(ft*hr)
+  var muLbFtHr = muRaw * 2.41909;
+
+  // Reynolds Number
+  var reS = (gs * (doIn / 12.0)) / muLbFtHr;
+
+  // Prandtl Number
+  var pr = (cpBtu * muLbFtHr) / kBtu;
+
+  // Colburn jH factor (Delaware correlations for staggered / in-line)
+  var a1 = 0.321, a2 = -0.388, a3 = -0.388;
+  if (layout === 'tri30') {
+    a1 = 0.321; a2 = -0.388; a3 = -0.388;
+  } else if (layout === 'sq90') {
+    a1 = 0.273; a2 = -0.350; a3 = -0.350;
+  } else {
+    a1 = 0.370; a2 = -0.395; a3 = -0.395;
+  }
+  var jH = a1 * Math.pow(1.33 / (ptIn / doIn), a2) * Math.pow(Math.max(10, reS), a3);
+
+  // Ideal Heat Transfer Coeff h_ideal in Btu / (hr * ft² * °F)
+  var hIdeal = jH * cpBtu * gs * Math.pow(pr, -2.0 / 3.0);
+
+  // 1. Baffle Cut Correction Factor Jc
+  var jc = 0.55 + 0.72 * Fc;
+  if (jc > 1.15) jc = 1.15;
+
+  // 2. Baffle Leakage Correction Factor Jl
+  // Tube-to-baffle leakage area Stb
+  var stbIn2 = (Math.PI / 4.0) * (Math.pow(doIn + deltaTb, 2) - Math.pow(doIn, 2)) * nt * (1.0 - Fw);
+  // Shell-to-baffle leakage area Ssb
+  var ssbIn2 = (Math.PI / 4.0) * (Math.pow(dsIn, 2) - Math.pow(dsIn - deltaSb, 2)) * (1.0 - thetaB / (2.0 * Math.PI));
+  var rlm = (stbIn2 + ssbIn2) / smIn2;
+  var rs = ssbIn2 / Math.max(0.001, stbIn2 + ssbIn2);
+  var jl = 0.44 * (1.0 - rs) + (1.0 - 0.44 * (1.0 - rs)) * Math.exp(-2.2 * rlm);
+
+  // 3. Bundle Bypass Correction Factor Jb
+  // Bypass flow area Sbp
+  var sbpIn2 = bIn * (dsIn - dotlIn);
+  var fbp = sbpIn2 / smIn2;
+  // Number of tube rows crossed between baffle tips (Nc)
+  var nc = Math.max(2, Math.round((dsIn * (1.0 - 2.0 * bcFrac)) / ptPrime));
+  var cbh = (reS >= 100) ? 1.35 : 1.25;
+  var sealingTerm = Math.max(0, 1.0 - Math.pow((2.0 * nss) / nc, 1.0 / 3.0));
+  var jb = Math.exp(-cbh * fbp * sealingTerm);
+
+  // 4. Unequal Baffle Spacing Js
+  var js = 1.0; // standard central baffle spacing assumption
+
+  // 5. Laminar gradient Jr
+  var jr = 1.0;
+
+  // Overall Bell-Delaware J-factor
+  var jTotal = jc * jl * jb * js * jr;
+
+  // Actual Shellside Heat Transfer Coefficient ho
+  var hoBtu = hIdeal * jTotal;
+  var hoWm2k = hoBtu * 5.67826;
+
+  // Pressure Drop Estimation
+  // Ideal crossflow friction factor
+  var b1 = 0.372, b2 = -0.233;
+  var fIdeal = b1 * Math.pow(Math.max(10, reS), b2);
+  // Ideal crossflow pressure drop per baffle space (psi)
+  var vFtS = gs / (rhoLbFt3 * 3600.0);
+  var deltaPiPsi = 2.0 * fIdeal * nc * (rhoLbFt3 * Math.pow(vFtS, 2) / (2.0 * 32.174 * 144.0));
+  var nb = Math.max(2, Math.round(lenFt * 12.0 / bIn) - 1);
+
+  // Pressure drop bypass and leakage reduction factors
+  var rb = Math.exp(-3.7 * fbp * sealingTerm);
+  var rl = Math.exp(-1.33 * (1.0 + rs) * Math.pow(rlm, 0.6));
+
+  var totalDpPsi = deltaPiPsi * (nb - 1) * rb * rl + (deltaPiPsi * 1.5 * nb * rl);
+  var totalDpKpa = totalDpPsi * 6.89476;
+
+  // Stream fractions
+  var streamBFrac = Math.max(0.35, jl * jb);
+  var streamAFrac = (1.0 - streamBFrac) * (stbIn2 / (stbIn2 + ssbIn2 + sbpIn2));
+  var streamCFrac = (1.0 - streamBFrac) * (sbpIn2 / (stbIn2 + ssbIn2 + sbpIn2));
+  var streamEFrac = 1.0 - streamBFrac - streamAFrac - streamCFrac;
+
+  // Heat Exchanger Surface Area
+  var totalAreaFt2 = (Math.PI * (doIn / 12.0) * lenFt * nt);
+  var totalAreaM2 = totalAreaFt2 * 0.092903;
+
+  heLastCalc = {
+    isMetric: isMetric,
+    reS: reS,
+    smFt2: smFt2,
+    hIdeal: hIdeal,
+    hoBtu: hoBtu,
+    hoWm2k: hoWm2k,
+    totalDpPsi: totalDpPsi,
+    totalDpKpa: totalDpKpa,
+    allowDpPsi: allowDpPsi,
+    jc: jc,
+    jl: jl,
+    jb: jb,
+    jTotal: jTotal,
+    streamBFrac: streamBFrac,
+    streamAFrac: streamAFrac,
+    streamCFrac: streamCFrac,
+    streamEFrac: streamEFrac,
+    stbIn2: stbIn2,
+    ssbIn2: ssbIn2,
+    rb: rb,
+    bIn: bIn,
+    dsIn: dsIn,
+    totalAreaFt2: totalAreaFt2,
+    totalAreaM2: totalAreaM2
+  };
+
+  // Update DOM Display
+  if (isMetric) {
+    document.getElementById('kpi-ho').innerText = hoWm2k.toFixed(1);
+    document.getElementById('kpi-ho-unit').innerText = 'W/m²·K (Ideal: ' + (hIdeal * 5.67826).toFixed(1) + ')';
+    document.getElementById('kpi-dp').innerText = totalDpKpa.toFixed(1) + ' kPa';
+    document.getElementById('val-re').innerText = 'Re = ' + Math.round(reS).toLocaleString() + (reS > 2000 ? ' (Turbulent)' : ' (Laminar/Trans)');
+    document.getElementById('val-sm').innerText = 'Crossflow Area Sm: ' + (smFt2 * 0.092903).toFixed(3) + ' m²';
+    document.getElementById('val-area').innerText = totalAreaM2.toFixed(1) + ' m² (' + totalAreaFt2.toFixed(0) + ' ft²)';
+    document.getElementById('val-leakage-area').innerText = 'Stb: ' + (stbIn2 * 6.4516).toFixed(1) + ' cm² | Ssb: ' + (ssbIn2 * 6.4516).toFixed(1) + ' cm²';
+  } else {
+    document.getElementById('kpi-ho').innerText = hoBtu.toFixed(1);
+    document.getElementById('kpi-ho-unit').innerText = 'Btu/hr·ft²·°F (Ideal: ' + hIdeal.toFixed(1) + ')';
+    document.getElementById('kpi-dp').innerText = totalDpPsi.toFixed(2) + ' psi';
+    document.getElementById('val-re').innerText = 'Re = ' + Math.round(reS).toLocaleString() + (reS > 2000 ? ' (Turbulent)' : ' (Laminar/Trans)');
+    document.getElementById('val-sm').innerText = 'Crossflow Area Sm: ' + smFt2.toFixed(3) + ' ft²';
+    document.getElementById('val-area').innerText = totalAreaFt2.toFixed(1) + ' ft² (' + totalAreaM2.toFixed(1) + ' m²)';
+    document.getElementById('val-leakage-area').innerText = 'Stb: ' + (stbIn2 / 144.0).toFixed(3) + ' ft² | Ssb: ' + (ssbIn2 / 144.0).toFixed(3) + ' ft²';
+  }
+
+  // Delta P check
+  var dpAllow = isMetric ? allowDpRaw : allowDpPsi;
+  var dpActual = isMetric ? totalDpKpa : totalDpPsi;
+  var dpUnitStr = isMetric ? ' kPa' : ' psi';
+  if (dpActual <= dpAllow) {
+    document.getElementById('kpi-dp-status').innerHTML = '<span class="status-pill status-pass">Within Allowable (' + dpAllow.toFixed(1) + dpUnitStr + ')</span>';
+  } else {
+    document.getElementById('kpi-dp-status').innerHTML = '<span class="status-pill status-fail">Exceeds Allowable (' + dpAllow.toFixed(1) + dpUnitStr + ')</span>';
+  }
+
+  document.getElementById('kpi-streamb').innerText = (streamBFrac * 100).toFixed(1) + '%';
+  document.getElementById('kpi-bypass-status').innerText = 'Bypass & Leakage: ' + ((1.0 - streamBFrac) * 100).toFixed(1) + '%';
+
+  document.getElementById('kpi-jtotal').innerText = jTotal.toFixed(3);
+  document.getElementById('kpi-jbreakdown').innerText = 'Jc: ' + jc.toFixed(2) + ' | Jl: ' + jl.toFixed(2) + ' | Jb: ' + jb.toFixed(2);
+
+  var spanPct = (bIn / dsIn) * 100;
+  document.getElementById('val-tubespan').innerText = 'Baffle Spacing: ' + spanPct.toFixed(1) + '% of Ds';
+  document.getElementById('val-rb').innerText = 'Pressure Drop Factor Rb: ' + rb.toFixed(2) + ' | Rl: ' + rl.toFixed(2);
+
+  heDrawStreams();
+  heDrawCurve();
+}
+
+function heDrawStreams() {
+  var canvas = document.getElementById('he-stream-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  if (!heLastCalc) return;
+  var d = heLastCalc;
+
+  var streams = [
+    { name: 'Stream B (Active Crossflow)', pct: d.streamBFrac, color: '#10b981' },
+    { name: 'Stream C (Bundle Bypass)', pct: d.streamCFrac, color: '#f59e0b' },
+    { name: 'Stream A (Tube-Hole Leak)', pct: d.streamAFrac, color: '#38bdf8' },
+    { name: 'Stream E (Shell-Baffle Leak)', pct: d.streamEFrac, color: '#ef4444' }
+  ];
+
+  var barX = 30, barY = 35, barW = w - 60, barH = 36;
+  var curX = barX;
+
+  // Draw stacked bar
+  for (var i = 0; i < streams.length; i++) {
+    var segW = barW * streams[i].pct;
+    ctx.fillStyle = streams[i].color;
+    ctx.fillRect(curX, barY, segW, barH);
+    curX += segW;
+  }
+
+  // Draw legend and details
+  ctx.font = '11px Inter, sans-serif';
+  var legY = 105;
+  for (var j = 0; j < streams.length; j++) {
+    var s = streams[j];
+    var colX = (j % 2 === 0) ? 30 : 240;
+    var rowY = legY + Math.floor(j / 2) * 55;
+
+    ctx.fillStyle = s.color;
+    ctx.fillRect(colX, rowY, 12, 12);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.textAlign = 'left';
+    ctx.fillText(s.name, colX + 18, rowY + 10);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 12px var(--mono)';
+    ctx.fillText((s.pct * 100).toFixed(1) + '% of Shell Flow', colX + 18, rowY + 26);
+    ctx.font = '11px Inter, sans-serif';
+  }
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Optimal TEMA Design: Stream B > 65%, Stream E < 10%', w / 2, h - 10);
+}
+
+function heDrawCurve() {
+  var canvas = document.getElementById('he-curve-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 40, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!heLastCalc) return;
+  var d = heLastCalc;
+  var curB = d.bIn;
+  var ds = d.dsIn;
+
+  // Generate sweep of B from 0.2*Ds to 1.0*Ds
+  var minB = 0.2 * ds;
+  var maxB = 1.0 * ds;
+  var pts = 30;
+
+  var bArr = [];
+  var hoArr = [];
+  var dpArr = [];
+
+  var maxHo = -1e9, maxDp = -1e9;
+  for (var i = 0; i <= pts; i++) {
+    var testB = minB + (i / pts) * (maxB - minB);
+    bArr.push(testB);
+
+    // Approximate ho ~ testB^(-0.4) and Dp ~ testB^(-2.5)
+    var scaleHo = Math.pow(curB / testB, 0.45);
+    var scaleDp = Math.pow(curB / testB, 2.2);
+
+    var calcHo = (d.isMetric ? d.hoWm2k : d.hoBtu) * scaleHo;
+    var calcDp = (d.isMetric ? d.totalDpKpa : d.totalDpPsi) * scaleDp;
+
+    hoArr.push(calcHo);
+    dpArr.push(calcDp);
+
+    if (calcHo > maxHo) maxHo = calcHo;
+    if (calcDp > maxDp) maxDp = calcDp;
+  }
+
+  function toX(bVal) {
+    return padL + ((bVal - minB) / (maxB - minB)) * plotW;
+  }
+  function toYHo(val) {
+    return padT + plotH - (val / (maxHo * 1.15)) * plotH;
+  }
+  function toYDp(val) {
+    return padT + plotH - (val / (maxDp * 1.15)) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Current operating point vertical marker
+  var curX = toX(curB);
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(curX, padT);
+  ctx.lineTo(curX, padT + plotH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plot ho curve (cyan)
+  ctx.beginPath();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  for (var j = 0; j <= pts; j++) {
+    var px = toX(bArr[j]);
+    var py = toYHo(hoArr[j]);
+    if (j === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Plot Dp curve (amber)
+  ctx.beginPath();
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2;
+  for (var k = 0; k <= pts; k++) {
+    var kx = toX(bArr[k]);
+    var ky = toYDp(dpArr[k]);
+    if (k === 0) ctx.moveTo(kx, ky);
+    else ctx.lineTo(kx, ky);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxHo) + ' ho', padL - 6, padT + 12);
+
+  ctx.fillStyle = '#f59e0b';
+  ctx.textAlign = 'left';
+  ctx.fillText(Math.round(maxDp) + ' dp', padL + plotW + 6, padT + 12);
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.textAlign = 'center';
+  ctx.fillText('Central Baffle Spacing B (' + (d.isMetric ? 'mm' : 'in') + ')', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Heat Transfer ho', padL + 10, padT + 12);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('● Pressure Drop Delta P', padL + 130, padT + 12);
+}
+
+function heCopySummary() {
+  if (!heLastCalc) return;
+  var d = heLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var hUnit = d.isMetric ? 'W/m²·K' : 'Btu/hr·ft²·°F';
+  var pUnit = d.isMetric ? 'kPa' : 'psi';
+  var aUnit = d.isMetric ? 'm²' : 'ft²';
+
+  var text = '=== BELL-DELAWARE HEAT EXCHANGER DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: TEMA 10th Ed / ASME Section VIII Div 1 / Delaware Method\n' +
+    'Units System: ' + u + '\n' +
+    'Shellside Reynolds Number (Re): ' + Math.round(d.reS).toLocaleString() + '\n' +
+    'Ideal Heat Transfer Coeff (h_ideal): ' + (d.isMetric ? (d.hIdeal * 5.67826).toFixed(1) : d.hIdeal.toFixed(1)) + ' ' + hUnit + '\n' +
+    'Actual Heat Transfer Coeff (ho): ' + (d.isMetric ? d.hoWm2k.toFixed(1) : d.hoBtu.toFixed(1)) + ' ' + hUnit + '\n' +
+    'Overall Delaware J-Factor: ' + d.jTotal.toFixed(3) + ' (Jc=' + d.jc.toFixed(2) + ', Jl=' + d.jl.toFixed(2) + ', Jb=' + d.jb.toFixed(2) + ')\n' +
+    'Shellside Pressure Drop: ' + (d.isMetric ? d.totalDpKpa.toFixed(1) : d.totalDpPsi.toFixed(2)) + ' ' + pUnit + ' [Allowable: ' + (d.isMetric ? (d.allowDpPsi * 6.89476).toFixed(1) : d.allowDpPsi.toFixed(1)) + ' ' + pUnit + ']\n' +
+    'Stream B (Active Crossflow): ' + (d.streamBFrac * 100).toFixed(1) + '%\n' +
+    'Stream C (Bundle Bypass): ' + (d.streamCFrac * 100).toFixed(1) + '%\n' +
+    'Stream A (Tube Hole Leakage): ' + (d.streamAFrac * 100).toFixed(1) + '%\n' +
+    'Stream E (Shell Baffle Leakage): ' + (d.streamEFrac * 100).toFixed(1) + '%\n' +
+    'Total Heat Transfer Area: ' + (d.isMetric ? d.totalAreaM2.toFixed(1) : d.totalAreaFt2.toFixed(1)) + ' ' + aUnit + '\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.he-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  heCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BM2: API 579 / ASME FFS-1 Fitness-For-Service Part 4 General Metal Loss & Corrosion Allowance Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-579-fitness-for-service-corrosion-calculator';
+    const title = 'API 579 Fitness-For-Service General Metal Loss & MAWP Derating Calculator';
+    const metaDescription = 'Perform Level 1 and Level 2 Fitness-For-Service (FFS) assessments for pressurized vessels and piping with metal loss, calculate Remaining Strength Factor (RSF), Folias bulging, and derated MAWP per API 579-1 / ASME FFS-1 Part 4.';
+
+    const faq = [
+      {
+        q: 'What is the Remaining Strength Factor (RSF) in API 579 and how is it used?',
+        a: 'The Remaining Strength Factor (RSF) is the cornerstone metric in API 579-1 / ASME FFS-1 Fitness-For-Service assessments. It is defined as the ratio of the limit or plastic collapse load of a component containing a flaw (such as general or localized metal loss) to the plastic collapse load of the identical component in its un-flawed, pristine nominal state: RSF = L_damaged / L_undamaged. If the calculated RSF is greater than or equal to the allowable Remaining Strength Factor (typically RSFa = 0.90 for ASME Section VIII pressure vessels, or 0.85 for process piping), the damaged component is deemed structurally safe to continue operating at its full original Maximum Allowable Working Pressure (MAWP) without immediate repair or derating. If RSF is below RSFa, the vessel must either be restored or derated to a reduced pressure: MAWPr = MAWP * (RSF / RSFa).'
+      },
+      {
+        q: 'What is the difference between Level 1, Level 2, and Level 3 assessments under API 579?',
+        a: 'API 579 establishes a three-tier assessment hierarchy: Level 1 is a rapid, conservative screening methodology designed for plant inspectors and operations engineers using minimal ultrasonic thickness measurements, the single lowest thickness reading (t_mm), and simple code formulas. Level 2 is a more detailed, less conservative evaluation conducted by plant integrity engineers using Critical Thickness Profiles (CTPs) along inspection grids, applying length averaging (L_avg = 1.123 * sqrt(D * t_min)) to account for the structural reinforcement provided by adjacent thicker metal. Level 3 is an advanced elastic-plastic finite element analysis (FEA) or computational fracture mechanics assessment required for complex geometries, severe thermal gradients, or high cyclic fatigue loadings when Level 2 criteria fail.'
+      },
+      {
+        q: 'How does the Folias bulging factor (Mt) account for pressure vessel curvature?',
+        a: 'When an axial crack or localized thin area (LTA) occurs in a cylindrical pressure vessel, the internal pressure pushes outward against the weakened zone, causing localized radial bulging or out-of-plane deformation. This bulging generates high bending stresses superimposed on the primary membrane hoop stress. The Folias factor (Mt) is a geometric curvature correction factor: Mt = sqrt(1 + 0.48 * lambda^2), where lambda = (1.285 * s) / sqrt(D * t_min) and s is the longitudinal flaw length. Because Mt increases with flaw length, longer thinned zones experience much higher local stress concentrations, requiring a steeper reduction in allowable pressure.'
+      },
+      {
+        q: 'What is Future Corrosion Allowance (FCA) and how does it determine remaining life?',
+        a: 'Future Corrosion Allowance (FCA) is the anticipated thickness of metal that will be lost to ongoing corrosion or erosion between the current inspection date and the next scheduled turnaround: FCA = C_rate * Y, where C_rate is the established annual corrosion rate and Y is the operating interval in years. In API 579 assessments, all strength evaluations must be evaluated at the end of the operating period by projecting thickness forward: t_projected = t_measured - FCA. The remaining safe operating life is calculated as Remaining Life = (t_measured - t_min) / C_rate. Under API 510 and API 570 inspection codes, the next scheduled internal inspection interval must never exceed half of the remaining life (Y_max = Remaining Life / 2) or 10 years, whichever is shorter.'
+      },
+      {
+        q: 'Can a vessel operate if measured thickness is less than ASME code minimum required thickness (t_min)?',
+        a: 'Yes, under specific API 579 Level 2 rules for Localized Thin Areas (LTAs). The original ASME code minimum thickness (t_min) is derived assuming uniform wall thinning across the entire vessel shell. If an ultrasonic inspection discovers an isolated depression or corrosion pocket where local thickness drops below t_min, but the surrounding shell remains thick and structurally sound, the thicker adjacent metal restrains the localized pocket from catastrophic bursting through circumferential hoop stress redistribution. Provided the LTA satisfies the length averaging and RSF criteria (RSF >= RSFa), the vessel may continue operating safely even though localized points dip below t_min.'
+      }
+    ];
+
+    const content = `
+<style>
+.ffs-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.ffs-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.ffs-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.ffs-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .ffs-grid-2, .ffs-grid-3, .ffs-grid-4 { grid-template-columns: 1fr; }
+}
+.ffs-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.ffs-input, .ffs-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.ffs-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.ffs-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.ffs-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.ffs-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.ffs-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="ffs-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">API 579 Fitness-For-Service Part 4 Assessment</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">General & Local Metal Loss, Remaining Strength Factor (RSF) & MAWP Derating</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="ffs-units" class="ffs-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="ffsCalc()">
+        <option value="us" selected>US Customary (in, psig, psi, mpy)</option>
+        <option value="si">Metric / SI (mm, bar g, MPa, mm/yr)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="ffs-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="ffs-label"><span>Component Geometry</span></div>
+      <select id="ffs-geom" class="ffs-select" onchange="ffsCalc()">
+        <option value="cyl" selected>Cylindrical Shell (Circumferential / Hoop Stress)</option>
+        <option value="sphere">Spherical Shell / Hemispherical Head</option>
+        <option value="ellip">2:1 Semi-Ellipsoidal Head</option>
+        <option value="pipe">ASME B31.3 Process Piping</option>
+      </select>
+    </div>
+    <div>
+      <div class="ffs-label"><span id="lbl-diam">Internal Diameter (D, in)</span></div>
+      <input type="number" id="ffs-diam" class="ffs-input" value="48.0" step="1.0" min="4.0" oninput="ffsCalc()">
+    </div>
+    <div>
+      <div class="ffs-label"><span id="lbl-tnom">Nominal Thickness (tnom, in)</span></div>
+      <input type="number" id="ffs-tnom" class="ffs-input" value="0.625" step="0.025" min="0.05" oninput="ffsCalc()">
+    </div>
+    <div>
+      <div class="ffs-label"><span id="lbl-mawp">Design MAWP (psig)</span></div>
+      <input type="number" id="ffs-mawp" class="ffs-input" value="250.0" step="5" min="10" oninput="ffsCalc()">
+    </div>
+  </div>
+
+  <div class="ffs-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="ffs-label"><span id="lbl-stress">Allowable Stress (S, psi)</span></div>
+      <input type="number" id="ffs-stress" class="ffs-input" value="20000" step="500" min="5000" oninput="ffsCalc()">
+    </div>
+    <div>
+      <div class="ffs-label"><span>Weld Joint Efficiency (E)</span></div>
+      <select id="ffs-e" class="ffs-select" onchange="ffsCalc()">
+        <option value="1.0" selected>1.00 (Full Radiography / Seamless)</option>
+        <option value="0.85">0.85 (Spot Radiography / Type 1 ERW)</option>
+        <option value="0.70">0.70 (Visual Only / Type 2 Joint)</option>
+      </select>
+    </div>
+    <div>
+      <div class="ffs-label"><span id="lbl-tmm">Min Measured Thickness (tmm, in)</span></div>
+      <input type="number" id="ffs-tmm" class="ffs-input" value="0.385" step="0.01" min="0.02" oninput="ffsCalc()">
+    </div>
+    <div>
+      <div class="ffs-label"><span id="lbl-flawlen">Flaw Axial Length (s, in)</span></div>
+      <input type="number" id="ffs-flawlen" class="ffs-input" value="8.0" step="0.5" min="0.5" oninput="ffsCalc()">
+    </div>
+  </div>
+
+  <div class="ffs-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="ffs-label"><span id="lbl-crate">Corrosion Rate (C_rate, mpy)</span></div>
+      <input type="number" id="ffs-crate" class="ffs-input" value="6.0" step="0.5" min="0.0" oninput="ffsCalc()">
+    </div>
+    <div>
+      <div class="ffs-label"><span>Future Interval (Y, years)</span></div>
+      <input type="number" id="ffs-years" class="ffs-input" value="4.0" step="0.5" min="0.5" max="20" oninput="ffsCalc()">
+    </div>
+    <div>
+      <div class="ffs-label"><span>Allowable RSF (RSFa)</span></div>
+      <input type="number" id="ffs-rsfa" class="ffs-input" value="0.90" step="0.01" min="0.75" max="0.95" oninput="ffsCalc()">
+    </div>
+    <div>
+      <div class="ffs-label"><span>Assessment Level</span></div>
+      <select id="ffs-level" class="ffs-select" onchange="ffsCalc()">
+        <option value="lvl2" selected>Level 2 (Length Averaging & CTP)</option>
+        <option value="lvl1">Level 1 (Conservative Screening)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="ffs-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="ffs-kpi">
+      <div class="ffs-kpi-lbl">Code Min Thickness (tmin)</div>
+      <div class="ffs-kpi-val" id="kpi-tmin">0.302 in</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-tmin-sub">ASME UG-27 Formula</div>
+    </div>
+    <div class="ffs-kpi">
+      <div class="ffs-kpi-lbl">Remaining Strength Factor (RSF)</div>
+      <div class="ffs-kpi-val" id="kpi-rsf">0.924</div>
+      <div style="font-size: 0.75rem;" id="kpi-rsf-status"><span class="status-pill status-pass">Acceptable (&ge; 0.90)</span></div>
+    </div>
+    <div class="ffs-kpi">
+      <div class="ffs-kpi-lbl">Derated MAWP (MAWPr)</div>
+      <div class="ffs-kpi-val" id="kpi-mawpr">250.0 psig</div>
+      <div style="font-size: 0.75rem;" id="kpi-derate-status"><span class="status-pill status-pass">Full MAWP Retained</span></div>
+    </div>
+    <div class="ffs-kpi">
+      <div class="ffs-kpi-lbl">Remaining Asset Life</div>
+      <div class="ffs-kpi-val" id="kpi-remlife">9.8 Years</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-turnaround">Next Inspection: &le; 4.9 Yrs</div>
+    </div>
+  </div>
+
+  <!-- ASSESSMENT DETAILS TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Fitness-For-Service Stress & Curvature Parameters</h4>
+    <div class="ffs-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Future Corrosion Allowance (FCA):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-fca">0.024 in (0.61 mm)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-fca-sub">Projected End Thickness: 0.361 in</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Folias Bulging Factor (Mt):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #3b82f6;" id="val-folias">Mt = 1.342 (Lambda = 1.82)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-lavg">Averaging Length L: 4.28 in</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Level 1 Screening Ratio (Rt):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-rt">Rt = 1.195 (Pass &gt; 1.0)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-code-status">ASME Section VIII Div 1 Compliant</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="ffs-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Critical Thickness Profile (CTP) Scan</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Wall Thickness vs Axial Length</span>
+      </div>
+      <canvas id="ffs-ctp-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">RSF & Wall Degradation Over Time (0 - 15 Yrs)</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Retirement Threshold Highlighted</span>
+      </div>
+      <canvas id="ffs-time-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="ffs-btn" onclick="ffsCopySummary()">
+      <span>📋 Copy API 579 FFS Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Fitness-For-Service Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Operating Below Allowable RSF Without Derating Causing Catastrophic Shell Rupture</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Plant operators facing production targets frequently discover severe wall loss during turnaround and rationalize continuing full-pressure operation because the vessel has not yet leaked. If calculated RSF drops below RSFa (e.g. RSF = 0.78 &lt; 0.90), the component plastic collapse load is compromised. Under a minor operational pressure spike or thermal transient, localized plastic deformation triggers unconstrained ducting tearing and catastrophic BLEVE (boiling liquid expanding vapor explosion). If RSF &lt; RSFa, operators must either derate MAWP strictly per API 579 Section 4.5 or install an ASME PCC-2 engineered repair sleeve before re-pressurization.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Misinterpreting Localized Thin Areas (LTAs) as General Uniform Metal Loss</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Evaluating an isolated localized groove or gouge using general metal loss formulas severely underestimates localized stress. General metal loss equations assume smooth, gradual thickness transitions. Sharp, steep-sided localized thin areas introduce severe geometric notch stress concentration factors (Kt &gt; 2.5) that promote fatigue crack initiation at the groove root. If an inspection profile reveals steep edge gradients (flaw transition slope &gt; 1:3), the flaw must be assessed under API 579 Part 5 (Local Thin Areas) or Part 9 (Crack-Like Flaws) rather than simple Part 4 general thinning.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Omitting Weld Joint Efficiency (E) from Remaining Strength Calculations</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      In vessels with spot radiography (E = 0.85) or lap-welded construction (E = 0.70), engineers often mistakenly use E = 1.0 when calculating t_min or RSF away from the main weld seam. However, if the corroded zone intersects or lies within 1.0 * sqrt(D * t) of a longitudinal weld seam, the joint efficiency E must be applied directly to the allowable stress. Neglecting this factor overestimates remaining vessel strength by 15% to 43%, leading to illegal and dangerous continued service.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Linear Extrapolation of Corrosion Rates in Sour, Acidic, or Microbiological Environments</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Calculating remaining operating life by dividing remaining wall by a historical uniform corrosion rate (e.g. 5 mpy) assumes corrosion is linear and predictable. In sour gas (H2S), sulfuric acid, wet CO2, or stagnant water systems with Microbiologically Influenced Corrosion (MIC), corrosion kinetics are non-linear. Passivation film breakdown can trigger localized pitting rates 10 to 20 times higher than nominal background loss. Assuming linear decay results in unexpected through-wall pinholes long before the next scheduled turnaround.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Ignoring Structural Minimum Thickness for Vacuum and External Load Rigidity</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Even if a low-pressure storage vessel has an internal pressure requirement that yields a theoretical t_min of only 0.050 inches, API 579 and ASME Section VIII require an absolute minimum thickness (typically 0.100 in / 2.5 mm for shells, plus allowance for structural wind and seismic loads). Operating below structural rigidity thresholds causes thin-walled vessels to buckle or collapse under inadvertent sub-atmospheric vacuum transients (e.g. during rapid pump-out or rainstorms causing rapid vapor condensation).
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive API 579 / ASME FFS-1 Mathematical Derivations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Fitness-For-Service Part 4 evaluates pressurized shells under internal pressure using membrane stress balance and shell curvature mechanics:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. ASME Section VIII Code Minimum Required Thickness (t_min)</h4>
+  <p style="font-size: 0.875rem; line-height: 1.6;">
+    For cylindrical shells governed by circumferential hoop stress (ASME UG-27):
+  </p>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Inside Radius: R = D / 2<br>
+    Cylindrical Shell: t_min = (P * R) / (S * E - 0.6 * P)<br>
+    Spherical Shell: t_min = (P * R) / (2 * S * E - 0.2 * P)<br>
+    2:1 Semi-Ellipsoidal Head: t_min = (P * D) / (2 * S * E - 0.2 * P)
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Future Corrosion Allowance & Level 1 Assessment</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Future Corrosion Allowance: FCA = C_rate * Y<br>
+    Projected Minimum Thickness: t_p = t_mm - FCA<br>
+    Thickness Ratio: Rt = (t_mm - FCA) / t_min<br>
+    Level 1 Acceptance: If Rt &ge; 1.0 and t_p &ge; t_c_min (structural limit), Level 1 PASSES.
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Level 2 Remaining Strength Factor (RSF) & Folias Bulging</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Shell Parameter: lambda = (1.285 * s) / sqrt(D * t_min)<br>
+    Folias Bulging Factor: Mt = sqrt(1 + 0.48 * lambda^2)<br>
+    Remaining Strength Factor: RSF = Rt / [ 1 - (1 / Mt) * (1 - Rt) ]<br>
+    If RSF &ge; RSFa (typically 0.90): Vessel acceptable at full original MAWP.
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Derated Maximum Allowable Working Pressure (MAWPr)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Derated MAWP: MAWP_r = MAWP * (RSF / RSFa)<br>
+    Remaining Life: Remaining Life = (t_mm - t_min) / C_rate [years]<br>
+    Max Next Inspection Interval: Y_max = min(Remaining Life / 2, 10.0 years)
+  </div>
+</div>
+
+<script>
+var ffsLastCalc = null;
+
+function ffsCalc() {
+  var units = document.getElementById('ffs-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-diam').innerText = isMetric ? 'Internal Diameter (D, mm)' : 'Internal Diameter (D, in)';
+  document.getElementById('lbl-tnom').innerText = isMetric ? 'Nominal Thickness (tnom, mm)' : 'Nominal Thickness (tnom, in)';
+  document.getElementById('lbl-mawp').innerText = isMetric ? 'Design MAWP (bar g)' : 'Design MAWP (psig)';
+  document.getElementById('lbl-stress').innerText = isMetric ? 'Allowable Stress (S, MPa)' : 'Allowable Stress (S, psi)';
+  document.getElementById('lbl-tmm').innerText = isMetric ? 'Min Measured Thickness (tmm, mm)' : 'Min Measured Thickness (tmm, in)';
+  document.getElementById('lbl-flawlen').innerText = isMetric ? 'Flaw Axial Length (s, mm)' : 'Flaw Axial Length (s, in)';
+  document.getElementById('lbl-crate').innerText = isMetric ? 'Corrosion Rate (C_rate, mm/yr)' : 'Corrosion Rate (C_rate, mpy)';
+
+  var geom = document.getElementById('ffs-geom').value;
+  var diamRaw = parseFloat(document.getElementById('ffs-diam').value) || 48;
+  var tnomRaw = parseFloat(document.getElementById('ffs-tnom').value) || 0.625;
+  var mawpRaw = parseFloat(document.getElementById('ffs-mawp').value) || 250;
+  var stressRaw = parseFloat(document.getElementById('ffs-stress').value) || 20000;
+  var e = parseFloat(document.getElementById('ffs-e').value) || 1.0;
+  var tmmRaw = parseFloat(document.getElementById('ffs-tmm').value) || 0.385;
+  var sRaw = parseFloat(document.getElementById('ffs-flawlen').value) || 8.0;
+  var crateRaw = parseFloat(document.getElementById('ffs-crate').value) || 6.0;
+  var yYears = parseFloat(document.getElementById('ffs-years').value) || 4.0;
+  var rsfa = parseFloat(document.getElementById('ffs-rsfa').value) || 0.90;
+  var lvl = document.getElementById('ffs-level').value;
+
+  // Convert to US Customary internally (in, psig, psi, mpy)
+  var dIn, tnomIn, pPsig, sPsi, tmmIn, sLenIn, crateMpy;
+  if (isMetric) {
+    dIn = diamRaw / 25.4;
+    tnomIn = tnomRaw / 25.4;
+    pPsig = mawpRaw * 14.5038;
+    sPsi = stressRaw * 145.038;
+    tmmIn = tmmRaw / 25.4;
+    sLenIn = sRaw / 25.4;
+    crateMpy = crateRaw * 39.3701; // mm/yr to mpy
+  } else {
+    dIn = diamRaw;
+    tnomIn = tnomRaw;
+    pPsig = mawpRaw;
+    sPsi = stressRaw;
+    tmmIn = tmmRaw;
+    sLenIn = sRaw;
+    crateMpy = crateRaw;
+  }
+
+  var rIn = dIn / 2.0;
+
+  // ASME Section VIII Code Minimum Thickness t_min
+  var tMinIn = 0;
+  if (geom === 'cyl' || geom === 'pipe') {
+    // ASME UG-27 Circumferential hoop stress
+    tMinIn = (pPsig * rIn) / (sPsi * e - 0.6 * pPsig);
+  } else if (geom === 'sphere') {
+    tMinIn = (pPsig * rIn) / (2.0 * sPsi * e - 0.2 * pPsig);
+  } else if (geom === 'ellip') {
+    tMinIn = (pPsig * dIn) / (2.0 * sPsi * e - 0.2 * pPsig);
+  }
+  if (tMinIn < 0.05) tMinIn = 0.05;
+
+  // Future Corrosion Allowance (in)
+  var fcaIn = (crateMpy / 1000.0) * yYears;
+  var tpIn = tmmIn - fcaIn; // projected minimum thickness
+
+  // Thickness Ratio Rt
+  var rt = tpIn / tMinIn;
+
+  // Folias Bulging Factor Mt
+  var lambda = (1.285 * sLenIn) / Math.sqrt(Math.max(0.1, dIn * tMinIn));
+  var mt = Math.sqrt(1.0 + 0.48 * Math.pow(lambda, 2));
+
+  // Remaining Strength Factor (RSF)
+  var rsf = 1.0;
+  if (lvl === 'lvl1') {
+    // Level 1 conservative screening: RSF ~ Rt
+    rsf = Math.min(1.0, rt);
+  } else {
+    // Level 2 LTA formulation per API 579 Section 4.4
+    if (rt >= 1.0) {
+      rsf = 1.0;
+    } else {
+      var denom = 1.0 - (1.0 / mt) * (1.0 - rt);
+      rsf = denom > 0.001 ? (rt / denom) : rt;
+      if (rsf > 1.0) rsf = 1.0;
+    }
+  }
+
+  // Derated MAWP
+  var mawprPsig = pPsig;
+  var isDerated = false;
+  if (rsf < rsfa) {
+    mawprPsig = pPsig * (rsf / rsfa);
+    isDerated = true;
+  }
+  if (mawprPsig < 0) mawprPsig = 0;
+
+  // Remaining Asset Life
+  var remLifeYrs = 0;
+  var crateInYr = crateMpy / 1000.0;
+  if (crateInYr > 0.00001) {
+    remLifeYrs = Math.max(0, (tmmIn - tMinIn) / crateInYr);
+  } else {
+    remLifeYrs = 50.0; // negligible corrosion
+  }
+  var nextInspYrs = Math.min(remLifeYrs / 2.0, 10.0);
+
+  // Averaging Length L = 1.123 * sqrt(D * t_min)
+  var lAvgIn = 1.123 * Math.sqrt(dIn * tMinIn);
+
+  ffsLastCalc = {
+    isMetric: isMetric,
+    tMinIn: tMinIn,
+    tmmIn: tmmIn,
+    tnomIn: tnomIn,
+    fcaIn: fcaIn,
+    tpIn: tpIn,
+    rt: rt,
+    mt: mt,
+    lambda: lambda,
+    rsf: rsf,
+    rsfa: rsfa,
+    pPsig: pPsig,
+    mawprPsig: mawprPsig,
+    isDerated: isDerated,
+    remLifeYrs: remLifeYrs,
+    nextInspYrs: nextInspYrs,
+    lAvgIn: lAvgIn,
+    sLenIn: sLenIn,
+    crateMpy: crateMpy,
+    yYears: yYears
+  };
+
+  // Update DOM Display
+  if (isMetric) {
+    document.getElementById('kpi-tmin').innerText = (tMinIn * 25.4).toFixed(2) + ' mm';
+    document.getElementById('val-fca').innerText = (fcaIn * 25.4).toFixed(2) + ' mm (' + crateRaw.toFixed(2) + ' mm/yr)';
+    document.getElementById('val-fca-sub').innerText = 'Projected End Thickness: ' + (tpIn * 25.4).toFixed(2) + ' mm';
+    document.getElementById('val-lavg').innerText = 'Averaging Length L: ' + (lAvgIn * 25.4).toFixed(1) + ' mm';
+
+    var mawprBar = mawprPsig / 14.5038;
+    document.getElementById('kpi-mawpr').innerText = mawprBar.toFixed(1) + ' bar g';
+  } else {
+    document.getElementById('kpi-tmin').innerText = tMinIn.toFixed(3) + ' in';
+    document.getElementById('val-fca').innerText = fcaIn.toFixed(3) + ' in (' + crateMpy.toFixed(1) + ' mpy)';
+    document.getElementById('val-fca-sub').innerText = 'Projected End Thickness: ' + tpIn.toFixed(3) + ' in';
+    document.getElementById('val-lavg').innerText = 'Averaging Length L: ' + lAvgIn.toFixed(2) + ' in';
+
+    document.getElementById('kpi-mawpr').innerText = mawprPsig.toFixed(1) + ' psig';
+  }
+
+  // RSF Status
+  document.getElementById('kpi-rsf').innerText = rsf.toFixed(3);
+  if (rsf >= rsfa) {
+    document.getElementById('kpi-rsf-status').innerHTML = '<span class="status-pill status-pass">Acceptable (&ge; ' + rsfa.toFixed(2) + ')</span>';
+    document.getElementById('kpi-derate-status').innerHTML = '<span class="status-pill status-pass">Full MAWP Retained</span>';
+  } else {
+    document.getElementById('kpi-rsf-status').innerHTML = '<span class="status-pill status-fail">Below RSFa (' + rsfa.toFixed(2) + ')</span>';
+    document.getElementById('kpi-derate-status').innerHTML = '<span class="status-pill status-fail">Pressure Derate Required</span>';
+  }
+
+  // Remaining Life Status
+  document.getElementById('kpi-remlife').innerText = remLifeYrs.toFixed(1) + ' Years';
+  document.getElementById('kpi-turnaround').innerText = 'Next Inspection: ≤ ' + nextInspYrs.toFixed(1) + ' Yrs';
+
+  document.getElementById('val-folias').innerText = 'Mt = ' + mt.toFixed(3) + ' (Lambda = ' + lambda.toFixed(2) + ')';
+  document.getElementById('val-rt').innerText = 'Rt = ' + rt.toFixed(3) + (rt >= 1.0 ? ' (Pass > 1.0)' : ' (Thin Area)');
+
+  ffsDrawCTP();
+  ffsDrawTime();
+}
+
+function ffsDrawCTP() {
+  var canvas = document.getElementById('ffs-ctp-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!ffsLastCalc) return;
+  var d = ffsLastCalc;
+
+  var tnom = d.tnomIn;
+  var tmin = d.tMinIn;
+  var tmm = d.tmmIn;
+  var fca = d.fcaIn;
+  var tp = d.tpIn;
+
+  var maxT = tnom * 1.25;
+  function toY(tVal) {
+    return padT + plotH - (tVal / maxT) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Baseline lines
+  // Nominal thickness line
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, toY(tnom));
+  ctx.lineTo(padL + plotW, toY(tnom));
+  ctx.stroke();
+
+  // ASME t_min line (red dashed)
+  ctx.strokeStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.moveTo(padL, toY(tmin));
+  ctx.lineTo(padL + plotW, toY(tmin));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Corroded wall profile (smooth parabolic depression simulating LTA)
+  ctx.beginPath();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  var pts = 60;
+  for (var i = 0; i <= pts; i++) {
+    var frac = i / pts;
+    var px = padL + frac * plotW;
+    // Parabolic ditch centered at 0.5 with depth (tnom - tmm)
+    var dist = Math.abs(frac - 0.5) / 0.35;
+    var wallT = tnom;
+    if (dist < 1.0) {
+      wallT = tmm + (tnom - tmm) * Math.pow(dist, 2);
+    }
+    var py = toY(wallT);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Projected Future Thickness Profile (dashed amber)
+  ctx.beginPath();
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  for (var j = 0; j <= pts; j++) {
+    var fFrac = j / pts;
+    var fx = padL + fFrac * plotW;
+    var fDist = Math.abs(fFrac - 0.5) / 0.35;
+    var fWallT = tnom - fca;
+    if (fDist < 1.0) {
+      fWallT = tp + (tnom - tmm) * Math.pow(fDist, 2);
+    }
+    var fy = toY(fWallT);
+    if (j === 0) ctx.moveTo(fx, fy);
+    else ctx.lineTo(fx, fy);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(tnom.toFixed(3) + ' tnom', padL - 6, toY(tnom) + 3);
+  ctx.fillText(tmin.toFixed(3) + ' tmin', padL - 6, toY(tmin) + 3);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Inspection Grid Scan Distance (Axial CTP Length)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Current Measured CTP', padL + 10, padT + 12);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('-- Future Projected CTP (-FCA)', padL + 160, padT + 12);
+}
+
+function ffsDrawTime() {
+  var canvas = document.getElementById('ffs-time-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!ffsLastCalc) return;
+  var d = ffsLastCalc;
+
+  var maxYears = Math.min(20, Math.max(8, d.remLifeYrs * 1.5));
+  function toX(yr) {
+    return padL + (yr / maxYears) * plotW;
+  }
+  function toYRSF(val) {
+    return padT + plotH - ((val - 0.5) / 0.6) * plotH;
+  }
+
+  // Allowable RSFa threshold line
+  var yRsfa = toYRSF(d.rsfa);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, yRsfa);
+  ctx.lineTo(padL + plotW, yRsfa);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plot RSF degradation over time
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  var pts = 40;
+  for (var i = 0; i <= pts; i++) {
+    var yr = (i / pts) * maxYears;
+    var tFuture = d.tmmIn - (d.crateMpy / 1000.0) * yr;
+    var rtFuture = tFuture / d.tMinIn;
+    var rsfFuture = 1.0;
+    if (rtFuture < 1.0) {
+      var denom = 1.0 - (1.0 / d.mt) * (1.0 - rtFuture);
+      rsfFuture = denom > 0.001 ? (rtFuture / denom) : rtFuture;
+    }
+    if (rsfFuture < 0.5) rsfFuture = 0.5;
+
+    var px = toX(yr);
+    var py = toYRSF(rsfFuture);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Half-life turnaround marker
+  var xHalf = toX(d.nextInspYrs);
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 2]);
+  ctx.beginPath();
+  ctx.moveTo(xHalf, padT);
+  ctx.lineTo(xHalf, padT + plotH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('1.00', padL - 6, toYRSF(1.0) + 3);
+  ctx.fillText(d.rsfa.toFixed(2) + ' RSFa', padL - 6, yRsfa + 3);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Operating Time (Years from Current Inspection)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● RSF Trajectory', padL + 10, padT + 12);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('┆ Half-Life Turnaround Limit (' + d.nextInspYrs.toFixed(1) + ' Yrs)', padL + 130, padT + 12);
+}
+
+function ffsCopySummary() {
+  if (!ffsLastCalc) return;
+  var d = ffsLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var tUnit = d.isMetric ? 'mm' : 'in';
+  var pUnit = d.isMetric ? 'bar g' : 'psig';
+
+  var text = '=== API 579 FITNESS-FOR-SERVICE DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: API 579-1 / ASME FFS-1 Part 4 / ASME Section VIII Div 1\n' +
+    'Units System: ' + u + '\n' +
+    'Code Min Thickness (tmin): ' + (d.isMetric ? (d.tMinIn * 25.4).toFixed(2) : d.tMinIn.toFixed(3)) + ' ' + tUnit + '\n' +
+    'Min Measured Thickness (tmm): ' + (d.isMetric ? (d.tmmIn * 25.4).toFixed(2) : d.tmmIn.toFixed(3)) + ' ' + tUnit + '\n' +
+    'Future Corrosion Allowance (FCA): ' + (d.isMetric ? (d.fcaIn * 25.4).toFixed(2) : d.fcaIn.toFixed(3)) + ' ' + tUnit + ' (over ' + d.yYears.toFixed(1) + ' yrs)\n' +
+    'Projected Thickness (tp): ' + (d.isMetric ? (d.tpIn * 25.4).toFixed(2) : d.tpIn.toFixed(3)) + ' ' + tUnit + '\n' +
+    'Folias Bulging Factor (Mt): ' + d.mt.toFixed(3) + '\n' +
+    'Remaining Strength Factor (RSF): ' + d.rsf.toFixed(3) + ' [Allowable RSFa: ' + d.rsfa.toFixed(2) + ']\n' +
+    'Assessment Verdict: ' + (d.rsf >= d.rsfa ? 'PASS - SAFE AT DESIGN MAWP' : 'FAIL - DERATE REQUIRED') + '\n' +
+    'Rated Working Pressure: ' + (d.isMetric ? (d.mawprPsig / 14.5038).toFixed(1) : d.mawprPsig.toFixed(1)) + ' ' + pUnit + '\n' +
+    'Remaining Equipment Life: ' + d.remLifeYrs.toFixed(1) + ' Years\n' +
+    'Max Next Inspection Interval: ' + d.nextInspYrs.toFixed(1) + ' Years\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.ffs-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  ffsCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BM3: Gas Orifice Meter Sizing & Flow Measurement Calculator (ISO 5167 / AGA Report No. 3 / API 14.3)
+  // ==========================================
+  (() => {
+    const slug = 'gas-orifice-meter-aga3-calculator';
+    const title = 'Natural Gas Orifice Meter Sizing & AGA 3 / API 14.3 Flow Calculator';
+    const metaDescription = 'Calculate natural gas orifice flow rate, Reader-Harris/Gallagher (RG) discharge coefficient, expansibility factor Y1, beta ratio, and permanent pressure loss per AGA 3, API 14.3, and ISO 5167-2.';
+
+    const faq = [
+      {
+        q: 'What is the Reader-Harris/Gallagher (RG) equation and why is it used in AGA 3 and ISO 5167?',
+        a: 'The Reader-Harris/Gallagher (RG) equation is the globally recognized standard empirical equation for predicting the discharge coefficient (Cd) of concentric square-edged orifice plates. Adopted in both AGA Report No. 3 (API MPMS Chapter 14.3) and ISO 5167-2, it models the complex fluid dynamics of the vena contracta by accounting for pipe Reynolds number (Re_D), beta ratio (beta = d/D), and the physical distance of pressure taps from the plate faces (L1 for upstream tap, L2 for downstream tap). Unlike simplistic constant Cd approximations (such as 0.60 or 0.62), the RG equation computes precise discharge coefficients to within +/- 0.5% uncertainty across broad industrial flow ranges.'
+      },
+      {
+        q: 'What is the expansibility factor (Y1) for compressible natural gas in orifice meters?',
+        a: 'In liquid flow, fluid density remains constant across the orifice constriction. However, in compressible gas flow, as gas accelerates through the orifice opening, static pressure drops, causing the gas to expand and its density to decrease. The expansibility factor (Y1) corrects for this thermodynamic change in density between the upstream tap and the vena contracta: Y1 = 1 - (0.41 + 0.35 * beta^4) * (Delta_P / (P1 * k)), where Delta_P is differential pressure, P1 is upstream absolute pressure, and k is the isentropic exponent (Cp/Cv). To maintain custody transfer accuracy, AGA 3 and ISO 5167 restrict the differential ratio Delta_P / P1 <= 0.20 (ensuring Y1 >= 0.95).'
+      },
+      {
+        q: 'What are the permissible beta ratio (d/D) limits for custody transfer orifice metering?',
+        a: 'AGA Report No. 3 and ISO 5167-2 specify that the beta ratio (beta = d / D) must fall between 0.10 and 0.75, with the recommended range for high-accuracy custody transfer being 0.20 <= beta <= 0.60. Operating with beta < 0.20 creates severe hydraulic restriction, high permanent pressure loss, and increased vulnerability to plate deflection. Operating with beta > 0.60 dramatically magnifies sensitivity to upstream pipe wall roughness, velocity profile distortion, and pipe fitting swirl, increasing measurement uncertainty from +/- 0.5% to over +/- 2.5%.'
+      },
+      {
+        q: 'What is permanent pressure loss across an orifice plate and how much energy does it consume?',
+        a: 'Because fluid decelerates abruptly downstream of the vena contracta with severe turbulent eddy dissipation, only a portion of kinetic energy is recovered as static pressure. The unrecoverable pressure loss ratio is given by Delta_varpi / Delta_P = (sqrt(1 - beta^4 * (1 - Cd^2)) - Cd * beta^2) / (sqrt(1 - beta^4 * (1 - Cd^2)) + Cd * beta^2), which closely approximates 1 - beta^1.9. For a typical beta = 0.50 orifice plate, approximately 73% of the measured differential pressure is permanently lost. In high-volume pipeline compressor stations, this continuous pressure drop burns tens of thousands of dollars annually in parasitic compressor fuel.'
+      },
+      {
+        q: 'What happens if an orifice plate is installed backwards in the meter tube?',
+        a: 'Standard orifice plates feature a razor-sharp 90-degree square leading edge facing upstream and a 45-degree beveled chamfer facing downstream. If the plate is installed backwards (with the beveled edge facing upstream), the incoming gas stream encounters a smooth conical convergence rather than an abrupt square corner. This delays flow separation and significantly expands the vena contracta throat, increasing the true discharge coefficient Cd by 15% to 25%. Because the flow computer continues calculating flow using the theoretical square-edge Cd (around 0.60), the meter under-reads actual gas volume by 15% to 25%, resulting in catastrophic custody transfer billing errors and severe unaccounted-for gas (UFG) imbalances.'
+      }
+    ];
+
+    const content = `
+<style>
+.orf-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.orf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.orf-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.orf-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .orf-grid-2, .orf-grid-3, .orf-grid-4 { grid-template-columns: 1fr; }
+}
+.orf-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.orf-input, .orf-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.orf-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.orf-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.orf-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.orf-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.orf-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="orf-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Natural Gas Orifice Meter Sizing & AGA 3 Analysis</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Reader-Harris/Gallagher (RG) Cd, Expansibility Y1, Flow Rate & Pressure Loss</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="orf-units" class="orf-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="orfCalc()">
+        <option value="us" selected>US Customary (in, psig, inH2O, MMSCFD)</option>
+        <option value="si">Metric / SI (mm, bar g, mbar, Nm³/h)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="orf-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="orf-label"><span id="lbl-piped">Pipe Internal Diam (D, in)</span></div>
+      <input type="number" id="orf-piped" class="orf-input" value="6.065" step="0.05" min="1.0" oninput="orfCalc()">
+    </div>
+    <div>
+      <div class="orf-label"><span id="lbl-bored">Orifice Bore Diam (d, in)</span></div>
+      <input type="number" id="orf-bored" class="orf-input" value="3.000" step="0.025" min="0.25" oninput="orfCalc()">
+    </div>
+    <div>
+      <div class="orf-label"><span>Pressure Tap Location</span></div>
+      <select id="orf-taps" class="orf-select" onchange="orfCalc()">
+        <option value="flange" selected>Flange Taps (1" Up / 1" Down - AGA 3 Std)</option>
+        <option value="corner">Corner Taps (ISO 5167 L1 = L2 = 0)</option>
+        <option value="pipe">Pipe Taps (2.5D Up / 8D Down)</option>
+      </select>
+    </div>
+    <div>
+      <div class="orf-label"><span id="lbl-p1">Upstream Pressure (P1, psig)</span></div>
+      <input type="number" id="orf-p1" class="orf-input" value="450.0" step="10" min="5" oninput="orfCalc()">
+    </div>
+  </div>
+
+  <div class="orf-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="orf-label"><span id="lbl-dp">Diff Pressure (Delta P, inH2O)</span></div>
+      <input type="number" id="orf-dp" class="orf-input" value="50.0" step="2.5" min="2.0" max="250.0" oninput="orfCalc()">
+    </div>
+    <div>
+      <div class="orf-label"><span id="lbl-temp">Gas Temperature (T, °F)</span></div>
+      <input type="number" id="orf-temp" class="orf-input" value="60.0" step="2" oninput="orfCalc()">
+    </div>
+    <div>
+      <div class="orf-label"><span>Specific Gravity (Air = 1.0)</span></div>
+      <input type="number" id="orf-sg" class="orf-input" value="0.600" step="0.01" min="0.1" max="2.5" oninput="orfCalc()">
+    </div>
+    <div>
+      <div class="orf-label"><span>Isentropic Exponent (k = Cp/Cv)</span></div>
+      <input type="number" id="orf-k" class="orf-input" value="1.30" step="0.01" min="1.1" max="1.6" oninput="orfCalc()">
+    </div>
+  </div>
+
+  <div class="orf-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="orf-label"><span>Upstream Z1 Factor</span></div>
+      <input type="number" id="orf-z1" class="orf-input" value="0.945" step="0.005" min="0.5" max="1.5" oninput="orfCalc()">
+    </div>
+    <div>
+      <div class="orf-label"><span>Base Z_base Factor</span></div>
+      <input type="number" id="orf-zb" class="orf-input" value="0.998" step="0.001" min="0.8" max="1.2" oninput="orfCalc()">
+    </div>
+    <div>
+      <div class="orf-label"><span>Plate Edge Condition</span></div>
+      <select id="orf-edge" class="orf-select" onchange="orfCalc()">
+        <option value="sharp" selected>Razor Sharp Square Edge (Standard)</option>
+        <option value="slight_round">Slightly Worn / Rounded Edge (+1.5% Cd)</option>
+        <option value="backward">Reversed / Backward Bevel (+18% Error!)</option>
+      </select>
+    </div>
+    <div>
+      <div class="orf-label"><span>Target Accuracy Tier</span></div>
+      <select id="orf-tier" class="orf-select" onchange="orfCalc()">
+        <option value="custody" selected>Custody Transfer (0.20 &le; &beta; &le; 0.60)</option>
+        <option value="process">General Process (0.10 &le; &beta; &le; 0.75)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="orf-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="orf-kpi">
+      <div class="orf-kpi-lbl">Standard Gas Flow Rate</div>
+      <div class="orf-kpi-val" id="kpi-flow">14.62 MMSCFD</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-massflow">Mass: 27,450 lb/hr</div>
+    </div>
+    <div class="orf-kpi">
+      <div class="orf-kpi-lbl">Beta Ratio (&beta; = d/D)</div>
+      <div class="orf-kpi-val" id="kpi-beta">0.4946</div>
+      <div style="font-size: 0.75rem;" id="kpi-beta-status"><span class="status-pill status-pass">Custody Range (0.2 - 0.6)</span></div>
+    </div>
+    <div class="orf-kpi">
+      <div class="orf-kpi-lbl">Discharge Coeff (Cd)</div>
+      <div class="orf-kpi-val" id="kpi-cd">0.6026</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-rg-sub">Reader-Harris/Gallagher Eq</div>
+    </div>
+    <div class="orf-kpi">
+      <div class="orf-kpi-lbl">Permanent Pressure Loss</div>
+      <div class="orf-kpi-val" id="kpi-loss">36.7 inH2O</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-loss-pct">73.4% of Measured &Delta;P</div>
+    </div>
+  </div>
+
+  <!-- DETAILED DIAGNOSTICS TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">AGA 3 / ISO 5167 Thermodynamic & Flow Diagnostics</h4>
+    <div class="orf-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Expansibility Factor (Y1):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-y1">Y1 = 0.9976 (Pass &gt; 0.95)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-xratio">&Delta;P / P1 Ratio: 0.0039 (&lt; 0.20 limit)</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Pipe Reynolds Number (Re_D):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-re">Re_D = 2,840,000</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-velocity">Gas Velocity: 18.4 ft/s (5.6 m/s)</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Pumping Energy Loss:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #f59e0b;" id="val-power">14.8 HP (11.0 kW)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-uncertainty">Uncertainty: &plusmn; 0.52% (AGA 3 Class A)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="orf-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Orifice Static Pressure Profile along Pipeline</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">&minus;2D to +6D around Plate</span>
+      </div>
+      <canvas id="orf-press-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Flow Rate vs Differential Pressure (&Delta;P)</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">0 to 100 inH2O Calibration Curve</span>
+      </div>
+      <canvas id="orf-flow-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="orf-btn" onclick="orfCopySummary()">
+      <span>📋 Copy AGA 3 Orifice Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Orifice Flow Metering Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Backward Orifice Plate Installation Inducing a 15% to 25% Custody Under-Reading</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Standard orifice plates have a sharp 90° square edge on the upstream face and a 45° beveled chamfer on the downstream face. During maintenance turnaround or paddle plate replacement, technicians occasionally install the plate backwards with the bevel facing upstream. The beveled entrance acts like a venturi nozzle, guiding flow smoothly into the throat and significantly enlarging the vena contracta. This boosts the real discharge coefficient from 0.60 to ~0.72 (+20%). Because the SCADA system assumes standard square-edge geometry, the computed flow rate under-reads actual gas delivery by 18% to 22%, causing millions of dollars in unbilled natural gas transfers.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Upstream Swirl and Distorted Velocity Profiles from Inadequate Straight Pipe Runs</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Dual out-of-plane 90° elbows, tees, and throttling headers generate intense fluid swirl and asymmetric axial velocity profiles. AGA 3 and ISO 5167 mandate between 28 and 44 pipe diameters of upstream unobstructed straight run (unless equipped with a certified 19-tube bundle or CPA 50E flow conditioning plate). Installing an orifice plate just 10 diameters downstream of an elbow imparts angular momentum to the gas, reducing the pressure differential and causing measurement errors exceeding 4.0%, completely invalidating custody transfer compliance.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Exceeding the Maximum Differential Pressure Ratio (&Delta;P / P1 &gt; 0.20)</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      The empirical expansibility factor Y1 is derived from isentropic expansion models valid only when the pressure drop across the plate is a modest fraction of upstream static pressure: &Delta;P / P1 &le; 0.20. In low-pressure gathering systems or flare lines where operators run a 100 inH2O transmitter on a 15 psig line, &Delta;P / P1 reaches 0.12 to 0.25. Above 0.20, sonic compressibility effects produce non-linear density gradients and acoustic shock wavelets that cause Y1 to diverge from physical reality, corrupting measurement accuracy.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Liquid Condensate & Hydrate Damming in Wet Gas Service</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      When metering rich natural gas containing heavier hydrocarbons (C3+) or water vapor near its dew point, liquid droplets drop out and accumulate on the upstream pipe floor immediately behind the bottom face of the orifice plate. This liquid dam changes the effective pipe diameter and creates a ramp that deflects gas toward the upper half of the bore, causing severe profile asymmetry. To prevent liquid damming in wet gas lines, plates must be specified with an ASME-compliant drain hole (vent/drain weep hole) flush with the pipe bottom, and the flow computer must be programmed with the drain hole area correction.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Orifice Plate Leading Edge Rounding from Particulate Sand Blasting</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      AGA Report No. 3 requires that the upstream edge of the orifice bore be sharp enough that it does not reflect a beam of light when viewed without magnification (edge radius r_e &le; 0.0004 * d). In shale gas or coalbed methane applications containing frac sand or iron sulfide particulates, high-velocity sand grains erode and round the sharp edge over time. An edge radius of just 0.010 inches on a 3-inch orifice increases Cd by 1.5% to 2.5%, causing continuous measurement under-registration. Plates must be pulled and inspected with lead-foil impression gauges during scheduled preventative maintenance.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive AGA 3 / API 14.3 & ISO 5167 Mathematical Formulations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Gas orifice metering combines Bernoulli's hydrodynamic principle with compressible gas thermodynamics and boundary layer contraction mechanics:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Fundamental Mass & Volumetric Flow Equation</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Mass Flow Rate: q_m = (pi / 4) * d^2 * C_d * Y_1 * sqrt(2 * rho_1 * Delta_P / (1 - beta^4))<br>
+    Standard Volume Flow Rate (AGA 3 US Customary):<br>
+    &nbsp;&nbsp;Q_v = C' * sqrt(P_f1 * h_w) [SCFH]<br>
+    &nbsp;&nbsp;where C' = F_b * F_r * Y * F_pb * F_tb * F_tf * F_gr * F_pv
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Reader-Harris/Gallagher (RG) Discharge Coefficient (ISO 5167 / AGA 3)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    C_d = 0.5961 + 0.0261 * beta^2 - 0.216 * beta^8 + 0.000521 * (1e6 * beta / Re_D)^0.7<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ (0.0188 + 0.0063 * A) * beta^3.5 * (1e6 / Re_D)^0.3<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ (0.043 + 0.080 * exp(-10*L1) - 0.123 * exp(-7*L1)) * (1 - 0.11 * A) * (beta^4 / (1 - beta^4))<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 0.031 * (M'2 - 0.8 * M'2^1.1) * beta^1.3<br>
+    where L1 = L'_2 = 1.0 / D for flange taps, A = (19000 * beta / Re_D)^0.8
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Expansibility Factor Y1 (Compressible Flow)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Y_1 = 1 - (0.41 + 0.35 * beta^4) * [ Delta_P / (P_1_abs * k) ]<br>
+    Governing Constraint: Delta_P / P_1_abs &le; 0.20
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Permanent Pressure Loss Across Orifice</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Delta_varpi / Delta_P = [ sqrt(1 - beta^4 * (1 - C_d^2)) - C_d * beta^2 ] / [ sqrt(1 - beta^4 * (1 - C_d^2)) + C_d * beta^2 ]<br>
+    Pumping Power Loss: Power = Q_actual * Delta_varpi / (550 * eta_compressor) [HP]
+  </div>
+</div>
+
+<script>
+var orfLastCalc = null;
+
+function orfCalc() {
+  var units = document.getElementById('orf-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-piped').innerText = isMetric ? 'Pipe Internal Diam (D, mm)' : 'Pipe Internal Diam (D, in)';
+  document.getElementById('lbl-bored').innerText = isMetric ? 'Orifice Bore Diam (d, mm)' : 'Orifice Bore Diam (d, in)';
+  document.getElementById('lbl-p1').innerText = isMetric ? 'Upstream Pressure (P1, bar g)' : 'Upstream Pressure (P1, psig)';
+  document.getElementById('lbl-dp').innerText = isMetric ? 'Diff Pressure (Delta P, mbar)' : 'Diff Pressure (Delta P, inH2O)';
+  document.getElementById('lbl-temp').innerText = isMetric ? 'Gas Temperature (T, °C)' : 'Gas Temperature (T, °F)';
+
+  var pipedRaw = parseFloat(document.getElementById('orf-piped').value) || 6.065;
+  var boredRaw = parseFloat(document.getElementById('orf-bored').value) || 3.000;
+  var taps = document.getElementById('orf-taps').value;
+  var p1Raw = parseFloat(document.getElementById('orf-p1').value) || 450;
+  var dpRaw = parseFloat(document.getElementById('orf-dp').value) || 50;
+  var tempRaw = parseFloat(document.getElementById('orf-temp').value) || 60;
+  var sg = parseFloat(document.getElementById('orf-sg').value) || 0.60;
+  var k = parseFloat(document.getElementById('orf-k').value) || 1.30;
+  var z1 = parseFloat(document.getElementById('orf-z1').value) || 0.945;
+  var zb = parseFloat(document.getElementById('orf-zb').value) || 0.998;
+  var edge = document.getElementById('orf-edge').value;
+  var tier = document.getElementById('orf-tier').value;
+
+  // Convert to US Customary internal units (in, psia, inH2O, deg R)
+  var dPipeIn, dBoreIn, p1Psia, dpInH2O, tempR;
+  if (isMetric) {
+    dPipeIn = pipedRaw / 25.4;
+    dBoreIn = boredRaw / 25.4;
+    p1Psia = (p1Raw + 1.01325) * 14.5038;
+    dpInH2O = dpRaw * 0.401463; // mbar to inH2O
+    tempR = (tempRaw + 273.15) * 1.8;
+  } else {
+    dPipeIn = pipedRaw;
+    dBoreIn = boredRaw;
+    p1Psia = p1Raw + 14.696;
+    dpInH2O = dpRaw;
+    tempR = tempRaw + 459.67;
+  }
+
+  if (dBoreIn >= dPipeIn) dBoreIn = dPipeIn * 0.75;
+  var beta = dBoreIn / dPipeIn;
+
+  // Tap locations L1 and L'2 for Reader-Harris/Gallagher equation
+  var l1 = 0, l2Prime = 0;
+  if (taps === 'flange') {
+    l1 = 1.0 / dPipeIn;
+    l2Prime = 1.0 / dPipeIn;
+  } else if (taps === 'corner') {
+    l1 = 0;
+    l2Prime = 0;
+  } else if (taps === 'pipe') {
+    l1 = 2.5;
+    l2Prime = 8.0;
+  }
+
+  // Molecular weight and Gas densities
+  var mwAir = 28.964;
+  var mwGas = sg * mwAir;
+  // Upstream gas density rho1 in lbm/ft³
+  // rho1 = (P1 * MW) / (Z1 * R_univ * T) -> R_univ = 10.7316
+  var rho1 = (p1Psia * mwGas) / (z1 * 10.7316 * tempR);
+
+  // Base density (14.73 psia, 60 F / 519.67 R)
+  var rhoBase = (14.73 * mwGas) / (zb * 10.7316 * 519.67);
+
+  // Delta P in psi: 1 inH2O (at 60F) = 0.036127 psi
+  var dpPsi = dpInH2O * 0.036127;
+  var xRatio = dpPsi / p1Psia;
+
+  // Expansibility Factor Y1
+  var y1 = 1.0 - (0.41 + 0.35 * Math.pow(beta, 4)) * (xRatio / k);
+  if (y1 < 0.90) y1 = 0.90;
+
+  // Reader-Harris/Gallagher (RG) Discharge Coefficient calculation
+  // Assume typical pipeline turbulent Re_D ~ 2.5e6
+  var reD = 2.8e6;
+  var aTerm = Math.pow((19000.0 * beta) / reD, 0.8);
+  var m2Prime = (2.0 * l2Prime) / (1.0 - beta);
+
+  var cdBase = 0.5961 + 0.0261 * Math.pow(beta, 2) - 0.216 * Math.pow(beta, 8) +
+    0.000521 * Math.pow((1e6 * beta) / reD, 0.7) +
+    (0.0188 + 0.0063 * aTerm) * Math.pow(beta, 3.5) * Math.pow(1e6 / reD, 0.3);
+
+  if (taps !== 'corner') {
+    cdBase += (0.043 + 0.080 * Math.exp(-10.0 * l1) - 0.123 * Math.exp(-7.0 * l1)) *
+      (1.0 - 0.11 * aTerm) * (Math.pow(beta, 4) / (1.0 - Math.pow(beta, 4)));
+    if (l2Prime > 0) {
+      cdBase -= 0.031 * (m2Prime - 0.8 * Math.pow(m2Prime, 1.1)) * Math.pow(beta, 1.3);
+    }
+  }
+
+  // Plate condition correction
+  var cd = cdBase;
+  if (edge === 'slight_round') cd = cdBase * 1.015;
+  else if (edge === 'backward') cd = cdBase * 1.185; // 18.5% over-registration in Cd means flow computer under-reads!
+
+  // Mass Flow Rate (lbm / s)
+  // q_m = (pi / 4) * d^2 * Cd * Y1 * sqrt(2 * rho1 * DeltaP_Pa / (1 - beta^4))
+  var dFt = dBoreIn / 12.0;
+  var areaFt2 = (Math.PI / 4.0) * Math.pow(dFt, 2);
+  var gc = 32.174;
+  var dpLbfFt2 = dpPsi * 144.0;
+  var velApproach = Math.sqrt(1.0 / (1.0 - Math.pow(beta, 4)));
+
+  var qmLbmS = areaFt2 * cd * y1 * velApproach * Math.sqrt(2.0 * gc * rho1 * dpLbfFt2);
+  var qmLbmHr = qmLbmS * 3600.0;
+  var qmKgS = qmLbmS * 0.453592;
+
+  // Standard Volume Flow Rate
+  // Q_scfh = q_m / rhoBase
+  var qScfh = qmLbmHr / rhoBase;
+  var mmscfd = (qScfh * 24.0) / 1e6;
+  var nm3hr = mmscfd * 1177.2;
+
+  // Upstream velocity
+  var pipeAreaFt2 = (Math.PI / 4.0) * Math.pow(dPipeIn / 12.0, 2);
+  var actualCfs = qmLbmS / rho1;
+  var vPipeFtS = actualCfs / pipeAreaFt2;
+  var vPipeMS = vPipeFtS * 0.3048;
+
+  // Permanent Pressure Loss Ratio: (ISO 5167)
+  var cd2 = Math.pow(cd, 2);
+  var beta4 = Math.pow(beta, 4);
+  var termRoot = Math.sqrt(1.0 - beta4 * (1.0 - cd2));
+  var lossRatio = (termRoot - cd * Math.pow(beta, 2)) / (termRoot + cd * Math.pow(beta, 2));
+
+  var permLossInH2O = dpInH2O * lossRatio;
+  var permLossPsi = dpPsi * lossRatio;
+  var permLossMbar = permLossInH2O * 2.49089;
+
+  // Pumping power consumed by permanent loss
+  // Power = Q_actual (ft3/s) * Delta_varpi (lbf/ft2) / 550
+  var powerLossHp = (actualCfs * (permLossPsi * 144.0)) / (550.0 * 0.75); // assuming 75% comp efficiency
+  var powerLossKw = powerLossHp * 0.7457;
+
+  // Uncertainty estimate
+  var unc = 0.50;
+  if (beta > 0.60) unc += (beta - 0.60) * 8.0;
+  if (xRatio > 0.10) unc += (xRatio - 0.10) * 10.0;
+  if (edge !== 'sharp') unc += 2.5;
+
+  orfLastCalc = {
+    isMetric: isMetric,
+    beta: beta,
+    cd: cd,
+    cdBase: cdBase,
+    y1: y1,
+    xRatio: xRatio,
+    qmLbmHr: qmLbmHr,
+    qmKgS: qmKgS,
+    mmscfd: mmscfd,
+    nm3hr: nm3hr,
+    vPipeFtS: vPipeFtS,
+    vPipeMS: vPipeMS,
+    permLossInH2O: permLossInH2O,
+    permLossMbar: permLossMbar,
+    permLossPsi: permLossPsi,
+    lossRatio: lossRatio,
+    powerLossHp: powerLossHp,
+    powerLossKw: powerLossKw,
+    dpInH2O: dpInH2O,
+    unc: unc,
+    dPipeIn: dPipeIn,
+    dBoreIn: dBoreIn
+  };
+
+  // Update DOM Display
+  if (isMetric) {
+    document.getElementById('kpi-flow').innerText = Math.round(nm3hr).toLocaleString() + ' Nm³/h';
+    document.getElementById('kpi-massflow').innerText = 'Mass: ' + qmKgS.toFixed(2) + ' kg/s (' + Math.round(qmLbmHr).toLocaleString() + ' lb/h)';
+    document.getElementById('kpi-loss').innerText = permLossMbar.toFixed(1) + ' mbar';
+    document.getElementById('val-velocity').innerText = 'Gas Velocity: ' + vPipeMS.toFixed(1) + ' m/s (' + vPipeFtS.toFixed(1) + ' ft/s)';
+    document.getElementById('val-power').innerText = powerLossKw.toFixed(1) + ' kW (' + powerLossHp.toFixed(1) + ' HP)';
+  } else {
+    document.getElementById('kpi-flow').innerText = mmscfd.toFixed(2) + ' MMSCFD';
+    document.getElementById('kpi-massflow').innerText = 'Mass: ' + Math.round(qmLbmHr).toLocaleString() + ' lb/hr';
+    document.getElementById('kpi-loss').innerText = permLossInH2O.toFixed(1) + ' inH2O';
+    document.getElementById('val-velocity').innerText = 'Gas Velocity: ' + vPipeFtS.toFixed(1) + ' ft/s (' + vPipeMS.toFixed(1) + ' m/s)';
+    document.getElementById('val-power').innerText = powerLossHp.toFixed(1) + ' HP (' + powerLossKw.toFixed(1) + ' kW)';
+  }
+
+  document.getElementById('kpi-beta').innerText = beta.toFixed(4);
+  var betaStatusPill = '';
+  if (beta >= 0.20 && beta <= 0.60) {
+    betaStatusPill = '<span class="status-pill status-pass">Custody Range (0.2 - 0.6)</span>';
+  } else if (beta >= 0.10 && beta <= 0.75) {
+    betaStatusPill = '<span class="status-pill status-warn">Process Range (0.1 - 0.75)</span>';
+  } else {
+    betaStatusPill = '<span class="status-pill status-fail">Out of Bounds (&gt; 0.75)</span>';
+  }
+  document.getElementById('kpi-beta-status').innerHTML = betaStatusPill;
+
+  document.getElementById('kpi-cd').innerText = cd.toFixed(4);
+  document.getElementById('kpi-loss-pct').innerText = (lossRatio * 100).toFixed(1) + '% of Measured ΔP';
+
+  document.getElementById('val-y1').innerText = 'Y1 = ' + y1.toFixed(4) + (y1 >= 0.95 ? ' (Pass > 0.95)' : ' (Low Y1)');
+  document.getElementById('val-xratio').innerText = 'ΔP / P1 Ratio: ' + xRatio.toFixed(4) + (xRatio <= 0.20 ? ' (< 0.20 limit)' : ' (Exceeds Limit!)');
+  document.getElementById('val-re').innerText = 'Re_D = ' + Math.round(reD).toLocaleString();
+  document.getElementById('val-uncertainty').innerText = 'Uncertainty: ± ' + unc.toFixed(2) + '% (AGA 3 Class)';
+
+  orfDrawPressure();
+  orfDrawFlow();
+}
+
+function orfDrawPressure() {
+  var canvas = document.getElementById('orf-press-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!orfLastCalc) return;
+  var d = orfLastCalc;
+
+  // Hydraulic pressure curve along pipe x/D from -2 to +6
+  // x = 0 is orifice plate
+  var minX = -2.0, maxX = 6.0;
+  function toX(xVal) {
+    return padL + ((xVal - minX) / (maxX - minX)) * plotW;
+  }
+  function toY(pRel) {
+    // pRel from -1.0 (vena contracta) to +0.2 (stagnation)
+    return padT + plotH - ((pRel + 1.1) / 1.4) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Orifice plate vertical barrier at x = 0
+  var xPlate = toX(0);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(xPlate, padT);
+  ctx.lineTo(xPlate, padT + plotH * 0.35);
+  ctx.moveTo(xPlate, padT + plotH * 0.65);
+  ctx.lineTo(xPlate, padT + plotH);
+  ctx.stroke();
+
+  // Pressure profile curve
+  ctx.beginPath();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  var pts = 80;
+  for (var i = 0; i <= pts; i++) {
+    var xVal = minX + (i / pts) * (maxX - minX);
+    var pRel = 0;
+    if (xVal < -0.5) {
+      pRel = 0; // upstream baseline
+    } else if (xVal < 0) {
+      // slight pressure rise due to corner stagnation
+      pRel = 0.08 * (1.0 + xVal / 0.5);
+    } else if (xVal <= 0.8) {
+      // plunge down to vena contracta around x = 0.5 to 0.8
+      var fracDown = xVal / 0.8;
+      pRel = 0.08 - 1.08 * fracDown;
+    } else {
+      // turbulent recovery up to permanent pressure loss level
+      // recovery asymptote: - (lossRatio)
+      var lossLev = - d.lossRatio;
+      var fracRec = (xVal - 0.8) / (maxX - 0.8);
+      pRel = -1.0 + (-lossLev - (-1.0)) * (1.0 - Math.exp(-2.5 * fracRec));
+    }
+
+    var px = toX(xVal);
+    var py = toY(pRel);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Tap locations marker
+  var xTapUp = toX(-0.16); // 1" up
+  var xTapDown = toX(0.16); // 1" down
+  ctx.fillStyle = '#10b981';
+  ctx.beginPath();
+  ctx.arc(xTapUp, toY(0.04), 4, 0, 2 * Math.PI);
+  ctx.arc(xTapDown, toY(-0.45), 4, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('P1 (Upstream)', padL - 6, toY(0) + 3);
+  ctx.fillText('P_vc (Throat)', padL - 6, toY(-1.0) + 3);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Pipe Position X/D (Orifice at X = 0)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Static Pressure Profile', padL + 10, padT + 12);
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Flange Taps', padL + 150, padT + 12);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillText('▍ Orifice Plate', padL + 250, padT + 12);
+}
+
+function orfDrawFlow() {
+  var canvas = document.getElementById('orf-flow-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!orfLastCalc) return;
+  var d = orfLastCalc;
+
+  var maxDp = 100.0;
+  var curDp = d.dpInH2O;
+  var curFlow = d.isMetric ? d.nm3hr : d.mmscfd;
+  var maxFlow = curFlow * Math.sqrt(maxDp / Math.max(1, curDp)) * 1.15;
+
+  function toXDp(val) {
+    return padL + (val / maxDp) * plotW;
+  }
+  function toYFlow(fVal) {
+    return padT + plotH - (fVal / maxFlow) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Calibration square-root curve Q ~ sqrt(Delta P)
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  var pts = 50;
+  for (var i = 0; i <= pts; i++) {
+    var dpVal = (i / pts) * maxDp;
+    var fVal = curFlow * Math.sqrt(dpVal / Math.max(0.1, curDp));
+    var px = toXDp(dpVal);
+    var py = toYFlow(fVal);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Current operating point
+  var curX = toXDp(curDp);
+  var curY = toYFlow(curFlow);
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxFlow) + (d.isMetric ? ' Nm³/h' : ' MMCFD'), padL - 6, padT + 12);
+  ctx.fillText('0', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Differential Pressure ΔP (' + (d.isMetric ? 'mbar' : 'inH2O') + ')', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Q ~ √ΔP Calibration Curve', padL + 10, padT + 12);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Current Operating Point', padL + 180, padT + 12);
+}
+
+function orfCopySummary() {
+  if (!orfLastCalc) return;
+  var d = orfLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var dUnit = d.isMetric ? 'mm' : 'in';
+  var pUnit = d.isMetric ? 'bar g' : 'psig';
+  var dpUnit = d.isMetric ? 'mbar' : 'inH2O';
+
+  var text = '=== AGA 3 / API 14.3 ORIFICE METER DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: AGA Report No. 3 / API MPMS 14.3 / ISO 5167-2\n' +
+    'Units System: ' + u + '\n' +
+    'Pipe Diameter (D): ' + (d.isMetric ? (d.dPipeIn * 25.4).toFixed(2) : d.dPipeIn.toFixed(3)) + ' ' + dUnit + '\n' +
+    'Orifice Bore (d): ' + (d.isMetric ? (d.dBoreIn * 25.4).toFixed(2) : d.dBoreIn.toFixed(3)) + ' ' + dUnit + '\n' +
+    'Beta Ratio (β): ' + d.beta.toFixed(4) + ' [Custody Range: 0.20 - 0.60]\n' +
+    'RG Discharge Coefficient (Cd): ' + d.cd.toFixed(4) + '\n' +
+    'Expansibility Factor (Y1): ' + d.y1.toFixed(4) + '\n' +
+    'Standard Gas Flow Rate: ' + (d.isMetric ? Math.round(d.nm3hr).toLocaleString() + ' Nm3/hr' : d.mmscfd.toFixed(2) + ' MMSCFD') + '\n' +
+    'Mass Flow Rate: ' + (d.isMetric ? d.qmKgS.toFixed(2) + ' kg/s' : Math.round(d.qmLbmHr).toLocaleString() + ' lb/hr') + '\n' +
+    'Permanent Pressure Loss: ' + (d.isMetric ? d.permLossMbar.toFixed(1) : d.permLossInH2O.toFixed(1)) + ' ' + dpUnit + ' (' + (d.lossRatio * 100).toFixed(1) + '% of ΔP)\n' +
+    'Pumping Power Loss: ' + d.powerLossHp.toFixed(1) + ' HP (' + d.powerLossKw.toFixed(1) + ' kW)\n' +
+    'Measurement Uncertainty: ± ' + d.unc.toFixed(2) + '%\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.orf-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  orfCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BM4: API 676 Positive Displacement Rotary Screw Pump Sizing & Viscosity Derating Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-676-rotary-screw-pump-calculator';
+    const title = 'API 676 Rotary Screw Pump Sizing & Viscosity Derating Calculator';
+    const metaDescription = 'Calculate positive displacement twin-screw and three-screw pump theoretical displacement, slip flow across internal clearances, volumetric efficiency, viscous BHP, and NPSHr derating per API 676 and Hydraulic Institute.';
+
+    const faq = [
+      {
+        q: 'How does internal slip flow affect rotary screw pump volumetric efficiency?',
+        a: 'In a positive displacement screw pump, theoretical displacement (Q_theor) is determined purely by screw geometry and shaft rotational speed: Q_theor = V_rev * N. However, because manufacturing clearances must exist between intermeshing screw threads and the housing bore (typically 0.002 to 0.006 inches), high discharge pressure drives fluid backward through these clearances toward the suction port. This backward leakage is internal slip flow (Q_slip), governed by the relation Q_slip = C_slip * (Delta_P / nu^a), where Delta_P is differential pressure, nu is kinematic viscosity, and a is an empirical exponent (typically 0.33 to 0.50). On high-viscosity fluids (> 500 cSt), internal slip is virtually zero, yielding volumetric efficiencies above 95%. Conversely, on light hydrocarbons (such as diesel, naphtha, or condensate with nu < 2 cSt) operating at high differential pressure (> 15 bar), slip flow surges, cutting volumetric efficiency to below 60%.'
+      },
+      {
+        q: 'What is the difference between a twin-screw and a three-screw rotary pump?',
+        a: 'Twin-screw pumps utilize two parallel intermeshing rotors driven by external timing gears and supported by external bearings isolated from the pumped fluid by mechanical seals. Because the screws never touch each other or the liner wall, twin-screw pumps can handle multi-phase fluids, high gas volume fractions (GVF up to 95%+), abrasive entrained solids, and non-lubricating liquids. In contrast, three-screw pumps feature one central power rotor that drives two flanking idler rotors purely through hydrodynamic fluid film contact. Three-screw pumps have no external timing gears, making them more compact and exceptionally quiet (< 68 dBA), but they strictly require clean, lubricating liquids (viscosity >= 2 cSt, zero abrasive particulates) to avoid rotor galling and seizure.'
+      },
+      {
+        q: 'How does high fluid viscosity increase pump shaft power (BHP) and cold start torque?',
+        a: 'Pump shaft power consists of three components: hydraulic work (W_hyd = Q * Delta_P / 1714), mechanical bearing/seal friction (BHP_mech), and viscous shear friction (BHP_visc). Viscous shear power represents the energy dissipated shearing fluid in the tight annular clearances between the rapidly spinning screws and the stationary bore: BHP_visc is directly proportional to dynamic viscosity (mu) and the square of speed (N^2). When cold starting a pump on heavy fuel oil (HFO) or bitumen at ambient temperature (e.g. 5,000 cSt vs 50 cSt operating), the viscous drag power can be 4 to 8 times higher than normal running power, demanding an oversized driver motor or a soft-start variable frequency drive (VFD).'
+      },
+      {
+        q: 'Why must rotary screw pump speed be derated at high viscosities to avoid cavitation?',
+        a: 'Unlike centrifugal pumps that ingest fluid continuously, screw pumps ingest fluid in discrete rotating pockets. As viscosity rises, high fluid internal shear prevents viscous oil from accelerating quickly through the suction port into the opening screw cavities. Per Hydraulic Institute (ANSI/HI 3.1-3.5) standards, Net Positive Suction Head Required (NPSHr) increases sharply with viscosity. If operating speed is not reduced, localized pressure inside the screw inlet drops below vapor pressure, causing cavitation, acoustic knocking, incomplete chamber filling, and severe mechanical vibration. For viscosities above 1,000 cSt, pump rotational speed must typically be derated from standard 1,750 RPM down to 880 RPM, 580 RPM, or lower.'
+      },
+      {
+        q: 'Why does API 676 mandate an external or internal full-flow pressure relief valve (PRV)?',
+        a: 'Rotary screw pumps are rigid positive displacement machines: every revolution transfers an exact volume of fluid regardless of discharge pressure. Unlike a centrifugal pump that hits a maximum deadhead shutoff head if a discharge valve is closed, a screw pump will continue building pressure until the driving motor stalls, the pump casing fractures, or the drive shaft shears in two. API 676 Section 6.13 strictly mandates that every rotary pump must be protected by a full-flow pressure relief valve (PRV) sized to bypass 100% of maximum rated pump flow without allowing system pressure to exceed 110% of maximum allowable working pressure (MAWP).'
+      }
+    ];
+
+    const content = `
+<style>
+.sp-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.sp-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.sp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.sp-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .sp-grid-2, .sp-grid-3, .sp-grid-4 { grid-template-columns: 1fr; }
+}
+.sp-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.sp-input, .sp-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.sp-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.sp-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.sp-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.sp-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.sp-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="sp-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">API 676 Rotary Screw Pump Performance Analysis</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Displacement, Slip Flow, Viscous BHP & HI Speed Derating Limits</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="sp-units" class="sp-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="spCalc()">
+        <option value="us" selected>US Customary (GPM, psig, in, hp, cSt)</option>
+        <option value="si">Metric / SI (m³/h, bar g, mm, kW, mm²/s)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sp-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="sp-label"><span>Pump Architecture</span></div>
+      <select id="sp-type" class="sp-select" onchange="spCalc()">
+        <option value="twin" selected>Twin-Screw (Timed, External Bearings)</option>
+        <option value="three">Three-Screw (Un-timed, Lubricating)</option>
+      </select>
+    </div>
+    <div>
+      <div class="sp-label"><span id="lbl-ds">Rotor Outer Diam (Ds, in)</span></div>
+      <input type="number" id="sp-ds" class="sp-input" value="4.50" step="0.25" min="1.5" oninput="spCalc()">
+    </div>
+    <div>
+      <div class="sp-label"><span id="lbl-lead">Screw Pitch / Lead (P, in)</span></div>
+      <input type="number" id="sp-lead" class="sp-input" value="3.00" step="0.25" min="1.0" oninput="spCalc()">
+    </div>
+    <div>
+      <div class="sp-label"><span>Shaft Speed (RPM)</span></div>
+      <input type="number" id="sp-rpm" class="sp-input" value="1750" step="50" min="200" max="3600" oninput="spCalc()">
+    </div>
+  </div>
+
+  <div class="sp-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="sp-label"><span id="lbl-ps">Suction Pressure (Ps, psig)</span></div>
+      <input type="number" id="sp-ps" class="sp-input" value="5.0" step="1.0" min="0" oninput="spCalc()">
+    </div>
+    <div>
+      <div class="sp-label"><span id="lbl-pd">Discharge Pressure (Pd, psig)</span></div>
+      <input type="number" id="sp-pd" class="sp-input" value="150.0" step="5.0" min="10" oninput="spCalc()">
+    </div>
+    <div>
+      <div class="sp-label"><span>Viscosity (cSt / mm²/s)</span></div>
+      <input type="number" id="sp-visc" class="sp-input" value="120.0" step="10" min="1.0" max="50000" oninput="spCalc()">
+    </div>
+    <div>
+      <div class="sp-label"><span>Specific Gravity (SG)</span></div>
+      <input type="number" id="sp-sg" class="sp-input" value="0.90" step="0.02" min="0.6" max="1.6" oninput="spCalc()">
+    </div>
+  </div>
+
+  <div class="sp-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="sp-label"><span id="lbl-clr">Rotor Diam Clearance (in)</span></div>
+      <input type="number" id="sp-clr" class="sp-input" value="0.0035" step="0.0005" min="0.001" oninput="spCalc()">
+    </div>
+    <div>
+      <div class="sp-label"><span id="lbl-npsha">Available NPSH (NPSHa, ft)</span></div>
+      <input type="number" id="sp-npsha" class="sp-input" value="22.0" step="1.0" min="2.0" oninput="spCalc()">
+    </div>
+    <div>
+      <div class="sp-label"><span>Service Condition</span></div>
+      <select id="sp-service" class="sp-select" onchange="spCalc()">
+        <option value="normal" selected>Continuous Duty (Normal)</option>
+        <option value="cold_start">Cold Startup Condition (High Visc)</option>
+        <option value="multiphase">Light Hydrocarbon / Condensate</option>
+      </select>
+    </div>
+    <div>
+      <div class="sp-label"><span>PRV Setpoint Margin</span></div>
+      <select id="sp-prv" class="sp-select" onchange="spCalc()">
+        <option value="1.10" selected>110% of Pd (API 676 Std)</option>
+        <option value="1.15">115% of Pd (High Margin)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="sp-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="sp-kpi">
+      <div class="sp-kpi-lbl">Delivered Actual Flow</div>
+      <div class="sp-kpi-val" id="kpi-flow">148.5 GPM</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-theor">Theor Displacement: 162.8 GPM</div>
+    </div>
+    <div class="sp-kpi">
+      <div class="sp-kpi-lbl">Volumetric Efficiency (Ev)</div>
+      <div class="sp-kpi-val" id="kpi-ev">91.2%</div>
+      <div style="font-size: 0.75rem;" id="kpi-slip-sub">Internal Slip: 14.3 GPM</div>
+    </div>
+    <div class="sp-kpi">
+      <div class="sp-kpi-lbl">Total Shaft Power (BHP)</div>
+      <div class="sp-kpi-val" id="kpi-bhp">18.4 BHP</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-pwr-break">Hyd: 12.6 hp | Visc: 4.8 hp</div>
+    </div>
+    <div class="sp-kpi">
+      <div class="sp-kpi-lbl">NPSH Margin & Filling</div>
+      <div class="sp-kpi-val" id="kpi-npsh-status">PASS</div>
+      <div style="font-size: 0.75rem;" id="kpi-npsh-sub"><span class="status-pill status-pass">NPSHa 22 ft &gt; Req 9.8 ft</span></div>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTICS DETAILS TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">API 676 Screw Pump Hydraulic & Mechanical Parameters</h4>
+    <div class="sp-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">HI Recommended Max Speed:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-max-rpm">1,750 RPM (Pass)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-speed-derate">Speed Derate Factor: 1.00</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Overall Pump Efficiency (Etot):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-eff">68.5% Total Efficiency</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-mech-eff">Mechanical Eff: 75.1%</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">PRV Relief Valve Capacity:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #3b82f6;" id="val-prv-set">Set: 165.0 psig (11.4 bar)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-prv-flow">Relief Flow: 162.8 GPM (100% rated)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="sp-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">P-Q Pressure vs Flow Curves across Viscosities</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Slip Degradation Curves</span>
+      </div>
+      <canvas id="sp-pq-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">HI Speed Derating & Cavitation Envelope</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Max Safe RPM vs Fluid Viscosity</span>
+      </div>
+      <canvas id="sp-derate-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="sp-btn" onclick="spCopySummary()">
+      <span>📋 Copy API 676 Screw Pump Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Rotary Screw Pump Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Severe Slip Flow Collapse When Pumping Low-Viscosity Hydrocarbons at High Pressure</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Rotary screw pumps are famous for handling thick crude oil and bitumen, but selecting standard screw pumps for low-viscosity condensates, NGLs, or warm diesel (nu &lt; 1.5 cSt) at high discharge pressures (&gt; 200 psig) is a classic engineering failure. In low-viscosity fluids, the hydrodynamic film in rotor clearances thins drastically. Internal slip flow surges proportionally with Delta_P / sqrt(nu), cutting volumetric efficiency from 90% down to 40% or lower. The fluid recirculating inside the pump clearances heats up rapidly, causing thermal expansion that pinches clearances and leads to galling. Low-viscosity service demands specialized tight-clearance, high-lead screw designs or multi-stage configurations.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Motor Thermal Overload from Viscous Shear Drag During Cold Weather Startups</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Sizing driver electric motors based solely on normal operating viscosity (e.g. 80 cSt at 140°F) frequently trips breakers during winter cold starts. When heavy lube oil or bunker fuel cools down to 40°F in uninsulated piping, viscosity escalates exponentially to 3,000 to 6,000 cSt. Viscous shear drag between the rotor perimeters and casing bore consumes tremendous mechanical power: BHP_visc increases by 400% to 600%. Without an oversized electric motor or a variable-speed drive capable of ramping up at low RPM until the fluid warms from viscous friction, the motor trips instantly on over-current.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Cavitation & Incomplete Screw Cavity Filling from High-Speed Viscous Starvation</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Running a positive displacement screw pump at standard 2-pole or 4-pole synchronous motor speeds (3,500 or 1,750 RPM) on fluids with viscosity above 500 cSt guarantees acoustic cavitation. Viscous fluid cannot flow through suction port galleries fast enough to completely fill the expanding screw flight cavities during the intake phase. Incomplete filling creates localized vapor voids that collapse violently when pressurized into the discharge flight, causing severe pressure pulsations, bearing pitting, and acoustic knocking. Operators must strictly follow Hydraulic Institute speed derating curves, dropping shaft speed to 1,150, 880, or 580 RPM for viscous services.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Operating Deadheaded Without Full-Flow Pressure Relief Protection</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Screw pumps are non-stalling displacement machines. If an operator inadvertently closes a discharge block valve while the pump is running, pressure spikes exponentially within milliseconds. Unlike a centrifugal pump that simply churns liquid at its maximum shutoff head, a rotary screw pump will continue forcing liquid forward until the casing ruptures, the mechanical seal blows out, or the drive shaft shears in two. API 676 Section 6.13 requires that an external full-capacity pressure relief valve be installed upstream of the first isolation valve, piped back to the suction tank (not directly into the pump suction nozzle, to avoid rapid thermal runaway during bypass).
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Rotor Galling & Seizure from Differential Thermal Expansion in Hot Bitumen Service</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Pumping hot asphalt, sulfur, or thermal heat transfer oil (300°F to 550°F) introduces severe transient thermal gradients. When hot fluid enters a cold pump casing, the rotating screw shafts—having lower thermal mass and higher surface-area-to-volume ratios—heat up and expand radially much faster than the heavy cast iron or carbon steel casing liner. Internal clearances of 0.003 inches disappear within 30 seconds of hot fluid introduction, causing instant metal-to-metal rotor seizure. High-temperature pumps must be equipped with casing steam/hot-oil tracing jackets for thorough pre-heating, and rotors must be precision-machined with enlarged hot-running clearances.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive API 676 & Hydraulic Institute Mathematical Formulations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Rotary screw pump performance couples positive displacement kinematics with laminar shear dissipation and Hagen-Poiseuille clearance leakage:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Theoretical Geometric Displacement (D)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Displacement per Revolution: V_rev = K_geom * Ds^2 * P_lead [in³ or cm³]<br>
+    Theoretical Displacement Rate: Q_theor = (V_rev * N) / 231 [GPM]<br>
+    Metric Displacement: Q_theor = (V_rev * N * 60) / 1e6 [m³/h]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Internal Slip Flow & Volumetric Efficiency</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Differential Pressure: Delta_P = Pd - Ps [psi or bar]<br>
+    Slip Flow across Rotor Clearances: Q_slip = C_slip * (Delta_P / nu^0.4) * (delta / delta_ref)^1.5<br>
+    Delivered Capacity: Q_actual = Q_theor - Q_slip [GPM]<br>
+    Volumetric Efficiency: E_v = (Q_actual / Q_theor) * 100 [%]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Shaft Brake Horsepower Breakdown</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Hydraulic Power: W_hyd = (Q_actual * Delta_P) / 1714 [hp]<br>
+    Viscous Shear Power: BHP_visc = C_visc * mu * (N / 1000)^2 * Ds^3 [hp]<br>
+    Mechanical Friction: BHP_mech = 0.05 * W_hyd + 0.5 [hp]<br>
+    Total Shaft BHP: BHP_total = W_hyd + BHP_visc + BHP_mech [hp]<br>
+    Overall Pump Efficiency: E_total = (W_hyd / BHP_total) * 100 [%]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Hydraulic Institute NPSHr Viscosity Correction</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Base Water NPSHr: NPSHr_base = C_npsh * (N / 1000)^1.5 * Ds<br>
+    Viscosity Correction Factor: F_visc = (nu / 10)^0.25 (for nu &gt; 10 cSt)<br>
+    Viscous NPSHr: NPSHr_visc = NPSHr_base * F_visc [ft or meters]<br>
+    Cavitation Safety Check: NPSHa &gt;= NPSHr_visc + 3.0 ft (1.0 m margin)
+  </div>
+</div>
+
+<script>
+var spLastCalc = null;
+
+function spCalc() {
+  var units = document.getElementById('sp-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-ds').innerText = isMetric ? 'Rotor Outer Diam (Ds, mm)' : 'Rotor Outer Diam (Ds, in)';
+  document.getElementById('lbl-lead').innerText = isMetric ? 'Screw Pitch / Lead (P, mm)' : 'Screw Pitch / Lead (P, in)';
+  document.getElementById('lbl-ps').innerText = isMetric ? 'Suction Pressure (Ps, bar g)' : 'Suction Pressure (Ps, psig)';
+  document.getElementById('lbl-pd').innerText = isMetric ? 'Discharge Pressure (Pd, bar g)' : 'Discharge Pressure (Pd, psig)';
+  document.getElementById('lbl-clr').innerText = isMetric ? 'Rotor Diam Clearance (mm)' : 'Rotor Diam Clearance (in)';
+  document.getElementById('lbl-npsha').innerText = isMetric ? 'Available NPSH (NPSHa, m)' : 'Available NPSH (NPSHa, ft)';
+
+  var pType = document.getElementById('sp-type').value;
+  var dsRaw = parseFloat(document.getElementById('sp-ds').value) || 4.5;
+  var leadRaw = parseFloat(document.getElementById('sp-lead').value) || 3.0;
+  var rpm = parseFloat(document.getElementById('sp-rpm').value) || 1750;
+  var psRaw = parseFloat(document.getElementById('sp-ps').value) || 5.0;
+  var pdRaw = parseFloat(document.getElementById('sp-pd').value) || 150.0;
+  var visc = parseFloat(document.getElementById('sp-visc').value) || 120.0; // cSt
+  var sg = parseFloat(document.getElementById('sp-sg').value) || 0.90;
+  var clrRaw = parseFloat(document.getElementById('sp-clr').value) || 0.0035;
+  var npshaRaw = parseFloat(document.getElementById('sp-npsha').value) || 22.0;
+  var service = document.getElementById('sp-service').value;
+  var prvMargin = parseFloat(document.getElementById('sp-prv').value) || 1.10;
+
+  // Convert to US Customary internal units (in, psig, gpm, hp, ft)
+  var dsIn, leadIn, psPsig, pdPsig, clrIn, npshaFt;
+  if (isMetric) {
+    dsIn = dsRaw / 25.4;
+    leadIn = leadRaw / 25.4;
+    psPsig = psRaw * 14.5038;
+    pdPsig = pdRaw * 14.5038;
+    clrIn = clrRaw / 25.4;
+    npshaFt = npshaRaw * 3.28084;
+  } else {
+    dsIn = dsRaw;
+    leadIn = leadRaw;
+    psPsig = psRaw;
+    pdPsig = pdRaw;
+    clrIn = clrRaw;
+    npshaFt = npshaRaw;
+  }
+
+  if (pdPsig <= psPsig) pdPsig = psPsig + 10;
+  var deltaP = pdPsig - psPsig;
+
+  // Geometric Displacement Constant
+  // Twin screw typically has ~ 0.55 * Ds^2 * Lead in^3 per rev
+  // Three screw has ~ 0.42 * Ds^2 * Lead in^3 per rev
+  var kGeom = (pType === 'twin') ? 0.52 : 0.40;
+  var vRevIn3 = kGeom * Math.pow(dsIn, 2) * leadIn;
+  var qTheorGpm = (vRevIn3 * rpm) / 231.0;
+
+  // Slip Flow Calculation
+  // Q_slip = C_slip * (DeltaP / nu^0.38) * (clr / clr_ref)^1.5
+  var cSlip = (pType === 'twin') ? 1.85 : 1.25;
+  var clrRef = 0.0035;
+  var qSlipGpm = cSlip * (deltaP / Math.pow(Math.max(0.5, visc), 0.38)) * Math.pow(clrIn / clrRef, 1.5);
+  if (qSlipGpm > qTheorGpm * 0.90) qSlipGpm = qTheorGpm * 0.90;
+
+  var qActualGpm = Math.max(0, qTheorGpm - qSlipGpm);
+  var ev = (qActualGpm / qTheorGpm) * 100.0;
+
+  // Hydraulic Power (hp)
+  var wHydHp = (qActualGpm * deltaP) / 1714.0;
+
+  // Viscous Shear Power (hp)
+  // Dynamic viscosity in cP = cSt * SG
+  var muCp = visc * sg;
+  var cVisc = (pType === 'twin') ? 0.0028 : 0.0022;
+  var wViscHp = cVisc * (muCp / 100.0) * Math.pow(rpm / 1000.0, 2) * Math.pow(dsIn, 3);
+  if (service === 'cold_start') wViscHp *= 2.5; // starting peak
+
+  // Mechanical Friction Power (hp)
+  var wMechHp = 0.04 * wHydHp + 0.6;
+
+  // Total Shaft BHP
+  var totalBhp = wHydHp + wViscHp + wMechHp;
+  var totalKw = totalBhp * 0.7457;
+  var wHydKw = wHydHp * 0.7457;
+
+  // Overall Efficiency
+  var effTotal = (wHydHp / totalBhp) * 100.0;
+  var effMech = (wHydHp / (wHydHp + wMechHp)) * 100.0;
+
+  // Hydraulic Institute NPSHr Calculation with Viscosity Correction
+  var cNpsh = (pType === 'twin') ? 2.2 : 1.8;
+  var npshrBaseFt = cNpsh * Math.pow(rpm / 1000.0, 1.5) * (dsIn / 3.0);
+  var fVisc = Math.pow(Math.max(1.0, visc / 15.0), 0.28);
+  var npshrViscFt = npshrBaseFt * fVisc;
+  var npshrViscM = npshrViscFt * 0.3048;
+
+  // Max recommended RPM per Hydraulic Institute
+  // Max speed decreases as viscosity increases: N_max ~ 1750 / (visc / 100)^0.30
+  var maxRecRpm = Math.min(3600, Math.round(1750.0 / Math.pow(Math.max(1.0, visc / 100.0), 0.35)));
+  if (maxRecRpm < 350) maxRecRpm = 350;
+
+  // PRV Relief Valve Setting
+  var prvSetPsig = pdPsig * prvMargin;
+  var prvSetBar = prvSetPsig / 14.5038;
+
+  // Metric conversions for display
+  var qActualM3Hr = qActualGpm * 0.227125;
+  var qTheorM3Hr = qTheorGpm * 0.227125;
+  var qSlipM3Hr = qSlipGpm * 0.227125;
+
+  spLastCalc = {
+    isMetric: isMetric,
+    qTheorGpm: qTheorGpm,
+    qActualGpm: qActualGpm,
+    qSlipGpm: qSlipGpm,
+    qActualM3Hr: qActualM3Hr,
+    qTheorM3Hr: qTheorM3Hr,
+    ev: ev,
+    deltaP: deltaP,
+    pdPsig: pdPsig,
+    psPsig: psPsig,
+    visc: visc,
+    rpm: rpm,
+    wHydHp: wHydHp,
+    wViscHp: wViscHp,
+    totalBhp: totalBhp,
+    totalKw: totalKw,
+    effTotal: effTotal,
+    npshaFt: npshaFt,
+    npshrViscFt: npshrViscFt,
+    npshrViscM: npshrViscM,
+    maxRecRpm: maxRecRpm,
+    prvSetPsig: prvSetPsig,
+    prvSetBar: prvSetBar
+  };
+
+  // Update DOM Display
+  if (isMetric) {
+    document.getElementById('kpi-flow').innerText = qActualM3Hr.toFixed(1) + ' m³/h';
+    document.getElementById('kpi-theor').innerText = 'Theor Displacement: ' + qTheorM3Hr.toFixed(1) + ' m³/h';
+    document.getElementById('kpi-bhp').innerText = totalKw.toFixed(1) + ' kW (' + totalBhp.toFixed(1) + ' BHP)';
+    document.getElementById('kpi-pwr-break').innerText = 'Hyd: ' + wHydKw.toFixed(1) + ' kW | Visc: ' + (wViscHp * 0.7457).toFixed(1) + ' kW';
+    document.getElementById('kpi-slip-sub').innerText = 'Internal Slip: ' + qSlipM3Hr.toFixed(2) + ' m³/h';
+    document.getElementById('val-prv-set').innerText = 'Set: ' + prvSetBar.toFixed(1) + ' bar g (' + prvSetPsig.toFixed(0) + ' psi)';
+    document.getElementById('val-prv-flow').innerText = 'Relief Flow: ' + qTheorM3Hr.toFixed(1) + ' m³/h (100% rated)';
+  } else {
+    document.getElementById('kpi-flow').innerText = qActualGpm.toFixed(1) + ' GPM';
+    document.getElementById('kpi-theor').innerText = 'Theor Displacement: ' + qTheorGpm.toFixed(1) + ' GPM';
+    document.getElementById('kpi-bhp').innerText = totalBhp.toFixed(1) + ' BHP (' + totalKw.toFixed(1) + ' kW)';
+    document.getElementById('kpi-pwr-break').innerText = 'Hyd: ' + wHydHp.toFixed(1) + ' hp | Visc: ' + wViscHp.toFixed(1) + ' hp';
+    document.getElementById('kpi-slip-sub').innerText = 'Internal Slip: ' + qSlipGpm.toFixed(1) + ' GPM';
+    document.getElementById('val-prv-set').innerText = 'Set: ' + prvSetPsig.toFixed(1) + ' psig (' + prvSetBar.toFixed(1) + ' bar)';
+    document.getElementById('val-prv-flow').innerText = 'Relief Flow: ' + qTheorGpm.toFixed(1) + ' GPM (100% rated)';
+  }
+
+  document.getElementById('kpi-ev').innerText = ev.toFixed(1) + '%';
+  document.getElementById('val-eff').innerText = effTotal.toFixed(1) + '% Total Efficiency';
+  document.getElementById('val-mech-eff').innerText = 'Volumetric: ' + ev.toFixed(1) + '% | Mech: ' + effMech.toFixed(1) + '%';
+
+  // NPSH Check
+  var npshUnitStr = isMetric ? ' m' : ' ft';
+  var npshaDisp = isMetric ? (npshaFt * 0.3048).toFixed(1) : npshaFt.toFixed(1);
+  var npshrDisp = isMetric ? npshrViscM.toFixed(1) : npshrViscFt.toFixed(1);
+
+  if (npshaFt >= npshrViscFt + 3.0) {
+    document.getElementById('kpi-npsh-status').innerText = 'PASS';
+    document.getElementById('kpi-npsh-status').style.color = '#10b981';
+    document.getElementById('kpi-npsh-sub').innerHTML = '<span class="status-pill status-pass">NPSHa ' + npshaDisp + npshUnitStr + ' &gt; Req ' + npshrDisp + npshUnitStr + '</span>';
+  } else if (npshaFt >= npshrViscFt) {
+    document.getElementById('kpi-npsh-status').innerText = 'MARGINAL';
+    document.getElementById('kpi-npsh-status').style.color = '#f59e0b';
+    document.getElementById('kpi-npsh-sub').innerHTML = '<span class="status-pill status-warn">Low Margin &lt; 3 ft</span>';
+  } else {
+    document.getElementById('kpi-npsh-status').innerText = 'CAVITATION';
+    document.getElementById('kpi-npsh-status').style.color = '#ef4444';
+    document.getElementById('kpi-npsh-sub').innerHTML = '<span class="status-pill status-fail">NPSHa Starvation!</span>';
+  }
+
+  // Speed Check
+  document.getElementById('val-max-rpm').innerText = maxRecRpm.toLocaleString() + ' RPM Max Rec';
+  if (rpm <= maxRecRpm) {
+    document.getElementById('val-speed-derate').innerText = 'Speed Status: Compliant with HI Derating';
+    document.getElementById('val-speed-derate').style.color = '#10b981';
+  } else {
+    document.getElementById('val-speed-derate').innerText = 'Warning: Speed Exceeds HI Limit for ' + visc + ' cSt!';
+    document.getElementById('val-speed-derate').style.color = '#ef4444';
+  }
+
+  spDrawPQ();
+  spDrawDerate();
+}
+
+function spDrawPQ() {
+  var canvas = document.getElementById('sp-pq-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!spLastCalc) return;
+  var d = spLastCalc;
+  var isMetric = d.isMetric;
+
+  var qTheor = isMetric ? d.qTheorM3Hr : d.qTheorGpm;
+  var curQ = isMetric ? d.qActualM3Hr : d.qActualGpm;
+  var curP = isMetric ? d.deltaP / 14.5038 : d.deltaP;
+  var maxP = Math.max(300, d.deltaP * 1.5);
+  var maxPDisplay = isMetric ? maxP / 14.5038 : maxP;
+  var maxQ = qTheor * 1.15;
+
+  function toXFlow(qVal) {
+    return padL + (qVal / maxQ) * plotW;
+  }
+  function toYPress(pVal) {
+    return padT + plotH - (pVal / maxPDisplay) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Theoretical displacement vertical dashed line
+  var xTheor = toXFlow(qTheor);
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(xTheor, padT);
+  ctx.lineTo(xTheor, padT + plotH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plot actual flow curve at current viscosity
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  var pts = 30;
+  for (var i = 0; i <= pts; i++) {
+    var pTest = (i / pts) * maxP;
+    var slipGpm = 1.5 * (pTest / Math.pow(Math.max(0.5, d.visc), 0.38));
+    var qAct = Math.max(0, d.qTheorGpm - slipGpm);
+    var qDisp = isMetric ? qAct * 0.227125 : qAct;
+    var pDisp = isMetric ? pTest / 14.5038 : pTest;
+
+    var px = toXFlow(qDisp);
+    var py = toYPress(pDisp);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Plot light hydrocarbon slip curve (1 cSt) in amber
+  ctx.beginPath();
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  for (var j = 0; j <= pts; j++) {
+    var pTest2 = (j / pts) * maxP;
+    var slipLow = 1.5 * (pTest2 / Math.pow(1.0, 0.38));
+    var qLow = Math.max(0, d.qTheorGpm - slipLow);
+    var qDisp2 = isMetric ? qLow * 0.227125 : qLow;
+    var pDisp2 = isMetric ? pTest2 / 14.5038 : pTest2;
+
+    var jx = toXFlow(qDisp2);
+    var jy = toYPress(pDisp2);
+    if (j === 0) ctx.moveTo(jx, jy);
+    else ctx.lineTo(jx, jy);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Current operating point
+  var curX = toXFlow(curQ);
+  var curY = toYPress(curP);
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxPDisplay) + (isMetric ? ' bar' : ' psi'), padL - 6, padT + 10);
+  ctx.fillText('0', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Pump Flow Rate (' + (isMetric ? 'm³/h' : 'GPM') + ')', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Delivered Flow (' + d.visc + ' cSt)', padL + 10, padT + 12);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('-- Low Visc Slip (1 cSt)', padL + 160, padT + 12);
+}
+
+function spDrawDerate() {
+  var canvas = document.getElementById('sp-derate-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!spLastCalc) return;
+  var d = spLastCalc;
+
+  // Logarithmic viscosity scale from 1 cSt to 10,000 cSt
+  var minLog = 0; // 10^0 = 1 cSt
+  var maxLog = 4; // 10^4 = 10,000 cSt
+  var maxRpmPlot = 2000;
+
+  function toXLog(vVal) {
+    var logV = Math.log10(Math.max(1.0, vVal));
+    return padL + ((logV - minLog) / (maxLog - minLog)) * plotW;
+  }
+  function toYRpm(rpmVal) {
+    return padT + plotH - (rpmVal / maxRpmPlot) * plotH;
+  }
+
+  // Safe operating region (green shaded area below derating line)
+  ctx.beginPath();
+  var pts = 40;
+  for (var i = 0; i <= pts; i++) {
+    var logV = minLog + (i / pts) * (maxLog - minLog);
+    var vVal = Math.pow(10, logV);
+    var recRpm = Math.min(1800, 1750.0 / Math.pow(Math.max(1.0, vVal / 80.0), 0.35));
+    var px = padL + (i / pts) * plotW;
+    var py = toYRpm(recRpm);
+    if (i === 0) ctx.moveTo(px, toYRpm(0));
+    ctx.lineTo(px, py);
+  }
+  ctx.lineTo(padL + plotW, toYRpm(0));
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+  ctx.fill();
+
+  // HI Derating line
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  for (var j = 0; j <= pts; j++) {
+    var logVj = minLog + (j / pts) * (maxLog - minLog);
+    var vValj = Math.pow(10, logVj);
+    var recRpmj = Math.min(1800, 1750.0 / Math.pow(Math.max(1.0, vValj / 80.0), 0.35));
+    var jx = padL + (j / pts) * plotW;
+    var jy = toYRpm(recRpmj);
+    if (j === 0) ctx.moveTo(jx, jy);
+    else ctx.lineTo(jx, jy);
+  }
+  ctx.stroke();
+
+  // Current operating point
+  var curX = toXLog(d.visc);
+  var curY = toYRpm(d.rpm);
+  ctx.fillStyle = (d.rpm <= d.maxRecRpm) ? '#38bdf8' : '#ef4444';
+  ctx.beginPath();
+  ctx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('1800 RPM', padL - 6, toYRpm(1800) + 3);
+  ctx.fillText('900', padL - 6, toYRpm(900) + 3);
+  ctx.fillText('0', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Fluid Kinematic Viscosity (cSt, Log Scale: 1 ➔ 10k)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● HI Safe Speed Envelope', padL + 10, padT + 12);
+  ctx.fillStyle = (d.rpm <= d.maxRecRpm) ? '#38bdf8' : '#ef4444';
+  ctx.fillText('● Operating Point (' + d.rpm + ' RPM)', padL + 160, padT + 12);
+}
+
+function spCopySummary() {
+  if (!spLastCalc) return;
+  var d = spLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var qUnit = d.isMetric ? 'm³/h' : 'GPM';
+  var pUnit = d.isMetric ? 'bar g' : 'psig';
+  var pwrUnit = d.isMetric ? 'kW' : 'BHP';
+
+  var text = '=== API 676 ROTARY SCREW PUMP DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: API 676 3rd Ed / Hydraulic Institute ANSI/HI 3.1-3.5\n' +
+    'Units System: ' + u + '\n' +
+    'Theoretical Displacement: ' + (d.isMetric ? d.qTheorM3Hr.toFixed(1) : d.qTheorGpm.toFixed(1)) + ' ' + qUnit + '\n' +
+    'Delivered Actual Capacity: ' + (d.isMetric ? d.qActualM3Hr.toFixed(1) : d.qActualGpm.toFixed(1)) + ' ' + qUnit + '\n' +
+    'Internal Slip Flow: ' + (d.isMetric ? (d.qSlipGpm * 0.227125).toFixed(2) : d.qSlipGpm.toFixed(1)) + ' ' + qUnit + '\n' +
+    'Volumetric Efficiency (Ev): ' + d.ev.toFixed(1) + '%\n' +
+    'Differential Pressure: ' + (d.isMetric ? (d.deltaP / 14.5038).toFixed(1) : d.deltaP.toFixed(1)) + ' ' + pUnit + '\n' +
+    'Fluid Viscosity: ' + d.visc.toFixed(1) + ' cSt\n' +
+    'Total Shaft Power: ' + (d.isMetric ? d.totalKw.toFixed(1) : d.totalBhp.toFixed(1)) + ' ' + pwrUnit + '\n' +
+    'Overall Pump Efficiency: ' + d.effTotal.toFixed(1) + '%\n' +
+    'HI Recommended Max RPM: ' + d.maxRecRpm.toLocaleString() + ' RPM [Actual: ' + d.rpm + ' RPM]\n' +
+    'NPSH Assessment: ' + (d.npshaFt >= d.npshrViscFt ? 'PASS - SAFE MARGIN' : 'FAIL - CAVITATION RISK') + '\n' +
+    'PRV Setpoint: ' + (d.isMetric ? d.prvSetBar.toFixed(1) : d.prvSetPsig.toFixed(1)) + ' ' + pUnit + '\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.sp-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  spCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (203 calculators in /calc/)');
 }
 
