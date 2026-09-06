@@ -67061,6 +67061,2688 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (83 calculators in /calc/)');
+
+// ==========================================
+// TOOL AJ1: Boiler Safety Valve Capacity & Accumulation Calculator (ASME Section I)
+// ==========================================
+const boilerSafetyValveBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Boiler Safety Valve Capacity & Accumulation Calculator</h1>
+    <p class="calc-desc">Calculate ASME Section I power boiler safety relief valve sizing, minimum required steaming capacity, 6% accumulation overpressure limits, superheater valve lead bias, and discharge elbow reaction thrust.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">BOILER DESIGN & APPLICATION PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyBSVPreset('pack_firetube')">🔥 Packaged Firetube (150 psig / 10k lb/hr)</button>
+      <button type="button" class="btn-preset" onclick="applyBSVPreset('utility_watertube')">⚡ Utility Supercritical (1,800 psig / 650k lb/hr)</button>
+      <button type="button" class="btn-preset" onclick="applyBSVPreset('biomass_stoker')">🪵 Biomass Stoker (450 psig / 50k lb/hr)</button>
+      <button type="button" class="btn-preset" onclick="applyBSVPreset('electric_boiler')">🔌 Commercial Electric (100 psig / 1,500 kW)</button>
+    </div>
+  </div>
+
+  <form id="bsvForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Boiler Rating & Steaming Capacity -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🔥</span> Boiler Operating & Steaming Parameters
+        </h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="bsvMawp" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Boiler MAWP (psig)</label>
+            <input type="number" id="bsvMawp" class="form-control" value="250" step="any" min="15" oninput="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="bsvSteamCap" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Steam Capacity (lb/hr)</label>
+            <input type="number" id="bsvSteamCap" class="form-control" value="25000" step="any" min="100" oninput="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="bsvSteamType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Steam Condition</label>
+            <select id="bsvSteamType" class="form-control" onchange="onBSVSteamTypeChange(); calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="saturated" selected>Saturated Steam</option>
+              <option value="superheated">Superheated Steam</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="bsvSuperheatTemp" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Steam Temp (&deg;F)</label>
+            <input type="number" id="bsvSuperheatTemp" class="form-control" value="406" step="any" disabled oninput="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="bsvHeatingSurface" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Heating Surface (sq ft)</label>
+            <input type="number" id="bsvHeatingSurface" class="form-control" value="1800" step="any" min="10" oninput="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="bsvFiringType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Firing Method</label>
+            <select id="bsvFiringType" class="form-control" onchange="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="gas_oil" selected>Gas / Oil Watertube (14 lb/hr-ft&sup2;)</option>
+              <option value="firetube">Gas / Oil Firetube (8 lb/hr-ft&sup2;)</option>
+              <option value="coal_stoker">Coal Stoker (10 lb/hr-ft&sup2;)</option>
+              <option value="electric">Electric Resistance</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety Valve Array & Code Sizing -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🛡️</span> Valve Array & Orifice Specifications
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="bsvNumValves" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Number of Drum PRVs</label>
+            <select id="bsvNumValves" class="form-control" onchange="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="1">1 Valve (Surface &le; 500 ft&sup2;)</option>
+              <option value="2" selected>2 Valves (Standard ASME)</option>
+              <option value="3">3 Valves (High Capacity)</option>
+              <option value="4">4 Valves (Utility)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="bsvHasSuperheater" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Superheater Valve?</label>
+            <select id="bsvHasSuperheater" class="form-control" onchange="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="no" selected>No (Saturated Boiler)</option>
+              <option value="yes">Yes (Superheated Outlet PRV)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="bsvKd" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Discharge Coeff K<sub>d</sub></label>
+            <input type="number" id="bsvKd" class="form-control" value="0.878" step="0.001" min="0.5" max="0.99" oninput="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="bsvOverpressure" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Overpressure (% Over Set)</label>
+            <select id="bsvOverpressure" class="form-control" onchange="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="3" selected>3% (ASME Rated Stamped Cap)</option>
+              <option value="6">6% (Max Code Accumulation)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="bsvTailpipeDia" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Vent Stack Dia (inches)</label>
+            <input type="number" id="bsvTailpipeDia" class="form-control" value="4.0" step="0.5" min="1.0" oninput="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="bsvSuperheatBias" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">SH Valve Relief Share (%)</label>
+            <input type="number" id="bsvSuperheatBias" class="form-control" value="25" step="1" min="15" max="50" oninput="calculateBoilerSafetyValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Code Results Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">ASME Section I Capacity & Accumulation Diagnostics</h2>
+      <div id="bsvCodeBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#10b981; color:#fff;">ASME SECTION I COMPLIANT (PG-67 TO PG-73)</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Total Required Relief Capacity</span>
+        <strong id="bsvReqCap" style="font-size:1.4rem; color:#38bdf8;">25,200 lb/hr</strong>
+        <span id="bsvReqCapKg" style="font-size:0.8rem; color:var(--text-muted); display:block;">11,430 kg/hr</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Max Accumulation Limit (6%)</span>
+        <strong id="bsvAccumP" style="font-size:1.4rem; color:#f59e0b;">265.0 psig</strong>
+        <span id="bsvAccumBar" style="font-size:0.8rem; color:var(--text-muted); display:block;">18.3 bar g (MAWP + 15.0 psi)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Selected Valve Orifice Size</span>
+        <strong id="bsvOrificeLetter" style="font-size:1.4rem; color:#10b981;">2&times; API 'M' (3.60 in&sup2; ea)</strong>
+        <span id="bsvActualCap" style="font-size:0.8rem; color:var(--text-muted); display:block;">Relieves: 28,420 lb/hr (113% of req)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Discharge Vent Reaction Force</span>
+        <strong id="bsvThrust" style="font-size:1.4rem; color:#ef4444;">1,420 lbf</strong>
+        <span id="bsvThrustKn" style="font-size:0.8rem; color:var(--text-muted); display:block;">6.32 kN (Requires Structural Brace!)</span>
+      </div>
+    </div>
+
+    <!-- Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Primary Valve 1 Set Pressure:</span>
+        <strong id="bsvSet1" style="color:inherit;">250 psig (100% MAWP)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Secondary Valve 2 Set Pressure:</span>
+        <strong id="bsvSet2" style="color:inherit;">257 psig (&le; 103% MAWP per PG-67.4)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Superheater Lead Valve Set:</span>
+        <strong id="bsvShSet" style="color:#f59e0b;">245 psig (Must Pop First to Cool Tubes)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Heating Surface Min Code Cap:</span>
+        <strong id="bsvHscCodeCap" style="color:inherit;">25,200 lb/hr (PG-67.2 Verification)</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyBSV" class="btn btn-secondary" onclick="copyBSVSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Boiler & Safety Valve Array Schematic -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      ASME Section I Boiler Steam Drum, Superheater & PRV Discharge Architecture
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Schematic illustrating steam drum safety valve arrangement, superheater lead valve pop bias, open drip pan elbow vent clearance, and reaction thrust vectors.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="bsvSchematicSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; border-radius:2px;"></span> Boiler Steam Drum</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#10b981; border-radius:2px;"></span> Drum Safety Valves</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Superheater Lead PRV</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Drip Pan Reaction Thrust</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: ASME Section I Steam Formulas & Thrust Dynamics
+    </h3>
+    <div id="bsvDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Boiler Safety Valve & Accumulation Sizing
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. Superheater Tube Starvation & Catastrophic Meltdown</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          On boilers equipped with superheaters, safety valve popping order is life-or-death. The superheater safety valve MUST be set lower than the drum valves (typically 5 to 10 psi below drum set pressure). If drum valves pop first, steam bypasses the superheater, causing zero mass flow through the radiant tubes while furnace flue gases remain at 1,800&deg;F. The dry superheater tubes melt or explode within 60 seconds!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. Rigid Vent Stack Attachment (Bending the Valve Body)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Bolting or welding the discharge stack directly to a safety valve outlet flange without an open drip pan elbow is an immediate ASME Section I violation. Thermal expansion of the boiler and roof stack transmits massive bending moments into the cast-steel valve body. This deflects the internal guiding spindle by mere fractions of a millimeter, jamming the disk shut or causing persistent seat weeping.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Failing the 6% Accumulation Test After Burner Modernization</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When facilities retrofit existing boilers with modern low-NOx high-turndown burners, the maximum firing rate often increases. ASME Section I PG-67.2 mandates that valves discharge ALL steam generated with burners at 100% full fire without pressure rising &gt; 6% above MAWP. If safety valves are not re-rated, the boiler fails the statutory accumulation test, revoking operating permits.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. Valve Chatter from Excessive Inlet Nozzle Pressure Drop (&gt;3%)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When a safety valve pops, steam accelerates through the inlet connection. If friction loss in the nozzle exceeds the valve\'s blowdown margin (typically 4%), nozzle pressure drops instantly below reseating pressure. The valve slams shut, pressure recovers, and it pops again at 20 to 50 cycles per second. This rapid chatter destroys the stellite seating face and cracks the boiler nozzle welds.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. Plugged Drip Pan Elbow Drain Leading to Water Slug Ejection</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Discharge elbow drip pans accumulate rain and condensing steam. If the 3/4" gravity drain hole becomes clogged with soot or rust, gallons of cold condensate collect in the vent elbow. When the valve pops, high-velocity sonic steam slams into this water plug, launching a heavy hydraulic projectile up the stack and producing destructive downward water hammer thrust on the boiler drum!
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: ASME Section I Boiler Safety Valves
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the 6% accumulation rule in ASME Section I?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ASME Section I PG-67.2, the safety valve capacity for each boiler shall be such that the safety valves will discharge all the steam that can be generated by the boiler without allowing the pressure to rise more than 6% above the maximum allowable working pressure (MAWP). For electric boilers, this applies at 100% electrical input.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">When are two or more safety valves required on a boiler?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ASME Section I PG-67.1, boilers having more than 500 sq ft (47 m&sup2;) of bare heating surface, or an electric power input more than 1100 kW, shall have two or more safety valves. If two valves are used, one may be set at or below the MAWP, and the secondary valve may be set up to 3% above the MAWP (PG-67.4).
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">Why must superheater safety relief valves pop before drum valves?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Superheaters operate in high-temperature flue gas paths. Steam flow through the tubes is the only medium providing cooling. If the drum safety valve opened first, drum pressure would vent directly, dropping steam flow through the superheater to zero while the furnace continues firing, overheating and rupturing superheater tubes. Setting the superheater valve with a lower opening pressure ensures positive cooling steam flow during any overpressure event.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is Napier\'s equation for steam flow through safety valves?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          ASME Section I bases rated safety valve capacity on Napier\'s formula: <strong>W = 51.5 &times; A &times; P &times; K<sub>d</sub> &times; K<sub>sh</sub></strong>, where W is steam flow in lb/hr, A is orifice area in sq inches, P is absolute relieving pressure in psia (Set Pressure &times; 1.03 + 14.7), K<sub>d</sub> is certified discharge coefficient, and K<sub>sh</sub> is the superheat correction factor.
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How is dynamic reaction thrust calculated on safety valve vent piping?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ASME B31.1 Nonmandatory Appendix II, high-velocity discharge steam generates dynamic reaction thrust at the discharge elbow: <strong>F = (W / 366) &times; &radic;[(k &times; T) / ((k + 1) &times; M)] + (P<sub>2</sub> - P<sub>a</sub>) &times; A<sub>2</sub></strong>. On a 25,000 lb/hr boiler, this thrust routinely exceeds 1,000 to 2,500 lbf, requiring rigid structural sway braces to prevent tearing the safety valve off the steam drum.
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Standard API 526 orifice area table (sq inches)
+var bsvOrificeTable = [
+  { letter: "D", area: 0.110 },
+  { letter: "E", area: 0.196 },
+  { letter: "F", area: 0.307 },
+  { letter: "G", area: 0.503 },
+  { letter: "H", area: 0.785 },
+  { letter: "J", area: 1.287 },
+  { letter: "K", area: 1.838 },
+  { letter: "L", area: 2.853 },
+  { letter: "M", area: 3.600 },
+  { letter: "N", area: 4.340 },
+  { letter: "P", area: 6.380 },
+  { letter: "Q", area: 11.050 },
+  { letter: "R", area: 16.000 },
+  { letter: "T", area: 26.000 }
+];
+
+function applyBSVPreset(key) {
+  if (key === 'pack_firetube') {
+    document.getElementById('bsvMawp').value = '150';
+    document.getElementById('bsvSteamCap').value = '10000';
+    document.getElementById('bsvSteamType').value = 'saturated';
+    onBSVSteamTypeChange();
+    document.getElementById('bsvHeatingSurface').value = '1250';
+    document.getElementById('bsvFiringType').value = 'firetube';
+    document.getElementById('bsvNumValves').value = '2';
+    document.getElementById('bsvHasSuperheater').value = 'no';
+    document.getElementById('bsvKd').value = '0.878';
+    document.getElementById('bsvOverpressure').value = '3';
+    document.getElementById('bsvTailpipeDia').value = '3.0';
+  } else if (key === 'utility_watertube') {
+    document.getElementById('bsvMawp').value = '1800';
+    document.getElementById('bsvSteamCap').value = '650000';
+    document.getElementById('bsvSteamType').value = 'superheated';
+    onBSVSteamTypeChange();
+    document.getElementById('bsvSuperheatTemp').value = '1005';
+    document.getElementById('bsvHeatingSurface').value = '42000';
+    document.getElementById('bsvFiringType').value = 'gas_oil';
+    document.getElementById('bsvNumValves').value = '3';
+    document.getElementById('bsvHasSuperheater').value = 'yes';
+    document.getElementById('bsvKd').value = '0.878';
+    document.getElementById('bsvOverpressure').value = '3';
+    document.getElementById('bsvTailpipeDia').value = '10.0';
+    document.getElementById('bsvSuperheatBias').value = '30';
+  } else if (key === 'biomass_stoker') {
+    document.getElementById('bsvMawp').value = '450';
+    document.getElementById('bsvSteamCap').value = '50000';
+    document.getElementById('bsvSteamType').value = 'saturated';
+    onBSVSteamTypeChange();
+    document.getElementById('bsvHeatingSurface').value = '5000';
+    document.getElementById('bsvFiringType').value = 'coal_stoker';
+    document.getElementById('bsvNumValves').value = '2';
+    document.getElementById('bsvHasSuperheater').value = 'no';
+    document.getElementById('bsvKd').value = '0.878';
+    document.getElementById('bsvOverpressure').value = '3';
+    document.getElementById('bsvTailpipeDia').value = '6.0';
+  } else if (key === 'electric_boiler') {
+    document.getElementById('bsvMawp').value = '100';
+    document.getElementById('bsvSteamCap').value = '5200';
+    document.getElementById('bsvSteamType').value = 'saturated';
+    onBSVSteamTypeChange();
+    document.getElementById('bsvHeatingSurface').value = '250';
+    document.getElementById('bsvFiringType').value = 'electric';
+    document.getElementById('bsvNumValves').value = '1';
+    document.getElementById('bsvHasSuperheater').value = 'no';
+    document.getElementById('bsvKd').value = '0.878';
+    document.getElementById('bsvOverpressure').value = '3';
+    document.getElementById('bsvTailpipeDia').value = '2.5';
+  }
+  calculateBoilerSafetyValve();
+}
+
+function onBSVSteamTypeChange() {
+  var type = document.getElementById('bsvSteamType').value;
+  var mawp = parseFloat(document.getElementById('bsvMawp').value) || 250;
+  var tempEl = document.getElementById('bsvSuperheatTemp');
+  if (type === 'superheated') {
+    tempEl.disabled = false;
+    if (parseFloat(tempEl.value) <= 450) {
+      tempEl.value = '750';
+    }
+  } else {
+    tempEl.disabled = true;
+    // Antoine saturation temp estimation for water (approximate)
+    var Tsat = 382 + 0.15 * mawp;
+    tempEl.value = Math.round(Tsat);
+  }
+}
+
+function calculateBoilerSafetyValve() {
+  var mawp = parseFloat(document.getElementById('bsvMawp').value) || 250;
+  var steamCap = parseFloat(document.getElementById('bsvSteamCap').value) || 25000;
+  var steamType = document.getElementById('bsvSteamType').value;
+  var steamTemp = parseFloat(document.getElementById('bsvSuperheatTemp').value) || 406;
+  var heatingSurface = parseFloat(document.getElementById('bsvHeatingSurface').value) || 1800;
+  var firingType = document.getElementById('bsvFiringType').value;
+
+  var numValves = parseInt(document.getElementById('bsvNumValves').value, 10) || 2;
+  var hasSH = document.getElementById('bsvHasSuperheater').value === 'yes';
+  var Kd = parseFloat(document.getElementById('bsvKd').value) || 0.878;
+  var overpressPct = parseFloat(document.getElementById('bsvOverpressure').value) || 3.0;
+  var ventDia = parseFloat(document.getElementById('bsvTailpipeDia').value) || 4.0;
+  var shBiasPct = parseFloat(document.getElementById('bsvSuperheatBias').value) || 25.0;
+
+  // Minimum code capacity based on heating surface (ASME Section I PG-67.2)
+  var ratePerSqFt = 14;
+  if (firingType === 'firetube') ratePerSqFt = 8;
+  else if (firingType === 'coal_stoker') ratePerSqFt = 10;
+  else if (firingType === 'electric') ratePerSqFt = 3.5; // lb/kW
+
+  var minHscCap = heatingSurface * ratePerSqFt;
+  // ASME required capacity is maximum of certified MCR and Heating Surface Rule
+  var totalReqCap = Math.max(steamCap, minHscCap);
+  var totalReqCapKg = totalReqCap * 0.453592;
+
+  // 6% Accumulation Pressure
+  var P_accum_psig = mawp * 1.06;
+  var P_accum_bar = (P_accum_psig + 14.7) * 0.0689476 - 1.01325;
+
+  // Relieving Pressure P1 for sizing
+  // Rated capacity stamped at 3% overpressure per ASME PG-69
+  var Prel_psig = mawp * (1 + (overpressPct / 100));
+  var P1_psia = Prel_psig + 14.696;
+
+  // Superheat correction factor Ksh
+  var Ksh = 1.0;
+  if (steamType === 'superheated' && steamTemp > 450) {
+    var Tsat = 382 + 0.15 * mawp;
+    var degSH = Math.max(0, steamTemp - Tsat);
+    // ASME PG-69 Table factor approximation
+    Ksh = (1 + 0.00065 * degSH) / (1 + 0.0010 * degSH);
+  }
+
+  // Steam allocation between valves
+  var drumReliefShare = totalReqCap;
+  var shReliefCap = 0;
+  if (hasSH) {
+    shReliefCap = totalReqCap * (shBiasPct / 100);
+    drumReliefShare = totalReqCap - shReliefCap;
+  }
+
+  var capPerDrumValve = drumReliefShare / numValves;
+
+  // Napier formula: W = 51.5 * A * P1 * Kd * Ksh
+  // Orifice Area A = W / (51.5 * P1 * Kd * Ksh)
+  var reqAreaPerDrum = capPerDrumValve / (51.5 * P1_psia * Kd * Ksh);
+
+  // Select standard API orifice letter
+  var selectedOrifice = bsvOrificeTable[bsvOrificeTable.length - 1];
+  for (var i = 0; i < bsvOrificeTable.length; i++) {
+    if (bsvOrificeTable[i].area >= reqAreaPerDrum) {
+      selectedOrifice = bsvOrificeTable[i];
+      break;
+    }
+  }
+
+  var actualCapPerValve = 51.5 * selectedOrifice.area * P1_psia * Kd * Ksh;
+  var totalActualDrumCap = actualCapPerValve * numValves;
+  var totalInstalledCap = totalActualDrumCap + (hasSH ? shReliefCap : 0);
+  var capMarginPct = Math.round((totalInstalledCap / totalReqCap) * 100);
+
+  // Reaction thrust force at discharge elbow (ASME B31.1 Appendix II)
+  // F = (W / 366) * sqrt( (k * T) / ((k + 1) * M) ) + (P2 - Pa) * A2
+  // For saturated steam k ~ 1.13, M = 18.015, T in Rankine (T_degF + 460)
+  var T_R = steamTemp + 459.67;
+  var k_steam = 1.13;
+  var M_steam = 18.015;
+  var thrust_momentum = (actualCapPerValve / 366.0) * Math.sqrt((k_steam * T_R) / ((k_steam + 1) * M_steam));
+  var A2_in2 = (Math.PI / 4) * Math.pow(ventDia, 2);
+  var P2_gauge = Math.min(25.0, (actualCapPerValve / 3000.0) / A2_in2); // backpressure estimation
+  var thrust_pressure = P2_gauge * A2_in2;
+  var totalThrust_lbf = thrust_momentum + thrust_pressure;
+  var totalThrust_kN = totalThrust_lbf * 0.00444822;
+
+  // Set pressures per ASME PG-67.4
+  var set1 = mawp;
+  var set2 = Math.min(mawp * 1.03, mawp + (numValves > 1 ? Math.min(10, mawp * 0.03) : 0));
+  var setSH = Math.max(15, mawp - 5); // superheater lead valve pops 5 psi lower
+
+  // DOM Updates
+  document.getElementById('bsvReqCap').textContent = Math.round(totalReqCap).toLocaleString() + ' lb/hr';
+  document.getElementById('bsvReqCapKg').textContent = Math.round(totalReqCapKg).toLocaleString() + ' kg/hr';
+
+  document.getElementById('bsvAccumP').textContent = P_accum_psig.toFixed(1) + ' psig';
+  document.getElementById('bsvAccumBar').textContent = P_accum_bar.toFixed(1) + ' bar g (MAWP + ' + (mawp * 0.06).toFixed(1) + ' psi)';
+
+  var orificeLabel = numValves + '\u00d7 API \'' + selectedOrifice.letter + '\' (' + selectedOrifice.area.toFixed(3) + ' in\u00b2 ea)';
+  document.getElementById('bsvOrificeLetter').textContent = orificeLabel;
+  document.getElementById('bsvActualCap').textContent = 'Relieves: ' + Math.round(totalInstalledCap).toLocaleString() + ' lb/hr (' + capMarginPct + '% of req)';
+
+  document.getElementById('bsvThrust').textContent = Math.round(totalThrust_lbf).toLocaleString() + ' lbf';
+  document.getElementById('bsvThrustKn').textContent = totalThrust_kN.toFixed(2) + ' kN (Requires Structural Brace!)';
+
+  document.getElementById('bsvSet1').textContent = set1.toFixed(0) + ' psig (100% MAWP)';
+  document.getElementById('bsvSet2').textContent = (numValves > 1 ? set2.toFixed(0) + ' psig (\u2264 103% MAWP per PG-67.4)' : 'N/A (Single Valve)');
+  document.getElementById('bsvShSet').textContent = hasSH ? setSH.toFixed(0) + ' psig (Pops First to Cool Tubes)' : 'N/A (No Superheater)';
+  document.getElementById('bsvHscCodeCap').textContent = Math.round(minHscCap).toLocaleString() + ' lb/hr (PG-67.2 Rule)';
+
+  renderBSVSchematic(mawp, numValves, hasSH, selectedOrifice.letter, totalThrust_lbf);
+
+  renderBSVDerivations({
+    mawp: mawp, steamCap: steamCap, heatingSurface: heatingSurface, ratePerSqFt: ratePerSqFt,
+    minHscCap: minHscCap, totalReqCap: totalReqCap, P_accum_psig: P_accum_psig,
+    P1_psia: P1_psia, Kd: Kd, Ksh: Ksh, reqAreaPerDrum: reqAreaPerDrum,
+    letter: selectedOrifice.letter, area: selectedOrifice.area,
+    totalInstalledCap: totalInstalledCap, totalThrust_lbf: totalThrust_lbf, totalThrust_kN: totalThrust_kN
+  });
+}
+
+function renderBSVSchematic(mawp, numValves, hasSH, letter, thrust) {
+  var svg = document.getElementById('bsvSchematicSvg');
+  var w = 800;
+  var h = 280;
+
+  var svgContent = ''
+    + '<!-- Steam Drum -->'
+    + '<rect x="100" y="160" width="600" height="70" rx="35" fill="#1e293b" stroke="#38bdf8" stroke-width="2.5" />'
+    + '<text x="400" y="200" fill="#e2e8f0" font-size="13" font-weight="600" text-anchor="middle">Boiler Steam Drum (MAWP ' + mawp + ' psig)</text>'
+
+    + '<!-- PRV 1 on Drum -->'
+    + '<line x1="260" y1="160" x2="260" y2="100" stroke="#10b981" stroke-width="5" />'
+    + '<polygon points="245,100 275,100 260,80" fill="#10b981" />'
+    + '<rect x="250" y="60" width="20" height="20" fill="#0f172a" stroke="#10b981" stroke-width="2" rx="2" />'
+    + '<text x="260" y="50" fill="#10b981" font-size="10" font-weight="700" text-anchor="middle">PRV 1 (\' + letter + \')</text>'
+
+    + '<!-- PRV 2 on Drum -->'
+    + (numValves > 1 ? (
+      '<line x1="380" y1="160" x2="380" y2="100" stroke="#10b981" stroke-width="5" />'
+      + '<polygon points="365,100 395,100 380,80" fill="#10b981" />'
+      + '<rect x="370" y="60" width="20" height="20" fill="#0f172a" stroke="#10b981" stroke-width="2" rx="2" />'
+      + '<text x="380" y="50" fill="#10b981" font-size="10" font-weight="700" text-anchor="middle">PRV 2 (\' + letter + \')</text>'
+    ) : '')
+
+    + '<!-- Superheater Lead Valve -->'
+    + (hasSH ? (
+      '<line x1="580" y1="160" x2="580" y2="90" stroke="#f59e0b" stroke-width="5" />'
+      + '<polygon points="565,90 595,90 580,70" fill="#f59e0b" />'
+      + '<rect x="570" y="50" width="20" height="20" fill="#0f172a" stroke="#f59e0b" stroke-width="2" rx="2" />'
+      + '<text x="580" y="40" fill="#f59e0b" font-size="10" font-weight="700" text-anchor="middle">Superheater PRV</text>'
+      + '<text x="580" y="110" fill="#f59e0b" font-size="9" text-anchor="middle">POPS FIRST!</text>'
+    ) : '')
+
+    + '<!-- Drip Pan Elbow and Reaction Vector -->'
+    + '<path d="M 270,70 L 320,70 L 320,20" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="3,2" />'
+    + '<line x1="320" y1="20" x2="320" y2="5" stroke="#ef4444" stroke-width="3" />'
+    + '<polygon points="315,10 325,10 320,0" fill="#ef4444" />'
+    + '<text x="330" y="25" fill="#ef4444" font-size="10" font-weight="700">Thrust: ' + Math.round(thrust) + ' lbf</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderBSVDerivations(p) {
+  var container = document.getElementById('bsvDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Minimum Relieving Capacity (ASME Section I PG-67.2):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 'W_{req} = \u223c \max( \text{Certified Steaming MCR}, \text{Area} &times; ' + p.ratePerSqFt + '\text{ lb/hr-ft}\u00b2 )'
+    + '</div>'
+    + '<div>'
+    + 'Heating Surface rule: ' + p.heatingSurface + ' sq ft &times; ' + p.ratePerSqFt + ' = ' + Math.round(p.minHscCap).toLocaleString() + ' lb/hr &rarr; Total Sizing Cap: <strong>' + Math.round(p.totalReqCap).toLocaleString() + ' lb/hr</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Orifice Sizing via Napier\'s Steam Formula (ASME PG-69):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + 'A = W / ( 51.5 &times; P_1 &times; K_d &times; K_{sh} )'
+    + '</div>'
+    + '<div>'
+    + 'A_{req} = ' + p.totalReqCap.toFixed(0) + ' / ( 51.5 &times; ' + p.P1_psia.toFixed(1) + ' psia &times; ' + p.Kd + ' &times; ' + p.Ksh.toFixed(3) + ' ) = <strong>' + p.reqAreaPerDrum.toFixed(3) + ' in\u00b2</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Selected Standard Orifice: <strong>API \'' + p.letter + '\' (' + p.area.toFixed(3) + ' in\u00b2)</strong> &rarr; Installed Relieving Capacity: <strong>' + Math.round(p.totalInstalledCap).toLocaleString() + ' lb/hr</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Dynamic Reaction Thrust on Discharge Vent (ASME B31.1 App II):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#ef4444;">'
+    + 'F = (W / 366) &times; \u221a[ (k &times; T) / ((k + 1)M) ] + (P_2 - P_a) &times; A_2 = <strong>' + Math.round(p.totalThrust_lbf).toLocaleString() + ' lbf (' + p.totalThrust_kN.toFixed(2) + ' kN)</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Max 6% Accumulation Limit: P_{accum} = 1.06 &times; ' + p.mawp + ' = <strong>' + p.P_accum_psig.toFixed(1) + ' psig</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyBSVSummary() {
+  var cap = document.getElementById('bsvReqCap').textContent;
+  var accum = document.getElementById('bsvAccumP').textContent;
+  var orif = document.getElementById('bsvOrificeLetter').textContent;
+  var act = document.getElementById('bsvActualCap').textContent;
+  var thrust = document.getElementById('bsvThrust').textContent;
+  var set1 = document.getElementById('bsvSet1').textContent;
+  var set2 = document.getElementById('bsvSet2').textContent;
+  var sh = document.getElementById('bsvShSet').textContent;
+
+  var summary = [
+    '=== ASME SECTION I BOILER SAFETY VALVE REPORT ===',
+    'Required Relieving Capacity: ' + cap,
+    '6% Accumulation Limit: ' + accum,
+    'Selected Valve Array: ' + orif,
+    'Installed Relief Capacity: ' + act,
+    'Discharge Elbow Reaction Force: ' + thrust,
+    'Valve 1 Set Pressure: ' + set1,
+    'Valve 2 Set Pressure: ' + set2,
+    'Superheater Lead Valve: ' + sh,
+    'Standard: ASME BPVC Section I Power Boilers (PG-67 to PG-73)',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyBSV');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateBoilerSafetyValve();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateBoilerSafetyValve();
+}
+</script>
+`;
+
+
+
+// ==========================================
+// TOOL AJ2: Process Piping Minimum Wall Thickness Calculator (ASME B31.3)
+// ==========================================
+const pipeWallThicknessBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Process Piping Minimum Wall Thickness Calculator</h1>
+    <p class="calc-desc">Calculate ASME B31.3 required pressure design thickness, corrosion and mechanical allowances, 12.5% mill manufacturing under-tolerance, and automatic commercial pipe schedule selection (ASME B36.10M / B36.19M).</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">PROCESS INDUSTRY APPLICATION PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyPWTPreset('boiler_feed')">💧 Boiler Feedwater (A106-B 8" / 1450 psig)</button>
+      <button type="button" class="btn-preset" onclick="applyPWTPreset('gas_pipeline')">🛢️ Gas Transmission (API 5L X52 16" / 980 psig)</button>
+      <button type="button" class="btn-preset" onclick="applyPWTPreset('cryo_lng')">❄️ Cryogenic LNG (A312 TP304L 6" / 450 psig)</button>
+      <button type="button" class="btn-preset" onclick="applyPWTPreset('corrosive_acid')">🧪 Corrosive Acid (Alloy C276 4" / 300 psig)</button>
+    </div>
+  </div>
+
+  <form id="pwtForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Design Conditions & Material -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>⚙️</span> Design Conditions & Material Stress
+        </h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="pwtDesignP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Internal Design Press (psig)</label>
+            <input type="number" id="pwtDesignP" class="form-control" value="650" step="any" min="1" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="pwtDesignT" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Design Temp (&deg;F)</label>
+            <input type="number" id="pwtDesignT" class="form-control" value="300" step="any" oninput="onPWTTempChange(); calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="pwtMaterial" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Piping Material Specification</label>
+          <select id="pwtMaterial" class="form-control" onchange="onPWTMaterialChange(); calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="a106b" selected>ASTM A106 Grade B (Carbon Steel - S = 20,000 psi)</option>
+            <option value="a333g6">ASTM A333 Grade 6 (Low Temp Carbon - S = 20,000 psi)</option>
+            <option value="a312tp304">ASTM A312 TP304 (Stainless 18-8 - S = 20,000 psi)</option>
+            <option value="a312tp316">ASTM A312 TP316 (Stainless 16-12-2 - S = 20,000 psi)</option>
+            <option value="api5lx52">API 5L Grade X52 (High Yield Carbon - S = 26,000 psi)</option>
+            <option value="api5lx65">API 5L Grade X65 (High Yield Carbon - S = 32,500 psi)</option>
+            <option value="custom">Custom Allowable Stress S</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="pwtAllowableS" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Allowable Stress S (psi)</label>
+            <input type="number" id="pwtAllowableS" class="form-control" value="20000" step="any" min="1000" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="pwtJointE" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Joint Quality Factor E</label>
+            <select id="pwtJointE" class="form-control" onchange="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="1.00" selected>Seamless (E = 1.00)</option>
+              <option value="0.85">Electric Resistance Welded ERW (E = 0.85)</option>
+              <option value="0.80">Electric Fusion Welded EFW (E = 0.80)</option>
+              <option value="0.60">Furnace Butt Welded (E = 0.60)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="pwtWeldW" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Weld Reduction Factor W</label>
+            <input type="number" id="pwtWeldW" class="form-control" value="1.00" step="0.05" min="0.5" max="1.0" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="pwtCoeffY" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Y Coefficient (Table 304.1.1)</label>
+            <input type="number" id="pwtCoeffY" class="form-control" value="0.40" step="0.1" min="0.0" max="0.7" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Geometry & Corrosion Allowances -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>📏</span> Pipe Geometry & Wall Allowances
+        </h3>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="pwtNPS" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Nominal Pipe Size (NPS)</label>
+          <select id="pwtNPS" class="form-control" onchange="onPWTNpsChange(); calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="0.5">1/2" (OD 0.840 in / 21.3 mm)</option>
+            <option value="0.75">3/4" (OD 1.050 in / 26.7 mm)</option>
+            <option value="1.0">1" (OD 1.315 in / 33.4 mm)</option>
+            <option value="1.5">1-1/2" (OD 1.900 in / 48.3 mm)</option>
+            <option value="2.0">2" (OD 2.375 in / 60.3 mm)</option>
+            <option value="3.0">3" (OD 3.500 in / 88.9 mm)</option>
+            <option value="4.0">4" (OD 4.500 in / 114.3 mm)</option>
+            <option value="6.0" selected>6" (OD 6.625 in / 168.3 mm)</option>
+            <option value="8.0">8" (OD 8.625 in / 219.1 mm)</option>
+            <option value="10.0">10" (OD 10.750 in / 273.1 mm)</option>
+            <option value="12.0">12" (OD 12.750 in / 323.8 mm)</option>
+            <option value="14.0">14" (OD 14.000 in / 355.6 mm)</option>
+            <option value="16.0">16" (OD 16.000 in / 406.4 mm)</option>
+            <option value="20.0">20" (OD 20.000 in / 508.0 mm)</option>
+            <option value="24.0">24" (OD 24.000 in / 610.0 mm)</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="pwtPipeOD" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Outside Diameter D (in)</label>
+            <input type="number" id="pwtPipeOD" class="form-control" value="6.625" step="any" min="0.5" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="pwtCorrosion" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Corrosion Allow c (in)</label>
+            <input type="number" id="pwtCorrosion" class="form-control" value="0.0625" step="any" min="0" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="pwtThreadAllowance" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Thread / Groove Depth (in)</label>
+            <input type="number" id="pwtThreadAllowance" class="form-control" value="0.0" step="any" min="0" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="pwtMillTol" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Mill Under-Tol (%)</label>
+            <input type="number" id="pwtMillTol" class="form-control" value="12.5" step="0.5" min="0" max="25" oninput="calculatePipeThickness();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Thickness Diagnostics Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">ASME B31.3 Wall Thickness & Schedule Compliance</h2>
+      <div id="pwtSchedBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#10b981; color:#fff;">COMPLIANT: SCHEDULE 40 / STD SELECTED</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Pressure Design Thickness (t)</span>
+        <strong id="pwtThkDesign" style="font-size:1.4rem; color:#38bdf8;">0.106 in</strong>
+        <span id="pwtThkDesignMm" style="font-size:0.8rem; color:var(--text-muted); display:block;">2.70 mm (Pure Hoop Stress)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Min Required Wall Thickness (t_m)</span>
+        <strong id="pwtThkMin" style="font-size:1.4rem; color:#f59e0b;">0.169 in</strong>
+        <span id="pwtThkMinMm" style="font-size:0.8rem; color:var(--text-muted); display:block;">4.29 mm (Includes 1/16" c)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Min Ordered Nominal (t_nom)</span>
+        <strong id="pwtThkNom" style="font-size:1.4rem; color:#ef4444;">0.193 in</strong>
+        <span id="pwtThkNomMm" style="font-size:0.8rem; color:var(--text-muted); display:block;">4.90 mm (with 12.5% Mill Tol)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Selected Standard Schedule</span>
+        <strong id="pwtSelectedSched" style="font-size:1.4rem; color:#10b981;">Schedule 40 (STD)</strong>
+        <span id="pwtSelectedActual" style="font-size:0.8rem; color:var(--text-muted); display:block;">Nominal: 0.280 in (7.11 mm)</span>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Maximum Allowable Working Pressure:</span>
+        <strong id="pwtMawpVal" style="color:inherit;">1,520 psig (104.8 bar g)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Finished Internal Diameter (D_i):</span>
+        <strong id="pwtInsideDia" style="color:inherit;">6.065 in (154.1 mm)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Linear Pipe Weight (Empty):</span>
+        <strong id="pwtPipeWeight" style="color:inherit;">18.97 lb/ft (28.23 kg/m)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Thickness Safety Margin:</span>
+        <strong id="pwtMarginVal" style="color:#10b981;">+45.1% over Minimum Ordered</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyPWT" class="btn btn-secondary" onclick="copyPWTSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Pipe Annulus Cross-Section -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      Pipe Wall Annular Architecture & Material Allocation Cross-Section
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Visualizing radial layers of pressure-retaining structural metal, sacrificial corrosion/erosion allowance, 12.5% mill under-tolerance buffer, and final internal flow bore.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="pwtPipeSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#0284c7; border-radius:2px;"></span> Pressure Retaining (t)</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Corrosion Allowance (c)</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Mill Under-Tol (12.5%)</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#10b981; border-radius:2px;"></span> Schedule Margin</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: ASME B31.3 Para 304.1.2 Equations
+    </h3>
+    <div id="pwtDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Process Piping Wall Thickness Sizing
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. The 12.5% Mill Under-Tolerance Trap (Ordering t_m as Nominal)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          ASTM A106, A53, and API 5L manufacturing specifications permit seamless and welded steel pipe mills to ship pipe with a wall thickness up to <strong>12.5% thinner than the nominal ordered dimension</strong>. If an engineer calculates a minimum thickness requirement of 0.250 inches and orders a pipe with 0.250 inch nominal wall, the pipe mill legally delivers pipe that is 0.218 inches thick—resulting in immediate rejection or catastrophic hydrostatic burst failure!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. Thread Root & Groove Depth Deduction Neglect</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          On threaded piping (ASME B1.20.1 NPT), threading cuts deep into the outer pipe wall. For a 2-inch pipe, standard NPT thread root depth is 0.070 inches (1.78 mm)—nearly 45% of a Schedule 40 wall! ASME B31.3 Para 304.1.1 mandates adding full thread cut depth to mechanical allowance c. Failing to do so causes threaded joints to shear or split at the first thread engaged.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Assuming Longitudinal Joint Factor E = 1.0 for Welded Pipe</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Engineers frequently specify electric resistance welded (ERW) pipe (ASTM A53 Type E) to reduce material costs, but forget to apply the required joint factor E = 0.85 from Table 302.3.4. Overlooking this 15% joint derating produces an undersized wall thickness that violates ASME B31.3 compliance and revokes pressure vessel registration.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. High-Temperature Weld Strength Reduction Factor W Overlook</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          In creep-range piping operations (temperatures &gt; 950&deg;F / 510&deg;C for carbon steel or &gt; 1,050&deg;F / 565&deg;C for Cr-Mo alloy steel), weld joint strength deteriorates over operating life. ASME B31.3 Para 302.3.5(e) requires applying the weld joint strength reduction factor W (ranging from 1.0 down to 0.50). Omitting W in high-temperature steam lines causes seam rupture during 100,000-hour creep life.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. The Thin-Wall Equation Boundary Limit (t &ge; D / 6)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          The basic ASME B31.3 equation t = (P * D) / (2(SEW + PY)) is strictly valid only for thin-walled conduits where thickness t &lt; D/6 and P/SE &le; 0.385. In ultra-high-pressure injection systems (10,000+ psig), piping enters the thick-wall Lam&eacute; regime. Using thin-wall formulas underpredicts inner bore shear stress by up to 30%!
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: ASME B31.3 Piping Wall Thickness
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the formula for ASME B31.3 pipe wall thickness?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ASME B31.3 Section 304.1.2, pressure design thickness is: <strong>t = (P &times; D) / [ 2 &times; (S &times; E &times; W + P &times; Y) ]</strong>. The minimum required wall thickness including allowances is <strong>t<sub>m</sub> = t + c</strong>, where c includes corrosion allowance, erosion allowance, and thread/groove depth.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">Why is 12.5% mill tolerance added to required thickness?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Standard manufacturing specifications for carbon and alloy steel pipe (such as ASTM A106, ASTM A53, and API 5L) establish an allowable manufacturing under-tolerance of 12.5%. To guarantee that the pipe delivered by the mill never drops below the code-required minimum wall t<sub>m</sub>, the nominal ordered wall must satisfy: <strong>t<sub>nom</sub> &ge; t<sub>m</sub> / (1 - 0.125) = t<sub>m</sub> / 0.875</strong>.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the Y coefficient in Table 304.1.1?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          The Y coefficient is a dimensionless temperature factor that adjusts hoop stress distribution across the pipe wall. For ferritic steels and austenitic stainless steels at design temperatures below 900&deg;F (482&deg;C), <strong>Y = 0.4</strong>. At higher temperatures in the creep range, Y increases gradually up to 0.7 to account for plastic stress redistribution.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the difference between Schedule 40 and STD?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          In ASME B36.10M, Schedule 40 and Standard Weight (STD) are identical for pipe sizes from 1/8" through 10". However, for sizes 12" and larger, STD remains fixed at a nominal thickness of 0.375 inches (9.52 mm), whereas Schedule 40 continues to increase with diameter (e.g. 14" Sch 40 is 0.438 in, 16" Sch 40 is 0.500 in).
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How is Maximum Allowable Working Pressure (MAWP) back-calculated?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          From the actual minimum delivered wall thickness t<sub>avail</sub> = (t<sub>nom</sub> &times; 0.875) - c, MAWP is back-calculated by rearranging the B31.3 equation: <strong>P<sub>MAWP</sub> = (2 &times; S &times; E &times; W &times; t<sub>avail</sub>) / [ D - 2 &times; Y &times; t<sub>avail</sub> ]</strong>.
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Commercial pipe schedule database (ASME B36.10M / B36.19M)
+// Dimensions in inches: { nps, od, sch10, sch20, sch30, sch40, sch60, sch80, sch100, sch120, sch140, sch160, xxs }
+var pwtSchedTable = {
+  "0.5":  { od: 0.840, sch10: 0.083, sch40: 0.109, sch80: 0.147, sch160: 0.188, xxs: 0.294 },
+  "0.75": { od: 1.050, sch10: 0.083, sch40: 0.113, sch80: 0.154, sch160: 0.219, xxs: 0.308 },
+  "1.0":  { od: 1.315, sch10: 0.109, sch40: 0.133, sch80: 0.179, sch160: 0.250, xxs: 0.358 },
+  "1.5":  { od: 1.900, sch10: 0.109, sch40: 0.145, sch80: 0.200, sch160: 0.281, xxs: 0.400 },
+  "2.0":  { od: 2.375, sch10: 0.109, sch40: 0.154, sch80: 0.218, sch160: 0.344, xxs: 0.436 },
+  "3.0":  { od: 3.500, sch10: 0.120, sch40: 0.216, sch80: 0.300, sch160: 0.438, xxs: 0.600 },
+  "4.0":  { od: 4.500, sch10: 0.120, sch40: 0.237, sch80: 0.337, sch120: 0.438, sch160: 0.531, xxs: 0.674 },
+  "6.0":  { od: 6.625, sch10: 0.134, sch40: 0.280, sch80: 0.432, sch120: 0.562, sch160: 0.719, xxs: 0.864 },
+  "8.0":  { od: 8.625, sch10: 0.148, sch20: 0.250, sch30: 0.277, sch40: 0.322, sch60: 0.406, sch80: 0.500, sch100: 0.594, sch120: 0.719, sch140: 0.812, sch160: 0.906, xxs: 0.875 },
+  "10.0": { od: 10.750, sch10: 0.165, sch20: 0.250, sch30: 0.307, sch40: 0.365, sch60: 0.500, sch80: 0.594, sch100: 0.719, sch120: 0.844, sch140: 1.000, sch160: 1.125, xxs: 1.000 },
+  "12.0": { od: 12.750, sch10: 0.180, sch20: 0.250, sch30: 0.330, sch40: 0.406, sch60: 0.562, sch80: 0.688, sch100: 0.844, sch120: 1.000, sch140: 1.125, sch160: 1.312, xxs: 1.000 },
+  "14.0": { od: 14.000, sch10: 0.250, sch20: 0.312, sch30: 0.375, sch40: 0.438, sch60: 0.594, sch80: 0.750, sch100: 0.938, sch120: 1.094, sch140: 1.250, sch160: 1.406 },
+  "16.0": { od: 16.000, sch10: 0.250, sch20: 0.312, sch30: 0.375, sch40: 0.500, sch60: 0.656, sch80: 0.844, sch100: 1.031, sch120: 1.219, sch140: 1.438, sch160: 1.594 },
+  "20.0": { od: 20.000, sch10: 0.250, sch20: 0.375, sch30: 0.500, sch40: 0.594, sch60: 0.812, sch80: 1.031, sch100: 1.281, sch120: 1.500, sch140: 1.750, sch160: 1.969 },
+  "24.0": { od: 24.000, sch10: 0.250, sch20: 0.562, sch30: 0.562, sch40: 0.688, sch60: 0.969, sch80: 1.219, sch100: 1.531, sch120: 1.812, sch140: 2.062, sch160: 2.344 }
+};
+
+var pwtMaterialData = {
+  a106b: { S: 20000, Y: 0.4 },
+  a333g6: { S: 20000, Y: 0.4 },
+  a312tp304: { S: 20000, Y: 0.4 },
+  a312tp316: { S: 20000, Y: 0.4 },
+  api5lx52: { S: 26000, Y: 0.4 },
+  api5lx65: { S: 32500, Y: 0.4 },
+  custom: { S: 20000, Y: 0.4 }
+};
+
+function onPWTMaterialChange() {
+  var mat = document.getElementById('pwtMaterial').value;
+  if (mat !== 'custom' && pwtMaterialData[mat]) {
+    document.getElementById('pwtAllowableS').value = pwtMaterialData[mat].S;
+    document.getElementById('pwtCoeffY').value = pwtMaterialData[mat].Y;
+  }
+}
+
+function onPWTNpsChange() {
+  var nps = document.getElementById('pwtNPS').value;
+  if (pwtSchedTable[nps]) {
+    document.getElementById('pwtPipeOD').value = pwtSchedTable[nps].od;
+  }
+}
+
+function onPWTTempChange() {
+  var T = parseFloat(document.getElementById('pwtDesignT').value) || 300;
+  var mat = document.getElementById('pwtMaterial').value;
+  var Y_el = document.getElementById('pwtCoeffY');
+  if (T > 900) {
+    Y_el.value = '0.50';
+  } else if (T > 1000) {
+    Y_el.value = '0.70';
+  } else {
+    Y_el.value = '0.40';
+  }
+}
+
+function applyPWTPreset(key) {
+  if (key === 'boiler_feed') {
+    document.getElementById('pwtDesignP').value = '1450';
+    document.getElementById('pwtDesignT').value = '350';
+    document.getElementById('pwtMaterial').value = 'a106b';
+    onPWTMaterialChange();
+    document.getElementById('pwtNPS').value = '8.0';
+    onPWTNpsChange();
+    document.getElementById('pwtJointE').value = '1.00';
+    document.getElementById('pwtCorrosion').value = '0.0625';
+    document.getElementById('pwtThreadAllowance').value = '0.0';
+    document.getElementById('pwtMillTol').value = '12.5';
+  } else if (key === 'gas_pipeline') {
+    document.getElementById('pwtDesignP').value = '980';
+    document.getElementById('pwtDesignT').value = '120';
+    document.getElementById('pwtMaterial').value = 'api5lx52';
+    onPWTMaterialChange();
+    document.getElementById('pwtNPS').value = '16.0';
+    onPWTNpsChange();
+    document.getElementById('pwtJointE').value = '1.00';
+    document.getElementById('pwtCorrosion').value = '0.118'; // 3mm
+    document.getElementById('pwtThreadAllowance').value = '0.0';
+    document.getElementById('pwtMillTol').value = '12.5';
+  } else if (key === 'cryo_lng') {
+    document.getElementById('pwtDesignP').value = '450';
+    document.getElementById('pwtDesignT').value = '-260';
+    document.getElementById('pwtMaterial').value = 'a312tp304';
+    onPWTMaterialChange();
+    document.getElementById('pwtNPS').value = '6.0';
+    onPWTNpsChange();
+    document.getElementById('pwtJointE').value = '1.00';
+    document.getElementById('pwtCorrosion').value = '0.0';
+    document.getElementById('pwtThreadAllowance').value = '0.0';
+    document.getElementById('pwtMillTol').value = '12.5';
+  } else if (key === 'corrosive_acid') {
+    document.getElementById('pwtDesignP').value = '300';
+    document.getElementById('pwtDesignT').value = '200';
+    document.getElementById('pwtMaterial').value = 'custom';
+    document.getElementById('pwtAllowableS').value = '25000';
+    document.getElementById('pwtNPS').value = '4.0';
+    onPWTNpsChange();
+    document.getElementById('pwtJointE').value = '1.00';
+    document.getElementById('pwtCorrosion').value = '0.157'; // 4mm
+    document.getElementById('pwtThreadAllowance').value = '0.0';
+    document.getElementById('pwtMillTol').value = '12.5';
+  }
+  calculatePipeThickness();
+}
+
+function calculatePipeThickness() {
+  var P = parseFloat(document.getElementById('pwtDesignP').value) || 650;
+  var S = parseFloat(document.getElementById('pwtAllowableS').value) || 20000;
+  var E = parseFloat(document.getElementById('pwtJointE').value) || 1.0;
+  var W = parseFloat(document.getElementById('pwtWeldW').value) || 1.0;
+  var Y = parseFloat(document.getElementById('pwtCoeffY').value) || 0.4;
+  var D = parseFloat(document.getElementById('pwtPipeOD').value) || 6.625;
+  var c_corr = parseFloat(document.getElementById('pwtCorrosion').value) || 0.0625;
+  var c_mech = parseFloat(document.getElementById('pwtThreadAllowance').value) || 0.0;
+  var millTolPct = parseFloat(document.getElementById('pwtMillTol').value) || 12.5;
+  var nps = document.getElementById('pwtNPS').value;
+
+  var c_total = c_corr + c_mech;
+
+  // Pressure design thickness: t = (P * D) / [ 2 * (S*E*W + P*Y) ]
+  var denom = 2 * ((S * E * W) + (P * Y));
+  var t_design = (P * D) / denom;
+  var t_design_mm = t_design * 25.4;
+
+  // Minimum required thickness: t_m = t + c
+  var t_min = t_design + c_total;
+  var t_min_mm = t_min * 25.4;
+
+  // Minimum ordered nominal thickness accounting for mill under-tolerance
+  var millFactor = 1 - (millTolPct / 100);
+  var t_nom_req = millFactor > 0 ? (t_min / millFactor) : t_min;
+  var t_nom_req_mm = t_nom_req * 25.4;
+
+  // Schedule lookup from B36.10 table
+  var schedData = pwtSchedTable[nps] || pwtSchedTable["6.0"];
+  var selectedSchedName = "Custom / Non-Standard";
+  var selectedActualThk = t_nom_req;
+
+  // Ordered list of candidate schedules
+  var schedOrder = ["sch10", "sch20", "sch30", "sch40", "sch60", "sch80", "sch100", "sch120", "sch140", "sch160", "xxs"];
+  for (var i = 0; i < schedOrder.length; i++) {
+    var sKey = schedOrder[i];
+    if (schedData[sKey] && schedData[sKey] >= t_nom_req) {
+      selectedActualThk = schedData[sKey];
+      var nameMap = {
+        sch10: "Schedule 10", sch20: "Schedule 20", sch30: "Schedule 30",
+        sch40: "Schedule 40 (STD)", sch60: "Schedule 60", sch80: "Schedule 80 (XS)",
+        sch100: "Schedule 100", sch120: "Schedule 120", sch140: "Schedule 140",
+        sch160: "Schedule 160", xxs: "Schedule XXS"
+      };
+      selectedSchedName = nameMap[sKey] || sKey.toUpperCase();
+      break;
+    }
+  }
+
+  var marginPct = ((selectedActualThk - t_nom_req) / t_nom_req) * 100;
+  var D_inside = D - (2 * selectedActualThk);
+  var D_inside_mm = D_inside * 25.4;
+
+  // MAWP back-calculation based on selected nominal thickness
+  // t_avail = (t_actual * millFactor) - c_total
+  var t_avail = Math.max(0.001, (selectedActualThk * millFactor) - c_total);
+  var mawp = (2 * S * E * W * t_avail) / (D - 2 * Y * t_avail);
+  var mawp_bar = mawp * 0.0689476;
+
+  // Linear pipe weight (steel rho = 490 lb/cu ft = 0.2836 lb/cu in)
+  // W_pipe = pi * (Do*t - t^2) * 12 * 0.2836
+  var pipeWeight_lb_ft = Math.PI * (D * selectedActualThk - Math.pow(selectedActualThk, 2)) * 12 * 0.2836;
+  var pipeWeight_kg_m = pipeWeight_lb_ft * 1.48816;
+
+  // DOM Updates
+  document.getElementById('pwtThkDesign').textContent = t_design.toFixed(3) + ' in';
+  document.getElementById('pwtThkDesignMm').textContent = t_design_mm.toFixed(2) + ' mm (Pure Hoop Stress)';
+
+  document.getElementById('pwtThkMin').textContent = t_min.toFixed(3) + ' in';
+  document.getElementById('pwtThkMinMm').textContent = t_min_mm.toFixed(2) + ' mm (Includes ' + c_total.toFixed(3) + '" allowances)';
+
+  document.getElementById('pwtThkNom').textContent = t_nom_req.toFixed(3) + ' in';
+  document.getElementById('pwtThkNomMm').textContent = t_nom_req_mm.toFixed(2) + ' mm (with ' + millTolPct + '% Mill Tol)';
+
+  document.getElementById('pwtSelectedSched').textContent = selectedSchedName;
+  document.getElementById('pwtSelectedActual').textContent = 'Nominal: ' + selectedActualThk.toFixed(3) + ' in (' + (selectedActualThk * 25.4).toFixed(2) + ' mm)';
+
+  document.getElementById('pwtMawpVal').textContent = Math.round(mawp).toLocaleString() + ' psig (' + mawp_bar.toFixed(1) + ' bar g)';
+  document.getElementById('pwtInsideDia').textContent = D_inside.toFixed(3) + ' in (' + D_inside_mm.toFixed(1) + ' mm)';
+  document.getElementById('pwtPipeWeight').textContent = pipeWeight_lb_ft.toFixed(2) + ' lb/ft (' + pipeWeight_kg_m.toFixed(2) + ' kg/m)';
+
+  var marginEl = document.getElementById('pwtMarginVal');
+  marginEl.textContent = '+' + marginPct.toFixed(1) + '% over Minimum Ordered';
+
+  var badgeEl = document.getElementById('pwtSchedBadge');
+  badgeEl.textContent = 'COMPLIANT: ' + selectedSchedName.toUpperCase() + ' SELECTED';
+
+  renderPWTPipeSvg(D, selectedActualThk, t_design, c_total, selectedActualThk * (millTolPct / 100));
+
+  renderPWTDerivations({
+    P: P, D: D, S: S, E: E, W: W, Y: Y, c_corr: c_corr, c_mech: c_mech, c_total: c_total,
+    t_design: t_design, t_min: t_min, millTolPct: millTolPct, t_nom_req: t_nom_req,
+    selectedSchedName: selectedSchedName, selectedActualThk: selectedActualThk, mawp: mawp
+  });
+}
+
+function renderPWTPipeSvg(Do, tActual, tDesign, cTotal, tMill) {
+  var svg = document.getElementById('pwtPipeSvg');
+  var w = 800;
+  var h = 280;
+  var cx = 400;
+  var cy = 140;
+  var rOuter = 105;
+
+  var thkScale = (rOuter * 0.45) / Math.max(0.1, tActual);
+  var rDesign = rOuter - (tDesign * thkScale);
+  var rMin = rOuter - ((tDesign + cTotal) * thkScale);
+  var rInner = rOuter - (tActual * thkScale);
+
+  var svgContent = ''
+    + '<!-- Outer Wall Circle -->'
+    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + rOuter + '" fill="#0284c7" stroke="#38bdf8" stroke-width="2" />'
+
+    + '<!-- Corrosion Layer Circle -->'
+    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + Math.max(20, rDesign) + '" fill="#f59e0b" />'
+
+    + '<!-- Mill Under-Tolerance Circle -->'
+    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + Math.max(15, rMin) + '" fill="#ef4444" opacity="0.8" />'
+
+    + '<!-- Inside Pipe Bore -->'
+    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + Math.max(10, rInner) + '" fill="#0b1120" stroke="#10b981" stroke-width="2" />'
+
+    + '<!-- Center Dimension Label -->'
+    + '<text x="' + cx + '" y="' + (cy - 5) + '" fill="#38bdf8" font-size="12" font-weight="700" text-anchor="middle">OD: ' + Do.toFixed(3) + '"</text>'
+    + '<text x="' + cx + '" y="' + (cy + 15) + '" fill="#94a3b8" font-size="11" text-anchor="middle">Wall: ' + tActual.toFixed(3) + '"</text>'
+
+    + '<!-- Dimension Callouts -->'
+    + '<line x1="' + (cx + rOuter + 20) + '" y1="' + (cy - rOuter) + '" x2="' + (cx + rOuter + 20) + '" y2="' + (cy + rOuter) + '" stroke="#64748b" stroke-width="1.5" />'
+    + '<text x="' + (cx + rOuter + 30) + '" y="' + (cy + 4) + '" fill="#cbd5e1" font-size="11">Outside Dia D</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderPWTDerivations(p) {
+  var container = document.getElementById('pwtDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Pressure Design Thickness (ASME B31.3 Para 304.1.2):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 't = (P &times; D) / [ 2 &times; (S &times; E &times; W + P &times; Y) ]'
+    + '</div>'
+    + '<div>'
+    + 't = (' + p.P + ' &times; ' + p.D + ') / [ 2 &times; (' + p.S + ' &times; ' + p.E + ' &times; ' + p.W + ' + ' + p.P + ' &times; ' + p.Y + ') ] = <strong>' + p.t_design.toFixed(3) + ' in (' + (p.t_design * 25.4).toFixed(2) + ' mm)</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Minimum Required Wall Thickness (Including Allowances):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + 't_m = t + c = ' + p.t_design.toFixed(3) + ' + ' + p.c_total.toFixed(4) + ' = <strong>' + p.t_min.toFixed(3) + ' in (' + (p.t_min * 25.4).toFixed(2) + ' mm)</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Includes corrosion allowance: ' + p.c_corr.toFixed(4) + '" + mechanical thread allowance: ' + p.c_mech.toFixed(4) + '"'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Minimum Ordered Thickness & Schedule Selection:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#10b981;">'
+    + 't_{nom} = t_m / (1 - \text{MillTol}) = ' + p.t_min.toFixed(3) + ' / (1 - ' + (p.millTolPct / 100).toFixed(3) + ') = <strong>' + p.t_nom_req.toFixed(3) + ' in</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Selected Commercial Schedule: <strong>' + p.selectedSchedName + ' (' + p.selectedActualThk.toFixed(3) + ' in / ' + (p.selectedActualThk * 25.4).toFixed(2) + ' mm)</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Back-calculated MAWP: <strong>' + Math.round(p.mawp).toLocaleString() + ' psig (' + (p.mawp * 0.0689476).toFixed(1) + ' bar g)</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyPWTSummary() {
+  var tDes = document.getElementById('pwtThkDesign').textContent;
+  var tMin = document.getElementById('pwtThkMin').textContent;
+  var tNom = document.getElementById('pwtThkNom').textContent;
+  var sched = document.getElementById('pwtSelectedSched').textContent;
+  var mawp = document.getElementById('pwtMawpVal').textContent;
+  var margin = document.getElementById('pwtMarginVal').textContent;
+
+  var summary = [
+    '=== ASME B31.3 PROCESS PIPING WALL THICKNESS REPORT ===',
+    'Pressure Design Thickness (t): ' + tDes,
+    'Minimum Required Thickness (t_m): ' + tMin,
+    'Minimum Ordered Nominal (t_nom): ' + tNom,
+    'Selected Schedule: ' + sched,
+    'Rated Working Pressure (MAWP): ' + mawp,
+    'Safety Margin: ' + margin,
+    'Standard: ASME B31.3 Para 304.1.2 & ASME B36.10M',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyPWT');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculatePipeThickness();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculatePipeThickness();
+}
+</script>
+`;
+
+
+
+// ==========================================
+// TOOL AJ3: Gas Turbine Heat Rate & Efficiency Calculator (ISO 3977 & ASME PTC 22)
+// ==========================================
+const gasTurbineHeatRateBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Gas Turbine Heat Rate & Thermal Efficiency Calculator</h1>
+    <p class="calc-desc">Calculate simple-cycle gas turbine net heat rate (Btu/kWh and kJ/kWh), Lower vs Higher Heating Value thermal efficiency, site ambient temperature and elevation derating, and evaporative inlet cooling power boost per ISO 3977 and ASME PTC 22.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">GAS TURBINE CLASS PRESETS (ISO 15&deg;C / SEA LEVEL)</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyGTPreset('f_class')">⚡ Heavy-Duty F-Class (240 MW / 9,200 Btu/kWh)</button>
+      <button type="button" class="btn-preset" onclick="applyGTPreset('ha_class')">🔥 Advanced H-Class (385 MW / 8,250 Btu/kWh)</button>
+      <button type="button" class="btn-preset" onclick="applyGTPreset('aeroderivative')">✈️ Aeroderivative Peaker (50 MW / 8,600 Btu/kWh)</button>
+      <button type="button" class="btn-preset" onclick="applyGTPreset('desert_cogen')">🏜️ High-Altitude Desert (85 MW / 5,500 ft / 95&deg;F)</button>
+    </div>
+  </div>
+
+  <form id="gtForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Baseline Machine Rating -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>⚙️</span> ISO Baseline Machine Rating (15&deg;C / Sea Level)
+        </h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="gtIsoPower" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">ISO Base Output (MW)</label>
+            <input type="number" id="gtIsoPower" class="form-control" value="240" step="any" min="1" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="gtIsoHeatRate" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">ISO Heat Rate LHV (Btu/kWh)</label>
+            <input type="number" id="gtIsoHeatRate" class="form-control" value="9200" step="any" min="4000" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="gtFuelType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Fuel Gas Type</label>
+            <select id="gtFuelType" class="form-control" onchange="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="natural_gas" selected>Pipeline Natural Gas (HHV/LHV = 1.108)</option>
+              <option value="lng">Pure Methane / Regas LNG (HHV/LHV = 1.106)</option>
+              <option value="distillate">No. 2 Fuel Oil / Diesel (HHV/LHV = 1.060)</option>
+              <option value="hydrogen_blend">20% H2 Fuel Blend (HHV/LHV = 1.125)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="gtGasPrice" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Fuel Gas Cost ($/MMBtu)</label>
+            <input type="number" id="gtGasPrice" class="form-control" value="3.50" step="0.10" min="0.1" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="gtInletCooling" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Inlet Air Cooling Technology</label>
+          <select id="gtInletCooling" class="form-control" onchange="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="none" selected>None (Unconditioned Ambient Air)</option>
+            <option value="evap_media">Evaporative Media Pad (85% wet-bulb effectiveness)</option>
+            <option value="fogging">High-Pressure Water Fogging (95% wet-bulb effectiveness)</option>
+            <option value="chiller">Mechanical Chiller System (Cooled to 50&deg;F / 10&deg;C)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Site Ambient Conditions -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🌡️</span> Site Ambient Operating Conditions
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="gtSiteDryBulb" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Ambient Dry-Bulb (&deg;F)</label>
+            <input type="number" id="gtSiteDryBulb" class="form-control" value="95" step="any" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="gtSiteRH" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Relative Humidity (%)</label>
+            <input type="number" id="gtSiteRH" class="form-control" value="40" step="any" min="5" max="100" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="gtElevation" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Site Elevation (feet)</label>
+            <input type="number" id="gtElevation" class="form-control" value="1200" step="100" min="0" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="gtFilterLoss" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Inlet Filter Loss (&Delta;P in wc)</label>
+            <input type="number" id="gtFilterLoss" class="form-control" value="3.5" step="0.5" min="0" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="gtExhaustLoss" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Exhaust Loss (&Delta;P in wc)</label>
+            <input type="number" id="gtExhaustLoss" class="form-control" value="12.0" step="0.5" min="0" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="gtOperatingHours" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Annual Operating Hours</label>
+            <input type="number" id="gtOperatingHours" class="form-control" value="4000" step="100" min="100" max="8760" oninput="calculateGasTurbine();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Machine Performance Results Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">Site Ambient Performance & Thermal Efficiency Results</h2>
+      <div id="gtDerateBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#f59e0b; color:#fff;">SITE DERATED: -18.2% FROM ISO RATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Net Site Power Output</span>
+        <strong id="gtSitePower" style="font-size:1.4rem; color:#38bdf8;">196.3 MW</strong>
+        <span id="gtPowerDelta" style="font-size:0.8rem; color:var(--text-muted); display:block;">-43.7 MW vs 240.0 MW ISO Base</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Site Heat Rate (LHV Net)</span>
+        <strong id="gtSiteHeatRate" style="font-size:1.4rem; color:#f59e0b;">9,580 Btu/kWh</strong>
+        <span id="gtSiteHeatRateKj" style="font-size:0.8rem; color:var(--text-muted); display:block;">10,108 kJ/kWh (+4.1% Heat Rate Penalty)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Thermal Efficiency &eta;_th (LHV)</span>
+        <strong id="gtEffLhv" style="font-size:1.4rem; color:#10b981;">35.62%</strong>
+        <span id="gtEffHhv" style="font-size:0.8rem; color:var(--text-muted); display:block;">HHV Efficiency: 32.15%</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Inlet Cooling Power Boost</span>
+        <strong id="gtInletBoost" style="font-size:1.4rem; color:#38bdf8;">+12.4 MW</strong>
+        <span id="gtInletTemp" style="font-size:0.8rem; color:var(--text-muted); display:block;">Inlet Chilled: 95&deg;F &rarr; 76.5&deg;F</span>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Fuel Consumption Rate:</span>
+        <strong id="gtFuelBurn" style="color:inherit;">1,881 MMBtu/hr (38,400 kg/h)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Hourly Fuel Operating Cost:</span>
+        <strong id="gtHourlyCost" style="color:inherit;">$6,583 / hour ($33.53 / MWh)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Site Atmospheric Pressure:</span>
+        <strong id="gtBaroPress" style="color:inherit;">14.07 psia (97.0 kPa / 0.957 bar)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Annual CO2 Emissions:</span>
+        <strong id="gtCo2Annual" style="color:inherit;">398,800 Metric Tonnes / yr</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyGT" class="btn btn-secondary" onclick="copyGTSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Brayton Cycle & Turbine Cutaway Schematic -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      Gas Turbine Brayton Thermodynamic Flowsheet & Ambient Derating Profile
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Schematic illustrating axial compressor intake, dry low-NOx combustion chambers, high-pressure expansion turbine, and generator shaft output alongside ambient derating curves.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="gtTurbineSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; border-radius:2px;"></span> Compressor Intake Air</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Combustor Heat Addition</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Power Turbine Expansion</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#10b981; border-radius:2px;"></span> Generator Power Output</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: ISO 3977 Formulas & Brayton Cycle Physics
+    </h3>
+    <div id="gtDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Gas Turbine Rating & Heat Rate Calculations
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. The 11% LHV vs HHV Contractual Heat Rate Blunder</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Turbine manufacturers (GE, Siemens, Mitsubishi) guarantee gas turbine heat rate based on Lower Heating Value (LHV), which assumes water vapor in combustion exhaust never condenses. But commercial gas utilities bill customers based on Higher Heating Value (HHV). For natural gas, HHV is <strong>10.8% to 11.2% higher than LHV</strong>. Project pro-formas that confuse LHV with HHV underestimate annual fuel operating expenses by millions of dollars!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. The Summer Peak Power Deficit (Losing 20% Output at $2,000/MWh)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Gas turbines are constant-volume air pumps. When ambient summer air heats from 59&deg;F (ISO) to 105&deg;F, air density drops by 8.5%. Compressor mass airflow collapses, causing power output to plunge by 18% to 22% right when electrical grid demand and LMP spot prices surge to $2,000/MWh. Facilities that fail to install inlet evaporative chillers leave tens of millions in peak summer generation revenue on the table.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Inlet Filter Differential Pressure Parasitic Loss</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Dust loading on inlet air filtration houses increases differential pressure drop (&Delta;P). In a heavy-duty gas turbine, every <strong>4.0 inches of water column (10 mbar) additional inlet pressure drop</strong> causes an immediate 1.5% to 2.0% loss in power output and a 0.7% increase in heat rate. Delaying filter canister changeouts saves thousands in maintenance but burns hundreds of thousands in excess fuel gas.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. Water Fogging Droplet Impingement & R0 Compressor Blade Erosion</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          High-pressure fogging systems inject demineralized water droplets into the air duct to reach 100% relative humidity. If nozzle atomization deteriorates or overspray creates droplets &gt; 25 microns, liquid droplets strike the supersonic tip of Stage 0 / Stage 1 compressor titanium blades at 1,400 ft/s. This abrasive impingement erodes leading edges and causes uncontained catastrophic blade liberation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. Altitude Neglect in Mountain & High-Plateau Siting</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Air density decreases directly with barometric pressure (~3.5% reduction per 1,000 feet of elevation). Siting a 100 MW ISO-rated gas turbine at a mining site at 6,000 ft (1,830 m) elevation permanently cuts baseline sea-level output to ~80 MW, even in freezing weather. Sizing generator transformers and auxiliary switchgear without elevation derating produces grossly mismatched capital assets.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: Gas Turbine Heat Rate & Sizing
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is heat rate and how does it relate to thermal efficiency?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Heat rate is the measure of heat energy input required to produce one unit of electrical energy output. In Imperial units, it is expressed as Btu/kWh. In SI units, it is expressed as kJ/kWh. Thermal efficiency (&eta;<sub>th</sub>) is inversely proportional to heat rate: <strong>&eta;<sub>th</sub> = 3,412.14 / Heat Rate (Btu/kWh) = 3,600 / Heat Rate (kJ/kWh)</strong>. A lower heat rate signifies a more efficient turbine.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What are ISO 3977 standard reference conditions?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ISO 3977-2 and ASME PTC 22, standard reference conditions for rating gas turbines are: Ambient air temperature of <strong>15&deg;C (59&deg;F)</strong>, barometric pressure of <strong>101.325 kPa (14.696 psia / 1.01325 bar)</strong> at sea level, and relative humidity of <strong>60%</strong>. Inlet filter loss and exhaust backpressure are zero at reference baseline.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">Why does ambient air temperature derate gas turbine power?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Gas turbine compressors intake a constant volumetric flow of air. When ambient air temperature rises, air density drops (&rho; = P / RT). With less air mass entering the compressor, less oxygen is available for combustion, reducing mass flow through the power turbine. Typically, power output drops by <strong>0.35% to 0.45% per 1&deg;F (0.65% to 0.80% per 1&deg;C)</strong> rise above 59&deg;F.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the difference between Lower and Higher Heating Value?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Higher Heating Value (HHV) includes the latent heat of vaporization of water formed during combustion, assuming it condenses to liquid. Lower Heating Value (LHV) assumes water vapor exits the stack uncondensed. Because gas turbines exhaust gases at 900&deg;F to 1,150&deg;F, water never condenses in the turbine, making LHV the standard engineering basis. For natural gas, HHV is approximately 10.8% higher than LHV.
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How does inlet air cooling recover turbine output in hot weather?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Inlet evaporative coolers or foggers evaporate water into the incoming airstream, dropping air temperature towards the wet-bulb temperature. Mechanical chillers can drop inlet air down to 50&deg;F (10&deg;C) regardless of ambient humidity. Denser inlet air restores compressor mass flow, boosting power output by 10% to 20% during peak heatwaves.
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function applyGTPreset(key) {
+  if (key === 'f_class') {
+    document.getElementById('gtIsoPower').value = '240';
+    document.getElementById('gtIsoHeatRate').value = '9200';
+    document.getElementById('gtFuelType').value = 'natural_gas';
+    document.getElementById('gtGasPrice').value = '3.50';
+    document.getElementById('gtInletCooling').value = 'none';
+    document.getElementById('gtSiteDryBulb').value = '95';
+    document.getElementById('gtSiteRH').value = '40';
+    document.getElementById('gtElevation').value = '1200';
+    document.getElementById('gtFilterLoss').value = '3.5';
+    document.getElementById('gtExhaustLoss').value = '12.0';
+    document.getElementById('gtOperatingHours').value = '4000';
+  } else if (key === 'ha_class') {
+    document.getElementById('gtIsoPower').value = '385';
+    document.getElementById('gtIsoHeatRate').value = '8250';
+    document.getElementById('gtFuelType').value = 'natural_gas';
+    document.getElementById('gtGasPrice').value = '3.50';
+    document.getElementById('gtInletCooling').value = 'evap_media';
+    document.getElementById('gtSiteDryBulb').value = '100';
+    document.getElementById('gtSiteRH').value = '30';
+    document.getElementById('gtElevation').value = '500';
+    document.getElementById('gtFilterLoss').value = '4.0';
+    document.getElementById('gtExhaustLoss').value = '14.0';
+    document.getElementById('gtOperatingHours').value = '5500';
+  } else if (key === 'aeroderivative') {
+    document.getElementById('gtIsoPower').value = '50';
+    document.getElementById('gtIsoHeatRate').value = '8600';
+    document.getElementById('gtFuelType').value = 'natural_gas';
+    document.getElementById('gtGasPrice').value = '4.00';
+    document.getElementById('gtInletCooling').value = 'fogging';
+    document.getElementById('gtSiteDryBulb').value = '90';
+    document.getElementById('gtSiteRH').value = '45';
+    document.getElementById('gtElevation').value = '800';
+    document.getElementById('gtFilterLoss').value = '3.0';
+    document.getElementById('gtExhaustLoss').value = '8.0';
+    document.getElementById('gtOperatingHours').value = '2000';
+  } else if (key === 'desert_cogen') {
+    document.getElementById('gtIsoPower').value = '85';
+    document.getElementById('gtIsoHeatRate').value = '9600';
+    document.getElementById('gtFuelType').value = 'natural_gas';
+    document.getElementById('gtGasPrice').value = '4.50';
+    document.getElementById('gtInletCooling').value = 'chiller';
+    document.getElementById('gtSiteDryBulb').value = '105';
+    document.getElementById('gtSiteRH').value = '20';
+    document.getElementById('gtElevation').value = '5500';
+    document.getElementById('gtFilterLoss').value = '4.5';
+    document.getElementById('gtExhaustLoss').value = '10.0';
+    document.getElementById('gtOperatingHours').value = '6000';
+  }
+  calculateGasTurbine();
+}
+
+function calculateGasTurbine() {
+  var P_iso = parseFloat(document.getElementById('gtIsoPower').value) || 240.0;
+  var HR_iso_lhv = parseFloat(document.getElementById('gtIsoHeatRate').value) || 9200.0;
+  var fuelType = document.getElementById('gtFuelType').value;
+  var fuelPrice = parseFloat(document.getElementById('gtGasPrice').value) || 3.50;
+  var inletCooling = document.getElementById('gtInletCooling').value;
+
+  var T_dry_F = parseFloat(document.getElementById('gtSiteDryBulb').value) || 95.0;
+  var rh_pct = parseFloat(document.getElementById('gtSiteRH').value) || 40.0;
+  var elev_ft = parseFloat(document.getElementById('gtElevation').value) || 1200.0;
+  var dp_inlet = parseFloat(document.getElementById('gtFilterLoss').value) || 3.5;
+  var dp_exhaust = parseFloat(document.getElementById('gtExhaustLoss').value) || 12.0;
+  var opHours = parseFloat(document.getElementById('gtOperatingHours').value) || 4000.0;
+
+  // HHV / LHV ratio
+  var hhvRatio = 1.108;
+  if (fuelType === 'lng') hhvRatio = 1.106;
+  else if (fuelType === 'distillate') hhvRatio = 1.060;
+  else if (fuelType === 'hydrogen_blend') hhvRatio = 1.125;
+
+  // Barometric pressure from elevation (Standard Atmosphere model)
+  var elev_m = elev_ft * 0.3048;
+  var P_baro_kPa = 101.325 * Math.pow(1 - (2.25577e-5 * elev_m), 5.25588);
+  var P_baro_psia = P_baro_kPa * 0.145038;
+  var P_baro_bar = P_baro_kPa / 100.0;
+
+  // Elevation derating factor: approximately linear with barometric pressure ratio
+  var f_elev = P_baro_kPa / 101.325;
+
+  // Approximate wet-bulb temperature (Stull equation approximation for ambient range)
+  var T_dry_C = (T_dry_F - 32) * (5 / 9);
+  var Tw_C = T_dry_C * Math.atan(0.151977 * Math.pow(rh_pct + 8.313659, 0.5))
+            + Math.atan(T_dry_C + rh_pct)
+            - Math.atan(rh_pct - 1.676331)
+            + 0.00391838 * Math.pow(rh_pct, 1.5) * Math.atan(0.023101 * rh_pct)
+            - 4.686035;
+  var Tw_F = (Tw_C * 9 / 5) + 32;
+
+  // Inlet conditioning
+  var T_inlet_F = T_dry_F;
+  if (inletCooling === 'evap_media') {
+    T_inlet_F = T_dry_F - 0.85 * (T_dry_F - Tw_F);
+  } else if (inletCooling === 'fogging') {
+    T_inlet_F = T_dry_F - 0.95 * (T_dry_F - Tw_F);
+  } else if (inletCooling === 'chiller') {
+    T_inlet_F = Math.min(T_dry_F, 50.0);
+  }
+
+  // Ambient temperature derating factor (referenced to ISO 59 deg F)
+  // Power drops ~0.38% per deg F rise above 59 F
+  var deltaT_ambient = T_inlet_F - 59.0;
+  var f_temp_power = 1.0 - (0.0038 * deltaT_ambient);
+
+  // Heat rate increases ~0.08% per deg F rise above 59 F
+  var f_temp_hr = 1.0 + (0.0008 * deltaT_ambient);
+
+  // Pressure drop deratings:
+  // Inlet: -0.38% power per 1" wc drop; +0.12% HR per 1" wc drop
+  var f_inlet_dp_p = 1.0 - (0.0038 * dp_inlet);
+  var f_inlet_dp_hr = 1.0 + (0.0012 * dp_inlet);
+
+  // Exhaust: -0.15% power per 1" wc backpressure; +0.15% HR per 1" wc
+  var f_exh_dp_p = 1.0 - (0.0015 * dp_exhaust);
+  var f_exh_dp_hr = 1.0 + (0.0015 * dp_exhaust);
+
+  // Unconditioned dry baseline power (no cooling)
+  var deltaT_uncooled = T_dry_F - 59.0;
+  var f_uncooled_p = (1.0 - (0.0038 * deltaT_uncooled)) * f_elev * f_inlet_dp_p * f_exh_dp_p;
+  var P_site_uncooled = P_iso * f_uncooled_p;
+
+  // Site Net Power
+  var P_site = P_iso * f_temp_power * f_elev * f_inlet_dp_p * f_exh_dp_p;
+  var deltaP_iso = P_site - P_iso;
+  var inletBoost_MW = Math.max(0, P_site - P_site_uncooled);
+
+  // Site Heat Rate LHV
+  var HR_site_lhv = HR_iso_lhv * f_temp_hr * f_inlet_dp_hr * f_exh_dp_hr;
+  var HR_site_hhv = HR_site_lhv * hhvRatio;
+  var HR_site_kj = HR_site_lhv * 1.05506;
+
+  // Thermal Efficiencies
+  var eff_lhv_pct = (3412.14 / HR_site_lhv) * 100;
+  var eff_hhv_pct = (3412.14 / HR_site_hhv) * 100;
+
+  // Fuel Consumption & Operating Economics
+  var fuel_MMBtu_hr = (P_site * 1000 * HR_site_lhv) / 1e6;
+  var hourlyFuelCost = fuel_MMBtu_hr * fuelPrice;
+  var costPerMWh = hourlyFuelCost / P_site;
+
+  // Annual emissions (natural gas ~ 53.07 kg CO2 / MMBtu)
+  var co2_tonnes_yr = (fuel_MMBtu_hr * 53.07 * opHours) / 1000;
+
+  // DOM Updates
+  var deratePct = ((P_site - P_iso) / P_iso) * 100;
+  var badgeEl = document.getElementById('gtDerateBadge');
+  if (deratePct < 0) {
+    badgeEl.textContent = 'SITE DERATED: ' + deratePct.toFixed(1) + '% FROM ISO RATING';
+    badgeEl.style.background = '#f59e0b';
+  } else {
+    badgeEl.textContent = 'SITE BOOST: +' + deratePct.toFixed(1) + '% OVER ISO RATING';
+    badgeEl.style.background = '#10b981';
+  }
+
+  document.getElementById('gtSitePower').textContent = P_site.toFixed(1) + ' MW';
+  document.getElementById('gtPowerDelta').textContent = (deltaP_iso > 0 ? '+' : '') + deltaP_iso.toFixed(1) + ' MW vs ' + P_iso.toFixed(1) + ' MW ISO Base';
+
+  document.getElementById('gtSiteHeatRate').textContent = Math.round(HR_site_lhv).toLocaleString() + ' Btu/kWh';
+  document.getElementById('gtSiteHeatRateKj').textContent = Math.round(HR_site_kj).toLocaleString() + ' kJ/kWh (' + (((HR_site_lhv - HR_iso_lhv)/HR_iso_lhv)*100).toFixed(1) + '% Penalty)';
+
+  document.getElementById('gtEffLhv').textContent = eff_lhv_pct.toFixed(2) + '%';
+  document.getElementById('gtEffHhv').textContent = 'HHV Efficiency: ' + eff_hhv_pct.toFixed(2) + '%';
+
+  document.getElementById('gtInletBoost').textContent = '+' + inletBoost_MW.toFixed(1) + ' MW';
+  document.getElementById('gtInletTemp').textContent = 'Inlet Temp: ' + T_dry_F.toFixed(0) + '&deg;F &rarr; ' + T_inlet_F.toFixed(1) + '&deg;F';
+
+  document.getElementById('gtFuelBurn').textContent = Math.round(fuel_MMBtu_hr).toLocaleString() + ' MMBtu/hr';
+  document.getElementById('gtHourlyCost').textContent = '$' + Math.round(hourlyFuelCost).toLocaleString() + ' / hr ($' + costPerMWh.toFixed(2) + ' / MWh)';
+  document.getElementById('gtBaroPress').textContent = P_baro_psia.toFixed(2) + ' psia (' + P_baro_kPa.toFixed(1) + ' kPa / ' + P_baro_bar.toFixed(3) + ' bar)';
+  document.getElementById('gtCo2Annual').textContent = Math.round(co2_tonnes_yr).toLocaleString() + ' Tonnes CO2 / yr';
+
+  renderGTSchematic(P_iso, P_site, HR_site_lhv, eff_lhv_pct, T_inlet_F);
+
+  renderGTDerivations({
+    P_iso: P_iso, HR_iso_lhv: HR_iso_lhv, T_dry_F: T_dry_F, Tw_F: Tw_F, T_inlet_F: T_inlet_F,
+    elev_ft: elev_ft, P_baro_kPa: P_baro_kPa, f_elev: f_elev, f_temp_power: f_temp_power,
+    P_site: P_site, HR_site_lhv: HR_site_lhv, HR_site_hhv: HR_site_hhv, hhvRatio: hhvRatio,
+    eff_lhv_pct: eff_lhv_pct, eff_hhv_pct: eff_hhv_pct, fuel_MMBtu_hr: fuel_MMBtu_hr
+  });
+}
+
+function renderGTSchematic(P_iso, P_site, HR_lhv, eff, T_inlet) {
+  var svg = document.getElementById('gtTurbineSvg');
+  var w = 800;
+  var h = 280;
+
+  var svgContent = ''
+    + '<!-- Compressor Trapezoid (Air Intake) -->'
+    + '<polygon points="120,70 240,100 240,180 120,210" fill="#0284c7" stroke="#38bdf8" stroke-width="2" opacity="0.8" />'
+    + '<text x="180" y="145" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">Compressor</text>'
+    + '<text x="180" y="165" fill="#bae6fd" font-size="10" text-anchor="middle">Inlet: ' + T_inlet.toFixed(0) + '&deg;F</text>'
+
+    + '<!-- Combustor Section -->'
+    + '<rect x="255" y="85" width="90" height="110" rx="6" fill="#ef4444" stroke="#f87171" stroke-width="2" />'
+    + '<text x="300" y="140" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">Combustor</text>'
+    + '<text x="300" y="160" fill="#fecaca" font-size="10" text-anchor="middle">Heat In</text>'
+
+    + '<!-- Turbine Expansion Trapezoid -->'
+    + '<polygon points="360,100 480,70 480,210 360,180" fill="#f59e0b" stroke="#fbbf24" stroke-width="2" />'
+    + '<text x="420" y="145" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">Turbine</text>'
+    + '<text x="420" y="165" fill="#fef3c7" font-size="10" text-anchor="middle">Expansion</text>'
+
+    + '<!-- Generator -->'
+    + '<rect x="520" y="90" width="130" height="100" rx="8" fill="#10b981" stroke="#34d399" stroke-width="2" />'
+    + '<text x="585" y="135" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">Generator</text>'
+    + '<text x="585" y="155" fill="#d1fae5" font-size="13" font-weight="800" text-anchor="middle">' + P_site.toFixed(1) + ' MW</text>'
+
+    + '<!-- Shaft Line -->'
+    + '<line x1="200" y1="140" x2="520" y2="140" stroke="#94a3b8" stroke-width="6" stroke-dasharray="6,4" />'
+
+    + '<!-- Ambient Performance Box -->'
+    + '<rect x="250" y="215" width="300" height="50" rx="6" fill="#1e293b" stroke="#334155" />'
+    + '<text x="400" y="235" fill="#38bdf8" font-size="11" font-weight="600" text-anchor="middle">Net Heat Rate: ' + Math.round(HR_lhv) + ' Btu/kWh</text>'
+    + '<text x="400" y="253" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">Thermal Efficiency: ' + eff.toFixed(2) + '% LHV</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderGTDerivations(p) {
+  var container = document.getElementById('gtDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Site Ambient Air Derating (ISO 3977 Baseline Derate):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 'P_{site} = P_{ISO} &times; f_{temp} &times; f_{elev} &times; f_{inlet\_dp} &times; f_{exh\_dp}'
+    + '</div>'
+    + '<div>'
+    + 'Elevation factor (' + p.elev_ft + ' ft / ' + p.P_baro_kPa.toFixed(1) + ' kPa): f_{elev} = ' + p.f_elev.toFixed(3) + ' &bull; Temp factor (' + p.T_inlet_F.toFixed(1) + '&deg;F): f_{temp} = ' + p.f_temp_power.toFixed(3) + '<br>'
+    + 'Net Site Power: <strong>' + p.P_site.toFixed(1) + ' MW (from ' + p.P_iso + ' MW ISO base)</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Thermal Efficiency & Heat Rate (LHV vs HHV):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#10b981;">'
+    + '\u03b7_{th,LHV} = 3412.14 / HR_{LHV} = 3412.14 / ' + Math.round(p.HR_site_lhv) + ' = <strong>' + p.eff_lhv_pct.toFixed(2) + '%</strong>'
+    + '</div>'
+    + '<div>'
+    + 'HHV Heat Rate (' + p.hhvRatio + ' ratio): <strong>' + Math.round(p.HR_site_hhv) + ' Btu/kWh</strong> &rarr; \u03b7_{th,HHV} = <strong>' + p.eff_hhv_pct.toFixed(2) + '%</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Fuel Firing Heat Input & Carbon Footprint:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#ef4444;">'
+    + 'Q_{in} = (P_{site} &times; 1000 &times; HR_{LHV}) / 10\u2076 = <strong>' + Math.round(p.fuel_MMBtu_hr).toLocaleString() + ' MMBtu/hr</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyGTSummary() {
+  var pSite = document.getElementById('gtSitePower').textContent;
+  var hrLhv = document.getElementById('gtSiteHeatRate').textContent;
+  var effLhv = document.getElementById('gtEffLhv').textContent;
+  var effHhv = document.getElementById('gtEffHhv').textContent;
+  var boost = document.getElementById('gtInletBoost').textContent;
+  var cost = document.getElementById('gtHourlyCost').textContent;
+  var badge = document.getElementById('gtDerateBadge').textContent;
+
+  var summary = [
+    '=== GAS TURBINE HEAT RATE & PERFORMANCE REPORT ===',
+    'Status: ' + badge,
+    'Site Net Output: ' + pSite,
+    'Site Heat Rate (LHV): ' + hrLhv,
+    'Thermal Efficiency: ' + effLhv + ' (' + effHhv + ')',
+    'Inlet Cooling Power Boost: ' + boost,
+    'Hourly Fuel Expense: ' + cost,
+    'Standards: ISO 3977 & ASME PTC 22',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyGT');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateGasTurbine();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateGasTurbine();
+}
+</script>
+`;
+
+
+
+// ==========================================
+// TOOL AJ4: Concrete Anchor Bolt Pullout & Shear Breakout Calculator (ACI 318-19)
+// ==========================================
+const concreteAnchorBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Concrete Anchor Bolt Pullout & Shear Breakout Calculator</h1>
+    <p class="calc-desc">Calculate structural anchor bolt tensile capacity, 35&deg; concrete breakout cone strength, head pullout resistance, concrete shear breakout, pryout, and combined tension-shear interaction per ACI 318-19 Chapter 17 and AISC Design Guide 1.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">STRUCTURAL FOUNDATION PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyABPreset('heavy_column')">🏛️ Heavy Column Base (4&times; 1" F1554 Gr 55 / 12" hef)</button>
+      <button type="button" class="btn-preset" onclick="applyABPreset('skid_near_edge')">📦 Equipment Skid Near Edge (3/4" Stud / 6" ca1)</button>
+      <button type="button" class="btn-preset" onclick="applyABPreset('pipe_rack')">🏭 Industrial Pipe Rack (1-1/4" Gr 105 / 16" hef)</button>
+      <button type="button" class="btn-preset" onclick="applyABPreset('light_post')">💡 Canopy / Light Post (3/4" Gr 36 / 7" hef)</button>
+    </div>
+  </div>
+
+  <form id="abForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Anchor Bolt Specifications -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🔩</span> Anchor Steel & Geometry Properties
+        </h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="abSteelGrade" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Anchor Bolt Steel Spec</label>
+            <select id="abSteelGrade" class="form-control" onchange="onABSteelChange(); calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="f1554_36">ASTM F1554 Grade 36 (Futa = 58 ksi / Fy = 36 ksi)</option>
+              <option value="f1554_55" selected>ASTM F1554 Grade 55 (Futa = 75 ksi / Fy = 55 ksi)</option>
+              <option value="f1554_105">ASTM F1554 Grade 105 (Futa = 125 ksi / Fy = 105 ksi)</option>
+              <option value="a307">ASTM A307 Grade A (Futa = 60 ksi)</option>
+              <option value="a325">ASTM F3125 / A325 (Futa = 120 ksi)</option>
+              <option value="stainless316">Stainless Steel 316 (Futa = 70 ksi)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="abDia" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Bolt Diameter d<sub>a</sub> (in)</label>
+            <select id="abDia" class="form-control" onchange="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="0.5">1/2" (Ase = 0.142 in&sup2;)</option>
+              <option value="0.625">5/8" (Ase = 0.226 in&sup2;)</option>
+              <option value="0.75">3/4" (Ase = 0.334 in&sup2;)</option>
+              <option value="0.875">7/8" (Ase = 0.462 in&sup2;)</option>
+              <option value="1.0" selected>1" (Ase = 0.606 in&sup2;)</option>
+              <option value="1.125">1-1/8" (Ase = 0.763 in&sup2;)</option>
+              <option value="1.25">1-1/4" (Ase = 0.969 in&sup2;)</option>
+              <option value="1.5">1-1/2" (Ase = 1.405 in&sup2;)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="abHef" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Effective Embedment h<sub>ef</sub> (in)</label>
+            <input type="number" id="abHef" class="form-control" value="12.0" step="0.5" min="2.0" oninput="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="abNumBolts" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Anchor Array Layout</label>
+            <select id="abNumBolts" class="form-control" onchange="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="1">1 Single Isolated Anchor</option>
+              <option value="2">2-Bolt Line (Spacing s)</option>
+              <option value="4" selected>4-Bolt Square Pattern (2&times;2)</option>
+              <option value="6">6-Bolt Rectangular Array</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="abSpacing" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Bolt Spacing s (in)</label>
+            <input type="number" id="abSpacing" class="form-control" value="8.0" step="0.5" min="1.0" oninput="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="abEdgeDist" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Edge Distance c<sub>a1</sub> (in)</label>
+            <input type="number" id="abEdgeDist" class="form-control" value="18.0" step="0.5" min="1.5" oninput="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Concrete Substrate & Applied Factored Loads -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🧱</span> Concrete Foundation & Factored Demands
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="abFc" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Concrete Compressive f'<sub>c</sub> (psi)</label>
+            <input type="number" id="abFc" class="form-control" value="4000" step="250" min="2000" max="10000" oninput="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="abConcreteState" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Concrete Cracking State</label>
+            <select id="abConcreteState" class="form-control" onchange="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="cracked" selected>Cracked Concrete (&psi;_c,N = 1.0)</option>
+              <option value="uncracked">Uncracked Concrete (&psi;_c,N = 1.25)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="abAnchorType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Anchor Attachment Type</label>
+            <select id="abAnchorType" class="form-control" onchange="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="cast_in" selected>Cast-In Headed Bolt (kc = 24)</option>
+              <option value="post_installed">Post-Installed Mechanical (kc = 17)</option>
+              <option value="hooked_j">Hooked J/L Bolt (Limited Pullout)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="abSlabThk" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Member Thickness h<sub>a</sub> (in)</label>
+            <input type="number" id="abSlabThk" class="form-control" value="18.0" step="0.5" min="3.0" oninput="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="abFactoredTension" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Factored Tension N<sub>ua</sub> (kips)</label>
+            <input type="number" id="abFactoredTension" class="form-control" value="28.0" step="1" min="0" oninput="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="abFactoredShear" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Factored Shear V<sub>ua</sub> (kips)</label>
+            <input type="number" id="abFactoredShear" class="form-control" value="14.0" step="1" min="0" oninput="calculateAnchorBolt();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Structural Results Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">ACI 318-19 Chapter 17 Anchor Capacity Diagnostics</h2>
+      <div id="abSafetyBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#10b981; color:#fff;">PASS: INTERACTION RATIO &le; 1.00</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Governing Design Tension &phi;N_n</span>
+        <strong id="abDesignTension" style="font-size:1.4rem; color:#38bdf8;">45.2 kips</strong>
+        <span id="abTensionMode" style="font-size:0.8rem; color:var(--text-muted); display:block;">Governed by Concrete Breakout</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Governing Design Shear &phi;V_n</span>
+        <strong id="abDesignShear" style="font-size:1.4rem; color:#f59e0b;">38.6 kips</strong>
+        <span id="abShearMode" style="font-size:0.8rem; color:var(--text-muted); display:block;">Governed by Concrete Pryout</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Combined Interaction Ratio</span>
+        <strong id="abInteractionVal" style="font-size:1.4rem; color:#10b981;">0.62</strong>
+        <span id="abInteractionEq" style="font-size:0.8rem; color:var(--text-muted); display:block;">(N/&phi;N)^5/3 + (V/&phi;V)^5/3 &le; 1.0</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Breakout Cone Projected Area</span>
+        <strong id="abProjectedArea" style="font-size:1.4rem; color:#ef4444;">1,024 in&sup2;</strong>
+        <span id="abAreaRatio" style="font-size:0.8rem; color:var(--text-muted); display:block;">ANc / ANco = 0.79 (Group Overlap)</span>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Steel Tensile Strength (&phi;N_sa):</span>
+        <strong id="abSteelTension" style="color:inherit;">136.4 kips (4 bolts)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Anchor Head Pullout (&phi;N_pn):</span>
+        <strong id="abHeadPullout" style="color:inherit;">64.0 kips (&ge; Demand)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Concrete Edge Shear Breakout:</span>
+        <strong id="abEdgeShear" style="color:inherit;">52.8 kips (at ca1 = 18.0 in)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Tension Utilization Demand/Cap:</span>
+        <strong id="abTensionUtil" style="color:inherit;">61.9% (Nua = 28.0 kips)</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyAB" class="btn btn-secondary" onclick="copyABSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Concrete Breakout Prism & Failure Geometry -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      ACI 318 Concrete Breakout Cone Geometry & Tension/Shear Vector Field
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Schematic illustrating anchor embedment depth h<sub>ef</sub>, 35&deg; concrete breakout failure prism (pyramid), free edge boundary distance c<sub>a1</sub>, and anchor head bearing zone.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="abConeSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#64748b; border-radius:2px;"></span> Concrete Substrate</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> 35&deg; Breakout Cone</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; border-radius:2px;"></span> Embedded Anchor Bolt</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Factored Force Vector</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: ACI 318-19 Chapter 17 Governing Limit States
+    </h3>
+    <div id="abDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Structural Anchor Bolt Sizing & ACI 318 Compliance
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. Edge Breakout Neglect on Near-Edge Foundation Piers</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When shear load acts towards a free concrete edge, breakout strength is governed by concrete edge distance c<sub>a1</sub> rather than steel shear strength. If c<sub>a1</sub> &lt; 1.5 &times; h<sub>ef</sub>, the concrete breakout prism cannot fully develop. A 1-inch anchor bolt capable of 30 kips in pure steel shear violently spalls off the corner of a narrow pedestal at just 8 kips!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. Assuming Uncracked Concrete in Flexural Pier Zones</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Designers often claim the 25% strength bonus for "uncracked concrete" (&psi;<sub>c,N</sub> = 1.25). But ACI 318-19 Section 17.6.2.5 mandates that concrete must be assumed <strong>cracked</strong> unless rigorous analysis proves tensile stresses under service loads do not exceed flexural cracking stress f<sub>r</sub> = 7.5&lambda;&radic;f'<sub>c</sub>. In wind, seismic, and moment-resisting baseplates, concrete is virtually always cracked!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Group Cone Overlap Overcounting (Spacing s &lt; 3 &times; h_ef)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          The failure cone of an anchor extends radially outward by 1.5 &times; h<sub>ef</sub> in all directions, defining an ideal single-anchor projected area A<sub>Nco</sub> = 9 h<sub>ef</sub>&sup2;. In a 4-bolt group with 6-inch spacing and 12-inch embedment, the 4 breakout cones completely overlap. The group does NOT have 4&times; the capacity of a single bolt—it provides barely 1.8&times; capacity!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. Hooked "J" and "L" Bolts in High-Tension Foundations</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Traditional smooth bent-bar J-bolts and L-bolts rely entirely on mechanical hook bend bearing. Under sustained tension, the concrete inside the bend crushes prematurely, allowing the hook to straighten and pull out like a hot knife through butter at 25% of steel yield strength. Modern codes and AISC Design Guide 1 strictly mandate <strong>headed anchor bolts or heavy hex nuts with anchor plates</strong> for structural moment frames.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. Levelling Nut Baseplate Grout Gap Bending Arm</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When columns are installed with levelling nuts and a 1.5" to 2.0" grout pad gap, shear forces cannot transfer via pure bearing friction until non-shrink grout is fully cured. During erection, the anchor bolts act as unbraced cantilever beams. The shear force induces severe local bending moments in the threaded shank, reducing tensile capacity by over 50%!
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: ACI 318-19 Anchor Bolt Design
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What are the 6 mandatory failure modes evaluated in ACI 318 Chapter 17?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          ACI 318-19 evaluates: 1) Steel strength in tension (&phi;N<sub>sa</sub>), 2) Concrete breakout strength in tension (&phi;N<sub>cbg</sub>), 3) Pullout strength of anchor head (&phi;N<sub>pn</sub>), 4) Steel strength in shear (&phi;V<sub>sa</sub>), 5) Concrete breakout strength in shear towards free edge (&phi;V<sub>cbg</sub>), and 6) Concrete pryout strength in shear (&phi;V<sub>cpg</sub>).
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the 35-degree breakout cone model?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Extensive empirical testing at the University of Stuttgart and University of Texas demonstrated that concrete tensile breakout fractures follow an approximate 35&deg; angle from the anchor head to the concrete surface. This corresponds to an idealized pyramid extending a horizontal distance of <strong>1.5 &times; h<sub>ef</sub></strong> in each direction, producing a base dimension of 3 &times; h<sub>ef</sub> on each side (A<sub>Nco</sub> = 9 h<sub>ef</sub>&sup2;).
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How is combined tension and shear interaction calculated?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ACI 318-19 Section 17.8, if N<sub>ua</sub> &gt; 0.2 &phi;N<sub>n</sub> and V<sub>ua</sub> &gt; 0.2 &phi;V<sub>n</sub>, the combined interaction must satisfy the trilinear or 5/3 power relationship: <strong>(N<sub>ua</sub> / &phi;N<sub>n</sub>)<sup>5/3</sup> + (V<sub>ua</sub> / &phi;V<sub>n</sub>)<sup>5/3</sup> &le; 1.0</strong>. This elliptic curve accurately matches biaxial fracture test envelopes.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is concrete pryout strength in shear?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Pryout occurs when short, stiff anchors subjected to shear force tilt in the concrete hole, prying out a chunk of concrete behind the anchor rather than shearing the steel shank. ACI 318 defines pryout strength as: <strong>V<sub>cpg</sub> = k<sub>cp</sub> &times; N<sub>cbg</sub></strong>, where k<sub>cp</sub> = 1.0 for h<sub>ef</sub> &lt; 2.5", and 2.0 for h<sub>ef</sub> &ge; 2.5".
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">Why is ASTM F1554 the premier structural anchor bolt standard?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          ASTM F1554 was created specifically for structural foundation anchor bolts and is the only anchor specification endorsed by AISC. It provides three distinct yield strength grades: Grade 36 (weldable mild carbon steel), Grade 55 (high-strength alloy with mandatory Charpy V-notch toughness option), and Grade 105 (heat-treated alloy steel for heavy industrial columns).
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Steel mechanical properties table
+var abSteelData = {
+  f1554_36: { futa: 58000, fy: 36000 },
+  f1554_55: { futa: 75000, fy: 55000 },
+  f1554_105: { futa: 125000, fy: 105000 },
+  a307: { futa: 60000, fy: 36000 },
+  a325: { futa: 120000, fy: 92000 },
+  stainless316: { futa: 70000, fy: 30000 }
+};
+
+// Bolt diameter to tensile stress area Ase table (in2)
+var abAseTable = {
+  "0.5": 0.142,
+  "0.625": 0.226,
+  "0.75": 0.334,
+  "0.875": 0.462,
+  "1.0": 0.606,
+  "1.125": 0.763,
+  "1.25": 0.969,
+  "1.5": 1.405
+};
+
+function onABSteelChange() {
+  // Triggered when steel grade changes
+}
+
+function applyABPreset(key) {
+  if (key === 'heavy_column') {
+    document.getElementById('abSteelGrade').value = 'f1554_55';
+    document.getElementById('abDia').value = '1.0';
+    document.getElementById('abHef').value = '12.0';
+    document.getElementById('abNumBolts').value = '4';
+    document.getElementById('abSpacing').value = '8.0';
+    document.getElementById('abEdgeDist').value = '18.0';
+    document.getElementById('abFc').value = '4000';
+    document.getElementById('abConcreteState').value = 'cracked';
+    document.getElementById('abAnchorType').value = 'cast_in';
+    document.getElementById('abSlabThk').value = '18.0';
+    document.getElementById('abFactoredTension').value = '28.0';
+    document.getElementById('abFactoredShear').value = '14.0';
+  } else if (key === 'skid_near_edge') {
+    document.getElementById('abSteelGrade').value = 'f1554_55';
+    document.getElementById('abDia').value = '0.75';
+    document.getElementById('abHef').value = '8.0';
+    document.getElementById('abNumBolts').value = '2';
+    document.getElementById('abSpacing').value = '6.0';
+    document.getElementById('abEdgeDist').value = '6.0'; // Near edge!
+    document.getElementById('abFc').value = '3500';
+    document.getElementById('abConcreteState').value = 'cracked';
+    document.getElementById('abAnchorType').value = 'cast_in';
+    document.getElementById('abSlabThk').value = '12.0';
+    document.getElementById('abFactoredTension').value = '12.0';
+    document.getElementById('abFactoredShear').value = '10.0';
+  } else if (key === 'pipe_rack') {
+    document.getElementById('abSteelGrade').value = 'f1554_105';
+    document.getElementById('abDia').value = '1.25';
+    document.getElementById('abHef').value = '16.0';
+    document.getElementById('abNumBolts').value = '4';
+    document.getElementById('abSpacing').value = '10.0';
+    document.getElementById('abEdgeDist').value = '24.0';
+    document.getElementById('abFc').value = '4500';
+    document.getElementById('abConcreteState').value = 'cracked';
+    document.getElementById('abAnchorType').value = 'cast_in';
+    document.getElementById('abSlabThk').value = '24.0';
+    document.getElementById('abFactoredTension').value = '55.0';
+    document.getElementById('abFactoredShear').value = '25.0';
+  } else if (key === 'light_post') {
+    document.getElementById('abSteelGrade').value = 'f1554_36';
+    document.getElementById('abDia').value = '0.75';
+    document.getElementById('abHef').value = '7.0';
+    document.getElementById('abNumBolts').value = '4';
+    document.getElementById('abSpacing').value = '6.0';
+    document.getElementById('abEdgeDist').value = '10.0';
+    document.getElementById('abFc').value = '3000';
+    document.getElementById('abConcreteState').value = 'uncracked';
+    document.getElementById('abAnchorType').value = 'cast_in';
+    document.getElementById('abSlabThk').value = '12.0';
+    document.getElementById('abFactoredTension').value = '8.0';
+    document.getElementById('abFactoredShear').value = '4.0';
+  }
+  calculateAnchorBolt();
+}
+
+function calculateAnchorBolt() {
+  var steelKey = document.getElementById('abSteelGrade').value;
+  var diaStr = document.getElementById('abDia').value;
+  var hef = parseFloat(document.getElementById('abHef').value) || 12.0;
+  var numBolts = parseInt(document.getElementById('abNumBolts').value, 10) || 4;
+  var s = parseFloat(document.getElementById('abSpacing').value) || 8.0;
+  var ca1 = parseFloat(document.getElementById('abEdgeDist').value) || 18.0;
+  var fc = parseFloat(document.getElementById('abFc').value) || 4000.0;
+  var isCracked = document.getElementById('abConcreteState').value === 'cracked';
+  var anchorType = document.getElementById('abAnchorType').value;
+  var ha = parseFloat(document.getElementById('abSlabThk').value) || 18.0;
+  var Nua = parseFloat(document.getElementById('abFactoredTension').value) || 28.0;
+  var Vua = parseFloat(document.getElementById('abFactoredShear').value) || 14.0;
+
+  var da = parseFloat(diaStr);
+  var Ase = abAseTable[diaStr] || 0.606;
+  var futa = abSteelData[steelKey] ? abSteelData[steelKey].futa : 75000;
+
+  // 1. Steel Tensile Strength (phi = 0.75)
+  // Nsa = n * Ase * futa
+  var phi_steel_N = 0.75;
+  var Nsa_lbs = numBolts * Ase * futa;
+  var phiNsa_kips = (phi_steel_N * Nsa_lbs) / 1000.0;
+
+  // 2. Concrete Breakout Strength in Tension (phi = 0.70)
+  var phi_concrete = 0.70;
+  var kc = anchorType === 'post_installed' ? 17 : 24;
+  var lambda_a = 1.0; // normalweight
+  // Single anchor base breakout: Nb = kc * lambda_a * sqrt(fc) * hef^1.5
+  var Nb_lbs = kc * lambda_a * Math.sqrt(fc) * Math.pow(hef, 1.5);
+  var ANco = 9 * Math.pow(hef, 2);
+
+  // Group projected area ANc calculation
+  var ANc = ANco;
+  if (numBolts === 1) {
+    var c_lim = 1.5 * hef;
+    var w_x = Math.min(2 * c_lim, c_lim + ca1);
+    var w_y = Math.min(2 * c_lim, 2 * c_lim);
+    ANc = w_x * w_y;
+  } else if (numBolts === 2) {
+    var c_lim = 1.5 * hef;
+    var w_x = Math.min(3 * hef + s, c_lim + s + ca1);
+    var w_y = Math.min(3 * hef, 2 * c_lim);
+    ANc = w_x * w_y;
+  } else if (numBolts === 4) {
+    var c_lim = 1.5 * hef;
+    var w_x = Math.min(3 * hef + s, c_lim + s + ca1);
+    var w_y = Math.min(3 * hef + s, 2 * c_lim + s);
+    ANc = w_x * w_y;
+  } else if (numBolts === 6) {
+    var c_lim = 1.5 * hef;
+    var w_x = Math.min(3 * hef + 2 * s, c_lim + 2 * s + ca1);
+    var w_y = Math.min(3 * hef + s, 2 * c_lim + s);
+    ANc = w_x * w_y;
+  }
+
+  // Modification factors
+  var psi_ed_N = 1.0;
+  if (ca1 < 1.5 * hef) {
+    psi_ed_N = 0.7 + 0.3 * (ca1 / (1.5 * hef));
+  }
+  var psi_c_N = isCracked ? 1.0 : 1.25;
+  var psi_cp_N = 1.0; // cast-in default
+
+  var Ncbg_lbs = (ANc / ANco) * psi_ed_N * psi_c_N * psi_cp_N * Nb_lbs;
+  var phiNcbg_kips = (phi_concrete * Ncbg_lbs) / 1000.0;
+
+  // 3. Anchor Pullout Strength in Tension (phi = 0.70)
+  // Headed bolt: Npn = psi_c_P * 8 * Abrg * fc
+  // Standard heavy hex head Abrg ~ 1.5 * pi * (da/2)^2
+  var Abrg = 1.2 * Math.PI * Math.pow(da / 2, 2);
+  var psi_c_P = isCracked ? 1.0 : 1.4;
+  var Npn_single_lbs = psi_c_P * 8 * Abrg * fc;
+  var Npn_lbs = numBolts * Npn_single_lbs;
+  var phiNpn_kips = (phi_concrete * Npn_lbs) / 1000.0;
+
+  // Governing Tension Design Strength
+  var phiNn_kips = Math.min(phiNsa_kips, phiNcbg_kips, phiNpn_kips);
+  var tensionGovMode = "Concrete Breakout (\u03d5Ncbg)";
+  if (phiNn_kips === phiNsa_kips) tensionGovMode = "Steel Yielding (\u03d5Nsa)";
+  else if (phiNn_kips === phiNpn_kips) tensionGovMode = "Head Pullout (\u03d5Npn)";
+
+  // 4. Steel Strength in Shear (phi = 0.65)
+  var phi_steel_V = 0.65;
+  var Vsa_lbs = numBolts * 0.60 * Ase * futa;
+  var phiVsa_kips = (phi_steel_V * Vsa_lbs) / 1000.0;
+
+  // 5. Concrete Shear Breakout towards edge (phi = 0.70)
+  // Vb = 7 * (le/da)^0.2 * sqrt(da) * lambda_a * sqrt(fc) * ca1^1.5
+  var le = Math.min(hef, 8 * da);
+  var Vb_lbs = 7 * Math.pow(le / da, 0.2) * Math.sqrt(da) * lambda_a * Math.sqrt(fc) * Math.pow(ca1, 1.5);
+  var AVco = 4.5 * Math.pow(ca1, 2);
+  var AVc = Math.min(AVco, (2 * 1.5 * ca1 + (numBolts > 1 ? s : 0)) * Math.min(ha, 1.5 * ca1));
+  var psi_ed_V = 1.0;
+  var psi_c_V = isCracked ? 1.0 : 1.4;
+  var psi_h_V = Math.min(1.0, Math.sqrt((1.5 * ca1) / Math.max(1, ha)));
+  var Vcbg_lbs = (AVc / AVco) * psi_ed_V * psi_c_V * psi_h_V * Vb_lbs;
+  var phiVcbg_kips = (phi_concrete * Vcbg_lbs) / 1000.0;
+
+  // 6. Concrete Pryout in Shear (phi = 0.70)
+  var kcp = hef < 2.5 ? 1.0 : 2.0;
+  var Vcpg_lbs = kcp * Ncbg_lbs;
+  var phiVcpg_kips = (phi_concrete * Vcpg_lbs) / 1000.0;
+
+  // Governing Shear Design Strength
+  var phiVn_kips = Math.min(phiVsa_kips, phiVcbg_kips, phiVcpg_kips);
+  var shearGovMode = "Concrete Edge Breakout (\u03d5Vcbg)";
+  if (phiVn_kips === phiVsa_kips) shearGovMode = "Steel Shear (\u03d5Vsa)";
+  else if (phiVn_kips === phiVcpg_kips) shearGovMode = "Concrete Pryout (\u03d5Vcpg)";
+
+  // 7. Combined Tension & Shear Interaction (ACI 318 Section 17.8)
+  var ratioN = Math.max(0, Nua / phiNn_kips);
+  var ratioV = Math.max(0, Vua / phiVn_kips);
+  var interactionVal = Math.pow(ratioN, 5/3) + Math.pow(ratioV, 5/3);
+
+  // DOM Updates
+  var badgeEl = document.getElementById('abSafetyBadge');
+  if (interactionVal > 1.0) {
+    badgeEl.textContent = 'FAIL: INTERACTION RATIO ' + interactionVal.toFixed(2) + ' > 1.00';
+    badgeEl.style.background = '#ef4444';
+  } else if (interactionVal > 0.85) {
+    badgeEl.textContent = 'CAUTION: HEAVILY LOADED (' + (interactionVal * 100).toFixed(0) + '% UTILIZATION)';
+    badgeEl.style.background = '#f59e0b';
+  } else {
+    badgeEl.textContent = 'PASS: ACI 318 COMPLIANT (RATIO ' + interactionVal.toFixed(2) + ' \u2264 1.00)';
+    badgeEl.style.background = '#10b981';
+  }
+
+  document.getElementById('abDesignTension').textContent = phiNn_kips.toFixed(1) + ' kips';
+  document.getElementById('abTensionMode').textContent = 'Governed by ' + tensionGovMode;
+
+  document.getElementById('abDesignShear').textContent = phiVn_kips.toFixed(1) + ' kips';
+  document.getElementById('abShearMode').textContent = 'Governed by ' + shearGovMode;
+
+  document.getElementById('abInteractionVal').textContent = interactionVal.toFixed(2);
+  document.getElementById('abInteractionVal').style.color = interactionVal > 1.0 ? '#ef4444' : '#10b981';
+
+  document.getElementById('abProjectedArea').textContent = Math.round(ANc) + ' in\u00b2';
+  document.getElementById('abAreaRatio').textContent = 'ANc / ANco = ' + (ANc / ANco).toFixed(2) + ' (' + (numBolts > 1 ? 'Group Overlap' : 'Isolated') + ')';
+
+  document.getElementById('abSteelTension').textContent = phiNsa_kips.toFixed(1) + ' kips (' + numBolts + ' bolts)';
+  document.getElementById('abHeadPullout').textContent = phiNpn_kips.toFixed(1) + ' kips (' + (phiNpn_kips >= Nua ? 'Adequate' : 'INADEQUATE!') + ')';
+  document.getElementById('abEdgeShear').textContent = phiVcbg_kips.toFixed(1) + ' kips (at ca1 = ' + ca1.toFixed(1) + ' in)';
+  document.getElementById('abTensionUtil').textContent = (ratioN * 100).toFixed(1) + '% (Nua = ' + Nua.toFixed(1) + ' kips)';
+
+  renderABConeSvg(hef, ca1, s, numBolts, Nua, Vua);
+
+  renderABDerivations({
+    numBolts: numBolts, da: da, Ase: Ase, futa: futa, hef: hef, fc: fc,
+    phiNsa_kips: phiNsa_kips, ANc: ANc, ANco: ANco, phiNcbg_kips: phiNcbg_kips,
+    phiNpn_kips: phiNpn_kips, phiNn_kips: phiNn_kips, tensionGovMode: tensionGovMode,
+    phiVsa_kips: phiVsa_kips, phiVcbg_kips: phiVcbg_kips, phiVcpg_kips: phiVcpg_kips,
+    phiVn_kips: phiVn_kips, shearGovMode: shearGovMode,
+    Nua: Nua, Vua: Vua, ratioN: ratioN, ratioV: ratioV, interactionVal: interactionVal
+  });
+}
+
+function renderABConeSvg(hef, ca1, s, numBolts, Nua, Vua) {
+  var svg = document.getElementById('abConeSvg');
+  var w = 800;
+  var h = 280;
+
+  var cx = 380;
+  var ySurf = 80;
+  var scale = 9.0;
+  var yTip = ySurf + (hef * scale);
+  var coneW = (1.5 * hef * scale);
+
+  var svgContent = ''
+    + '<!-- Concrete Block -->'
+    + '<rect x="100" y="' + ySurf + '" width="600" height="170" fill="#1e293b" stroke="#475569" stroke-width="2" />'
+    + '<text x="120" y="' + (ySurf + 30) + '" fill="#64748b" font-size="12" font-weight="600">Concrete Foundation</text>'
+
+    + '<!-- 35-degree Concrete Breakout Cone (Pyramid) -->'
+    + '<polygon points="' + (cx - coneW) + ',' + ySurf + ' ' + (cx + coneW) + ',' + ySurf + ' ' + cx + ',' + yTip + '" fill="#f59e0b" fill-opacity="0.25" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3" />'
+    + '<text x="' + cx + '" y="' + (ySurf + (hef * scale * 0.6)) + '" fill="#fbbf24" font-size="11" font-weight="700" text-anchor="middle">35&deg; Breakout Cone (h_ef = ' + hef.toFixed(1) + '")</text>'
+
+    + '<!-- Embedded Anchor Bolt Shank -->'
+    + '<line x1="' + cx + '" y1="' + (ySurf - 40) + '" x2="' + cx + '" y2="' + yTip + '" stroke="#38bdf8" stroke-width="6" />'
+    + '<rect x="' + (cx - 15) + '" y="' + (yTip - 6) + '" width="30" height="12" fill="#38bdf8" rx="2" />'
+    + '<text x="' + cx + '" y="' + (yTip + 20) + '" fill="#38bdf8" font-size="10" text-anchor="middle">Heavy Hex Head</text>'
+
+    + '<!-- Baseplate -->'
+    + '<rect x="' + (cx - 45) + '" y="' + (ySurf - 8) + '" width="90" height="12" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1.5" rx="2" />'
+
+    + '<!-- Force Vectors -->'
+    + '<line x1="' + cx + '" y1="' + (ySurf - 40) + '" x2="' + cx + '" y2="' + (ySurf - 75) + '" stroke="#ef4444" stroke-width="4" />'
+    + '<polygon points="' + (cx - 6) + ',' + (ySurf - 65) + ' ' + (cx + 6) + ',' + (ySurf - 65) + ' ' + cx + ',' + (ySurf - 80) + '" fill="#ef4444" />'
+    + '<text x="' + (cx + 12) + '" y="' + (ySurf - 60) + '" fill="#ef4444" font-size="11" font-weight="700">N_ua = ' + Nua.toFixed(0) + 'k</text>'
+
+    + '<line x1="' + (cx + 35) + '" y1="' + (ySurf - 3) + '" x2="' + (cx + 85) + '" y2="' + (ySurf - 3) + '" stroke="#10b981" stroke-width="4" />'
+    + '<polygon points="' + (cx + 75) + ',' + (ySurf - 8) + ' ' + (cx + 75) + ',' + (ySurf + 2) + ' ' + (cx + 90) + ',' + (ySurf - 3) + '" fill="#10b981" />'
+    + '<text x="' + (cx + 95) + '" y="' + (ySurf + 1) + '" fill="#10b981" font-size="11" font-weight="700">V_ua = ' + Vua.toFixed(0) + 'k</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderABDerivations(p) {
+  var container = document.getElementById('abDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Concrete Breakout Strength in Tension (ACI 318 Section 17.6.2):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 'N_b = k_c &times; \u221a(f\'c) &times; h_{ef}^{1.5} \qquad N_{cbg} = (A_{Nc} / A_{Nco}) &times; \u03c8_{ed,N} &times; \u03c8_{c,N} &times; N_b'
+    + '</div>'
+    + '<div>'
+    + 'A_{Nc} = ' + Math.round(p.ANc) + ' in\u00b2 / A_{Nco} = ' + Math.round(p.ANco) + ' in\u00b2 &rarr; \u03d5N_{cbg} = <strong>' + p.phiNcbg_kips.toFixed(1) + ' kips</strong><br>'
+    + 'Governing Tension Design Capacity: <strong>\u03d5N_n = ' + p.phiNn_kips.toFixed(1) + ' kips (' + p.tensionGovMode + ')</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Concrete Shear Breakout & Pryout (ACI 318 Section 17.7):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + '\u03d5V_{sa} = ' + p.phiVsa_kips.toFixed(1) + '\text{ kips} \quad \u03d5V_{cbg} = ' + p.phiVcbg_kips.toFixed(1) + '\text{ kips} \quad \u03d5V_{cpg} = ' + p.phiVcpg_kips.toFixed(1) + '\text{ kips}'
+    + '</div>'
+    + '<div>'
+    + 'Governing Shear Design Capacity: <strong>\u03d5V_n = ' + p.phiVn_kips.toFixed(1) + ' kips (' + p.shearGovMode + ')</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Combined Tension and Shear Interaction (ACI 318 Section 17.8):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#10b981;">'
+    + '(N_{ua} / \u03d5N_n)^{5/3} + (V_{ua} / \u03d5V_n)^{5/3} \le 1.0'
+    + '</div>'
+    + '<div>'
+    + '(' + p.Nua.toFixed(1) + ' / ' + p.phiNn_kips.toFixed(1) + ')^{5/3} + (' + p.Vua.toFixed(1) + ' / ' + p.phiVn_kips.toFixed(1) + ')^{5/3} = ' + p.interactionVal.toFixed(3) + ' &rarr; <strong>' + (p.interactionVal <= 1.0 ? 'PASS' : 'FAIL') + '</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyABSummary() {
+  var tCap = document.getElementById('abDesignTension').textContent;
+  var sCap = document.getElementById('abDesignShear').textContent;
+  var inter = document.getElementById('abInteractionVal').textContent;
+  var tMode = document.getElementById('abTensionMode').textContent;
+  var sMode = document.getElementById('abShearMode').textContent;
+  var badge = document.getElementById('abSafetyBadge').textContent;
+
+  var summary = [
+    '=== ACI 318-19 ANCHOR BOLT CAPACITY REPORT ===',
+    'Status: ' + badge,
+    'Design Tension Capacity (\u03d5Nn): ' + tCap + ' (' + tMode + ')',
+    'Design Shear Capacity (\u03d5Vn): ' + sCap + ' (' + sMode + ')',
+    'Interaction Ratio: ' + inter + ' (Limit \u2264 1.00)',
+    'Design Standard: ACI 318-19 Chapter 17 & AISC Design Guide 1',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyAB');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateAnchorBolt();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateAnchorBolt();
+}
+</script>
+`;
+
+
+
+  // ----------------------------------------------------
+  // TOOL AJ1: Boiler Safety Valve Accumulation (ASME Sec I)
+  // ----------------------------------------------------
+  writeFileSync(join(calcDir, 'boiler-safety-valve-accumulation-calculator.html'), renderTradePage({
+    title: 'Boiler Safety Valve Capacity & Accumulation Calculator | ASME Section I',
+    description: 'Calculate ASME Section I power boiler safety relief valve sizing, minimum required steaming capacity, 6% accumulation overpressure limits, superheater valve lead bias, and discharge elbow reaction thrust.',
+    canonicalPath: 'calc/boiler-safety-valve-accumulation-calculator.html',
+    body: boilerSafetyValveBody,
+    faq: [
+      {
+        q: 'What is the 6% accumulation rule in ASME Section I?',
+        a: 'Per ASME Section I PG-67.2, the safety valve capacity for each boiler shall be such that the safety valves will discharge all the steam that can be generated by the boiler without allowing the pressure to rise more than 6% above the maximum allowable working pressure (MAWP).'
+      },
+      {
+        q: 'When are two or more safety valves required on a boiler?',
+        a: 'Per ASME Section I PG-67.1, boilers having more than 500 sq ft (47 m2) of bare heating surface, or an electric power input more than 1100 kW, shall have two or more safety valves. If two valves are used, one may be set at or below the MAWP, and the secondary valve may be set up to 3% above the MAWP (PG-67.4).'
+      },
+      {
+        q: 'Why must superheater safety relief valves pop before drum valves?',
+        a: 'Superheaters operate in high-temperature flue gas paths. Steam flow through the tubes is the only medium providing cooling. If the drum safety valve opened first, drum pressure would vent directly, dropping steam flow through the superheater to zero while the furnace continues firing, overheating and rupturing superheater tubes. Setting the superheater valve with a lower opening pressure ensures positive cooling steam flow during any overpressure event.'
+      },
+      {
+        q: 'What is Napier\'s equation for steam flow through safety valves?',
+        a: 'ASME Section I bases rated safety valve capacity on Napier\'s formula: W = 51.5 * A * P * Kd * Ksh, where W is steam flow in lb/hr, A is orifice area in sq inches, P is absolute relieving pressure in psia (Set Pressure * 1.03 + 14.7), Kd is certified discharge coefficient, and Ksh is the superheat correction factor.'
+      },
+      {
+        q: 'How is dynamic reaction thrust calculated on safety valve vent piping?',
+        a: 'Per ASME B31.1 Nonmandatory Appendix II, high-velocity discharge steam generates dynamic reaction thrust at the discharge elbow: F = (W / 366) * sqrt[(k * T) / ((k + 1) * M)] + (P2 - Pa) * A2. On a 25,000 lb/hr boiler, this thrust routinely exceeds 1,000 to 2,500 lbf, requiring rigid structural sway braces to prevent tearing the safety valve off the steam drum.'
+      }
+    ]
+  }));
+
+  // ----------------------------------------------------
+  // TOOL AJ2: Process Piping Wall Thickness (ASME B31.3)
+  // ----------------------------------------------------
+  writeFileSync(join(calcDir, 'pipe-wall-minimum-thickness-asme-b313-calculator.html'), renderTradePage({
+    title: 'Process Piping Minimum Wall Thickness Calculator | ASME B31.3 Para 304.1.2',
+    description: 'Calculate ASME B31.3 required pressure design thickness, corrosion and mechanical allowances, 12.5% mill manufacturing under-tolerance, and automatic commercial pipe schedule selection (ASME B36.10M / B36.19M).',
+    canonicalPath: 'calc/pipe-wall-minimum-thickness-asme-b313-calculator.html',
+    body: pipeWallThicknessBody,
+    faq: [
+      {
+        q: 'What is the formula for ASME B31.3 pipe wall thickness?',
+        a: 'Per ASME B31.3 Section 304.1.2, pressure design thickness is: t = (P * D) / [ 2 * (S * E * W + P * Y) ]. The minimum required wall thickness including allowances is tm = t + c, where c includes corrosion allowance, erosion allowance, and thread/groove depth.'
+      },
+      {
+        q: 'Why is 12.5% mill tolerance added to required thickness?',
+        a: 'Standard manufacturing specifications for carbon and alloy steel pipe (such as ASTM A106, ASTM A53, and API 5L) establish an allowable manufacturing under-tolerance of 12.5%. To guarantee that the pipe delivered by the mill never drops below the code-required minimum wall tm, the nominal ordered wall must satisfy: tnom >= tm / (1 - 0.125) = tm / 0.875.'
+      },
+      {
+        q: 'What is the Y coefficient in Table 304.1.1?',
+        a: 'The Y coefficient is a dimensionless temperature factor that adjusts hoop stress distribution across the pipe wall. For ferritic steels and austenitic stainless steels at design temperatures below 900 deg F (482 deg C), Y = 0.4. At higher temperatures in the creep range, Y increases gradually up to 0.7 to account for plastic stress redistribution.'
+      },
+      {
+        q: 'What is the difference between Schedule 40 and STD?',
+        a: 'In ASME B36.10M, Schedule 40 and Standard Weight (STD) are identical for pipe sizes from 1/8" through 10". However, for sizes 12" and larger, STD remains fixed at a nominal thickness of 0.375 inches (9.52 mm), whereas Schedule 40 continues to increase with diameter (e.g. 14" Sch 40 is 0.438 in, 16" Sch 40 is 0.500 in).'
+      },
+      {
+        q: 'How is Maximum Allowable Working Pressure (MAWP) back-calculated?',
+        a: 'From the actual minimum delivered wall thickness tavail = (tnom * 0.875) - c, MAWP is back-calculated by rearranging the B31.3 equation: P_MAWP = (2 * S * E * W * tavail) / [ D - 2 * Y * tavail ].'
+      }
+    ]
+  }));
+
+  // ----------------------------------------------------
+  // TOOL AJ3: Gas Turbine Heat Rate & Efficiency (ISO 3977)
+  // ----------------------------------------------------
+  writeFileSync(join(calcDir, 'gas-turbine-heat-rate-efficiency-calculator.html'), renderTradePage({
+    title: 'Gas Turbine Heat Rate & Thermal Efficiency Calculator | ISO 3977 & ASME PTC 22',
+    description: 'Calculate simple-cycle gas turbine net heat rate (Btu/kWh and kJ/kWh), Lower vs Higher Heating Value thermal efficiency, site ambient temperature and elevation derating, and evaporative inlet cooling power boost per ISO 3977 and ASME PTC 22.',
+    canonicalPath: 'calc/gas-turbine-heat-rate-efficiency-calculator.html',
+    body: gasTurbineHeatRateBody,
+    faq: [
+      {
+        q: 'What is heat rate and how does it relate to thermal efficiency?',
+        a: 'Heat rate is the measure of heat energy input required to produce one unit of electrical energy output. In Imperial units, it is expressed as Btu/kWh. In SI units, it is expressed as kJ/kWh. Thermal efficiency is inversely proportional to heat rate: eta_th = 3,412.14 / Heat Rate (Btu/kWh) = 3,600 / Heat Rate (kJ/kWh). A lower heat rate signifies a more efficient turbine.'
+      },
+      {
+        q: 'What are ISO 3977 standard reference conditions?',
+        a: 'Per ISO 3977-2 and ASME PTC 22, standard reference conditions for rating gas turbines are: Ambient air temperature of 15 deg C (59 deg F), barometric pressure of 101.325 kPa (14.696 psia / 1.01325 bar) at sea level, and relative humidity of 60%. Inlet filter loss and exhaust backpressure are zero at reference baseline.'
+      },
+      {
+        q: 'Why does ambient air temperature derate gas turbine power?',
+        a: 'Gas turbine compressors intake a constant volumetric flow of air. When ambient air temperature rises, air density drops (rho = P / RT). With less air mass entering the compressor, less oxygen is available for combustion, reducing mass flow through the power turbine. Typically, power output drops by 0.35% to 0.45% per 1 deg F (0.65% to 0.80% per 1 deg C) rise above 59 deg F.'
+      },
+      {
+        q: 'What is the difference between Lower and Higher Heating Value?',
+        a: 'Higher Heating Value (HHV) includes the latent heat of vaporization of water formed during combustion, assuming it condenses to liquid. Lower Heating Value (LHV) assumes water vapor exits the stack uncondensed. Because gas turbines exhaust gases at 900 deg F to 1,150 deg F, water never condenses in the turbine, making LHV the standard engineering basis. For natural gas, HHV is approximately 10.8% higher than LHV.'
+      },
+      {
+        q: 'How does inlet air cooling recover turbine output in hot weather?',
+        a: 'Inlet evaporative coolers or foggers evaporate water into the incoming airstream, dropping air temperature towards the wet-bulb temperature. Mechanical chillers can drop inlet air down to 50 deg F (10 deg C) regardless of ambient humidity. Denser inlet air restores compressor mass flow, boosting power output by 10% to 20% during peak heatwaves.'
+      }
+    ]
+  }));
+
+  // ----------------------------------------------------
+  // TOOL AJ4: Concrete Anchor Bolt Pullout & Shear Breakout (ACI 318)
+  // ----------------------------------------------------
+  writeFileSync(join(calcDir, 'concrete-anchor-bolt-pullout-shear-calculator.html'), renderTradePage({
+    title: 'Concrete Anchor Bolt Pullout & Shear Breakout Calculator | ACI 318 Chapter 17',
+    description: 'Calculate structural anchor bolt tensile capacity, 35 deg concrete breakout cone strength, head pullout resistance, concrete shear breakout, pryout, and combined tension-shear interaction per ACI 318-19 Chapter 17 and AISC Design Guide 1.',
+    canonicalPath: 'calc/concrete-anchor-bolt-pullout-shear-calculator.html',
+    body: concreteAnchorBody,
+    faq: [
+      {
+        q: 'What are the 6 mandatory failure modes evaluated in ACI 318 Chapter 17?',
+        a: 'ACI 318-19 evaluates: 1) Steel strength in tension, 2) Concrete breakout strength in tension, 3) Pullout strength of anchor head, 4) Steel strength in shear, 5) Concrete breakout strength in shear towards free edge, and 6) Concrete pryout strength in shear.'
+      },
+      {
+        q: 'What is the 35-degree breakout cone model?',
+        a: 'Extensive empirical testing demonstrated that concrete tensile breakout fractures follow an approximate 35 deg angle from the anchor head to the concrete surface. This corresponds to an idealized pyramid extending a horizontal distance of 1.5 * hef in each direction, producing a base dimension of 3 * hef on each side (ANco = 9 hef^2).'
+      },
+      {
+        q: 'How is combined tension and shear interaction calculated?',
+        a: 'Per ACI 318-19 Section 17.8, if Nua > 0.2 phi Nn and Vua > 0.2 phi Vn, the combined interaction must satisfy the trilinear or 5/3 power relationship: (Nua / phi Nn)^5/3 + (Vua / phi Vn)^5/3 <= 1.0. This elliptic curve accurately matches biaxial fracture test envelopes.'
+      },
+      {
+        q: 'What is concrete pryout strength in shear?',
+        a: 'Pryout occurs when short, stiff anchors subjected to shear force tilt in the concrete hole, prying out a chunk of concrete behind the anchor rather than shearing the steel shank. ACI 318 defines pryout strength as: Vcpg = kcp * Ncbg, where kcp = 1.0 for hef < 2.5", and 2.0 for hef >= 2.5".'
+      },
+      {
+        q: 'Why is ASTM F1554 the premier structural anchor bolt standard?',
+        a: 'ASTM F1554 was created specifically for structural foundation anchor bolts and is the only anchor specification endorsed by AISC. It provides three distinct yield strength grades: Grade 36 (weldable mild carbon steel), Grade 55 (high-strength alloy with mandatory Charpy V-notch toughness option), and Grade 105 (heat-treated alloy steel for heavy industrial columns).'
+      }
+    ]
+  }));
+
+
+console.log('  ✓ Built Trade & Construction Suite (87 calculators in /calc/)');
 }
 
