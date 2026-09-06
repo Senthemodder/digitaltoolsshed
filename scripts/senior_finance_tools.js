@@ -247,7 +247,58 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         </div>
       </div>
 
-      <script>
+      
+        <!-- Mathematical & Actuarial Social Security Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">Actuarial Benefit Formula &amp; Break-Even Mathematics</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Social Security benefit adjustments are derived from statutory actuarial reduction factors and delayed retirement credits established under Title II of the Social Security Act:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Primary Insurance Amount (PIA) Bend Points (2025/2026):</strong></div>
+            <div>&nbsp;&nbsp;PIA = 0.90 &times; min(AIME, $1,226) + 0.32 &times; max(0, min(AIME, $7,391) - $1,226) + 0.15 &times; max(0, AIME - $7,391)</div>
+            <div><strong>2. Early Claiming Reduction Factors (FRA = 67):</strong></div>
+            <div>&nbsp;&nbsp;&bull; First 36 Months Early: (5/9 of 1%) &times; 36 = 20.00% reduction</div>
+            <div>&nbsp;&nbsp;&bull; Additional 24 Months Early (Age 62 to 64): (5/12 of 1%) &times; 24 = 10.00% reduction &rarr; Total 30% reduction (PIA &times; 0.70)</div>
+            <div><strong>3. Delayed Retirement Credits (DRC):</strong></div>
+            <div>&nbsp;&nbsp;&bull; Age 67 to 70: (2/3 of 1% per month) &times; 36 = +24.00% permanent bonus (PIA &times; 1.24)</div>
+            <div><strong>4. Actuarial Break-Even Crossover Equation:</strong></div>
+            <div>&nbsp;&nbsp;Cumulative(62, T) = 0.70 &middot; PIA &middot; 12 &middot; (T - 62) &equiv; Cumulative(70, T) = 1.24 &middot; PIA &middot; 12 &middot; (T - 70)</div>
+            <div>&nbsp;&nbsp;&rArr; 8.4 &middot; T - 520.8 = 14.88 &middot; T - 1041.6 &rArr; 6.48 &middot; T = 520.8 &rArr; T &asymp; 80.37 Years</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Social Security Planning -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Social Security Claiming Strategy</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Retirement Earnings Test Clawback (Under FRA)</strong>
+            Claiming early at age 62 while continuing to work triggers mandatory clawbacks: the SSA withholds $1 of benefits for every $2 earned above the annual earnings limit ($23,400 in 2025/2026). While withheld benefits are recalculated into a higher monthly check once you hit Full Retirement Age, early retirees are often left without liquidity when their monthly checks are completely suspended during working months.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Permanent Spousal Survivor Benefit Reduction</strong>
+            When the primary or higher-earning spouse files early at age 62, they permanently reduce not only their own retirement check, but also the potential survivor benefit for their spouse. Upon the higher earner's death, the surviving spouse steps into their monthly benefit. Locking in a permanent 30% reduction at age 62 deprives a surviving spouse of maximum income during their oldest and most vulnerable years.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. The &quot;Tax Torpedo&quot; on Combined Provisional Income</strong>
+            Social Security benefits are not automatically tax-free. Up to 85% of your benefits become subject to federal income tax when Provisional Income (AGI + Non-Taxable Interest + 50% of Social Security) exceeds $34,000 for single filers or $44,000 for married couples. Because these thresholds were established in 1983 and never indexed to inflation, ordinary 401(k) withdrawals frequently push retirees into effective marginal tax brackets of 30% to 40.7%.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Overlooking Medicare Part B &amp; IRMAA Surcharges</strong>
+            Medicare Part B and Part D premiums are deducted directly from monthly Social Security payments. Large one-off IRA rollovers, home sales, or capital gains that increase your modified adjusted gross income (MAGI) two years prior trigger Income-Related Monthly Adjustment Amount (IRMAA) tier surcharges, drastically reducing your net monthly Social Security deposit.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Delaying Beyond Age 70 (Irrevocable Benefit Forfeiture)</strong>
+            Delayed Retirement Credits stop accumulating completely at age 70. There is zero financial increase for delaying past your 70th birthday. Waiting until age 71 or 72 simply forfeits thousands of dollars in monthly income that can never be recovered retroactively beyond a maximum 6-month lump sum limit.
+          </div>
+        </div>
+
+<script>
         var ssaMultipliers = {
           62: 0.700, 63: 0.750, 64: 0.800, 65: 0.867, 66: 0.933,
           67: 1.000, 68: 1.080, 69: 1.160, 70: 1.240
@@ -745,7 +796,58 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         </div>
       </div>
 
-      <script>
+      
+        <!-- Mathematical & IRS Uniform Lifetime Table Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">IRS RMD Calculation Formula &amp; Table III Actuarial Factors</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Required Minimum Distributions are governed by Internal Revenue Code &sect; 401(a)(9) and Treasury Regulation &sect; 1.401(a)(9)-9 using the Uniform Lifetime Table:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Mandatory Annual RMD Equation:</strong></div>
+            <div>&nbsp;&nbsp;RMD<sub>t</sub> = (Fair Market Value of Account as of Dec 31 of Prior Year) / (IRS Table III Life Expectancy Factor)</div>
+            <div><strong>2. SECURE 2.0 Starting Age Milestones:</strong></div>
+            <div>&nbsp;&nbsp;&bull; Born 1951 - 1959: Mandatory RMD starting age = 73</div>
+            <div>&nbsp;&nbsp;&bull; Born 1960 or later: Mandatory RMD starting age = 75</div>
+            <div><strong>3. Uniform Lifetime Table III Sample Divisors:</strong></div>
+            <div>&nbsp;&nbsp;Age 73 = 26.5 (3.77%) | Age 75 = 24.6 (4.07%) | Age 80 = 20.2 (4.95%) | Age 85 = 16.0 (6.25%) | Age 90 = 12.2 (8.20%)</div>
+            <div><strong>4. Shortfall Excise Tax (IRC &sect; 4974):</strong></div>
+            <div>&nbsp;&nbsp;Excise Penalty = 0.25 &times; (Required RMD - Actual Distributed Amount)</div>
+            <div>&nbsp;&nbsp;Reduced to 0.10 if timely corrected within 2-year statutory correction window via IRS Form 5329.</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in RMD Management -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in IRS Required Minimum Distributions</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The 25% Missed RMD Excise Tax Penalty</strong>
+            Failing to withdraw your full RMD by December 31 triggers an immediate 25% federal excise tax on the undistributed amount under IRC § 4974. Although SECURE 2.0 lowered this from the previous draconian 50% penalty (and permits a reduction to 10% if corrected within two years), it remains one of the harshest penalties in the Internal Revenue Code.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. First-Year April 1 Double Distribution Tax Trap</strong>
+            Retirees reaching age 73 have until April 1 of the following year to take their very first RMD. However, deferring your first distribution to April 1 forces you to take TWO full RMDs in that second calendar year (the deferred first RMD by April 1, and the second RMD by December 31). Stacking two distributions into a single tax year often pushes you into higher tax brackets and triggers IRMAA Medicare surcharges.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Aggregating RMDs Across Employer Plans (401k / 403b)</strong>
+            While the IRS permits aggregating RMDs across multiple traditional IRAs and withdrawing the entire sum from a single IRA, you CANNOT aggregate 401(k) or 403(b) accounts with IRAs or with other 401(k) plans. Each employer-sponsored plan must distribute its own standalone RMD. Taking an employer plan's RMD from an IRA leaves the employer plan in default.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Overlooking Qualified Charitable Distributions (QCDs)</strong>
+            Retirees aged 70½ and older can transfer up to $105,000 per year directly from a traditional IRA to a qualified 501(c)(3) charity. A QCD satisfies your mandatory RMD dollar-for-dollar without adding a single dollar to your Adjusted Gross Income (AGI). Claiming a regular RMD and taking a standard deduction forfeits this powerful tax shelter.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. SECURE 2.0 Starting Age Confusion (Age 73 vs 75)</strong>
+            The SECURE 2.0 Act phased in new starting ages: individuals born between 1951 and 1959 start RMDs at age 73, while those born in 1960 or later do not begin until age 75. Relying on legacy advice or online calculators that use the repealed age 70½ or age 72 rules causes unnecessary premature taxable distributions.
+          </div>
+        </div>
+
+<script>
         var irsTable = {
           72: 27.4, 73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1,
           80: 20.2, 81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2,
@@ -1153,7 +1255,56 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         </div>
       </div>
 
-      <script>
+      
+        <!-- Mathematical & Safe Withdrawal Rate Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">Retirement Capitalization &amp; Safe Withdrawal Rate Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Retirement nest egg sustainability relies on stochastic portfolio longevity math and the Fisher inflation adjustment equation:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Real Rate of Portfolio Return (Fisher Equation):</strong></div>
+            <div>&nbsp;&nbsp;r<sub>real</sub> = (1 + r<sub>nominal</sub>) / (1 + i<sub>inflation</sub>) - 1</div>
+            <div><strong>2. Constant Capitalization Formula (Bengen 4% Rule):</strong></div>
+            <div>&nbsp;&nbsp;Required Nest Egg = (Annual Living Budget - Guaranteed Income [Social Security + Pension]) / SWR</div>
+            <div>&nbsp;&nbsp;Example: ($80,000 - $35,000) / 0.04 = $45,000 / 0.04 = $1,125,000</div>
+            <div><strong>3. Discrete Portfolio Wealth Recurrence Relation:</strong></div>
+            <div>&nbsp;&nbsp;W<sub>t+1</sub> = (W<sub>t</sub> - S<sub>t</sub> &middot; (1 + i)<sup>t</sup>) &middot; (1 + r<sub>t</sub>)</div>
+            <div>&nbsp;&nbsp;Where W<sub>t</sub> is portfolio value at year t, S<sub>t</sub> is initial real withdrawal, and r<sub>t</sub> is annual market return.</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Retirement Planning -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Retirement Portfolio &amp; Longevity Planning</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Sequence of Returns Risk in the Fragile First 5 Years</strong>
+            A severe market downturn during the first 3 to 5 years of retirement can permanently deplete a portfolio even if 30-year average market returns match historical averages. Liquidating equities while prices are depressed to fund living expenses permanently reduces portfolio share count, accelerating portfolio depletion.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Blindly Applying the 4% Rule at High Equity Valuations</strong>
+            William Bengen's original 4% rule (1994) assumed historical bond yields of 5% to 7%. In eras characterized by elevated Shiller Cyclically Adjusted P/E ratios (CAPE &gt; 30) and compressed bond yields, financial economists recommend stress-testing a conservative initial safe withdrawal rate of 3.2% to 3.5% to maintain 95%+ success over 30+ years.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Confusing Pre-Tax Account Balances with Spendable Cash</strong>
+            Having $1,500,000 in a traditional 401(k) or traditional IRA does not equal $1,500,000 in spendable capital. Every single dollar distributed is taxed as ordinary income at federal and state rates. Failing to budget for a 20% to 30% aggregate tax haircut creates a severe funding deficit.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Underestimating Out-of-Pocket Healthcare &amp; Long-Term Care</strong>
+            Medicare does not cover custodial long-term nursing care or assisted living. According to Fidelity, the average 65-year-old couple needs over $315,000 after tax purely for medical expenses, copays, and supplemental insurance. A single extended nursing stay can consume hundreds of thousands in unplanned withdrawals.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Underestimating Joint Life Expectancy</strong>
+            For a healthy 65-year-old married couple, there is a 50% probability that at least one spouse will survive to age 92 or beyond. Planning a portfolio around an average individual life expectancy of 82 guarantees that the surviving spouse faces a severe risk of running out of money during late life.
+          </div>
+        </div>
+
+<script>
         function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
 
         window.setRetEgg = function(amt) {
@@ -1566,7 +1717,58 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         </div>
       </div>
 
-      <script>
+      
+        <!-- Mathematical & Actuarial Annuity Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">Actuarial Annuity Valuation &amp; Exclusion Ratio Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Annuity pricing combines discounted cash flow equations, mortality credits, and IRS non-qualified exclusion ratios:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Actuarial Present Value of Single Premium Immediate Annuity (SPIA):</strong></div>
+            <div>&nbsp;&nbsp;PV = &Sigma;<sub>t=1</sub><sup>&omega; - x</sup> [ PMT &middot; <sub>t</sub>p<sub>x</sub> / (1 + i)<sup>t</sup> ]</div>
+            <div>&nbsp;&nbsp;Where <sub>t</sub>p<sub>x</sub> is the probability of survival from age x to x+t, and i is the statutory discount rate.</div>
+            <div><strong>2. Internal Revenue Code &sect; 72 Non-Qualified Exclusion Ratio:</strong></div>
+            <div>&nbsp;&nbsp;Exclusion Ratio = (Total Investment in Contract / Expected Total Return)</div>
+            <div>&nbsp;&nbsp;Tax-Free Principal Return = Monthly Payment &times; Exclusion Ratio</div>
+            <div>&nbsp;&nbsp;Taxable Ordinary Income = Monthly Payment &times; (1 - Exclusion Ratio)</div>
+            <div><strong>3. Annuity Break-Even Crossover Horizon:</strong></div>
+            <div>&nbsp;&nbsp;Break-Even Age = Claiming Age + (Initial Premium / Annualized Payout)</div>
+            <div>&nbsp;&nbsp;Example: Age 65 with $250,000 premium paying $1,500/mo ($18,000/yr) &rarr; 65 + (250,000 / 18,000) = 65 + 13.89 = Age 78.9</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Annuity Contracts -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Annuities &amp; Guaranteed Income Products</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Draconian Surrender Charge Schedules &amp; Liquidity Lockups</strong>
+            Deferred fixed and indexed annuities often enforce surrender charges ranging from 7% to 15% that taper off slowly over 7 to 10 years. While contracts typically permit withdrawing 10% penalty-free per year, requiring a lump sum for an unexpected emergency or medical crisis triggers devastating exit penalties.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Fixed Indexed Caps &amp; Dividend Forfeiture</strong>
+            Fixed Indexed Annuities (FIAs) market &quot;stock market upside with zero downside.&quot; However, insurance companies enforce restrictive annual interest caps (e.g. 5% to 7%) or participation rates (e.g. 50% to 60%) and completely strip out equity dividends. When the S&P 500 returns 25%, contract owners capture only a fraction of the market return.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Inflation Erosion in Level Payout SPIAs</strong>
+            A level nominal payout (e.g. $2,000 per month) provides predictable income, but at a 3% annual inflation rate, purchasing power declines by 26% in 10 years and 45% in 20 years. Purchasing an inflation-adjusted (COLA) rider protects against inflation but reduces starting monthly payments by 25% to 35%.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Overlooking State Guaranty Association Coverage Limits</strong>
+            Annuity contracts are backed strictly by the claims-paying ability of the issuing insurance company, not the FDIC. If an insurer becomes insolvent, state guaranty associations provide protection, but statutory limits are typically capped at $100,000 to $300,000 in present value. Investing multimillion-dollar sums with a single carrier exposes policyholders to institutional counterparty risk.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Ordinary Income Tax on Non-Qualified Gains (LIFO)</strong>
+            Unlike taxable brokerage accounts where long-term capital gains and qualified dividends are taxed at preferential 0%, 15%, or 20% rates, annuity gains are taxed at ordinary federal and state income tax rates (up to 37%+). Furthermore, withdrawals operate on a Last-In, First-Out (LIFO) basis, meaning taxable earnings must be withdrawn completely before any tax-free return of principal is received.
+          </div>
+        </div>
+
+<script>
         function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
 
         window.setAnLump = function(amt) {
@@ -5507,13 +5709,52 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 }
 ];
 
-  // 1. Build Finance Tools
+    // 1. Build Finance Tools
   for (const t of financeTools) {
+    let visibleFaqHtml = '';
+    if (t.faq && t.faq.length > 0) {
+      visibleFaqHtml = `
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          ${t.faq.map(f => `
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">${f.q}</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                ${f.a}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    const fullBody = t.body + visibleFaqHtml + `
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    `;
     const html = renderPage({
       title: `${t.title} | Digital Tools Shed`,
       metaDesc: t.metaDesc,
       canonical: `${DOMAIN}/finance/${t.slug}`,
-      bodyContent: t.body,
+      bodyContent: fullBody,
       currentPath: `/finance/${t.slug}`,
       faq: t.faq
     });

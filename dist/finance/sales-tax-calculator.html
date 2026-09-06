@@ -1589,6 +1589,80 @@
   onSTStateChange();
 </script>
 
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do you calculate sales tax on a purchase?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                To calculate sales tax, convert the sales tax percentage to a decimal by dividing by 100, then multiply by the pre-tax price: Sales Tax = Pre-Tax Price × (Tax Rate / 100). To determine the final register total, add the tax to the base price: Total = Pre-Tax Price + Sales Tax = Pre-Tax Price × (1 + Tax Rate / 100). For example, on a $120.00 purchase with an 8.25% combined tax rate: Tax = $120.00 × 0.0825 = $9.90, and the total checkout cost is $129.90.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do you reverse calculate (back out) sales tax from a receipt total?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                To find the original pre-tax price from a gross receipt total, divide the total by 1 plus the sales tax rate in decimal format: Pre-Tax Price = Total Paid / (1 + Tax Rate / 100). Then subtract the pre-tax price from the total to isolate the tax paid: Sales Tax = Total Paid - Pre-Tax Price. For example, if you paid $108.00 total in a state with an 8.00% tax rate: Pre-Tax Price = $108.00 / 1.08 = $100.00, and Tax = $8.00. (Never subtract 8% directly from $108.00, which yields an incorrect $99.36).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Which US states have no statewide sales tax?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Five US states do not levy a statewide sales tax, frequently remembered by the acronym "NOMAD": New Hampshire, Oregon, Montana, Alaska, and Delaware. However, purchasers must note that in Alaska, individual municipalities and boroughs are permitted to levy local sales taxes up to 7.85% (such as Juneau at 5% and Homer at 7.85%), and Montana allows designated tourist resort communities to impose local sales taxes up to 3%.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why does my checkout sales tax differ from my state baseline rate?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under United States sales tax law, taxing authority is decentralized. Forty-five states plus Washington D.C. levy a statewide baseline sales tax, but 38 states also authorize counties, cities, transit districts, and special fire/water authorities to levy local option sales taxes (surtaxes). For instance, California has a statewide base rate of 7.25%, but local district add-ons in Los Angeles County push the combined checkout tax rate to 9.50% or higher.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Are groceries, clothing, and prescription medications exempt from sales tax?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                In 37 states and Washington D.C., unprepared groceries purchased for home consumption are 100% exempt from statewide sales tax, while 13 states tax groceries at either the full rate or a reduced rate (e.g., Illinois at 1%, Missouri at 1.225%, Tennessee at 4%). Prescription drugs are 100% tax-exempt in 49 states (Illinois taxes Rx at 1%). Essential clothing is exempt from sales tax up to statutory thresholds in states like Pennsylvania, New York, New Jersey, Massachusetts, Minnesota, Rhode Island, and Vermont.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

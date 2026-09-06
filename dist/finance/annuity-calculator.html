@@ -1199,7 +1199,58 @@
         </div>
       </div>
 
-      <script>
+      
+        <!-- Mathematical & Actuarial Annuity Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">Actuarial Annuity Valuation &amp; Exclusion Ratio Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Annuity pricing combines discounted cash flow equations, mortality credits, and IRS non-qualified exclusion ratios:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Actuarial Present Value of Single Premium Immediate Annuity (SPIA):</strong></div>
+            <div>&nbsp;&nbsp;PV = &Sigma;<sub>t=1</sub><sup>&omega; - x</sup> [ PMT &middot; <sub>t</sub>p<sub>x</sub> / (1 + i)<sup>t</sup> ]</div>
+            <div>&nbsp;&nbsp;Where <sub>t</sub>p<sub>x</sub> is the probability of survival from age x to x+t, and i is the statutory discount rate.</div>
+            <div><strong>2. Internal Revenue Code &sect; 72 Non-Qualified Exclusion Ratio:</strong></div>
+            <div>&nbsp;&nbsp;Exclusion Ratio = (Total Investment in Contract / Expected Total Return)</div>
+            <div>&nbsp;&nbsp;Tax-Free Principal Return = Monthly Payment &times; Exclusion Ratio</div>
+            <div>&nbsp;&nbsp;Taxable Ordinary Income = Monthly Payment &times; (1 - Exclusion Ratio)</div>
+            <div><strong>3. Annuity Break-Even Crossover Horizon:</strong></div>
+            <div>&nbsp;&nbsp;Break-Even Age = Claiming Age + (Initial Premium / Annualized Payout)</div>
+            <div>&nbsp;&nbsp;Example: Age 65 with $250,000 premium paying $1,500/mo ($18,000/yr) &rarr; 65 + (250,000 / 18,000) = 65 + 13.89 = Age 78.9</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Annuity Contracts -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Annuities &amp; Guaranteed Income Products</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Draconian Surrender Charge Schedules &amp; Liquidity Lockups</strong>
+            Deferred fixed and indexed annuities often enforce surrender charges ranging from 7% to 15% that taper off slowly over 7 to 10 years. While contracts typically permit withdrawing 10% penalty-free per year, requiring a lump sum for an unexpected emergency or medical crisis triggers devastating exit penalties.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Fixed Indexed Caps &amp; Dividend Forfeiture</strong>
+            Fixed Indexed Annuities (FIAs) market &quot;stock market upside with zero downside.&quot; However, insurance companies enforce restrictive annual interest caps (e.g. 5% to 7%) or participation rates (e.g. 50% to 60%) and completely strip out equity dividends. When the S&P 500 returns 25%, contract owners capture only a fraction of the market return.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Inflation Erosion in Level Payout SPIAs</strong>
+            A level nominal payout (e.g. $2,000 per month) provides predictable income, but at a 3% annual inflation rate, purchasing power declines by 26% in 10 years and 45% in 20 years. Purchasing an inflation-adjusted (COLA) rider protects against inflation but reduces starting monthly payments by 25% to 35%.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Overlooking State Guaranty Association Coverage Limits</strong>
+            Annuity contracts are backed strictly by the claims-paying ability of the issuing insurance company, not the FDIC. If an insurer becomes insolvent, state guaranty associations provide protection, but statutory limits are typically capped at $100,000 to $300,000 in present value. Investing multimillion-dollar sums with a single carrier exposes policyholders to institutional counterparty risk.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Ordinary Income Tax on Non-Qualified Gains (LIFO)</strong>
+            Unlike taxable brokerage accounts where long-term capital gains and qualified dividends are taxed at preferential 0%, 15%, or 20% rates, annuity gains are taxed at ordinary federal and state income tax rates (up to 37%+). Furthermore, withdrawals operate on a Last-In, First-Out (LIFO) basis, meaning taxable earnings must be withdrawn completely before any tax-free return of principal is received.
+          </div>
+        </div>
+
+<script>
         function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
 
         window.setAnLump = function(amt) {
@@ -1371,6 +1422,80 @@
         document.addEventListener('DOMContentLoaded', calcAnnuity);
       </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Is it better to take a monthly pension annuity or a lump-sum payout?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The optimal choice depends on your life expectancy, investment acumen, and legacy goals. An annuity provides guaranteed, stress-free monthly income for life that you cannot outlive. A lump sum gives you complete control over your capital, the ability to pass remaining funds to heirs upon death, and potential inflation protection if invested in a diversified portfolio.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the break-even age for a pension annuity vs lump sum?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                A simple break-even calculation divides the lump sum by the annual annuity payout (e.g., $350,000 ÷ $26,400/yr = 13.25 years, meaning break-even occurs at age 78.3 if starting at 65). However, when accounting for a 5% to 7% investment return on the lump sum, the true investment break-even age often shifts past age 85 or 90.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What happens to my pension annuity if I pass away early?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                With a Single Life Annuity, all monthly payments stop immediately upon your death, and the employer or insurance company retains 100% of any remaining balance—leaving zero legacy for your heirs. To protect a spouse, you must select a Joint & Survivor annuity (which typically reduces monthly checks by 10% to 20%).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does inflation affect a fixed pension annuity?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Most corporate private pensions do NOT offer Cost-of-Living Adjustments (COLA). At an average 3% annual inflation rate, a fixed $2,000 per month pension check loses approximately 35% of its real purchasing power in 15 years, and over 50% of its value in 25 years.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Can I rollover a pension lump sum into an IRA without paying taxes?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Yes. You can execute a direct trustee-to-trustee rollover of your eligible pension lump-sum distribution directly into a Traditional IRA without paying any current income taxes or early withdrawal penalties, preserving 100% of your pre-tax retirement capital.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

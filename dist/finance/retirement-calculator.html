@@ -1273,7 +1273,56 @@
         </div>
       </div>
 
-      <script>
+      
+        <!-- Mathematical & Safe Withdrawal Rate Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">Retirement Capitalization &amp; Safe Withdrawal Rate Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Retirement nest egg sustainability relies on stochastic portfolio longevity math and the Fisher inflation adjustment equation:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Real Rate of Portfolio Return (Fisher Equation):</strong></div>
+            <div>&nbsp;&nbsp;r<sub>real</sub> = (1 + r<sub>nominal</sub>) / (1 + i<sub>inflation</sub>) - 1</div>
+            <div><strong>2. Constant Capitalization Formula (Bengen 4% Rule):</strong></div>
+            <div>&nbsp;&nbsp;Required Nest Egg = (Annual Living Budget - Guaranteed Income [Social Security + Pension]) / SWR</div>
+            <div>&nbsp;&nbsp;Example: ($80,000 - $35,000) / 0.04 = $45,000 / 0.04 = $1,125,000</div>
+            <div><strong>3. Discrete Portfolio Wealth Recurrence Relation:</strong></div>
+            <div>&nbsp;&nbsp;W<sub>t+1</sub> = (W<sub>t</sub> - S<sub>t</sub> &middot; (1 + i)<sup>t</sup>) &middot; (1 + r<sub>t</sub>)</div>
+            <div>&nbsp;&nbsp;Where W<sub>t</sub> is portfolio value at year t, S<sub>t</sub> is initial real withdrawal, and r<sub>t</sub> is annual market return.</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Retirement Planning -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Retirement Portfolio &amp; Longevity Planning</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Sequence of Returns Risk in the Fragile First 5 Years</strong>
+            A severe market downturn during the first 3 to 5 years of retirement can permanently deplete a portfolio even if 30-year average market returns match historical averages. Liquidating equities while prices are depressed to fund living expenses permanently reduces portfolio share count, accelerating portfolio depletion.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Blindly Applying the 4% Rule at High Equity Valuations</strong>
+            William Bengen's original 4% rule (1994) assumed historical bond yields of 5% to 7%. In eras characterized by elevated Shiller Cyclically Adjusted P/E ratios (CAPE &gt; 30) and compressed bond yields, financial economists recommend stress-testing a conservative initial safe withdrawal rate of 3.2% to 3.5% to maintain 95%+ success over 30+ years.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Confusing Pre-Tax Account Balances with Spendable Cash</strong>
+            Having $1,500,000 in a traditional 401(k) or traditional IRA does not equal $1,500,000 in spendable capital. Every single dollar distributed is taxed as ordinary income at federal and state rates. Failing to budget for a 20% to 30% aggregate tax haircut creates a severe funding deficit.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Underestimating Out-of-Pocket Healthcare &amp; Long-Term Care</strong>
+            Medicare does not cover custodial long-term nursing care or assisted living. According to Fidelity, the average 65-year-old couple needs over $315,000 after tax purely for medical expenses, copays, and supplemental insurance. A single extended nursing stay can consume hundreds of thousands in unplanned withdrawals.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Underestimating Joint Life Expectancy</strong>
+            For a healthy 65-year-old married couple, there is a 50% probability that at least one spouse will survive to age 92 or beyond. Planning a portfolio around an average individual life expectancy of 82 guarantees that the surviving spouse faces a severe risk of running out of money during late life.
+          </div>
+        </div>
+
+<script>
         function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
 
         window.setRetEgg = function(amt) {
@@ -1512,6 +1561,80 @@
         document.addEventListener('DOMContentLoaded', calcRet);
       </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the 4% rule and is it still safe for retirement?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Originating from William Bengen (1994) and the Trinity Study (1998), the 4% rule states that withdrawing 4% of your initial portfolio in Year 1, and adjusting that dollar amount for inflation each subsequent year, had a 95%+ success rate over 30 years on a 50/50 to 75/25 stock/bond portfolio. For longer 40+ year retirements (FIRE), modern financial planners often recommend a safer 3.25% to 3.75% initial rate.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does Sequence of Returns Risk (SRR) affect retirement portfolio longevity?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Sequence of Returns Risk (SRR) is the danger that market downturns occur in the early years of decumulation. Experiencing bear market losses during the first 3 to 5 years forces you to sell equities at depressed prices to fund living expenses, permanently impairing your principal base and accelerating portfolio exhaustion decades earlier than projected by simple average returns.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What are Guyton-Klinger dynamic guardrails and how do they work?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Guyton-Klinger guardrails adapt annual spending to market realities rather than blindly following rigid inflation increases. If a market rally drops your current withdrawal rate 20% below initial levels (the capital preservation boundary), you take an inflation raise; if a crash pushes your withdrawal rate 20% above the threshold, you trim spending by 10% to protect the nest egg.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How much retirement savings do I need to generate $5,000 per month?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                To generate $5,000 per month ($60,000 per year) entirely from investments using the 4% rule, you need a nest egg of $1,500,000 ($60,000 ÷ 0.04). If you receive $2,000 per month in guaranteed Social Security, you only need to draw $3,000 per month ($36,000/yr), reducing your required nest egg to $900,000 ($36,000 ÷ 0.04).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does inflation impact my retirement withdrawal strategy?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Inflation compounds expenses over time: at a 3% historical inflation rate, $60,000 in annual spending doubles to $120,000 in roughly 24 years. If a portfolio is invested too conservatively in cash or low-yielding bonds, its purchasing power steadily erodes, making equity exposure necessary to maintain long-term solvency.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

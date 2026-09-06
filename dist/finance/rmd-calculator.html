@@ -1286,7 +1286,58 @@
         </div>
       </div>
 
-      <script>
+      
+        <!-- Mathematical & IRS Uniform Lifetime Table Derivation -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0; margin-bottom:0.75rem;">IRS RMD Calculation Formula &amp; Table III Actuarial Factors</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:1rem;">
+            Required Minimum Distributions are governed by Internal Revenue Code &sect; 401(a)(9) and Treasury Regulation &sect; 1.401(a)(9)-9 using the Uniform Lifetime Table:
+          </p>
+          <div style="background:var(--surface-alt); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1rem;">
+            <div><strong>1. Mandatory Annual RMD Equation:</strong></div>
+            <div>&nbsp;&nbsp;RMD<sub>t</sub> = (Fair Market Value of Account as of Dec 31 of Prior Year) / (IRS Table III Life Expectancy Factor)</div>
+            <div><strong>2. SECURE 2.0 Starting Age Milestones:</strong></div>
+            <div>&nbsp;&nbsp;&bull; Born 1951 - 1959: Mandatory RMD starting age = 73</div>
+            <div>&nbsp;&nbsp;&bull; Born 1960 or later: Mandatory RMD starting age = 75</div>
+            <div><strong>3. Uniform Lifetime Table III Sample Divisors:</strong></div>
+            <div>&nbsp;&nbsp;Age 73 = 26.5 (3.77%) | Age 75 = 24.6 (4.07%) | Age 80 = 20.2 (4.95%) | Age 85 = 16.0 (6.25%) | Age 90 = 12.2 (8.20%)</div>
+            <div><strong>4. Shortfall Excise Tax (IRC &sect; 4974):</strong></div>
+            <div>&nbsp;&nbsp;Excise Penalty = 0.25 &times; (Required RMD - Actual Distributed Amount)</div>
+            <div>&nbsp;&nbsp;Reduced to 0.10 if timely corrected within 2-year statutory correction window via IRS Form 5329.</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in RMD Management -->
+        <div style="margin-top:2rem; margin-bottom:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in IRS Required Minimum Distributions</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The 25% Missed RMD Excise Tax Penalty</strong>
+            Failing to withdraw your full RMD by December 31 triggers an immediate 25% federal excise tax on the undistributed amount under IRC § 4974. Although SECURE 2.0 lowered this from the previous draconian 50% penalty (and permits a reduction to 10% if corrected within two years), it remains one of the harshest penalties in the Internal Revenue Code.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. First-Year April 1 Double Distribution Tax Trap</strong>
+            Retirees reaching age 73 have until April 1 of the following year to take their very first RMD. However, deferring your first distribution to April 1 forces you to take TWO full RMDs in that second calendar year (the deferred first RMD by April 1, and the second RMD by December 31). Stacking two distributions into a single tax year often pushes you into higher tax brackets and triggers IRMAA Medicare surcharges.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Aggregating RMDs Across Employer Plans (401k / 403b)</strong>
+            While the IRS permits aggregating RMDs across multiple traditional IRAs and withdrawing the entire sum from a single IRA, you CANNOT aggregate 401(k) or 403(b) accounts with IRAs or with other 401(k) plans. Each employer-sponsored plan must distribute its own standalone RMD. Taking an employer plan's RMD from an IRA leaves the employer plan in default.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Overlooking Qualified Charitable Distributions (QCDs)</strong>
+            Retirees aged 70½ and older can transfer up to $105,000 per year directly from a traditional IRA to a qualified 501(c)(3) charity. A QCD satisfies your mandatory RMD dollar-for-dollar without adding a single dollar to your Adjusted Gross Income (AGI). Claiming a regular RMD and taking a standard deduction forfeits this powerful tax shelter.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. SECURE 2.0 Starting Age Confusion (Age 73 vs 75)</strong>
+            The SECURE 2.0 Act phased in new starting ages: individuals born between 1951 and 1959 start RMDs at age 73, while those born in 1960 or later do not begin until age 75. Relying on legacy advice or online calculators that use the repealed age 70½ or age 72 rules causes unnecessary premature taxable distributions.
+          </div>
+        </div>
+
+<script>
         var irsTable = {
           72: 27.4, 73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1,
           80: 20.2, 81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2,
@@ -1445,6 +1496,80 @@
         document.addEventListener('DOMContentLoaded', calcRMD);
       </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the RMD starting age under the SECURE 2.0 Act?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under the SECURE 2.0 Act passed by Congress, the mandatory starting age for Required Minimum Distributions (RMDs) is phased: individuals born between 1951 and 1959 must begin taking RMDs at age 73. Individuals born in 1960 or later begin taking RMDs at age 75. Those born in 1950 or earlier remain subject to the previous age 72 or 70½ rules.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How is an IRS Required Minimum Distribution calculated using Table III?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The annual RMD is calculated by taking your pre-tax account balance as of December 31 of the prior calendar year and dividing it by your life expectancy factor from IRS Uniform Lifetime Table III (Treasury Reg. § 1.401(a)(9)-9). For example, at age 75, the factor is 24.6, requiring a distribution of approximately 4.065% of your prior year-end balance.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the penalty for missing an RMD deadline?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under Internal Revenue Code § 4974 as updated by SECURE 2.0, failing to withdraw your full RMD by December 31 incurs an excise tax penalty of 25% on the shortfall amount (down from 50% historically). If the error is corrected within the statutory correction window (generally 2 years) and submitted with IRS Form 5329, the penalty is reduced to 10%.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do Qualified Charitable Distributions (QCDs) reduce RMD taxes?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Individuals aged 70½ or older can donate up to $105,000 per year directly from a Traditional IRA to a qualified 501(c)(3) public charity as a Qualified Charitable Distribution (QCD). The donated amount counts directly toward satisfying your mandatory RMD but is 100% excluded from your Adjusted Gross Income (AGI), preventing tax bracket escalation and Medicare IRMAA surcharges.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Can I aggregate RMDs across multiple IRAs and workplace 401(k) plans?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                You can aggregate RMD calculations across all your Traditional IRAs, SEP IRAs, and SIMPLE IRAs and withdraw the entire cumulative sum from one single IRA account. However, you CANNOT aggregate workplace plans: each separate 401(k), 403(b), or 457(b) account requires its own distinct RMD distribution calculated and disbursed directly from that employer plan.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

@@ -1653,6 +1653,80 @@
       document.addEventListener('DOMContentLoaded', calcInherited);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the 10-year rule for inherited IRAs under the SECURE Act?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under the original SECURE Act of 2019 and SECURE 2.0, non-eligible designated beneficiaries (such as adult children, grandchildren, or non-spouse heirs) who inherit an IRA after December 31, 2019, must fully withdraw the entire account balance by December 31 of the 10th anniversary year following the original owner's death.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Do I have to take annual RMDs during Years 1–9, or can I wait until Year 10?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under the IRS final regulations issued in July 2024 (Treasury Decision 10001), it depends on the original owner's age at death. If the owner died ON OR AFTER their Required Beginning Date (RBD, currently age 73), the beneficiary MUST take annual RMDs based on their Single Life Expectancy in Years 1 through 9, and then empty the remaining balance in Year 10. If the owner died BEFORE their RBD, no annual distributions are required in Years 1–9, though the account must still be fully liquidated by Year 10.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does the IRS calculate annual RMDs for an inherited IRA?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Annual RMDs are calculated by dividing the prior year-end account balance (as of December 31) by the beneficiary's single life expectancy factor from IRS Table I (Treas. Reg. § 1.401(a)(9)-9). In the first year of distribution, you look up the beneficiary's age. In each subsequent year, you simply reduce the initial life expectancy factor by 1.0 ('the minus-one rule').
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Are inherited Roth IRA distributions subject to annual RMDs or income taxes?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Inherited Roth IRAs are exempt from annual RMDs in Years 1–9, regardless of whether the original owner died before or after age 73. Furthermore, qualified distributions from an inherited Roth IRA are 100% federal income tax-free, provided the original Roth IRA was established at least 5 tax years before the distribution. Beneficiaries can leave 100% of the funds compounding tax-free until December 31 of Year 10.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the penalty for missing a mandatory inherited IRA RMD?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under SECURE 2.0 (IRC § 4974), the excise tax penalty for failing to take a timely RMD was reduced from 50% to 25% of the shortfall. The penalty is further reduced to 10% if the taxpayer corrects the failure and submits IRS Form 5329 within a two-year correction window. While the IRS provided transitional relief for tax years 2021 through 2024, mandatory annual RMD enforcement is fully active starting with tax year 2025.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

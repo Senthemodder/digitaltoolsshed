@@ -1397,6 +1397,80 @@
   calcCAGR();
 </script>
 
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Compound Annual Growth Rate (CAGR) and how is it calculated?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Compound Annual Growth Rate (CAGR) measures the geometric annualized rate of return of an investment over a multi-year time horizon. It represents the hypothetical constant annual growth rate that would take an initial investment from its beginning balance to its ending balance, assuming all profits were reinvested. The mathematical formula is: CAGR = [(Ending Value / Beginning Value)^(1 / t)] - 1, where t is the duration in years.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the difference between CAGR and Average (Arithmetic) Annual Return?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Arithmetic mean return simply sums each year's percentage return and divides by the number of years. CAGR is a geometric mean that accounts for compounding and sequence of returns. For example, if a portfolio gains +50% in year one and loses -50% in year two, its arithmetic average return is 0.0% [(50 - 50) / 2], but the investor actually lost 25% of their capital ($100 → $150 → $75), resulting in a negative CAGR of -13.4% per year.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is "Volatility Drag" and how does it reduce long-term wealth?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Volatility drag (or variance drain) is the mathematical divergence between the average arithmetic return of an asset and its true compounded geometric growth rate (CAGR). As a statistical rule of thumb derived from Taylor series expansion: CAGR ≈ Arithmetic Return - (Variance / 2) = Arithmetic Return - (σ² / 2). The higher the asset's annualized volatility (σ), the wider this penalty becomes, causing volatile assets to significantly underperform steady compounders over decades.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does inflation impact CAGR (Real CAGR vs Nominal CAGR)?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Nominal CAGR measures unadjusted dollar balance growth, while Real CAGR measures true purchasing power expansion after accounting for currency inflation. To calculate Real CAGR accurately without the common additive error, use the Fisher Equation: Real CAGR = [(1 + Nominal CAGR) / (1 + Annual Inflation Rate)] - 1. For instance, a 9.0% nominal CAGR during a 3.5% inflation environment yields a true real growth rate of 5.31% per year.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the Rule of 72 and how accurately does it predict doubling time?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The Rule of 72 is a financial shortcut used to estimate the number of years required for an investment to double at a given compounding rate: Doubling Years ≈ 72 / CAGR. The mathematically exact formula derived from logarithms is: Exact Doubling Years = ln(2) / ln(1 + CAGR / 100). For an 8% CAGR, the Rule of 72 predicts 9.00 years (exact: 9.01 years); for a 12% CAGR, it predicts 6.00 years (exact: 6.12 years).
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
