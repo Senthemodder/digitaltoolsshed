@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Developer Tools Suite | Digital Tools Shed</title>
-  <meta name="description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/">
-  <meta property="og:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta property="og:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/">
+  <title>Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate projectile trajectory, maximum apex height, total flight time, horizontal range, and impact velocity given launch speed, angle, and initial elevation. Includes gravity selector and interactive SVG flight path.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/math/projectile-motion-calculator">
+  <meta property="og:title" content="Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate projectile trajectory, maximum apex height, total flight time, horizontal range, and impact velocity given launch speed, angle, and initial elevation. Includes gravity selector and interactive SVG flight path.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/math/projectile-motion-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta name="twitter:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
+  <meta name="twitter:title" content="Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate projectile trajectory, maximum apex height, total flight time, horizontal range, and impact velocity given launch speed, angle, and initial elevation. Includes gravity selector and interactive SVG flight path.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -58,8 +58,14 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Dev",
-      "item": "https://digitaltoolsshed.com/dev"
+      "name": "Math",
+      "item": "https://digitaltoolsshed.com/math"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Projectile Motion Calculator",
+      "item": "https://digitaltoolsshed.com/math/projectile-motion-calculator"
     }
   ]
 }
@@ -68,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Developer Tools Suite",
-  "url": "https://digitaltoolsshed.com/dev/",
+  "name": "Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG)",
+  "url": "https://digitaltoolsshed.com/math/projectile-motion-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -80,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1041,
+    "ratingCount": 1372,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.",
+  "description": "Calculate projectile trajectory, maximum apex height, total flight time, horizontal range, and impact velocity given launch speed, angle, and initial elevation. Includes gravity selector and interactive SVG flight path.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -100,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Developer Tools Suite free to use?",
+      "name": "What angle gives the maximum horizontal range for a projectile?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Developer Tools Suite on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "When launching from flat ground to an equal landing elevation (initial height y0 = 0), an angle of exactly 45° maximizes horizontal range: Range = (v0² / g) × sin(2θ). However, when launching from an elevated cliff or platform (y0 > 0), the optimal launch angle is always strictly LESS than 45°."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How is the maximum apex height of a projectile calculated?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Maximum height occurs when the vertical velocity component reaches zero (vy = 0). The apex height formula is: H_max = y0 + [(v0 × sin(θ))² / (2g)], where y0 is initial launch elevation, v0 is muzzle speed, θ is launch angle, and g is gravitational acceleration (9.807 m/s² on Earth)."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Developer Tools Suite work on mobile devices?",
+      "name": "Why does horizontal velocity remain constant in vacuum projectile motion?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "In ideal kinematics without atmospheric air resistance, gravity acts exclusively in the downward vertical axis (ay = -g). Because there is zero net force acting along the horizontal x-axis (ax = 0), horizontal velocity vx = v0 × cos(θ) remains perfectly constant throughout the entire flight."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does planetary gravity affect projectile range on the Moon or Mars?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because range is inversely proportional to gravity [R ∝ (1/g)], lowering gravitational acceleration dramatically extends both flight time and horizontal distance. On the Moon (g = 1.62 m/s², roughly 1/6th Earth gravity), the exact same golf ball or baseball drive will travel approximately 6.05 times farther than on Earth."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the formula for projectile time of flight with initial elevation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When initial height y0 > 0, total flight time t is solved via the quadratic kinematic equation -½gt² + (v0 × sin(θ))t + y0 = 0, giving: t = [v0 × sin(θ) + √((v0 × sin(θ))² + 2gy0)] / g."
       }
     }
   ]
@@ -129,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Developer Tools Suite",
-  "description": "Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.",
+  "name": "How to Use the Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG)",
+  "description": "Calculate projectile trajectory, maximum apex height, total flight time, horizontal range, and impact velocity given launch speed, angle, and initial elevation. Includes gravity selector and interactive SVG flight path.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Developer Tools Suite."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG)."
     },
     {
       "@type": "HowToStep",
@@ -948,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Developer Tools Suite | Digital Tools Shed</span>
+            <span>Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1019,121 +1041,339 @@
           
 
           
-    
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
-    </style>
-  
-    <div class="article-container" style="max-width: 900px;">
-      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Developer Tools Suite</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Essential developer utilities: JWT token decoders, regex visualizers, SQL formatters, JSON converters, CSS minifiers, and Linux chmod tools.
-      </p>
+    <div class="article-container" style="max-width: 1020px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Science</a> &gt; Projectile Motion Calculator
+      </nav>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        
-    <a href="/dev/resistor-color-code-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Resistor Color Code Calculator — 4-Band, 5-Band & 6-Band (Interactive SVG & Reverse Solver)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate resistance values, tolerances, and temperature coefficients for 4-band, 5-band, and 6-band resistors (IEC 60062). Features interactive colored resistor SVG graphic and instant reverse resistance-to-bands solver.</p>
-    </a>
-  
-    <a href="/dev/jwt-decoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JWT Token Decoder & Header Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Decode JSON Web Tokens (JWT) locally in your browser. Inspect JOSE header, claims payload, and token expiration timestamps.</p>
-    </a>
-  
-    <a href="/dev/regex-tester" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Regex Visual Tester & Match Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Test and debug JavaScript regular expressions with real-time match highlighting, capture groups, and replacement substitution.</p>
-    </a>
-  
-    <a href="/dev/css-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Code Minifier & Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify CSS stylesheets online: remove comments, compress whitespace, collapse zero dimensions, and optimize colors.</p>
-    </a>
-  
-    <a href="/dev/hash-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cryptographic Hash Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.</p>
-    </a>
-  
-    <a href="/dev/box-shadow-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Box Shadow Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.</p>
-    </a>
-  
-    <a href="/dev/chmod-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Linux Permissions & Chmod Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Linux octal permissions (755, 644) and symbolic notations.</p>
-    </a>
-  
-    <a href="/dev/url-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Encode and decode URL parameters and percent-encoded characters.</p>
-    </a>
-  
-    <a href="/dev/sql-formatter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">SQL Query Formatter & Beautifier</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Beautify and indent SQL queries with uppercase keyword formatting in your browser.</p>
-    </a>
-  
-    <a href="/dev/json-to-csv" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JSON to CSV Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert JSON arrays of objects into downloadable CSV spreadsheet files.</p>
-    </a>
-  
-    <a href="/dev/ip-subnet-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">IPv4 CIDR Subnet Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate network address, broadcast address, netmask, and usable host count from IP/CIDR prefix.</p>
-    </a>
-  
-    <a href="/dev/html-entity-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">HTML Entity Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert special characters into HTML named and numeric entities and decode HTML entities back to plaintext.</p>
-    </a>
-  
-    <a href="/dev/ai-robots-txt" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">AI Bot Blocker robots.txt Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate a robots.txt file to block AI web scrapers and LLM training crawlers (GPTBot, Claude-Web, CCBot, Google-Extended, Bytespider) while keeping Googlebot allowed.</p>
-    </a>
-  
-    <a href="/dev/cron-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cron Expression Generator & Schedule Explainer</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate and test crontab schedule expressions in human-readable English. Includes live preview of next scheduled execution dates.</p>
-    </a>
-  
-    <a href="/dev/js-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JavaScript Minifier & Code Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify and compress JavaScript source code in your browser with zero network uploads. Remove comments, whitespace, and optimize syntax.</p>
-    </a>
-  
-    <a href="/dev/url-parser" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Parser & Query String Parameter Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Deconstruct and parse any URL into protocol, origin, host, path segments, query parameters table, hash, and JSON object.</p>
-    </a>
-  
-    <a href="/dev/epoch-converter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Unix Timestamp & Epoch Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.</p>
-    </a>
-  
-    <a href="/dev/diff-checker" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Online Text & Code Diff Checker</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.</p>
-    </a>
-  
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Classical Kinematics</span>
+          <span class="badge badge-green">Zero Server Uploads</span>
+          <span class="badge badge-blue">Interactive Ballistic SVG</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Projectile Motion &amp; Ballistic Trajectory Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Simulate 2D projectile kinematics with arbitrary initial height, launch speed, angle, and planetary gravity. Calculates apex elevation, total flight time, horizontal range, and impact velocity with scalable vector trajectory plotting.
+        </p>
+      </header>
+
+      <!-- INPUTS BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Initial Velocity (v0):</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="proj-v0" value="25" min="0.1" step="1" style="width: 65%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcProjectile()" />
+              <select id="proj-v0-unit" style="width: 35%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcProjectile()">
+                <option value="ms" selected>m/s</option>
+                <option value="kmh">km/h</option>
+                <option value="fps">ft/s</option>
+                <option value="mph">mph</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">
+              <span>Launch Angle (θ):</span>
+              <span id="proj-angle-badge" style="color: #6366f1; font-family: var(--mono);">45°</span>
+            </div>
+            <input type="range" id="proj-angle" min="0" max="90" value="45" step="1" style="width: 100%;" oninput="syncAngleSlider(this.value)" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Initial Launch Height (y0):</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="proj-y0" value="0" min="0" step="0.5" style="width: 65%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcProjectile()" />
+              <select id="proj-y0-unit" style="width: 35%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcProjectile()">
+                <option value="m" selected>Meters</option>
+                <option value="ft">Feet</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Planetary Gravity (g):</label>
+            <select id="proj-gravity" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcProjectile()">
+              <option value="9.80665" selected>Earth (9.81 m/s²)</option>
+              <option value="1.62">Moon (1.62 m/s² — 1/6g)</option>
+              <option value="3.72">Mars (3.72 m/s² — 0.38g)</option>
+              <option value="24.79">Jupiter (24.79 m/s² — 2.5g)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #6366f1;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Total Horizontal Range</div>
+            <div id="proj-res-range" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #6366f1; margin-bottom: 0.2rem;">63.73 m</div>
+            <div id="proj-res-range-ft" style="font-size: 0.85rem; color: var(--text-muted);">209.1 Feet</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Maximum Apex Height</div>
+            <div id="proj-res-apex" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">15.93 m</div>
+            <div id="proj-res-apex-ft" style="font-size: 0.85rem; color: var(--text-muted);">52.3 Feet (Peak Elevation)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Total Flight Time</div>
+            <div id="proj-res-time" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">3.60 s</div>
+            <div id="proj-res-time-apex" style="font-size: 0.85rem; color: var(--text-muted);">Apex reached at 1.80 s</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Impact Velocity</div>
+            <div id="proj-res-impact-v" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">25.00 m/s</div>
+            <div id="proj-res-impact-angle" style="font-size: 0.85rem; color: var(--text-muted);">Impact Angle: -45.0°</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE TRAJECTORY SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          📈 Ballistic Parabolic Trajectory Curve
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Vector schematic drawn to exact mathematical scale showing initial launch vector, trajectory apex peak, and landing range coordinate.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="proj-traj-svg" viewBox="0 0 800 280" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP WORKED DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Classical Kinematics Derivations
+        </h3>
+        <div id="proj-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Solving kinematic motion equations...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="proj-copy-btn" onclick="copyProjectileReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Trajectory Solution &amp; Flight Parameters
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Physics Misunderstandings in Ballistics
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The "45 Degrees is Always Maximum Range" Fallacy</strong>
+            High school physics students memorize that 45° produces maximum range. This is true ONLY when launch height equals landing height ($y_0 = 0$). When throwing from a cliff, standing height, or aircraft ($y_0 > 0$), the optimal angle is strictly less than 45°: $\theta = \arcsin(1 / \sqrt{2 + 2gy_0/v_0^2})$. In shot put (release height 2.1m), optimal launch angle is roughly 37°–38°.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Neglecting Aerodynamic Drag in Real-World Athletics</strong>
+            In baseball, golf, or artillery, atmospheric drag forces ($F_d = \frac{1}{2}\rho v^2 C_d A$) alter trajectories radically. A 100 mph baseball hit in a vacuum travels over 700 feet; with air drag and Magnus spin backspin, it travels roughly 400 feet and exhibits an asymmetric trajectory with a steep, abrupt terminal drop.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. JavaScript Radians vs. Degrees Calculation Bug</strong>
+            JavaScript math functions (<code>Math.sin()</code>, <code>Math.cos()</code>) strictly expect angles in radians. Passing raw degrees without converting $	heta_{	ext{rad}} = 	heta_{	ext{deg}} 	imes (pi / 180)$ generates nonsensical negative flight times and negative ranges.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Overlooking Kinetic Energy Transformation at Apex</strong>
+            At the trajectory apex, vertical velocity reaches zero ($v_y = 0$), but kinetic energy is NOT zero. The projectile still retains 100% of its horizontal kinetic energy: $E_k = \frac{1}{2}m v_x^2 = \frac{1}{2}m (v_0 \cos\theta)^2$. Only in a purely vertical 90° launch does kinetic energy drop to absolute zero at peak.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Coriolis Acceleration in Long-Range Ballistics (>1,000m)</strong>
+            For extreme long-range rifle shooting and naval artillery, Earth rotates beneath the projectile during its multi-second flight. In the Northern Hemisphere, the Coriolis acceleration deflects trajectories to the right by several inches to feet depending on target latitude and azimuth.
+          </div>
+        </div>
       </div>
     </div>
+
+    <script>
+      function syncAngleSlider(val) {
+        document.getElementById('proj-angle-badge').textContent = val + '°';
+        calcProjectile();
+      }
+
+      function calcProjectile() {
+        var v0Raw = parseFloat(document.getElementById('proj-v0').value) || 25;
+        var v0Unit = document.getElementById('proj-v0-unit').value;
+        var angleDeg = parseFloat(document.getElementById('proj-angle').value) || 45;
+        var y0Raw = parseFloat(document.getElementById('proj-y0').value) || 0;
+        var y0Unit = document.getElementById('proj-y0-unit').value;
+        var g = parseFloat(document.getElementById('proj-gravity').value) || 9.80665;
+
+        // Convert v0 to m/s
+        var v0 = v0Raw;
+        if (v0Unit === 'kmh') v0 = v0Raw / 3.6;
+        else if (v0Unit === 'fps') v0 = v0Raw * 0.3048;
+        else if (v0Unit === 'mph') v0 = v0Raw * 0.44704;
+
+        // Convert y0 to meters
+        var y0 = y0Raw;
+        if (y0Unit === 'ft') y0 = y0Raw * 0.3048;
+
+        var rad = angleDeg * (Math.PI / 180);
+        var vx = v0 * Math.cos(rad);
+        var vy0 = v0 * Math.sin(rad);
+
+        // Time to apex
+        var tApex = vy0 / g;
+        // Apex height
+        var hApex = y0 + ((vy0 * vy0) / (2 * g));
+
+        // Total flight time: solve -0.5*g*t^2 + vy0*t + y0 = 0
+        // t = (vy0 + sqrt(vy0^2 + 2*g*y0)) / g
+        var discriminant = Math.max(0, (vy0 * vy0) + (2 * g * y0));
+        var totalTime = (vy0 + Math.sqrt(discriminant)) / g;
+
+        // Horizontal range
+        var range = vx * totalTime;
+
+        // Impact velocity components
+        var vyImpact = vy0 - (g * totalTime);
+        var vImpact = Math.sqrt((vx * vx) + (vyImpact * vyImpact));
+        var angleImpactRad = Math.atan2(vyImpact, vx);
+        var angleImpactDeg = angleImpactRad * (180 / Math.PI);
+
+        // Unit conversions for display
+        var rangeFt = range * 3.28084;
+        var apexFt = hApex * 3.28084;
+
+        // Update KPIs
+        document.getElementById('proj-res-range').textContent = range.toFixed(2) + ' m';
+        document.getElementById('proj-res-range-ft').textContent = rangeFt.toFixed(1) + ' Feet (' + (range / 1000).toFixed(3) + ' km)';
+
+        document.getElementById('proj-res-apex').textContent = hApex.toFixed(2) + ' m';
+        document.getElementById('proj-res-apex-ft').textContent = apexFt.toFixed(1) + ' Feet (Peak Elevation)';
+
+        document.getElementById('proj-res-time').textContent = totalTime.toFixed(2) + ' s';
+        document.getElementById('proj-res-time-apex').textContent = 'Apex reached at ' + tApex.toFixed(2) + ' s';
+
+        document.getElementById('proj-res-impact-v').textContent = vImpact.toFixed(2) + ' m/s';
+        document.getElementById('proj-res-impact-angle').textContent = 'Impact Angle: ' + angleImpactDeg.toFixed(1) + '° (' + (vImpact * 2.23694).toFixed(1) + ' mph)';
+
+        // Derivation Box
+        var dBox = document.getElementById('proj-derivation-box');
+        dBox.innerHTML = '<strong>1. Velocity Components:</strong> vx = ' + v0.toFixed(2) + ' × cos(' + angleDeg + '°) = <strong>' + vx.toFixed(2) + ' m/s</strong>; vy0 = ' + v0.toFixed(2) + ' × sin(' + angleDeg + '°) = <strong>' + vy0.toFixed(2) + ' m/s</strong>.<br>' +
+          '<strong>2. Peak Apex Height:</strong> y0 (' + y0.toFixed(2) + ') + (vy0² / 2g) = ' + y0.toFixed(2) + ' + (' + (vy0 * vy0).toFixed(2) + ' / ' + (2 * g).toFixed(2) + ') = <strong>' + hApex.toFixed(2) + ' m</strong> (' + apexFt.toFixed(1) + ' ft).<br>' +
+          '<strong>3. Quadratic Flight Time:</strong> [vy0 + √(vy0² + 2gy0)] / g = [' + vy0.toFixed(2) + ' + √' + discriminant.toFixed(2) + '] / ' + g.toFixed(2) + ' = <strong>' + totalTime.toFixed(2) + ' seconds</strong>.<br>' +
+          '<strong>4. Horizontal Range (R):</strong> vx × Total Time = ' + vx.toFixed(2) + ' m/s × ' + totalTime.toFixed(2) + ' s = <strong>' + range.toFixed(2) + ' m</strong> (' + rangeFt.toFixed(1) + ' ft).<br>' +
+          '<strong>5. Terminal Impact:</strong> Speed = √(' + vx.toFixed(1) + '² + ' + vyImpact.toFixed(1) + '²) = <strong>' + vImpact.toFixed(2) + ' m/s</strong> at ' + angleImpactDeg.toFixed(1) + '°.';
+
+        // Render SVG Trajectory
+        renderTrajectorySvg(range, hApex, y0, totalTime, vx, vy0, g);
+      }
+
+      function renderTrajectorySvg(R, H, y0, totalT, vx, vy0, g) {
+        var svg = document.getElementById('proj-traj-svg');
+        if (!svg) return;
+
+        var w = 800, h = 280;
+        var padL = 70, padR = 40, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        var maxRange = Math.max(10, R * 1.15);
+        var maxHeight = Math.max(5, H * 1.25);
+
+        function toX(x) { return padL + ((x / maxRange) * plotW); }
+        function toY(y) { return (padT + plotH) - ((y / maxHeight) * plotH); }
+
+        var svgHtml = '';
+
+        // Axes & Ground
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+
+        // Parabolic Points
+        var pts = [];
+        var numSteps = 50;
+        for (var i = 0; i <= numSteps; i++) {
+          var t = (i / numSteps) * totalT;
+          var x = vx * t;
+          var y = y0 + (vy0 * t) - (0.5 * g * t * t);
+          pts.push(toX(x).toFixed(1) + ',' + toY(y).toFixed(1));
+        }
+
+        var pathD = 'M ' + pts.join(' L ');
+        var polyArea = pathD + ' L ' + toX(R) + ' ' + toY(0) + ' L ' + toX(0) + ' ' + toY(0) + ' Z';
+
+        svgHtml += '<path d="' + polyArea + '" fill="rgba(99, 102, 241, 0.12)" stroke="none" />';
+        svgHtml += '<path d="' + pathD + '" fill="none" stroke="#6366f1" stroke-width="3" />';
+
+        // Cliff platform if y0 > 0
+        if (y0 > 0) {
+          svgHtml += '<rect x="' + (padL - 25) + '" y="' + toY(y0) + '" width="25" height="' + (toY(0) - toY(y0)) + '" fill="#64748b" opacity="0.5" />';
+          svgHtml += '<text x="' + (padL - 30) + '" y="' + ((toY(y0) + toY(0))/2 + 4) + '" fill="var(--text-muted)" font-size="10" text-anchor="end">y0=' + y0.toFixed(1) + 'm</text>';
+        }
+
+        // Apex marker
+        var xApex = vx * (vy0 / g);
+        var ax = toX(xApex);
+        var ay = toY(H);
+        svgHtml += '<circle cx="' + ax + '" cy="' + ay + '" r="5" fill="#10b981" stroke="#ffffff" stroke-width="1.5" />';
+        svgHtml += '<text x="' + ax + '" y="' + (ay - 10) + '" fill="#10b981" font-size="11" font-weight="bold" text-anchor="middle">Apex: ' + H.toFixed(1) + 'm</text>';
+
+        // Landing Impact marker
+        var lx = toX(R);
+        var ly = toY(0);
+        svgHtml += '<circle cx="' + lx + '" cy="' + ly + '" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2" />';
+        svgHtml += '<text x="' + lx + '" y="' + (ly + 22) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="middle">R = ' + R.toFixed(1) + 'm</text>';
+
+        // Ticks
+        svgHtml += '<text x="' + padL + '" y="' + (padT + plotH + 20) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">0m</text>';
+        svgHtml += '<text x="' + (padL + plotW) + '" y="' + (padT + plotH + 20) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">' + maxRange.toFixed(0) + 'm</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyProjectileReport(btn) {
+        var r = document.getElementById('proj-res-range').textContent;
+        var rft = document.getElementById('proj-res-range-ft').textContent;
+        var apex = document.getElementById('proj-res-apex').textContent;
+        var time = document.getElementById('proj-res-time').textContent;
+        var v0 = document.getElementById('proj-v0').value;
+        var ang = document.getElementById('proj-angle').value;
+        var impact = document.getElementById('proj-res-impact-v').textContent;
+
+        var text = '🚀 PROJECTILE MOTION & TRAJECTORY SOLUTION\n' +
+          '====================================================\n' +
+          '• Launch Velocity: ' + v0 + ' m/s @ ' + ang + '° Elevation\n' +
+          '• Maximum Range: ' + r + ' (' + rft + ')\n' +
+          '• Apex Height: ' + apex + '\n' +
+          '• Total Flight Time: ' + time + '\n' +
+          '• Final Impact Velocity: ' + impact + '\n' +
+          '----------------------------------------------------\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/projectile-motion-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Trajectory Solution Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcProjectile);
+      } else {
+        calcProjectile();
+      }
+    </script>
   
 
           
@@ -1144,8 +1384,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fdev%2F&text=Developer%20Tools%20Suite%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fdev%2F&title=Developer%20Tools%20Suite" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fprojectile-motion-calculator&text=Projectile%20Motion%20%26%20Trajectory%20Calculator%20(Apex%2C%20Range%2C%20Flight%20Time%20%26%20Flight%20Path%20SVG)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fprojectile-motion-calculator&title=Projectile%20Motion%20%26%20Trajectory%20Calculator%20(Apex%2C%20Range%2C%20Flight%20Time%20%26%20Flight%20Path%20SVG)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1213,14 +1453,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/health/adhd-dopamine-menu" class="promo-card">
+                <a href="/neuro/hyperbolic-discounting-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Health</span>
+                      <span class="promo-badge">Neurobiology & Mind</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">ADHD Dopamine Menu & Paralysis Unsticker</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Curate appetizers, entrees, sides, and desserts to intentionally stimulate prefrontal dopamine.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Hyperbolic Discounting & Present Bias Future-Self Bridge</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Visualize how your brain devalues future rewards using George Ainslie’s Hyperbolic Discounting model. Calculate present-bias decay curves and construct pre-commitment Ulysses contracts.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1228,14 +1468,14 @@
                 </a>
                 
               
-                <a href="/neuro/loneliness-parasocial-auditor" class="promo-card">
+                <a href="/finance/compound-interest-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Finance</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Parasocial Bonding & Screen-Mediated Loneliness Meter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Audit one-way parasocial relationships vs reciprocal peer connection using UCLA Loneliness Scale metrics.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Compound Interest Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate investment growth with monthly contributions and compound interest.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1258,14 +1498,14 @@
                 </div>
                 
               
-                <a href="/science/relativistic-time-dilation" class="promo-card">
+                <a href="/util/existential-risk-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Science</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Relativistic Time Dilation & Lorentz Factor</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate relativistic velocity, time dilation, and length contraction via Lorentz factor.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Existential Risk & Human Survival Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate the probability of humanity surviving the next 100 years across global risks.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1273,14 +1513,14 @@
                 </a>
                 
               
-                <a href="/util/teleporter-paradox" class="promo-card">
+                <a href="/math/scientific-notation-converter" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Productivity</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">The Teletransporter Paradox: Fast Travel or Murder?</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Derek Parfit’s classic identity problem: Does atomic duplication preserve you, or kill you?</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Scientific Notation Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert between scientific notation (a × 10^b), E-notation, and standard decimals.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;

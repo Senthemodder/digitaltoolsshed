@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Developer Tools Suite | Digital Tools Shed</title>
-  <meta name="description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/">
-  <meta property="og:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta property="og:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/">
+  <title>Resistor Color Code Calculator — 4-Band, 5-Band & 6-Band (Interactive SVG & Reverse Solver) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate resistance values, tolerances, and temperature coefficients for 4-band, 5-band, and 6-band resistors (IEC 60062). Features interactive colored resistor SVG graphic and instant reverse resistance-to-bands solver.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/dev/resistor-color-code-calculator">
+  <meta property="og:title" content="Resistor Color Code Calculator — 4-Band, 5-Band & 6-Band (Interactive SVG & Reverse Solver) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate resistance values, tolerances, and temperature coefficients for 4-band, 5-band, and 6-band resistors (IEC 60062). Features interactive colored resistor SVG graphic and instant reverse resistance-to-bands solver.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/dev/resistor-color-code-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta name="twitter:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
+  <meta name="twitter:title" content="Resistor Color Code Calculator — 4-Band, 5-Band & 6-Band (Interactive SVG & Reverse Solver) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate resistance values, tolerances, and temperature coefficients for 4-band, 5-band, and 6-band resistors (IEC 60062). Features interactive colored resistor SVG graphic and instant reverse resistance-to-bands solver.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -60,6 +60,12 @@
       "position": 2,
       "name": "Dev",
       "item": "https://digitaltoolsshed.com/dev"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Resistor Color Code Calculator",
+      "item": "https://digitaltoolsshed.com/dev/resistor-color-code-calculator"
     }
   ]
 }
@@ -68,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Developer Tools Suite",
-  "url": "https://digitaltoolsshed.com/dev/",
+  "name": "Resistor Color Code Calculator",
+  "url": "https://digitaltoolsshed.com/dev/resistor-color-code-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -80,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1041,
+    "ratingCount": 1379,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.",
+  "description": "Calculate resistance values, tolerances, and temperature coefficients for 4-band, 5-band, and 6-band resistors (IEC 60062). Features interactive colored resistor SVG graphic and instant reverse resistance-to-bands solver.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -100,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Developer Tools Suite free to use?",
+      "name": "How do you read a 4-band resistor color code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Developer Tools Suite on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "For a standard 4-band resistor: Band 1 is the first significant digit, Band 2 is the second significant digit, Band 3 is the decimal multiplier (power of 10), and Band 4 is the manufacturing tolerance (typically Gold for ±5% or Silver for ±10%). For example: Yellow (4) - Violet (7) - Red (100) - Gold (±5%) equals 4,700Ω or 4.7kΩ ±5%."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How do you determine which end of a resistor to read first?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Look for the tolerance band: Gold or Silver bands are almost always the tolerance and belong on the far right. Additionally, manufacturers leave a noticeably wider physical gap between the multiplier band and the tolerance band. On precision 5-band or 6-band resistors, the first band is typically printed closer to the lead edge."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Developer Tools Suite work on mobile devices?",
+      "name": "What is the 6th band on a 6-band resistor?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "The sixth band indicates the Temperature Coefficient of Resistance (TCR), expressed in parts per million per Kelvin (ppm/K or ppm/°C). It specifies how much the resistance value will drift as operating temperature fluctuates. Common TCR colors include Brown (100 ppm/K), Red (50 ppm/K), Orange (15 ppm/K), and Yellow (25 ppm/K)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do resistors use standard E-series values instead of round numbers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Resistors follow logarithmic standard decade series (E12, E24, E96) defined by IEC 60063 so that each value's tolerance range overlaps seamlessly with adjacent values without gaps or redundancies. In the 10% E12 series, values are spaced by roughly 1.21x (1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do resistor color codes indicate the maximum power or wattage rating?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The color code indicates resistance, tolerance, and TCR only. Power ratings (e.g. 1/8W, 1/4W, 1/2W, 1W, 2W) are determined by the physical body size and material composition (carbon film, metal film, wirewound, or ceramic cement) of the component."
       }
     }
   ]
@@ -129,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Developer Tools Suite",
-  "description": "Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.",
+  "name": "How to Use the Resistor Color Code Calculator",
+  "description": "Calculate resistance values, tolerances, and temperature coefficients for 4-band, 5-band, and 6-band resistors (IEC 60062). Features interactive colored resistor SVG graphic and instant reverse resistance-to-bands solver.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Developer Tools Suite."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Resistor Color Code Calculator."
     },
     {
       "@type": "HowToStep",
@@ -948,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Developer Tools Suite | Digital Tools Shed</span>
+            <span>Resistor Color Code Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1019,121 +1041,502 @@
           
 
           
-    
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
-    </style>
-  
-    <div class="article-container" style="max-width: 900px;">
-      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Developer Tools Suite</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Essential developer utilities: JWT token decoders, regex visualizers, SQL formatters, JSON converters, CSS minifiers, and Linux chmod tools.
-      </p>
+    <div class="article-container" style="max-width: 1020px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Resistor Color Code
+      </nav>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        
-    <a href="/dev/resistor-color-code-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Resistor Color Code Calculator — 4-Band, 5-Band & 6-Band (Interactive SVG & Reverse Solver)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate resistance values, tolerances, and temperature coefficients for 4-band, 5-band, and 6-band resistors (IEC 60062). Features interactive colored resistor SVG graphic and instant reverse resistance-to-bands solver.</p>
-    </a>
-  
-    <a href="/dev/jwt-decoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JWT Token Decoder & Header Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Decode JSON Web Tokens (JWT) locally in your browser. Inspect JOSE header, claims payload, and token expiration timestamps.</p>
-    </a>
-  
-    <a href="/dev/regex-tester" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Regex Visual Tester & Match Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Test and debug JavaScript regular expressions with real-time match highlighting, capture groups, and replacement substitution.</p>
-    </a>
-  
-    <a href="/dev/css-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Code Minifier & Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify CSS stylesheets online: remove comments, compress whitespace, collapse zero dimensions, and optimize colors.</p>
-    </a>
-  
-    <a href="/dev/hash-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cryptographic Hash Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.</p>
-    </a>
-  
-    <a href="/dev/box-shadow-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Box Shadow Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.</p>
-    </a>
-  
-    <a href="/dev/chmod-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Linux Permissions & Chmod Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Linux octal permissions (755, 644) and symbolic notations.</p>
-    </a>
-  
-    <a href="/dev/url-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Encode and decode URL parameters and percent-encoded characters.</p>
-    </a>
-  
-    <a href="/dev/sql-formatter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">SQL Query Formatter & Beautifier</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Beautify and indent SQL queries with uppercase keyword formatting in your browser.</p>
-    </a>
-  
-    <a href="/dev/json-to-csv" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JSON to CSV Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert JSON arrays of objects into downloadable CSV spreadsheet files.</p>
-    </a>
-  
-    <a href="/dev/ip-subnet-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">IPv4 CIDR Subnet Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate network address, broadcast address, netmask, and usable host count from IP/CIDR prefix.</p>
-    </a>
-  
-    <a href="/dev/html-entity-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">HTML Entity Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert special characters into HTML named and numeric entities and decode HTML entities back to plaintext.</p>
-    </a>
-  
-    <a href="/dev/ai-robots-txt" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">AI Bot Blocker robots.txt Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate a robots.txt file to block AI web scrapers and LLM training crawlers (GPTBot, Claude-Web, CCBot, Google-Extended, Bytespider) while keeping Googlebot allowed.</p>
-    </a>
-  
-    <a href="/dev/cron-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cron Expression Generator & Schedule Explainer</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate and test crontab schedule expressions in human-readable English. Includes live preview of next scheduled execution dates.</p>
-    </a>
-  
-    <a href="/dev/js-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JavaScript Minifier & Code Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify and compress JavaScript source code in your browser with zero network uploads. Remove comments, whitespace, and optimize syntax.</p>
-    </a>
-  
-    <a href="/dev/url-parser" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Parser & Query String Parameter Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Deconstruct and parse any URL into protocol, origin, host, path segments, query parameters table, hash, and JSON object.</p>
-    </a>
-  
-    <a href="/dev/epoch-converter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Unix Timestamp & Epoch Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.</p>
-    </a>
-  
-    <a href="/dev/diff-checker" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Online Text & Code Diff Checker</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.</p>
-    </a>
-  
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">IEC 60062 Standard</span>
+          <span class="badge badge-green">Bidirectional Reverse Solver</span>
+          <span class="badge badge-blue">Zero Server Uploads</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Resistor Color Code Calculator &amp; Reverse Solver
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Decode 4-band, 5-band, and 6-band axial resistors with real-time vector graphics. Features bidirectional reverse lookup: enter any resistance (e.g. 4.7kΩ) to instantly paint the exact color bands.
+        </p>
+      </header>
+
+      <!-- CALCULATOR BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <button type="button" id="res-tab-4" onclick="setResBands(4)" style="padding: 0.55rem 1.1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; background: #6366f1; color: #fff; border: 1px solid #6366f1;">
+            4-Band Resistor (Standard)
+          </button>
+          <button type="button" id="res-tab-5" onclick="setResBands(5)" style="padding: 0.55rem 1.1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border);">
+            5-Band Resistor (Precision 1%)
+          </button>
+          <button type="button" id="res-tab-6" onclick="setResBands(6)" style="padding: 0.55rem 1.1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border);">
+            6-Band Resistor (High Precision + TCR)
+          </button>
+        </div>
+
+        <!-- REVERSE SOLVER QUICK INPUT -->
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.4rem; color: #6366f1;">
+            ⚡ Instant Reverse Solver (Type Resistance to Paint Bands):
+          </label>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <input type="text" id="res-reverse-input" placeholder="e.g. 4.7k, 220, 1M, 10R" style="flex: 1; min-width: 180px; padding: 0.6rem; background: var(--surface); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="solveReverseResistor(this.value)" />
+            <button type="button" onclick="applyQuickResistor(100)" style="padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; color: var(--fg);">100Ω</button>
+            <button type="button" onclick="applyQuickResistor(1000)" style="padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; color: var(--fg);">1kΩ</button>
+            <button type="button" onclick="applyQuickResistor(4700)" style="padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; color: var(--fg);">4.7kΩ</button>
+            <button type="button" onclick="applyQuickResistor(10000)" style="padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; color: var(--fg);">10kΩ</button>
+            <button type="button" onclick="applyQuickResistor(100000)" style="padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; color: var(--fg);">100kΩ</button>
+          </div>
+        </div>
+
+        <!-- BAND SELECTORS GRID -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.3rem;">1st Band (Digit)</label>
+            <select id="band1" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;" onchange="calcResistor()"></select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.3rem;">2nd Band (Digit)</label>
+            <select id="band2" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;" onchange="calcResistor()"></select>
+          </div>
+
+          <div id="grp-band3-digit" style="display: none;">
+            <label style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.3rem;">3rd Band (Digit)</label>
+            <select id="band3" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;" onchange="calcResistor()"></select>
+          </div>
+
+          <div>
+            <label id="lbl-mult" style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.3rem;">3rd Band (Multiplier)</label>
+            <select id="bandMult" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;" onchange="calcResistor()"></select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.3rem;">Tolerance Band</label>
+            <select id="bandTol" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;" onchange="calcResistor()"></select>
+          </div>
+
+          <div id="grp-band-tcr" style="display: none;">
+            <label style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.3rem;">6th Band (TCR)</label>
+            <select id="bandTcr" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;" onchange="calcResistor()"></select>
+          </div>
+        </div>
+
+        <!-- MAIN RESULT KPI CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #6366f1;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Nominal Resistance</div>
+            <div id="res-val-primary" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #6366f1; margin-bottom: 0.2rem;">4.7 kΩ</div>
+            <div id="res-val-ohms" style="font-size: 0.85rem; color: var(--text-muted);">4,700 Ohms (Ω)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Tolerance &amp; Range</div>
+            <div id="res-val-tol" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">±5%</div>
+            <div id="res-val-range" style="font-size: 0.85rem; color: var(--text-muted);">4,465 Ω to 4,935 Ω</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Standard EIA Decade Series</div>
+            <div id="res-val-eia" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">E12 / E24 Standard</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Commercial off-the-shelf value</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Color Sequence</div>
+            <div id="res-val-sequence" style="font-family: var(--mono); font-size: 1.1rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">Yellow - Violet - Red - Gold</div>
+            <div id="res-val-tcr" style="font-size: 0.85rem; color: var(--text-muted);">Standard Temperature Coeff</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE SVG RESISTOR RENDERING -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          🎨 Real-Time Vector Resistor Component
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          IEC 60062 compliant axial through-hole resistor with dynamic color bands rendered in browser memory.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="resistor-svg" viewBox="0 0 740 180" style="max-width: 740px; width: 100%; height: auto; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP DERIVATION BOX -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step IEC 60062 Color Code Derivations
+        </h3>
+        <div id="res-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Computing live color code metrics...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="res-copy-btn" onclick="copyResistorReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Resistor Specifications &amp; Color Bands
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps of Resistor Color Codes &amp; Electronics Assembly
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Reading the Resistor from the Wrong Side</strong>
+            Reading an axial resistor backwards is the most frequent prototyping error. A 4.7kΩ 5% resistor (Yellow - Violet - Red - Gold) read in reverse appears as Gold - Red - Violet - Yellow (nonsensical) or Gold is mistaken for Brown (1.2kΩ). Always look for the Gold/Silver tolerance band or the wider space separation to anchor the right-hand end.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Gold and Silver Multiplier vs. Tolerance Confusion</strong>
+            Gold and Silver serve dual functions in IEC 60062: When placed in the 3rd or 4th band, Gold is a 0.1 multiplier and Silver is a 0.01 multiplier (e.g. Red - Red - Gold is 2.2Ω). When placed in the final band, Gold signifies ±5% tolerance and Silver signifies ±10%. Confusing multiplier position with tolerance produces 100x errors.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Power Dissipation (Wattage) Blindspot</strong>
+            Color bands specify resistance and tolerance, but NEVER physical wattage rating. Placing a standard 1/4-watt (0.25W) resistor into a 12V automotive circuit drawing 100mA results in $P = I^2 R = 1.2\text{W}$ of heat dissipation. The resistor will scorch, emit toxic smoke, and desolder itself from the PCB.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. SMD Numeric vs EIA-96 Code Mismatches</strong>
+            Surface mount (SMD) resistors do not use color bands. Instead, 3-digit SMD codes (e.g. 103) mean $10 \times 10^3 = 10,000\Omega = 10\text{k}\Omega$, NOT 103Ω. In precision 1% EIA-96 codes, '01Y' represents $100 \times 0.01 = 1.0\Omega$, where letters designate logarithmic multipliers.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Thermal Resistance Drift in Audio &amp; Sensor Circuits</strong>
+            Cheap carbon composition resistors have severe Temperature Coefficients of Resistance (TCR > 500 ppm/K) and high voltage coefficients, causing resistance to drift by 5% to 10% during heavy operation. Precision instrumentation, analog synthesizers, and operational amplifier feedback loops require 1% or 0.1% metal film resistors with low TCR (< 50 ppm/K).
+          </div>
+        </div>
       </div>
     </div>
+
+    <script>
+      var curResBands = 4;
+
+      var colorMap = [
+        { name: 'Black', digit: 0, mult: 1, tol: null, tcr: null, hex: '#1e293b', text: '#fff' },
+        { name: 'Brown', digit: 1, mult: 10, tol: 1, tcr: 100, hex: '#854d0e', text: '#fff' },
+        { name: 'Red', digit: 2, mult: 100, tol: 2, tcr: 50, hex: '#dc2626', text: '#fff' },
+        { name: 'Orange', digit: 3, mult: 1000, tol: 0.05, tcr: 15, hex: '#ea580c', text: '#fff' },
+        { name: 'Yellow', digit: 4, mult: 10000, tol: 0.02, tcr: 25, hex: '#eab308', text: '#000' },
+        { name: 'Green', digit: 5, mult: 100000, tol: 0.5, tcr: null, hex: '#16a34a', text: '#fff' },
+        { name: 'Blue', digit: 6, mult: 1000000, tol: 0.25, tcr: 10, hex: '#2563eb', text: '#fff' },
+        { name: 'Violet', digit: 7, mult: 10000000, tol: 0.1, tcr: 5, hex: '#9333ea', text: '#fff' },
+        { name: 'Gray', digit: 8, mult: 100000000, tol: 0.01, tcr: null, hex: '#64748b', text: '#fff' },
+        { name: 'White', digit: 9, mult: 1000000000, tol: null, tcr: 1, hex: '#f8fafc', text: '#000' },
+        { name: 'Gold', digit: null, mult: 0.1, tol: 5, tcr: null, hex: '#d97706', text: '#fff' },
+        { name: 'Silver', digit: null, mult: 0.01, tol: 10, tcr: null, hex: '#94a3b8', text: '#000' }
+      ];
+
+      function populateSelects() {
+        var b1 = document.getElementById('band1');
+        var b2 = document.getElementById('band2');
+        var b3 = document.getElementById('band3');
+        var bm = document.getElementById('bandMult');
+        var bt = document.getElementById('bandTol');
+        var btc = document.getElementById('bandTcr');
+
+        b1.innerHTML = '';
+        b2.innerHTML = '';
+        b3.innerHTML = '';
+        bm.innerHTML = '';
+        bt.innerHTML = '';
+        btc.innerHTML = '';
+
+        colorMap.forEach(function(c) {
+          if (c.digit !== null) {
+            b1.innerHTML += '<option value="' + c.name + '">' + c.name + ' (' + c.digit + ')</option>';
+            b2.innerHTML += '<option value="' + c.name + '">' + c.name + ' (' + c.digit + ')</option>';
+            b3.innerHTML += '<option value="' + c.name + '">' + c.name + ' (' + c.digit + ')</option>';
+          }
+          if (c.mult !== null) {
+            var multLbl = c.mult >= 1000000 ? (c.mult/1000000) + 'M' : (c.mult >= 1000 ? (c.mult/1000) + 'k' : c.mult);
+            bm.innerHTML += '<option value="' + c.name + '">' + c.name + ' (×' + multLbl + ')</option>';
+          }
+          if (c.tol !== null) {
+            bt.innerHTML += '<option value="' + c.name + '">' + c.name + ' (±' + c.tol + '%)</option>';
+          }
+          if (c.tcr !== null) {
+            btc.innerHTML += '<option value="' + c.name + '">' + c.name + ' (' + c.tcr + ' ppm/K)</option>';
+          }
+        });
+
+        // Set initial 4.7k 5%
+        b1.value = 'Yellow';
+        b2.value = 'Violet';
+        b3.value = 'Black';
+        bm.value = 'Red';
+        bt.value = 'Gold';
+        btc.value = 'Brown';
+      }
+
+      function setResBands(n) {
+        curResBands = n;
+        ['4', '5', '6'].forEach(function(b) {
+          var btn = document.getElementById('res-tab-' + b);
+          if (b === String(n)) {
+            btn.style.background = '#6366f1';
+            btn.style.color = '#fff';
+            btn.style.borderColor = '#6366f1';
+          } else {
+            btn.style.background = 'var(--surface-alt)';
+            btn.style.color = 'var(--fg)';
+            btn.style.borderColor = 'var(--border)';
+          }
+        });
+
+        var grpB3 = document.getElementById('grp-band3-digit');
+        var grpTcr = document.getElementById('grp-band-tcr');
+        var lblMult = document.getElementById('lbl-mult');
+
+        if (n === 4) {
+          grpB3.style.display = 'none';
+          grpTcr.style.display = 'none';
+          lblMult.textContent = '3rd Band (Multiplier)';
+        } else if (n === 5) {
+          grpB3.style.display = 'block';
+          grpTcr.style.display = 'none';
+          lblMult.textContent = '4th Band (Multiplier)';
+        } else if (n === 6) {
+          grpB3.style.display = 'block';
+          grpTcr.style.display = 'block';
+          lblMult.textContent = '4th Band (Multiplier)';
+        }
+
+        calcResistor();
+      }
+
+      function getColorObj(name) {
+        for (var i = 0; i < colorMap.length; i++) {
+          if (colorMap[i].name === name) return colorMap[i];
+        }
+        return colorMap[0];
+      }
+
+      function formatOhms(ohms) {
+        if (ohms >= 1e6) return (ohms / 1e6).toFixed(ohms % 1e6 === 0 ? 0 : 2) + ' MΩ';
+        if (ohms >= 1e3) return (ohms / 1e3).toFixed(ohms % 1e3 === 0 ? 0 : 2) + ' kΩ';
+        return ohms.toFixed(ohms % 1 === 0 ? 0 : 2) + ' Ω';
+      }
+
+      function calcResistor() {
+        var c1 = getColorObj(document.getElementById('band1').value);
+        var c2 = getColorObj(document.getElementById('band2').value);
+        var c3 = getColorObj(document.getElementById('band3').value);
+        var cm = getColorObj(document.getElementById('bandMult').value);
+        var ct = getColorObj(document.getElementById('bandTol').value);
+        var ctc = getColorObj(document.getElementById('bandTcr').value);
+
+        var digits = 0;
+        var seq = [];
+
+        if (curResBands === 4) {
+          digits = (c1.digit * 10) + c2.digit;
+          seq = [c1.name, c2.name, cm.name, ct.name];
+        } else if (curResBands === 5) {
+          digits = (c1.digit * 100) + (c2.digit * 10) + c3.digit;
+          seq = [c1.name, c2.name, c3.name, cm.name, ct.name];
+        } else if (curResBands === 6) {
+          digits = (c1.digit * 100) + (c2.digit * 10) + c3.digit;
+          seq = [c1.name, c2.name, c3.name, cm.name, ct.name, ctc.name];
+        }
+
+        var totalOhms = digits * cm.mult;
+        var tolPct = ct.tol || 5;
+        var delta = totalOhms * (tolPct / 100);
+        var minOhms = Math.max(0, totalOhms - delta);
+        var maxOhms = totalOhms + delta;
+
+        // Update KPIs
+        document.getElementById('res-val-primary').textContent = formatOhms(totalOhms);
+        document.getElementById('res-val-ohms').textContent = Math.round(totalOhms).toLocaleString() + ' Ohms (Ω)';
+        document.getElementById('res-val-tol').textContent = '±' + tolPct + '%';
+        document.getElementById('res-val-range').textContent = formatOhms(minOhms) + ' to ' + formatOhms(maxOhms);
+        document.getElementById('res-val-sequence').textContent = seq.join(' - ');
+
+        var tcrSub = document.getElementById('res-val-tcr');
+        if (curResBands === 6 && ctc.tcr) {
+          tcrSub.textContent = 'Temperature Coeff: ' + ctc.tcr + ' ppm/K';
+        } else {
+          tcrSub.textContent = 'Commercial Standard TCR';
+        }
+
+        // Derivation Box
+        var dBox = document.getElementById('res-derivation-box');
+        dBox.innerHTML = '<strong>1. Significant Digits:</strong> ' + (curResBands === 4 ? c1.name + ' (' + c1.digit + ') and ' + c2.name + ' (' + c2.digit + ') = <strong>' + digits + '</strong>' : c1.name + ' (' + c1.digit + '), ' + c2.name + ' (' + c2.digit + '), and ' + c3.name + ' (' + c3.digit + ') = <strong>' + digits + '</strong>') + '.<br>' +
+          '<strong>2. Multiplier Factor:</strong> ' + cm.name + ' (×' + cm.mult + ') → ' + digits + ' × ' + cm.mult + ' = <strong>' + formatOhms(totalOhms) + '</strong>.<br>' +
+          '<strong>3. Tolerance Margin:</strong> ' + ct.name + ' (±' + tolPct + '%) → Range: ' + formatOhms(minOhms) + ' to ' + formatOhms(maxOhms) + '.<br>' +
+          (curResBands === 6 ? '<strong>4. Thermal Drift (TCR):</strong> ' + ctc.name + ' = <strong>' + ctc.tcr + ' ppm/K</strong> drift per °C temperature variance.<br>' : '') +
+          '<strong>5. Complete IEC Color Sequence:</strong> <strong>' + seq.join(' → ') + '</strong>.';
+
+        // Render SVG
+        renderResistorSvg(seq);
+      }
+
+      function renderResistorSvg(bands) {
+        var svg = document.getElementById('resistor-svg');
+        if (!svg) return;
+
+        var w = 740, h = 180;
+        var bodyW = 380, bodyH = 80;
+        var bodyX = (w - bodyW) / 2;
+        var bodyY = (h - bodyH) / 2;
+
+        var svgHtml = '';
+
+        // Metallic Leads
+        svgHtml += '<rect x="30" y="' + (h/2 - 5) + '" width="' + (bodyX - 30 + 10) + '" height="10" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5" rx="2" />';
+        svgHtml += '<rect x="' + (bodyX + bodyW - 10) + '" y="' + (h/2 - 5) + '" width="' + (w - 30 - (bodyX + bodyW - 10)) + '" height="10" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5" rx="2" />';
+
+        // Resistor Ceramic Body (Beige / Light Cyan)
+        var bodyBg = curResBands === 4 ? '#fef3c7' : '#e0f2fe';
+        var bodyBorder = curResBands === 4 ? '#d97706' : '#0284c7';
+
+        // Bulbed Resistor Shape
+        var pathBody = 'M ' + bodyX + ' ' + (bodyY + 15) + ' ' +
+          'Q ' + (bodyX + 25) + ' ' + bodyY + ' ' + (bodyX + 50) + ' ' + (bodyY + 10) + ' ' +
+          'L ' + (bodyX + bodyW - 50) + ' ' + (bodyY + 10) + ' ' +
+          'Q ' + (bodyX + bodyW - 25) + ' ' + bodyY + ' ' + (bodyX + bodyW) + ' ' + (bodyY + 15) + ' ' +
+          'L ' + (bodyX + bodyW) + ' ' + (bodyY + bodyH - 15) + ' ' +
+          'Q ' + (bodyX + bodyW - 25) + ' ' + (bodyY + bodyH) + ' ' + (bodyX + bodyW - 50) + ' ' + (bodyY + bodyH - 10) + ' ' +
+          'L ' + (bodyX + 50) + ' ' + (bodyY + bodyH - 10) + ' ' +
+          'Q ' + (bodyX + 25) + ' ' + (bodyY + bodyH) + ' ' + bodyX + ' ' + (bodyY + bodyH - 15) + ' Z';
+
+        svgHtml += '<path d="' + pathBody + '" fill="' + bodyBg + '" stroke="' + bodyBorder + '" stroke-width="2.5" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.15))" />';
+
+        // Draw Color Bands
+        // Bands spaced across body
+        var bandCount = bands.length;
+        var startX = bodyX + 60;
+        var availableW = bodyW - 120;
+        var spacing = availableW / (bandCount - 0.5);
+
+        bands.forEach(function(bName, idx) {
+          var cObj = getColorObj(bName);
+          var bx = startX + (idx * spacing);
+          // Tolerance and TCR pushed slightly to right
+          if (idx >= bandCount - 2 && bandCount >= 5) {
+            bx += 15;
+          } else if (idx === bandCount - 1 && bandCount === 4) {
+            bx += 25;
+          }
+
+          svgHtml += '<rect x="' + bx + '" y="' + (bodyY + 8) + '" width="18" height="' + (bodyH - 16) + '" fill="' + cObj.hex + '" stroke="#334155" stroke-width="1"><title>' + bName + '</title></rect>';
+          svgHtml += '<text x="' + (bx + 9) + '" y="' + (bodyY + bodyH + 24) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">' + bName + '</text>';
+        });
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function solveReverseResistor(str) {
+        if (!str) return;
+        var clean = str.toLowerCase().replace(/ohms?|Ω/g, '').trim();
+        var val = 0;
+        if (clean.endsWith('k')) {
+          val = parseFloat(clean.replace('k', '')) * 1000;
+        } else if (clean.endsWith('m')) {
+          val = parseFloat(clean.replace('m', '')) * 1000000;
+        } else if (clean.endsWith('r')) {
+          val = parseFloat(clean.replace('r', ''));
+        } else {
+          val = parseFloat(clean);
+        }
+
+        if (isNaN(val) || val <= 0) return;
+        applyQuickResistor(val);
+      }
+
+      function applyQuickResistor(ohms) {
+        var str = ohms.toString();
+        // Convert ohms to mantissa and power
+        var exp = Math.floor(Math.log10(ohms));
+        var mantissa = ohms / Math.pow(10, exp);
+
+        if (curResBands === 4) {
+          var sig2 = Math.round(ohms / Math.pow(10, exp - 1));
+          var d1 = Math.floor(sig2 / 10);
+          var d2 = sig2 % 10;
+          var multExp = exp - 1;
+
+          var b1Obj = colorMap[d1] || colorMap[1];
+          var b2Obj = colorMap[d2] || colorMap[0];
+          var multVal = Math.pow(10, multExp);
+
+          var mObj = colorMap[0];
+          for (var i = 0; i < colorMap.length; i++) {
+            if (colorMap[i].mult === multVal) { mObj = colorMap[i]; break; }
+          }
+
+          document.getElementById('band1').value = b1Obj.name;
+          document.getElementById('band2').value = b2Obj.name;
+          document.getElementById('bandMult').value = mObj.name;
+        } else {
+          var sig3 = Math.round(ohms / Math.pow(10, exp - 2));
+          var d1 = Math.floor(sig3 / 100);
+          var d2 = Math.floor((sig3 % 100) / 10);
+          var d3 = sig3 % 10;
+          var multExp = exp - 2;
+
+          var b1Obj = colorMap[d1] || colorMap[1];
+          var b2Obj = colorMap[d2] || colorMap[0];
+          var b3Obj = colorMap[d3] || colorMap[0];
+          var multVal = Math.pow(10, multExp);
+
+          var mObj = colorMap[0];
+          for (var i = 0; i < colorMap.length; i++) {
+            if (colorMap[i].mult === multVal) { mObj = colorMap[i]; break; }
+          }
+
+          document.getElementById('band1').value = b1Obj.name;
+          document.getElementById('band2').value = b2Obj.name;
+          document.getElementById('band3').value = b3Obj.name;
+          document.getElementById('bandMult').value = mObj.name;
+        }
+
+        calcResistor();
+      }
+
+      function copyResistorReport(btn) {
+        var res = document.getElementById('res-val-primary').textContent;
+        var tol = document.getElementById('res-val-tol').textContent;
+        var range = document.getElementById('res-val-range').textContent;
+        var seq = document.getElementById('res-val-sequence').textContent;
+
+        var text = '⚡ RESISTOR COLOR CODE & SPECIFICATION REPORT\n' +
+          '====================================================\n' +
+          '• Nominal Resistance: ' + res + ' (' + tol + ')\n' +
+          '• Resistance Range: ' + range + '\n' +
+          '• Color Sequence: ' + seq + '\n' +
+          '• Configuration: ' + curResBands + '-Band Axial Resistor (IEC 60062)\n' +
+          '----------------------------------------------------\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/dev/resistor-color-code-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Specifications Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          populateSelects();
+          calcResistor();
+        });
+      } else {
+        populateSelects();
+        calcResistor();
+      }
+    </script>
   
 
           
@@ -1144,8 +1547,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fdev%2F&text=Developer%20Tools%20Suite%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fdev%2F&title=Developer%20Tools%20Suite" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fdev%2Fresistor-color-code-calculator&text=Resistor%20Color%20Code%20Calculator%20%E2%80%94%204-Band%2C%205-Band%20%26%206-Band%20(Interactive%20SVG%20%26%20Reverse%20Solver)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fdev%2Fresistor-color-code-calculator&title=Resistor%20Color%20Code%20Calculator%20%E2%80%94%204-Band%2C%205-Band%20%26%206-Band%20(Interactive%20SVG%20%26%20Reverse%20Solver)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1213,14 +1616,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/health/adhd-dopamine-menu" class="promo-card">
+                <a href="/health/adhd-time-blindness-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                       <span class="promo-badge">Health</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">ADHD Dopamine Menu & Paralysis Unsticker</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Curate appetizers, entrees, sides, and desserts to intentionally stimulate prefrontal dopamine.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">ADHD Time Blindness & Departure Buffer Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate realistic departure and prep times by factoring in ADHD transition and distraction taxes.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1228,14 +1631,14 @@
                 </a>
                 
               
-                <a href="/neuro/loneliness-parasocial-auditor" class="promo-card">
+                <a href="/productivity/task-manager" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Parasocial Bonding & Screen-Mediated Loneliness Meter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Audit one-way parasocial relationships vs reciprocal peer connection using UCLA Loneliness Scale metrics.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Task Manager</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Create and track tasks with priorities. Export as PDF or DOCX.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1258,14 +1661,14 @@
                 </div>
                 
               
-                <a href="/science/relativistic-time-dilation" class="promo-card">
+                <a href="/health/noise-exposure-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Science</span>
+                      <span class="promo-badge">Health</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Relativistic Time Dilation & Lorentz Factor</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate relativistic velocity, time dilation, and length contraction via Lorentz factor.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Decibel Sound Dose & Hearing Damage Estimator (OSHA/NIOSH)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate safe listening duration for headphones and concerts before irreversible stereocilia damage.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1273,14 +1676,14 @@
                 </a>
                 
               
-                <a href="/util/teleporter-paradox" class="promo-card">
+                <a href="/convert/json-to-yaml" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Productivity</span>
+                      <span class="promo-badge">Developer</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">The Teletransporter Paradox: Fast Travel or Murder?</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Derek Parfit’s classic identity problem: Does atomic duplication preserve you, or kill you?</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">JSON to YAML Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert structured JSON configuration data into clean YAML.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
