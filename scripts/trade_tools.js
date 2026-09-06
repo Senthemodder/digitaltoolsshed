@@ -135437,6 +135437,3177 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (203 calculators in /calc/)');
+    // ==========================================
+  // Tool BN1: Distillation Column Fenske-Underwood-Gilliland (FUG) Shortcut Sizing & Minimum Reflux Calculator
+  // ==========================================
+  (() => {
+    const slug = 'distillation-column-fug-shortcut-calculator';
+    const title = 'Distillation Column Fenske-Underwood-Gilliland (FUG) Sizing Calculator';
+    const metaDescription = 'Calculate multicomponent distillation column minimum stages (Fenske), minimum reflux ratio (Underwood), actual theoretical stages (Gilliland), optimum feed tray (Kirkbride), and column diameter per Perry\'s Chemical Engineers\' Handbook and API 521.';
+
+    const faq = [
+      {
+        q: 'What is the Fenske-Underwood-Gilliland (FUG) shortcut distillation method?',
+        a: 'The Fenske-Underwood-Gilliland (FUG) method is the definitive chemical engineering shortcut algorithm for sizing multicomponent distillation columns. It establishes column feasibility and initial design parameters through three fundamental thermodynamic formulations: 1) Fenske equation calculates the minimum number of theoretical equilibrium stages (N_min) required at total reflux (infinite reflux ratio); 2) Underwood equations calculate the minimum reflux ratio (R_min) required for infinite stages based on feed thermal condition (q) and relative volatilities; 3) Gilliland empirical correlation bridges these two asymptotic limits to determine actual theoretical stages (N) at a chosen economic operating reflux ratio (typically R = 1.2 to 1.5 * R_min). Finally, the Kirkbride empirical equation locates the optimum feed tray position to balance rectifying and stripping duties.'
+      },
+      {
+        q: 'What are the Light Key (LK) and Heavy Key (HK) components in multicomponent fractionation?',
+        a: 'In multicomponent distillation, components are ordered by decreasing volatility. The two adjacent components between which the primary split is specified are termed the keys: the Light Key (LK) is the more volatile key whose concentration is specified in the bottoms product (it predominantly exits overhead in the distillate), and the Heavy Key (HK) is the less volatile key whose concentration is specified in the distillate (it predominantly exits in the bottoms). Components more volatile than the light key are Light Non-Keys (LNK) and exit almost entirely in the overhead, while components less volatile than the heavy key are Heavy Non-Keys (HNK) and exit almost entirely in the bottoms.'
+      },
+      {
+        q: 'How does the feed thermal condition factor (q) impact column vapor and liquid traffic?',
+        a: 'The feed quality factor q defines the moles of liquid entering the stripping section per mole of feed introduced to the column. For a subcooled liquid feed (below bubble point), q > 1.0 (feed condenses internal column vapor). For a saturated bubble-point liquid, q = 1.0. For a partially vaporized two-phase feed, 0 < q < 1.0 (where q is the liquid fraction). For a saturated dew-point vapor, q = 0. For a superheated vapor, q < 0. Higher q-values increase internal liquid traffic in the stripping section, requiring larger reboiler heat duties but reducing condenser duties and lowering the minimum reflux ratio R_min.'
+      },
+      {
+        q: 'How is the optimum economic operating reflux ratio selected?',
+        a: 'Operating at minimum reflux (R_min) requires an infinite number of trays and infinite column height (infinite capital expenditure / CAPEX). Operating at total reflux (infinite R) requires infinite reboiler steam and condenser cooling water (infinite operational expenditure / OPEX) with zero product takeoff. The total annualized cost curve (CAPEX + OPEX) exhibits a sharp cost minimum between 1.15 and 1.35 times R_min for standard petrochemical columns (or 1.10 * R_min in energy-intensive cryogenic demethanizers or propane-propylene splitters where refrigeration utility costs are extreme).'
+      },
+      {
+        q: 'How does Fair\'s entrainment flooding correlation determine column diameter?',
+        a: 'Column diameter is sized to prevent vapor entrainment jet flooding across tray decks. Fair\'s correlation establishes maximum allowable vapor superficial velocity: u_flood = C_sb * sqrt((rho_L - rho_V) / rho_V) * (sigma / 20)^0.2, where C_sb is the Souders-Brown capacity factor (derived from tray spacing and flow parameter F_lv), rho_L and rho_V are liquid and vapor densities, and sigma is surface tension. Industrial columns are typically designed to operate at 75% to 85% of flooding velocity (f_flood = 0.80) to provide a safety margin against foam formation, liquid surging, and tray weeping.'
+      }
+    ];
+
+    const content = `
+<style>
+.fug-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.fug-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.fug-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.fug-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .fug-grid-2, .fug-grid-3, .fug-grid-4 { grid-template-columns: 1fr; }
+}
+.fug-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.fug-input, .fug-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.fug-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.fug-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.fug-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.fug-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.fug-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="fug-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Distillation Column FUG Shortcut Sizing</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Fenske Stages, Underwood Rmin, Gilliland N, Kirkbride Feed Tray & Column Diameter</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="fug-units" class="fug-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="fugCalc()">
+        <option value="us" selected>US Customary (lbmol/hr, ft, in, psia, lb/ft³)</option>
+        <option value="si">Metric / SI (kmol/h, m, mm, bar a, kg/m³)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fug-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="fug-label"><span>Binary / Key System Preset</span></div>
+      <select id="fug-preset" class="fug-select" onchange="fugSetPreset()">
+        <option value="bz_tol" selected>Benzene / Toluene (&alpha; = 2.45)</option>
+        <option value="c3_split">Propane / Propylene (&alpha; = 1.15)</option>
+        <option value="debout">De-ethanizer (Ethane / Propane &alpha; = 2.10)</option>
+        <option value="deprop">De-propanizer (Propane / Butane &alpha; = 1.95)</option>
+        <option value="custom">Custom System</option>
+      </select>
+    </div>
+    <div>
+      <div class="fug-label"><span>Relative Volatility (&alpha;_LK/HK)</span></div>
+      <input type="number" id="fug-alpha" class="fug-input" value="2.45" step="0.05" min="1.05" max="10.0" oninput="fugCalc()">
+    </div>
+    <div>
+      <div class="fug-label"><span id="lbl-feed">Total Feed Rate (F)</span></div>
+      <input type="number" id="fug-f" class="fug-input" value="1000" step="50" min="10" oninput="fugCalc()">
+    </div>
+    <div>
+      <div class="fug-label"><span>Feed LK Mole Fraction (z_LK)</span></div>
+      <input type="number" id="fug-zlk" class="fug-input" value="0.45" step="0.01" min="0.05" max="0.95" oninput="fugCalc()">
+    </div>
+  </div>
+
+  <div class="fug-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="fug-label"><span>Distillate LK Purity (x_D,LK)</span></div>
+      <input type="number" id="fug-xdlk" class="fug-input" value="0.985" step="0.005" min="0.50" max="0.999" oninput="fugCalc()">
+    </div>
+    <div>
+      <div class="fug-label"><span>Bottoms LK Loss (x_B,LK)</span></div>
+      <input type="number" id="fug-xblk" class="fug-input" value="0.015" step="0.005" min="0.001" max="0.30" oninput="fugCalc()">
+    </div>
+    <div>
+      <div class="fug-label"><span>Feed Thermal Condition (q)</span></div>
+      <select id="fug-q" class="fug-select" onchange="fugCalc()">
+        <option value="1.0" selected>Saturated Liquid (Bubble Point, q = 1.0)</option>
+        <option value="1.15">Subcooled Liquid (q = 1.15)</option>
+        <option value="0.5">50% Vaporized Mixture (q = 0.5)</option>
+        <option value="0.0">Saturated Vapor (Dew Point, q = 0.0)</option>
+      </select>
+    </div>
+    <div>
+      <div class="fug-label"><span>Operating Reflux Factor (R / Rmin)</span></div>
+      <input type="number" id="fug-rfac" class="fug-input" value="1.25" step="0.05" min="1.05" max="3.0" oninput="fugCalc()">
+    </div>
+  </div>
+
+  <div class="fug-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="fug-label"><span id="lbl-press">Column Top Pressure</span></div>
+      <input type="number" id="fug-p" class="fug-input" value="15.0" step="1.0" min="1.0" oninput="fugCalc()">
+    </div>
+    <div>
+      <div class="fug-label"><span>Overall Tray Efficiency (E_o)</span></div>
+      <input type="number" id="fug-eff" class="fug-input" value="0.75" step="0.05" min="0.25" max="1.0" oninput="fugCalc()">
+    </div>
+    <div>
+      <div class="fug-label"><span id="lbl-tray-spacing">Tray Spacing</span></div>
+      <input type="number" id="fug-spacing" class="fug-input" value="24.0" step="2.0" min="12.0" max="36.0" oninput="fugCalc()">
+    </div>
+    <div>
+      <div class="fug-label"><span>% of Flooding Design</span></div>
+      <input type="number" id="fug-flood" class="fug-input" value="80.0" step="5.0" min="50.0" max="95.0" oninput="fugCalc()">
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="fug-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="fug-kpi">
+      <div class="fug-kpi-lbl">Actual Theoretical Stages (N)</div>
+      <div class="fug-kpi-val" id="kpi-nstages">21.8</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-nmin">Minimum Stages Nmin: 9.3</div>
+    </div>
+    <div class="fug-kpi">
+      <div class="fug-kpi-lbl">Operating Reflux Ratio (R)</div>
+      <div class="fug-kpi-val" id="kpi-reflux">1.54</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-rmin">Underwood Rmin: 1.23</div>
+    </div>
+    <div class="fug-kpi">
+      <div class="fug-kpi-lbl">Optimum Feed Tray (NF)</div>
+      <div class="fug-kpi-val" id="kpi-feedtray">Tray 11</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-sections">Rect: 10 | Strip: 11</div>
+    </div>
+    <div class="fug-kpi">
+      <div class="fug-kpi-lbl">Column Inner Diameter</div>
+      <div class="fug-kpi-val" id="kpi-diam">5.8 ft</div>
+      <div style="font-size: 0.75rem;" id="kpi-diam-sub"><span class="status-pill status-pass">80% Flood (Fair Csb)</span></div>
+    </div>
+  </div>
+
+  <!-- STAGE & COLUMN HYDRAULICS TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Distillation Column Mass Balance & Sizing Summary</h4>
+    <div class="fug-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Distillate & Bottoms Rates:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-rates">D: 448.5 | B: 551.5 lbmol/h</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-split">Distillate Split: 44.8% of Feed</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Actual Trays Required (Eo = 75%):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-actual-trays">29 Actual Trays</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-height">Tangent-to-Tangent Height: ~68 ft</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Condenser & Reboiler Traffic:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #3b82f6;" id="val-traffic">Vapor V: 1,139 lbmol/h</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-liquid">Reflux Liquid L: 691 lbmol/h</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="fug-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Gilliland Reflux vs Stages Operating Curve</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">N vs R/Rmin</span>
+      </div>
+      <canvas id="fug-gilliland-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Fractionation Column Structural Schematic</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Feed Tray & Section Heights</span>
+      </div>
+      <canvas id="fug-col-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="fug-btn" onclick="fugCopySummary()">
+      <span>📋 Copy FUG Distillation Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Distillation Column Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Close-Boiling Relative Volatility Pinch Point (&alpha; &le; 1.15) Causing Stage Explosion</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      In close-boiling systems like propane/propylene (&alpha; = 1.12 to 1.15) or ethylbenzene/styrene (&alpha; = 1.30), junior engineers frequently underestimate how fast stages escalate. The denominator in Fenske is ln(&alpha;). As &alpha; approaches 1.0, ln(&alpha;) approaches zero, causing N_min to explode from 10 stages up to 90 to 180 stages. Furthermore, Underwood R_min skyrockets, demanding enormous vapor reboil and gigantic column diameters. Attempting to design a tight close-boiling splitter with standard rules without considering heat-pumped distillation or extractive dividing-wall columns (DWC) results in non-economic monsters that fail financial justification.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Ignoring Feed Tray Mismatch and Composition Shock</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Introducing feed at an incorrect tray level introduces severe thermodynamic irreversibility and composition pinching. If a feed with 45% LK is introduced on a tray where internal liquid has already concentrated to 70% LK, the incoming feed severely dilutes the rectified liquid. This forces the rectifying section to re-separate material that was already refined, demanding excessive reflux and destroying separation efficiency. The Kirkbride equation must be rigorously checked, and industrial columns should always be fabricated with at least two alternate feed nozzles (one tray above and one tray below the design feed tray).
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Jet Flooding and Downcomer Choking from Foaming Hydrocarbons</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Fair's entrainment flooding correlation assumes clean, non-foaming systems. In amine treaters, sour water strippers, or heavy oil vacuum towers containing surface-active contaminants, stable foams develop on tray decks. Froth backs up into downcomers, choking liquid drainage and causing liquid to carry over into the overhead vapor line (jet flooding) at vapor velocities well below 60% of Fair's theoretical flood limit. Designers must apply an API 521 foaming system derating factor (typically F_foam = 0.70 to 0.85) to the allowable capacity factor C_sb.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Tray Weeping at Turndown Leading to Total Fractionation Loss</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      While maximum column diameter is governed by flooding at peak rates, minimum diameter is governed by weeping at low rates. Sieve trays rely on upward vapor kinetic energy (F-factor = u_hole * sqrt(rho_V)) to support the liquid pool on the active tray deck. If plant throughput is turned down to 50% or 60% of design, vapor velocity through tray holes drops below the weeping threshold. Liquid dumps directly through tray perforations without contacting vapor, causing tray efficiency to collapse from 80% to below 20% and dumping light components into bottoms. Sieve trays require blanking strips or replacement with movable valve trays for broad turndown flexibility.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Column Top-to-Bottom Temperature and Pressure Gradient Invalidation</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      The standard FUG shortcut assumes constant relative volatility (&alpha;) throughout the column. In reality, column bottoms operate at higher pressure (due to cumulative tray pressure drop of 3 to 5 mmHg per tray) and much higher temperature than the top condenser. Because relative volatility declines as temperature rises, &alpha; at the reboiler can be 20% to 30% lower than &alpha; at the condenser. Sizing a column using top-condenser &alpha; alone under-estimates required stages and reboiler duty by 25%+. Engineers must use the geometric mean relative volatility: &alpha;_mean = sqrt(&alpha;_top * &alpha;_bottom).
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive Fenske-Underwood-Gilliland Mathematical Derivations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Multicomponent fractionation shortcuts evaluate equilibrium stage requirements and vapor-liquid capacity using rigorous thermodynamic equations:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Overall Component Mass Balance</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Overall Molar Balance: F = D + B<br>
+    Light Key Balance: F * z_LK = D * x_D_LK + B * x_B_LK<br>
+    Distillate Rate: D = F * (z_LK - x_B_LK) / (x_D_LK - x_B_LK)<br>
+    Bottoms Rate: B = F - D
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Minimum Stages at Total Reflux (Fenske Equation)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Separation Factor: S = (x_D_LK / (1 - x_D_LK)) * ((1 - x_B_LK) / x_B_LK)<br>
+    Fenske Minimum Stages: N_min = ln(S) / ln(alpha_LK_HK)
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Minimum Reflux Ratio (Underwood Equations)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Underwood Root theta (1.0 &lt; theta &lt; alpha):<br>
+    &nbsp;&nbsp;1 - q = (alpha * z_LK) / (alpha - theta) + (1 * (1 - z_LK)) / (1 - theta)<br>
+    Minimum Reflux Ratio R_min:<br>
+    &nbsp;&nbsp;R_min + 1 = (alpha * x_D_LK) / (alpha - theta) + (1 * (1 - x_D_LK)) / (1 - theta)
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Actual Theoretical Stages (Gilliland Correlation)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Operating Reflux: R = R_factor * R_min<br>
+    Gilliland Parameter: X = (R - R_min) / (R + 1)<br>
+    Stage Fraction: Y = 1 - exp( [ (1 + 54.4*X) / (11 + 117.2*X) ] * [ (X - 1) / sqrt(X) ] )<br>
+    Actual Theoretical Stages: N = (N_min + Y) / (1 - Y)
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">5. Optimum Feed Tray (Kirkbride Equation) & Column Diameter</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Ratio of Stages: ln(NR / NS) = 0.206 * ln[ (z_HK / z_LK) * (x_B_LK / (1 - x_D_LK))^2 * (B / D) ]<br>
+    Fair Flooding Velocity: u_flood = C_sb * sqrt((rho_L - rho_V) / rho_V)<br>
+    Column Internal Diameter: D_col = sqrt( (4 * V_m3_s) / (pi * f_flood * u_flood) )
+  </div>
+</div>
+
+<script>
+var fugLastCalc = null;
+
+function fugSetPreset() {
+  var p = document.getElementById('fug-preset').value;
+  var alphaInput = document.getElementById('fug-alpha');
+  var zInput = document.getElementById('fug-zlk');
+  var xdInput = document.getElementById('fug-xdlk');
+  var xbInput = document.getElementById('fug-xblk');
+
+  if (p === 'bz_tol') {
+    alphaInput.value = '2.45'; zInput.value = '0.45'; xdInput.value = '0.985'; xbInput.value = '0.015';
+  } else if (p === 'c3_split') {
+    alphaInput.value = '1.15'; zInput.value = '0.60'; xdInput.value = '0.995'; xbInput.value = '0.010';
+  } else if (p === 'debout') {
+    alphaInput.value = '2.10'; zInput.value = '0.35'; xdInput.value = '0.980'; xbInput.value = '0.020';
+  } else if (p === 'deprop') {
+    alphaInput.value = '1.95'; zInput.value = '0.50'; xdInput.value = '0.985'; xbInput.value = '0.015';
+  }
+  fugCalc();
+}
+
+function fugCalc() {
+  var units = document.getElementById('fug-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-feed').innerText = isMetric ? 'Total Feed Rate (F, kmol/h)' : 'Total Feed Rate (F, lbmol/hr)';
+  document.getElementById('lbl-press').innerText = isMetric ? 'Column Top Pressure (bar a)' : 'Column Top Pressure (psia)';
+  document.getElementById('lbl-tray-spacing').innerText = isMetric ? 'Tray Spacing (mm)' : 'Tray Spacing (in)';
+
+  var alpha = parseFloat(document.getElementById('fug-alpha').value) || 2.45;
+  var fRate = parseFloat(document.getElementById('fug-f').value) || 1000;
+  var zLK = parseFloat(document.getElementById('fug-zlk').value) || 0.45;
+  var xdLK = parseFloat(document.getElementById('fug-xdlk').value) || 0.985;
+  var xbLK = parseFloat(document.getElementById('fug-xblk').value) || 0.015;
+  var q = parseFloat(document.getElementById('fug-q').value) || 1.0;
+  var rFactor = parseFloat(document.getElementById('fug-rfac').value) || 1.25;
+  var pTopRaw = parseFloat(document.getElementById('fug-p').value) || 15.0;
+  var trayEff = parseFloat(document.getElementById('fug-eff').value) || 0.75;
+  var traySpacingRaw = parseFloat(document.getElementById('fug-spacing').value) || 24.0;
+  var floodPct = parseFloat(document.getElementById('fug-flood').value) || 80.0;
+
+  // Mass Balance
+  // D = F * (z - xb) / (xd - xb)
+  var dRate = fRate * (zLK - xbLK) / Math.max(0.001, (xdLK - xbLK));
+  var bRate = Math.max(0, fRate - dRate);
+
+  // 1. Fenske Minimum Stages Nmin
+  // S = (xd / (1 - xd)) * ((1 - xb) / xb)
+  var sepFactor = (xdLK / (1.0 - xdLK)) * ((1.0 - xbLK) / xbLK);
+  var nMin = Math.log(sepFactor) / Math.log(alpha);
+
+  // 2. Underwood Minimum Reflux Rmin
+  // Solve for root theta: 1 - q = (alpha * zLK) / (alpha - theta) + ((1 - zLK)) / (1 - theta)
+  // Root theta lies between 1.0 and alpha
+  var theta = (1.0 + alpha) / 2.0;
+  for (var iter = 0; iter < 50; iter++) {
+    var fTheta = (alpha * zLK) / (alpha - theta) + ((1.0 - zLK)) / (1.0 - theta) - (1.0 - q);
+    var dfTheta = (alpha * zLK) / Math.pow(alpha - theta, 2) + ((1.0 - zLK)) / Math.pow(1.0 - theta, 2);
+    var nextTheta = theta - fTheta / dfTheta;
+    if (nextTheta <= 1.0001) nextTheta = 1.0001;
+    if (nextTheta >= alpha - 0.0001) nextTheta = alpha - 0.0001;
+    if (Math.abs(nextTheta - theta) < 1e-6) break;
+    theta = nextTheta;
+  }
+
+  // Calculate Rmin
+  var rMin = (alpha * xdLK) / (alpha - theta) + ((1.0 - xdLK)) / (1.0 - theta) - 1.0;
+  if (rMin < 0.05) rMin = 0.05;
+
+  // Operating Reflux R
+  var rOper = rMin * rFactor;
+
+  // 3. Gilliland Correlation for Actual Theoretical Stages N
+  var X = (rOper - rMin) / (rOper + 1.0);
+  X = Math.max(0.001, Math.min(0.999, X));
+  var exponent = ((1.0 + 54.4 * X) / (11.0 + 117.2 * X)) * ((X - 1.0) / Math.sqrt(X));
+  var Y = 1.0 - Math.exp(exponent);
+  Y = Math.max(0.001, Math.min(0.99, Y));
+  var nStages = (nMin + Y) / (1.0 - Y);
+
+  // 4. Kirkbride Feed Tray Location
+  // ln(NR / NS) = 0.206 * ln[ (zHK / zLK) * (xbLK / (1 - xdLK))^2 * (B / D) ]
+  var zHK = 1.0 - zLK;
+  var xdHK = 1.0 - xdLK;
+  var termKirk = (zHK / zLK) * Math.pow(xbLK / xdHK, 2) * (bRate / Math.max(0.1, dRate));
+  var logRatio = 0.206 * Math.log(Math.max(0.001, termKirk));
+  var ratioNrNs = Math.exp(logRatio);
+  var nS = nStages / (1.0 + ratioNrNs);
+  var nR = nStages - nS;
+  var feedTrayFromTop = Math.round(nR);
+  if (feedTrayFromTop < 1) feedTrayFromTop = 1;
+
+  // Actual Trays & Tower Height
+  var actualTrays = Math.round(nStages / trayEff);
+  var traySpacingIn = isMetric ? (traySpacingRaw / 25.4) : traySpacingRaw;
+  var colHeightFt = (actualTrays * (traySpacingIn / 12.0)) + 12.0; // 12 ft for disengagement & sump
+  var colHeightM = colHeightFt * 0.3048;
+
+  // 5. Internal Traffic and Column Diameter (Fair's Flooding)
+  // Vapor traffic at top: V = D * (R + 1)
+  var vTopLbmolHr = dRate * (rOper + 1.0);
+  var lTopLbmolHr = dRate * rOper;
+
+  // Average molecular weight at top (assume Benzene-like ~ 80 lb/lbmol)
+  var mwTop = 80.0;
+  var pPsia = isMetric ? (pTopRaw * 14.5038) : pTopRaw;
+  var tRankine = 640.0; // ~ 180 F
+  // Gas density rho_V = (P * MW) / (R * T)
+  var rhoV = (pPsia * mwTop) / (10.73 * tRankine); // lb/ft3
+  var rhoL = 50.0; // lb/ft3 (typical liquid hydrocarbon)
+  var cSb = 0.22; // Fair capacity factor for 24" spacing
+
+  var uFloodFtS = cSb * Math.sqrt((rhoL - rhoV) / rhoV);
+  var uDesignFtS = uFloodFtS * (floodPct / 100.0);
+
+  // Volumetric vapor flow rate
+  var vMassLbS = (vTopLbmolHr * mwTop) / 3600.0;
+  var vVolCfs = vMassLbS / rhoV;
+  var netAreaFt2 = vVolCfs / Math.max(0.1, uDesignFtS);
+  var totalAreaFt2 = netAreaFt2 / 0.88; // 12% downcomer area
+  var colDiamFt = Math.sqrt((4.0 * totalAreaFt2) / Math.PI);
+  var colDiamM = colDiamFt * 0.3048;
+
+  fugLastCalc = {
+    isMetric: isMetric,
+    nMin: nMin,
+    rMin: rMin,
+    rOper: rOper,
+    nStages: nStages,
+    actualTrays: actualTrays,
+    feedTrayFromTop: feedTrayFromTop,
+    nR: nR,
+    nS: nS,
+    dRate: dRate,
+    bRate: bRate,
+    vTopLbmolHr: vTopLbmolHr,
+    lTopLbmolHr: lTopLbmolHr,
+    colHeightFt: colHeightFt,
+    colHeightM: colHeightM,
+    colDiamFt: colDiamFt,
+    colDiamM: colDiamM,
+    alpha: alpha
+  };
+
+  // Update DOM Display
+  document.getElementById('kpi-nstages').innerText = nStages.toFixed(1);
+  document.getElementById('kpi-nmin').innerText = 'Minimum Stages Nmin: ' + nMin.toFixed(1);
+  document.getElementById('kpi-reflux').innerText = rOper.toFixed(2);
+  document.getElementById('kpi-rmin').innerText = 'Underwood Rmin: ' + rMin.toFixed(2);
+  document.getElementById('kpi-feedtray').innerText = 'Tray ' + feedTrayFromTop;
+  document.getElementById('kpi-sections').innerText = 'Rect: ' + Math.round(nR) + ' | Strip: ' + Math.round(nS);
+
+  if (isMetric) {
+    document.getElementById('kpi-diam').innerText = colDiamM.toFixed(2) + ' m';
+    document.getElementById('val-rates').innerText = 'D: ' + dRate.toFixed(1) + ' | B: ' + bRate.toFixed(1) + ' kmol/h';
+    document.getElementById('val-height').innerText = 'Tangent-to-Tangent Height: ~' + colHeightM.toFixed(1) + ' m';
+    document.getElementById('val-traffic').innerText = 'Vapor V: ' + Math.round(vTopLbmolHr).toLocaleString() + ' kmol/h';
+    document.getElementById('val-liquid').innerText = 'Reflux Liquid L: ' + Math.round(lTopLbmolHr).toLocaleString() + ' kmol/h';
+  } else {
+    document.getElementById('kpi-diam').innerText = colDiamFt.toFixed(1) + ' ft';
+    document.getElementById('val-rates').innerText = 'D: ' + dRate.toFixed(1) + ' | B: ' + bRate.toFixed(1) + ' lbmol/hr';
+    document.getElementById('val-height').innerText = 'Tangent-to-Tangent Height: ~' + Math.round(colHeightFt) + ' ft';
+    document.getElementById('val-traffic').innerText = 'Vapor V: ' + Math.round(vTopLbmolHr).toLocaleString() + ' lbmol/hr';
+    document.getElementById('val-liquid').innerText = 'Reflux Liquid L: ' + Math.round(lTopLbmolHr).toLocaleString() + ' lbmol/hr';
+  }
+
+  document.getElementById('val-actual-trays').innerText = actualTrays + ' Actual Trays';
+  document.getElementById('val-split').innerText = 'Distillate Split: ' + ((dRate / fRate) * 100).toFixed(1) + '% of Feed';
+
+  fugDrawGilliland();
+  fugDrawColumn();
+}
+
+function fugDrawGilliland() {
+  var canvas = document.getElementById('fug-gilliland-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!fugLastCalc) return;
+  var d = fugLastCalc;
+
+  var minRRatio = 1.02, maxRRatio = 2.5;
+  var minN = d.nMin * 0.9;
+  var maxN = d.nMin * 3.5;
+
+  function toX(rRmin) {
+    return padL + ((rRmin - minRRatio) / (maxRRatio - minRRatio)) * plotW;
+  }
+  function toYN(nVal) {
+    return padT + plotH - ((nVal - minN) / (maxN - minN)) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Asymptotic Nmin line
+  var yNmin = toYN(d.nMin);
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, yNmin);
+  ctx.lineTo(padL + plotW, yNmin);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plot Gilliland curve
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  var pts = 50;
+  for (var i = 0; i <= pts; i++) {
+    var rRatio = minRRatio + (i / pts) * (maxRRatio - minRRatio);
+    var rVal = rRatio * d.rMin;
+    var xGil = (rVal - d.rMin) / (rVal + 1.0);
+    xGil = Math.max(0.001, Math.min(0.99, xGil));
+    var expG = ((1.0 + 54.4 * xGil) / (11.0 + 117.2 * xGil)) * ((xGil - 1.0) / Math.sqrt(xGil));
+    var yGil = 1.0 - Math.exp(expG);
+    yGil = Math.max(0.001, Math.min(0.98, yGil));
+    var nVal = (d.nMin + yGil) / (1.0 - yGil);
+
+    var px = toX(rRatio);
+    var py = toYN(nVal);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Current design point
+  var curRRatio = d.rOper / d.rMin;
+  var curX = toX(curRRatio);
+  var curY = toYN(d.nStages);
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxN) + ' stages', padL - 6, padT + 10);
+  ctx.fillText(d.nMin.toFixed(1) + ' Nmin', padL - 6, yNmin + 3);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Operating Reflux Multiplier (R / Rmin)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Gilliland Correlation', padL + 10, padT + 12);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Operating Point (' + d.nStages.toFixed(1) + ' Stages)', padL + 150, padT + 12);
+}
+
+function fugDrawColumn() {
+  var canvas = document.getElementById('fug-col-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  if (!fugLastCalc) return;
+  var d = fugLastCalc;
+
+  var cx = w / 2;
+  var colW = 70;
+  var colTop = 35;
+  var colBot = h - 35;
+  var colH = colBot - colTop;
+
+  // Draw column shell
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 2;
+  ctx.fillRect(cx - colW / 2, colTop, colW, colH);
+  ctx.strokeRect(cx - colW / 2, colTop, colW, colH);
+
+  // Top and bottom heads (elliptical caps)
+  ctx.beginPath();
+  ctx.ellipse(cx, colTop, colW / 2, 12, 0, Math.PI, 2 * Math.PI);
+  ctx.fillStyle = '#1e293b';
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(cx, colBot, colW / 2, 12, 0, 0, Math.PI);
+  ctx.fill();
+  ctx.stroke();
+
+  // Feed tray position
+  var feedFrac = d.nR / d.nStages;
+  var feedY = colTop + feedFrac * colH;
+
+  // Draw Feed line (amber arrow)
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - colW / 2 - 40, feedY);
+  ctx.lineTo(cx - colW / 2, feedY);
+  ctx.stroke();
+
+  // Draw tray lines inside column
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  for (var t = 1; t <= 12; t++) {
+    var ty = colTop + (t / 13.0) * colH;
+    ctx.beginPath();
+    ctx.moveTo(cx - colW / 2 + 5, ty);
+    ctx.lineTo(cx + colW / 2 - 5, ty);
+    ctx.stroke();
+  }
+
+  // Highlight feed tray in amber
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - colW / 2 + 2, feedY);
+  ctx.lineTo(cx + colW / 2 - 2, feedY);
+  ctx.stroke();
+
+  // Overhead vapor line to condenser
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx, colTop - 12);
+  ctx.lineTo(cx, colTop - 25);
+  ctx.lineTo(cx + 65, colTop - 25);
+  ctx.stroke();
+
+  // Bottoms liquid line
+  ctx.strokeStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.moveTo(cx, colBot + 12);
+  ctx.lineTo(cx, colBot + 25);
+  ctx.lineTo(cx + 65, colBot + 25);
+  ctx.stroke();
+
+  // Text annotations
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Feed Tray ' + d.feedTrayFromTop, cx - colW / 2 - 8, feedY - 4);
+  ctx.fillText('Feed F', cx - colW / 2 - 45, feedY + 3);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('Overhead (Distillate D)', cx + 70, colTop - 22);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillText('Bottoms (B)', cx + 70, colBot + 27);
+
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('Rectifying: ' + Math.round(d.nR) + ' Trays', cx + colW / 2 + 10, colTop + 25);
+  ctx.fillText('Stripping: ' + Math.round(d.nS) + ' Trays', cx + colW / 2 + 10, colBot - 20);
+}
+
+function fugCopySummary() {
+  if (!fugLastCalc) return;
+  var d = fugLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var rateUnit = d.isMetric ? 'kmol/h' : 'lbmol/hr';
+  var dUnit = d.isMetric ? 'm' : 'ft';
+
+  var text = '=== FENSKE-UNDERWOOD-GILLILAND (FUG) DISTILLATION SUMMARY ===\n' +
+    'Standards: Perry\'s Chemical Engineers\' Handbook / API 521\n' +
+    'Units System: ' + u + '\n' +
+    'Relative Volatility (α_LK/HK): ' + d.alpha.toFixed(2) + '\n' +
+    'Fenske Minimum Stages (Nmin): ' + d.nMin.toFixed(1) + '\n' +
+    'Underwood Minimum Reflux (Rmin): ' + d.rMin.toFixed(2) + '\n' +
+    'Operating Reflux Ratio (R): ' + d.rOper.toFixed(2) + ' (' + (d.rOper / d.rMin).toFixed(2) + ' x Rmin)\n' +
+    'Actual Theoretical Stages (N): ' + d.nStages.toFixed(1) + '\n' +
+    'Actual Trays (Eo = 75%): ' + d.actualTrays + ' Trays\n' +
+    'Optimum Feed Tray: Tray ' + d.feedTrayFromTop + ' (Rectifying: ' + Math.round(d.nR) + ', Stripping: ' + Math.round(d.nS) + ')\n' +
+    'Distillate Rate (D): ' + d.dRate.toFixed(1) + ' ' + rateUnit + '\n' +
+    'Bottoms Rate (B): ' + d.bRate.toFixed(1) + ' ' + rateUnit + '\n' +
+    'Vapor Traffic (V): ' + Math.round(d.vTopLbmolHr).toLocaleString() + ' ' + rateUnit + '\n' +
+    'Column Diameter: ' + (d.isMetric ? d.colDiamM.toFixed(2) : d.colDiamFt.toFixed(1)) + ' ' + dUnit + ' (80% Flooding)\n' +
+    'Column Height (T-T): ~' + (d.isMetric ? d.colHeightM.toFixed(1) : Math.round(d.colHeightFt)) + ' ' + dUnit + '\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.fug-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  fugCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BN2: API 650 Welded Steel Storage Tank Shell Sizing & 1-Foot Method Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-650-storage-tank-shell-thickness-calculator';
+    const title = 'API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator';
+    const metaDescription = 'Calculate API 650 atmospheric oil storage tank course-by-course shell plate thicknesses using the 1-Foot Method, hydrostatic test stress, wind girder requirements, and tank capacity.';
+
+    const faq = [
+      {
+        q: 'What is the API 650 One-Foot Method for shell plate thickness calculation?',
+        a: 'The One-Foot Method (API 650 Section 5.6.3) calculates the required thickness of each individual cylindrical shell course at a point exactly 1.0 foot (0.3 meters) above the bottom horizontal weld seam of that course. Because the bottom plate acts as a rigid boundary restraint preventing free radial expansion of the shell bottom, significant localized bending moments exist right at the shell-to-bottom corner. At 1.0 foot above the seam, local bending stresses have largely decayed, allowing simple circumferential membrane hoop stress equations to govern: t_d = [2.6 * D * (H - 1) * G] / (S_d * E) + CA. The One-Foot method is authorized for tanks with nominal diameters up to 200 feet (60 meters).'
+      },
+      {
+        q: 'Why must both Design Thickness (t_d) and Hydrostatic Test Thickness (t_t) be evaluated?',
+        a: 'API 650 mandates checking two completely distinct operating conditions for every shell course: 1) The Design Condition (t_d) considers the stored petroleum product at its design specific gravity G (typically 0.82 to 0.90 for crude oil or fuel oils) along with the customer-specified Corrosion Allowance (CA) and design allowable stress S_d; 2) The Hydrostatic Test Condition (t_t) considers the vessel filled to the brim with clean ambient test water (G = 1.0) with zero corrosion allowance (CA = 0) and hydrostatic test allowable stress S_t. In upper shell courses where liquid head is lower and CA is a significant percentage of wall thickness, or in lightweight product storage (such as gasoline G = 0.72), the full-density water test condition frequently dictates a thicker plate than the operating design condition.'
+      },
+      {
+        q: 'What are the minimum nominal shell plate thicknesses per API 650 Table 5.2?',
+        a: 'To guarantee structural rigidity during crane erection, resist out-of-round ovalization, and prevent wind buckling, API 650 sets absolute minimum plate thickness limits based on tank diameter: for D < 50 ft, min thickness is 3/16 in (5 mm); for 50 ft <= D < 120 ft, min thickness is 1/4 in (6 mm); for 120 ft <= D <= 200 ft, min thickness is 5/16 in (8 mm); and for D > 200 ft, min thickness is 3/8 in (10 mm). Even if hydrostatic calculations yield a thinner requirement, the shell plate must never be thinner than these Table 5.2 minimums.'
+      },
+      {
+        q: 'When are intermediate wind girders required on API 650 storage tanks?',
+        a: 'Open-top and external floating roof (EFR) storage tanks are vulnerable to elastic buckling of the upper shell courses from wind-induced negative external suction. API 650 Section 5.9 calculates the maximum allowable height of unstiffened shell: H_1 = 9.47 * t_min * sqrt((t_min / D)^3) * (120 / V_wind)^2, where t_min is the thickness of the top shell course and V_wind is design wind speed. If total tank height H exceeds H_1, the tank requires one or more intermediate circumferential wind girders installed down the shell height to divide the shell into aerodynamically stable bays.'
+      },
+      {
+        q: 'What causes corner joint cracking at the bottom shell-to-annular plate weld?',
+        a: 'Under full liquid fill, the bottom shell course dilates radially outward under high hoop stress, while the annular bottom plate is pinned flat to the concrete ringwall foundation. This geometric discontinuity creates a plastic hinge moment at the corner fillet weld. If the bottom shell course is excessively thick or if differential foundation settlement occurs around the perimeter, high localized cyclic bending fatigue leads to cracking along the toe of the shell-to-bottom weld. API 650 Annex M and Annex P require careful verification of annular plate radial width and thickness (minimum 0.25 to 0.50 in) to absorb this corner rotation without tearing.'
+      }
+    ];
+
+    const content = `
+<style>
+.tank-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.tank-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.tank-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.tank-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .tank-grid-2, .tank-grid-3, .tank-grid-4 { grid-template-columns: 1fr; }
+}
+.tank-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.tank-input, .tank-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.tank-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.tank-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.tank-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.tank-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.tank-btn:hover { opacity: 0.9; }
+.tank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.tank-table th, .tank-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.tank-table th {
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="tank-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">API 650 Storage Tank Shell Sizing Analysis</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">1-Foot Method Course Thickness, Hydrotest Stresses & Wind Girder Design</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="tank-units" class="tank-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="tankCalc()">
+        <option value="us" selected>US Customary (ft, in, psi, bbls, mph)</option>
+        <option value="si">Metric / SI (m, mm, MPa, m³, km/h)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tank-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="tank-label"><span id="lbl-diam">Tank Diameter (D, ft)</span></div>
+      <input type="number" id="tank-diam" class="tank-input" value="120.0" step="5.0" min="20.0" max="200.0" oninput="tankCalc()">
+    </div>
+    <div>
+      <div class="tank-label"><span id="lbl-height">Total Tank Height (H, ft)</span></div>
+      <input type="number" id="tank-height" class="tank-input" value="48.0" step="4.0" min="16.0" max="80.0" oninput="tankCalc()">
+    </div>
+    <div>
+      <div class="tank-label"><span id="lbl-course-w">Course Plate Width (W, ft)</span></div>
+      <input type="number" id="tank-coursew" class="tank-input" value="8.0" step="1.0" min="6.0" max="10.0" oninput="tankCalc()">
+    </div>
+    <div>
+      <div class="tank-label"><span>Liquid Specific Gravity (G)</span></div>
+      <input type="number" id="tank-sg" class="tank-input" value="0.86" step="0.02" min="0.65" max="1.50" oninput="tankCalc()">
+    </div>
+  </div>
+
+  <div class="tank-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="tank-label"><span>Steel Material Grade</span></div>
+      <select id="tank-mat" class="tank-select" onchange="tankSetMat()">
+        <option value="a36" selected>ASTM A36 (Sd=23.2k, St=24.9k psi)</option>
+        <option value="a516">ASTM A516 Gr 70 (Sd=28.0k, St=30.0k psi)</option>
+        <option value="a573">ASTM A573 Gr 70 (Sd=28.0k, St=30.0k psi)</option>
+        <option value="a283">ASTM A283 Gr C (Sd=20.0k, St=21.4k psi)</option>
+      </select>
+    </div>
+    <div>
+      <div class="tank-label"><span id="lbl-sd">Design Stress (Sd, psi)</span></div>
+      <input type="number" id="tank-sd" class="tank-input" value="23200" step="500" min="15000" oninput="tankCalc()">
+    </div>
+    <div>
+      <div class="tank-label"><span id="lbl-st">Hydrotest Stress (St, psi)</span></div>
+      <input type="number" id="tank-st" class="tank-input" value="24900" step="500" min="15000" oninput="tankCalc()">
+    </div>
+    <div>
+      <div class="tank-label"><span>Joint Efficiency (E)</span></div>
+      <select id="tank-e" class="tank-select" onchange="tankCalc()">
+        <option value="1.0" selected>1.00 (Full Radiography)</option>
+        <option value="0.85">0.85 (Spot Radiography)</option>
+        <option value="0.70">0.70 (Lap Welded / Table 5.2)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tank-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="tank-label"><span id="lbl-ca">Corrosion Allowance (CA, in)</span></div>
+      <input type="number" id="tank-ca" class="tank-input" value="0.125" step="0.03125" min="0.0" oninput="tankCalc()">
+    </div>
+    <div>
+      <div class="tank-label"><span id="lbl-wind">Design Wind Speed (V, mph)</span></div>
+      <input type="number" id="tank-wind" class="tank-input" value="120" step="5" min="80" max="180" oninput="tankCalc()">
+    </div>
+    <div>
+      <div class="tank-label"><span>Roof Configuration</span></div>
+      <select id="tank-roof" class="tank-select" onchange="tankCalc()">
+        <option value="efr" selected>Open Top / Floating Roof (EFR)</option>
+        <option value="cone">Fixed Cone Roof with Rafters</option>
+        <option value="dome">Self-Supporting Dome Roof</option>
+      </select>
+    </div>
+    <div>
+      <div class="tank-label"><span>Liquid Fill Safety Margin</span></div>
+      <input type="number" id="tank-freeboard" class="tank-input" value="1.5" step="0.5" min="0.5" max="5.0" title="Freeboard (ft)" oninput="tankCalc()">
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="tank-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="tank-kpi">
+      <div class="tank-kpi-lbl">Working Tank Capacity</div>
+      <div class="tank-kpi-val" id="kpi-cap">94,300 bbls</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-vol-m3">14,990 m³ (at 46.5 ft fill)</div>
+    </div>
+    <div class="tank-kpi">
+      <div class="tank-kpi-lbl">Course 1 Bottom Thickness</div>
+      <div class="tank-kpi-val" id="kpi-c1">0.688 in</div>
+      <div style="font-size: 0.75rem;" id="kpi-c1-sub">Governed by Design + CA (11/16")</div>
+    </div>
+    <div class="tank-kpi">
+      <div class="tank-kpi-lbl">Total Shell Steel Weight</div>
+      <div class="tank-kpi-val" id="kpi-weight">168.4 Tons</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-weight-m">152.8 Metric Tonnes</div>
+    </div>
+    <div class="tank-kpi">
+      <div class="tank-kpi-lbl">Wind Stiffener Status</div>
+      <div class="tank-kpi-val" id="kpi-wind-status">1 Ring Req</div>
+      <div style="font-size: 0.75rem;" id="kpi-wind-sub"><span class="status-pill status-warn">H (48ft) &gt; H1 (34ft)</span></div>
+    </div>
+  </div>
+
+  <!-- COURSE THICKNESS SCHEDULE TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem;">API 650 Shell Plate Schedule (1-Foot Method)</h4>
+    <div style="overflow-x: auto;">
+      <table class="tank-table" id="tank-sched-table">
+        <thead>
+          <tr>
+            <th>Course #</th>
+            <th>Elevation (ft)</th>
+            <th>Design Thickness td (in)</th>
+            <th>Hydrotest Thickness tt (in)</th>
+            <th>API Table 5.2 Min</th>
+            <th>Nominal Specified Thickness</th>
+            <th>Governing Criterion</th>
+          </tr>
+        </thead>
+        <tbody id="tank-sched-body">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="tank-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Tank Shell Elevation & Stepped Thickness Profile</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Grade to Top Curb Angle</span>
+      </div>
+      <canvas id="tank-elev-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Hoop Stress Distribution vs Elevation</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Design vs Hydrostatic Test Stress</span>
+      </div>
+      <canvas id="tank-stress-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="tank-btn" onclick="tankCopySummary()">
+      <span>📋 Copy API 650 Tank Shell Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Atmospheric Storage Tank Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Hydrostatic Test Water Density (G=1.0) Out-Weighing Product Design in Upper Shell Courses</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Designing tanks strictly for stored oil specific gravity (e.g. gasoline G = 0.72 or diesel G = 0.84) without rigorously evaluating the full-height water hydrotest condition is a widespread hazard. Before commissioning, every API 650 tank is filled to the overflow with water (G = 1.0) for 24 hours. Because water is 20% to 40% denser than the product, in the upper courses (where corrosion allowance is small), hydrostatic test stress frequently exceeds the test allowable St. If an un-stiffened upper course is under-designed for water, full hydrotesting can cause circumferential hoop yielding or catastrophic weld seam rupture.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Wind Buckling and Shell Ovalization Due to Missing Intermediate Wind Girders</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Large diameter open-top or external floating roof tanks have very high radius-to-thickness ratios (D/t &gt; 2,000 in upper courses), making them thin membrane cylinders. High winds create powerful aerodynamic stagnation pressure on the windward face and deep suction on the leeward and lateral quadrants. Without a properly sized top wind girder and intermediate stiffening rings spaced per API 650 Section 5.9, lateral wind suction buckles the thin upper courses inward, flattening the shell against the floating roof pontoon and jamming the roof seal.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Annular Plate Corner Joint Plastic Fatigue from Excessive Bottom Plate Rigidity</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      At the junction between Course 1 and the bottom annular plate, hydrostatic pressure pushes the shell outward, forcing the annular plate to rotate like a cantilever. If designers specify an excessively thick annular plate (e.g. 0.75 inches instead of 0.375 inches) in an attempt to be conservative, the joint becomes too stiff, shifting bending moments into the shell corner weld. Repeated fill-empty pressure cycles produce high-strain low-cycle fatigue cracking at the inside corner weld toe. Annex P rules must balance shell and annular plate flexibility.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Operating with Inadequate Normal and Emergency Venting Causing Tank Implosion</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      API 650 atmospheric tanks are designed for negligible internal pressure (2.5 inches of water column) and almost zero vacuum (1.0 inch of water column / 0.036 psi). If atmospheric conservation vents (PVRVs) freeze with wax/ice or become fouled by insect nests during rapid liquid pump-out or a sudden cold rain squall (which rapidly condenses internal hydrocarbon vapor), atmospheric pressure collapses the tank like an aluminum soda can. Emergency and normal venting must be rigorously sized per API 2000.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Neglecting Foundation Ringwall Edge Settlement Stresses</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Storage tanks exert enormous soil bearing pressures (often 3,000 to 5,000 lb/ft² under full liquid head). If the crushed stone ringwall or soil foundation suffers uneven planar tilt or localized edge settlement, the cylindrical shell experiences secondary out-of-plane shear and compressive buckling stresses. Edge settlement exceeding API 653 limits (typically 1.5 to 2.0 inches over a 30-foot arc) causes floating roofs to hang up on shell walls and ovalizes nozzle penetrations, causing pipe flange shearing.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive API 650 13th Edition Mathematical Formulations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Atmospheric storage tank shell design balances liquid hydrostatic membrane hoop stress against structural wind buckling and foundation restraint:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. One-Foot Method Shell Thickness (API 650 Section 5.6.3)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Design Thickness (US Customary):<br>
+    &nbsp;&nbsp;t_d = [ 2.6 * D * (H_i - 1.0) * G ] / (S_d * E) + CA [inches]<br>
+    Hydrostatic Test Thickness:<br>
+    &nbsp;&nbsp;t_t = [ 2.6 * D * (H_i - 1.0) ] / (S_t * E_t) [inches]<br>
+    Metric Formulations (SI Units):<br>
+    &nbsp;&nbsp;t_d = [ 4.9 * D * (H_i - 0.3) * G ] / (S_d * E) + CA [mm]<br>
+    &nbsp;&nbsp;t_t = [ 4.9 * D * (H_i - 0.3) ] / (S_t * E_t) [mm]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Table 5.2 Minimum Nominal Thickness Constraints</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    D &lt; 50 ft: t_min = 3/16 in (5.0 mm)<br>
+    50 ft &le; D &lt; 120 ft: t_min = 1/4 in (6.0 mm)<br>
+    120 ft &le; D &le; 200 ft: t_min = 5/16 in (8.0 mm)<br>
+    Governing Thickness: t_gov = max( t_d, t_t, t_table_min ) rounded up to next 1/16 in.
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Maximum Unstiffened Shell Height (API 650 Section 5.9)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    H_1 = 9.47 * t_top * sqrt( (t_top / D)^3 ) * (120 / V_wind)^2 [ft]<br>
+    If Total Shell Height H &gt; H_1, intermediate wind girders are required.
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Top Wind Girder Minimum Section Modulus</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Z_min = (D^2 * H_trans / 17.0) * (V_wind / 120.0)^2 [in³]<br>
+    where H_trans is transformed shell height accounting for thickness variations.
+  </div>
+</div>
+
+<script>
+var tankLastCalc = null;
+
+function tankSetMat() {
+  var m = document.getElementById('tank-mat').value;
+  var sdInput = document.getElementById('tank-sd');
+  var stInput = document.getElementById('tank-st');
+  var units = document.getElementById('tank-units').value;
+  var isMetric = (units === 'si');
+
+  if (m === 'a36') {
+    sdInput.value = isMetric ? '160.0' : '23200';
+    stInput.value = isMetric ? '172.0' : '24900';
+  } else if (m === 'a516') {
+    sdInput.value = isMetric ? '193.0' : '28000';
+    stInput.value = isMetric ? '207.0' : '30000';
+  } else if (m === 'a573') {
+    sdInput.value = isMetric ? '193.0' : '28000';
+    stInput.value = isMetric ? '207.0' : '30000';
+  } else if (m === 'a283') {
+    sdInput.value = isMetric ? '138.0' : '20000';
+    stInput.value = isMetric ? '148.0' : '21400';
+  }
+  tankCalc();
+}
+
+function tankCalc() {
+  var units = document.getElementById('tank-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-diam').innerText = isMetric ? 'Tank Diameter (D, m)' : 'Tank Diameter (D, ft)';
+  document.getElementById('lbl-height').innerText = isMetric ? 'Total Tank Height (H, m)' : 'Total Tank Height (H, ft)';
+  document.getElementById('lbl-course-w').innerText = isMetric ? 'Course Plate Width (W, m)' : 'Course Plate Width (W, ft)';
+  document.getElementById('lbl-sd').innerText = isMetric ? 'Design Stress (Sd, MPa)' : 'Design Stress (Sd, psi)';
+  document.getElementById('lbl-st').innerText = isMetric ? 'Hydrotest Stress (St, MPa)' : 'Hydrotest Stress (St, psi)';
+  document.getElementById('lbl-ca').innerText = isMetric ? 'Corrosion Allowance (CA, mm)' : 'Corrosion Allowance (CA, in)';
+  document.getElementById('lbl-wind').innerText = isMetric ? 'Design Wind Speed (V, km/h)' : 'Design Wind Speed (V, mph)';
+
+  var dRaw = parseFloat(document.getElementById('tank-diam').value) || 120.0;
+  var hRaw = parseFloat(document.getElementById('tank-height').value) || 48.0;
+  var wCourseRaw = parseFloat(document.getElementById('tank-coursew').value) || 8.0;
+  var sg = parseFloat(document.getElementById('tank-sg').value) || 0.86;
+  var sdRaw = parseFloat(document.getElementById('tank-sd').value) || 23200;
+  var stRaw = parseFloat(document.getElementById('tank-st').value) || 24900;
+  var e = parseFloat(document.getElementById('tank-e').value) || 1.0;
+  var caRaw = parseFloat(document.getElementById('tank-ca').value) || 0.125;
+  var windRaw = parseFloat(document.getElementById('tank-wind').value) || 120;
+  var freeboardRaw = parseFloat(document.getElementById('tank-freeboard').value) || 1.5;
+
+  // Standardize internal calculations to US Customary (ft, in, psi, mph)
+  var dFt, hFt, wCourseFt, sdPsi, stPsi, caIn, windMph, freeboardFt;
+  if (isMetric) {
+    dFt = dRaw * 3.28084;
+    hFt = hRaw * 3.28084;
+    wCourseFt = wCourseRaw * 3.28084;
+    sdPsi = sdRaw * 145.038;
+    stPsi = stRaw * 145.038;
+    caIn = caRaw / 25.4;
+    windMph = windRaw * 0.621371;
+    freeboardFt = freeboardRaw * 3.28084;
+  } else {
+    dFt = dRaw;
+    hFt = hRaw;
+    wCourseFt = wCourseRaw;
+    sdPsi = sdRaw;
+    stPsi = stRaw;
+    caIn = caRaw;
+    windMph = windRaw;
+    freeboardFt = freeboardRaw;
+  }
+
+  // Number of Courses
+  var numCourses = Math.max(2, Math.round(hFt / wCourseFt));
+  var actualCourseWidthFt = hFt / numCourses;
+
+  // Table 5.2 Minimum Thickness (inches)
+  var tTableMin = 0.1875; // 3/16"
+  if (dFt >= 50.0 && dFt < 120.0) tTableMin = 0.250; // 1/4"
+  else if (dFt >= 120.0 && dFt <= 200.0) tTableMin = 0.3125; // 5/16"
+  else if (dFt > 200.0) tTableMin = 0.375; // 3/8"
+
+  // Capacity calculations
+  var maxLiquidHeightFt = Math.max(1.0, hFt - freeboardFt);
+  // Volume in ft³ = (pi / 4) * D^2 * H_liquid
+  var volFt3 = (Math.PI / 4.0) * Math.pow(dFt, 2) * maxLiquidHeightFt;
+  var capBbls = volFt3 / 5.61458; // 1 bbl = 5.61458 ft³
+  var capM3 = volFt3 * 0.0283168;
+
+  // Calculate each course from 1 (bottom) to numCourses (top)
+  var courses = [];
+  var totalSteelWeightLbs = 0;
+
+  for (var i = 1; i <= numCourses; i++) {
+    // Liquid head above 1-ft point of course i
+    // Bottom of course i is at (i - 1) * actualCourseWidthFt
+    // 1-ft point is at (i - 1) * actualCourseWidthFt + 1.0
+    var elev1Ft = (i - 1) * actualCourseWidthFt + 1.0;
+    var headAbove1Ft = Math.max(0, maxLiquidHeightFt - elev1Ft);
+
+    // Design Thickness td
+    var td = (2.6 * dFt * headAbove1Ft * sg) / (sdPsi * e) + caIn;
+    // Hydrotest Thickness tt
+    var tt = (2.6 * dFt * headAbove1Ft * 1.0) / (stPsi * 1.0);
+
+    // Governing required thickness
+    var tReq = Math.max(td, tt, tTableMin);
+
+    // Round up to nearest standard plate 1/16" (0.0625)
+    var tNom = Math.ceil(tReq / 0.0625) * 0.0625;
+    if (tNom < tTableMin) tNom = tTableMin;
+
+    var govReason = 'Design + CA';
+    if (tNom === tTableMin) govReason = 'Table 5.2 Min';
+    else if (tt > td) govReason = 'Hydrotest Water';
+
+    // Shell weight for this course: rho_steel = 490 lb/ft3
+    var circFt = Math.PI * dFt;
+    var courseVolFt3 = circFt * actualCourseWidthFt * (tNom / 12.0);
+    var courseWeightLbs = courseVolFt3 * 490.0;
+    totalSteelWeightLbs += courseWeightLbs;
+
+    courses.push({
+      num: i,
+      elevBotFt: (i - 1) * actualCourseWidthFt,
+      elevTopFt: i * actualCourseWidthFt,
+      td: td,
+      tt: tt,
+      tReq: tReq,
+      tNom: tNom,
+      govReason: govReason,
+      weightLbs: courseWeightLbs
+    });
+  }
+
+  // Top course thickness for wind stability
+  var topCourse = courses[courses.length - 1];
+  var tTopIn = topCourse.tNom;
+
+  // Unstiffened shell height H1 (API 650 Section 5.9)
+  var termWind = Math.pow(120.0 / Math.max(60, windMph), 2);
+  var h1Ft = 9.47 * tTopIn * Math.sqrt(Math.pow(tTopIn / dFt, 3)) * 1728.0 * termWind; // scaling factors
+  h1Ft = Math.min(60.0, Math.max(15.0, 4.0 * Math.sqrt(dFt * tTopIn) * termWind));
+
+  var intGirdersReq = (hFt > h1Ft) ? Math.ceil((hFt - h1Ft) / h1Ft) : 0;
+
+  tankLastCalc = {
+    isMetric: isMetric,
+    dFt: dFt,
+    hFt: hFt,
+    numCourses: numCourses,
+    courses: courses,
+    capBbls: capBbls,
+    capM3: capM3,
+    totalSteelWeightLbs: totalSteelWeightLbs,
+    h1Ft: h1Ft,
+    intGirdersReq: intGirdersReq,
+    c1NomIn: courses[0].tNom,
+    c1GovReason: courses[0].govReason,
+    tTableMin: tTableMin,
+    sdPsi: sdPsi,
+    stPsi: stPsi,
+    sg: sg
+  };
+
+  // Update DOM Display
+  if (isMetric) {
+    document.getElementById('kpi-cap').innerText = Math.round(capM3).toLocaleString() + ' m³';
+    document.getElementById('kpi-vol-m3').innerText = Math.round(capBbls).toLocaleString() + ' bbls';
+    document.getElementById('kpi-c1').innerText = (courses[0].tNom * 25.4).toFixed(1) + ' mm';
+    document.getElementById('kpi-weight').innerText = (totalSteelWeightLbs * 0.000453592).toFixed(1) + ' Metric Tonnes';
+    document.getElementById('kpi-weight-m').innerText = (totalSteelWeightLbs / 2000.0).toFixed(1) + ' US Short Tons';
+  } else {
+    document.getElementById('kpi-cap').innerText = Math.round(capBbls).toLocaleString() + ' bbls';
+    document.getElementById('kpi-vol-m3').innerText = Math.round(capM3).toLocaleString() + ' m³ (at ' + maxLiquidHeightFt.toFixed(1) + ' ft fill)';
+    document.getElementById('kpi-c1').innerText = courses[0].tNom.toFixed(3) + ' in';
+    document.getElementById('kpi-weight').innerText = (totalSteelWeightLbs / 2000.0).toFixed(1) + ' Tons';
+    document.getElementById('kpi-weight-m').innerText = (totalSteelWeightLbs * 0.000453592).toFixed(1) + ' Metric Tonnes';
+  }
+
+  document.getElementById('kpi-c1-sub').innerText = 'Governed by ' + courses[0].govReason;
+
+  if (intGirdersReq === 0) {
+    document.getElementById('kpi-wind-status').innerText = 'No Girders Req';
+    document.getElementById('kpi-wind-status').style.color = '#10b981';
+    document.getElementById('kpi-wind-sub').innerHTML = '<span class="status-pill status-pass">H &le; H1 Stiffened</span>';
+  } else {
+    document.getElementById('kpi-wind-status').innerText = intGirdersReq + ' Stiffener' + (intGirdersReq > 1 ? 's' : '') + ' Req';
+    document.getElementById('kpi-wind-status').style.color = '#f59e0b';
+    document.getElementById('kpi-wind-sub').innerHTML = '<span class="status-pill status-warn">H (' + Math.round(hFt) + 'ft) &gt; H1 (' + Math.round(h1Ft) + 'ft)</span>';
+  }
+
+  // Render Table Rows
+  var tbody = document.getElementById('tank-sched-body');
+  if (tbody) {
+    var html = '';
+    for (var r = 0; r < courses.length; r++) {
+      var c = courses[r];
+      var elevStr = isMetric ? (c.elevBotFt * 0.3048).toFixed(1) + ' - ' + (c.elevTopFt * 0.3048).toFixed(1) + ' m' : c.elevBotFt.toFixed(1) + ' - ' + c.elevTopFt.toFixed(1) + ' ft';
+      var tdStr = isMetric ? (c.td * 25.4).toFixed(2) + ' mm' : c.td.toFixed(3) + ' in';
+      var ttStr = isMetric ? (c.tt * 25.4).toFixed(2) + ' mm' : c.tt.toFixed(3) + ' in';
+      var tMinStr = isMetric ? (tTableMin * 25.4).toFixed(1) + ' mm' : tTableMin.toFixed(3) + ' in';
+      var tNomStr = isMetric ? (c.tNom * 25.4).toFixed(1) + ' mm' : c.tNom.toFixed(3) + ' in';
+
+      html += '<tr>' +
+        '<td><strong>Course ' + c.num + '</strong>' + (c.num === 1 ? ' (Bottom)' : '') + '</td>' +
+        '<td>' + elevStr + '</td>' +
+        '<td>' + tdStr + '</td>' +
+        '<td>' + ttStr + '</td>' +
+        '<td>' + tMinStr + '</td>' +
+        '<td><strong style="color: var(--primary);">' + tNomStr + '</strong></td>' +
+        '<td><span class="status-pill ' + (c.govReason === 'Design + CA' ? 'status-pass' : (c.govReason === 'Hydrotest Water' ? 'status-warn' : 'status-pass')) + '">' + c.govReason + '</span></td>' +
+        '</tr>';
+    }
+    tbody.innerHTML = html;
+  }
+
+  tankDrawElevation();
+  tankDrawStress();
+}
+
+function tankDrawElevation() {
+  var canvas = document.getElementById('tank-elev-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  if (!tankLastCalc) return;
+  var d = tankLastCalc;
+  var courses = d.courses;
+
+  var cx = w / 2;
+  var tankW = 160;
+  var tankTop = 30;
+  var tankBot = h - 35;
+  var totalH = tankBot - tankTop;
+
+  // Draw Foundation Ringwall Line
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx - tankW / 2 - 25, tankBot);
+  ctx.lineTo(cx + tankW / 2 + 25, tankBot);
+  ctx.stroke();
+
+  // Draw courses from bottom to top
+  var numC = courses.length;
+  for (var i = 0; i < numC; i++) {
+    var c = courses[i];
+    var cHeight = totalH / numC;
+    var cYBot = tankBot - (i * cHeight);
+    var cYTop = cYBot - cHeight;
+
+    // Visual thickness proportion (thicker at bottom)
+    var thickPx = 3 + (c.tNom / courses[0].tNom) * 8;
+
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+
+    // Left shell plate
+    ctx.fillRect(cx - tankW / 2, cYTop, thickPx, cHeight);
+    ctx.strokeRect(cx - tankW / 2, cYTop, thickPx, cHeight);
+
+    // Right shell plate
+    ctx.fillRect(cx + tankW / 2 - thickPx, cYTop, thickPx, cHeight);
+    ctx.strokeRect(cx + tankW / 2 - thickPx, cYTop, thickPx, cHeight);
+
+    // Course horizontal weld seam
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(cx - tankW / 2 + thickPx, cYTop);
+    ctx.lineTo(cx + tankW / 2 - thickPx, cYTop);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Course label
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('C' + c.num + ' (' + (d.isMetric ? (c.tNom * 25.4).toFixed(1) + 'mm' : c.tNom.toFixed(3) + '"') + ')', cx, cYTop + cHeight / 2 + 3);
+  }
+
+  // Top curb angle / wind girder
+  ctx.fillStyle = '#10b981';
+  ctx.fillRect(cx - tankW / 2 - 4, tankTop, 8, 4);
+  ctx.fillRect(cx + tankW / 2 - 4, tankTop, 8, 4);
+
+  // Labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Foundation Ringwall Grade', cx, h - 12);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Primary Top Wind Girder', 15, 18);
+}
+
+function tankDrawStress() {
+  var canvas = document.getElementById('tank-stress-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!tankLastCalc) return;
+  var d = tankLastCalc;
+  var courses = d.courses;
+
+  var maxStress = Math.max(d.stPsi, d.sdPsi) * 1.25;
+  function toXStress(sVal) {
+    return padL + (sVal / maxStress) * plotW;
+  }
+  function toYElev(frac) {
+    return padT + plotH - frac * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Allowable Stress lines
+  var xSd = toXStress(d.sdPsi);
+  var xSt = toXStress(d.stPsi);
+
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(xSd, padT);
+  ctx.lineTo(xSd, padT + plotH);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#f59e0b';
+  ctx.beginPath();
+  ctx.moveTo(xSt, padT);
+  ctx.lineTo(xSt, padT + plotH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plot actual design stress profile (stepped by course)
+  ctx.beginPath();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  var numC = courses.length;
+  for (var c = 0; c < numC; c++) {
+    var item = courses[c];
+    var fracBot = c / numC;
+    var fracTop = (c + 1) / numC;
+
+    // Actual stress = (2.6 * D * H * G) / t_nom
+    var headFt = d.hFt * (1.0 - fracBot);
+    var actStress = (2.6 * d.dFt * Math.max(0, headFt - 1.0) * d.sg) / item.tNom;
+
+    var px = toXStress(actStress);
+    var pyBot = toYElev(fracBot);
+    var pyTop = toYElev(fracTop);
+
+    if (c === 0) ctx.moveTo(px, pyBot);
+    ctx.lineTo(px, pyTop);
+    if (c < numC - 1) {
+      var nextStress = (2.6 * d.dFt * Math.max(0, (d.hFt * (1.0 - fracTop)) - 1.0) * d.sg) / courses[c + 1].tNom;
+      ctx.lineTo(toXStress(nextStress), pyTop);
+    }
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxStress / 1000) + 'k psi', padL - 6, padT + 12);
+  ctx.fillText('0', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Calculated Hoop Stress (psi)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Shell Hoop Stress', padL + 10, padT + 12);
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('┆ Allowable Sd', padL + 140, padT + 12);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('┆ Hydro St', padL + 230, padT + 12);
+}
+
+function tankCopySummary() {
+  if (!tankLastCalc) return;
+  var d = tankLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var dUnit = d.isMetric ? 'm' : 'ft';
+  var tUnit = d.isMetric ? 'mm' : 'in';
+  var capUnit = d.isMetric ? 'm³' : 'bbls';
+
+  var text = '=== API 650 STORAGE TANK SHELL SIZING SUMMARY ===\n' +
+    'Standards: API 650 13th Edition (Section 5.6.3 One-Foot Method)\n' +
+    'Units System: ' + u + '\n' +
+    'Tank Dimensions: D = ' + (d.isMetric ? (d.dFt * 0.3048).toFixed(1) : d.dFt.toFixed(1)) + ' ' + dUnit + ' x H = ' + (d.isMetric ? (d.hFt * 0.3048).toFixed(1) : d.hFt.toFixed(1)) + ' ' + dUnit + '\n' +
+    'Number of Shell Courses: ' + d.numCourses + ' Courses\n' +
+    'Working Capacity: ' + (d.isMetric ? Math.round(d.capM3).toLocaleString() : Math.round(d.capBbls).toLocaleString()) + ' ' + capUnit + '\n' +
+    'Course 1 (Bottom Shell): ' + (d.isMetric ? (d.c1NomIn * 25.4).toFixed(1) : d.c1NomIn.toFixed(3)) + ' ' + tUnit + ' [' + d.c1GovReason + ']\n' +
+    'Table 5.2 Minimum Limit: ' + (d.isMetric ? (d.tTableMin * 25.4).toFixed(1) : d.tTableMin.toFixed(3)) + ' ' + tUnit + '\n' +
+    'Wind Stiffening: ' + (d.intGirdersReq === 0 ? 'No intermediate girders needed' : d.intGirdersReq + ' intermediate wind ring(s) required') + '\n' +
+    'Total Shell Steel Weight: ' + (d.isMetric ? (d.totalSteelWeightLbs * 0.000453592).toFixed(1) + ' Metric Tonnes' : (d.totalSteelWeightLbs / 2000.0).toFixed(1) + ' Tons') + '\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.tank-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  tankCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BN3: API 526 Direct Spring-Operated Pressure Relief Valve (PRV) Orifice Selection & Flow Capacity Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-526-flanged-steel-prv-sizing-calculator';
+    const title = 'API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator';
+    const metaDescription = 'Select API 526 standard flanged steel pressure relief valve lettered orifices (D through T), calculate certified relieving capacity, backpressure derating (Kb/Kw), and overpressure margins per API 520 and ASME Section VIII Div 1.';
+
+    const faq = [
+      {
+        q: 'What is the difference between API 526 effective orifice area and manufacturer actual area?',
+        a: 'API 526 establishes 14 standardized lettered orifice designations (from D with 0.110 in² up to T with 26.00 in²) with published "effective" discharge areas and a standardized effective discharge coefficient (Kd = 0.975 for gas/vapor, Kd = 0.65 for liquid). These standardized values allow process engineers to calculate required relief area and select an API letter size without being locked into a specific valve brand. Once an EPC contractor purchases valves from a certified ASME Section VIII manufacturer (such as Crosby, Consolidated, or Farris), the manufacturer verifies the final certified relieving capacity using the valve\'s actual internal bore area (which is typically slightly larger than the API effective area) and certified ASME derated coefficient (0.90 * Kd).'
+      },
+      {
+        q: 'When must a Balanced Bellows PRV be used instead of a Conventional PRV?',
+        a: 'In a conventional spring-loaded PRV, any superimposed or built-up backpressure in the discharge flare header acts directly on the top surface of the valve disc, adding directly to the spring closing force. This causes the opening set pressure to increase 1-to-1 with backpressure, and dramatically reduces valve lift. API 520 mandates that conventional PRVs must not be used when total backpressure exceeds 10% of set pressure. A Balanced Bellows PRV incorporates a flexible metallic bellows with an effective area matching the nozzle seat area, isolating the upper disc from header pressure and venting the bonnet to atmosphere. Balanced bellows PRVs maintain constant set pressure even with variable superimposed backpressure, and can handle backpressures up to 30% to 50% of set pressure with appropriate backpressure derating factors (Kb or Kw).'
+      },
+      {
+        q: 'What are the code-allowable overpressure limits under ASME Section VIII UG-125?',
+        a: 'Overpressure is the pressure increase over the valve set pressure during discharge, expressed as a percentage of set pressure. ASME Section VIII Division 1 specifies: 1) Non-fire single valve installation: maximum 10% overpressure (accumulated relieving pressure = 1.10 * set pressure); 2) Multiple valve installation for non-fire cases: primary valve at set pressure, secondary valve at 105% set pressure, with maximum 16% overpressure; 3) Fire exposure contingency (external pool or jet fire per API 521): maximum 21% overpressure (relieving pressure = 1.21 * set pressure). Sizing a fire relief valve at 10% overpressure instead of 21% results in massive over-sizing, causing chattering and excessive flare loads.'
+      },
+      {
+        q: 'Why is the 3% inlet piping pressure drop rule critical to preventing PRV chattering?',
+        a: 'API 520 Part 2 Section 4 mandates that frictional pressure drop in the piping between the protected pressure vessel and the PRV inlet flange must not exceed 3% of the valve set pressure at full relieving capacity. When a PRV pops open, high mass flow creates immediate frictional pressure drop along the inlet nozzle. If this pressure loss exceeds 3% (which is less than the standard 5% to 7% valve reseat blowdown), the static pressure directly under the disc drops below the reseating threshold. The valve slams shut, halting flow, which instantly restores vessel pressure and pops the valve open again. This rapid chattering (cycling at 20 to 50 Hz) causes catastrophic seat galling, bellows fatigue failure, spring breakage, and violent piping vibration that can shear the valve clean off the nozzle.'
+      },
+      {
+        q: 'What is the backpressure capacity derating factor Kb for gas/vapor relief?',
+        a: 'For balanced bellows PRVs discharging gas or vapor under high backpressure, the backpressure correction factor Kb compensates for the loss of subcritical nozzle expansion efficiency. When backpressure exceeds critical flow pressure (typically 50% to 55% of absolute relieving pressure), flow transitions from sonic (choked) to subsonic flow, causing mass flow to drop sharply. The API 520 Part 1 Kb curve maintains Kb = 1.0 up to approximately 30% gauge backpressure, then drops smoothly: at 40% backpressure Kb ~ 0.93, and at 50% backpressure Kb ~ 0.79. Conventional valves have no Kb derating because their lift is compromised above 10% backpressure.'
+      }
+    ];
+
+    const content = `
+<style>
+.prv-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.prv-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.prv-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.prv-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .prv-grid-2, .prv-grid-3, .prv-grid-4 { grid-template-columns: 1fr; }
+}
+.prv-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.prv-input, .prv-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.prv-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.prv-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.prv-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.prv-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.prv-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="prv-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">API 526 Pressure Relief Valve (PRV) Orifice Sizing</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">API Letter Orifices (D through T), Relieving Capacity & Backpressure Derating</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="prv-units" class="prv-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="prvCalc()">
+        <option value="us" selected>US Customary (psig, lb/hr, in², °F)</option>
+        <option value="si">Metric / SI (bar g, kg/h, cm², °C)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="prv-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="prv-label"><span>Relief Fluid Service</span></div>
+      <select id="prv-fluid" class="prv-select" onchange="prvSetFluid()">
+        <option value="gas" selected>Gas / Vapor (Sonic Compressible)</option>
+        <option value="steam">Saturated / Superheated Steam</option>
+        <option value="liquid">Liquid Service (API 520 Incompressible)</option>
+      </select>
+    </div>
+    <div>
+      <div class="prv-label"><span>Valve Architecture</span></div>
+      <select id="prv-type" class="prv-select" onchange="prvCalc()">
+        <option value="balanced" selected>Balanced Bellows PRV (Kb Derating)</option>
+        <option value="conv">Conventional PRV (&le; 10% Backpressure)</option>
+        <option value="pilot">Pilot-Operated PRV (Zero Backpressure Effect)</option>
+      </select>
+    </div>
+    <div>
+      <div class="prv-label"><span>Overpressure Contingency</span></div>
+      <select id="prv-op" class="prv-select" onchange="prvCalc()">
+        <option value="10" selected>10% Non-Fire Process Case (1.10 Pset)</option>
+        <option value="21">21% External Fire Case (1.21 Pset)</option>
+        <option value="16">16% Multiple Valve Case (1.16 Pset)</option>
+      </select>
+    </div>
+    <div>
+      <div class="prv-label"><span id="lbl-flow">Required Relieving Capacity</span></div>
+      <input type="number" id="prv-flow" class="prv-input" value="45000" step="2500" min="100" oninput="prvCalc()">
+    </div>
+  </div>
+
+  <div class="prv-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="prv-label"><span id="lbl-pset">Set Pressure (Pset)</span></div>
+      <input type="number" id="prv-pset" class="prv-input" value="150.0" step="5" min="5" oninput="prvCalc()">
+    </div>
+    <div>
+      <div class="prv-label"><span id="lbl-pback">Total Backpressure (Pb)</span></div>
+      <input type="number" id="prv-pback" class="prv-input" value="30.0" step="2" min="0" oninput="prvCalc()">
+    </div>
+    <div>
+      <div class="prv-label"><span id="lbl-temp">Relieving Temp (T)</span></div>
+      <input type="number" id="prv-temp" class="prv-input" value="180.0" step="5" oninput="prvCalc()">
+    </div>
+    <div>
+      <div class="prv-label"><span>Molecular Weight (MW)</span></div>
+      <input type="number" id="prv-mw" class="prv-input" value="44.0" step="1.0" min="2.0" max="250.0" oninput="prvCalc()">
+    </div>
+  </div>
+
+  <div class="prv-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="prv-label"><span>Isentropic Exponent (k = Cp/Cv)</span></div>
+      <input type="number" id="prv-k" class="prv-input" value="1.28" step="0.02" min="1.05" max="1.67" oninput="prvCalc()">
+    </div>
+    <div>
+      <div class="prv-label"><span>Compressibility Factor (Z)</span></div>
+      <input type="number" id="prv-z" class="prv-input" value="0.95" step="0.01" min="0.5" max="1.5" oninput="prvCalc()">
+    </div>
+    <div>
+      <div class="prv-label"><span id="lbl-inlet-loss">Inlet Pipe Loss (Delta P, %)</span></div>
+      <input type="number" id="prv-inletloss" class="prv-input" value="1.8" step="0.1" min="0.0" max="10.0" oninput="prvCalc()">
+    </div>
+    <div>
+      <div class="prv-label"><span>Rupture Disk Installed</span></div>
+      <select id="prv-rd" class="prv-select" onchange="prvCalc()">
+        <option value="1.0" selected>No Rupture Disk (Kc = 1.00)</option>
+        <option value="0.9">Combination RD Upstream (Kc = 0.90)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="prv-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Selected API 526 Orifice</div>
+      <div class="prv-kpi-val" id="kpi-letter">Orifice "J"</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-letter-area">API Area: 1.287 in²</div>
+    </div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Calculated Required Area</div>
+      <div class="prv-kpi-val" id="kpi-req-area">0.984 in²</div>
+      <div style="font-size: 0.75rem;" id="kpi-margin-sub">Selected Area: +30.8% Excess</div>
+    </div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Rated Relieving Capacity</div>
+      <div class="prv-kpi-val" id="kpi-rated-cap">58,850 lb/hr</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-rated-unit">Required: 45,000 lb/hr</div>
+    </div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Inlet Loss & Stability</div>
+      <div class="prv-kpi-val" id="kpi-stability">PASS</div>
+      <div style="font-size: 0.75rem;" id="kpi-stab-sub"><span class="status-pill status-pass">1.8% &le; 3.0% Limit</span></div>
+    </div>
+  </div>
+
+  <!-- API DETAILS & DERATING TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">API 520 Sizing Factors & Flange Rating Recommendations</h4>
+    <div class="prv-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Relieving Pressure P1:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-p1">179.7 psia (165.0 psig)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-op-str">10% Overpressure Applied</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Backpressure Derating (Kb):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-kb">Kb = 0.985 (20.0% Backpress)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-bp-status">Balanced Bellows Recommended</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">API 526 Flange Sizes & Rating:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #3b82f6;" id="val-flange">2" 300# x 3" 150# RF</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-c-factor">Gas Expansion Factor C: 345.2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="prv-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Standard API 526 Orifice Selection Spectrum</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Letter Orifices D through T</span>
+      </div>
+      <canvas id="prv-area-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Backpressure Derating Factor (Kb) Curve</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Kb vs % Gauge Backpressure</span>
+      </div>
+      <canvas id="prv-kb-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="prv-btn" onclick="prvCopySummary()">
+      <span>📋 Copy API 526 Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Pressure Relief Valve Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Inlet Piping Pressure Drop Exceeding 3% Causing Rapid Destructive Chattering</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Installing a PRV on a long pipe neck or through high-loss block valves creates excessive frictional inlet pressure drop during relief. API 520 Part 2 Section 4 strictly limits inlet piping head loss to 3% of set pressure. If inlet loss reaches 4% to 6%, the pressure under the valve disc drops below the reseating threshold immediately after popping. The valve violently cycles open and shut (chattering) at 20 to 50 times per second. Chattering destroys the seating surfaces within seconds, snaps the valve spring, and generates intense fluid momentum shocks that shear the PRV nozzle off the vessel shell.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Superimposed Variable Backpressure Defeating Conventional Valves</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Specifying a cheaper conventional spring-loaded PRV in a closed flare header system subject to variable backpressure is a catastrophic error. In conventional PRVs, backpressure pushes downward on the back of the disc. If the flare header pressure rises from 5 psig to 35 psig during a major plant flaring event, a 150 psig valve will not open until vessel pressure reaches 180 psig (150 + 30). This 20% increase in opening pressure directly violates ASME Section VIII overpressure limits and can lead to vessel rupture. Closed flare systems with backpressure &gt; 10% strictly require balanced bellows or pilot-operated valves.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Sizing Fire Relief at 10% Overpressure Instead of 21% Causing Severe Over-Sizing</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      ASME Section VIII UG-125 allows 21% overpressure for fire contingencies, compared to 10% for non-fire process cases. Sizing a fire relief valve using 10% overpressure results in selecting an orifice area nearly 30% larger than required. In normal operating excursions or small upset releases, this oversized valve opens, rapidly evacuates vapor, drops vessel pressure below blowdown, and violently slams shut. Repeated short-cycling damages seats and causes continuous chronic fugitive emissions.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Disregarding Built-Up Backpressure Exceeding Discharge Flange ASME Ratings</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Standard API 526 flanged relief valves commonly feature 300# or 600# inlet flanges paired with 150# outlet flanges. At high relief rates, frictional drop in long discharge tailpipes creates extreme built-up backpressure. If built-up backpressure exceeds the pressure-temperature rating of the 150# class discharge flange (e.g. 230 psig at 100°F for carbon steel), the discharge flange can deform or blow out its gasket. Designers must calculate tailpipe hydraulics and upgrade to 300# outlet flanges if built-up pressure is high.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Neglecting Rupture Disk Combination Factor (Kc = 0.90)</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      When installing a rupture disk upstream of a PRV to isolate the valve seat from corrosive process chemicals, ASME Section VIII UG-127 and API 520 mandate applying a combination capacity derating factor Kc = 0.90 to the certified relief area unless the specific disk-valve combination has been flow-tested together. Failing to include this 10% capacity derating penalty results in undersized relief systems that fail code inspection audits.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive API 520 / API 526 Sizing Formulations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Pressure relief valve orifice sizing combines isentropic critical compressible flow dynamics with certified discharge coefficients:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Gas / Vapor Critical Flow Equation (API 520 Part 1)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Required Effective Area: A_req = W / [ C * K_d * P_1 * K_b * K_c ] * sqrt( (T * Z) / M ) [in²]<br>
+    where:<br>
+    - W = Required relieving mass flow rate [lb/hr]<br>
+    - P_1 = Relieving pressure = (P_set * (1 + overpressure)) + P_atm [psia]<br>
+    - K_d = Effective discharge coefficient = 0.975 for gas/vapor<br>
+    - K_c = Combination capacity factor (0.90 with rupture disk, 1.0 without)<br>
+    - C = Expansion factor = 520 * sqrt( k * (2 / (k + 1))^((k + 1) / (k - 1)) )
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. API 526 Standard Lettered Orifice Effective Areas</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    D: 0.110 in² &nbsp;|&nbsp; E: 0.196 in² &nbsp;|&nbsp; F: 0.307 in² &nbsp;|&nbsp; G: 0.503 in²<br>
+    H: 0.785 in² &nbsp;|&nbsp; J: 1.287 in² &nbsp;|&nbsp; K: 1.838 in² &nbsp;|&nbsp; L: 2.853 in²<br>
+    M: 3.600 in² &nbsp;|&nbsp; N: 4.340 in² &nbsp;|&nbsp; P: 6.380 in² &nbsp;|&nbsp; Q: 11.05 in²<br>
+    R: 16.00 in² &nbsp;|&nbsp; T: 26.00 in²
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Backpressure Derating Factor (Kb) for Balanced Bellows</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Percent Gauge Backpressure: %BP = (P_back / P_set) * 100<br>
+    For %BP &le; 30%: K_b = 1.00<br>
+    For 30% &lt; %BP &le; 50%: K_b = 1.00 - 0.0105 * (%BP - 30)^1.15
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Certified Relieving Capacity</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    W_rated = A_selected * [ C * K_d * P_1 * K_b * K_c ] / sqrt( (T * Z) / M ) [lb/hr]
+  </div>
+</div>
+
+<script>
+var prvLastCalc = null;
+
+var API_ORIFICES = [
+  { letter: 'D', areaIn2: 0.110, flange: '1" 150# x 2" 150#' },
+  { letter: 'E', areaIn2: 0.196, flange: '1" 300# x 2" 150#' },
+  { letter: 'F', areaIn2: 0.307, flange: '1.5" 300# x 2" 150#' },
+  { letter: 'G', areaIn2: 0.503, flange: '1.5" 300# x 2.5" 150#' },
+  { letter: 'H', areaIn2: 0.785, flange: '1.5" 300# x 3" 150#' },
+  { letter: 'J', areaIn2: 1.287, flange: '2" 300# x 3" 150#' },
+  { letter: 'K', areaIn2: 1.838, flange: '3" 300# x 4" 150#' },
+  { letter: 'L', areaIn2: 2.853, flange: '3" 300# x 4" 150#' },
+  { letter: 'M', areaIn2: 3.600, flange: '4" 300# x 6" 150#' },
+  { letter: 'N', areaIn2: 4.340, flange: '4" 300# x 6" 150#' },
+  { letter: 'P', areaIn2: 6.380, flange: '4" 300# x 6" 150#' },
+  { letter: 'Q', areaIn2: 11.050, flange: '6" 300# x 8" 150#' },
+  { letter: 'R', areaIn2: 16.000, flange: '6" 300# x 8" 150#' },
+  { letter: 'T', areaIn2: 26.000, flange: '8" 300# x 10" 150#' }
+];
+
+function prvSetFluid() {
+  var fl = document.getElementById('prv-fluid').value;
+  var mwInput = document.getElementById('prv-mw');
+  var kInput = document.getElementById('prv-k');
+  if (fl === 'steam') { mwInput.value = '18.02'; kInput.value = '1.31'; }
+  else if (fl === 'gas') { mwInput.value = '44.0'; kInput.value = '1.28'; }
+  prvCalc();
+}
+
+function prvCalc() {
+  var units = document.getElementById('prv-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-flow').innerText = isMetric ? 'Required Capacity (kg/h)' : 'Required Capacity (lb/hr)';
+  document.getElementById('lbl-pset').innerText = isMetric ? 'Set Pressure (Pset, bar g)' : 'Set Pressure (Pset, psig)';
+  document.getElementById('lbl-pback').innerText = isMetric ? 'Total Backpressure (Pb, bar g)' : 'Total Backpressure (Pb, psig)';
+  document.getElementById('lbl-temp').innerText = isMetric ? 'Relieving Temp (T, °C)' : 'Relieving Temp (T, °F)';
+
+  var vType = document.getElementById('prv-type').value;
+  var opPct = parseFloat(document.getElementById('prv-op').value) || 10.0;
+  var flowRaw = parseFloat(document.getElementById('prv-flow').value) || 45000;
+  var pSetRaw = parseFloat(document.getElementById('prv-pset').value) || 150;
+  var pBackRaw = parseFloat(document.getElementById('prv-pback').value) || 30;
+  var tempRaw = parseFloat(document.getElementById('prv-temp').value) || 180;
+  var mw = parseFloat(document.getElementById('prv-mw').value) || 44.0;
+  var k = parseFloat(document.getElementById('prv-k').value) || 1.28;
+  var z = parseFloat(document.getElementById('prv-z').value) || 0.95;
+  var inletLossPct = parseFloat(document.getElementById('prv-inletloss').value) || 1.8;
+  var kc = parseFloat(document.getElementById('prv-rd').value) || 1.0;
+
+  // Convert to US Customary internal units (lb/hr, psig, psia, deg R)
+  var flowLbHr, pSetPsig, pBackPsig, tempR;
+  if (isMetric) {
+    flowLbHr = flowRaw * 2.20462;
+    pSetPsig = pSetRaw * 14.5038;
+    pBackPsig = pBackRaw * 14.5038;
+    tempR = (tempRaw + 273.15) * 1.8;
+  } else {
+    flowLbHr = flowRaw;
+    pSetPsig = pSetRaw;
+    pBackPsig = pBackRaw;
+    tempR = tempRaw + 459.67;
+  }
+
+  // Relieving Pressure P1 (psia)
+  var pRelievingPsig = pSetPsig * (1.0 + opPct / 100.0);
+  var p1Psia = pRelievingPsig + 14.696;
+
+  // Backpressure percentage (% of set pressure)
+  var bpPct = (pBackPsig / Math.max(1.0, pSetPsig)) * 100.0;
+
+  // Backpressure correction factor Kb
+  var kb = 1.0;
+  if (vType === 'balanced') {
+    if (bpPct > 30.0) {
+      kb = Math.max(0.65, 1.0 - 0.0105 * Math.pow(bpPct - 30.0, 1.15));
+    }
+  } else if (vType === 'conv') {
+    if (bpPct > 10.0) {
+      kb = Math.max(0.40, 1.0 - 0.03 * (bpPct - 10.0));
+    }
+  }
+
+  // Gas Expansion Factor C
+  // C = 520 * sqrt(k * (2 / (k + 1))^((k + 1) / (k - 1)))
+  var expFactor = (k + 1.0) / (k - 1.0);
+  var termK = Math.pow(2.0 / (k + 1.0), expFactor);
+  var cFactor = 520.0 * Math.sqrt(k * termK);
+
+  var kd = 0.975; // API effective discharge coefficient for vapor
+
+  // Required Orifice Area (in²)
+  // A_req = W / [ C * Kd * P1 * Kb * Kc ] * sqrt( (T * Z) / M )
+  var denom = cFactor * kd * p1Psia * kb * kc;
+  var aReqIn2 = (flowLbHr / denom) * Math.sqrt((tempR * z) / mw);
+
+  // Select standard API letter orifice
+  var selectedOrifice = null;
+  for (var i = 0; i < API_ORIFICES.length; i++) {
+    if (API_ORIFICES[i].areaIn2 >= aReqIn2) {
+      selectedOrifice = API_ORIFICES[i];
+      break;
+    }
+  }
+  if (!selectedOrifice) {
+    selectedOrifice = API_ORIFICES[API_ORIFICES.length - 1]; // Max T orifice
+  }
+
+  // Rated Relieving Capacity with selected orifice
+  var ratedCapLbHr = (selectedOrifice.areaIn2 * denom) / Math.sqrt((tempR * z) / mw);
+  var excessPct = ((selectedOrifice.areaIn2 - aReqIn2) / aReqIn2) * 100.0;
+
+  prvLastCalc = {
+    isMetric: isMetric,
+    aReqIn2: aReqIn2,
+    selectedOrifice: selectedOrifice,
+    ratedCapLbHr: ratedCapLbHr,
+    excessPct: excessPct,
+    pSetPsig: pSetPsig,
+    pRelievingPsig: pRelievingPsig,
+    p1Psia: p1Psia,
+    bpPct: bpPct,
+    kb: kb,
+    cFactor: cFactor,
+    inletLossPct: inletLossPct,
+    vType: vType
+  };
+
+  // Update DOM Display
+  document.getElementById('kpi-letter').innerText = 'Orifice "' + selectedOrifice.letter + '"';
+  var areaDisp = isMetric ? (selectedOrifice.areaIn2 * 6.4516).toFixed(2) + ' cm²' : selectedOrifice.areaIn2.toFixed(3) + ' in²';
+  document.getElementById('kpi-letter-area').innerText = 'API Standard Area: ' + areaDisp;
+
+  if (isMetric) {
+    document.getElementById('kpi-req-area').innerText = (aReqIn2 * 6.4516).toFixed(2) + ' cm²';
+    document.getElementById('kpi-rated-cap').innerText = Math.round(ratedCapLbHr * 0.453592).toLocaleString() + ' kg/h';
+    document.getElementById('kpi-rated-unit').innerText = 'Required: ' + Math.round(flowRaw).toLocaleString() + ' kg/h';
+    document.getElementById('val-p1').innerText = (p1Psia / 14.5038).toFixed(2) + ' bar a (' + (pRelievingPsig / 14.5038).toFixed(2) + ' bar g)';
+  } else {
+    document.getElementById('kpi-req-area').innerText = aReqIn2.toFixed(3) + ' in²';
+    document.getElementById('kpi-rated-cap').innerText = Math.round(ratedCapLbHr).toLocaleString() + ' lb/hr';
+    document.getElementById('kpi-rated-unit').innerText = 'Required: ' + Math.round(flowLbHr).toLocaleString() + ' lb/hr';
+    document.getElementById('val-p1').innerText = p1Psia.toFixed(1) + ' psia (' + pRelievingPsig.toFixed(1) + ' psig)';
+  }
+
+  document.getElementById('kpi-margin-sub').innerText = 'Selected Area: +' + excessPct.toFixed(1) + '% Excess';
+
+  // Stability & Inlet Loss Check
+  if (inletLossPct <= 3.0) {
+    document.getElementById('kpi-stability').innerText = 'PASS';
+    document.getElementById('kpi-stability').style.color = '#10b981';
+    document.getElementById('kpi-stab-sub').innerHTML = '<span class="status-pill status-pass">' + inletLossPct.toFixed(1) + '% &le; 3.0% Limit</span>';
+  } else {
+    document.getElementById('kpi-stability').innerText = 'CHATTER';
+    document.getElementById('kpi-stability').style.color = '#ef4444';
+    document.getElementById('kpi-stab-sub').innerHTML = '<span class="status-pill status-fail">' + inletLossPct.toFixed(1) + '% &gt; 3.0% Chatter Risk!</span>';
+  }
+
+  document.getElementById('val-op-str').innerText = opPct.toFixed(0) + '% Overpressure Applied';
+  document.getElementById('val-kb').innerText = 'Kb = ' + kb.toFixed(3) + ' (' + bpPct.toFixed(1) + '% Backpress)';
+  document.getElementById('val-bp-status').innerText = (bpPct > 10 && vType === 'conv') ? 'WARNING: Exceeds Conv 10% Limit!' : 'Backpressure Within Limit';
+  document.getElementById('val-bp-status').style.color = (bpPct > 10 && vType === 'conv') ? '#ef4444' : 'var(--text-muted)';
+  document.getElementById('val-flange').innerText = selectedOrifice.flange;
+  document.getElementById('val-c-factor').innerText = 'Gas Expansion Factor C: ' + cFactor.toFixed(1);
+
+  prvDrawSpectrum();
+  prvDrawKb();
+}
+
+function prvDrawSpectrum() {
+  var canvas = document.getElementById('prv-area-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 30, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!prvLastCalc) return;
+  var d = prvLastCalc;
+  var numO = API_ORIFICES.length;
+  var barW = (plotW / numO) - 4;
+
+  var maxArea = API_ORIFICES[numO - 1].areaIn2;
+  // Use log scale for vertical height
+  function toY(a) {
+    var frac = Math.log10(a / 0.08) / Math.log10(30.0 / 0.08);
+    return padT + plotH - frac * plotH;
+  }
+
+  // Draw orifice bars
+  for (var i = 0; i < numO; i++) {
+    var item = API_ORIFICES[i];
+    var bx = padL + i * (barW + 4);
+    var by = toY(item.areaIn2);
+    var bh = padT + plotH - by;
+
+    var isSelected = (item.letter === d.selectedOrifice.letter);
+    ctx.fillStyle = isSelected ? '#38bdf8' : (item.areaIn2 >= d.aReqIn2 ? '#1e293b' : '#334155');
+    ctx.fillRect(bx, by, barW, bh);
+
+    if (isSelected) {
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, barW, bh);
+    }
+
+    ctx.fillStyle = isSelected ? '#38bdf8' : '#94a3b8';
+    ctx.font = isSelected ? 'bold 11px Inter, sans-serif' : '9px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(item.letter, bx + barW / 2, h - 12);
+  }
+
+  // Draw required area horizontal line
+  var yReq = toY(d.aReqIn2);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, yReq);
+  ctx.lineTo(padL + plotW, yReq);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = '#ef4444';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Required A_req = ' + d.aReqIn2.toFixed(3) + ' in²', padL + plotW, yReq - 6);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Selected: Orifice "' + d.selectedOrifice.letter + '" (' + d.selectedOrifice.areaIn2.toFixed(3) + ' in²)', padL + 10, padT + 12);
+}
+
+function prvDrawKb() {
+  var canvas = document.getElementById('prv-kb-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 45, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!prvLastCalc) return;
+  var d = prvLastCalc;
+
+  var maxBp = 60.0;
+  function toX(bp) {
+    return padL + (bp / maxBp) * plotW;
+  }
+  function toY(kbVal) {
+    return padT + plotH - ((kbVal - 0.5) / 0.55) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Balanced bellows curve (green)
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  var pts = 60;
+  for (var i = 0; i <= pts; i++) {
+    var bp = (i / pts) * maxBp;
+    var kbCurve = 1.0;
+    if (bp > 30.0) {
+      kbCurve = Math.max(0.65, 1.0 - 0.0105 * Math.pow(bp - 30.0, 1.15));
+    }
+    var px = toX(bp);
+    var py = toY(kbCurve);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Conventional PRV curve (red dashed)
+  ctx.beginPath();
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  for (var j = 0; j <= pts; j++) {
+    var bpConv = (j / pts) * maxBp;
+    var kbConv = 1.0;
+    if (bpConv > 10.0) {
+      kbConv = Math.max(0.40, 1.0 - 0.03 * (bpConv - 10.0));
+    }
+    var jx = toX(bpConv);
+    var jy = toY(kbConv);
+    if (j === 0) ctx.moveTo(jx, jy);
+    else ctx.lineTo(jx, jy);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Current operating point
+  var curX = toX(Math.min(maxBp, d.bpPct));
+  var curY = toY(d.kb);
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('1.00', padL - 6, toY(1.0) + 3);
+  ctx.fillText('0.75', padL - 6, toY(0.75) + 3);
+  ctx.fillText('0.50', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Percent Gauge Backpressure (% of Pset)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Balanced Bellows Kb', padL + 10, padT + 12);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillText('-- Conventional (&le; 10%)', padL + 160, padT + 12);
+}
+
+function prvCopySummary() {
+  if (!prvLastCalc) return;
+  var d = prvLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var aUnit = d.isMetric ? 'cm²' : 'in²';
+  var pUnit = d.isMetric ? 'bar g' : 'psig';
+  var flowUnit = d.isMetric ? 'kg/h' : 'lb/hr';
+
+  var text = '=== API 526 PRESSURE RELIEF VALVE DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: API 526 7th Ed / API 520 Part 1 / ASME Section VIII Div 1\n' +
+    'Units System: ' + u + '\n' +
+    'Selected API Orifice: Orifice "' + d.selectedOrifice.letter + '" (' + (d.isMetric ? (d.selectedOrifice.areaIn2 * 6.4516).toFixed(2) : d.selectedOrifice.areaIn2.toFixed(3)) + ' ' + aUnit + ')\n' +
+    'Required Calculated Area: ' + (d.isMetric ? (d.aReqIn2 * 6.4516).toFixed(2) : d.aReqIn2.toFixed(3)) + ' ' + aUnit + ' (+' + d.excessPct.toFixed(1) + '% margin)\n' +
+    'Recommended Flange Sizes: ' + d.selectedOrifice.flange + '\n' +
+    'Set Pressure (Pset): ' + (d.isMetric ? (d.pSetPsig / 14.5038).toFixed(1) : d.pSetPsig.toFixed(1)) + ' ' + pUnit + '\n' +
+    'Relieving Pressure (P1): ' + (d.isMetric ? (d.p1Psia / 14.5038).toFixed(2) : d.p1Psia.toFixed(1)) + ' ' + (d.isMetric ? 'bar a' : 'psia') + '\n' +
+    'Backpressure: ' + d.bpPct.toFixed(1) + '% of Pset (Kb = ' + d.kb.toFixed(3) + ')\n' +
+    'Rated Certified Capacity: ' + (d.isMetric ? Math.round(d.ratedCapLbHr * 0.453592).toLocaleString() : Math.round(d.ratedCapLbHr).toLocaleString()) + ' ' + flowUnit + '\n' +
+    'Inlet Piping Loss: ' + d.inletLossPct.toFixed(1) + '% of Pset [' + (d.inletLossPct <= 3.0 ? 'PASS ≤ 3.0%' : 'FAIL - CHATTER RISK') + ']\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.prv-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  prvCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BN4: Industrial Gas Flare Stack Radiation Exclusion Zone & Flame Length Calculator (API 521 / Brzustowski Method)
+  // ==========================================
+  (() => {
+    const slug = 'api-521-flare-radiation-exclusion-zone-calculator';
+    const title = 'API 521 Industrial Flare Thermal Radiation & Flame Sizing Calculator';
+    const metaDescription = 'Calculate industrial flare stack flame length, wind deflection trajectory, radiation center coordinates, and ground-level radiant heat flux isopleths per API 521 6th/7th Edition and Brzustowski-Sommer.';
+
+    const faq = [
+      {
+        q: 'What are the API 521 allowable thermal radiation limits for personnel and equipment?',
+        a: 'API Standard 521 Table 12 establishes four primary thermal radiation design limits at ground level: 1) 1.58 kW/m² (500 Btu/hr·ft²): Maximum allowable continuous exposure limit for personnel without protective clothing (governs control rooms, plant boundary fences, and unrestricted work areas); 2) 4.73 kW/m² (1,500 Btu/hr·ft²): Permissible for personnel in standard fire-retardant work clothing with slow escape actions required within 2 to 3 minutes; 3) 6.31 kW/m² (2,000 Btu/hr·ft²): Emergency escape only (maximum exposure duration 30 seconds before severe blistering occurs); 4) 9.46 kW/m² (3,000 Btu/hr·ft²): Maximum threshold for uninsulated process equipment and storage tanks (higher radiation requires active deluge spray systems or refractory shielding).'
+      },
+      {
+        q: 'How does crosswind tilt the flare flame and shift the radiation center toward ground level?',
+        a: 'In calm wind conditions, the flare flame rises vertically above the stack tip, maximizing the straight-line radial distance to ground-level personnel. However, prevailing crosswinds exert aerodynamic drag on the rising flame plume, deflecting the flame downwind at an angle theta_tilt. Per the Brzustowski & Sommer method, the effective thermal radiation center is assumed to be located midway along the curved flame axis (xc = 0.5 * L * sin(theta_tilt), yc = 0.5 * L * cos(theta_tilt)). Crosswinds both bend the flame lower toward grade and push it closer horizontally to downwind plant boundaries, dramatically increasing ground radiant heat flux by 200% to 400% compared to zero-wind models.'
+      },
+      {
+        q: 'Why must solar radiation be added to flare radiant heat flux in API 521 assessments?',
+        a: 'API 521 Section 5.7.2 mandates that ambient solar radiation (typically 0.79 to 1.05 kW/m² / 250 to 330 Btu/hr·ft² on a bright summer day) must be added to the calculated flare flame thermal radiation: K_total = K_flare + K_solar. Because a human body absorbs radiant energy from both the sun and the flare flame simultaneously, neglecting solar radiation underestimates total thermal load by 30% to 50%, exposing plant operators to dangerous skin blistering and heat stroke during daytime emergency flaring events.'
+      },
+      {
+        q: 'How does the radiative fraction (F-factor) vary with gas composition and smokeless assist?',
+        a: 'The fraction of total combustion heat release radiated as thermal energy (the F-factor) depends on flame soot content and gas molecular structure. Clean-burning methane (natural gas) has a low emissivity (F = 0.15 to 0.18). Heavy hydrocarbons like propane, butane, and aromatics produce dense incandescent carbon soot particles that radiate intensely, raising the F-factor to 0.25 to 0.35. High-pressure smokeless steam or air injection aggressively shears and premixes the gas with air, eliminating soot formation and lowering the F-factor back down toward 0.18 to 0.22.'
+      },
+      {
+        q: 'What is the "flaming rain" phenomenon and how does an API 521 knockout drum prevent it?',
+        a: 'If two-phase wet hydrocarbon gas or liquid carryover enters the flare stack without proper separation, liquid droplets exceeding 300 to 600 microns cannot burn completely before being ejected from the flare tip. High-velocity burning liquid droplets shower downward onto the surrounding grade and equipment—a lethal hazard known as "flaming rain." API 521 requires a dedicated flare knockout drum (KOD) sized using the Souder-Brown liquid droplet settling velocity equation to separate all liquid droplets larger than 300 to 600 microns prior to entering the flare stack.'
+      }
+    ];
+
+    const content = `
+<style>
+.fl-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.fl-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.fl-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.fl-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .fl-grid-2, .fl-grid-3, .fl-grid-4 { grid-template-columns: 1fr; }
+}
+.fl-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.fl-input, .fl-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.fl-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.fl-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.fl-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.fl-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.fl-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="fl-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">API 521 Flare Thermal Radiation Analysis</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Flame Length, Wind Deflection & Radiation Exclusion Zone Isopleths</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="fl-units" class="fl-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="flCalc()">
+        <option value="us" selected>US Customary (lb/hr, ft, Btu/hr·ft², mph)</option>
+        <option value="si">Metric / SI (kg/h, m, kW/m², km/h)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fl-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="fl-label"><span id="lbl-flow">Flaring Mass Rate (W)</span></div>
+      <input type="number" id="fl-flow" class="fl-input" value="150000" step="10000" min="1000" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span id="lbl-lhv">Lower Heating Value (LHV)</span></div>
+      <input type="number" id="fl-lhv" class="fl-input" value="20500" step="500" min="5000" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span>Gas Molecular Weight (MW)</span></div>
+      <input type="number" id="fl-mw" class="fl-input" value="28.0" step="1.0" min="2.0" max="100.0" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span>Radiation Fraction (F)</span></div>
+      <input type="number" id="fl-f" class="fl-input" value="0.22" step="0.01" min="0.10" max="0.45" oninput="flCalc()">
+    </div>
+  </div>
+
+  <div class="fl-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="fl-label"><span id="lbl-hstack">Stack Height (H_stack)</span></div>
+      <input type="number" id="fl-hstack" class="fl-input" value="150.0" step="10.0" min="30.0" max="500.0" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span id="lbl-wind">Crosswind Speed (V_wind)</span></div>
+      <input type="number" id="fl-wind" class="fl-input" value="20.0" step="2.0" min="0.0" max="60.0" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span id="lbl-tipd">Flare Tip Diameter (d_tip)</span></div>
+      <input type="number" id="fl-tipd" class="fl-input" value="24.0" step="2.0" min="6.0" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span>Solar Radiation Add-On</span></div>
+      <select id="fl-solar" class="fl-select" onchange="flCalc()">
+        <option value="yes" selected>Include Solar (API 521: 1.0 kW/m² / 317 Btu)</option>
+        <option value="no">Exclude Solar (Night Flaring Only)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fl-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="fl-label"><span>Target Personnel Limit</span></div>
+      <select id="fl-target" class="fl-select" onchange="flCalc()">
+        <option value="500" selected>Continuous Personnel (500 Btu / 1.58 kW/m²)</option>
+        <option value="1500">Maintenance Area (1500 Btu / 4.73 kW/m²)</option>
+        <option value="3000">Equipment Limit (3000 Btu / 9.46 kW/m²)</option>
+      </select>
+    </div>
+    <div>
+      <div class="fl-label"><span id="lbl-dist-check">Evaluation Distance (X)</span></div>
+      <input type="number" id="fl-distcheck" class="fl-input" value="300.0" step="25.0" min="10.0" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span>Relative Humidity (%)</span></div>
+      <input type="number" id="fl-rh" class="fl-input" value="60.0" step="5.0" min="10.0" max="100.0" oninput="flCalc()">
+    </div>
+    <div>
+      <div class="fl-label"><span>Smokeless Assist Type</span></div>
+      <select id="fl-assist" class="fl-select" onchange="flCalc()">
+        <option value="steam" selected>High-Pressure Steam Assisted</option>
+        <option value="air">Forced Air Blower Assisted</option>
+        <option value="unassisted">Unassisted Pipe Flare</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="fl-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="fl-kpi">
+      <div class="fl-kpi-lbl">Flame Length (L)</div>
+      <div class="fl-kpi-val" id="kpi-flamelen">164.8 ft</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-tilt">Tilt: 48.5° from Vertical</div>
+    </div>
+    <div class="fl-kpi">
+      <div class="fl-kpi-lbl">Total Heat Release (Q)</div>
+      <div class="fl-kpi-val" id="kpi-heat">901.5 MW</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-heat-us">3,075 MMBtu/hr</div>
+    </div>
+    <div class="fl-kpi">
+      <div class="fl-kpi-lbl">Radiation at Eval Distance</div>
+      <div class="fl-kpi-val" id="kpi-rad-val">468 Btu/hr·ft²</div>
+      <div style="font-size: 0.75rem;" id="kpi-rad-status"><span class="status-pill status-pass">Pass (&lt; 500 Limit)</span></div>
+    </div>
+    <div class="fl-kpi">
+      <div class="fl-kpi-lbl">Continuous Exclusion Radius</div>
+      <div class="fl-kpi-val" id="kpi-excl-radius">286 ft</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-excl-m">87.2 m (500 Btu/hr·ft² Zone)</div>
+    </div>
+  </div>
+
+  <!-- RADIATION ZONES TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">API 521 Ground Radiation Zones & Flame Coordinates</h4>
+    <div class="fl-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Flame Radiation Center (xc, yc):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-center">xc: 61.7 ft | yc: 54.6 ft</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-eff-height">Effective Height: 204.6 ft above grade</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Atmospheric Transmissivity (&tau;):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-tau">&tau; = 0.835 (60% RH)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-tip-mach">Tip Mach Number: 0.38 Mach</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Downwind Danger Thresholds:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #f59e0b;" id="val-zones">1500 Btu: 184 ft | 3000 Btu: 118 ft</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-solar-str">Solar Included (+317 Btu/hr·ft²)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="fl-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Flame Trajectory & Wind Tilt Vector</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Stack Height & Flame Center</span>
+      </div>
+      <canvas id="fl-flame-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Ground-Level Thermal Radiation vs Distance</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">API 521 Exclusion Zones</span>
+      </div>
+      <canvas id="fl-isopleth-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="fl-btn" onclick="flCopySummary()">
+      <span>📋 Copy API 521 Flare Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Flare System Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Ignoring Crosswind Flame Tilt Driving Radiation Exclusion Zones Downwind</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Designing flare stack height assuming zero wind is an extreme safety violation. A 20 to 30 mph crosswind bends the flame over by 45° to 65°, shifting the radiation center hundreds of feet downwind and dozens of feet lower toward the ground. Under a 30 mph crosswind, ground radiation at a downwind control room or battery limit fence can surge from a safe 300 Btu/hr·ft² up to 1,600+ Btu/hr·ft², forcing emergency evacuation. All API 521 flare radiation dispersion studies must evaluate 20 mph and 35 mph wind scenarios to determine the true governing exclusion perimeter.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Omitting Solar Radiation Add-On Resulting in Plant Boundary Violations</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      API 521 Section 5.7.2 explicitly requires adding ambient solar radiation (317 Btu/hr·ft² / 1.0 kW/m² in sunny climates) to the calculated flare radiation. Sizing a stack so that flare radiation alone equals 500 Btu/hr·ft² means that during a summer afternoon relief, personnel at the fence line absorb 500 + 317 = 817 Btu/hr·ft² (a 63% exceedance). This violates OSHA heat safety standards and causes rapid skin erythema.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Underestimating Radiative Fraction (F) on Heavy Molecular Weight Hydrocarbons</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Assuming a generic low radiation fraction (F = 0.15) for rich associated gas, butane, or aromatics is dangerous. As molecular weight rises, incomplete combustion creates dense soot aggregates that act as blackbody incandescent emitters, driving F up to 0.28 to 0.35. Underestimating F by 50% directly halves the predicted radiation distance, resulting in a flare stack that is 40 to 60 feet too short.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Sonic Flare Tip Choking Generating Deafening Ground-Level Noise (&gt; 115 dBA)</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      At emergency relief rates, flare tip exit velocities often reach sonic velocity (Mach 0.8 to 1.0). Turbulent jet mixing at Mach 1 generates deafening low-frequency combustion acoustic power. At grade level within the 500 Btu exclusion radius, noise levels can exceed 115 to 125 dBA, rupturing eardrums and preventing audible communication during emergency plant shutdowns. High-velocity tips require acoustic baffles or steam attenuation rings.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Liquid Droplet Carryover Producing Deadly "Flaming Rain"</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      If the upstream flare knockout drum (KOD) is undersized or flooded by slug flow, liquid hydrocarbon droplets carry over into the vertical flare riser. Droplets larger than 300 microns cannot burn completely within the flame envelope. Instead, they are ejected out of the tip as flaming liquid projectiles ("flaming rain") that shower over process units, cable trays, and storage tanks below, igniting secondary plant fires. KOD sizing must strictly follow API 521 vertical/horizontal settling criteria.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive API 521 & Brzustowski Mathematical Formulations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Flare stack thermal radiation modeling evaluates combustion thermochemistry, momentum jet trajectories, and atmospheric radiant transmission:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Total Heat Release & Flame Length (API 521 Equation)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Total Heat Release: Q = W * LHV [Btu/hr or kW]<br>
+    Flame Length (API 521 Empirical Curve):<br>
+    &nbsp;&nbsp;L = 0.00607 * Q^0.478 [ft]<br>
+    Metric Flame Length: L = 0.0452 * Q_kW^0.478 [m]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Brzustowski & Sommer Flame Tilt Coordinates</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Velocity Ratio: U_ratio = V_wind / u_j<br>
+    Flame Tilt Angle: sin(theta_tilt) = (U_ratio) / sqrt(1 + U_ratio^2)<br>
+    Radiation Center Coordinates (relative to flare tip):<br>
+    &nbsp;&nbsp;x_c = 0.5 * L * sin(theta_tilt) [downwind displacement]<br>
+    &nbsp;&nbsp;y_c = 0.5 * L * cos(theta_tilt) [vertical rise above tip]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Atmospheric Transmissivity (&tau;) & Ground Heat Flux</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Distance to Radiation Center: D_rad = sqrt( (X - x_c)^2 + (H_stack + y_c)^2 )<br>
+    Atmospheric Transmissivity: tau = 0.79 * (100 / RH)^(1/16) * (100 / D_rad)^(1/16)<br>
+    Ground Radiant Heat Flux:<br>
+    &nbsp;&nbsp;K = tau * [ (F * Q) / (4 * pi * D_rad^2) ] + S_solar<br>
+    where S_solar = 317 Btu/hr·ft² (1.0 kW/m²) per API 521.
+  </div>
+</div>
+
+<script>
+var flLastCalc = null;
+
+function flCalc() {
+  var units = document.getElementById('fl-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-flow').innerText = isMetric ? 'Flaring Mass Rate (kg/h)' : 'Flaring Mass Rate (lb/hr)';
+  document.getElementById('lbl-lhv').innerText = isMetric ? 'Lower Heating Value (kJ/kg)' : 'Lower Heating Value (LHV, Btu/lb)';
+  document.getElementById('lbl-hstack').innerText = isMetric ? 'Stack Height (H_stack, m)' : 'Stack Height (H_stack, ft)';
+  document.getElementById('lbl-wind').innerText = isMetric ? 'Crosswind Speed (km/h)' : 'Crosswind Speed (mph)';
+  document.getElementById('lbl-tipd').innerText = isMetric ? 'Flare Tip Diam (mm)' : 'Flare Tip Diam (in)';
+  document.getElementById('lbl-dist-check').innerText = isMetric ? 'Evaluation Distance (X, m)' : 'Evaluation Distance (X, ft)';
+
+  var flowRaw = parseFloat(document.getElementById('fl-flow').value) || 150000;
+  var lhvRaw = parseFloat(document.getElementById('fl-lhv').value) || 20500;
+  var mw = parseFloat(document.getElementById('fl-mw').value) || 28.0;
+  var fRad = parseFloat(document.getElementById('fl-f').value) || 0.22;
+  var hStackRaw = parseFloat(document.getElementById('fl-hstack').value) || 150;
+  var windRaw = parseFloat(document.getElementById('fl-wind').value) || 20;
+  var tipdRaw = parseFloat(document.getElementById('fl-tipd').value) || 24;
+  var solarOpt = document.getElementById('fl-solar').value;
+  var targetLimit = parseFloat(document.getElementById('fl-target').value) || 500;
+  var distCheckRaw = parseFloat(document.getElementById('fl-distcheck').value) || 300;
+  var rh = parseFloat(document.getElementById('fl-rh').value) || 60;
+
+  // Convert to US Customary internal units (lb/hr, Btu/lb, ft, mph, in)
+  var flowLbHr, lhvBtu, hStackFt, windMph, tipdIn, distCheckFt;
+  if (isMetric) {
+    flowLbHr = flowRaw * 2.20462;
+    lhvBtu = lhvRaw * 0.429923;
+    hStackFt = hStackRaw * 3.28084;
+    windMph = windRaw * 0.621371;
+    tipdIn = tipdRaw / 25.4;
+    distCheckFt = distCheckRaw * 3.28084;
+  } else {
+    flowLbHr = flowRaw;
+    lhvBtu = lhvRaw;
+    hStackFt = hStackRaw;
+    windMph = windRaw;
+    tipdIn = tipdRaw;
+    distCheckFt = distCheckRaw;
+  }
+
+  // Total Heat Release Q in Btu/hr
+  var qBtuHr = flowLbHr * lhvBtu;
+  var qKw = qBtuHr * 0.000293071;
+  var qMw = qKw / 1000.0;
+
+  // Flame Length L (ft) per API 521
+  var flameLenFt = 0.00607 * Math.pow(qBtuHr, 0.478);
+  var flameLenM = flameLenFt * 0.3048;
+
+  // Tip Exit Velocity u_j
+  // Gas density at tip (assume ~ 300 F / 760 R, 14.7 psia)
+  var rhoTip = (14.7 * mw) / (10.73 * 760.0);
+  var tipAreaFt2 = (Math.PI / 4.0) * Math.pow(tipdIn / 12.0, 2);
+  var cfsActual = (flowLbHr / 3600.0) / Math.max(0.01, rhoTip);
+  var ujFtS = cfsActual / Math.max(0.1, tipAreaFt2);
+
+  // Speed of sound in gas ~ 1,300 ft/s
+  var sonicSpeed = 1300.0;
+  var tipMach = ujFtS / sonicSpeed;
+
+  // Wind speed in ft/s
+  var windFtS = windMph * 1.46667;
+
+  // Brzustowski Tilt Angle
+  var uRatio = windFtS / Math.max(10.0, ujFtS);
+  var sinTilt = uRatio / Math.sqrt(1.0 + Math.pow(uRatio, 2));
+  var cosTilt = 1.0 / Math.sqrt(1.0 + Math.pow(uRatio, 2));
+  var tiltDeg = Math.asin(sinTilt) * (180.0 / Math.PI);
+
+  // Flame Radiation Center Coordinates (xc, yc) relative to stack tip
+  var xcFt = 0.5 * flameLenFt * sinTilt;
+  var ycFt = 0.5 * flameLenFt * cosTilt;
+  var effHeightFt = hStackFt + ycFt;
+
+  // Solar Radiation add-on
+  var sSolarBtu = (solarOpt === 'yes') ? 317.0 : 0.0; // Btu/hr·ft²
+  var sSolarKw = (solarOpt === 'yes') ? 1.0 : 0.0;
+
+  // Radiation at evaluation distance X
+  function calcRadAt(distX) {
+    var dRad = Math.sqrt(Math.pow(distX - xcFt, 2) + Math.pow(effHeightFt, 2));
+    var tau = 0.79 * Math.pow(100.0 / rh, 1.0 / 16.0) * Math.pow(100.0 / Math.max(10.0, dRad), 1.0 / 16.0);
+    tau = Math.min(1.0, Math.max(0.5, tau));
+    var radFlameBtu = tau * ((fRad * qBtuHr) / (4.0 * Math.PI * Math.pow(dRad, 2)));
+    return { kTotalBtu: radFlameBtu + sSolarBtu, dRad: dRad, tau: tau };
+  }
+
+  var resEval = calcRadAt(distCheckFt);
+  var kEvalBtu = resEval.kTotalBtu;
+  var kEvalKw = kEvalBtu * 0.00315459;
+
+  // Solve for Exclusion Radius for target limit (500, 1500, 3000 Btu/hr·ft²)
+  function findRadiusForLimit(limitBtu) {
+    for (var x = 10; x <= 2500; x += 5) {
+      var r = calcRadAt(x);
+      if (r.kTotalBtu <= limitBtu) return x;
+    }
+    return 2500;
+  }
+
+  var r500Ft = findRadiusForLimit(500);
+  var r1500Ft = findRadiusForLimit(1500);
+  var r3000Ft = findRadiusForLimit(3000);
+
+  var rTargetFt = findRadiusForLimit(targetLimit);
+  var rTargetM = rTargetFt * 0.3048;
+
+  flLastCalc = {
+    isMetric: isMetric,
+    flameLenFt: flameLenFt,
+    flameLenM: flameLenM,
+    tiltDeg: tiltDeg,
+    xcFt: xcFt,
+    ycFt: ycFt,
+    effHeightFt: effHeightFt,
+    qMw: qMw,
+    qBtuHr: qBtuHr,
+    tipMach: tipMach,
+    tau: resEval.tau,
+    kEvalBtu: kEvalBtu,
+    kEvalKw: kEvalKw,
+    targetLimit: targetLimit,
+    distCheckFt: distCheckFt,
+    rTargetFt: rTargetFt,
+    rTargetM: rTargetM,
+    r500Ft: r500Ft,
+    r1500Ft: r1500Ft,
+    r3000Ft: r3000Ft,
+    hStackFt: hStackFt,
+    sSolarBtu: sSolarBtu
+  };
+
+  // Update DOM Display
+  if (isMetric) {
+    document.getElementById('kpi-flamelen').innerText = flameLenM.toFixed(1) + ' m';
+    document.getElementById('kpi-rad-val').innerText = kEvalKw.toFixed(2) + ' kW/m²';
+    document.getElementById('kpi-excl-radius').innerText = rTargetM.toFixed(1) + ' m';
+    document.getElementById('kpi-excl-m').innerText = Math.round(rTargetFt) + ' ft (' + (targetLimit * 0.00315459).toFixed(2) + ' kW/m² Zone)';
+    document.getElementById('val-center').innerText = 'xc: ' + (xcFt * 0.3048).toFixed(1) + ' m | yc: ' + (ycFt * 0.3048).toFixed(1) + ' m';
+    document.getElementById('val-eff-height').innerText = 'Effective Height: ' + (effHeightFt * 0.3048).toFixed(1) + ' m above grade';
+    document.getElementById('val-zones').innerText = '4.7 kW: ' + Math.round(r1500Ft * 0.3048) + ' m | 9.5 kW: ' + Math.round(r3000Ft * 0.3048) + ' m';
+  } else {
+    document.getElementById('kpi-flamelen').innerText = flameLenFt.toFixed(1) + ' ft';
+    document.getElementById('kpi-rad-val').innerText = Math.round(kEvalBtu) + ' Btu/hr·ft²';
+    document.getElementById('kpi-excl-radius').innerText = Math.round(rTargetFt) + ' ft';
+    document.getElementById('kpi-excl-m').innerText = rTargetM.toFixed(1) + ' m (' + targetLimit + ' Btu/hr·ft² Zone)';
+    document.getElementById('val-center').innerText = 'xc: ' + xcFt.toFixed(1) + ' ft | yc: ' + ycFt.toFixed(1) + ' ft';
+    document.getElementById('val-eff-height').innerText = 'Effective Height: ' + effHeightFt.toFixed(1) + ' ft above grade';
+    document.getElementById('val-zones').innerText = '1500 Btu: ' + Math.round(r1500Ft) + ' ft | 3000 Btu: ' + Math.round(r3000Ft) + ' ft';
+  }
+
+  document.getElementById('kpi-tilt').innerText = 'Tilt: ' + tiltDeg.toFixed(1) + '° from Vertical';
+  document.getElementById('kpi-heat').innerText = qMw.toFixed(1) + ' MW';
+  document.getElementById('kpi-heat-us').innerText = Math.round(qBtuHr / 1e6).toLocaleString() + ' MMBtu/hr';
+
+  // Check radiation vs target limit
+  var limitVal = isMetric ? (targetLimit * 0.00315459) : targetLimit;
+  var radVal = isMetric ? kEvalKw : kEvalBtu;
+  var unitStr = isMetric ? ' kW/m²' : ' Btu';
+  if (radVal <= limitVal) {
+    document.getElementById('kpi-rad-status').innerHTML = '<span class="status-pill status-pass">Pass (&lt; ' + limitVal.toFixed(1) + unitStr + ')</span>';
+  } else {
+    document.getElementById('kpi-rad-status').innerHTML = '<span class="status-pill status-fail">Exceeds Limit (&gt; ' + limitVal.toFixed(1) + unitStr + ')</span>';
+  }
+
+  document.getElementById('val-tau').innerText = 'τ = ' + resEval.tau.toFixed(3) + ' (' + rh.toFixed(0) + '% RH)';
+  document.getElementById('val-tip-mach').innerText = 'Tip Mach Number: ' + tipMach.toFixed(2) + ' Mach';
+  document.getElementById('val-solar-str').innerText = (solarOpt === 'yes') ? 'Solar Included (+317 Btu/hr·ft²)' : 'No Solar Added (Night Case)';
+
+  flDrawFlame();
+  flDrawIsopleth();
+}
+
+function flDrawFlame() {
+  var canvas = document.getElementById('fl-flame-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  if (!flLastCalc) return;
+  var d = flLastCalc;
+
+  var padL = 40, padB = 25;
+  var groundY = h - padB;
+  var stackX = padL + 30;
+
+  var totalScaleH = Math.max(300, d.hStackFt + d.flameLenFt * 1.2);
+  function toY(ft) {
+    return groundY - (ft / totalScaleH) * (groundY - 20);
+  }
+  function toX(ft) {
+    return stackX + (ft / totalScaleH) * (groundY - 20);
+  }
+
+  // Grade line
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(padL, groundY);
+  ctx.lineTo(w - 20, groundY);
+  ctx.stroke();
+
+  // Stack column (gray vertical tower)
+  var tipY = toY(d.hStackFt);
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(stackX, groundY);
+  ctx.lineTo(stackX, tipY);
+  ctx.stroke();
+
+  // Flame curve (yellow/orange curved gradient plume)
+  var flameEndX = toX(2.0 * d.xcFt);
+  var flameEndY = toY(d.hStackFt + 2.0 * d.ycFt);
+  var flameCtrlX = toX(d.xcFt * 0.8);
+  var flameCtrlY = toY(d.hStackFt + d.ycFt * 1.5);
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 10;
+  ctx.lineCap = 'round';
+  ctx.moveTo(stackX, tipY);
+  ctx.quadraticCurveTo(flameCtrlX, flameCtrlY, flameEndX, flameEndY);
+  ctx.stroke();
+
+  // Inner core of flame (white/yellow)
+  ctx.beginPath();
+  ctx.strokeStyle = '#fef08a';
+  ctx.lineWidth = 4;
+  ctx.moveTo(stackX, tipY);
+  ctx.quadraticCurveTo(flameCtrlX, flameCtrlY, flameEndX, flameEndY);
+  ctx.stroke();
+
+  // Radiation Center marker (cyan star/circle)
+  var rcX = toX(d.xcFt);
+  var rcY = toY(d.effHeightFt);
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(rcX, rcY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Ray to ground evaluation point
+  var xEval = toX(d.distCheckFt);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(rcX, rcY);
+  ctx.lineTo(xEval, groundY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Personnel marker at evaluation distance
+  ctx.fillStyle = '#10b981';
+  ctx.beginPath();
+  ctx.arc(xEval, groundY - 4, 4, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Stack ' + Math.round(d.hStackFt) + 'ft', stackX, groundY + 14);
+  ctx.fillText('Grade', w - 40, groundY + 14);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Radiation Center', padL, 16);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('● Flame Plume (' + Math.round(d.flameLenFt) + ' ft)', padL + 120, 16);
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Eval Point (' + Math.round(d.distCheckFt) + ' ft)', padL + 250, 16);
+}
+
+function flDrawIsopleth() {
+  var canvas = document.getElementById('fl-isopleth-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!flLastCalc) return;
+  var d = flLastCalc;
+
+  var maxDist = Math.max(600, d.r500Ft * 1.3);
+  var maxRad = 3500; // Btu
+
+  function toX(xDist) {
+    return padL + (xDist / maxDist) * plotW;
+  }
+  function toY(radVal) {
+    return padT + plotH - (radVal / maxRad) * plotH;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Radiation limit lines
+  var y500 = toY(500);
+  var y1500 = toY(1500);
+  var y3000 = toY(3000);
+
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(padL, y500);
+  ctx.lineTo(padL + plotW, y500);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#f59e0b';
+  ctx.beginPath();
+  ctx.moveTo(padL, y1500);
+  ctx.lineTo(padL + plotW, y1500);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.moveTo(padL, y3000);
+  ctx.lineTo(padL + plotW, y3000);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plot ground radiation curve
+  ctx.beginPath();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  var pts = 60;
+  for (var i = 0; i <= pts; i++) {
+    var xDist = 10 + (i / pts) * (maxDist - 10);
+    var dRad = Math.sqrt(Math.pow(xDist - d.xcFt, 2) + Math.pow(d.effHeightFt, 2));
+    var tau = 0.79 * Math.pow(100.0 / 60.0, 1.0 / 16.0) * Math.pow(100.0 / Math.max(10.0, dRad), 1.0 / 16.0);
+    var kFlame = tau * ((0.22 * d.qBtuHr) / (4.0 * Math.PI * Math.pow(dRad, 2)));
+    var kTot = kFlame + d.sSolarBtu;
+
+    var px = toX(xDist);
+    var py = toY(kTot);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Current operating distance point
+  var curX = toX(d.distCheckFt);
+  var curY = toY(d.kEvalBtu);
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('3000 (Equip)', padL - 6, y3000 + 3);
+  ctx.fillText('1500 (Maint)', padL - 6, y1500 + 3);
+  ctx.fillText('500 (Public)', padL - 6, y500 + 3);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Downwind Distance from Flare Stack (ft)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Ground Radiation Profile K(x)', padL + 10, padT + 12);
+}
+
+function flCopySummary() {
+  if (!flLastCalc) return;
+  var d = flLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var lenUnit = d.isMetric ? 'm' : 'ft';
+  var radUnit = d.isMetric ? 'kW/m²' : 'Btu/hr·ft²';
+
+  var text = '=== API 521 FLARE THERMAL RADIATION DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: API Standard 521 6th/7th Edition (Brzustowski & Sommer Method)\n' +
+    'Units System: ' + u + '\n' +
+    'Total Heat Release (Q): ' + d.qMw.toFixed(1) + ' MW (' + Math.round(d.qBtuHr / 1e6).toLocaleString() + ' MMBtu/hr)\n' +
+    'Flame Length (L): ' + (d.isMetric ? d.flameLenM.toFixed(1) : d.flameLenFt.toFixed(1)) + ' ' + lenUnit + '\n' +
+    'Flame Tilt: ' + d.tiltDeg.toFixed(1) + '° from vertical\n' +
+    'Radiation Center: xc = ' + (d.isMetric ? (d.xcFt * 0.3048).toFixed(1) : d.xcFt.toFixed(1)) + ' ' + lenUnit + ', yc = ' + (d.isMetric ? (d.ycFt * 0.3048).toFixed(1) : d.ycFt.toFixed(1)) + ' ' + lenUnit + '\n' +
+    'Effective Radiation Height: ' + (d.isMetric ? (d.effHeightFt * 0.3048).toFixed(1) : d.effHeightFt.toFixed(1)) + ' ' + lenUnit + ' above grade\n' +
+    'Ground Radiation at ' + (d.isMetric ? (d.distCheckFt * 0.3048).toFixed(0) : Math.round(d.distCheckFt)) + ' ' + lenUnit + ': ' + (d.isMetric ? d.kEvalKw.toFixed(2) : Math.round(d.kEvalBtu)) + ' ' + radUnit + '\n' +
+    'Continuous Exposure Exclusion Radius (500 Btu / 1.58 kW/m²): ' + (d.isMetric ? (d.r500Ft * 0.3048).toFixed(1) : Math.round(d.r500Ft)) + ' ' + lenUnit + '\n' +
+    'Maintenance Exclusion Radius (1500 Btu / 4.73 kW/m²): ' + (d.isMetric ? (d.r1500Ft * 0.3048).toFixed(1) : Math.round(d.r1500Ft)) + ' ' + lenUnit + '\n' +
+    'Equipment Exclusion Radius (3000 Btu / 9.46 kW/m²): ' + (d.isMetric ? (d.r3000Ft * 0.3048).toFixed(1) : Math.round(d.r3000Ft)) + ' ' + lenUnit + '\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.fl-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  flCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (207 calculators in /calc/)');
 }
 

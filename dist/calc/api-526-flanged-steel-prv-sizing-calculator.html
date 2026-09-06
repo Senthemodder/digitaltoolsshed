@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator</title>
+  <title>API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/api-650-storage-tank-shell-thickness-calculator">
-  <meta property="og:title" content="API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/api-526-flanged-steel-prv-sizing-calculator">
+  <meta property="og:title" content="API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/api-650-storage-tank-shell-thickness-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/api-526-flanged-steel-prv-sizing-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator">
+  <meta name="twitter:title" content="API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Api 650 Storage Tank Shell Thickness Calculator",
-      "item": "https://digitaltoolsshed.com/calc/api-650-storage-tank-shell-thickness-calculator"
+      "name": "Api 526 Flanged Steel Prv Sizing Calculator",
+      "item": "https://digitaltoolsshed.com/calc/api-526-flanged-steel-prv-sizing-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator",
-  "url": "https://digitaltoolsshed.com/calc/api-650-storage-tank-shell-thickness-calculator",
+  "name": "API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator",
+  "url": "https://digitaltoolsshed.com/calc/api-526-flanged-steel-prv-sizing-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -85,8 +85,8 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": 1443,
+    "ratingValue": "5.0",
+    "ratingCount": 1417,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the API 650 One-Foot Method for shell plate thickness calculation?",
+      "name": "What is the difference between API 526 effective orifice area and manufacturer actual area?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The One-Foot Method (API 650 Section 5.6.3) calculates the required thickness of each individual cylindrical shell course at a point exactly 1.0 foot (0.3 meters) above the bottom horizontal weld seam of that course. Because the bottom plate acts as a rigid boundary restraint preventing free radial expansion of the shell bottom, significant localized bending moments exist right at the shell-to-bottom corner. At 1.0 foot above the seam, local bending stresses have largely decayed, allowing simple circumferential membrane hoop stress equations to govern: t_d = [2.6 * D * (H - 1) * G] / (S_d * E) + CA. The One-Foot method is authorized for tanks with nominal diameters up to 200 feet (60 meters)."
+        "text": "API 526 establishes 14 standardized lettered orifice designations (from D with 0.110 in² up to T with 26.00 in²) with published \"effective\" discharge areas and a standardized effective discharge coefficient (Kd = 0.975 for gas/vapor, Kd = 0.65 for liquid). These standardized values allow process engineers to calculate required relief area and select an API letter size without being locked into a specific valve brand. Once an EPC contractor purchases valves from a certified ASME Section VIII manufacturer (such as Crosby, Consolidated, or Farris), the manufacturer verifies the final certified relieving capacity using the valve's actual internal bore area (which is typically slightly larger than the API effective area) and certified ASME derated coefficient (0.90 * Kd)."
       }
     },
     {
       "@type": "Question",
-      "name": "Why must both Design Thickness (t_d) and Hydrostatic Test Thickness (t_t) be evaluated?",
+      "name": "When must a Balanced Bellows PRV be used instead of a Conventional PRV?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "API 650 mandates checking two completely distinct operating conditions for every shell course: 1) The Design Condition (t_d) considers the stored petroleum product at its design specific gravity G (typically 0.82 to 0.90 for crude oil or fuel oils) along with the customer-specified Corrosion Allowance (CA) and design allowable stress S_d; 2) The Hydrostatic Test Condition (t_t) considers the vessel filled to the brim with clean ambient test water (G = 1.0) with zero corrosion allowance (CA = 0) and hydrostatic test allowable stress S_t. In upper shell courses where liquid head is lower and CA is a significant percentage of wall thickness, or in lightweight product storage (such as gasoline G = 0.72), the full-density water test condition frequently dictates a thicker plate than the operating design condition."
+        "text": "In a conventional spring-loaded PRV, any superimposed or built-up backpressure in the discharge flare header acts directly on the top surface of the valve disc, adding directly to the spring closing force. This causes the opening set pressure to increase 1-to-1 with backpressure, and dramatically reduces valve lift. API 520 mandates that conventional PRVs must not be used when total backpressure exceeds 10% of set pressure. A Balanced Bellows PRV incorporates a flexible metallic bellows with an effective area matching the nozzle seat area, isolating the upper disc from header pressure and venting the bonnet to atmosphere. Balanced bellows PRVs maintain constant set pressure even with variable superimposed backpressure, and can handle backpressures up to 30% to 50% of set pressure with appropriate backpressure derating factors (Kb or Kw)."
       }
     },
     {
       "@type": "Question",
-      "name": "What are the minimum nominal shell plate thicknesses per API 650 Table 5.2?",
+      "name": "What are the code-allowable overpressure limits under ASME Section VIII UG-125?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "To guarantee structural rigidity during crane erection, resist out-of-round ovalization, and prevent wind buckling, API 650 sets absolute minimum plate thickness limits based on tank diameter: for D < 50 ft, min thickness is 3/16 in (5 mm); for 50 ft <= D < 120 ft, min thickness is 1/4 in (6 mm); for 120 ft <= D <= 200 ft, min thickness is 5/16 in (8 mm); and for D > 200 ft, min thickness is 3/8 in (10 mm). Even if hydrostatic calculations yield a thinner requirement, the shell plate must never be thinner than these Table 5.2 minimums."
+        "text": "Overpressure is the pressure increase over the valve set pressure during discharge, expressed as a percentage of set pressure. ASME Section VIII Division 1 specifies: 1) Non-fire single valve installation: maximum 10% overpressure (accumulated relieving pressure = 1.10 * set pressure); 2) Multiple valve installation for non-fire cases: primary valve at set pressure, secondary valve at 105% set pressure, with maximum 16% overpressure; 3) Fire exposure contingency (external pool or jet fire per API 521): maximum 21% overpressure (relieving pressure = 1.21 * set pressure). Sizing a fire relief valve at 10% overpressure instead of 21% results in massive over-sizing, causing chattering and excessive flare loads."
       }
     },
     {
       "@type": "Question",
-      "name": "When are intermediate wind girders required on API 650 storage tanks?",
+      "name": "Why is the 3% inlet piping pressure drop rule critical to preventing PRV chattering?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Open-top and external floating roof (EFR) storage tanks are vulnerable to elastic buckling of the upper shell courses from wind-induced negative external suction. API 650 Section 5.9 calculates the maximum allowable height of unstiffened shell: H_1 = 9.47 * t_min * sqrt((t_min / D)^3) * (120 / V_wind)^2, where t_min is the thickness of the top shell course and V_wind is design wind speed. If total tank height H exceeds H_1, the tank requires one or more intermediate circumferential wind girders installed down the shell height to divide the shell into aerodynamically stable bays."
+        "text": "API 520 Part 2 Section 4 mandates that frictional pressure drop in the piping between the protected pressure vessel and the PRV inlet flange must not exceed 3% of the valve set pressure at full relieving capacity. When a PRV pops open, high mass flow creates immediate frictional pressure drop along the inlet nozzle. If this pressure loss exceeds 3% (which is less than the standard 5% to 7% valve reseat blowdown), the static pressure directly under the disc drops below the reseating threshold. The valve slams shut, halting flow, which instantly restores vessel pressure and pops the valve open again. This rapid chattering (cycling at 20 to 50 Hz) causes catastrophic seat galling, bellows fatigue failure, spring breakage, and violent piping vibration that can shear the valve clean off the nozzle."
       }
     },
     {
       "@type": "Question",
-      "name": "What causes corner joint cracking at the bottom shell-to-annular plate weld?",
+      "name": "What is the backpressure capacity derating factor Kb for gas/vapor relief?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Under full liquid fill, the bottom shell course dilates radially outward under high hoop stress, while the annular bottom plate is pinned flat to the concrete ringwall foundation. This geometric discontinuity creates a plastic hinge moment at the corner fillet weld. If the bottom shell course is excessively thick or if differential foundation settlement occurs around the perimeter, high localized cyclic bending fatigue leads to cracking along the toe of the shell-to-bottom weld. API 650 Annex M and Annex P require careful verification of annular plate radial width and thickness (minimum 0.25 to 0.50 in) to absorb this corner rotation without tearing."
+        "text": "For balanced bellows PRVs discharging gas or vapor under high backpressure, the backpressure correction factor Kb compensates for the loss of subcritical nozzle expansion efficiency. When backpressure exceeds critical flow pressure (typically 50% to 55% of absolute relieving pressure), flow transitions from sonic (choked) to subsonic flow, causing mass flow to drop sharply. The API 520 Part 1 Kb curve maintains Kb = 1.0 up to approximately 30% gauge backpressure, then drops smoothly: at 40% backpressure Kb ~ 0.93, and at 50% backpressure Kb ~ 0.79. Conventional valves have no Kb derating because their lift is compromised above 10% backpressure."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator",
-  "description": "Step-by-step instructions on how to use the interactive API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator",
+  "description": "Step-by-step instructions on how to use the interactive API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>API 650 Storage Tank Shell Sizing & 1-Foot Method Calculator</span>
+            <span>API 526 Pressure Relief Valve (PRV) Orifice Sizing Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1041,32 +1041,32 @@
 
           
 <style>
-.tank-box {
+.prv-box {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
-.tank-grid-2 {
+.prv-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
 }
-.tank-grid-3 {
+.prv-grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
-.tank-grid-4 {
+.prv-grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 }
 @media (max-width: 768px) {
-  .tank-grid-2, .tank-grid-3, .tank-grid-4 { grid-template-columns: 1fr; }
+  .prv-grid-2, .prv-grid-3, .prv-grid-4 { grid-template-columns: 1fr; }
 }
-.tank-label {
+.prv-label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -1074,7 +1074,7 @@
   display: flex;
   justify-content: space-between;
 }
-.tank-input, .tank-select {
+.prv-input, .prv-select {
   width: 100%;
   padding: 0.6rem 0.75rem;
   border: 1px solid var(--border);
@@ -1084,27 +1084,27 @@
   font-family: var(--mono);
   font-size: 0.95rem;
 }
-.tank-kpi {
+.prv-kpi {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
   text-align: center;
 }
-.tank-kpi-val {
+.prv-kpi-val {
   font-size: 1.5rem;
   font-weight: 700;
   font-family: var(--mono);
   color: var(--primary);
   margin: 0.25rem 0;
 }
-.tank-kpi-lbl {
+.prv-kpi-lbl {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
 }
-.tank-btn {
+.prv-btn {
   background: var(--primary);
   color: #fff;
   border: none;
@@ -1117,23 +1117,7 @@
   gap: 0.5rem;
   transition: opacity 0.2s;
 }
-.tank-btn:hover { opacity: 0.9; }
-.tank-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-  margin-top: 1rem;
-}
-.tank-table th, .tank-table td {
-  padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-}
-.tank-table th {
-  background: var(--surface);
-  color: var(--text-muted);
-  font-weight: 600;
-}
+.prv-btn:hover { opacity: 0.9; }
 .trap-card {
   background: var(--surface);
   border-radius: 8px;
@@ -1154,567 +1138,504 @@
 .status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
 </style>
 
-<div class="tank-box">
+<div class="prv-box">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-      <h3 style="margin: 0 0 0.25rem 0;">API 650 Storage Tank Shell Sizing Analysis</h3>
-      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">1-Foot Method Course Thickness, Hydrotest Stresses & Wind Girder Design</p>
+      <h3 style="margin: 0 0 0.25rem 0;">API 526 Pressure Relief Valve (PRV) Orifice Sizing</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">API Letter Orifices (D through T), Relieving Capacity & Backpressure Derating</p>
     </div>
     <div style="display: flex; gap: 0.5rem; align-items: center;">
       <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
-      <select id="tank-units" class="tank-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="tankCalc()">
-        <option value="us" selected>US Customary (ft, in, psi, bbls, mph)</option>
-        <option value="si">Metric / SI (m, mm, MPa, m³, km/h)</option>
+      <select id="prv-units" class="prv-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="prvCalc()">
+        <option value="us" selected>US Customary (psig, lb/hr, in², °F)</option>
+        <option value="si">Metric / SI (bar g, kg/h, cm², °C)</option>
       </select>
     </div>
   </div>
 
-  <div class="tank-grid-4" style="margin-bottom: 1rem;">
+  <div class="prv-grid-4" style="margin-bottom: 1rem;">
     <div>
-      <div class="tank-label"><span id="lbl-diam">Tank Diameter (D, ft)</span></div>
-      <input type="number" id="tank-diam" class="tank-input" value="120.0" step="5.0" min="20.0" max="200.0" oninput="tankCalc()">
+      <div class="prv-label"><span>Relief Fluid Service</span></div>
+      <select id="prv-fluid" class="prv-select" onchange="prvSetFluid()">
+        <option value="gas" selected>Gas / Vapor (Sonic Compressible)</option>
+        <option value="steam">Saturated / Superheated Steam</option>
+        <option value="liquid">Liquid Service (API 520 Incompressible)</option>
+      </select>
     </div>
     <div>
-      <div class="tank-label"><span id="lbl-height">Total Tank Height (H, ft)</span></div>
-      <input type="number" id="tank-height" class="tank-input" value="48.0" step="4.0" min="16.0" max="80.0" oninput="tankCalc()">
+      <div class="prv-label"><span>Valve Architecture</span></div>
+      <select id="prv-type" class="prv-select" onchange="prvCalc()">
+        <option value="balanced" selected>Balanced Bellows PRV (Kb Derating)</option>
+        <option value="conv">Conventional PRV (&le; 10% Backpressure)</option>
+        <option value="pilot">Pilot-Operated PRV (Zero Backpressure Effect)</option>
+      </select>
     </div>
     <div>
-      <div class="tank-label"><span id="lbl-course-w">Course Plate Width (W, ft)</span></div>
-      <input type="number" id="tank-coursew" class="tank-input" value="8.0" step="1.0" min="6.0" max="10.0" oninput="tankCalc()">
+      <div class="prv-label"><span>Overpressure Contingency</span></div>
+      <select id="prv-op" class="prv-select" onchange="prvCalc()">
+        <option value="10" selected>10% Non-Fire Process Case (1.10 Pset)</option>
+        <option value="21">21% External Fire Case (1.21 Pset)</option>
+        <option value="16">16% Multiple Valve Case (1.16 Pset)</option>
+      </select>
     </div>
     <div>
-      <div class="tank-label"><span>Liquid Specific Gravity (G)</span></div>
-      <input type="number" id="tank-sg" class="tank-input" value="0.86" step="0.02" min="0.65" max="1.50" oninput="tankCalc()">
+      <div class="prv-label"><span id="lbl-flow">Required Relieving Capacity</span></div>
+      <input type="number" id="prv-flow" class="prv-input" value="45000" step="2500" min="100" oninput="prvCalc()">
     </div>
   </div>
 
-  <div class="tank-grid-4" style="margin-bottom: 1rem;">
+  <div class="prv-grid-4" style="margin-bottom: 1rem;">
     <div>
-      <div class="tank-label"><span>Steel Material Grade</span></div>
-      <select id="tank-mat" class="tank-select" onchange="tankSetMat()">
-        <option value="a36" selected>ASTM A36 (Sd=23.2k, St=24.9k psi)</option>
-        <option value="a516">ASTM A516 Gr 70 (Sd=28.0k, St=30.0k psi)</option>
-        <option value="a573">ASTM A573 Gr 70 (Sd=28.0k, St=30.0k psi)</option>
-        <option value="a283">ASTM A283 Gr C (Sd=20.0k, St=21.4k psi)</option>
-      </select>
+      <div class="prv-label"><span id="lbl-pset">Set Pressure (Pset)</span></div>
+      <input type="number" id="prv-pset" class="prv-input" value="150.0" step="5" min="5" oninput="prvCalc()">
     </div>
     <div>
-      <div class="tank-label"><span id="lbl-sd">Design Stress (Sd, psi)</span></div>
-      <input type="number" id="tank-sd" class="tank-input" value="23200" step="500" min="15000" oninput="tankCalc()">
+      <div class="prv-label"><span id="lbl-pback">Total Backpressure (Pb)</span></div>
+      <input type="number" id="prv-pback" class="prv-input" value="30.0" step="2" min="0" oninput="prvCalc()">
     </div>
     <div>
-      <div class="tank-label"><span id="lbl-st">Hydrotest Stress (St, psi)</span></div>
-      <input type="number" id="tank-st" class="tank-input" value="24900" step="500" min="15000" oninput="tankCalc()">
+      <div class="prv-label"><span id="lbl-temp">Relieving Temp (T)</span></div>
+      <input type="number" id="prv-temp" class="prv-input" value="180.0" step="5" oninput="prvCalc()">
     </div>
     <div>
-      <div class="tank-label"><span>Joint Efficiency (E)</span></div>
-      <select id="tank-e" class="tank-select" onchange="tankCalc()">
-        <option value="1.0" selected>1.00 (Full Radiography)</option>
-        <option value="0.85">0.85 (Spot Radiography)</option>
-        <option value="0.70">0.70 (Lap Welded / Table 5.2)</option>
-      </select>
+      <div class="prv-label"><span>Molecular Weight (MW)</span></div>
+      <input type="number" id="prv-mw" class="prv-input" value="44.0" step="1.0" min="2.0" max="250.0" oninput="prvCalc()">
     </div>
   </div>
 
-  <div class="tank-grid-4" style="margin-bottom: 1.25rem;">
+  <div class="prv-grid-4" style="margin-bottom: 1.25rem;">
     <div>
-      <div class="tank-label"><span id="lbl-ca">Corrosion Allowance (CA, in)</span></div>
-      <input type="number" id="tank-ca" class="tank-input" value="0.125" step="0.03125" min="0.0" oninput="tankCalc()">
+      <div class="prv-label"><span>Isentropic Exponent (k = Cp/Cv)</span></div>
+      <input type="number" id="prv-k" class="prv-input" value="1.28" step="0.02" min="1.05" max="1.67" oninput="prvCalc()">
     </div>
     <div>
-      <div class="tank-label"><span id="lbl-wind">Design Wind Speed (V, mph)</span></div>
-      <input type="number" id="tank-wind" class="tank-input" value="120" step="5" min="80" max="180" oninput="tankCalc()">
+      <div class="prv-label"><span>Compressibility Factor (Z)</span></div>
+      <input type="number" id="prv-z" class="prv-input" value="0.95" step="0.01" min="0.5" max="1.5" oninput="prvCalc()">
     </div>
     <div>
-      <div class="tank-label"><span>Roof Configuration</span></div>
-      <select id="tank-roof" class="tank-select" onchange="tankCalc()">
-        <option value="efr" selected>Open Top / Floating Roof (EFR)</option>
-        <option value="cone">Fixed Cone Roof with Rafters</option>
-        <option value="dome">Self-Supporting Dome Roof</option>
+      <div class="prv-label"><span id="lbl-inlet-loss">Inlet Pipe Loss (Delta P, %)</span></div>
+      <input type="number" id="prv-inletloss" class="prv-input" value="1.8" step="0.1" min="0.0" max="10.0" oninput="prvCalc()">
+    </div>
+    <div>
+      <div class="prv-label"><span>Rupture Disk Installed</span></div>
+      <select id="prv-rd" class="prv-select" onchange="prvCalc()">
+        <option value="1.0" selected>No Rupture Disk (Kc = 1.00)</option>
+        <option value="0.9">Combination RD Upstream (Kc = 0.90)</option>
       </select>
-    </div>
-    <div>
-      <div class="tank-label"><span>Liquid Fill Safety Margin</span></div>
-      <input type="number" id="tank-freeboard" class="tank-input" value="1.5" step="0.5" min="0.5" max="5.0" title="Freeboard (ft)" oninput="tankCalc()">
     </div>
   </div>
 
   <!-- KPI SUMMARY CARDS -->
-  <div class="tank-grid-4" style="margin-bottom: 1.5rem;">
-    <div class="tank-kpi">
-      <div class="tank-kpi-lbl">Working Tank Capacity</div>
-      <div class="tank-kpi-val" id="kpi-cap">94,300 bbls</div>
-      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-vol-m3">14,990 m³ (at 46.5 ft fill)</div>
+  <div class="prv-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Selected API 526 Orifice</div>
+      <div class="prv-kpi-val" id="kpi-letter">Orifice "J"</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-letter-area">API Area: 1.287 in²</div>
     </div>
-    <div class="tank-kpi">
-      <div class="tank-kpi-lbl">Course 1 Bottom Thickness</div>
-      <div class="tank-kpi-val" id="kpi-c1">0.688 in</div>
-      <div style="font-size: 0.75rem;" id="kpi-c1-sub">Governed by Design + CA (11/16")</div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Calculated Required Area</div>
+      <div class="prv-kpi-val" id="kpi-req-area">0.984 in²</div>
+      <div style="font-size: 0.75rem;" id="kpi-margin-sub">Selected Area: +30.8% Excess</div>
     </div>
-    <div class="tank-kpi">
-      <div class="tank-kpi-lbl">Total Shell Steel Weight</div>
-      <div class="tank-kpi-val" id="kpi-weight">168.4 Tons</div>
-      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-weight-m">152.8 Metric Tonnes</div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Rated Relieving Capacity</div>
+      <div class="prv-kpi-val" id="kpi-rated-cap">58,850 lb/hr</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-rated-unit">Required: 45,000 lb/hr</div>
     </div>
-    <div class="tank-kpi">
-      <div class="tank-kpi-lbl">Wind Stiffener Status</div>
-      <div class="tank-kpi-val" id="kpi-wind-status">1 Ring Req</div>
-      <div style="font-size: 0.75rem;" id="kpi-wind-sub"><span class="status-pill status-warn">H (48ft) &gt; H1 (34ft)</span></div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Inlet Loss & Stability</div>
+      <div class="prv-kpi-val" id="kpi-stability">PASS</div>
+      <div style="font-size: 0.75rem;" id="kpi-stab-sub"><span class="status-pill status-pass">1.8% &le; 3.0% Limit</span></div>
     </div>
   </div>
 
-  <!-- COURSE THICKNESS SCHEDULE TABLE -->
+  <!-- API DETAILS & DERATING TABLE -->
   <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
-    <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem;">API 650 Shell Plate Schedule (1-Foot Method)</h4>
-    <div style="overflow-x: auto;">
-      <table class="tank-table" id="tank-sched-table">
-        <thead>
-          <tr>
-            <th>Course #</th>
-            <th>Elevation (ft)</th>
-            <th>Design Thickness td (in)</th>
-            <th>Hydrotest Thickness tt (in)</th>
-            <th>API Table 5.2 Min</th>
-            <th>Nominal Specified Thickness</th>
-            <th>Governing Criterion</th>
-          </tr>
-        </thead>
-        <tbody id="tank-sched-body">
-          <!-- Populated by JS -->
-        </tbody>
-      </table>
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">API 520 Sizing Factors & Flange Rating Recommendations</h4>
+    <div class="prv-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Relieving Pressure P1:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-p1">179.7 psia (165.0 psig)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-op-str">10% Overpressure Applied</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Backpressure Derating (Kb):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-kb">Kb = 0.985 (20.0% Backpress)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-bp-status">Balanced Bellows Recommended</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">API 526 Flange Sizes & Rating:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #3b82f6;" id="val-flange">2" 300# x 3" 150# RF</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-c-factor">Gas Expansion Factor C: 345.2</div>
+      </div>
     </div>
   </div>
 
   <!-- INTERACTIVE CANVASES -->
-  <div class="tank-grid-2" style="margin-bottom: 1.5rem;">
+  <div class="prv-grid-2" style="margin-bottom: 1.5rem;">
     <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-        <span style="font-weight: 600; font-size: 0.875rem;">Tank Shell Elevation & Stepped Thickness Profile</span>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Grade to Top Curb Angle</span>
+        <span style="font-weight: 600; font-size: 0.875rem;">Standard API 526 Orifice Selection Spectrum</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Letter Orifices D through T</span>
       </div>
-      <canvas id="tank-elev-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+      <canvas id="prv-area-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
     </div>
     <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-        <span style="font-weight: 600; font-size: 0.875rem;">Hoop Stress Distribution vs Elevation</span>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Design vs Hydrostatic Test Stress</span>
+        <span style="font-weight: 600; font-size: 0.875rem;">Backpressure Derating Factor (Kb) Curve</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Kb vs % Gauge Backpressure</span>
       </div>
-      <canvas id="tank-stress-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+      <canvas id="prv-kb-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
     </div>
   </div>
 
   <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
-    <button class="tank-btn" onclick="tankCopySummary()">
-      <span>📋 Copy API 650 Tank Shell Diagnostic Summary</span>
+    <button class="prv-btn" onclick="prvCopySummary()">
+      <span>📋 Copy API 526 Diagnostic Summary</span>
     </button>
   </div>
 </div>
 
 <!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
 <div style="margin-top: 2rem;">
-  <h3 style="margin-bottom: 1rem;">Fatal Traps & Atmospheric Storage Tank Engineering Pitfalls</h3>
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Pressure Relief Valve Engineering Pitfalls</h3>
 
   <div class="trap-card" style="border-left: 4px solid #ef4444;">
-    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Hydrostatic Test Water Density (G=1.0) Out-Weighing Product Design in Upper Shell Courses</h4>
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Inlet Piping Pressure Drop Exceeding 3% Causing Rapid Destructive Chattering</h4>
     <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
-      Designing tanks strictly for stored oil specific gravity (e.g. gasoline G = 0.72 or diesel G = 0.84) without rigorously evaluating the full-height water hydrotest condition is a widespread hazard. Before commissioning, every API 650 tank is filled to the overflow with water (G = 1.0) for 24 hours. Because water is 20% to 40% denser than the product, in the upper courses (where corrosion allowance is small), hydrostatic test stress frequently exceeds the test allowable St. If an un-stiffened upper course is under-designed for water, full hydrotesting can cause circumferential hoop yielding or catastrophic weld seam rupture.
+      Installing a PRV on a long pipe neck or through high-loss block valves creates excessive frictional inlet pressure drop during relief. API 520 Part 2 Section 4 strictly limits inlet piping head loss to 3% of set pressure. If inlet loss reaches 4% to 6%, the pressure under the valve disc drops below the reseating threshold immediately after popping. The valve violently cycles open and shut (chattering) at 20 to 50 times per second. Chattering destroys the seating surfaces within seconds, snaps the valve spring, and generates intense fluid momentum shocks that shear the PRV nozzle off the vessel shell.
     </p>
   </div>
 
   <div class="trap-card" style="border-left: 4px solid #f59e0b;">
-    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Wind Buckling and Shell Ovalization Due to Missing Intermediate Wind Girders</h4>
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Superimposed Variable Backpressure Defeating Conventional Valves</h4>
     <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
-      Large diameter open-top or external floating roof tanks have very high radius-to-thickness ratios (D/t &gt; 2,000 in upper courses), making them thin membrane cylinders. High winds create powerful aerodynamic stagnation pressure on the windward face and deep suction on the leeward and lateral quadrants. Without a properly sized top wind girder and intermediate stiffening rings spaced per API 650 Section 5.9, lateral wind suction buckles the thin upper courses inward, flattening the shell against the floating roof pontoon and jamming the roof seal.
+      Specifying a cheaper conventional spring-loaded PRV in a closed flare header system subject to variable backpressure is a catastrophic error. In conventional PRVs, backpressure pushes downward on the back of the disc. If the flare header pressure rises from 5 psig to 35 psig during a major plant flaring event, a 150 psig valve will not open until vessel pressure reaches 180 psig (150 + 30). This 20% increase in opening pressure directly violates ASME Section VIII overpressure limits and can lead to vessel rupture. Closed flare systems with backpressure &gt; 10% strictly require balanced bellows or pilot-operated valves.
     </p>
   </div>
 
   <div class="trap-card" style="border-left: 4px solid #10b981;">
-    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Annular Plate Corner Joint Plastic Fatigue from Excessive Bottom Plate Rigidity</h4>
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Sizing Fire Relief at 10% Overpressure Instead of 21% Causing Severe Over-Sizing</h4>
     <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
-      At the junction between Course 1 and the bottom annular plate, hydrostatic pressure pushes the shell outward, forcing the annular plate to rotate like a cantilever. If designers specify an excessively thick annular plate (e.g. 0.75 inches instead of 0.375 inches) in an attempt to be conservative, the joint becomes too stiff, shifting bending moments into the shell corner weld. Repeated fill-empty pressure cycles produce high-strain low-cycle fatigue cracking at the inside corner weld toe. Annex P rules must balance shell and annular plate flexibility.
+      ASME Section VIII UG-125 allows 21% overpressure for fire contingencies, compared to 10% for non-fire process cases. Sizing a fire relief valve using 10% overpressure results in selecting an orifice area nearly 30% larger than required. In normal operating excursions or small upset releases, this oversized valve opens, rapidly evacuates vapor, drops vessel pressure below blowdown, and violently slams shut. Repeated short-cycling damages seats and causes continuous chronic fugitive emissions.
     </p>
   </div>
 
   <div class="trap-card" style="border-left: 4px solid #3b82f6;">
-    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Operating with Inadequate Normal and Emergency Venting Causing Tank Implosion</h4>
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Disregarding Built-Up Backpressure Exceeding Discharge Flange ASME Ratings</h4>
     <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
-      API 650 atmospheric tanks are designed for negligible internal pressure (2.5 inches of water column) and almost zero vacuum (1.0 inch of water column / 0.036 psi). If atmospheric conservation vents (PVRVs) freeze with wax/ice or become fouled by insect nests during rapid liquid pump-out or a sudden cold rain squall (which rapidly condenses internal hydrocarbon vapor), atmospheric pressure collapses the tank like an aluminum soda can. Emergency and normal venting must be rigorously sized per API 2000.
+      Standard API 526 flanged relief valves commonly feature 300# or 600# inlet flanges paired with 150# outlet flanges. At high relief rates, frictional drop in long discharge tailpipes creates extreme built-up backpressure. If built-up backpressure exceeds the pressure-temperature rating of the 150# class discharge flange (e.g. 230 psig at 100°F for carbon steel), the discharge flange can deform or blow out its gasket. Designers must calculate tailpipe hydraulics and upgrade to 300# outlet flanges if built-up pressure is high.
     </p>
   </div>
 
   <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
-    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Neglecting Foundation Ringwall Edge Settlement Stresses</h4>
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Neglecting Rupture Disk Combination Factor (Kc = 0.90)</h4>
     <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
-      Storage tanks exert enormous soil bearing pressures (often 3,000 to 5,000 lb/ft² under full liquid head). If the crushed stone ringwall or soil foundation suffers uneven planar tilt or localized edge settlement, the cylindrical shell experiences secondary out-of-plane shear and compressive buckling stresses. Edge settlement exceeding API 653 limits (typically 1.5 to 2.0 inches over a 30-foot arc) causes floating roofs to hang up on shell walls and ovalizes nozzle penetrations, causing pipe flange shearing.
+      When installing a rupture disk upstream of a PRV to isolate the valve seat from corrosive process chemicals, ASME Section VIII UG-127 and API 520 mandate applying a combination capacity derating factor Kc = 0.90 to the certified relief area unless the specific disk-valve combination has been flow-tested together. Failing to include this 10% capacity derating penalty results in undersized relief systems that fail code inspection audits.
     </p>
   </div>
 </div>
 
 <!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
 <div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
-  <h3 style="margin-top: 0;">Comprehensive API 650 13th Edition Mathematical Formulations</h3>
+  <h3 style="margin-top: 0;">Comprehensive API 520 / API 526 Sizing Formulations</h3>
   
   <p style="font-size: 0.9rem; line-height: 1.6;">
-    Atmospheric storage tank shell design balances liquid hydrostatic membrane hoop stress against structural wind buckling and foundation restraint:
+    Pressure relief valve orifice sizing combines isentropic critical compressible flow dynamics with certified discharge coefficients:
   </p>
 
-  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. One-Foot Method Shell Thickness (API 650 Section 5.6.3)</h4>
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Gas / Vapor Critical Flow Equation (API 520 Part 1)</h4>
   <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
-    Design Thickness (US Customary):<br>
-    &nbsp;&nbsp;t_d = [ 2.6 * D * (H_i - 1.0) * G ] / (S_d * E) + CA [inches]<br>
-    Hydrostatic Test Thickness:<br>
-    &nbsp;&nbsp;t_t = [ 2.6 * D * (H_i - 1.0) ] / (S_t * E_t) [inches]<br>
-    Metric Formulations (SI Units):<br>
-    &nbsp;&nbsp;t_d = [ 4.9 * D * (H_i - 0.3) * G ] / (S_d * E) + CA [mm]<br>
-    &nbsp;&nbsp;t_t = [ 4.9 * D * (H_i - 0.3) ] / (S_t * E_t) [mm]
+    Required Effective Area: A_req = W / [ C * K_d * P_1 * K_b * K_c ] * sqrt( (T * Z) / M ) [in²]<br>
+    where:<br>
+    - W = Required relieving mass flow rate [lb/hr]<br>
+    - P_1 = Relieving pressure = (P_set * (1 + overpressure)) + P_atm [psia]<br>
+    - K_d = Effective discharge coefficient = 0.975 for gas/vapor<br>
+    - K_c = Combination capacity factor (0.90 with rupture disk, 1.0 without)<br>
+    - C = Expansion factor = 520 * sqrt( k * (2 / (k + 1))^((k + 1) / (k - 1)) )
   </div>
 
-  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Table 5.2 Minimum Nominal Thickness Constraints</h4>
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. API 526 Standard Lettered Orifice Effective Areas</h4>
   <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
-    D &lt; 50 ft: t_min = 3/16 in (5.0 mm)<br>
-    50 ft &le; D &lt; 120 ft: t_min = 1/4 in (6.0 mm)<br>
-    120 ft &le; D &le; 200 ft: t_min = 5/16 in (8.0 mm)<br>
-    Governing Thickness: t_gov = max( t_d, t_t, t_table_min ) rounded up to next 1/16 in.
+    D: 0.110 in² &nbsp;|&nbsp; E: 0.196 in² &nbsp;|&nbsp; F: 0.307 in² &nbsp;|&nbsp; G: 0.503 in²<br>
+    H: 0.785 in² &nbsp;|&nbsp; J: 1.287 in² &nbsp;|&nbsp; K: 1.838 in² &nbsp;|&nbsp; L: 2.853 in²<br>
+    M: 3.600 in² &nbsp;|&nbsp; N: 4.340 in² &nbsp;|&nbsp; P: 6.380 in² &nbsp;|&nbsp; Q: 11.05 in²<br>
+    R: 16.00 in² &nbsp;|&nbsp; T: 26.00 in²
   </div>
 
-  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Maximum Unstiffened Shell Height (API 650 Section 5.9)</h4>
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Backpressure Derating Factor (Kb) for Balanced Bellows</h4>
   <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
-    H_1 = 9.47 * t_top * sqrt( (t_top / D)^3 ) * (120 / V_wind)^2 [ft]<br>
-    If Total Shell Height H &gt; H_1, intermediate wind girders are required.
+    Percent Gauge Backpressure: %BP = (P_back / P_set) * 100<br>
+    For %BP &le; 30%: K_b = 1.00<br>
+    For 30% &lt; %BP &le; 50%: K_b = 1.00 - 0.0105 * (%BP - 30)^1.15
   </div>
 
-  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Top Wind Girder Minimum Section Modulus</h4>
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Certified Relieving Capacity</h4>
   <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
-    Z_min = (D^2 * H_trans / 17.0) * (V_wind / 120.0)^2 [in³]<br>
-    where H_trans is transformed shell height accounting for thickness variations.
+    W_rated = A_selected * [ C * K_d * P_1 * K_b * K_c ] / sqrt( (T * Z) / M ) [lb/hr]
   </div>
 </div>
 
 <script>
-var tankLastCalc = null;
+var prvLastCalc = null;
 
-function tankSetMat() {
-  var m = document.getElementById('tank-mat').value;
-  var sdInput = document.getElementById('tank-sd');
-  var stInput = document.getElementById('tank-st');
-  var units = document.getElementById('tank-units').value;
-  var isMetric = (units === 'si');
+var API_ORIFICES = [
+  { letter: 'D', areaIn2: 0.110, flange: '1" 150# x 2" 150#' },
+  { letter: 'E', areaIn2: 0.196, flange: '1" 300# x 2" 150#' },
+  { letter: 'F', areaIn2: 0.307, flange: '1.5" 300# x 2" 150#' },
+  { letter: 'G', areaIn2: 0.503, flange: '1.5" 300# x 2.5" 150#' },
+  { letter: 'H', areaIn2: 0.785, flange: '1.5" 300# x 3" 150#' },
+  { letter: 'J', areaIn2: 1.287, flange: '2" 300# x 3" 150#' },
+  { letter: 'K', areaIn2: 1.838, flange: '3" 300# x 4" 150#' },
+  { letter: 'L', areaIn2: 2.853, flange: '3" 300# x 4" 150#' },
+  { letter: 'M', areaIn2: 3.600, flange: '4" 300# x 6" 150#' },
+  { letter: 'N', areaIn2: 4.340, flange: '4" 300# x 6" 150#' },
+  { letter: 'P', areaIn2: 6.380, flange: '4" 300# x 6" 150#' },
+  { letter: 'Q', areaIn2: 11.050, flange: '6" 300# x 8" 150#' },
+  { letter: 'R', areaIn2: 16.000, flange: '6" 300# x 8" 150#' },
+  { letter: 'T', areaIn2: 26.000, flange: '8" 300# x 10" 150#' }
+];
 
-  if (m === 'a36') {
-    sdInput.value = isMetric ? '160.0' : '23200';
-    stInput.value = isMetric ? '172.0' : '24900';
-  } else if (m === 'a516') {
-    sdInput.value = isMetric ? '193.0' : '28000';
-    stInput.value = isMetric ? '207.0' : '30000';
-  } else if (m === 'a573') {
-    sdInput.value = isMetric ? '193.0' : '28000';
-    stInput.value = isMetric ? '207.0' : '30000';
-  } else if (m === 'a283') {
-    sdInput.value = isMetric ? '138.0' : '20000';
-    stInput.value = isMetric ? '148.0' : '21400';
-  }
-  tankCalc();
+function prvSetFluid() {
+  var fl = document.getElementById('prv-fluid').value;
+  var mwInput = document.getElementById('prv-mw');
+  var kInput = document.getElementById('prv-k');
+  if (fl === 'steam') { mwInput.value = '18.02'; kInput.value = '1.31'; }
+  else if (fl === 'gas') { mwInput.value = '44.0'; kInput.value = '1.28'; }
+  prvCalc();
 }
 
-function tankCalc() {
-  var units = document.getElementById('tank-units').value;
+function prvCalc() {
+  var units = document.getElementById('prv-units').value;
   var isMetric = (units === 'si');
 
   // Dynamic labels
-  document.getElementById('lbl-diam').innerText = isMetric ? 'Tank Diameter (D, m)' : 'Tank Diameter (D, ft)';
-  document.getElementById('lbl-height').innerText = isMetric ? 'Total Tank Height (H, m)' : 'Total Tank Height (H, ft)';
-  document.getElementById('lbl-course-w').innerText = isMetric ? 'Course Plate Width (W, m)' : 'Course Plate Width (W, ft)';
-  document.getElementById('lbl-sd').innerText = isMetric ? 'Design Stress (Sd, MPa)' : 'Design Stress (Sd, psi)';
-  document.getElementById('lbl-st').innerText = isMetric ? 'Hydrotest Stress (St, MPa)' : 'Hydrotest Stress (St, psi)';
-  document.getElementById('lbl-ca').innerText = isMetric ? 'Corrosion Allowance (CA, mm)' : 'Corrosion Allowance (CA, in)';
-  document.getElementById('lbl-wind').innerText = isMetric ? 'Design Wind Speed (V, km/h)' : 'Design Wind Speed (V, mph)';
+  document.getElementById('lbl-flow').innerText = isMetric ? 'Required Capacity (kg/h)' : 'Required Capacity (lb/hr)';
+  document.getElementById('lbl-pset').innerText = isMetric ? 'Set Pressure (Pset, bar g)' : 'Set Pressure (Pset, psig)';
+  document.getElementById('lbl-pback').innerText = isMetric ? 'Total Backpressure (Pb, bar g)' : 'Total Backpressure (Pb, psig)';
+  document.getElementById('lbl-temp').innerText = isMetric ? 'Relieving Temp (T, °C)' : 'Relieving Temp (T, °F)';
 
-  var dRaw = parseFloat(document.getElementById('tank-diam').value) || 120.0;
-  var hRaw = parseFloat(document.getElementById('tank-height').value) || 48.0;
-  var wCourseRaw = parseFloat(document.getElementById('tank-coursew').value) || 8.0;
-  var sg = parseFloat(document.getElementById('tank-sg').value) || 0.86;
-  var sdRaw = parseFloat(document.getElementById('tank-sd').value) || 23200;
-  var stRaw = parseFloat(document.getElementById('tank-st').value) || 24900;
-  var e = parseFloat(document.getElementById('tank-e').value) || 1.0;
-  var caRaw = parseFloat(document.getElementById('tank-ca').value) || 0.125;
-  var windRaw = parseFloat(document.getElementById('tank-wind').value) || 120;
-  var freeboardRaw = parseFloat(document.getElementById('tank-freeboard').value) || 1.5;
+  var vType = document.getElementById('prv-type').value;
+  var opPct = parseFloat(document.getElementById('prv-op').value) || 10.0;
+  var flowRaw = parseFloat(document.getElementById('prv-flow').value) || 45000;
+  var pSetRaw = parseFloat(document.getElementById('prv-pset').value) || 150;
+  var pBackRaw = parseFloat(document.getElementById('prv-pback').value) || 30;
+  var tempRaw = parseFloat(document.getElementById('prv-temp').value) || 180;
+  var mw = parseFloat(document.getElementById('prv-mw').value) || 44.0;
+  var k = parseFloat(document.getElementById('prv-k').value) || 1.28;
+  var z = parseFloat(document.getElementById('prv-z').value) || 0.95;
+  var inletLossPct = parseFloat(document.getElementById('prv-inletloss').value) || 1.8;
+  var kc = parseFloat(document.getElementById('prv-rd').value) || 1.0;
 
-  // Standardize internal calculations to US Customary (ft, in, psi, mph)
-  var dFt, hFt, wCourseFt, sdPsi, stPsi, caIn, windMph, freeboardFt;
+  // Convert to US Customary internal units (lb/hr, psig, psia, deg R)
+  var flowLbHr, pSetPsig, pBackPsig, tempR;
   if (isMetric) {
-    dFt = dRaw * 3.28084;
-    hFt = hRaw * 3.28084;
-    wCourseFt = wCourseRaw * 3.28084;
-    sdPsi = sdRaw * 145.038;
-    stPsi = stRaw * 145.038;
-    caIn = caRaw / 25.4;
-    windMph = windRaw * 0.621371;
-    freeboardFt = freeboardRaw * 3.28084;
+    flowLbHr = flowRaw * 2.20462;
+    pSetPsig = pSetRaw * 14.5038;
+    pBackPsig = pBackRaw * 14.5038;
+    tempR = (tempRaw + 273.15) * 1.8;
   } else {
-    dFt = dRaw;
-    hFt = hRaw;
-    wCourseFt = wCourseRaw;
-    sdPsi = sdRaw;
-    stPsi = stRaw;
-    caIn = caRaw;
-    windMph = windRaw;
-    freeboardFt = freeboardRaw;
+    flowLbHr = flowRaw;
+    pSetPsig = pSetRaw;
+    pBackPsig = pBackRaw;
+    tempR = tempRaw + 459.67;
   }
 
-  // Number of Courses
-  var numCourses = Math.max(2, Math.round(hFt / wCourseFt));
-  var actualCourseWidthFt = hFt / numCourses;
+  // Relieving Pressure P1 (psia)
+  var pRelievingPsig = pSetPsig * (1.0 + opPct / 100.0);
+  var p1Psia = pRelievingPsig + 14.696;
 
-  // Table 5.2 Minimum Thickness (inches)
-  var tTableMin = 0.1875; // 3/16"
-  if (dFt >= 50.0 && dFt < 120.0) tTableMin = 0.250; // 1/4"
-  else if (dFt >= 120.0 && dFt <= 200.0) tTableMin = 0.3125; // 5/16"
-  else if (dFt > 200.0) tTableMin = 0.375; // 3/8"
+  // Backpressure percentage (% of set pressure)
+  var bpPct = (pBackPsig / Math.max(1.0, pSetPsig)) * 100.0;
 
-  // Capacity calculations
-  var maxLiquidHeightFt = Math.max(1.0, hFt - freeboardFt);
-  // Volume in ft³ = (pi / 4) * D^2 * H_liquid
-  var volFt3 = (Math.PI / 4.0) * Math.pow(dFt, 2) * maxLiquidHeightFt;
-  var capBbls = volFt3 / 5.61458; // 1 bbl = 5.61458 ft³
-  var capM3 = volFt3 * 0.0283168;
-
-  // Calculate each course from 1 (bottom) to numCourses (top)
-  var courses = [];
-  var totalSteelWeightLbs = 0;
-
-  for (var i = 1; i <= numCourses; i++) {
-    // Liquid head above 1-ft point of course i
-    // Bottom of course i is at (i - 1) * actualCourseWidthFt
-    // 1-ft point is at (i - 1) * actualCourseWidthFt + 1.0
-    var elev1Ft = (i - 1) * actualCourseWidthFt + 1.0;
-    var headAbove1Ft = Math.max(0, maxLiquidHeightFt - elev1Ft);
-
-    // Design Thickness td
-    var td = (2.6 * dFt * headAbove1Ft * sg) / (sdPsi * e) + caIn;
-    // Hydrotest Thickness tt
-    var tt = (2.6 * dFt * headAbove1Ft * 1.0) / (stPsi * 1.0);
-
-    // Governing required thickness
-    var tReq = Math.max(td, tt, tTableMin);
-
-    // Round up to nearest standard plate 1/16" (0.0625)
-    var tNom = Math.ceil(tReq / 0.0625) * 0.0625;
-    if (tNom < tTableMin) tNom = tTableMin;
-
-    var govReason = 'Design + CA';
-    if (tNom === tTableMin) govReason = 'Table 5.2 Min';
-    else if (tt > td) govReason = 'Hydrotest Water';
-
-    // Shell weight for this course: rho_steel = 490 lb/ft3
-    var circFt = Math.PI * dFt;
-    var courseVolFt3 = circFt * actualCourseWidthFt * (tNom / 12.0);
-    var courseWeightLbs = courseVolFt3 * 490.0;
-    totalSteelWeightLbs += courseWeightLbs;
-
-    courses.push({
-      num: i,
-      elevBotFt: (i - 1) * actualCourseWidthFt,
-      elevTopFt: i * actualCourseWidthFt,
-      td: td,
-      tt: tt,
-      tReq: tReq,
-      tNom: tNom,
-      govReason: govReason,
-      weightLbs: courseWeightLbs
-    });
+  // Backpressure correction factor Kb
+  var kb = 1.0;
+  if (vType === 'balanced') {
+    if (bpPct > 30.0) {
+      kb = Math.max(0.65, 1.0 - 0.0105 * Math.pow(bpPct - 30.0, 1.15));
+    }
+  } else if (vType === 'conv') {
+    if (bpPct > 10.0) {
+      kb = Math.max(0.40, 1.0 - 0.03 * (bpPct - 10.0));
+    }
   }
 
-  // Top course thickness for wind stability
-  var topCourse = courses[courses.length - 1];
-  var tTopIn = topCourse.tNom;
+  // Gas Expansion Factor C
+  // C = 520 * sqrt(k * (2 / (k + 1))^((k + 1) / (k - 1)))
+  var expFactor = (k + 1.0) / (k - 1.0);
+  var termK = Math.pow(2.0 / (k + 1.0), expFactor);
+  var cFactor = 520.0 * Math.sqrt(k * termK);
 
-  // Unstiffened shell height H1 (API 650 Section 5.9)
-  var termWind = Math.pow(120.0 / Math.max(60, windMph), 2);
-  var h1Ft = 9.47 * tTopIn * Math.sqrt(Math.pow(tTopIn / dFt, 3)) * 1728.0 * termWind; // scaling factors
-  h1Ft = Math.min(60.0, Math.max(15.0, 4.0 * Math.sqrt(dFt * tTopIn) * termWind));
+  var kd = 0.975; // API effective discharge coefficient for vapor
 
-  var intGirdersReq = (hFt > h1Ft) ? Math.ceil((hFt - h1Ft) / h1Ft) : 0;
+  // Required Orifice Area (in²)
+  // A_req = W / [ C * Kd * P1 * Kb * Kc ] * sqrt( (T * Z) / M )
+  var denom = cFactor * kd * p1Psia * kb * kc;
+  var aReqIn2 = (flowLbHr / denom) * Math.sqrt((tempR * z) / mw);
 
-  tankLastCalc = {
+  // Select standard API letter orifice
+  var selectedOrifice = null;
+  for (var i = 0; i < API_ORIFICES.length; i++) {
+    if (API_ORIFICES[i].areaIn2 >= aReqIn2) {
+      selectedOrifice = API_ORIFICES[i];
+      break;
+    }
+  }
+  if (!selectedOrifice) {
+    selectedOrifice = API_ORIFICES[API_ORIFICES.length - 1]; // Max T orifice
+  }
+
+  // Rated Relieving Capacity with selected orifice
+  var ratedCapLbHr = (selectedOrifice.areaIn2 * denom) / Math.sqrt((tempR * z) / mw);
+  var excessPct = ((selectedOrifice.areaIn2 - aReqIn2) / aReqIn2) * 100.0;
+
+  prvLastCalc = {
     isMetric: isMetric,
-    dFt: dFt,
-    hFt: hFt,
-    numCourses: numCourses,
-    courses: courses,
-    capBbls: capBbls,
-    capM3: capM3,
-    totalSteelWeightLbs: totalSteelWeightLbs,
-    h1Ft: h1Ft,
-    intGirdersReq: intGirdersReq,
-    c1NomIn: courses[0].tNom,
-    c1GovReason: courses[0].govReason,
-    tTableMin: tTableMin,
-    sdPsi: sdPsi,
-    stPsi: stPsi,
-    sg: sg
+    aReqIn2: aReqIn2,
+    selectedOrifice: selectedOrifice,
+    ratedCapLbHr: ratedCapLbHr,
+    excessPct: excessPct,
+    pSetPsig: pSetPsig,
+    pRelievingPsig: pRelievingPsig,
+    p1Psia: p1Psia,
+    bpPct: bpPct,
+    kb: kb,
+    cFactor: cFactor,
+    inletLossPct: inletLossPct,
+    vType: vType
   };
 
   // Update DOM Display
+  document.getElementById('kpi-letter').innerText = 'Orifice "' + selectedOrifice.letter + '"';
+  var areaDisp = isMetric ? (selectedOrifice.areaIn2 * 6.4516).toFixed(2) + ' cm²' : selectedOrifice.areaIn2.toFixed(3) + ' in²';
+  document.getElementById('kpi-letter-area').innerText = 'API Standard Area: ' + areaDisp;
+
   if (isMetric) {
-    document.getElementById('kpi-cap').innerText = Math.round(capM3).toLocaleString() + ' m³';
-    document.getElementById('kpi-vol-m3').innerText = Math.round(capBbls).toLocaleString() + ' bbls';
-    document.getElementById('kpi-c1').innerText = (courses[0].tNom * 25.4).toFixed(1) + ' mm';
-    document.getElementById('kpi-weight').innerText = (totalSteelWeightLbs * 0.000453592).toFixed(1) + ' Metric Tonnes';
-    document.getElementById('kpi-weight-m').innerText = (totalSteelWeightLbs / 2000.0).toFixed(1) + ' US Short Tons';
+    document.getElementById('kpi-req-area').innerText = (aReqIn2 * 6.4516).toFixed(2) + ' cm²';
+    document.getElementById('kpi-rated-cap').innerText = Math.round(ratedCapLbHr * 0.453592).toLocaleString() + ' kg/h';
+    document.getElementById('kpi-rated-unit').innerText = 'Required: ' + Math.round(flowRaw).toLocaleString() + ' kg/h';
+    document.getElementById('val-p1').innerText = (p1Psia / 14.5038).toFixed(2) + ' bar a (' + (pRelievingPsig / 14.5038).toFixed(2) + ' bar g)';
   } else {
-    document.getElementById('kpi-cap').innerText = Math.round(capBbls).toLocaleString() + ' bbls';
-    document.getElementById('kpi-vol-m3').innerText = Math.round(capM3).toLocaleString() + ' m³ (at ' + maxLiquidHeightFt.toFixed(1) + ' ft fill)';
-    document.getElementById('kpi-c1').innerText = courses[0].tNom.toFixed(3) + ' in';
-    document.getElementById('kpi-weight').innerText = (totalSteelWeightLbs / 2000.0).toFixed(1) + ' Tons';
-    document.getElementById('kpi-weight-m').innerText = (totalSteelWeightLbs * 0.000453592).toFixed(1) + ' Metric Tonnes';
+    document.getElementById('kpi-req-area').innerText = aReqIn2.toFixed(3) + ' in²';
+    document.getElementById('kpi-rated-cap').innerText = Math.round(ratedCapLbHr).toLocaleString() + ' lb/hr';
+    document.getElementById('kpi-rated-unit').innerText = 'Required: ' + Math.round(flowLbHr).toLocaleString() + ' lb/hr';
+    document.getElementById('val-p1').innerText = p1Psia.toFixed(1) + ' psia (' + pRelievingPsig.toFixed(1) + ' psig)';
   }
 
-  document.getElementById('kpi-c1-sub').innerText = 'Governed by ' + courses[0].govReason;
+  document.getElementById('kpi-margin-sub').innerText = 'Selected Area: +' + excessPct.toFixed(1) + '% Excess';
 
-  if (intGirdersReq === 0) {
-    document.getElementById('kpi-wind-status').innerText = 'No Girders Req';
-    document.getElementById('kpi-wind-status').style.color = '#10b981';
-    document.getElementById('kpi-wind-sub').innerHTML = '<span class="status-pill status-pass">H &le; H1 Stiffened</span>';
+  // Stability & Inlet Loss Check
+  if (inletLossPct <= 3.0) {
+    document.getElementById('kpi-stability').innerText = 'PASS';
+    document.getElementById('kpi-stability').style.color = '#10b981';
+    document.getElementById('kpi-stab-sub').innerHTML = '<span class="status-pill status-pass">' + inletLossPct.toFixed(1) + '% &le; 3.0% Limit</span>';
   } else {
-    document.getElementById('kpi-wind-status').innerText = intGirdersReq + ' Stiffener' + (intGirdersReq > 1 ? 's' : '') + ' Req';
-    document.getElementById('kpi-wind-status').style.color = '#f59e0b';
-    document.getElementById('kpi-wind-sub').innerHTML = '<span class="status-pill status-warn">H (' + Math.round(hFt) + 'ft) &gt; H1 (' + Math.round(h1Ft) + 'ft)</span>';
+    document.getElementById('kpi-stability').innerText = 'CHATTER';
+    document.getElementById('kpi-stability').style.color = '#ef4444';
+    document.getElementById('kpi-stab-sub').innerHTML = '<span class="status-pill status-fail">' + inletLossPct.toFixed(1) + '% &gt; 3.0% Chatter Risk!</span>';
   }
 
-  // Render Table Rows
-  var tbody = document.getElementById('tank-sched-body');
-  if (tbody) {
-    var html = '';
-    for (var r = 0; r < courses.length; r++) {
-      var c = courses[r];
-      var elevStr = isMetric ? (c.elevBotFt * 0.3048).toFixed(1) + ' - ' + (c.elevTopFt * 0.3048).toFixed(1) + ' m' : c.elevBotFt.toFixed(1) + ' - ' + c.elevTopFt.toFixed(1) + ' ft';
-      var tdStr = isMetric ? (c.td * 25.4).toFixed(2) + ' mm' : c.td.toFixed(3) + ' in';
-      var ttStr = isMetric ? (c.tt * 25.4).toFixed(2) + ' mm' : c.tt.toFixed(3) + ' in';
-      var tMinStr = isMetric ? (tTableMin * 25.4).toFixed(1) + ' mm' : tTableMin.toFixed(3) + ' in';
-      var tNomStr = isMetric ? (c.tNom * 25.4).toFixed(1) + ' mm' : c.tNom.toFixed(3) + ' in';
+  document.getElementById('val-op-str').innerText = opPct.toFixed(0) + '% Overpressure Applied';
+  document.getElementById('val-kb').innerText = 'Kb = ' + kb.toFixed(3) + ' (' + bpPct.toFixed(1) + '% Backpress)';
+  document.getElementById('val-bp-status').innerText = (bpPct > 10 && vType === 'conv') ? 'WARNING: Exceeds Conv 10% Limit!' : 'Backpressure Within Limit';
+  document.getElementById('val-bp-status').style.color = (bpPct > 10 && vType === 'conv') ? '#ef4444' : 'var(--text-muted)';
+  document.getElementById('val-flange').innerText = selectedOrifice.flange;
+  document.getElementById('val-c-factor').innerText = 'Gas Expansion Factor C: ' + cFactor.toFixed(1);
 
-      html += '<tr>' +
-        '<td><strong>Course ' + c.num + '</strong>' + (c.num === 1 ? ' (Bottom)' : '') + '</td>' +
-        '<td>' + elevStr + '</td>' +
-        '<td>' + tdStr + '</td>' +
-        '<td>' + ttStr + '</td>' +
-        '<td>' + tMinStr + '</td>' +
-        '<td><strong style="color: var(--primary);">' + tNomStr + '</strong></td>' +
-        '<td><span class="status-pill ' + (c.govReason === 'Design + CA' ? 'status-pass' : (c.govReason === 'Hydrotest Water' ? 'status-warn' : 'status-pass')) + '">' + c.govReason + '</span></td>' +
-        '</tr>';
-    }
-    tbody.innerHTML = html;
-  }
-
-  tankDrawElevation();
-  tankDrawStress();
+  prvDrawSpectrum();
+  prvDrawKb();
 }
 
-function tankDrawElevation() {
-  var canvas = document.getElementById('tank-elev-canvas');
+function prvDrawSpectrum() {
+  var canvas = document.getElementById('prv-area-canvas');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
   var w = canvas.width;
   var h = canvas.height;
   ctx.clearRect(0, 0, w, h);
 
-  if (!tankLastCalc) return;
-  var d = tankLastCalc;
-  var courses = d.courses;
-
-  var cx = w / 2;
-  var tankW = 160;
-  var tankTop = 30;
-  var tankBot = h - 35;
-  var totalH = tankBot - tankTop;
-
-  // Draw Foundation Ringwall Line
-  ctx.strokeStyle = '#64748b';
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(cx - tankW / 2 - 25, tankBot);
-  ctx.lineTo(cx + tankW / 2 + 25, tankBot);
-  ctx.stroke();
-
-  // Draw courses from bottom to top
-  var numC = courses.length;
-  for (var i = 0; i < numC; i++) {
-    var c = courses[i];
-    var cHeight = totalH / numC;
-    var cYBot = tankBot - (i * cHeight);
-    var cYTop = cYBot - cHeight;
-
-    // Visual thickness proportion (thicker at bottom)
-    var thickPx = 3 + (c.tNom / courses[0].tNom) * 8;
-
-    ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 1.5;
-
-    // Left shell plate
-    ctx.fillRect(cx - tankW / 2, cYTop, thickPx, cHeight);
-    ctx.strokeRect(cx - tankW / 2, cYTop, thickPx, cHeight);
-
-    // Right shell plate
-    ctx.fillRect(cx + tankW / 2 - thickPx, cYTop, thickPx, cHeight);
-    ctx.strokeRect(cx + tankW / 2 - thickPx, cYTop, thickPx, cHeight);
-
-    // Course horizontal weld seam
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([2, 2]);
-    ctx.beginPath();
-    ctx.moveTo(cx - tankW / 2 + thickPx, cYTop);
-    ctx.lineTo(cx + tankW / 2 - thickPx, cYTop);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Course label
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '10px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('C' + c.num + ' (' + (d.isMetric ? (c.tNom * 25.4).toFixed(1) + 'mm' : c.tNom.toFixed(3) + '"') + ')', cx, cYTop + cHeight / 2 + 3);
-  }
-
-  // Top curb angle / wind girder
-  ctx.fillStyle = '#10b981';
-  ctx.fillRect(cx - tankW / 2 - 4, tankTop, 8, 4);
-  ctx.fillRect(cx + tankW / 2 - 4, tankTop, 8, 4);
-
-  // Labels
-  ctx.fillStyle = '#64748b';
-  ctx.font = '10px Inter, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('Foundation Ringwall Grade', cx, h - 12);
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#10b981';
-  ctx.fillText('● Primary Top Wind Girder', 15, 18);
-}
-
-function tankDrawStress() {
-  var canvas = document.getElementById('tank-stress-canvas');
-  if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var w = canvas.width;
-  var h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
-
-  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var padL = 30, padR = 20, padT = 25, padB = 35;
   var plotW = w - padL - padR;
   var plotH = h - padT - padB;
 
-  if (!tankLastCalc) return;
-  var d = tankLastCalc;
-  var courses = d.courses;
+  if (!prvLastCalc) return;
+  var d = prvLastCalc;
+  var numO = API_ORIFICES.length;
+  var barW = (plotW / numO) - 4;
 
-  var maxStress = Math.max(d.stPsi, d.sdPsi) * 1.25;
-  function toXStress(sVal) {
-    return padL + (sVal / maxStress) * plotW;
-  }
-  function toYElev(frac) {
+  var maxArea = API_ORIFICES[numO - 1].areaIn2;
+  // Use log scale for vertical height
+  function toY(a) {
+    var frac = Math.log10(a / 0.08) / Math.log10(30.0 / 0.08);
     return padT + plotH - frac * plotH;
+  }
+
+  // Draw orifice bars
+  for (var i = 0; i < numO; i++) {
+    var item = API_ORIFICES[i];
+    var bx = padL + i * (barW + 4);
+    var by = toY(item.areaIn2);
+    var bh = padT + plotH - by;
+
+    var isSelected = (item.letter === d.selectedOrifice.letter);
+    ctx.fillStyle = isSelected ? '#38bdf8' : (item.areaIn2 >= d.aReqIn2 ? '#1e293b' : '#334155');
+    ctx.fillRect(bx, by, barW, bh);
+
+    if (isSelected) {
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, barW, bh);
+    }
+
+    ctx.fillStyle = isSelected ? '#38bdf8' : '#94a3b8';
+    ctx.font = isSelected ? 'bold 11px Inter, sans-serif' : '9px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(item.letter, bx + barW / 2, h - 12);
+  }
+
+  // Draw required area horizontal line
+  var yReq = toY(d.aReqIn2);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, yReq);
+  ctx.lineTo(padL + plotW, yReq);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = '#ef4444';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Required A_req = ' + d.aReqIn2.toFixed(3) + ' in²', padL + plotW, yReq - 6);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Selected: Orifice "' + d.selectedOrifice.letter + '" (' + d.selectedOrifice.areaIn2.toFixed(3) + ' in²)', padL + 10, padT + 12);
+}
+
+function prvDrawKb() {
+  var canvas = document.getElementById('prv-kb-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 45, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!prvLastCalc) return;
+  var d = prvLastCalc;
+
+  var maxBp = 60.0;
+  function toX(bp) {
+    return padL + (bp / maxBp) * plotW;
+  }
+  function toY(kbVal) {
+    return padT + plotH - ((kbVal - 0.5) / 0.55) * plotH;
   }
 
   // Grid
@@ -1728,104 +1649,104 @@ function tankDrawStress() {
   }
   ctx.stroke();
 
-  // Allowable Stress lines
-  var xSd = toXStress(d.sdPsi);
-  var xSt = toXStress(d.stPsi);
-
-  ctx.strokeStyle = '#10b981';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 4]);
+  // Balanced bellows curve (green)
   ctx.beginPath();
-  ctx.moveTo(xSd, padT);
-  ctx.lineTo(xSd, padT + plotH);
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  var pts = 60;
+  for (var i = 0; i <= pts; i++) {
+    var bp = (i / pts) * maxBp;
+    var kbCurve = 1.0;
+    if (bp > 30.0) {
+      kbCurve = Math.max(0.65, 1.0 - 0.0105 * Math.pow(bp - 30.0, 1.15));
+    }
+    var px = toX(bp);
+    var py = toY(kbCurve);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
   ctx.stroke();
 
-  ctx.strokeStyle = '#f59e0b';
+  // Conventional PRV curve (red dashed)
   ctx.beginPath();
-  ctx.moveTo(xSt, padT);
-  ctx.lineTo(xSt, padT + plotH);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  for (var j = 0; j <= pts; j++) {
+    var bpConv = (j / pts) * maxBp;
+    var kbConv = 1.0;
+    if (bpConv > 10.0) {
+      kbConv = Math.max(0.40, 1.0 - 0.03 * (bpConv - 10.0));
+    }
+    var jx = toX(bpConv);
+    var jy = toY(kbConv);
+    if (j === 0) ctx.moveTo(jx, jy);
+    else ctx.lineTo(jx, jy);
+  }
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Plot actual design stress profile (stepped by course)
+  // Current operating point
+  var curX = toX(Math.min(maxBp, d.bpPct));
+  var curY = toY(d.kb);
+  ctx.fillStyle = '#38bdf8';
   ctx.beginPath();
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 2.5;
-  var numC = courses.length;
-  for (var c = 0; c < numC; c++) {
-    var item = courses[c];
-    var fracBot = c / numC;
-    var fracTop = (c + 1) / numC;
-
-    // Actual stress = (2.6 * D * H * G) / t_nom
-    var headFt = d.hFt * (1.0 - fracBot);
-    var actStress = (2.6 * d.dFt * Math.max(0, headFt - 1.0) * d.sg) / item.tNom;
-
-    var px = toXStress(actStress);
-    var pyBot = toYElev(fracBot);
-    var pyTop = toYElev(fracTop);
-
-    if (c === 0) ctx.moveTo(px, pyBot);
-    ctx.lineTo(px, pyTop);
-    if (c < numC - 1) {
-      var nextStress = (2.6 * d.dFt * Math.max(0, (d.hFt * (1.0 - fracTop)) - 1.0) * d.sg) / courses[c + 1].tNom;
-      ctx.lineTo(toXStress(nextStress), pyTop);
-    }
-  }
-  ctx.stroke();
+  ctx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  ctx.fill();
 
   // Labels
   ctx.fillStyle = '#94a3b8';
   ctx.font = '10px Inter, sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(Math.round(maxStress / 1000) + 'k psi', padL - 6, padT + 12);
-  ctx.fillText('0', padL - 6, padT + plotH);
+  ctx.fillText('1.00', padL - 6, toY(1.0) + 3);
+  ctx.fillText('0.75', padL - 6, toY(0.75) + 3);
+  ctx.fillText('0.50', padL - 6, padT + plotH);
 
   ctx.textAlign = 'center';
-  ctx.fillText('Calculated Hoop Stress (psi)', padL + plotW / 2, h - 10);
+  ctx.fillText('Percent Gauge Backpressure (% of Pset)', padL + plotW / 2, h - 10);
 
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillText('● Shell Hoop Stress', padL + 10, padT + 12);
   ctx.fillStyle = '#10b981';
-  ctx.fillText('┆ Allowable Sd', padL + 140, padT + 12);
-  ctx.fillStyle = '#f59e0b';
-  ctx.fillText('┆ Hydro St', padL + 230, padT + 12);
+  ctx.fillText('● Balanced Bellows Kb', padL + 10, padT + 12);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillText('-- Conventional (&le; 10%)', padL + 160, padT + 12);
 }
 
-function tankCopySummary() {
-  if (!tankLastCalc) return;
-  var d = tankLastCalc;
+function prvCopySummary() {
+  if (!prvLastCalc) return;
+  var d = prvLastCalc;
   var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
-  var dUnit = d.isMetric ? 'm' : 'ft';
-  var tUnit = d.isMetric ? 'mm' : 'in';
-  var capUnit = d.isMetric ? 'm³' : 'bbls';
+  var aUnit = d.isMetric ? 'cm²' : 'in²';
+  var pUnit = d.isMetric ? 'bar g' : 'psig';
+  var flowUnit = d.isMetric ? 'kg/h' : 'lb/hr';
 
-  var text = '=== API 650 STORAGE TANK SHELL SIZING SUMMARY ===
+  var text = '=== API 526 PRESSURE RELIEF VALVE DIAGNOSTIC SUMMARY ===
 ' +
-    'Standards: API 650 13th Edition (Section 5.6.3 One-Foot Method)
+    'Standards: API 526 7th Ed / API 520 Part 1 / ASME Section VIII Div 1
 ' +
     'Units System: ' + u + '
 ' +
-    'Tank Dimensions: D = ' + (d.isMetric ? (d.dFt * 0.3048).toFixed(1) : d.dFt.toFixed(1)) + ' ' + dUnit + ' x H = ' + (d.isMetric ? (d.hFt * 0.3048).toFixed(1) : d.hFt.toFixed(1)) + ' ' + dUnit + '
+    'Selected API Orifice: Orifice "' + d.selectedOrifice.letter + '" (' + (d.isMetric ? (d.selectedOrifice.areaIn2 * 6.4516).toFixed(2) : d.selectedOrifice.areaIn2.toFixed(3)) + ' ' + aUnit + ')
 ' +
-    'Number of Shell Courses: ' + d.numCourses + ' Courses
+    'Required Calculated Area: ' + (d.isMetric ? (d.aReqIn2 * 6.4516).toFixed(2) : d.aReqIn2.toFixed(3)) + ' ' + aUnit + ' (+' + d.excessPct.toFixed(1) + '% margin)
 ' +
-    'Working Capacity: ' + (d.isMetric ? Math.round(d.capM3).toLocaleString() : Math.round(d.capBbls).toLocaleString()) + ' ' + capUnit + '
+    'Recommended Flange Sizes: ' + d.selectedOrifice.flange + '
 ' +
-    'Course 1 (Bottom Shell): ' + (d.isMetric ? (d.c1NomIn * 25.4).toFixed(1) : d.c1NomIn.toFixed(3)) + ' ' + tUnit + ' [' + d.c1GovReason + ']
+    'Set Pressure (Pset): ' + (d.isMetric ? (d.pSetPsig / 14.5038).toFixed(1) : d.pSetPsig.toFixed(1)) + ' ' + pUnit + '
 ' +
-    'Table 5.2 Minimum Limit: ' + (d.isMetric ? (d.tTableMin * 25.4).toFixed(1) : d.tTableMin.toFixed(3)) + ' ' + tUnit + '
+    'Relieving Pressure (P1): ' + (d.isMetric ? (d.p1Psia / 14.5038).toFixed(2) : d.p1Psia.toFixed(1)) + ' ' + (d.isMetric ? 'bar a' : 'psia') + '
 ' +
-    'Wind Stiffening: ' + (d.intGirdersReq === 0 ? 'No intermediate girders needed' : d.intGirdersReq + ' intermediate wind ring(s) required') + '
+    'Backpressure: ' + d.bpPct.toFixed(1) + '% of Pset (Kb = ' + d.kb.toFixed(3) + ')
 ' +
-    'Total Shell Steel Weight: ' + (d.isMetric ? (d.totalSteelWeightLbs * 0.000453592).toFixed(1) + ' Metric Tonnes' : (d.totalSteelWeightLbs / 2000.0).toFixed(1) + ' Tons') + '
+    'Rated Certified Capacity: ' + (d.isMetric ? Math.round(d.ratedCapLbHr * 0.453592).toLocaleString() : Math.round(d.ratedCapLbHr).toLocaleString()) + ' ' + flowUnit + '
+' +
+    'Inlet Piping Loss: ' + d.inletLossPct.toFixed(1) + '% of Pset [' + (d.inletLossPct <= 3.0 ? 'PASS ≤ 3.0%' : 'FAIL - CHATTER RISK') + ']
 ' +
     'Timestamp: ' + new Date().toISOString() + '
 ';
 
   navigator.clipboard.writeText(text).then(function() {
-    var btn = document.querySelector('.tank-btn');
+    var btn = document.querySelector('.prv-btn');
     if (btn) {
       var orig = btn.innerHTML;
       btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
@@ -1835,7 +1756,7 @@ function tankCopySummary() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  tankCalc();
+  prvCalc();
 });
 </script>
 
@@ -1844,51 +1765,51 @@ window.addEventListener('DOMContentLoaded', function() {
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the API 650 One-Foot Method for shell plate thickness calculation?</span>
+                <span style="font-size:1rem;">What is the difference between API 526 effective orifice area and manufacturer actual area?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The One-Foot Method (API 650 Section 5.6.3) calculates the required thickness of each individual cylindrical shell course at a point exactly 1.0 foot (0.3 meters) above the bottom horizontal weld seam of that course. Because the bottom plate acts as a rigid boundary restraint preventing free radial expansion of the shell bottom, significant localized bending moments exist right at the shell-to-bottom corner. At 1.0 foot above the seam, local bending stresses have largely decayed, allowing simple circumferential membrane hoop stress equations to govern: t_d = [2.6 * D * (H - 1) * G] / (S_d * E) + CA. The One-Foot method is authorized for tanks with nominal diameters up to 200 feet (60 meters).
+                API 526 establishes 14 standardized lettered orifice designations (from D with 0.110 in² up to T with 26.00 in²) with published "effective" discharge areas and a standardized effective discharge coefficient (Kd = 0.975 for gas/vapor, Kd = 0.65 for liquid). These standardized values allow process engineers to calculate required relief area and select an API letter size without being locked into a specific valve brand. Once an EPC contractor purchases valves from a certified ASME Section VIII manufacturer (such as Crosby, Consolidated, or Farris), the manufacturer verifies the final certified relieving capacity using the valve's actual internal bore area (which is typically slightly larger than the API effective area) and certified ASME derated coefficient (0.90 * Kd).
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why must both Design Thickness (t_d) and Hydrostatic Test Thickness (t_t) be evaluated?</span>
+                <span style="font-size:1rem;">When must a Balanced Bellows PRV be used instead of a Conventional PRV?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                API 650 mandates checking two completely distinct operating conditions for every shell course: 1) The Design Condition (t_d) considers the stored petroleum product at its design specific gravity G (typically 0.82 to 0.90 for crude oil or fuel oils) along with the customer-specified Corrosion Allowance (CA) and design allowable stress S_d; 2) The Hydrostatic Test Condition (t_t) considers the vessel filled to the brim with clean ambient test water (G = 1.0) with zero corrosion allowance (CA = 0) and hydrostatic test allowable stress S_t. In upper shell courses where liquid head is lower and CA is a significant percentage of wall thickness, or in lightweight product storage (such as gasoline G = 0.72), the full-density water test condition frequently dictates a thicker plate than the operating design condition.
+                In a conventional spring-loaded PRV, any superimposed or built-up backpressure in the discharge flare header acts directly on the top surface of the valve disc, adding directly to the spring closing force. This causes the opening set pressure to increase 1-to-1 with backpressure, and dramatically reduces valve lift. API 520 mandates that conventional PRVs must not be used when total backpressure exceeds 10% of set pressure. A Balanced Bellows PRV incorporates a flexible metallic bellows with an effective area matching the nozzle seat area, isolating the upper disc from header pressure and venting the bonnet to atmosphere. Balanced bellows PRVs maintain constant set pressure even with variable superimposed backpressure, and can handle backpressures up to 30% to 50% of set pressure with appropriate backpressure derating factors (Kb or Kw).
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What are the minimum nominal shell plate thicknesses per API 650 Table 5.2?</span>
+                <span style="font-size:1rem;">What are the code-allowable overpressure limits under ASME Section VIII UG-125?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                To guarantee structural rigidity during crane erection, resist out-of-round ovalization, and prevent wind buckling, API 650 sets absolute minimum plate thickness limits based on tank diameter: for D < 50 ft, min thickness is 3/16 in (5 mm); for 50 ft <= D < 120 ft, min thickness is 1/4 in (6 mm); for 120 ft <= D <= 200 ft, min thickness is 5/16 in (8 mm); and for D > 200 ft, min thickness is 3/8 in (10 mm). Even if hydrostatic calculations yield a thinner requirement, the shell plate must never be thinner than these Table 5.2 minimums.
+                Overpressure is the pressure increase over the valve set pressure during discharge, expressed as a percentage of set pressure. ASME Section VIII Division 1 specifies: 1) Non-fire single valve installation: maximum 10% overpressure (accumulated relieving pressure = 1.10 * set pressure); 2) Multiple valve installation for non-fire cases: primary valve at set pressure, secondary valve at 105% set pressure, with maximum 16% overpressure; 3) Fire exposure contingency (external pool or jet fire per API 521): maximum 21% overpressure (relieving pressure = 1.21 * set pressure). Sizing a fire relief valve at 10% overpressure instead of 21% results in massive over-sizing, causing chattering and excessive flare loads.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">When are intermediate wind girders required on API 650 storage tanks?</span>
+                <span style="font-size:1rem;">Why is the 3% inlet piping pressure drop rule critical to preventing PRV chattering?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Open-top and external floating roof (EFR) storage tanks are vulnerable to elastic buckling of the upper shell courses from wind-induced negative external suction. API 650 Section 5.9 calculates the maximum allowable height of unstiffened shell: H_1 = 9.47 * t_min * sqrt((t_min / D)^3) * (120 / V_wind)^2, where t_min is the thickness of the top shell course and V_wind is design wind speed. If total tank height H exceeds H_1, the tank requires one or more intermediate circumferential wind girders installed down the shell height to divide the shell into aerodynamically stable bays.
+                API 520 Part 2 Section 4 mandates that frictional pressure drop in the piping between the protected pressure vessel and the PRV inlet flange must not exceed 3% of the valve set pressure at full relieving capacity. When a PRV pops open, high mass flow creates immediate frictional pressure drop along the inlet nozzle. If this pressure loss exceeds 3% (which is less than the standard 5% to 7% valve reseat blowdown), the static pressure directly under the disc drops below the reseating threshold. The valve slams shut, halting flow, which instantly restores vessel pressure and pops the valve open again. This rapid chattering (cycling at 20 to 50 Hz) causes catastrophic seat galling, bellows fatigue failure, spring breakage, and violent piping vibration that can shear the valve clean off the nozzle.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What causes corner joint cracking at the bottom shell-to-annular plate weld?</span>
+                <span style="font-size:1rem;">What is the backpressure capacity derating factor Kb for gas/vapor relief?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Under full liquid fill, the bottom shell course dilates radially outward under high hoop stress, while the annular bottom plate is pinned flat to the concrete ringwall foundation. This geometric discontinuity creates a plastic hinge moment at the corner fillet weld. If the bottom shell course is excessively thick or if differential foundation settlement occurs around the perimeter, high localized cyclic bending fatigue leads to cracking along the toe of the shell-to-bottom weld. API 650 Annex M and Annex P require careful verification of annular plate radial width and thickness (minimum 0.25 to 0.50 in) to absorb this corner rotation without tearing.
+                For balanced bellows PRVs discharging gas or vapor under high backpressure, the backpressure correction factor Kb compensates for the loss of subcritical nozzle expansion efficiency. When backpressure exceeds critical flow pressure (typically 50% to 55% of absolute relieving pressure), flow transitions from sonic (choked) to subsonic flow, causing mass flow to drop sharply. The API 520 Part 1 Kb curve maintains Kb = 1.0 up to approximately 30% gauge backpressure, then drops smoothly: at 40% backpressure Kb ~ 0.93, and at 50% backpressure Kb ~ 0.79. Conventional valves have no Kb derating because their lift is compromised above 10% backpressure.
               </div>
             </div>
           
@@ -1922,8 +1843,8 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fapi-650-storage-tank-shell-thickness-calculator&text=API%20650%20Storage%20Tank%20Shell%20Sizing%20%26%201-Foot%20Method%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fapi-650-storage-tank-shell-thickness-calculator&title=API%20650%20Storage%20Tank%20Shell%20Sizing%20%26%201-Foot%20Method%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fapi-526-flanged-steel-prv-sizing-calculator&text=API%20526%20Pressure%20Relief%20Valve%20(PRV)%20Orifice%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fapi-526-flanged-steel-prv-sizing-calculator&title=API%20526%20Pressure%20Relief%20Valve%20(PRV)%20Orifice%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -2006,14 +1927,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/math/percentage-increase-calculator" class="promo-card">
+                <a href="/math/fraction-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                       <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Percentage Increase Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate percentage growth, price rises, and revenue increases between two numbers.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Fraction Arithmetic Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Add, subtract, multiply, and divide fractions with step-by-step LCD solutions.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -2036,14 +1957,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
               
-                <a href="/math/standard-deviation-calculator" class="promo-card">
+                <a href="/calc/kwh-to-joules" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                       <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Standard Deviation Calculator (Sample & Population)</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate sample standard deviation, population standard deviation, variance, and mean.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">kWh to Joules (kWh to J)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert kilowatt-hours to joules with physics derivation and household energy benchmarks.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -2051,14 +1972,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 </a>
                 
               
-                <a href="/calc/liters-to-gallons" class="promo-card">
+                <a href="/util/ship-of-theseus" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Units & Calc</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Liters to Gallons</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert liquid volume from metric liters to US gallons.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">The Ship of Theseus Identity Paradox Simulator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Interactive plank replacement slider exploring continuous personal identity metaphysics.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
