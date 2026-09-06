@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Your Life in Weeks: Interactive 4,680-Box Memento Mori Matrix free to use?",
+      "name": "What is the 'Life in Weeks' concept and who popularized it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Your Life in Weeks: Interactive 4,680-Box Memento Mori Matrix on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Popularized by writer Tim Urban on 'Wait But Why' in 2014, the concept visualizes an entire human life on a single sheet of paper using 4,680 small boxes (52 weeks across by 90 years down)."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How many weeks are in an average 80 to 90-year human lifespan?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "An 80-year life contains approximately 4,160 weeks. A 90-year life contains approximately 4,680 weeks."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Your Life in Weeks: Interactive 4,680-Box Memento Mori Matrix work on mobile devices?",
+      "name": "How does seeing life in weeks affect time perception?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Humans naturally perceive time in short recurring cycles (days, weeks) or abstract distant years. Visualizing the entire finite matrix simultaneously breaks the illusion of endless time, sharpening focus on present priorities."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the 'Tail End' phenomenon regarding relationships with parents?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because childhood involves daily cohabitation, the average person consumes roughly 90% of their total in-person face time with their parents before graduating high school and leaving home."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Memento Mori enhance psychological well-being?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Originating in ancient Stoic philosophy, Memento Mori ('remember you will die') reduces petty anxiety, eliminates trivial conflicts, deepens daily gratitude, and clarifies genuine life priorities."
       }
     }
   ]
@@ -1076,7 +1092,61 @@
           <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">Each square represents 1 week (52 weeks per row = 1 full year)</span>
         </div>
 
-        <div id="liwContainer" class="week-grid"></div>
+        <div id="liwContainer" class="week-grid" style="margin-bottom: 1.5rem;"></div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyLifeWeeksSummary()" id="copyLifeWeeksBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Life in Weeks Ledger</button>
+        </div>
+      </div>
+
+      <!-- MEMENTO MORI DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical & Biological Framework: The 4,680-Week Matrix</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          First visualized by Tim Urban in <em>Wait But Why</em> (2014), the weekly grid translates abstract actuarial metrics into finite discrete spatial blocks:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Total Lifetime Capacity (90 Years):<br>
+          &nbsp;&nbsp;&nbsp;W_{total} = 90 &times; 52.1775 &approx; 4,696 weeks (Matrix conventionally rounded to 52 &times; 90 = 4,680 boxes).<br><br>
+          2. Elapsed Weeks Formula:<br>
+          &nbsp;&nbsp;&nbsp;W_{lived} = floor((T_{now} - T_{birth}) / (7 &times; 86,400 &times; 1000))<br><br>
+          3. Life Phase Allocation:<br>
+          &nbsp;&nbsp;&nbsp;&bull; Youth & Education (Ages 0-22): 1,144 weeks (24.4%)<br>
+          &nbsp;&nbsp;&nbsp;&bull; Core Building & Career (Ages 22-65): 2,236 weeks (47.8%)<br>
+          &nbsp;&nbsp;&nbsp;&bull; Senior Wisdom & Legacy (Ages 65-90): 1,300 weeks (27.8%)<br><br>
+          4. The "Tail End" Principle:<br>
+          &nbsp;&nbsp;&nbsp;By high school graduation (week 936), approximately 90% of in-person time with parents is already consumed.
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & TIME PERCEPTION PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Human Time & Lifespan Perception</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Abundance Illusion</strong>
+          Assuming that life is an endless expanse because daily routines feel repetitive. An adult aged 35 has only approximately 2,600 weeks left, containing fewer than 2,600 weekends.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Deferral of Living Fallacy</strong>
+          Postponing authentic relationships, creative passions, and meaningful travel until 'after retirement', assuming peak physical vitality and mental clarity are guaranteed at week 3,500.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Routine Compression Acceleration Trap</strong>
+          Allowing weeks to blend together into unmemorable blur. Novelty stimulates dopamine and creates dense memory anchors; monotony causes 5 years (260 weeks) to feel like 5 months.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Morbid Paralysis vs. Stoic Liberation</strong>
+          Reacting to Memento Mori with existential dread and nihilistic despair rather than recognizing that finite boundaries give human choices weight, beauty, and urgency.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Sunk Week Rumination Trap</strong>
+          Wasting present weeks ruminating over 'misspent' past boxes. Past weeks are fixed and unrecoverable; your agency exists exclusively in the active red box marking today.
+        </div>
       </div>
     </div>
 
@@ -1108,10 +1178,110 @@
         document.getElementById('liwContainer').innerHTML = html;
       }
 
+      function copyLifeWeeksSummary() {
+        var lived = document.getElementById('liwLived').textContent;
+        var remaining = document.getElementById('liwRemaining').textContent;
+        var pct = document.getElementById('liwPercent').textContent;
+        var text = '=== YOUR LIFE IN WEEKS (MEMENTO MORI LEDGER) ===
+' +
+          'Weeks Lived: ' + lived + ' weeks
+' +
+          'Weeks Remaining: ' + remaining + ' weeks
+' +
+          'Lifespan Completed: ' + pct + '
+
+' +
+          'STOIC MEMENTO MORI REFLECTION:
+' +
+          'A typical human life is approximately 4,680 weeks long. ' +
+          'Every Saturday that passes fills another irreversible box. ' +
+          'Spend today on what truly matters to you and let go of trivial noise.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyLifeWeeksBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Life in Weeks Ledger!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', renderLifeWeeks);
       renderLifeWeeks();
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the 'Life in Weeks' concept and who popularized it?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Popularized by writer Tim Urban on 'Wait But Why' in 2014, the concept visualizes an entire human life on a single sheet of paper using 4,680 small boxes (52 weeks across by 90 years down).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many weeks are in an average 80 to 90-year human lifespan?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                An 80-year life contains approximately 4,160 weeks. A 90-year life contains approximately 4,680 weeks.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does seeing life in weeks affect time perception?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Humans naturally perceive time in short recurring cycles (days, weeks) or abstract distant years. Visualizing the entire finite matrix simultaneously breaks the illusion of endless time, sharpening focus on present priorities.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the 'Tail End' phenomenon regarding relationships with parents?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Because childhood involves daily cohabitation, the average person consumes roughly 90% of their total in-person face time with their parents before graduating high school and leaving home.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does Memento Mori enhance psychological well-being?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Originating in ancient Stoic philosophy, Memento Mori ('remember you will die') reduces petty anxiety, eliminates trivial conflicts, deepens daily gratitude, and clarifies genuine life priorities.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

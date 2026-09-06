@@ -858,30 +858,138 @@ export function buildViralTools() {
             <div id="drResultDist" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">3,850 LY</div>
             <div style="font-size: 0.8rem; color: var(--text-muted);">Light-years away across the galactic disk</div>
           </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">The Great Filter Location</span>
+            <div id="drResultFilter" style="font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: #10b981; margin: 0.5rem 0;">Behind Us?</div>
+            <div id="drDescFilter" style="font-size: 0.8rem; color: var(--text-muted);">Where the statistical bottleneck lies</div>
+          </div>
         </div>
 
-        <div id="drAnalysis" style="margin-top: 1.5rem; font-size: 0.95rem; line-height: 1.6; color: var(--fg); background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px;"></div>
+        <div style="margin-top: 1.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyDrakeCalc()" id="copyDrakeCalcBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Drake Equation Calculation</button>
+        </div>
+      </div>
+
+      <!-- MATHEMATICAL & ASTROPHYSICAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Astrophysical & Mathematical Derivation: The Drake Equation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Formulated by radio astronomer Frank Drake at Green Bank Observatory in 1961, the equation multiplies seven sequential conditional astrophysical and evolutionary probabilities:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Number of Communicating Civilizations (N):<br>
+          &nbsp;&nbsp;&nbsp;N = R_* &times; f_p &times; n_e &times; f_l &times; f_i &times; f_c &times; L<br><br>
+          2. Mean Distance to Nearest Neighbor (Galactic Disk Cylinder Model):<br>
+          &nbsp;&nbsp;&nbsp;V_{disk} &approx; &pi; &times; R_{MW}^2 &times; h_{MW} &approx; &pi; &times; (50,000 ly)^2 &times; 1,000 ly &approx; 7.85 &times; 10^{12} ly^3<br>
+          &nbsp;&nbsp;&nbsp;d_{neighbor} &approx; (V_{disk} / N)^{1/3} light-years<br><br>
+          3. Robin Hanson's Great Filter Formulation:<br>
+          &nbsp;&nbsp;&nbsp;P_{civilization} = &prod;_{k=1}^9 p_k (From abiogenesis & eukaryotic cells to intergalactic colonizers).<br>
+          &nbsp;&nbsp;&nbsp;If N &approx; 1, abiogenesis or intelligence is an astronomical near-impossibility. If N &gt;&gt; 1, the filter looms in our existential future (extinction).
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & ASTROBIOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Extraterrestrial Search & The Fermi Paradox</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Unbounded Guess Multiplication Trap</strong>
+          Treating the Drake Equation as an exact scientific prediction rather than a taxonomy of ignorance. Multiplying seven speculative subjective estimates can produce any arbitrary answer from $10^{-12}$ to $10^9$.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Temporal Synchronization Myopia</strong>
+          Forgetting that the Milky Way is 13.6 billion years old. Two advanced technological civilizations with $L = 10,000$ years could easily exist in the same star cluster, yet miss each other by 500 million years.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Radio Emission Era Illusion</strong>
+          Assuming advanced species leak detectable omnidirectional electromagnetic radio signals for millennia. Human civilization leaked powerful broadcast radio for barely 70 years before transitioning to directed fiber, digital compression, and laser satellites.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Dark Forest Communication Blindspot</strong>
+          Assuming that intelligent civilizations will voluntarily broadcast their spatial coordinates into deep space. Game-theoretic analysis demonstrates that concealing biosignatures is the minimax dominant strategy in an uncertain galaxy.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Carbon-Water Biochemical Chauvinism</strong>
+          Assuming extraterrestrial life must replicate Earth-like carbon and liquid-water biochemistry in narrow Goldilocks circumstellar zones, ignoring synthetic, post-biological, or cryogenic methane ecosystems.
+        </div>
       </div>
     </div>
 
     <script>
+      function calcDrake() {
+        var r = parseFloat(document.getElementById('dr-r').value) || 0;
+        var fp = parseFloat(document.getElementById('dr-fp').value) || 0;
+        var ne = parseFloat(document.getElementById('dr-ne').value) || 0;
+        var fl = parseFloat(document.getElementById('dr-fl').value) || 0;
+        var fi = parseFloat(document.getElementById('dr-fi').value) || 0;
+        var fc = parseFloat(document.getElementById('dr-fc').value) || 0;
+        var L = parseFloat(document.getElementById('dr-L').value) || 0;
+
+        var N = r * fp * ne * fl * fi * fc * L;
+        var nRounded = Math.round(N);
+
+        var nEl = document.getElementById('drResultN');
+        var descEl = document.getElementById('drDescN');
+        var distEl = document.getElementById('drResultDist');
+        var filtEl = document.getElementById('drResultFilter');
+        var filtDesc = document.getElementById('drDescFilter');
+
+        if (nRounded <= 0) {
+          nEl.textContent = '0 (We are Alone)';
+          descEl.textContent = 'Statistical probability of other active civilizations is near-zero';
+          distEl.textContent = '> 100,000 LY';
+          filtEl.textContent = 'Behind Us';
+          filtEl.style.color = '#10b981';
+          filtDesc.textContent = 'Abiogenesis or intelligence is virtually impossible';
+        } else if (nRounded === 1) {
+          nEl.textContent = '1 (Just Humanity)';
+          descEl.textContent = 'Earth is likely the solitary beacon in the galaxy';
+          distEl.textContent = '> 50,000 LY';
+          filtEl.textContent = 'Behind Us';
+          filtEl.style.color = '#10b981';
+          filtDesc.textContent = 'We passed the Great Filter early';
+        } else {
+          nEl.textContent = nRounded.toLocaleString();
+          descEl.textContent = 'Active communicating civilizations in the Milky Way';
+
+          var vGal = Math.PI * 50000 * 50000 * 1000;
+          var d = Math.round(Math.pow(vGal / N, 1/3));
+          distEl.textContent = d.toLocaleString() + ' LY';
+
+          if (nRounded > 1000) {
+            filtEl.textContent = 'Ahead of Us!';
+            filtEl.style.color = '#ef4444';
+            filtDesc.textContent = 'Life is common, but technological civilizations self-destruct quickly';
+          } else {
+            filtEl.textContent = 'Balanced';
+            filtEl.style.color = '#f59e0b';
+            filtDesc.textContent = 'Moderate filter distribution across biology and technology';
+          }
+        }
+      }
+
       function setDrakePreset(type) {
         if (type === 'sagan') {
           document.getElementById('dr-r').value = 4.0;
           document.getElementById('dr-fp').value = 1.0;
           document.getElementById('dr-ne').value = 1.0;
-          document.getElementById('dr-fl').value = 1.0;
-          document.getElementById('dr-fi').value = 0.5;
+          document.getElementById('dr-fl').value = 0.5;
+          document.getElementById('dr-fi').value = 0.25;
           document.getElementById('dr-fc').value = 0.2;
-          document.getElementById('dr-L').value = 1000000;
+          document.getElementById('dr-L').value = 100000;
         } else if (type === 'rare_earth') {
-          document.getElementById('dr-r').value = 1.5;
-          document.getElementById('dr-fp').value = 0.8;
-          document.getElementById('dr-ne').value = 0.1;
+          document.getElementById('dr-r').value = 1.0;
+          document.getElementById('dr-fp').value = 0.5;
+          document.getElementById('dr-ne').value = 0.05;
           document.getElementById('dr-fl').value = 0.001;
           document.getElementById('dr-fi').value = 0.0001;
           document.getElementById('dr-fc').value = 0.01;
-          document.getElementById('dr-L').value = 300;
+          document.getElementById('dr-L').value = 1000;
         } else {
           document.getElementById('dr-r').value = 2.0;
           document.getElementById('dr-fp').value = 0.9;
@@ -894,54 +1002,61 @@ export function buildViralTools() {
         calcDrake();
       }
 
-      function calcDrake() {
-        var r = parseFloat(document.getElementById('dr-r').value) || 0;
-        var fp = parseFloat(document.getElementById('dr-fp').value) || 0;
-        var ne = parseFloat(document.getElementById('dr-ne').value) || 0;
-        var fl = parseFloat(document.getElementById('dr-fl').value) || 0;
-        var fi = parseFloat(document.getElementById('dr-fi').value) || 0;
-        var fc = parseFloat(document.getElementById('dr-fc').value) || 0;
-        var L = parseFloat(document.getElementById('dr-L').value) || 0;
-
-        var N = r * fp * ne * fl * fi * fc * L;
-
-        var nStr = '';
-        if (N >= 1000000) nStr = (N / 1000000).toFixed(2) + ' Million';
-        else if (N >= 1) nStr = Math.round(N).toLocaleString('en-US');
-        else if (N > 0) nStr = N.toFixed(5);
-        else nStr = '0';
-
-        document.getElementById('drResultN').textContent = nStr;
-
-        // Milky way volume approx: radius 50,000 LY, height 1,000 LY => Volume ~ 7.85e12 cubic LY
-        // Average distance between civilizations d ~ (V / N)^(1/3)
-        var distStr = '';
-        var analysisStr = '';
-
-        if (N >= 1) {
-          var d = Math.round(Math.pow((Math.PI * 50000 * 50000 * 1000) / N, 1/3));
-          distStr = d.toLocaleString('en-US') + ' LY';
-          analysisStr = '<strong>Existential Assessment:</strong> With <strong>' + nStr + '</strong> active civilizations, the nearest contact is roughly <strong>' + distStr + '</strong> away. A two-way radio conversation would take <strong>' + (d * 2).toLocaleString('en-US') + ' years</strong>. If civilizations frequently self-destruct (L is small), they pass like ships in the night and never overlap.';
-        } else {
-          distStr = 'Alone';
-          analysisStr = '<strong>Existential Assessment:</strong> N is less than 1 (' + N.toExponential(2) + '). Under these parameters, humanity is almost certainly the <strong>only conscious technological species</strong> currently active in our entire galaxy. The "Great Filter" is likely behind us in abiogenesis or complex multicellular evolution.';
-        }
-
-        document.getElementById('drResultDist').textContent = distStr;
-        document.getElementById('drAnalysis').innerHTML = analysisStr;
+      function copyDrakeCalc() {
+        var n = document.getElementById('drResultN').textContent;
+        var dist = document.getElementById('drResultDist').textContent;
+        var filt = document.getElementById('drResultFilter').textContent;
+        var text = '=== DRAKE EQUATION & FERMI PARADOX CALCULATION ===\n' +
+          'Active Communicating Civilizations in Milky Way: ' + n + '\n' +
+          'Estimated Distance to Nearest Neighbor: ' + dist + '\n' +
+          'Great Filter Status: ' + filt + '\n\n' +
+          'KEY PARAMETERS:\n' +
+          '  - Star Formation Rate R*: ' + document.getElementById('dr-r').value + ' /yr\n' +
+          '  - Fraction with Planets fp: ' + document.getElementById('dr-fp').value + '\n' +
+          '  - Habitable Planets ne: ' + document.getElementById('dr-ne').value + '\n' +
+          '  - Civilization Longevity L: ' + document.getElementById('dr-L').value + ' years\n\n' +
+          'COSMOLOGICAL IMPLICATION:\n' +
+          'If intelligent life is abundant but silent, the Great Filter looms ahead as an existential extinction barrier.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyDrakeCalcBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Drake Equation Calculation!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', calcDrake);
-      calcDrake();
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'fermi-paradox-calculator.html'), renderPage({
-    title: 'Drake Equation & Fermi Paradox Alien Contact Calculator | Digital Tools Shed',
-    metaDesc: 'Calculate the probability of intelligent alien civilizations in the Milky Way using the Drake Equation. Estimates distance to nearest alien life and Great Filter odds.',
+  writeFileSync(join(utilDir, 'fermi-paradox-calculator.html'), renderViralPage({
+    title: "The Drake Equation & Fermi Paradox Calculator | Digital Tools Shed",
+    metaDesc: "Calculate the probability of intelligent alien civilizations in the Milky Way using the Drake Equation. Estimates distance to nearest alien life and Great Filter odds.",
     canonical: `${DOMAIN}/util/fermi-paradox-calculator`,
     bodyContent: fermiHtml,
-    currentPath: '/util/fermi-paradox-calculator'
+    currentPath: '/util/fermi-paradox-calculator',
+    faq: [
+      {
+        q: "What is the Fermi Paradox and what did Enrico Fermi ask?",
+        a: "During a 1950 lunchtime conversation at Los Alamos, physicist Enrico Fermi remarked on the vast age and number of stars in the galaxy, asking: 'Where is everybody?' If interstellar travel takes only a few million years, the galaxy should already be colonized."
+      },
+      {
+        q: "What is the Drake Equation and who created it?",
+        a: "Formulated by astronomer Frank Drake in 1961 for the first SETI conference, it multiplies astronomical, biological, and technological factors to estimate the number of communicative extraterrestrial civilizations in the Milky Way."
+      },
+      {
+        q: "What is Robin Hanson's 'Great Filter' theory?",
+        a: "Introduced in 1996, the Great Filter argues that there is an evolutionary barrier that is extremely difficult for life to surpass. If the filter lies behind us (e.g., abiogenesis is exceedingly rare), humanity is safe. If it lies ahead (e.g., nuclear war or synthetic biology), extinction awaits."
+      },
+      {
+        q: "Why does civilization longevity (L) dominate the Drake Equation?",
+        a: "Parameters like star formation and planetary occurrence are now empirically measured by Kepler. Civilization lifespan L varies from 100 years to billions of years, shifting the result from a solitary civilization to millions."
+      },
+      {
+        q: "What is the Dark Forest hypothesis?",
+        a: "Popularized by Liu Cixin's science fiction trilogy, the hypothesis applies game theory: since technological progress is exponential and intentions are unknowable, any detected civilization represents a mortal threat, compelling all civilizations to stay silent."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -984,7 +1099,7 @@ export function buildViralTools() {
           </select>
         </div>
 
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.25rem;">
           <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.75rem;">Your Life Duration on the Cosmic Clock</h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-family: var(--mono); font-size: 0.9rem;">
             <div>
@@ -1001,28 +1116,121 @@ export function buildViralTools() {
             </div>
           </div>
         </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyCosmicMilestone()" id="copyCosmicMilestoneBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Cosmic Milestone Summary</button>
+        </div>
+      </div>
+
+      <!-- TEMPORAL & MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Chronological Scaling & Unit Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          The 24-hour Cosmic Clock compresses $13.8 	imes 10^9$ solar years into 86,400 seconds:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Exact Second Scaling Factor (&sigma;):<br>
+          &nbsp;&nbsp;&nbsp;&sigma; = 13,800,000,000 years / 86,400 seconds &approx; 159,722.22 years per cosmic second.<br><br>
+          2. Exact Hour Scaling Factor (&theta;):<br>
+          &nbsp;&nbsp;&nbsp;&theta; = 13,800,000,000 years / 24 hours &approx; 575,000,000 years per cosmic hour.<br><br>
+          3. Recorded History on the Clock:<br>
+          &nbsp;&nbsp;&nbsp;All recorded human civilization (~5,000 years) = 5,000 / 159,722 &approx; 0.031 seconds.<br><br>
+          4. Individual Biological Lifespan (80 Years):<br>
+          &nbsp;&nbsp;&nbsp;T_{human} = 80 / 159,722.22 &approx; 0.0005008 cosmic seconds (&approx; 0.5 milliseconds).
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & TEMPORAL ILLUSIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Deep Time & Evolutionary Scaling</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Pre-Cambrian Compression Illusion</strong>
+          Assuming that complex animal life existed for most of Earth's history. Earth formed at 4:08 PM, but multi-cellular macroscopic animals didn't emerge until 9:05 PM—more than 75% of Earth's timeline was purely microscopic sludge.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Teleological Summit Delusion</strong>
+          Viewing the cosmic clock as a purposeful countdown culminating in modern humans. Dinosaurs inhabited the Earth for over 45 cosmic minutes; humans have been here for less than 1.5 minutes.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Linear Uniformity Error</strong>
+          Imagining that geological changes occur at a steady, gentle linear pace. Deep time is punctuated by catastrophic epochal phase shifts: snowball Earth glaciations, supervolcanic eruptions, and asteroid impacts.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The "Brevity Equals Futility" Nihilism</strong>
+          Concluding that because human existence occupies half a millisecond on the 24-hour clock, human ethics and art are pointless. Meaning is an emergent property of consciousness, not spatial volume or physical duration.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Finished Universe Illusion</strong>
+          Thinking that 23:59:59 means the universe is nearing its end. In reality, the universe is in its early infancy: the Stelliferous Era will last another 100 trillion years, equivalent to thousands more cosmic calendar years.
+        </div>
       </div>
     </div>
 
     <script>
       function setCosmicPreset() {
         var sel = document.getElementById('cosmicPreset');
-        var sec = parseFloat(sel.value);
         var text = sel.options[sel.selectedIndex].text;
         var parts = text.split(' — ');
         document.getElementById('cosmicClock').textContent = parts[0];
         document.getElementById('cosmicDesc').textContent = parts[1] || '';
       }
+
+      function copyCosmicMilestone() {
+        var time = document.getElementById('cosmicClock').textContent;
+        var desc = document.getElementById('cosmicDesc').textContent;
+        var text = '=== CARLE SAGAN COSMIC CALENDAR REPORT ===\n' +
+          'Selected 24-Hour Time: ' + time + '\n' +
+          'Historical Milestone: ' + desc + '\n\n' +
+          'TEMPORAL CONVERSIONS:\n' +
+          '  - 1 Cosmic Second = 159,722 Earth Years\n' +
+          '  - 1 Cosmic Hour = 575 Million Years\n' +
+          '  - 80-Year Human Lifespan = 0.0005 Seconds (0.5 ms)\n' +
+          '  - All Recorded Civilization = Final 0.03 Seconds before Midnight';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCosmicMilestoneBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Cosmic Milestone!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', setCosmicPreset);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'cosmic-calendar-calculator.html'), renderPage({
-    title: 'Cosmic Calendar Calculator: 13.8 Billion Years in 24 Hours | Digital Tools Shed',
-    metaDesc: 'Compress the 13.8-billion-year history of the universe into 24 hours. See where Earth, dinosaurs, human history, and your life land on the cosmic clock.',
+  writeFileSync(join(utilDir, 'cosmic-calendar-calculator.html'), renderViralPage({
+    title: "Cosmic Calendar Calculator: 13.8 Billion Years in 24 Hours | Digital Tools Shed",
+    metaDesc: "Compress the 13.8-billion-year history of the universe into 24 hours. See where Earth, dinosaurs, human history, and your life land on the cosmic clock.",
     canonical: `${DOMAIN}/util/cosmic-calendar-calculator`,
     bodyContent: cosmicHtml,
-    currentPath: '/util/cosmic-calendar-calculator'
+    currentPath: '/util/cosmic-calendar-calculator',
+    faq: [
+      {
+        q: "What is Carl Sagan's Cosmic Calendar?",
+        a: "A conceptual framework popularized by astronomer Carl Sagan in his book 'The Dragons of Eden' and television series 'Cosmos', mapping the entire 13.8-billion-year history of the universe onto a single human calendar year or 24-hour day."
+      },
+      {
+        q: "How many real-world years equal one second on the 24-hour Cosmic Clock?",
+        a: "One second on the 24-hour cosmic clock equals approximately 159,722 solar years. One cosmic minute equals roughly 9.58 million years, and one cosmic hour equals 575 million years."
+      },
+      {
+        q: "When do modern humans arrive on the 24-hour cosmic timeline?",
+        a: "Anatomically modern humans (Homo sapiens) emerge at 23:59:46—just 14 seconds before midnight. All of recorded human civilization (agriculture, writing, cities) takes place in the final 0.03 seconds."
+      },
+      {
+        q: "How long is an 80-year human life on the Cosmic Clock?",
+        a: "An 80-year human life represents approximately 0.0005 seconds (half a millisecond) on the 24-hour cosmic clock."
+      },
+      {
+        q: "When did the dinosaurs live and go extinct on this scale?",
+        a: "Dinosaurs appeared at 23:25 (11:25 PM) and flourished for over 28 minutes before being wiped out by the Chicxulub asteroid impact at 23:53 (11:53 PM)."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -1080,7 +1288,61 @@ export function buildViralTools() {
           <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">Each square represents 1 week (52 weeks per row = 1 full year)</span>
         </div>
 
-        <div id="liwContainer" class="week-grid"></div>
+        <div id="liwContainer" class="week-grid" style="margin-bottom: 1.5rem;"></div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyLifeWeeksSummary()" id="copyLifeWeeksBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Life in Weeks Ledger</button>
+        </div>
+      </div>
+
+      <!-- MEMENTO MORI DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical & Biological Framework: The 4,680-Week Matrix</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          First visualized by Tim Urban in <em>Wait But Why</em> (2014), the weekly grid translates abstract actuarial metrics into finite discrete spatial blocks:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Total Lifetime Capacity (90 Years):<br>
+          &nbsp;&nbsp;&nbsp;W_{total} = 90 &times; 52.1775 &approx; 4,696 weeks (Matrix conventionally rounded to 52 &times; 90 = 4,680 boxes).<br><br>
+          2. Elapsed Weeks Formula:<br>
+          &nbsp;&nbsp;&nbsp;W_{lived} = floor((T_{now} - T_{birth}) / (7 &times; 86,400 &times; 1000))<br><br>
+          3. Life Phase Allocation:<br>
+          &nbsp;&nbsp;&nbsp;&bull; Youth & Education (Ages 0-22): 1,144 weeks (24.4%)<br>
+          &nbsp;&nbsp;&nbsp;&bull; Core Building & Career (Ages 22-65): 2,236 weeks (47.8%)<br>
+          &nbsp;&nbsp;&nbsp;&bull; Senior Wisdom & Legacy (Ages 65-90): 1,300 weeks (27.8%)<br><br>
+          4. The "Tail End" Principle:<br>
+          &nbsp;&nbsp;&nbsp;By high school graduation (week 936), approximately 90% of in-person time with parents is already consumed.
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & TIME PERCEPTION PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Human Time & Lifespan Perception</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Abundance Illusion</strong>
+          Assuming that life is an endless expanse because daily routines feel repetitive. An adult aged 35 has only approximately 2,600 weeks left, containing fewer than 2,600 weekends.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Deferral of Living Fallacy</strong>
+          Postponing authentic relationships, creative passions, and meaningful travel until 'after retirement', assuming peak physical vitality and mental clarity are guaranteed at week 3,500.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Routine Compression Acceleration Trap</strong>
+          Allowing weeks to blend together into unmemorable blur. Novelty stimulates dopamine and creates dense memory anchors; monotony causes 5 years (260 weeks) to feel like 5 months.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Morbid Paralysis vs. Stoic Liberation</strong>
+          Reacting to Memento Mori with existential dread and nihilistic despair rather than recognizing that finite boundaries give human choices weight, beauty, and urgency.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Sunk Week Rumination Trap</strong>
+          Wasting present weeks ruminating over 'misspent' past boxes. Past weeks are fixed and unrecoverable; your agency exists exclusively in the active red box marking today.
+        </div>
       </div>
     </div>
 
@@ -1112,17 +1374,59 @@ export function buildViralTools() {
         document.getElementById('liwContainer').innerHTML = html;
       }
 
+      function copyLifeWeeksSummary() {
+        var lived = document.getElementById('liwLived').textContent;
+        var remaining = document.getElementById('liwRemaining').textContent;
+        var pct = document.getElementById('liwPercent').textContent;
+        var text = '=== YOUR LIFE IN WEEKS (MEMENTO MORI LEDGER) ===\n' +
+          'Weeks Lived: ' + lived + ' weeks\n' +
+          'Weeks Remaining: ' + remaining + ' weeks\n' +
+          'Lifespan Completed: ' + pct + '\n\n' +
+          'STOIC MEMENTO MORI REFLECTION:\n' +
+          'A typical human life is approximately 4,680 weeks long. ' +
+          'Every Saturday that passes fills another irreversible box. ' +
+          'Spend today on what truly matters to you and let go of trivial noise.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyLifeWeeksBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Life in Weeks Ledger!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', renderLifeWeeks);
       renderLifeWeeks();
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'life-in-weeks.html'), renderPage({
-    title: 'Your Life in Weeks: Interactive 4,680-Box Memento Mori Matrix | Digital Tools Shed',
-    metaDesc: 'Interactive life in weeks grid visualizing a 90-year human life across 4,680 weeks. See lived weeks vs weeks remaining in your lifespan.',
+  writeFileSync(join(utilDir, 'life-in-weeks.html'), renderViralPage({
+    title: "Your Life in Weeks: Interactive 4,680-Box Memento Mori Matrix | Digital Tools Shed",
+    metaDesc: "Interactive life in weeks grid visualizing a 90-year human life across 4,680 weeks. See lived weeks vs weeks remaining in your lifespan.",
     canonical: `${DOMAIN}/util/life-in-weeks`,
     bodyContent: lifeInWeeksHtml,
-    currentPath: '/util/life-in-weeks'
+    currentPath: '/util/life-in-weeks',
+    faq: [
+      {
+        q: "What is the 'Life in Weeks' concept and who popularized it?",
+        a: "Popularized by writer Tim Urban on 'Wait But Why' in 2014, the concept visualizes an entire human life on a single sheet of paper using 4,680 small boxes (52 weeks across by 90 years down)."
+      },
+      {
+        q: "How many weeks are in an average 80 to 90-year human lifespan?",
+        a: "An 80-year life contains approximately 4,160 weeks. A 90-year life contains approximately 4,680 weeks."
+      },
+      {
+        q: "How does seeing life in weeks affect time perception?",
+        a: "Humans naturally perceive time in short recurring cycles (days, weeks) or abstract distant years. Visualizing the entire finite matrix simultaneously breaks the illusion of endless time, sharpening focus on present priorities."
+      },
+      {
+        q: "What is the 'Tail End' phenomenon regarding relationships with parents?",
+        a: "Because childhood involves daily cohabitation, the average person consumes roughly 90% of their total in-person face time with their parents before graduating high school and leaving home."
+      },
+      {
+        q: "How does Memento Mori enhance psychological well-being?",
+        a: "Originating in ancient Stoic philosophy, Memento Mori ('remember you will die') reduces petty anxiety, eliminates trivial conflicts, deepens daily gratitude, and clarifies genuine life priorities."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
