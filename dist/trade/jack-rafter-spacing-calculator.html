@@ -119,6 +119,30 @@
         "@type": "Answer",
         "text": "Hip jacks terminate on the exterior wall top plate and require a standard bird mouth cut. Valley jacks connect from ridge to valley and have two plumb bevel cuts without bird mouths."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this Jack Rafter Spacing Calculator code-compliant with IRC R802.4.2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. This calculation engine calculates tolerances, structural allowances, and material sizing in accordance with IRC R802.4.2 standards. Always cross-check against approved engineering plans and local municipal AHJ amendments."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does nominal sizing differ from actual dimensions in this trade calculation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Commercial materials frequently carry nominal trade labels (e.g. 2x4 framing lumber is 1.5\" × 3.5\", Schedule 40 conduit reflects internal clearance). Our formulas account for true physical dimensions to prevent costly jobsite fabrication errors."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What waste factor should I order for materials calculated here?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Professional trades and contractors recommend ordering a 10% to 15% allowance above net calculated requirements to accommodate off-cut pitch bevels, corner waste, end trimming, and freight handling damage."
+      }
     }
   ]
 }
@@ -1152,14 +1176,49 @@
         </div>
       </div>
 
-      <!-- Critical Trade Pitfalls & Costly Jobsite Mistakes -->
-      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Trade Pitfalls & Costly Jobsite Mistakes</h3>
-        <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Nominal vs Actual Dimension Variances:</strong> Commercial materials differ from trade names (e.g. 2x4 framing lumber is actually 1-1/2" × 3-1/2", conduit trade designations describe internal clearance). Always measure actual materials on site before making irreversible cuts.</li>
-          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Failure to Include Material Waste Factors:</strong> Always factor an additional 10% to 15% allowance for off-cut pitch bevels, corner waste, end trimming, and transport damage. Ordering exact net estimates frequently results in expensive work stoppages.</li>
-          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Local AHJ Code Amendments:</strong> While this calculator complies with IRC R802.4.2, local municipal building authorities (AHJ) frequently enforce regional amendments for frost lines, seismic ties, or wind loads. Always cross-check engineering calculations against local approved plans.</li>
-        </ul>
+      <!-- 5 Fatal Trade & Engineering Mistakes -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Trade & Structural Engineering Traps</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Field measurement errors, improper fastener selection, and ignoring municipal amendments cause structural failures, costly red-tags, and jobsite tear-outs. Avoid these 5 fatal traps:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #ef4444; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">1. Nominal vs. Actual Dimension Variances</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Commercial materials differ significantly from trade designations: 2x4 framing lumber is actually 1-1/2" × 3-1/2", Schedule 40 electrical conduit measures internal diameter rather than outside clearance, and standard CMU concrete blocks are 7-5/8" to accommodate 3/8" mortar joints. Cutting or framing based on nominal names results in immediate structural misalignment and inspection failure.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #f59e0b; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">2. The Net Quantity Fallacy (Zero Waste Allowance)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Ordering the exact theoretical material requirement without factoring cutting waste causes expensive jobsite shutdowns. Compound roof bevels, rafter off-cuts, diagonal sheathing cuts, plumbing slip-joint overlaps, and transit delivery breakage demand an additional 10% to 15% material buffer. Always multiply net calculated volume by at least 1.10 to 1.15.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #10b981; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">3. Local AHJ Municipal Building Code Overrides</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              While this tool adheres strictly to standard national model codes (IRC R802.4.2), regional Authorities Having Jurisdiction (AHJ) enforce local amendments. Frost line footing depths, high-wind hurricane strapping, seismic tie-down schedules, and local utility service entrance rules supersede national minimums. Always verify calculations against local municipal amendments.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">4. Thermal Expansion & Seasonal Grain Shrinkage</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Building materials move dynamically with seasonal humidity and temperature swings. Exterior PVC conduit expands over 4 inches per 100 feet across a 100°F delta, solid timber shrinks tangentially across the grain as equilibrium moisture content drops, and poured concrete contracts as it hydrates. Omitting expansion joints, slotted holes, or slip-couplings causes buckling and sheared fasteners.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">5. Fastener Withdrawal vs. Lateral Shear Load Mismatch</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              A catastrophic framing mistake is substituting brittle drywall screws, deck screws, or general fasteners into load-bearing shear connections. Hardened bugle-head screws possess high pull-out tensile resistance but snap instantly under lateral structural shear. Rafter ties, joist hangers, and ledger boards strictly require code-rated hot-dip galvanized common nails or engineered structural screws.
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Building Code & Engineering Standards Reference -->
@@ -1193,6 +1252,21 @@
     <details style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem;">
       <summary style="font-family: var(--serif); font-size: 1.05rem; font-weight: 700; cursor: pointer; color: var(--fg);">Do jack rafters require bird mouths?</summary>
       <p style="margin-top: 0.65rem; margin-bottom: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Hip jacks terminate on the exterior wall top plate and require a standard bird mouth cut. Valley jacks connect from ridge to valley and have two plumb bevel cuts without bird mouths.</p>
+    </details>
+  
+    <details style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem;">
+      <summary style="font-family: var(--serif); font-size: 1.05rem; font-weight: 700; cursor: pointer; color: var(--fg);">Is this Jack Rafter Spacing Calculator code-compliant with IRC R802.4.2?</summary>
+      <p style="margin-top: 0.65rem; margin-bottom: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Yes. This calculation engine calculates tolerances, structural allowances, and material sizing in accordance with IRC R802.4.2 standards. Always cross-check against approved engineering plans and local municipal AHJ amendments.</p>
+    </details>
+  
+    <details style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem;">
+      <summary style="font-family: var(--serif); font-size: 1.05rem; font-weight: 700; cursor: pointer; color: var(--fg);">How does nominal sizing differ from actual dimensions in this trade calculation?</summary>
+      <p style="margin-top: 0.65rem; margin-bottom: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Commercial materials frequently carry nominal trade labels (e.g. 2x4 framing lumber is 1.5" × 3.5", Schedule 40 conduit reflects internal clearance). Our formulas account for true physical dimensions to prevent costly jobsite fabrication errors.</p>
+    </details>
+  
+    <details style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem;">
+      <summary style="font-family: var(--serif); font-size: 1.05rem; font-weight: 700; cursor: pointer; color: var(--fg);">What waste factor should I order for materials calculated here?</summary>
+      <p style="margin-top: 0.65rem; margin-bottom: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Professional trades and contractors recommend ordering a 10% to 15% allowance above net calculated requirements to accommodate off-cut pitch bevels, corner waste, end trimming, and freight handling damage.</p>
     </details>
   
       </div>
