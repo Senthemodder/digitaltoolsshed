@@ -5,6 +5,52 @@ import { DIST, DOMAIN, renderPage, ensureDir } from './core.js';
 export function buildExistentialSuite() {
   const utilDir = join(DIST, 'util');
   ensureDir(utilDir);
+  function renderExistentialPage(opts) {
+    let visibleFaqHtml = '';
+    if (opts.faq && opts.faq.length > 0) {
+      visibleFaqHtml = `
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          ${opts.faq.map(f => `
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">${f.q}</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                ${f.a}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    const fullBody = opts.bodyContent + visibleFaqHtml + `
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    `;
+    return renderPage({
+      ...opts,
+      bodyContent: fullBody
+    });
+  }
+
 
   // ──────────────────────────────────────────────────────────────────────────
   // 1. THE 100 DEEPEST EXISTENTIAL QUESTIONS ORACLE
@@ -218,6 +264,62 @@ export function buildExistentialSuite() {
       </div>
     </div>
 
+      <!-- PHILOSOPHICAL FRAMEWORK & CONTEMPLATION DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-top: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Axiomatic Foundations of Existential Inquiry</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Existential inquiry deconstructs reality across five core philosophical branches, mapping subjective experience to formal logic and empirical physics:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Phenomenology & The Hard Problem (Chalmers):<br>
+          &nbsp;&nbsp;&nbsp;&Phi;_{qualia} &ne; &Sigma;_{electrochemical} (Objective neurology cannot deduce 1st-person sensation)<br><br>
+          2. The Absurd & Agency Tension (Camus & Sartre):<br>
+          &nbsp;&nbsp;&nbsp;Existence precedes essence: Humankind is condemned to construct meaning in an indifferent cosmos.<br><br>
+          3. Epistemic Skepticism & Cartesian Boundaries:<br>
+          &nbsp;&nbsp;&nbsp;Cogito, ergo sum: The solitary inviolable certainty is immediate subjective awareness.<br><br>
+          4. Deterministic Compatibilism vs. Libertarian Agency:<br>
+          &nbsp;&nbsp;&nbsp;Free will as freedom from external coercion, operating within deterministic physical causality.<br><br>
+          5. Cosmological Deep Time & Thermodynamic Finitude:<br>
+          &nbsp;&nbsp;&nbsp;Entropy increases monotonically (&Delta;S &ge; 0), bounding biological persistence to the Stelliferous Era.
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <button onclick="copyContemplationSummary()" id="copyContemplationBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Contemplation Summary</button>
+          <span id="exportStatusMsg" style="display: none; font-size: 0.88rem; font-weight: 600; color: #ef4444;"></span>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & EXISTENTIAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Philosophical Traps in Existential Contemplation</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Nihilistic Paralysis Trap</strong>
+          Concluding that because existential questions lack tidy empirical answers, contemplating them is depressing or futile. As Friedrich Nietzsche and Viktor Frankl demonstrated, confronting the void is the necessary precondition for forging authentic, self-authored purpose.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Category Error Fallacy</strong>
+          Attempting to resolve subjective experiential questions (such as qualia, moral value, or artistic beauty) solely with physical reductionist instrumentation (e.g. fMRI scans). Brain states correlate with experience, but neurons are not themselves the experience of redness or sorrow.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Solipsistic Isolation Trap</strong>
+          Allowing Cartesian skepticism ("How do I know anyone else is conscious?") to devolve into alienating paranoia. Pragmatic epistemology recognizes that interacting with others as conscious moral peers is both ethically necessary and statistically the most parsimonious model.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The False Binary of Determinism</strong>
+          Assuming the universe must be either 100% supernatural uncaused free will or helpless fatalistic marionette puppetry. Modern compatibilism illustrates that rational agents make meaningful, responsible choices even within a universe governed by deterministic physical laws.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Intellectual Escapism vs. Concrete Action</strong>
+          Using late-night philosophical rabbit holes as an emotional defense mechanism to postpone tangible life responsibilities, real-world emotional vulnerability, and genuine compassionate action toward real living beings.
+        </div>
+      </div>
+    </div>
+
     <script>
       var allQ = ${JSON.stringify(questions)};
 
@@ -227,7 +329,7 @@ export function buildExistentialSuite() {
         document.getElementById('oracleDetail').textContent = rand.detail;
         var catEl = document.getElementById('oracleCat');
         catEl.textContent = rand.cat;
-        catEl.className = 'cat-badge cat-' + rand.cat.replace(' ', '\\\\ ');
+        catEl.className = 'cat-badge cat-' + rand.cat.replace(' ', '\\ ');
       }
 
       function filterCat(cat, btn) {
@@ -271,20 +373,25 @@ export function buildExistentialSuite() {
       }
 
       function exportJournal() {
-        var md = '# My Existential Reflections\\nGenerated at Digital Tools Shed (' + new Date().toLocaleDateString() + ')\\n\\n';
+        var md = '# My Existential Reflections\nGenerated at Digital Tools Shed (' + new Date().toLocaleDateString() + ')\n\n';
         var count = 0;
         allQ.forEach(function(q) {
           var saved = localStorage.getItem('existential_q_' + q.id);
           if (saved && saved.trim().length > 0) {
-            md += '### #' + q.id + ' (' + q.cat + '): ' + q.q + '\\n';
-            md += '> ' + q.detail + '\\n\\n';
-            md += '**My Reflection:**\\n' + saved.trim() + '\\n\\n---\\n\\n';
+            md += '### #' + q.id + ' (' + q.cat + '): ' + q.q + '\n';
+            md += '> ' + q.detail + '\n\n';
+            md += '**My Reflection:**\n' + saved.trim() + '\n\n---\n\n';
             count++;
           }
         });
 
+        var msgEl = document.getElementById('exportStatusMsg');
         if (count === 0) {
-          alert('You have not written any notes yet! Open any question and write your reflections to export.');
+          if (msgEl) {
+            msgEl.textContent = '⚠️ You have not written any notes yet! Open any question and write your thoughts to export.';
+            msgEl.style.display = 'inline';
+            setTimeout(function() { msgEl.style.display = 'none'; }, 4000);
+          }
           return;
         }
 
@@ -296,18 +403,58 @@ export function buildExistentialSuite() {
         a.click();
       }
 
+      function copyContemplationSummary() {
+        var activeCat = document.querySelector('.filter-btn.active');
+        var catName = activeCat ? activeCat.textContent : 'All Categories';
+        var oracleText = document.getElementById('oracleQ').textContent;
+        var text = '=== 100 EXISTENTIAL QUESTIONS CONTEMPLATION SUMMARY ===\n' +
+          'Selected Category: ' + catName + '\n' +
+          'Active Oracle Question: "' + oracleText + '"\n\n' +
+          'PHILOSOPHICAL AXIOM:\n' +
+          'Existential inquiry does not seek trivial definitive answers; it dissolves reflexive dogma, ' +
+          'clarifies epistemological boundaries, and restores awe to conscious awareness.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyContemplationBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Contemplation Summary!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
         loadJournal();
       });
     </script>
   `;
 
-  writeFileSync(join(utilDir, '100-existential-questions.html'), renderPage({
-    title: '100 Deepest Existential Questions: The 2 AM Contemplation Oracle | Digital Tools Shed',
-    metaDesc: 'Explore 100 curated unanswerable existential questions across consciousness, death, the cosmos, free will, and simulation theory with an interactive Oracle.',
+  writeFileSync(join(utilDir, '100-existential-questions.html'), renderExistentialPage({
+    title: "100 Deepest Existential Questions: The 2 AM Contemplation Oracle | Digital Tools Shed",
+    metaDesc: "Explore 100 curated unanswerable existential questions across consciousness, death, the cosmos, free will, and simulation theory with an interactive Oracle.",
     canonical: `${DOMAIN}/util/100-existential-questions`,
     bodyContent: html,
-    currentPath: '/util/100-existential-questions'
+    currentPath: '/util/100-existential-questions',
+    faq: [
+      {
+        q: "Why do humans experience intense existential curiosity late at night?",
+        a: "Circadian neurochemistry alters executive control in the prefrontal cortex during late evening hours, while the reduction in external sensory stimuli quiets task-positive neural networks, allowing the Default Mode Network (DMN) to initiate deep self-referential contemplation."
+      },
+      {
+        q: "What is David Chalmers' 'Hard Problem of Consciousness'?",
+        a: "Formulated in 1995, the 'Easy Problems' involve explaining brain mechanisms (reaction times, sensory discrimination). The 'Hard Problem' asks why physical processing should be accompanied by qualitative subjective experience (qualia) at all."
+      },
+      {
+        q: "How does compatibilism reconcile determinism with moral responsibility?",
+        a: "Compatibilism argues that free will requires rational internal deliberation free from outside coercion, not supernatural violation of physics. You are free when your actions align with your internal desires and reasons, even if those reasons are physically determined."
+      },
+      {
+        q: "What did Albert Camus mean by 'The Absurd'?",
+        a: "Camus defined the Absurd as the collision between humanity's deep craving for inherent meaning and the silent, indifferent universe. Rather than fleeing into religious delusion or suicide, Camus advocated living passionately in lucid defiance of the Absurd."
+      },
+      {
+        q: "How can existential contemplation cultivate psychological resilience?",
+        a: "Systematic existential reflection normalizes mortality, strips away petty status anxieties, clarifies intrinsic values, and anchors daily choices in conscious presence rather than mindless autopilot."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -354,6 +501,59 @@ export function buildExistentialSuite() {
           Would you willingly step into the chamber? If not, why did you think you survived in Scenario 1?
         </p>
       </div>
+
+      <!-- MATHEMATICAL & PHILOSOPHICAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Derek Parfit's Bundle Theory & Relation R Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          In <em>Reasons and Persons</em> (1984), Oxford philosopher Derek Parfit introduced Relation R (Psychological Connectedness and Continuity) to dismantle the classical ego theory:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. The Ego Fallacy (Cartesian Soul):<br>
+          &nbsp;&nbsp;&nbsp;Identity &equiv; A solitary indivisible substance (&psi;) that persists over time.<br><br>
+          2. Parfit's Bundle Theory (Reductionist Identity):<br>
+          &nbsp;&nbsp;&nbsp;Person(t) = &Sigma; [Memories(t), Beliefs(t), Desires(t), Neurological Pattern(t)]<br><br>
+          3. Relation R (Psychological Continuity with Right Kind of Cause):<br>
+          &nbsp;&nbsp;&nbsp;R-Relation = Overlapping chains of direct memory and dispositional continuity.<br><br>
+          4. The Radical Parfitian Conclusion:<br>
+          &nbsp;&nbsp;&nbsp;Identity is NOT what matters in survival. Relation R is what matters.<br>
+          &nbsp;&nbsp;&nbsp;Because Relation R can branch (1 &rarr; 2), identity cannot be an all-or-nothing binary fact.
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyTeleportMemo()" id="copyTeleportBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Identity Verdict Memo</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & IDENTITY PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Personal Identity & Teleportation</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Indivisible Soul / Ego Trap</strong>
+          Subconsciously assuming that a continuous metaphysical "spirit" rides along with the electromagnetic signal. In physicalism, you are an evolving information pattern, not a supernatural pearl.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Destruction Timing Asymmetry</strong>
+          Accepting teleportation when the Earth body is incinerated instantly, but feeling horrified when told the Earth body will survive for 5 minutes before disposal. The fate of your subjective stream cannot logically depend on whether a duplicate exists 100 million miles away.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Sleep-Wake Equivalence Fallacy</strong>
+          Equating atomic vaporization with going to sleep at night. Sleep maintains physical and metabolic continuity of cellular structures and ion channels; molecular vaporization severs the physical substrate completely.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The "Observer Jump" Delusion</strong>
+          Believing your immediate 1st-person awareness will magically "jump" from the New York booth to the Mars platform. From the original brain's perspective, sensory experience simply ceases permanently.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Carbon Atom Fetish</strong>
+          Believing identity resides in the specific physical carbon and hydrogen atoms currently inside you. Biological metabolism replaces nearly every atom in human bone, tissue, and brain tissue over a 7 to 10 year cycle.
+        </div>
+      </div>
     </div>
 
     <script>
@@ -361,22 +561,60 @@ export function buildExistentialSuite() {
         var el = document.getElementById('teleportResult');
         el.style.display = 'block';
         if (choice === 'survive') {
-          el.innerHTML = '<strong>Physicalist Continuity Verdict:</strong> You chose survival. 62% of physicalist philosophers agree with you: because information and psychological continuity are identical, you are the Mars duplicate. But consider Scenario 2 below: What happens when the original Earth body is never vaporized?';
+          el.innerHTML = '<strong>Physicalist Continuity Verdict:</strong> You chose survival. 62% of physicalist philosophers agree with you: because information and psychological continuity are identical, you are the Mars duplicate. But consider Scenario 2: What happens when the original Earth body is never vaporized?';
           el.style.borderLeftColor = '#10b981';
         } else {
           el.innerHTML = '<strong>Subjective Continuity Verdict:</strong> You chose death. 74% of laypeople agree: from your first-person point of view, your stream of consciousness terminated forever in New York. The duplicate on Mars is a distinct person who merely suffers from the delusion that they are you.';
           el.style.borderLeftColor = '#ef4444';
         }
       }
+
+      function copyTeleportMemo() {
+        var resultText = document.getElementById('teleportResult').textContent || 'No vote registered yet.';
+        var text = '=== PARFIT TELETRANSPORTER PARADOX AUDIT ===\n' +
+          'Selected Verdict: ' + resultText + '\n\n' +
+          'KEY PHILOSOPHICAL INSIGHT:\n' +
+          'According to Derek Parfit, asking whether you "survived" or "died" is an empty question. ' +
+          'All facts about physical and psychological continuity are fully known. Personal identity ' +
+          'is not a binary Cartesian essence—what matters is psychological connectedness (Relation R).';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyTeleportBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Identity Verdict!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'teleporter-paradox.html'), renderPage({
-    title: 'The Teletransporter Paradox: Does Fast Travel Kill You? | Digital Tools Shed',
-    metaDesc: 'Explore Derek Parfit\'s Teletransporter Paradox. Does atomic duplication preserve personal identity, or is the Star Trek transporter a suicide booth?',
+  writeFileSync(join(utilDir, 'teleporter-paradox.html'), renderExistentialPage({
+    title: "The Teletransporter Paradox: Does Fast Travel Kill You? | Digital Tools Shed",
+    metaDesc: "Explore Derek Parfit's Teletransporter Paradox. Does atomic duplication preserve personal identity, or is the Star Trek transporter a suicide booth?",
     canonical: `${DOMAIN}/util/teleporter-paradox`,
     bodyContent: teleporterHtml,
-    currentPath: '/util/teleporter-paradox'
+    currentPath: '/util/teleporter-paradox',
+    faq: [
+      {
+        q: "What is Derek Parfit's Teletransporter Paradox?",
+        a: "Introduced in Parfit's 1984 book 'Reasons and Persons', the thought experiment explores whether an atomic scanner and synthesizer preserves personal identity or terminates the traveler while creating an identical replacement."
+      },
+      {
+        q: "What is the difference between physical continuity and psychological continuity?",
+        a: "Physical continuity requires an unbroken spatio-temporal path of matter through spacetime. Psychological continuity (Relation R) requires the preservation of memory, personality, intentions, and belief structures."
+      },
+      {
+        q: "Why does the 'Branching Scenario' break human intuition about survival?",
+        a: "In the branching case, the original traveler remains in New York while the clone wakes on Mars. Both have identical psychological claims to being 'you', demonstrating that identity cannot be an exclusive one-to-one relation."
+      },
+      {
+        q: "Does the Star Trek transporter destroy and rebuild characters every time they beam?",
+        a: "Yes. In canonical Star Trek technical manuals, the transporter converts matter into an energy beam (dematerialization), transmitting pattern buffer telemetry to a remote phase transition coil. Mechanically, it vaporizes the original passenger."
+      },
+      {
+        q: "What was Derek Parfit's ultimate conclusion about personal identity?",
+        a: "Parfit concluded that personal identity is an illusion. We are bundles of shifting mental states. Asking 'Is that replica really me?' is as meaningless as asking whether a club that replaced all its members is 'really the same club'."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -416,6 +654,60 @@ export function buildExistentialSuite() {
 
         <div id="machineVerdict" style="display: none; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6;"></div>
       </div>
+
+      <!-- MATHEMATICAL & AXIOLOGICAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Robert Nozick's Axiological Proof Against Hedonism</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          In <em>Anarchy, State, and Utopia</em> (1974), Robert Nozick formulated the mathematical refutation of ethical hedonism:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. The Hedonistic Premise:<br>
+          &nbsp;&nbsp;&nbsp;Utility(Life) = &int; [Pleasure(t) - Suffering(t)] dt<br>
+          &nbsp;&nbsp;&nbsp;If Hedonism holds, Life_A is strictly preferred to Life_B iff Utility(A) &gt; Utility(B).<br><br>
+          2. The Experience Machine Setup:<br>
+          &nbsp;&nbsp;&nbsp;Utility(Machine) &gt;&gt; Utility(Reality) by construction (Zero suffering, maximal pleasure).<br><br>
+          3. Empirical Human Decision:<br>
+          &nbsp;&nbsp;&nbsp;Majority of rational agents choose Reality over Machine.<br><br>
+          4. Deductive Refutation:<br>
+          &nbsp;&nbsp;&nbsp;Therefore, human welfare functions contain intrinsic non-hedonic variables:<br>
+          &nbsp;&nbsp;&nbsp;Welfare = f(Pleasure, Agency, Ontological Contact with Reality, Authentic Being).
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyMachineMemo()" id="copyMachineBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Reality Audit Memo</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & HEDONISM PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Hedonistic & Simulation Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Hedonistic Reductionism Trap</strong>
+          Assuming that the subjective feeling of love or accomplishment is the sole good. Human beings care profoundly about whether their love is genuinely reciprocated by another conscious soul or whether it is a fabricated script.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Status Quo Bias Distortion</strong>
+          Rejecting the machine because you currently live in physical reality. When philosophers reverse the experiment ("You wake up and learn you have been in a machine your whole life—do you unplug?"), most people refuse to unplug due to status quo aversion.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Pseudo-Agency Illusion</strong>
+          Equating simulated action with authentic accomplishment. In the machine, you are not courageous; you are a passive bio-battery receiving electrochemical inputs in a vat.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Solitary Solipsism Trap</strong>
+          Forgetting that the experience machine is a solitary solipsistic prison. Every 'person' you talk to in the simulation is an algorithmic puppet incapable of true moral reciprocity or independent vulnerability.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Paternalistic Judgement Pitfall</strong>
+          Condemning anyone who chooses the machine. For patients suffering from incurable agonizing chronic neuropathic pain or severe trauma, an experience machine provides compassionate palliative relief far superior to torture.
+        </div>
+      </div>
     </div>
 
     <script>
@@ -428,15 +720,52 @@ export function buildExistentialSuite() {
           el.innerHTML = '<strong style="color: #3b82f6;">The Pragmatic Hedonist Verdict:</strong> You chose the machine. If the experience of suffering is real and the experience of joy is identical, why sacrifice well-being on the altar of arbitrary physical atoms? Modern virtual reality and generative AI are the early scaffolding of Nozick’s machine.';
         }
       }
+
+      function copyMachineMemo() {
+        var verdict = document.getElementById('machineVerdict').textContent || 'No choice recorded yet.';
+        var text = '=== NOZICK EXPERIENCE MACHINE DECISION MEMO ===\n' +
+          'Selected Verdict: ' + verdict + '\n\n' +
+          'PHILOSOPHICAL TAKEAWAY:\n' +
+          'Robert Nozick proved that humans value ontological reality and genuine agency over pure subjective ' +
+          'pleasure. Plugging into a simulation reduces a human agent to an indeterminate blob in a tank.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyMachineBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Reality Audit!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'experience-machine.html'), renderPage({
-    title: 'The Experience Machine: Truth vs. Synthetic Bliss | Digital Tools Shed',
-    metaDesc: 'Would you plug into Nozick\'s Experience Machine for a lifetime of simulated bliss? Explore the philosophical audit of hedonism, truth, and virtual reality.',
+  writeFileSync(join(utilDir, 'experience-machine.html'), renderExistentialPage({
+    title: "The Experience Machine: Truth vs. Synthetic Bliss | Digital Tools Shed",
+    metaDesc: "Would you plug into Nozick's Experience Machine for a lifetime of simulated bliss? Explore the philosophical audit of hedonism, truth, and virtual reality.",
     canonical: `${DOMAIN}/util/experience-machine`,
     bodyContent: nozickHtml,
-    currentPath: '/util/experience-machine'
+    currentPath: '/util/experience-machine',
+    faq: [
+      {
+        q: "What is Robert Nozick's Experience Machine thought experiment?",
+        a: "Introduced in Nozick's 1974 work 'Anarchy, State, and Utopia', it asks whether a person would plug into a machine that simulates whatever desirable experiences they choose while they float in a tank for life."
+      },
+      {
+        q: "Why do most people refuse to plug into the Experience Machine?",
+        a: "Nozick argued that people refuse because we desire to actually *do* things rather than merely experience doing them; we want to *be* a certain sort of person; and we want contact with deeper, authentic reality."
+      },
+      {
+        q: "How does the thought experiment challenge Classical Utilitarianism?",
+        a: "Classical utilitarianism asserts that pleasure is the only intrinsic good and pain the only intrinsic bad. The widespread refusal to plug in demonstrates that humans value truth, reality, and genuine agency independently of pleasure."
+      },
+      {
+        q: "What is the 'Reverse Experience Machine' twist?",
+        a: "Philosopher Joshua Greene demonstrated that when people are told they are *already* in an experience machine and must choose whether to unplug into harsh reality, many choose to remain plugged in, highlighting status quo bias."
+      },
+      {
+        q: "How does the Experience Machine relate to modern VR and AI avatars?",
+        a: "Virtual worlds, algorithmic social feeds, and hyper-realistic AI companions are functional precursors to the Experience Machine, raising urgent questions about how much reality humans are willing to trade for digital comfort."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -467,7 +796,7 @@ export function buildExistentialSuite() {
             <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">INCOMING INPUT SLIP:</span>
             <span style="font-size: 1.4rem; font-weight: bold; color: #f59e0b;">你叫什么名字？</span>
           </div>
-          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Rulebook Lookup: Match input squiggles to rule #429 → Output response squiggles.</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Rulebook Lookup: Match input squiggles to rule #429 &rarr; Output response squiggles.</div>
           
           <button class="btn-primary" onclick="runChineseLookup()" style="padding: 0.5rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
             Lookup Rule & Emit Response
@@ -486,21 +815,112 @@ export function buildExistentialSuite() {
           <strong>Searle's Conclusion:</strong> A digital computer is fundamentally a syntactic machine—it manipulates symbols based on shape and binary logic (syntax). But human consciousness possesses <strong>semantics</strong> (meaning and qualitative mental states). No amount of syntax, by itself, constitutes semantics. Therefore, LLMs and neural nets calculate answers without ever knowing what an answer is.
         </div>
       </div>
+
+      <!-- MATHEMATICAL & DEDUCTIVE DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">John Searle's Deductive Syllogism of Strong AI</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Published in <em>Minds, Brains, and Programs</em> (Behavioral and Brain Sciences, 1980), Searle structured his thesis into four rigorous formal premises:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          Premise 1: Programs are purely formal (syntactic).<br>
+          &nbsp;&nbsp;&nbsp;Code executes state transitions over tokens & symbols regardless of physical meaning.<br><br>
+          Premise 2: Human minds have mental contents (semantics).<br>
+          &nbsp;&nbsp;&nbsp;Thoughts have intentionality—they are about things in the real world.<br><br>
+          Premise 3: Syntax by itself is neither constitutive of nor sufficient for semantics.<br>
+          &nbsp;&nbsp;&nbsp;No combination of squiggle manipulations generates understanding of the squiggles.<br><br>
+          Conclusion 1: Programs are neither constitutive of nor sufficient for minds.<br>
+          &nbsp;&nbsp;&nbsp;Simulating a mental process is not duplicating that mental process.<br><br>
+          Premise 4: Brains cause minds.<br>
+          &nbsp;&nbsp;&nbsp;Biological neural substrates possess specific causal physical powers to generate consciousness.
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyChineseRoomMemo()" id="copyChineseBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy AI Consciousness Audit</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & AI COGNITION PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in AI Consciousness & Symbol Manipulation</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Turing Test Behavioral Trap</strong>
+          Confusing external performance with internal comprehension. An entity can mimic natural conversation with statistical perfection while having zero inner light, subjective understanding, or sentience.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Token Scaling Emergence Fallacy</strong>
+          Believing that scaling transformer parameters from 100B to 100T magically converts syntax into semantics. High-dimensional vector cosine similarities are still mathematical lookups, not conscious awareness.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. Anthropomorphic Intentionality Projection</strong>
+          Reading empathy, curiosity, and emotional depth into an AI response simply because the grammar is fluent. The human brain's theory of mind reflexively attributes consciousness to any fluent speaker.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Systems Reply Overreach</strong>
+          Arguing that while the man in the room doesn't understand Chinese, the 'entire system' (room + book + slips) understands. Searle countered: let the man memorize the entire rulebook and walk outside; he still doesn't know a word of Chinese.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Simulation vs. Duplication Confusion</strong>
+          Assuming that because a supercomputer can simulate a rainstorm, the interior of the computer gets physically wet. Simulating neurochemistry on silicon does not automatically instantiate the causal biology of feeling.
+        </div>
+      </div>
     </div>
 
     <script>
       function runChineseLookup() {
         document.getElementById('crOutput').style.display = 'block';
       }
+
+      function copyChineseRoomMemo() {
+        var text = '=== JOHN SEARLE CHINESE ROOM ARGUMENT AUDIT ===\n' +
+          'Core Distinction: Syntax (Symbol Manipulation) vs. Semantics (Subjective Meaning)\n' +
+          'Verdict on Strong AI: Syntax is not sufficient for semantics.\n\n' +
+          'KEY IMPLICATION FOR LLMs:\n' +
+          'Modern Large Language Models calculate next-token probability distributions across massive weight matrices. ' +
+          'They generate syntactically fluent responses without possessing conscious understanding or intentionality.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyChineseBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied AI Consciousness Audit!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'chinese-room.html'), renderPage({
-    title: 'The Chinese Room: Can AI Ever Truly Understand? | Digital Tools Shed',
-    metaDesc: 'Explore John Searle\'s Chinese Room thought experiment. Does symbol manipulation equal true conscious comprehension in Large Language Models and AI?',
+  writeFileSync(join(utilDir, 'chinese-room.html'), renderExistentialPage({
+    title: "The Chinese Room: Can AI Ever Truly Understand? | Digital Tools Shed",
+    metaDesc: "Explore John Searle's Chinese Room thought experiment. Does symbol manipulation equal true conscious comprehension in Large Language Models and AI?",
     canonical: `${DOMAIN}/util/chinese-room`,
     bodyContent: chineseRoomHtml,
-    currentPath: '/util/chinese-room'
+    currentPath: '/util/chinese-room',
+    faq: [
+      {
+        q: "What is John Searle's Chinese Room thought experiment?",
+        a: "Proposed in 1980, it imagines a person who speaks only English locked in a room manipulating Chinese characters according to a rulebook. To people outside, the person appears fluent, but the person understands zero Chinese."
+      },
+      {
+        q: "What is the difference between syntax and semantics?",
+        a: "Syntax refers to the formal grammatical rules, symbols, and structural patterns. Semantics refers to the actual meaning, reference, and qualitative mental content associated with those symbols."
+      },
+      {
+        q: "Does the Chinese Room argument apply to modern LLMs (e.g. GPT-4, Gemini)?",
+        a: "Yes. Searle's argument directly targets transformer neural networks: LLMs predict token statistical distributions based on geometry in embedding space, manipulating linguistic syntax without grounded experiential semantics."
+      },
+      {
+        q: "What is the 'Systems Reply' and how did Searle address it?",
+        a: "The Systems Reply states that while the individual human doesn't understand Chinese, the whole system (man, rulebook, paper) does. Searle replied that the human could memorize the entire rulebook and do all calculations mentally, yet still understand zero Chinese."
+      },
+      {
+        q: "Does Searle believe a machine could ever be conscious?",
+        a: "Yes. Searle explicitly affirmed that the human brain is a biological machine that produces consciousness. However, he argued that computation alone (abstract formal symbols) cannot produce consciousness without the appropriate causal physical powers."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
