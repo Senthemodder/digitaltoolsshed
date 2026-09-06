@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "Industry research by Google, Cloudflare, and Amazon shows that every 100ms delay in page load time reduces conversion rates by approximately 0.7% to 1.0% and increases bounce rate exponentially on mobile networks."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between INP and FID?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Interaction to Next Paint (INP) replaced First Input Delay (FID) as an official Core Web Vital in March 2024. While FID measured only the delay of the very first click, INP assesses all user interactions (clicks, taps, keypresses) throughout the entire page session."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do render-blocking stylesheets affect LCP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Browsers halt rendering until external stylesheets in the head are downloaded and parsed. If CSS exceeds 50kB or sits on slow CDNs, the browser cannot paint hero text or images, directly driving LCP into the red zone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Google evaluate the 75th percentile (P75) rather than the average?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Averages mask poor user experiences caused by slow mobile devices and spotty networks. Using P75 ensures that at least 3 out of every 4 actual visitors experience fast load times before a site qualifies for search ranking boosts."
+      }
     }
   ]
 }
@@ -1113,26 +1137,26 @@
           <h3 style="font-size:1.05rem; margin-bottom:1rem; font-family:var(--serif);">Transfer Asset Budget (Compressed Gzip/Brotli)</h3>
           <div class="grid-4">
             <div>
-              <label class="field-label">JavaScript (kB): <span id="val-js" style="color:var(--fg);">180</span></label>
+              <label class="field-label" for="size-js">JavaScript (kB): <span id="val-js" style="color:var(--fg);">180</span></label>
               <input type="range" id="size-js" min="10" max="1500" value="180" style="width:100%;" oninput="calculateVitals()" />
             </div>
             <div>
-              <label class="field-label">CSS Stylesheets (kB): <span id="val-css" style="color:var(--fg);">40</span></label>
+              <label class="field-label" for="size-css">CSS Stylesheets (kB): <span id="val-css" style="color:var(--fg);">40</span></label>
               <input type="range" id="size-css" min="5" max="300" value="40" style="width:100%;" oninput="calculateVitals()" />
             </div>
             <div>
-              <label class="field-label">Hero / Images (kB): <span id="val-img" style="color:var(--fg);">250</span></label>
+              <label class="field-label" for="size-img">Hero / Images (kB): <span id="val-img" style="color:var(--fg);">250</span></label>
               <input type="range" id="size-img" min="10" max="3000" value="250" style="width:100%;" oninput="calculateVitals()" />
             </div>
             <div>
-              <label class="field-label">Web Fonts (kB): <span id="val-font" style="color:var(--fg);">60</span></label>
+              <label class="field-label" for="size-font">Web Fonts (kB): <span id="val-font" style="color:var(--fg);">60</span></label>
               <input type="range" id="size-font" min="0" max="500" value="60" style="width:100%;" oninput="calculateVitals()" />
             </div>
           </div>
 
           <div class="grid-2" style="margin-top:1.25rem;">
             <div>
-              <label class="field-label">Network Profile Throttling</label>
+              <label class="field-label" for="vitals-network">Network Profile Throttling</label>
               <select id="vitals-network" class="text-input" onchange="calculateVitals()">
                 <option value="4g">Fast 4G (9.0 Mbps down, 40ms RTT)</option>
                 <option value="slow4g" selected>Average 4G (4.0 Mbps down, 80ms RTT)</option>
@@ -1141,7 +1165,7 @@
               </select>
             </div>
             <div>
-              <label class="field-label">Estimated Monthly Revenue ($)</label>
+              <label class="field-label" for="vitals-revenue">Estimated Monthly Revenue ($)</label>
               <input type="number" id="vitals-revenue" class="text-input" value="50000" oninput="calculateVitals()" />
             </div>
           </div>
@@ -1164,6 +1188,57 @@
             <div class="field-label">Annual Revenue at Risk</div>
             <div id="vitals-loss" style="font-size:2.2rem; font-family:var(--mono); font-weight:bold; margin:0.5rem 0; color:#f87171;">$0 / yr</div>
             <span class="wb-badge badge-amber">Latency Penalty</span>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; align-items:center; gap:0.5rem;">
+          <button type="button" class="btn-sec" id="btnCopyVitalsReport" onclick="copyVitalsReport()">📋 Copy Performance Audit Summary</button>
+          <span id="vitalsCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+        </div>
+
+        <!-- Mathematical & Econometric Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">CrUX 75th Percentile Aggregation & Latency Decay Math</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Google Chrome User Experience (CrUX) and Akamai financial conversion models quantify latency impact using statistical percentiles and exponential revenue decay:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. TCP Slow-Start Download Time:</strong></div>
+            <div>&nbsp;&nbsp;T_{	ext{download}} = rac{	ext{Payload Size}}{	ext{Bandwidth}} + (N_{	ext{roundtrips}} 	imes 	ext{RTT}) quad (	ext{CWND initial window } = 10 	imes 	ext{MSS})</div>
+            <div><strong>2. LCP Approximation Equation:</strong></div>
+            <div>&nbsp;&nbsp;	ext{LCP} = (3 	imes 	ext{RTT}) + T_{	ext{download}} + T_{	ext{main-thread parse}}</div>
+            <div><strong>3. Exponential Conversion Loss Model:</strong></div>
+            <div>&nbsp;&nbsp;	ext{Loss} = 	ext{Annual Revenue} 	imes left( 1 - (1 - delta)^{rac{Delta t}{100	ext{ms}}} ight) quad (delta approx 0.8% 	ext{ per 100ms excess})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Web Performance Optimization -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Web Performance & Core Web Vitals Optimization</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Client-Side JavaScript Hydration INP Freeze</strong>
+            Massive SPA frameworks (React/Next.js/Vue) hydrate components on the client side, executing megabytes of JavaScript during initial load. While the page looks visual, user clicks during this window register 500ms+ input delays, failing Google INP metrics.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Unsized Hero Images & Cumulative Layout Shift (CLS)</strong>
+            Failing to set explicit <code>width</code> and <code>height</code> attributes or CSS <code>aspect-ratio</code> on responsive hero images forces the browser to reflow the layout when the image downloads, shoving body text downward and failing CLS.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Testing on High-End M-Series Macs vs Real-World Androids</strong>
+            Running Lighthouse on a multi-core M3 Max workstation paints a false reality of 99/100 performance. The median global user accesses sites on $150 Android devices with 4x slower single-core performance and aggressive CPU thermal throttling.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Third-Party Tag Manager Script Contamination</strong>
+            Marketers loading session replay tools (Hotjar), chatbots (Intercom), and ad pixels synchronously in <code>&lt;head&gt;</code> introduce uncontrolled external waterfalls, ballooning LCP past 4.0s and cratering search rankings.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Lab Lighthouse vs Real 28-Day CrUX Field Telemetry</strong>
+            Optimizing for synthetic lab scores instead of field data. Google Search algorithms evaluate rolling 28-day real-user CrUX telemetry from actual Chrome browsers, not single-run Lighthouse audits.
           </div>
         </div>
       </div>
@@ -1231,6 +1306,38 @@
           document.getElementById('vitals-loss').textContent = '$' + loss.toLocaleString() + ' / yr';
         }
 
+        function copyVitalsReport() {
+          var lcp = document.getElementById('vitals-lcp').textContent;
+          var inp = document.getElementById('vitals-inp').textContent;
+          var loss = document.getElementById('vitals-loss').textContent;
+          var net = document.getElementById('vitals-network').selectedOptions[0].text;
+          var js = document.getElementById('val-js').textContent;
+          var css = document.getElementById('val-css').textContent;
+          var img = document.getElementById('val-img').textContent;
+          var font = document.getElementById('val-font').textContent;
+
+          var text = '⚡ Core Web Vitals Budget Report
+
+' +
+            '• Estimated LCP: ' + lcp + '
+' +
+            '• Estimated INP: ' + inp + '
+' +
+            '• Projected Revenue at Risk: ' + loss + '
+' +
+            '• Network Profile: ' + net + '
+' +
+            '• Asset Weights: JS: ' + js + 'kB | CSS: ' + css + 'kB | Images: ' + img + 'kB | Fonts: ' + font + 'kB
+
+' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/web/web-vitals-budget';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var fb = document.getElementById('vitalsCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
+        }
+
         window.addEventListener('DOMContentLoaded', calculateVitals);
       </script>
     
@@ -1246,6 +1353,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>How does page load speed impact conversion rate?</span><span>+</span></div>
             <div class="faq-a">Industry research by Google, Cloudflare, and Amazon shows that every 100ms delay in page load time reduces conversion rates by approximately 0.7% to 1.0% and increases bounce rate exponentially on mobile networks.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between INP and FID?</span><span>+</span></div>
+            <div class="faq-a">Interaction to Next Paint (INP) replaced First Input Delay (FID) as an official Core Web Vital in March 2024. While FID measured only the delay of the very first click, INP assesses all user interactions (clicks, taps, keypresses) throughout the entire page session.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How do render-blocking stylesheets affect LCP?</span><span>+</span></div>
+            <div class="faq-a">Browsers halt rendering until external stylesheets in the head are downloaded and parsed. If CSS exceeds 50kB or sits on slow CDNs, the browser cannot paint hero text or images, directly driving LCP into the red zone.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why does Google evaluate the 75th percentile (P75) rather than the average?</span><span>+</span></div>
+            <div class="faq-a">Averages mask poor user experiences caused by slow mobile devices and spotty networks. Using P75 ensures that at least 3 out of every 4 actual visitors experience fast load times before a site qualifies for search ranking boosts.</div>
           </div>
         
       </div>

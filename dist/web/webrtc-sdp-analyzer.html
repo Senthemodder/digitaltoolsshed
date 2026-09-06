@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "Host candidates are local LAN IP addresses. Server Reflexive (srflx) candidates are public IPs discovered via a STUN server. Relay candidates route traffic through a TURN server when direct P2P NAT traversal fails."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What causes WebRTC \"Glare\" and how is it resolved?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Glare occurs when both peers attempt to send an SDP offer simultaneously while both are in the stable state. RFC 8829 resolves this using the \"Perfect Negotiation\" pattern, designating one peer as polite (rolls back its offer) and the other as impolite."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a=group:BUNDLE essential in modern WebRTC?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "BUNDLE multiplexes audio, video, and data channels over a single ICE candidate pair (one socket), eliminating multi-port firewall conflicts and reducing connection setup latency."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the role of the DTLS fingerprint in SDP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WebRTC encrypts all media using SRTP. The DTLS fingerprint (SHA-256 hash of the peer TLS certificate) exchanged in the SDP verifies that the peer establishing the DTLS handshake is the authentic sender identified during signaling."
+      }
     }
   ]
 }
@@ -1110,9 +1134,15 @@
         </div>
 
         <div class="wb-card">
-          <label class="field-label">Raw SDP Offer or Answer</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <label class="field-label" style="margin:0;" for="sdp-input">Raw SDP Offer or Answer</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopySdpReport" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copySdpReport()">Copy Dissected Report</button>
+              <span id="sdpCopyFeedback" style="font-size:0.75rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
+          </div>
           <textarea id="sdp-input" class="code-input" style="height:140px;" oninput="dissectSdp()"></textarea>
-          <button class="btn-sec" style="margin-top:0.75rem;" onclick="loadSdpExample()">Load Realistic WebRTC Offer Example</button>
+          <button type="button" class="btn-sec" style="margin-top:0.75rem;" onclick="loadSdpExample()">Load Realistic WebRTC Offer Example</button>
         </div>
 
         <div class="grid-2">
@@ -1137,27 +1167,90 @@
             --
           </div>
         </div>
+
+        <!-- Mathematical & RFC Signaling Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 8866 SDP Grammar & ICE Candidate Priority Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            WebRTC peers rank connection paths by computing deterministic 32-bit candidate priority integers according to RFC 5245 / 8445:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. ICE Candidate Priority Equation:</strong></div>
+            <div>&nbsp;&nbsp;Priority = (2^{24} 	imes type_preference) + (2^8 	imes local_preference) + (256 - component_id)</div>
+            <div><strong>2. Candidate Type Weights:</strong></div>
+            <div>&nbsp;&nbsp;Host (LAN) = 126  |  Server Reflexive (STUN) = 100  |  Relay (TURN) = 0</div>
+            <div><strong>3. SDP State Machine Progression:</strong></div>
+            <div>&nbsp;&nbsp;stable &rarr; setLocalDescription(offer) &rarr; have-local-offer &rarr; setRemoteDescription(answer) &rarr; stable</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in WebRTC Architecture -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in WebRTC SDP Signaling Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Missing TURN Relay Server for Symmetric NAT Traversal</strong>
+            Relying exclusively on free public STUN servers guarantees that ~15% of all calls will fail. Symmetric NATs (common in enterprise networks, universities, and mobile carriers) assign different external ports to different destinations, making direct peer-to-peer traversal impossible without a TURN relay.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Signaling Glare & Missing Perfect Negotiation</strong>
+            When both clients send an SDP offer at the exact same moment, both state machines transition to <code>have-local-offer</code>, causing mutual rejection. Implementing the RFC 8829 "Perfect Negotiation" state machine ensures polite peers yield to incoming offers without dropped calls.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Codec Profile Mismatches & Silent Video Blackout</strong>
+            Offering H.264 video with an incompatible <code>profile-level-id</code> parameter against an answerer that only supports baseline profiles causes the media channel to establish successfully while decoding 0 video frames, leaving users staring at a black screen.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Omitting a=group:BUNDLE Multiplexing</strong>
+            Omitting BUNDLE forces the WebRTC engine to open independent ICE candidate socket pairs for audio, video, and data channels. This triples the number of candidate tests and causes firewall connection drops on strict networks.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. DTLS Certificate Expiration During Long Sessions</strong>
+            Generating self-signed DTLS certificates with short expiration windows causes mid-call renegotiations to fail. When new tracks are added or network handoffs occur, mismatched or expired certificates drop the connection.
+          </div>
+        </div>
       </div>
 
       <script>
         function loadSdpExample() {
-          document.getElementById('sdp-input').value = 'v=0\n' +
-'o=- 8122941029412 2 IN IP4 127.0.0.1\n' +
-'s=-\n' +
-'t=0 0\n' +
-'a=group:BUNDLE 0 1\n' +
-'a=msid-semantic: WMS\n' +
-'m=audio 9 UDP/TLS/RTP/SAVPF 111 63 9\n' +
-'c=IN IP4 0.0.0.0\n' +
-'a=rtpmap:111 opus/48000/2\n' +
-'a=rtpmap:9 G722/8000\n' +
-'a=fingerprint:sha-256 2B:65:B2:91:0A:88:9F:44:EE:12:88:AC:B1:00:23:44:11:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33\n' +
-'a=setup:actpass\n' +
-'a=candidate:4234901 1 udp 2122260223 192.168.1.15 54101 typ host generation 0\n' +
-'a=candidate:9981223 1 udp 1686052607 203.0.113.45 61204 typ srflx raddr 192.168.1.15 rport 54101\n' +
-'m=video 9 UDP/TLS/RTP/SAVPF 96 98 100\n' +
-'a=rtpmap:96 VP8/90000\n' +
-'a=rtpmap:98 VP9/90000\n' +
+          document.getElementById('sdp-input').value = 'v=0
+' +
+'o=- 8122941029412 2 IN IP4 127.0.0.1
+' +
+'s=-
+' +
+'t=0 0
+' +
+'a=group:BUNDLE 0 1
+' +
+'a=msid-semantic: WMS
+' +
+'m=audio 9 UDP/TLS/RTP/SAVPF 111 63 9
+' +
+'c=IN IP4 0.0.0.0
+' +
+'a=rtpmap:111 opus/48000/2
+' +
+'a=rtpmap:9 G722/8000
+' +
+'a=fingerprint:sha-256 2B:65:B2:91:0A:88:9F:44:EE:12:88:AC:B1:00:23:44:11:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33
+' +
+'a=setup:actpass
+' +
+'a=candidate:4234901 1 udp 2122260223 192.168.1.15 54101 typ host generation 0
+' +
+'a=candidate:9981223 1 udp 1686052607 203.0.113.45 61204 typ srflx raddr 192.168.1.15 rport 54101
+' +
+'m=video 9 UDP/TLS/RTP/SAVPF 96 98 100
+' +
+'a=rtpmap:96 VP8/90000
+' +
+'a=rtpmap:98 VP9/90000
+' +
 'a=rtpmap:100 H264/90000';
           dissectSdp();
         }
@@ -1166,7 +1259,8 @@
           var raw = document.getElementById('sdp-input').value.trim();
           if (!raw) return;
 
-          var lines = raw.split('\n').map(function(l){ return l.trim(); });
+          var lines = raw.split('
+').map(function(l){ return l.trim(); });
           var codecs = [];
           var candidates = [];
           var fingerprint = 'None';
@@ -1216,6 +1310,29 @@
             '<div style="margin-top:0.4rem; word-break:break-all;"><strong>SHA-256 Cert Fingerprint:</strong> <code>' + fingerprint + '</code></div>';
         }
 
+        function copySdpReport() {
+          var raw = document.getElementById('sdp-input').value.trim();
+          if (!raw) return;
+          var text = '📡 WebRTC Dissected Report
+
+' +
+            'Codecs: ' + (document.getElementById('sdp-media-list').innerText.replace(/
+/g, ', ') || 'None') + '
+' +
+            'ICE Candidates: ' + (document.getElementById('sdp-ice-list').innerText.replace(/
+/g, ' | ') || 'None') + '
+' +
+            document.getElementById('sdp-security-box').innerText + '
+
+' +
+            'Dissected via Digital Tools Shed: https://digitaltoolsshed.com/web/webrtc-sdp-analyzer';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var fb = document.getElementById('sdpCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
+        }
+
         window.addEventListener('DOMContentLoaded', loadSdpExample);
       </script>
     
@@ -1231,6 +1348,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>What are host, srflx, and relay ICE candidates?</span><span>+</span></div>
             <div class="faq-a">Host candidates are local LAN IP addresses. Server Reflexive (srflx) candidates are public IPs discovered via a STUN server. Relay candidates route traffic through a TURN server when direct P2P NAT traversal fails.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What causes WebRTC "Glare" and how is it resolved?</span><span>+</span></div>
+            <div class="faq-a">Glare occurs when both peers attempt to send an SDP offer simultaneously while both are in the stable state. RFC 8829 resolves this using the "Perfect Negotiation" pattern, designating one peer as polite (rolls back its offer) and the other as impolite.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why is a=group:BUNDLE essential in modern WebRTC?</span><span>+</span></div>
+            <div class="faq-a">BUNDLE multiplexes audio, video, and data channels over a single ICE candidate pair (one socket), eliminating multi-port firewall conflicts and reducing connection setup latency.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the role of the DTLS fingerprint in SDP?</span><span>+</span></div>
+            <div class="faq-a">WebRTC encrypts all media using SRTP. The DTLS fingerprint (SHA-256 hash of the peer TLS certificate) exchanged in the SDP verifies that the peer establishing the DTLS handshake is the authentic sender identified during signaling.</div>
           </div>
         
       </div>

@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "Media queries cause sudden jarring font and layout jumps at specific breakpoints (e.g. 768px). Linear clamp interpolation scales pixel-by-pixel continuously across every device width."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Why must clamp() combine rem and vw units for accessibility?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Using raw vw units alone locks the font size strictly to the viewport width, preventing users with low vision from zooming the text with browser zoom controls (Ctrl + Plus). Combining rem with vw ensures WCAG 1.4.4 compliance."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if the calculated Y-intercept is negative?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When the linear slope requires a negative Y-intercept, CSS syntax requires proper mathematical subtraction (e.g. clamp(1rem, -0.5rem + 2.5vw, 2.5rem)) rather than double operator errors."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can CSS clamp() be used for margin and padding?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. clamp() functions identically on padding, margin, gap, and grid-template tracks, enabling fully fluid spacing systems without arbitrary layout jumps."
+      }
     }
   ]
 }
@@ -1112,19 +1136,19 @@
         <div class="wb-card">
           <div class="grid-4">
             <div>
-              <label class="field-label">Min Viewport (px)</label>
+              <label class="field-label" for="clamp-min-vp">Min Viewport (px)</label>
               <input type="number" id="clamp-min-vp" class="text-input" value="375" oninput="calculateClamp()" />
             </div>
             <div>
-              <label class="field-label">Max Viewport (px)</label>
+              <label class="field-label" for="clamp-max-vp">Max Viewport (px)</label>
               <input type="number" id="clamp-max-vp" class="text-input" value="1440" oninput="calculateClamp()" />
             </div>
             <div>
-              <label class="field-label">Min Size (px)</label>
+              <label class="field-label" for="clamp-min-sz">Min Size (px)</label>
               <input type="number" id="clamp-min-sz" class="text-input" value="18" oninput="calculateClamp()" />
             </div>
             <div>
-              <label class="field-label">Max Size (px)</label>
+              <label class="field-label" for="clamp-max-sz">Max Size (px)</label>
               <input type="number" id="clamp-max-sz" class="text-input" value="36" oninput="calculateClamp()" />
             </div>
           </div>
@@ -1133,7 +1157,10 @@
         <div class="wb-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
             <label class="field-label" style="margin:0;">Generated CSS Declaration</label>
-            <button class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyClamp()">Copy CSS</button>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-primary" id="btnCopyClamp" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyClamp()">Copy CSS</button>
+              <span id="clampCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
           <input type="text" id="clamp-result" class="code-input" style="font-size:1.05rem; font-weight:bold; color:#60a5fa;" readonly />
           <div style="margin-top:0.5rem; font-family:var(--mono); font-size:0.78rem; color:var(--text-muted);" id="clamp-formula-notes">
@@ -1150,6 +1177,52 @@
           </div>
           <div style="margin-top:0.75rem; font-family:var(--mono); font-size:0.8rem; color:var(--text-muted);" id="clamp-computed-size">
             Current rendered size: -- px
+          </div>
+        </div>
+
+        <!-- Mathematical Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Linear Slope & Viewport Interpolation Math</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Fluid typography uses first-order linear algebra ($y = mx + b$) to calculate continuous pixel scaling between mobile and desktop boundaries:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Linear Slope Formulation:</strong></div>
+            <div>&nbsp;&nbsp;m = rac{	ext{Size}_{max} - 	ext{Size}_{min}}{	ext{VP}_{max} - 	ext{VP}_{min}} quad (	ext{Expressed in } 	ext{vw} = m 	imes 100)</div>
+            <div><strong>2. Y-Intercept Calculation:</strong></div>
+            <div>&nbsp;&nbsp;b = 	ext{Size}_{min} - (m 	imes 	ext{VP}_{min}) quad (	ext{Converted to } 	ext{rem} = b / 16)</div>
+            <div><strong>3. CSS Clamp Function Output:</strong></div>
+            <div>&nbsp;&nbsp;	ext{clamp}(	ext{Min}_{	ext{rem}}, b_{	ext{rem}} + (m 	imes 100)	ext{vw}, 	ext{Max}_{	ext{rem}})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Fluid Typography -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Fluid CSS clamp() Implementation</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Pure Viewport Width (vw) Accessibility Zoom Lock Trap</strong>
+            Using raw <code>vw</code> without combining it with <code>rem</code> locks the font size strictly to the physical display width. When vision-impaired users press Ctrl + Plus in their browser, raw <code>vw</code> fonts refuse to zoom, failing WCAG 1.4.4 (Resize Text) compliance.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Negative Y-Intercept Sign Reversal Syntax Error</strong>
+            When min/max viewport ranges yield a negative Y-intercept, naive string concatenation creates invalid CSS like <code>1.5rem + -0.8rem</code>. Browsers silently reject malformed mathematical declarations, falling back to default user-agent font sizes.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Assuming Root Font Size is Universally 16px</strong>
+            Converting pixel values to rem by dividing by 16 assumes all users have a 16px default browser font. Users with custom system fonts (e.g. 20px) will experience proportionally scaled clamps; locking font measurements in raw pixels breaks intentional accessibility preferences.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Fluid Line-Height Incoherence & Headline Collisions</strong>
+            Scaling <code>font-size</code> dynamically without applying a matching fluid <code>line-height</code> causes multi-line text to collide and overlap on tablet viewports. Always pair fluid typography with proportional unitless line heights (e.g. <code>line-height: 1.15</code>).
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Reversed Min/Max Boundaries in Clamp Logic</strong>
+            If min size is mistakenly set higher than max size, or if min viewport exceeds max viewport, the browser evaluates the clamp condition as invalid and renders either the static fallback or clamps to the wrong boundary permanently.
           </div>
         </div>
       </div>
@@ -1169,6 +1242,9 @@
           var minRem = (minSz / 16).toFixed(4);
           var maxRem = (maxSz / 16).toFixed(4);
 
+          var ySign = yIntercept >= 0 ? ' + ' : ' - ';
+          var yAbsRem = Math.abs(yIntercept / 16).toFixed(4);
+
           var clampVal = 'clamp(' + minRem + 'rem, ' + yIntRem + 'rem + ' + slopeVw + 'vw, ' + maxRem + 'rem)';
           document.getElementById('clamp-result').value = 'font-size: ' + clampVal + ';';
           document.getElementById('clamp-formula-notes').textContent = 'Slope: ' + slope.toFixed(4) + ' | Intercept: ' + yIntercept.toFixed(2) + 'px (' + yIntRem + 'rem)';
@@ -1182,8 +1258,10 @@
         }
 
         function copyClamp() {
-          navigator.clipboard.writeText(document.getElementById('clamp-result').value);
-          alert('CSS declaration copied!');
+          navigator.clipboard.writeText(document.getElementById('clamp-result').value).then(function() {
+            var fb = document.getElementById('clampCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', calculateClamp);
@@ -1202,6 +1280,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>Why is linear slope interpolation better than media queries?</span><span>+</span></div>
             <div class="faq-a">Media queries cause sudden jarring font and layout jumps at specific breakpoints (e.g. 768px). Linear clamp interpolation scales pixel-by-pixel continuously across every device width.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why must clamp() combine rem and vw units for accessibility?</span><span>+</span></div>
+            <div class="faq-a">Using raw vw units alone locks the font size strictly to the viewport width, preventing users with low vision from zooming the text with browser zoom controls (Ctrl + Plus). Combining rem with vw ensures WCAG 1.4.4 compliance.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What happens if the calculated Y-intercept is negative?</span><span>+</span></div>
+            <div class="faq-a">When the linear slope requires a negative Y-intercept, CSS syntax requires proper mathematical subtraction (e.g. clamp(1rem, -0.5rem + 2.5vw, 2.5rem)) rather than double operator errors.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Can CSS clamp() be used for margin and padding?</span><span>+</span></div>
+            <div class="faq-a">Yes. clamp() functions identically on padding, margin, gap, and grid-template tracks, enabling fully fluid spacing systems without arbitrary layout jumps.</div>
           </div>
         
       </div>

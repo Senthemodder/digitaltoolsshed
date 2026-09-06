@@ -1406,7 +1406,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'css clamp calculator, fluid typography generator, clamp rem vw formula, responsive font size clamp, css linear interpolation',
     faqs: [
       { q: 'How does CSS clamp() work under the hood?', a: 'clamp(MIN, VAL, MAX) takes three parameters: a minimum boundary, a preferred value, and a maximum cap. The browser scales the value smoothly between the minimum and maximum based on the current window size.' },
-      { q: 'Why is linear slope interpolation better than media queries?', a: 'Media queries cause sudden jarring font and layout jumps at specific breakpoints (e.g. 768px). Linear clamp interpolation scales pixel-by-pixel continuously across every device width.' }
+      { q: 'Why is linear slope interpolation better than media queries?', a: 'Media queries cause sudden jarring font and layout jumps at specific breakpoints (e.g. 768px). Linear clamp interpolation scales pixel-by-pixel continuously across every device width.' },
+      { q: 'Why must clamp() combine rem and vw units for accessibility?', a: 'Using raw vw units alone locks the font size strictly to the viewport width, preventing users with low vision from zooming the text with browser zoom controls (Ctrl + Plus). Combining rem with vw ensures WCAG 1.4.4 compliance.' },
+      { q: 'What happens if the calculated Y-intercept is negative?', a: 'When the linear slope requires a negative Y-intercept, CSS syntax requires proper mathematical subtraction (e.g. clamp(1rem, -0.5rem + 2.5vw, 2.5rem)) rather than double operator errors.' },
+      { q: 'Can CSS clamp() be used for margin and padding?', a: 'Yes. clamp() functions identically on padding, margin, gap, and grid-template tracks, enabling fully fluid spacing systems without arbitrary layout jumps.' }
     ],
     html: `
       ${sharedStyle}
@@ -1426,19 +1429,19 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         <div class="wb-card">
           <div class="grid-4">
             <div>
-              <label class="field-label">Min Viewport (px)</label>
+              <label class="field-label" for="clamp-min-vp">Min Viewport (px)</label>
               <input type="number" id="clamp-min-vp" class="text-input" value="375" oninput="calculateClamp()" />
             </div>
             <div>
-              <label class="field-label">Max Viewport (px)</label>
+              <label class="field-label" for="clamp-max-vp">Max Viewport (px)</label>
               <input type="number" id="clamp-max-vp" class="text-input" value="1440" oninput="calculateClamp()" />
             </div>
             <div>
-              <label class="field-label">Min Size (px)</label>
+              <label class="field-label" for="clamp-min-sz">Min Size (px)</label>
               <input type="number" id="clamp-min-sz" class="text-input" value="18" oninput="calculateClamp()" />
             </div>
             <div>
-              <label class="field-label">Max Size (px)</label>
+              <label class="field-label" for="clamp-max-sz">Max Size (px)</label>
               <input type="number" id="clamp-max-sz" class="text-input" value="36" oninput="calculateClamp()" />
             </div>
           </div>
@@ -1447,7 +1450,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         <div class="wb-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
             <label class="field-label" style="margin:0;">Generated CSS Declaration</label>
-            <button class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyClamp()">Copy CSS</button>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-primary" id="btnCopyClamp" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyClamp()">Copy CSS</button>
+              <span id="clampCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
           <input type="text" id="clamp-result" class="code-input" style="font-size:1.05rem; font-weight:bold; color:#60a5fa;" readonly />
           <div style="margin-top:0.5rem; font-family:var(--mono); font-size:0.78rem; color:var(--text-muted);" id="clamp-formula-notes">
@@ -1464,6 +1470,52 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           </div>
           <div style="margin-top:0.75rem; font-family:var(--mono); font-size:0.8rem; color:var(--text-muted);" id="clamp-computed-size">
             Current rendered size: -- px
+          </div>
+        </div>
+
+        <!-- Mathematical Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Linear Slope & Viewport Interpolation Math</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Fluid typography uses first-order linear algebra ($y = mx + b$) to calculate continuous pixel scaling between mobile and desktop boundaries:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Linear Slope Formulation:</strong></div>
+            <div>&nbsp;&nbsp;m = \frac{\text{Size}_{\max} - \text{Size}_{\min}}{\text{VP}_{\max} - \text{VP}_{\min}} \quad (\text{Expressed in } \text{vw} = m \times 100)</div>
+            <div><strong>2. Y-Intercept Calculation:</strong></div>
+            <div>&nbsp;&nbsp;b = \text{Size}_{\min} - (m \times \text{VP}_{\min}) \quad (\text{Converted to } \text{rem} = b / 16)</div>
+            <div><strong>3. CSS Clamp Function Output:</strong></div>
+            <div>&nbsp;&nbsp;\text{clamp}(\text{Min}_{\text{rem}}, b_{\text{rem}} + (m \times 100)\text{vw}, \text{Max}_{\text{rem}})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Fluid Typography -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Fluid CSS clamp() Implementation</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Pure Viewport Width (vw) Accessibility Zoom Lock Trap</strong>
+            Using raw <code>vw</code> without combining it with <code>rem</code> locks the font size strictly to the physical display width. When vision-impaired users press Ctrl + Plus in their browser, raw <code>vw</code> fonts refuse to zoom, failing WCAG 1.4.4 (Resize Text) compliance.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Negative Y-Intercept Sign Reversal Syntax Error</strong>
+            When min/max viewport ranges yield a negative Y-intercept, naive string concatenation creates invalid CSS like <code>1.5rem + -0.8rem</code>. Browsers silently reject malformed mathematical declarations, falling back to default user-agent font sizes.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Assuming Root Font Size is Universally 16px</strong>
+            Converting pixel values to rem by dividing by 16 assumes all users have a 16px default browser font. Users with custom system fonts (e.g. 20px) will experience proportionally scaled clamps; locking font measurements in raw pixels breaks intentional accessibility preferences.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Fluid Line-Height Incoherence & Headline Collisions</strong>
+            Scaling <code>font-size</code> dynamically without applying a matching fluid <code>line-height</code> causes multi-line text to collide and overlap on tablet viewports. Always pair fluid typography with proportional unitless line heights (e.g. <code>line-height: 1.15</code>).
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Reversed Min/Max Boundaries in Clamp Logic</strong>
+            If min size is mistakenly set higher than max size, or if min viewport exceeds max viewport, the browser evaluates the clamp condition as invalid and renders either the static fallback or clamps to the wrong boundary permanently.
           </div>
         </div>
       </div>
@@ -1483,6 +1535,9 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           var minRem = (minSz / 16).toFixed(4);
           var maxRem = (maxSz / 16).toFixed(4);
 
+          var ySign = yIntercept >= 0 ? ' + ' : ' - ';
+          var yAbsRem = Math.abs(yIntercept / 16).toFixed(4);
+
           var clampVal = 'clamp(' + minRem + 'rem, ' + yIntRem + 'rem + ' + slopeVw + 'vw, ' + maxRem + 'rem)';
           document.getElementById('clamp-result').value = 'font-size: ' + clampVal + ';';
           document.getElementById('clamp-formula-notes').textContent = 'Slope: ' + slope.toFixed(4) + ' | Intercept: ' + yIntercept.toFixed(2) + 'px (' + yIntRem + 'rem)';
@@ -1496,8 +1551,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         }
 
         function copyClamp() {
-          navigator.clipboard.writeText(document.getElementById('clamp-result').value);
-          alert('CSS declaration copied!');
+          navigator.clipboard.writeText(document.getElementById('clamp-result').value).then(function() {
+            var fb = document.getElementById('clampCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', calculateClamp);
@@ -1515,7 +1572,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'opengraph previewer, twitter card generator, google serp simulator, meta tag preview, social share visualizer',
     faqs: [
       { q: 'What is the optimal aspect ratio for OpenGraph image tags?', a: 'The recommended standard for og:image is 1200x630 pixels (1.91:1 aspect ratio). This prevents unwanted cropping on Facebook, LinkedIn, Twitter Large Summary Cards, Discord, and Slack.' },
-      { q: 'Why is a canonical URL tag necessary?', a: 'The canonical tag tells search engines which URL is the master version of a page, consolidating link equity and eliminating duplicate content penalties.' }
+      { q: 'Why is a canonical URL tag necessary?', a: 'The canonical tag tells search engines which URL is the master version of a page, consolidating link equity and eliminating duplicate content penalties.' },
+      { q: 'Why do social networks ignore relative image URLs?', a: 'Social sharing webhooks and scrapers (Facebook External Hit, Twitterbot, LinkedInBot) do not evaluate origin headers; they require absolute URLs starting with https://. Relative paths cause broken placeholder images.' },
+      { q: 'How does Google calculate SERP title truncation?', a: 'Google truncates search results based on a 600-pixel desktop container width rather than a strict character count. Titles containing wide characters (like W or M) truncate sooner than titles with narrow characters (like i or l).' },
+      { q: 'What is the difference between summary and summary_large_image on Twitter?', a: 'summary renders a small square thumbnail (144x144) to the left of the title, while summary_large_image renders a full-width high-impact banner image (1200x630) that commands 3x higher click-through rates.' }
     ],
     html: `
       ${sharedStyle}
@@ -1561,19 +1621,19 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Page Meta Properties</h3>
             <div style="display:flex; flex-direction:column; gap:0.75rem;">
               <div>
-                <label class="field-label">Page Title</label>
+                <label class="field-label" for="meta-title">Page Title</label>
                 <input type="text" id="meta-title" class="text-input" value="Digital Tools Shed — The High-Precision Web Workbench" oninput="renderSocial()" />
               </div>
               <div>
-                <label class="field-label">Meta Description</label>
+                <label class="field-label" for="meta-desc">Meta Description</label>
                 <textarea id="meta-desc" class="text-input" style="height:70px;" oninput="renderSocial()">Over 5,000 hyper-specific client-side tools, protocols, and technical calculators with zero tracking and zero external dependencies.</textarea>
               </div>
               <div>
-                <label class="field-label">Canonical URL</label>
+                <label class="field-label" for="meta-url">Canonical URL</label>
                 <input type="text" id="meta-url" class="text-input" value="https://digitaltoolsshed.com/web/" oninput="renderSocial()" />
               </div>
               <div>
-                <label class="field-label">Social Share Image (og:image 1200x630)</label>
+                <label class="field-label" for="meta-img">Social Share Image (og:image 1200x630)</label>
                 <input type="text" id="meta-img" class="text-input" value="https://digitaltoolsshed.com/assets/og-cover.png" oninput="renderSocial()" />
               </div>
             </div>
@@ -1595,9 +1655,58 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         <div class="wb-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <label class="field-label" style="margin:0;">Generated HTML &lt;head&gt; Code</label>
-            <button class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyMeta()">Copy HTML Meta Tags</button>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-primary" id="btnCopyMeta" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyMeta()">Copy HTML Meta Tags</button>
+              <span id="socialCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
           <textarea id="meta-output" class="code-input" style="height:210px;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & SERP Geometry Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">SERP Pixel Density & OpenGraph Aspect Geometry</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Search engine ranking snippets and social media cards adhere to exact geometric layout budgets designed for retina and mobile viewports:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Google Desktop SERP Truncation Budget:</strong></div>
+            <div>&nbsp;&nbsp;W_{\text{title}} \le 600\text{px} \quad (\approx 55\text{-}60 \text{ characters depending on proportional kerning})</div>
+            <div><strong>2. Google Mobile SERP Description Budget:</strong></div>
+            <div>&nbsp;&nbsp;W_{\text{desc}} \le 960\text{px} \quad (\approx 150\text{-}160 \text{ characters maximum before truncation})</div>
+            <div><strong>3. OpenGraph Optimal Aspect Ratio:</strong></div>
+            <div>&nbsp;&nbsp;\text{Ratio} = \frac{1200\text{px}}{630\text{px}} = 1.9048 \approx 1.91:1 \quad (\text{Guarantees zero cropping on Facebook, Twitter, and LinkedIn})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Social Cards & Meta Tags -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Social Card & Meta Tag Optimization</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Relative URL og:image Disaster</strong>
+            Social media scrapers (Twitterbot, Facebook External Hit) do not run JavaScript or resolve relative URL paths. Specifying <code>og:image="/cover.png"</code> causes scrapers to fail silently, displaying an ugly broken grey box across Slack, Discord, and social feeds.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Missing og:image:width and og:image:height Tags</strong>
+            When image dimensions are omitted, Facebook and LinkedIn must asynchronously download and inspect the image during the first user share. This delay causes the rich card to fail on the initial share, rendering only plain text.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Trailing Slash and Protocol Canonical Mismatches</strong>
+            Setting <code>canonical</code> to <code>https://example.com/page/</code> while OpenGraph specifies <code>https://example.com/page</code> splits social engagement signals and search ranking metrics across two separate URLs.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Blocking Social Crawlers with WAF or Anti-Bot Captchas</strong>
+            Overly aggressive Cloudflare Bot Management or user-agent blocking in <code>robots.txt</code> that challenges <code>facebookexternalhit</code> or <code>Twitterbot</code> prevents cards from unfurling, destroying organic social traffic.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Pixel Truncation vs. Character Count Confusion</strong>
+            Believing search titles have a fixed "60 character" rule leads to truncation. Google measures title width in pixels (600px max). A 50-character title with capital "M"s and "W"s will truncate, while a 65-character title with narrow characters will fit completely.
+          </div>
         </div>
       </div>
 
@@ -1626,13 +1735,15 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             imgBox.textContent = '1200 x 630 Preview';
           }
 
-          var tags = '<!-- Standard Metadata -->\\n<title>' + t + '</title>\\n<meta name="description" content="' + d + '">\\n<link rel="canonical" href="' + u + '">\\n\\n<!-- Open Graph / Facebook -->\\n<meta property="og:type" content="website">\\n<meta property="og:url" content="' + u + '">\\n<meta property="og:title" content="' + t + '">\\n<meta property="og:description" content="' + d + '">\\n<meta property="og:image" content="' + img + '">\\n\\n<!-- Twitter / X -->\\n<meta name="twitter:card" content="summary_large_image">\\n<meta name="twitter:title" content="' + t + '">\\n<meta name="twitter:description" content="' + d + '">\\n<meta name="twitter:image" content="' + img + '">';
+          var tags = '<!-- Standard Metadata -->\n<title>' + t + '</title>\n<meta name="description" content="' + d + '">\n<link rel="canonical" href="' + u + '">\n\n<!-- Open Graph / Facebook -->\n<meta property="og:type" content="website">\n<meta property="og:url" content="' + u + '">\n<meta property="og:title" content="' + t + '">\n<meta property="og:description" content="' + d + '">\n<meta property="og:image" content="' + img + '">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n\n<!-- Twitter / X -->\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + t + '">\n<meta name="twitter:description" content="' + d + '">\n<meta name="twitter:image" content="' + img + '">';
           document.getElementById('meta-output').value = tags;
         }
 
         function copyMeta() {
-          navigator.clipboard.writeText(document.getElementById('meta-output').value);
-          alert('HTML meta tags copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('meta-output').value).then(function() {
+            var fb = document.getElementById('socialCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', renderSocial);
@@ -1649,7 +1760,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'webrtc sdp parser, session description protocol analyzer, ice candidates dissector, sdp offer answer debugger',
     faqs: [
       { q: 'What is an SDP offer and answer?', a: 'In WebRTC, Session Description Protocol (SDP) text blobs are exchanged via a signaling server to negotiate media formats before establishing a direct peer-to-peer UDP connection.' },
-      { q: 'What are host, srflx, and relay ICE candidates?', a: 'Host candidates are local LAN IP addresses. Server Reflexive (srflx) candidates are public IPs discovered via a STUN server. Relay candidates route traffic through a TURN server when direct P2P NAT traversal fails.' }
+      { q: 'What are host, srflx, and relay ICE candidates?', a: 'Host candidates are local LAN IP addresses. Server Reflexive (srflx) candidates are public IPs discovered via a STUN server. Relay candidates route traffic through a TURN server when direct P2P NAT traversal fails.' },
+      { q: 'What causes WebRTC "Glare" and how is it resolved?', a: 'Glare occurs when both peers attempt to send an SDP offer simultaneously while both are in the stable state. RFC 8829 resolves this using the "Perfect Negotiation" pattern, designating one peer as polite (rolls back its offer) and the other as impolite.' },
+      { q: 'Why is a=group:BUNDLE essential in modern WebRTC?', a: 'BUNDLE multiplexes audio, video, and data channels over a single ICE candidate pair (one socket), eliminating multi-port firewall conflicts and reducing connection setup latency.' },
+      { q: 'What is the role of the DTLS fingerprint in SDP?', a: 'WebRTC encrypts all media using SRTP. The DTLS fingerprint (SHA-256 hash of the peer TLS certificate) exchanged in the SDP verifies that the peer establishing the DTLS handshake is the authentic sender identified during signaling.' }
     ],
     html: `
       ${sharedStyle}
@@ -1667,9 +1781,15 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         </div>
 
         <div class="wb-card">
-          <label class="field-label">Raw SDP Offer or Answer</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <label class="field-label" style="margin:0;" for="sdp-input">Raw SDP Offer or Answer</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopySdpReport" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="copySdpReport()">Copy Dissected Report</button>
+              <span id="sdpCopyFeedback" style="font-size:0.75rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
+          </div>
           <textarea id="sdp-input" class="code-input" style="height:140px;" oninput="dissectSdp()"></textarea>
-          <button class="btn-sec" style="margin-top:0.75rem;" onclick="loadSdpExample()">Load Realistic WebRTC Offer Example</button>
+          <button type="button" class="btn-sec" style="margin-top:0.75rem;" onclick="loadSdpExample()">Load Realistic WebRTC Offer Example</button>
         </div>
 
         <div class="grid-2">
@@ -1694,27 +1814,73 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             --
           </div>
         </div>
+
+        <!-- Mathematical & RFC Signaling Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">RFC 8866 SDP Grammar & ICE Candidate Priority Formulation</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            WebRTC peers rank connection paths by computing deterministic 32-bit candidate priority integers according to RFC 5245 / 8445:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. ICE Candidate Priority Equation:</strong></div>
+            <div>&nbsp;&nbsp;Priority = (2^{24} \times type_preference) + (2^8 \times local_preference) + (256 - component_id)</div>
+            <div><strong>2. Candidate Type Weights:</strong></div>
+            <div>&nbsp;&nbsp;Host (LAN) = 126  |  Server Reflexive (STUN) = 100  |  Relay (TURN) = 0</div>
+            <div><strong>3. SDP State Machine Progression:</strong></div>
+            <div>&nbsp;&nbsp;stable &rarr; setLocalDescription(offer) &rarr; have-local-offer &rarr; setRemoteDescription(answer) &rarr; stable</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in WebRTC Architecture -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in WebRTC SDP Signaling Architecture</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Missing TURN Relay Server for Symmetric NAT Traversal</strong>
+            Relying exclusively on free public STUN servers guarantees that ~15% of all calls will fail. Symmetric NATs (common in enterprise networks, universities, and mobile carriers) assign different external ports to different destinations, making direct peer-to-peer traversal impossible without a TURN relay.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Signaling Glare & Missing Perfect Negotiation</strong>
+            When both clients send an SDP offer at the exact same moment, both state machines transition to <code>have-local-offer</code>, causing mutual rejection. Implementing the RFC 8829 "Perfect Negotiation" state machine ensures polite peers yield to incoming offers without dropped calls.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Codec Profile Mismatches & Silent Video Blackout</strong>
+            Offering H.264 video with an incompatible <code>profile-level-id</code> parameter against an answerer that only supports baseline profiles causes the media channel to establish successfully while decoding 0 video frames, leaving users staring at a black screen.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Omitting a=group:BUNDLE Multiplexing</strong>
+            Omitting BUNDLE forces the WebRTC engine to open independent ICE candidate socket pairs for audio, video, and data channels. This triples the number of candidate tests and causes firewall connection drops on strict networks.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. DTLS Certificate Expiration During Long Sessions</strong>
+            Generating self-signed DTLS certificates with short expiration windows causes mid-call renegotiations to fail. When new tracks are added or network handoffs occur, mismatched or expired certificates drop the connection.
+          </div>
+        </div>
       </div>
 
       <script>
         function loadSdpExample() {
-          document.getElementById('sdp-input').value = 'v=0\\n' +
-'o=- 8122941029412 2 IN IP4 127.0.0.1\\n' +
-'s=-\\n' +
-'t=0 0\\n' +
-'a=group:BUNDLE 0 1\\n' +
-'a=msid-semantic: WMS\\n' +
-'m=audio 9 UDP/TLS/RTP/SAVPF 111 63 9\\n' +
-'c=IN IP4 0.0.0.0\\n' +
-'a=rtpmap:111 opus/48000/2\\n' +
-'a=rtpmap:9 G722/8000\\n' +
-'a=fingerprint:sha-256 2B:65:B2:91:0A:88:9F:44:EE:12:88:AC:B1:00:23:44:11:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33\\n' +
-'a=setup:actpass\\n' +
-'a=candidate:4234901 1 udp 2122260223 192.168.1.15 54101 typ host generation 0\\n' +
-'a=candidate:9981223 1 udp 1686052607 203.0.113.45 61204 typ srflx raddr 192.168.1.15 rport 54101\\n' +
-'m=video 9 UDP/TLS/RTP/SAVPF 96 98 100\\n' +
-'a=rtpmap:96 VP8/90000\\n' +
-'a=rtpmap:98 VP9/90000\\n' +
+          document.getElementById('sdp-input').value = 'v=0\n' +
+'o=- 8122941029412 2 IN IP4 127.0.0.1\n' +
+'s=-\n' +
+'t=0 0\n' +
+'a=group:BUNDLE 0 1\n' +
+'a=msid-semantic: WMS\n' +
+'m=audio 9 UDP/TLS/RTP/SAVPF 111 63 9\n' +
+'c=IN IP4 0.0.0.0\n' +
+'a=rtpmap:111 opus/48000/2\n' +
+'a=rtpmap:9 G722/8000\n' +
+'a=fingerprint:sha-256 2B:65:B2:91:0A:88:9F:44:EE:12:88:AC:B1:00:23:44:11:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33\n' +
+'a=setup:actpass\n' +
+'a=candidate:4234901 1 udp 2122260223 192.168.1.15 54101 typ host generation 0\n' +
+'a=candidate:9981223 1 udp 1686052607 203.0.113.45 61204 typ srflx raddr 192.168.1.15 rport 54101\n' +
+'m=video 9 UDP/TLS/RTP/SAVPF 96 98 100\n' +
+'a=rtpmap:96 VP8/90000\n' +
+'a=rtpmap:98 VP9/90000\n' +
 'a=rtpmap:100 H264/90000';
           dissectSdp();
         }
@@ -1723,7 +1889,7 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           var raw = document.getElementById('sdp-input').value.trim();
           if (!raw) return;
 
-          var lines = raw.split('\\n').map(function(l){ return l.trim(); });
+          var lines = raw.split('\n').map(function(l){ return l.trim(); });
           var codecs = [];
           var candidates = [];
           var fingerprint = 'None';
@@ -1773,6 +1939,21 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             '<div style="margin-top:0.4rem; word-break:break-all;"><strong>SHA-256 Cert Fingerprint:</strong> <code>' + fingerprint + '</code></div>';
         }
 
+        function copySdpReport() {
+          var raw = document.getElementById('sdp-input').value.trim();
+          if (!raw) return;
+          var text = '📡 WebRTC Dissected Report\n\n' +
+            'Codecs: ' + (document.getElementById('sdp-media-list').innerText.replace(/\n/g, ', ') || 'None') + '\n' +
+            'ICE Candidates: ' + (document.getElementById('sdp-ice-list').innerText.replace(/\n/g, ' | ') || 'None') + '\n' +
+            document.getElementById('sdp-security-box').innerText + '\n\n' +
+            'Dissected via Digital Tools Shed: https://digitaltoolsshed.com/web/webrtc-sdp-analyzer';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var fb = document.getElementById('sdpCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
+        }
+
         window.addEventListener('DOMContentLoaded', loadSdpExample);
       </script>
     `
@@ -1787,7 +1968,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'core web vitals calculator, performance budget simulator, lcp inp cls calculator, website speed conversion loss',
     faqs: [
       { q: 'What are the 3 Core Web Vitals thresholds for passing in Google Search?', a: 'LCP (Largest Contentful Paint) must be under 2.5s; INP (Interaction to Next Paint) must be 200ms or lower; and CLS (Cumulative Layout Shift) must remain under 0.1 for at least 75% of page visits.' },
-      { q: 'How does page load speed impact conversion rate?', a: 'Industry research by Google, Cloudflare, and Amazon shows that every 100ms delay in page load time reduces conversion rates by approximately 0.7% to 1.0% and increases bounce rate exponentially on mobile networks.' }
+      { q: 'How does page load speed impact conversion rate?', a: 'Industry research by Google, Cloudflare, and Amazon shows that every 100ms delay in page load time reduces conversion rates by approximately 0.7% to 1.0% and increases bounce rate exponentially on mobile networks.' },
+      { q: 'What is the difference between INP and FID?', a: 'Interaction to Next Paint (INP) replaced First Input Delay (FID) as an official Core Web Vital in March 2024. While FID measured only the delay of the very first click, INP assesses all user interactions (clicks, taps, keypresses) throughout the entire page session.' },
+      { q: 'How do render-blocking stylesheets affect LCP?', a: 'Browsers halt rendering until external stylesheets in the head are downloaded and parsed. If CSS exceeds 50kB or sits on slow CDNs, the browser cannot paint hero text or images, directly driving LCP into the red zone.' },
+      { q: 'Why does Google evaluate the 75th percentile (P75) rather than the average?', a: 'Averages mask poor user experiences caused by slow mobile devices and spotty networks. Using P75 ensures that at least 3 out of every 4 actual visitors experience fast load times before a site qualifies for search ranking boosts.' }
     ],
     html: `
       ${sharedStyle}
@@ -1808,26 +1992,26 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           <h3 style="font-size:1.05rem; margin-bottom:1rem; font-family:var(--serif);">Transfer Asset Budget (Compressed Gzip/Brotli)</h3>
           <div class="grid-4">
             <div>
-              <label class="field-label">JavaScript (kB): <span id="val-js" style="color:var(--fg);">180</span></label>
+              <label class="field-label" for="size-js">JavaScript (kB): <span id="val-js" style="color:var(--fg);">180</span></label>
               <input type="range" id="size-js" min="10" max="1500" value="180" style="width:100%;" oninput="calculateVitals()" />
             </div>
             <div>
-              <label class="field-label">CSS Stylesheets (kB): <span id="val-css" style="color:var(--fg);">40</span></label>
+              <label class="field-label" for="size-css">CSS Stylesheets (kB): <span id="val-css" style="color:var(--fg);">40</span></label>
               <input type="range" id="size-css" min="5" max="300" value="40" style="width:100%;" oninput="calculateVitals()" />
             </div>
             <div>
-              <label class="field-label">Hero / Images (kB): <span id="val-img" style="color:var(--fg);">250</span></label>
+              <label class="field-label" for="size-img">Hero / Images (kB): <span id="val-img" style="color:var(--fg);">250</span></label>
               <input type="range" id="size-img" min="10" max="3000" value="250" style="width:100%;" oninput="calculateVitals()" />
             </div>
             <div>
-              <label class="field-label">Web Fonts (kB): <span id="val-font" style="color:var(--fg);">60</span></label>
+              <label class="field-label" for="size-font">Web Fonts (kB): <span id="val-font" style="color:var(--fg);">60</span></label>
               <input type="range" id="size-font" min="0" max="500" value="60" style="width:100%;" oninput="calculateVitals()" />
             </div>
           </div>
 
           <div class="grid-2" style="margin-top:1.25rem;">
             <div>
-              <label class="field-label">Network Profile Throttling</label>
+              <label class="field-label" for="vitals-network">Network Profile Throttling</label>
               <select id="vitals-network" class="text-input" onchange="calculateVitals()">
                 <option value="4g">Fast 4G (9.0 Mbps down, 40ms RTT)</option>
                 <option value="slow4g" selected>Average 4G (4.0 Mbps down, 80ms RTT)</option>
@@ -1836,7 +2020,7 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
               </select>
             </div>
             <div>
-              <label class="field-label">Estimated Monthly Revenue ($)</label>
+              <label class="field-label" for="vitals-revenue">Estimated Monthly Revenue ($)</label>
               <input type="number" id="vitals-revenue" class="text-input" value="50000" oninput="calculateVitals()" />
             </div>
           </div>
@@ -1859,6 +2043,57 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             <div class="field-label">Annual Revenue at Risk</div>
             <div id="vitals-loss" style="font-size:2.2rem; font-family:var(--mono); font-weight:bold; margin:0.5rem 0; color:#f87171;">$0 / yr</div>
             <span class="wb-badge badge-amber">Latency Penalty</span>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; align-items:center; gap:0.5rem;">
+          <button type="button" class="btn-sec" id="btnCopyVitalsReport" onclick="copyVitalsReport()">📋 Copy Performance Audit Summary</button>
+          <span id="vitalsCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+        </div>
+
+        <!-- Mathematical & Econometric Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">CrUX 75th Percentile Aggregation & Latency Decay Math</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Google Chrome User Experience (CrUX) and Akamai financial conversion models quantify latency impact using statistical percentiles and exponential revenue decay:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. TCP Slow-Start Download Time:</strong></div>
+            <div>&nbsp;&nbsp;T_{\text{download}} = \frac{\text{Payload Size}}{\text{Bandwidth}} + (N_{\text{roundtrips}} \times \text{RTT}) \quad (\text{CWND initial window } = 10 \times \text{MSS})</div>
+            <div><strong>2. LCP Approximation Equation:</strong></div>
+            <div>&nbsp;&nbsp;\text{LCP} = (3 \times \text{RTT}) + T_{\text{download}} + T_{\text{main-thread parse}}</div>
+            <div><strong>3. Exponential Conversion Loss Model:</strong></div>
+            <div>&nbsp;&nbsp;\text{Loss} = \text{Annual Revenue} \times \left( 1 - (1 - \delta)^{\frac{\Delta t}{100\text{ms}}} \right) \quad (\delta \approx 0.8\% \text{ per 100ms excess})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Web Performance Optimization -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Web Performance & Core Web Vitals Optimization</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Client-Side JavaScript Hydration INP Freeze</strong>
+            Massive SPA frameworks (React/Next.js/Vue) hydrate components on the client side, executing megabytes of JavaScript during initial load. While the page looks visual, user clicks during this window register 500ms+ input delays, failing Google INP metrics.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Unsized Hero Images & Cumulative Layout Shift (CLS)</strong>
+            Failing to set explicit <code>width</code> and <code>height</code> attributes or CSS <code>aspect-ratio</code> on responsive hero images forces the browser to reflow the layout when the image downloads, shoving body text downward and failing CLS.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Testing on High-End M-Series Macs vs Real-World Androids</strong>
+            Running Lighthouse on a multi-core M3 Max workstation paints a false reality of 99/100 performance. The median global user accesses sites on $150 Android devices with 4x slower single-core performance and aggressive CPU thermal throttling.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Third-Party Tag Manager Script Contamination</strong>
+            Marketers loading session replay tools (Hotjar), chatbots (Intercom), and ad pixels synchronously in <code>&lt;head&gt;</code> introduce uncontrolled external waterfalls, ballooning LCP past 4.0s and cratering search rankings.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Lab Lighthouse vs Real 28-Day CrUX Field Telemetry</strong>
+            Optimizing for synthetic lab scores instead of field data. Google Search algorithms evaluate rolling 28-day real-user CrUX telemetry from actual Chrome browsers, not single-run Lighthouse audits.
           </div>
         </div>
       </div>
@@ -1926,6 +2161,30 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
           document.getElementById('vitals-loss').textContent = '$' + loss.toLocaleString() + ' / yr';
         }
 
+        function copyVitalsReport() {
+          var lcp = document.getElementById('vitals-lcp').textContent;
+          var inp = document.getElementById('vitals-inp').textContent;
+          var loss = document.getElementById('vitals-loss').textContent;
+          var net = document.getElementById('vitals-network').selectedOptions[0].text;
+          var js = document.getElementById('val-js').textContent;
+          var css = document.getElementById('val-css').textContent;
+          var img = document.getElementById('val-img').textContent;
+          var font = document.getElementById('val-font').textContent;
+
+          var text = '⚡ Core Web Vitals Budget Report\n\n' +
+            '• Estimated LCP: ' + lcp + '\n' +
+            '• Estimated INP: ' + inp + '\n' +
+            '• Projected Revenue at Risk: ' + loss + '\n' +
+            '• Network Profile: ' + net + '\n' +
+            '• Asset Weights: JS: ' + js + 'kB | CSS: ' + css + 'kB | Images: ' + img + 'kB | Fonts: ' + font + 'kB\n\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/web/web-vitals-budget';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var fb = document.getElementById('vitalsCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
+        }
+
         window.addEventListener('DOMContentLoaded', calculateVitals);
       </script>
     `
@@ -1940,7 +2199,10 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
     keywords: 'svg path visualizer, bezier curve editor svg, svg path optimizer, inspect svg d attribute, svg path arc length',
     faqs: [
       { q: 'What do the C and Q path commands mean in SVG?', a: 'C indicates a Cubic Bézier curve with two control handles (x1 y1, x2 y2) ending at (x y). Q indicates a Quadratic Bézier curve with a single control handle (x1 y1) ending at (x y).' },
-      { q: 'Why is SVG path minification important?', a: 'Minifying coordinates by rounding redundant decimal precision (e.g. 14.88231px to 14.9px) and stripping leading zeroes often cuts SVG byte weights by 40% to 60%.' }
+      { q: 'Why is SVG path minification important?', a: 'Minifying coordinates by rounding redundant decimal precision (e.g. 14.88231px to 14.9px) and stripping leading zeroes often cuts SVG byte weights by 40% to 60%.' },
+      { q: 'What is the difference between uppercase and lowercase SVG path commands?', a: 'Uppercase commands (M, L, C, Z) use absolute coordinates positioned relative to the (0,0) canvas origin. Lowercase commands (m, l, c, z) use relative coordinates offset from the preceding point.' },
+      { q: 'How does vector-effect="non-scaling-stroke" work in SVG?', a: 'When an SVG is scaled inside responsive containers, stroke widths normally scale proportionally (growing thick on desktop). Applying non-scaling-stroke keeps vector border lines fixed at their designated pixel stroke weight regardless of scaling.' },
+      { q: 'What is the S command in cubic Bézier curves?', a: 'The S command draws a smooth cubic curve by automatically mirroring the second control handle of the preceding C or S command around the current point, ensuring continuous slope without angle kinks.' }
     ],
     html: `
       ${sharedStyle}
@@ -1958,12 +2220,18 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
         </div>
 
         <div class="wb-card">
-          <label class="field-label">SVG Path Data (d="..." string)</label>
+          <label class="field-label" for="svg-input">SVG Path Data (d="..." string)</label>
           <textarea id="svg-input" class="code-input" style="height:90px;" oninput="renderSvgPath()">M 50 150 C 50 50, 200 50, 200 150 S 350 250, 350 150</textarea>
-          <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-            <button class="btn-sec" onclick="loadSvgPreset('cubic')">Cubic S-Curve</button>
-            <button class="btn-sec" onclick="loadSvgPreset('heart')">Heart Icon</button>
-            <button class="btn-sec" onclick="loadSvgPreset('star')">5-Point Star</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn-sec" onclick="loadSvgPreset('cubic')">Cubic S-Curve</button>
+              <button type="button" class="btn-sec" onclick="loadSvgPreset('heart')">Heart Icon</button>
+              <button type="button" class="btn-sec" onclick="loadSvgPreset('star')">5-Point Star</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopySvgPath" onclick="copySvgPath()">Copy Path String</button>
+              <span id="svgCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
         </div>
 
@@ -1982,8 +2250,54 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
             </div>
 
             <div style="margin-top:1.25rem;">
-              <button class="btn-primary" onclick="minifySvgPath()">Minify Coordinates (1-decimal)</button>
+              <button type="button" class="btn-primary" onclick="minifySvgPath()">Minify Coordinates (1-decimal)</button>
             </div>
+          </div>
+        </div>
+
+        <!-- Mathematical & Parametric Bézier Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Bernstein Polynomials & Parametric Bézier Equations</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Vector rendering engines trace smooth curves through parametric interpolation using Bernstein polynomial basis functions across parameter $t \in [0, 1]$:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Cubic Bézier Parametric Polynomial (C Command):</strong></div>
+            <div>&nbsp;&nbsp;B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3, \quad t \in [0, 1]</div>
+            <div><strong>2. Quadratic Bézier Equation (Q Command):</strong></div>
+            <div>&nbsp;&nbsp;B(t) = (1-t)^2 P_0 + 2(1-t) t P_1 + t^2 P_2</div>
+            <div><strong>3. Continuous First-Derivative Velocity Vector:</strong></div>
+            <div>&nbsp;&nbsp;B'(t) = 3(1-t)^2 (P_1 - P_0) + 6(1-t)t (P_2 - P_1) + 3t^2 (P_3 - P_2) \quad (\text{Ensures } C^1 \text{ smooth continuity})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in SVG Vector Graphics -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in SVG Vector Production & Path Editing</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Non-Zero Winding Rule vs EvenOdd Fill Disasters</strong>
+            SVG defaults to <code>fill-rule="nonzero"</code>. When drawing compound paths with interior cutouts (e.g. letters 'O' or donut rings), drawing the inner loop in the same clockwise direction as the outer loop fills the entire shape solid. Interior cutouts require opposing winding direction or <code>evenodd</code>.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Case Sensitivity Between Absolute (C) and Relative (c) Commands</strong>
+            Uppercase commands (<code>M, C, L</code>) calculate coordinates relative to the origin <code>(0,0)</code>. Lowercase commands (<code>m, c, l</code>) calculate displacements relative to the preceding vertex point. Swapping command cases warps vector icons into distorted spiderwebs.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Stroke Width Distortion Without vector-effect="non-scaling-stroke"</strong>
+            Scaling an SVG icon inside a responsive UI without declaring <code>vector-effect="non-scaling-stroke"</code> causes hairline borders to blow up into thick black lines on high-resolution displays or vanish entirely on smaller screens.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Bloated Decimal Precision from Design Tools</strong>
+            Exporting SVGs directly from Adobe Illustrator or Figma with 7 decimal places (e.g. <code>12.3819241px</code>) inflates payload size by 50% to 100% without adding human-perceptible visual precision. Clamping to 1 or 2 decimal places optimizes bandwidth.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Elliptical Arc (A) Degeneracy & Cross-Browser Parsing Drift</strong>
+            In the SVG <code>A</code> command, if the supplied horizontal and vertical radii are too small to bridge the distance between start and end points, browsers automatically scale radii upward using differing geometric rounding logic, causing subtle visual mismatches between Safari and Chrome.
           </div>
         </div>
       </div>
@@ -2042,9 +2356,16 @@ export function buildWebSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) 
 
         function minifySvgPath() {
           var d = document.getElementById('svg-input').value;
-          d = d.replace(/\\s+/g, ' ').replace(/([A-Za-z])\\s+/g, '$1').replace(/\\s+([A-Za-z])/g, '$1');
+          d = d.replace(/\s+/g, ' ').replace(/([A-Za-z])\s+/g, '$1').replace(/\s+([A-Za-z])/g, '$1');
           document.getElementById('svg-input').value = d;
           renderSvgPath();
+        }
+
+        function copySvgPath() {
+          navigator.clipboard.writeText(document.getElementById('svg-input').value).then(function() {
+            var fb = document.getElementById('svgCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', function() {

@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "Minifying coordinates by rounding redundant decimal precision (e.g. 14.88231px to 14.9px) and stripping leading zeroes often cuts SVG byte weights by 40% to 60%."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between uppercase and lowercase SVG path commands?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Uppercase commands (M, L, C, Z) use absolute coordinates positioned relative to the (0,0) canvas origin. Lowercase commands (m, l, c, z) use relative coordinates offset from the preceding point."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does vector-effect=\"non-scaling-stroke\" work in SVG?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When an SVG is scaled inside responsive containers, stroke widths normally scale proportionally (growing thick on desktop). Applying non-scaling-stroke keeps vector border lines fixed at their designated pixel stroke weight regardless of scaling."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the S command in cubic Bézier curves?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The S command draws a smooth cubic curve by automatically mirroring the second control handle of the preceding C or S command around the current point, ensuring continuous slope without angle kinks."
+      }
     }
   ]
 }
@@ -1110,12 +1134,18 @@
         </div>
 
         <div class="wb-card">
-          <label class="field-label">SVG Path Data (d="..." string)</label>
+          <label class="field-label" for="svg-input">SVG Path Data (d="..." string)</label>
           <textarea id="svg-input" class="code-input" style="height:90px;" oninput="renderSvgPath()">M 50 150 C 50 50, 200 50, 200 150 S 350 250, 350 150</textarea>
-          <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-            <button class="btn-sec" onclick="loadSvgPreset('cubic')">Cubic S-Curve</button>
-            <button class="btn-sec" onclick="loadSvgPreset('heart')">Heart Icon</button>
-            <button class="btn-sec" onclick="loadSvgPreset('star')">5-Point Star</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn-sec" onclick="loadSvgPreset('cubic')">Cubic S-Curve</button>
+              <button type="button" class="btn-sec" onclick="loadSvgPreset('heart')">Heart Icon</button>
+              <button type="button" class="btn-sec" onclick="loadSvgPreset('star')">5-Point Star</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-sec" id="btnCopySvgPath" onclick="copySvgPath()">Copy Path String</button>
+              <span id="svgCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
         </div>
 
@@ -1134,8 +1164,54 @@
             </div>
 
             <div style="margin-top:1.25rem;">
-              <button class="btn-primary" onclick="minifySvgPath()">Minify Coordinates (1-decimal)</button>
+              <button type="button" class="btn-primary" onclick="minifySvgPath()">Minify Coordinates (1-decimal)</button>
             </div>
+          </div>
+        </div>
+
+        <!-- Mathematical & Parametric Bézier Derivations -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">Bernstein Polynomials & Parametric Bézier Equations</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Vector rendering engines trace smooth curves through parametric interpolation using Bernstein polynomial basis functions across parameter $t in [0, 1]$:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Cubic Bézier Parametric Polynomial (C Command):</strong></div>
+            <div>&nbsp;&nbsp;B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3, quad t in [0, 1]</div>
+            <div><strong>2. Quadratic Bézier Equation (Q Command):</strong></div>
+            <div>&nbsp;&nbsp;B(t) = (1-t)^2 P_0 + 2(1-t) t P_1 + t^2 P_2</div>
+            <div><strong>3. Continuous First-Derivative Velocity Vector:</strong></div>
+            <div>&nbsp;&nbsp;B'(t) = 3(1-t)^2 (P_1 - P_0) + 6(1-t)t (P_2 - P_1) + 3t^2 (P_3 - P_2) quad (	ext{Ensures } C^1 	ext{ smooth continuity})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in SVG Vector Graphics -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in SVG Vector Production & Path Editing</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Non-Zero Winding Rule vs EvenOdd Fill Disasters</strong>
+            SVG defaults to <code>fill-rule="nonzero"</code>. When drawing compound paths with interior cutouts (e.g. letters 'O' or donut rings), drawing the inner loop in the same clockwise direction as the outer loop fills the entire shape solid. Interior cutouts require opposing winding direction or <code>evenodd</code>.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Case Sensitivity Between Absolute (C) and Relative (c) Commands</strong>
+            Uppercase commands (<code>M, C, L</code>) calculate coordinates relative to the origin <code>(0,0)</code>. Lowercase commands (<code>m, c, l</code>) calculate displacements relative to the preceding vertex point. Swapping command cases warps vector icons into distorted spiderwebs.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Stroke Width Distortion Without vector-effect="non-scaling-stroke"</strong>
+            Scaling an SVG icon inside a responsive UI without declaring <code>vector-effect="non-scaling-stroke"</code> causes hairline borders to blow up into thick black lines on high-resolution displays or vanish entirely on smaller screens.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Bloated Decimal Precision from Design Tools</strong>
+            Exporting SVGs directly from Adobe Illustrator or Figma with 7 decimal places (e.g. <code>12.3819241px</code>) inflates payload size by 50% to 100% without adding human-perceptible visual precision. Clamping to 1 or 2 decimal places optimizes bandwidth.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Elliptical Arc (A) Degeneracy & Cross-Browser Parsing Drift</strong>
+            In the SVG <code>A</code> command, if the supplied horizontal and vertical radii are too small to bridge the distance between start and end points, browsers automatically scale radii upward using differing geometric rounding logic, causing subtle visual mismatches between Safari and Chrome.
           </div>
         </div>
       </div>
@@ -1194,9 +1270,16 @@
 
         function minifySvgPath() {
           var d = document.getElementById('svg-input').value;
-          d = d.replace(/\s+/g, ' ').replace(/([A-Za-z])\s+/g, '$1').replace(/\s+([A-Za-z])/g, '$1');
+          d = d.replace(/s+/g, ' ').replace(/([A-Za-z])s+/g, '$1').replace(/s+([A-Za-z])/g, '$1');
           document.getElementById('svg-input').value = d;
           renderSvgPath();
+        }
+
+        function copySvgPath() {
+          navigator.clipboard.writeText(document.getElementById('svg-input').value).then(function() {
+            var fb = document.getElementById('svgCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', function() {
@@ -1216,6 +1299,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>Why is SVG path minification important?</span><span>+</span></div>
             <div class="faq-a">Minifying coordinates by rounding redundant decimal precision (e.g. 14.88231px to 14.9px) and stripping leading zeroes often cuts SVG byte weights by 40% to 60%.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between uppercase and lowercase SVG path commands?</span><span>+</span></div>
+            <div class="faq-a">Uppercase commands (M, L, C, Z) use absolute coordinates positioned relative to the (0,0) canvas origin. Lowercase commands (m, l, c, z) use relative coordinates offset from the preceding point.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How does vector-effect="non-scaling-stroke" work in SVG?</span><span>+</span></div>
+            <div class="faq-a">When an SVG is scaled inside responsive containers, stroke widths normally scale proportionally (growing thick on desktop). Applying non-scaling-stroke keeps vector border lines fixed at their designated pixel stroke weight regardless of scaling.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the S command in cubic Bézier curves?</span><span>+</span></div>
+            <div class="faq-a">The S command draws a smooth cubic curve by automatically mirroring the second control handle of the preceding C or S command around the current point, ensuring continuous slope without angle kinks.</div>
           </div>
         
       </div>

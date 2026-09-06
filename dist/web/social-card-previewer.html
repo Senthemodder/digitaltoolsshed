@@ -162,6 +162,30 @@
         "@type": "Answer",
         "text": "The canonical tag tells search engines which URL is the master version of a page, consolidating link equity and eliminating duplicate content penalties."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do social networks ignore relative image URLs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Social sharing webhooks and scrapers (Facebook External Hit, Twitterbot, LinkedInBot) do not evaluate origin headers; they require absolute URLs starting with https://. Relative paths cause broken placeholder images."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Google calculate SERP title truncation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Google truncates search results based on a 600-pixel desktop container width rather than a strict character count. Titles containing wide characters (like W or M) truncate sooner than titles with narrow characters (like i or l)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between summary and summary_large_image on Twitter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "summary renders a small square thumbnail (144x144) to the left of the title, while summary_large_image renders a full-width high-impact banner image (1200x630) that commands 3x higher click-through rates."
+      }
     }
   ]
 }
@@ -1138,19 +1162,19 @@
             <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">Page Meta Properties</h3>
             <div style="display:flex; flex-direction:column; gap:0.75rem;">
               <div>
-                <label class="field-label">Page Title</label>
+                <label class="field-label" for="meta-title">Page Title</label>
                 <input type="text" id="meta-title" class="text-input" value="Digital Tools Shed — The High-Precision Web Workbench" oninput="renderSocial()" />
               </div>
               <div>
-                <label class="field-label">Meta Description</label>
+                <label class="field-label" for="meta-desc">Meta Description</label>
                 <textarea id="meta-desc" class="text-input" style="height:70px;" oninput="renderSocial()">Over 5,000 hyper-specific client-side tools, protocols, and technical calculators with zero tracking and zero external dependencies.</textarea>
               </div>
               <div>
-                <label class="field-label">Canonical URL</label>
+                <label class="field-label" for="meta-url">Canonical URL</label>
                 <input type="text" id="meta-url" class="text-input" value="https://digitaltoolsshed.com/web/" oninput="renderSocial()" />
               </div>
               <div>
-                <label class="field-label">Social Share Image (og:image 1200x630)</label>
+                <label class="field-label" for="meta-img">Social Share Image (og:image 1200x630)</label>
                 <input type="text" id="meta-img" class="text-input" value="https://digitaltoolsshed.com/assets/og-cover.png" oninput="renderSocial()" />
               </div>
             </div>
@@ -1172,9 +1196,58 @@
         <div class="wb-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <label class="field-label" style="margin:0;">Generated HTML &lt;head&gt; Code</label>
-            <button class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyMeta()">Copy HTML Meta Tags</button>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button type="button" class="btn-primary" id="btnCopyMeta" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="copyMeta()">Copy HTML Meta Tags</button>
+              <span id="socialCopyFeedback" style="font-size:0.8rem; font-family:var(--mono); color:#10b981; display:none; font-weight:bold;">✓ Copied!</span>
+            </div>
           </div>
           <textarea id="meta-output" class="code-input" style="height:210px;" readonly></textarea>
+        </div>
+
+        <!-- Mathematical & SERP Geometry Derivation -->
+        <div class="wb-card" style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:0.75rem;">SERP Pixel Density & OpenGraph Aspect Geometry</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+            Search engine ranking snippets and social media cards adhere to exact geometric layout budgets designed for retina and mobile viewports:
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:4px; font-family:var(--mono); font-size:0.85rem; line-height:1.7; margin-bottom:1.25rem;">
+            <div><strong>1. Google Desktop SERP Truncation Budget:</strong></div>
+            <div>&nbsp;&nbsp;W_{	ext{title}} le 600	ext{px} quad (approx 55	ext{-}60 	ext{ characters depending on proportional kerning})</div>
+            <div><strong>2. Google Mobile SERP Description Budget:</strong></div>
+            <div>&nbsp;&nbsp;W_{	ext{desc}} le 960	ext{px} quad (approx 150	ext{-}160 	ext{ characters maximum before truncation})</div>
+            <div><strong>3. OpenGraph Optimal Aspect Ratio:</strong></div>
+            <div>&nbsp;&nbsp;	ext{Ratio} = rac{1200	ext{px}}{630	ext{px}} = 1.9048 approx 1.91:1 quad (	ext{Guarantees zero cropping on Facebook, Twitter, and LinkedIn})</div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Traps in Social Cards & Meta Tags -->
+        <div style="margin-top:2rem;">
+          <h2 style="font-family:var(--serif); font-size:1.35rem; margin-bottom:1rem;">5 Fatal Traps in Social Card & Meta Tag Optimization</h2>
+          
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Relative URL og:image Disaster</strong>
+            Social media scrapers (Twitterbot, Facebook External Hit) do not run JavaScript or resolve relative URL paths. Specifying <code>og:image="/cover.png"</code> causes scrapers to fail silently, displaying an ugly broken grey box across Slack, Discord, and social feeds.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Missing og:image:width and og:image:height Tags</strong>
+            When image dimensions are omitted, Facebook and LinkedIn must asynchronously download and inspect the image during the first user share. This delay causes the rich card to fail on the initial share, rendering only plain text.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Trailing Slash and Protocol Canonical Mismatches</strong>
+            Setting <code>canonical</code> to <code>https://example.com/page/</code> while OpenGraph specifies <code>https://example.com/page</code> splits social engagement signals and search ranking metrics across two separate URLs.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Blocking Social Crawlers with WAF or Anti-Bot Captchas</strong>
+            Overly aggressive Cloudflare Bot Management or user-agent blocking in <code>robots.txt</code> that challenges <code>facebookexternalhit</code> or <code>Twitterbot</code> prevents cards from unfurling, destroying organic social traffic.
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Pixel Truncation vs. Character Count Confusion</strong>
+            Believing search titles have a fixed "60 character" rule leads to truncation. Google measures title width in pixels (600px max). A 50-character title with capital "M"s and "W"s will truncate, while a 65-character title with narrow characters will fit completely.
+          </div>
         </div>
       </div>
 
@@ -1203,13 +1276,33 @@
             imgBox.textContent = '1200 x 630 Preview';
           }
 
-          var tags = '<!-- Standard Metadata -->\n<title>' + t + '</title>\n<meta name="description" content="' + d + '">\n<link rel="canonical" href="' + u + '">\n\n<!-- Open Graph / Facebook -->\n<meta property="og:type" content="website">\n<meta property="og:url" content="' + u + '">\n<meta property="og:title" content="' + t + '">\n<meta property="og:description" content="' + d + '">\n<meta property="og:image" content="' + img + '">\n\n<!-- Twitter / X -->\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + t + '">\n<meta name="twitter:description" content="' + d + '">\n<meta name="twitter:image" content="' + img + '">';
+          var tags = '<!-- Standard Metadata -->
+<title>' + t + '</title>
+<meta name="description" content="' + d + '">
+<link rel="canonical" href="' + u + '">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="' + u + '">
+<meta property="og:title" content="' + t + '">
+<meta property="og:description" content="' + d + '">
+<meta property="og:image" content="' + img + '">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="' + t + '">
+<meta name="twitter:description" content="' + d + '">
+<meta name="twitter:image" content="' + img + '">';
           document.getElementById('meta-output').value = tags;
         }
 
         function copyMeta() {
-          navigator.clipboard.writeText(document.getElementById('meta-output').value);
-          alert('HTML meta tags copied to clipboard!');
+          navigator.clipboard.writeText(document.getElementById('meta-output').value).then(function() {
+            var fb = document.getElementById('socialCopyFeedback');
+            if (fb) { fb.style.display = 'inline'; setTimeout(function(){ fb.style.display = 'none'; }, 2200); }
+          });
         }
 
         window.addEventListener('DOMContentLoaded', renderSocial);
@@ -1227,6 +1320,21 @@
           <div class="faq-item" onclick="this.classList.toggle('open')">
             <div class="faq-q"><span>Why is a canonical URL tag necessary?</span><span>+</span></div>
             <div class="faq-a">The canonical tag tells search engines which URL is the master version of a page, consolidating link equity and eliminating duplicate content penalties.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why do social networks ignore relative image URLs?</span><span>+</span></div>
+            <div class="faq-a">Social sharing webhooks and scrapers (Facebook External Hit, Twitterbot, LinkedInBot) do not evaluate origin headers; they require absolute URLs starting with https://. Relative paths cause broken placeholder images.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How does Google calculate SERP title truncation?</span><span>+</span></div>
+            <div class="faq-a">Google truncates search results based on a 600-pixel desktop container width rather than a strict character count. Titles containing wide characters (like W or M) truncate sooner than titles with narrow characters (like i or l).</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between summary and summary_large_image on Twitter?</span><span>+</span></div>
+            <div class="faq-a">summary renders a small square thumbnail (144x144) to the left of the title, while summary_large_image renders a full-width high-impact banner image (1200x630) that commands 3x higher click-through rates.</div>
           </div>
         
       </div>
