@@ -1022,48 +1022,172 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
         </script>
       `
     },
-    {
+        {
       slug: 'timezone-converter',
-      title: 'World Clock & Timezone Meeting Planner',
-      metaDesc: 'Compare world timezones (UTC, EST, PST, GMT, CET, JST) with interactive time sliders for remote team scheduling.',
+      title: 'World Clock & Timezone Meeting Planner (UTC Offsets & Overlap Matrix)',
+      metaDesc: 'Compare world timezones (UTC, EST, PST, GMT, CET, IST, JST, AEST) with interactive time sliders, business hour overlap matrix, and one-click copyable agendas.',
       category: 'Utility',
+      faq: [
+        { q: 'Why do timezone differences change twice a year between North America and Europe?', a: 'North America and Europe start and end Daylight Saving Time (DST) on different weeks. The US shifts on the second Sunday of March and first Sunday of November, whereas Europe shifts on the last Sunday of March and last Sunday of October. For 2 to 3 weeks each spring and autumn, the time difference between New York and London shrinks from 5 hours to 4 hours, and between California and London shrinks from 8 hours to 7 hours.' },
+        { q: 'Which countries and regions use fractional (30-minute or 45-minute) timezones?', a: 'Several major territories use non-integer offsets: India Standard Time (IST) is UTC+5:30; Nepal is UTC+5:45; Iran is UTC+3:30; Afghanistan is UTC+4:30; Myanmar is UTC+6:30; South Australia and the Northern Territory use UTC+9:30 (or UTC+10:30 during DST); and the Chatham Islands in New Zealand use UTC+12:45.' },
+        { q: 'How does the International Date Line affect scheduling cross-Pacific meetings?', a: 'The International Date Line (IDL) sits roughly along the 180° meridian. Travelers and calendar events crossing westward advance one full calendar day (+24 hours), while eastward travel loses a day. A Friday 4:00 PM PST team call in San Francisco occurs at 10:00 AM on Saturday in Sydney, Australia.' },
+        { q: 'What is the precise difference between GMT and UTC?', a: 'Greenwich Mean Time (GMT) is a historic astronomical solar time standard based on Earth\'s rotation measured at the Royal Observatory in Greenwich, London. Coordinated Universal Time (UTC) is the modern atomic time standard maintained by hundreds of ultra-precise atomic clocks worldwide. For international scheduling and computer clocks, UTC is the official reference standard and does not observe Daylight Saving Time.' },
+        { q: 'What is the optimal overlapping window for US, European, and Asian teams?', a: 'A three-region overlap across US West Coast, Europe, and East Asia has almost zero standard 9-to-5 overlap. The most practical compromise is typically 1:00 PM to 3:00 PM UTC (9:00 AM - 11:00 AM New York / 2:00 PM - 4:00 PM London / 10:00 PM - 12:00 AM Tokyo), or a morning/evening handoff cadence between APAC-EMEA and EMEA-AMER.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Timezone Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">World Clock & Timezone Meeting Planner</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Convert times across global business hubs and plan international remote meetings without timezone confusion.
+          <h1 style="font-family: var(--serif); font-size: 1.85rem; margin-bottom: 0.5rem;">World Clock & Timezone Meeting Planner</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; margin-bottom: 1.5rem;">
+            Bidirectional global time converter and remote meeting planner. Compare UTC offsets, identify working hour overlaps across 12 major financial hubs, and generate formatted calendar invites with zero timezone confusion.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Select Base Date & Time</label>
-              <input type="datetime-local" id="tz-input" class="text-input" onchange="convertTimezones()" />
+            <!-- Base Time Controls -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label class="field-label" for="tz-input">Select Base Date & Local Time</label>
+                <input type="datetime-local" id="tz-input" class="text-input" onchange="convertTimezones()" />
+              </div>
+              <div>
+                <label class="field-label" for="meeting-duration">Meeting Duration</label>
+                <select id="meeting-duration" class="text-input" onchange="convertTimezones()">
+                  <option value="30">30 Minutes</option>
+                  <option value="45">45 Minutes</option>
+                  <option value="60" selected>60 Minutes (1 Hour)</option>
+                  <option value="90">90 Minutes (1.5 Hours)</option>
+                </select>
+              </div>
             </div>
 
-            <div id="tz-grid" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem;"></div>
+            <!-- Quick Shift Presets -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="setTzPreset('now')">Current Time</button>
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="shiftHours(-1)">-1 Hour</button>
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="shiftHours(1)">+1 Hour</button>
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="shiftHours(-24)">-1 Day</button>
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="shiftHours(24)">+1 Day</button>
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="setHubTime('America/New_York', 9, 0)">9:00 AM NY</button>
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="setHubTime('Europe/London', 14, 0)">2:00 PM London</button>
+              <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="setHubTime('Asia/Tokyo', 10, 0)">10:00 AM Tokyo</button>
+            </div>
+
+            <!-- Global Timezone Grid -->
+            <div id="tz-grid" style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1rem;"></div>
+
+            <!-- Action Bar with One-Click Copy -->
+            <div class="action-bar" style="margin-top: 1.5rem;">
+              <button type="button" id="btnCopyMeetingTimes" class="btn-primary" onclick="copyMeetingSchedule()" style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>📋 Copy Meeting Schedule</span>
+              </button>
+              <span id="tzCopyFeedback" style="font-size: 0.85rem; font-family: var(--mono); color: #10b981; display: none; font-weight: bold;">✓ Copied Meeting Times!</span>
+            </div>
+          </div>
+
+          <!-- Mathematical & Civil Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.75rem;">Global Meridian Geometry & UTC Offset Mathematics</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem;">
+              Earth rotates 360 degrees of longitude in approximately 24 hours, yielding exactly 15 degrees per standard 1-hour time zone ($360^\circ / 24 = 15^\circ/\text{hr}$). Civil time reckoning translates UTC epoch timestamps to local coordinates using dynamic offset formulas:
+            </p>
+            <div style="background: var(--bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; margin-bottom: 1.25rem;">
+              <div><strong>1. Civil Local Time Formulation:</strong></div>
+              <div>&nbsp;&nbsp;T_local = T_UTC + &Delta;T_base + &Delta;T_DST</div>
+              <div><strong>2. International Date Line (IDL) Rollover:</strong></div>
+              <div>&nbsp;&nbsp;Day Delta = Math.floor((T_UTC_hours + &Delta;T) / 24) &nbsp;&nbsp;(yields -1, 0, or +1 day)</div>
+              <div><strong>3. Non-Integer Fractional Offsets:</strong></div>
+              <div>&nbsp;&nbsp;IST (India) = UTC + 5.5h &nbsp;|&nbsp; NPT (Nepal) = UTC + 5.75h &nbsp;|&nbsp; ACST (Australia) = UTC + 9.5h</div>
+              <div><strong>4. Mutual Business Window Overlap Condition:</strong></div>
+              <div>&nbsp;&nbsp;Overlap = Intersection of all [09:00_i, 17:00_i] local business hour ranges</div>
+            </div>
+          </div>
+
+          <!-- 5 Fatal Traps in International Scheduling -->
+          <div style="margin-top: 2rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Fatal Traps in International Timezone Scheduling</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The Transatlantic Daylight Saving Time (DST) Desynchronization Trap</strong>
+              Assuming that the time difference between London and New York is always 5 hours. The United States shifts to DST on the second Sunday of March, while the UK and Europe shift on the last Sunday of March. For 2 to 3 weeks each spring and 1 week each autumn, the time difference drops to 4 hours. Recurring cross-Atlantic calendar invites scheduled during this gap cause executives to miss board meetings.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. The Fractional 30-Minute & 45-Minute Timezone Blindspot</strong>
+              Assuming all global time zones increment by whole 60-minute units. Over 1.4 billion people live in territories with fractional offsets: India Standard Time is UTC+5:30, Nepal is UTC+5:45, South Australia is UTC+9:30/10:30, and Newfoundland is UTC-3:30. Hardcoding full-hour adjustments in scripts or manual calculations cuts off entire offshore engineering hubs.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. The International Date Line (+1 Day / -1 Day) Calendar Slip</strong>
+              Scheduling a Friday 4:00 PM Pacific time meeting with teams in Sydney or Auckland. Because the call spans across the 180° meridian, it is actually 10:00 AM on Saturday morning for the Australian team. Setting meetings late on Thursday or Friday without verifying target calendar dates forces colleagues into weekend work.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. Sovereign Timezone Realignment & Legislative Clock Changes</strong>
+              Governments regularly modify, cancel, or reinstate daylight saving rules on short notice. Mexico abolished daylight saving time across most states in 2022, Jordan and Syria switched to permanent summer time in 2022, and Samoa skipped December 30, 2011 to align with Australasian trade. Software using outdated timezone definitions (tzdata) creates discrepancies.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. The Database "Wall-Clock Local Time" Storage Catastrophe</strong>
+              Storing calendar schedules as unadorned local strings like <code>2026-11-01 01:30:00</code> without UTC offsets or IANA zone identifiers (e.g. <code>America/New_York</code>). When clocks fall back by one hour in autumn, 1:30 AM occurs twice in the same night. Without UTC timestamps, databases cannot determine which hour was intended, breaking medical dosing, flight dispatching, and financial billing.
+            </div>
+          </div>
+
+          <!-- Frequently Asked Questions Accordion -->
+          <div style="margin-top: 2.5rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details class="faq-item" open>
+              <summary>Why do timezone differences change twice a year between North America and Europe?</summary>
+              <div>North America and Europe start and end Daylight Saving Time (DST) on different weeks. The US shifts on the second Sunday of March and first Sunday of November, whereas Europe shifts on the last Sunday of March and last Sunday of October. For 2 to 3 weeks each spring and autumn, the time difference between New York and London shrinks from 5 hours to 4 hours, and between California and London shrinks from 8 hours to 7 hours.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Which countries and regions use fractional (30-minute or 45-minute) timezones?</summary>
+              <div>Several major territories use non-integer offsets: India Standard Time (IST) is UTC+5:30; Nepal is UTC+5:45; Iran is UTC+3:30; Afghanistan is UTC+4:30; Myanmar is UTC+6:30; South Australia and the Northern Territory use UTC+9:30 (or UTC+10:30 during DST); and the Chatham Islands in New Zealand use UTC+12:45.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How does the International Date Line affect scheduling cross-Pacific meetings?</summary>
+              <div>The International Date Line (IDL) sits roughly along the 180° meridian. Travelers and calendar events crossing westward advance one full calendar day (+24 hours), while eastward travel loses a day. A Friday 4:00 PM PST team call in San Francisco occurs at 10:00 AM on Saturday in Sydney, Australia.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What is the precise difference between GMT and UTC?</summary>
+              <div>Greenwich Mean Time (GMT) is a historic astronomical solar time standard based on Earth\'s rotation measured at the Royal Observatory in Greenwich, London. Coordinated Universal Time (UTC) is the modern atomic time standard maintained by hundreds of ultra-precise atomic clocks worldwide. For international scheduling and computer clocks, UTC is the official reference standard and does not observe Daylight Saving Time.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What is the optimal overlapping window for US, European, and Asian teams?</summary>
+              <div>A three-region overlap across US West Coast, Europe, and East Asia has almost zero standard 9-to-5 overlap. The most practical compromise is typically 1:00 PM to 3:00 PM UTC (9:00 AM - 11:00 AM New York / 2:00 PM - 4:00 PM London / 10:00 PM - 12:00 AM Tokyo), or a morning/evening handoff cadence between APAC-EMEA and EMEA-AMER.</div>
+            </details>
           </div>
         </div>
 
         <script>
           const CITIES = [
-            { name: 'UTC / GMT (Universal Time)', tz: 'UTC' },
-            { name: 'New York / Eastern (EST/EDT)', tz: 'America/New_York' },
-            { name: 'San Francisco / Pacific (PST/PDT)', tz: 'America/Los_Angeles' },
-            { name: 'London (GMT/BST)', tz: 'Europe/London' },
-            { name: 'Berlin / Paris (CET/CEST)', tz: 'Europe/Berlin' },
-            { name: 'Tokyo (JST)', tz: 'Asia/Tokyo' },
-            { name: 'Sydney (AEST/AEDT)', tz: 'Australia/Sydney' }
+            { name: 'UTC / GMT', region: 'Coordinated Universal Time', tz: 'UTC' },
+            { name: 'New York (EDT/EST)', region: 'US Eastern', tz: 'America/New_York' },
+            { name: 'San Francisco (PDT/PST)', region: 'US Pacific', tz: 'America/Los_Angeles' },
+            { name: 'Chicago (CDT/CST)', region: 'US Central', tz: 'America/Chicago' },
+            { name: 'London (BST/GMT)', region: 'United Kingdom', tz: 'Europe/London' },
+            { name: 'Berlin / Paris (CEST/CET)', region: 'Central Europe', tz: 'Europe/Berlin' },
+            { name: 'Dubai (GST)', region: 'United Arab Emirates (UTC+4)', tz: 'Asia/Dubai' },
+            { name: 'Mumbai / Delhi (IST)', region: 'India (+5:30)', tz: 'Asia/Kolkata' },
+            { name: 'Singapore / HK (SGT)', region: 'Singapore / Hong Kong (UTC+8)', tz: 'Asia/Singapore' },
+            { name: 'Tokyo (JST)', region: 'Japan (UTC+9)', tz: 'Asia/Tokyo' },
+            { name: 'Sydney (AEDT/AEST)', region: 'Australia Eastern', tz: 'Australia/Sydney' },
+            { name: 'Auckland (NZDT/NZST)', region: 'New Zealand', tz: 'Pacific/Auckland' }
           ];
+
+          let lastScheduleData = [];
 
           function convertTimezones() {
             const val = document.getElementById('tz-input').value;
             const date = val ? new Date(val) : new Date();
+            const durationMins = parseInt(document.getElementById('meeting-duration').value, 10) || 60;
             const grid = document.getElementById('tz-grid');
             grid.innerHTML = '';
+            lastScheduleData = [];
+
+            const baseUtc = date.getTime();
 
             CITIES.forEach(c => {
               const timeStr = date.toLocaleString('en-US', {
@@ -1071,22 +1195,123 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 weekday: 'short',
                 month: 'short',
                 day: 'numeric',
-                hour: '2-digit',
+                hour: 'numeric',
                 minute: '2-digit',
                 hour12: true
               });
 
+              const endDate = new Date(baseUtc + durationMins * 60000);
+              const endTimeStr = endDate.toLocaleString('en-US', {
+                timeZone: c.tz,
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              });
+
+              const hourPart = parseInt(date.toLocaleString('en-US', { timeZone: c.tz, hour: 'numeric', hour12: false }), 10);
+              let statusLabel = '';
+              let statusColor = '';
+              let statusBg = '';
+
+              if (hourPart >= 9 && hourPart < 17) {
+                statusLabel = 'Business Hours (Work)';
+                statusColor = '#10b981';
+                statusBg = 'rgba(16, 185, 129, 0.12)';
+              } else if ((hourPart >= 7 && hourPart < 9) || (hourPart >= 17 && hourPart < 21)) {
+                statusLabel = 'Extended / Early / Evening';
+                statusColor = '#f59e0b';
+                statusBg = 'rgba(245, 158, 11, 0.12)';
+              } else {
+                statusLabel = 'Night / Sleep Window';
+                statusColor = '#94a3b8';
+                statusBg = 'rgba(148, 163, 184, 0.12)';
+              }
+
+              lastScheduleData.push({
+                city: c.name,
+                region: c.region,
+                time: timeStr + ' - ' + endTimeStr,
+                status: statusLabel
+              });
+
               const row = document.createElement('div');
-              row.style.cssText = 'background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem 1rem; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;';
-              row.innerHTML = '<div><strong style="font-size:0.95rem;">' + c.name + '</strong></div><div style="font-family:var(--mono); font-size:1.1rem; color:var(--btn-bg,#3b82f6); font-weight:bold;">' + timeStr + '</div>';
+              row.style.cssText = 'background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;';
+              row.innerHTML = 
+                '<div>' +
+                  '<div style="font-weight: 600; font-size: 0.95rem; color: var(--fg);">' + c.name + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--mono);">' + c.region + '</div>' +
+                '</div>' +
+                '<div style="text-align: right;">' +
+                  '<div style="font-family: var(--mono); font-size: 1.1rem; color: var(--btn-bg, #3b82f6); font-weight: bold;">' + timeStr + ' &ndash; ' + endTimeStr + '</div>' +
+                  '<span style="display: inline-block; font-size: 0.72rem; font-family: var(--mono); font-weight: 600; color: ' + statusColor + '; background: ' + statusBg + '; padding: 0.15rem 0.5rem; border-radius: 4px; margin-top: 0.2rem;">' + statusLabel + '</span>' +
+                '</div>';
               grid.appendChild(row);
+            });
+          }
+
+          function shiftHours(hours) {
+            const inp = document.getElementById('tz-input');
+            const d = inp.value ? new Date(inp.value) : new Date();
+            d.setHours(d.getHours() + hours);
+            inp.value = toLocalIsoString(d);
+            convertTimezones();
+          }
+
+          function setTzPreset(mode) {
+            const now = new Date();
+            document.getElementById('tz-input').value = toLocalIsoString(now);
+            convertTimezones();
+          }
+
+          function setHubTime(tz, targetHour, targetMin) {
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+            const parts = formatter.formatToParts(now);
+            const m = parts.find(p => p.type === 'month').value;
+            const d = parts.find(p => p.type === 'day').value;
+            const y = parts.find(p => p.type === 'year').value;
+
+            const approxDate = new Date(y + '-' + m + '-' + d + 'T' + String(targetHour).padStart(2, '0') + ':' + String(targetMin).padStart(2, '0') + ':00Z');
+            const tzHourStr = approxDate.toLocaleString('en-US', { timeZone: tz, hour: 'numeric', minute: 'numeric', hour12: false });
+            const [h, min] = tzHourStr.split(':').map(Number);
+            const diffMinutes = (targetHour * 60 + targetMin) - (h * 60 + min);
+            const finalUtcDate = new Date(approxDate.getTime() + diffMinutes * 60000);
+
+            document.getElementById('tz-input').value = toLocalIsoString(finalUtcDate);
+            convertTimezones();
+          }
+
+          function toLocalIsoString(date) {
+            const pad = num => String(num).padStart(2, '0');
+            return date.getFullYear() + '-' +
+              pad(date.getMonth() + 1) + '-' +
+              pad(date.getDate()) + 'T' +
+              pad(date.getHours()) + ':' +
+              pad(date.getMinutes());
+          }
+
+          function copyMeetingSchedule() {
+            if (!lastScheduleData.length) return;
+            const duration = document.getElementById('meeting-duration').value;
+            let text = '🗓️ Global Meeting Schedule (' + duration + ' min session)\n\n';
+            lastScheduleData.forEach(item => {
+              text += '• ' + item.city + ': ' + item.time + ' [' + item.status + ']\n';
+            });
+            text += '\nGenerated via Digital Tools Shed: https://digitaltoolsshed.com/util/timezone-converter';
+
+            navigator.clipboard.writeText(text).then(() => {
+              const btn = document.getElementById('btnCopyMeetingTimes');
+              const feedback = document.getElementById('tzCopyFeedback');
+              if (feedback) {
+                feedback.style.display = 'inline';
+                setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+              }
             });
           }
 
           document.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('tz-input').value = now.toISOString().slice(0, 16);
+            document.getElementById('tz-input').value = toLocalIsoString(now);
             convertTimezones();
           });
         </script>
@@ -1094,14 +1319,15 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'date-calculator',
-      title: 'Date Calculator: Days Between Dates & Add Days',
+      title: 'Date Calculator: Days Between Dates & Add Business Days (Milestones)',
       metaDesc: 'Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.',
       category: 'Utility',
       faq: [
         { q: 'How many business days are between two dates?', a: 'Business days count only weekdays (Monday through Friday), excluding Saturdays and Sundays. In a standard calendar month of 30 days, there are typically 20 to 22 business days.' },
         { q: 'What is the difference between inclusive and exclusive date counting?', a: 'Exclusive counting calculates the elapsed time between two points (End Date - Start Date). Inclusive counting counts both the starting day and ending day as active calendar days (+1 day), which is the standard in hotel bookings, equipment leases, and construction contracts.' },
         { q: 'How do you add business days to a date?', a: 'Adding business days steps forward one day at a time, checking the day of the week. If a day is Saturday or Sunday, it is skipped without incrementing the business day count until the target number of working weekdays is reached.' },
-        { q: 'Does this date calculator account for leap years?', a: 'Yes. The calculation uses full astronomical calendar rules, correctly identifying February 29th in leap years (such as 2024, 2028, 2032) and measuring exact day differences.' }
+        { q: 'Does this date calculator account for leap years?', a: 'Yes. The calculation uses full astronomical calendar rules, correctly identifying February 29th in leap years (such as 2024, 2028, 2032) and measuring exact day differences.' },
+        { q: 'How did the 1582 Gregorian calendar reform alter historical day counting?', a: 'Under the Julian calendar, a leap year occurred every 4 years without exception, creating an error of 1 day every 128 years. Pope Gregory XIII reformed the calendar in October 1582 by skipping 10 days (October 4 was followed by October 15) and establishing that centurial years must be divisible by 400 to be leap years (e.g. 1600 and 2000 were leap years, but 1700, 1800, and 1900 were not). Modern software uses the proleptic Gregorian calendar for consistent mathematical intervals.' }
       ],
       body: `
         ${commonStyle}
@@ -1123,12 +1349,12 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
               <div>
-                <label class="field-label">Start Date</label>
+                <label class="field-label" for="dateStart">Start Date</label>
                 <input type="date" id="dateStart" class="text-input" oninput="calcDaysBetween()" />
                 <div id="startWeekdayLabel" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">--</div>
               </div>
               <div>
-                <label class="field-label">End Date</label>
+                <label class="field-label" for="dateEnd">End Date</label>
                 <input type="date" id="dateEnd" class="text-input" oninput="calcDaysBetween()" />
                 <div id="endWeekdayLabel" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">--</div>
               </div>
@@ -1164,22 +1390,22 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.25rem;">2. Add or Subtract Time (Including Business Days)</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
               <div>
-                <label class="field-label">Start Date</label>
+                <label class="field-label" for="dateAddStart">Start Date</label>
                 <input type="date" id="dateAddStart" class="text-input" oninput="calcDateAdd()" />
               </div>
               <div>
-                <label class="field-label">Operation</label>
+                <label class="field-label" for="dateAddOp">Operation</label>
                 <select id="dateAddOp" class="text-input" onchange="calcDateAdd()">
                   <option value="add" selected>Add (+)</option>
                   <option value="sub">Subtract (-)</option>
                 </select>
               </div>
               <div>
-                <label class="field-label">Quantity</label>
+                <label class="field-label" for="dateAddQty">Quantity</label>
                 <input type="number" id="dateAddQty" class="text-input" value="30" min="1" step="1" oninput="calcDateAdd()" />
               </div>
               <div>
-                <label class="field-label">Unit of Time</label>
+                <label class="field-label" for="dateAddUnit">Unit of Time</label>
                 <select id="dateAddUnit" class="text-input" onchange="calcDateAdd()">
                   <option value="days" selected>Calendar Days</option>
                   <option value="business_days">Business Days (Mon-Fri only)</option>
@@ -1213,48 +1439,59 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             </div>
           </div>
 
-          <!-- 3 Critical Date Gotchas -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
-              <span>⚠️ 3 Date Calculation Traps in Legal & Project Work</span>
-            </h3>
-            <div style="display: grid; gap: 1rem; font-size: 0.9rem; line-height: 1.6;">
-              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
-                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">1. The "Inclusive vs. Exclusive" Lease & Contract Trap</strong>
-                <p style="margin: 0; color: var(--text-muted);">
-                  If a tenancy agreement starts on August 1st and ends on August 31st, exclusive counting yields 30 days (31 - 1 = 30). However, the tenant occupied the property on August 1st AND August 31st — a full <strong>31 calendar days</strong>. In commercial disputes, court motions, and interest calculations, failing to specify whether dates are inclusive can trigger financial penalties.
-                </p>
-              </div>
-              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
-                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">2. The Variable Month End Clamping Hazard</strong>
-                <p style="margin: 0; color: var(--text-muted);">
-                  What happens when you add 1 month to January 31st? February 31st does not exist. Standard astronomical calendar algorithms clamp to the last valid day of the month (February 28th, or 29th in a leap year). Subtracting 1 month back from February 28th then yields January 28th, not January 31st! Always track raw day intervals for strict financial interest.
-                </p>
-              </div>
-              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
-                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">3. Statutory Business Days vs. Federal Bank Holidays</strong>
-                <p style="margin: 0; color: var(--text-muted);">
-                  Standard business day calculators only skip Saturdays and Sundays. However, financial markets, government offices, and legal courts also observe 11 US Federal Holidays (e.g. Martin Luther King Jr. Day, Memorial Day, Juneteenth, Thanksgiving). If calculating a statutory SEC filing deadline or bank wire clearance, always cross-reference official federal holiday calendars.
-                </p>
-              </div>
+          <!-- 5 Critical Date Traps -->
+          <div style="margin: 2rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Critical Date Calculation Traps in Legal & Project Work</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The "Inclusive vs. Exclusive" Lease, Contract & Dispute Trap</strong>
+              If a tenancy agreement starts on August 1st and ends on August 31st, exclusive subtraction yields 30 days (31 - 1 = 30). However, the tenant occupied the property on August 1st AND August 31st &mdash; a full <strong>31 calendar days</strong>. In commercial lease billing, court motions, and statutory deadlines, failing to specify whether dates are inclusive can cause breach of contract or financial penalties.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. The Variable Month-End Clamping Hazard</strong>
+              What happens when you add 1 month to January 31st? February 31st does not exist. Standard astronomical calendar algorithms clamp to the last valid day of the month (February 28th, or 29th in a leap year). Subtracting 1 month back from February 28th then yields January 28th, not January 31st! Always track raw day intervals for strict financial interest.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. Statutory Business Days vs. Federal Bank Holidays Collision</strong>
+              Standard business day calculators only skip Saturdays and Sundays. However, financial markets, government offices, and legal courts also observe 11 US Federal Holidays (e.g. Martin Luther King Jr. Day, Memorial Day, Juneteenth, Thanksgiving). If calculating a statutory SEC filing deadline or bank wire clearance, always cross-reference official federal holiday calendars.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. The Gregorian Reform 10-to-11-Day Discontinuity Trap</strong>
+              Dates prior to October 15, 1582 followed the Julian calendar, which drifted ~1 day every 128 years. When Pope Gregory XIII introduced the Gregorian calendar, October 4, 1582 was immediately followed by October 15, 1582 (omitting 10 days). Great Britain and its American colonies did not switch until September 1752, dropping 11 days. Historical date arithmetic across this boundary requires astronomical proleptic adjustments.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. Midnight Local Time vs. UTC Day Rollover (ISO 8601 Parsing Bug)</strong>
+              In JavaScript and web APIs, parsing a simple date string like <code>new Date("2026-09-06")</code> defaults to UTC midnight. In Western hemisphere time zones (UTC-4 to UTC-8), UTC midnight corresponds to the previous evening (September 5th at 8:00 PM EDT), shifting dates backwards by one full day in UI displays and reports. Always parse date strings with explicit local time (e.g. <code>T00:00:00</code>) to prevent off-by-one errors.
             </div>
           </div>
 
-          <!-- Sponsored Ad Slot -->
-          <div class="ad-blend-box" style="margin: 2rem 0;">
-            <span class="ad-label">Sponsored Resource</span>
-            <div class="ad-unit-300x250">
-              <script type="text/javascript">
-                atOptions = {
-                  'key' : '335d807d460eaf2491fcca0f635474ce',
-                  'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
-                  'params' : {}
-                };
-              </script>
-              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-            </div>
+          <!-- Frequently Asked Questions Accordion -->
+          <div style="margin-top: 2.5rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details class="faq-item" open>
+              <summary>How many business days are between two dates?</summary>
+              <div>Business days count only weekdays (Monday through Friday), excluding Saturdays and Sundays. In a standard calendar month of 30 days, there are typically 20 to 22 business days.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What is the difference between inclusive and exclusive date counting?</summary>
+              <div>Exclusive counting calculates the elapsed time between two points (End Date - Start Date). Inclusive counting counts both the starting day and ending day as active calendar days (+1 day), which is the standard in hotel bookings, equipment leases, and construction contracts.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How do you add business days to a date?</summary>
+              <div>Adding business days steps forward one day at a time, checking the day of the week. If a day is Saturday or Sunday, it is skipped without incrementing the business day count until the target number of working weekdays is reached.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Does this date calculator account for leap years?</summary>
+              <div>Yes. The calculation uses full astronomical calendar rules, correctly identifying February 29th in leap years (such as 2024, 2028, 2032) and measuring exact day differences.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How did the 1582 Gregorian calendar reform alter historical day counting?</summary>
+              <div>Under the Julian calendar, a leap year occurred every 4 years without exception, creating an error of 1 day every 128 years. Pope Gregory XIII reformed the calendar in October 1582 by skipping 10 days (October 4 was followed by October 15) and establishing that centurial years must be divisible by 400 to be leap years (e.g. 1600 and 2000 were leap years, but 1700, 1800, and 1900 were not). Modern software uses the proleptic Gregorian calendar for consistent mathematical intervals.</div>
+            </details>
           </div>
         </div>
 
@@ -1422,7 +1659,6 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             } else if (unit === 'months') {
               var currentDay = d.getDate();
               d.setMonth(d.getMonth() + (sign * qty));
-              // Clamp month end if rollover occurred
               if (d.getDate() < currentDay) {
                 d.setDate(0);
               }
@@ -1433,7 +1669,6 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             var resultStr = d.toLocaleDateString('en-US', options);
 
-            // Day of the year
             var startOfYear = new Date(d.getFullYear(), 0, 1);
             var dayOfYear = Math.floor((d - startOfYear) / 86400000) + 1;
             var weekOfYear = Math.ceil(dayOfYear / 7);
@@ -1478,16 +1713,16 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           window.copyDateDiffSummary = function() {
             if (!currentDateDiffData) return;
             var text = 
-              '[Date Difference Report] Between ' + currentDateDiffData.start + ' and ' + currentDateDiffData.end + '\\n' +
-              '• Total Calendar Days: ' + currentDateDiffData.absDays + ' Days ' + (currentDateDiffData.isInclusive ? '(Inclusive)' : '(Exclusive)') + '\\n' +
-              '• Exact Duration: ' + currentDateDiffData.cYears + ' Years, ' + currentDateDiffData.cMonths + ' Months, ' + currentDateDiffData.cDays + ' Days\\n' +
-              '• Working Business Days: ' + currentDateDiffData.bDays + ' Workdays (Mon-Fri)\\n' +
+              '[Date Difference Report] Between ' + currentDateDiffData.start + ' and ' + currentDateDiffData.end + '\n' +
+              '• Total Calendar Days: ' + currentDateDiffData.absDays + ' Days ' + (currentDateDiffData.isInclusive ? '(Inclusive)' : '(Exclusive)') + '\n' +
+              '• Exact Duration: ' + currentDateDiffData.cYears + ' Years, ' + currentDateDiffData.cMonths + ' Months, ' + currentDateDiffData.cDays + ' Days\n' +
+              '• Working Business Days: ' + currentDateDiffData.bDays + ' Workdays (Mon-Fri)\n' +
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/date-calculator';
 
             navigator.clipboard.writeText(text).then(function() {
               var btn = document.getElementById('copyDateDiffBtn');
               var orig = btn.innerHTML;
-              btn.innerHTML = '<span style=\"color:#10b981; font-weight:bold;\">✓ Copied Date Difference!</span>';
+              btn.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ Copied Date Difference!</span>';
               setTimeout(function() { btn.innerHTML = orig; }, 2200);
             });
           };
@@ -1495,16 +1730,16 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           window.copyDateAddSummary = function() {
             if (!currentDateAddData) return;
             var text = 
-              '[Date Deadline Report]\\n' +
-              '• Starting Date: ' + currentDateAddData.start + '\\n' +
-              '• Operation: ' + (currentDateAddData.op === 'add' ? '+' : '-') + currentDateAddData.qty + ' ' + currentDateAddData.unit + '\\n' +
-              '• Target Date: ' + currentDateAddData.resultStr + ' (Day ' + currentDateAddData.dayOfYear + ', Week ' + currentDateAddData.weekOfYear + ')\\n' +
+              '[Date Deadline Report]\n' +
+              '• Starting Date: ' + currentDateAddData.start + '\n' +
+              '• Operation: ' + (currentDateAddData.op === 'add' ? '+' : '-') + currentDateAddData.qty + ' ' + currentDateAddData.unit + '\n' +
+              '• Target Date: ' + currentDateAddData.resultStr + ' (Day ' + currentDateAddData.dayOfYear + ', Week ' + currentDateAddData.weekOfYear + ')\n' +
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/date-calculator';
 
             navigator.clipboard.writeText(text).then(function() {
               var btn = document.getElementById('copyDateAddBtn');
               var orig = btn.innerHTML;
-              btn.innerHTML = '<span style=\"color:#10b981; font-weight:bold;\">✓ Copied Target Deadline!</span>';
+              btn.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ Copied Target Deadline!</span>';
               setTimeout(function() { btn.innerHTML = orig; }, 2200);
             });
           };
@@ -1534,7 +1769,7 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
         { q: 'How are planetary ages (Mars, Venus, Jupiter) calculated?', a: 'Planetary age divides your total days alive by the orbital period of the planet. For example, a Mars year is 686.98 Earth days, so someone aged 30 on Earth is approximately 15.9 Mars years old.' }
       ],
       body: `
-        \${commonStyle}
+        ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Age Calculator
@@ -1584,44 +1819,59 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             <div id="ageDerivationBox" style="display: grid; gap: 0.4rem; color: var(--text-muted); line-height: 1.5;"></div>
           </div>
 
-          <!-- 3 Real-World Pitfalls & Legal Gotchas -->
-          <div style="margin: 2rem 0; display: grid; gap: 1rem;">
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #ef4444; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 1: The Leap Day Baby Legal Age Paradox (Feb 29)</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                If you were born on February 29th (a Leap Year), when do you legally turn 18 or 21 in non-leap years? Statutory laws diverge globally. Under English common law (rooted in <em>21 Henry III</em>) and UK precedent, legal age is attained on <strong>March 1st</strong>. Conversely, several US state administrative codes and Taiwan civil law declare legal rights vest on <strong>February 28th</strong>.
-              </p>
+          <!-- 5 Critical Age Traps & Legal Gotchas -->
+          <div style="margin: 2rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Critical Age Calculation Traps & Legal Gotchas</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The Leap Day Baby Legal Age Paradox (Feb 29)</strong>
+              If you were born on February 29th (a Leap Year), when do you legally turn 18 or 21 in non-leap years? Statutory laws diverge globally. Under English common law (rooted in <em>21 Henry III</em>) and UK precedent, legal age is attained on <strong>March 1st</strong>. Conversely, several US state administrative codes and Taiwan civil law declare legal rights vest on <strong>February 28th</strong>.
             </div>
 
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #eab308; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 2: East Asian Age Reckoning (Korean Age Abolition)</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                Traditionally in Korea, China, and Japan, babies were considered 1 year old on their day of birth, and everyone gained an additional year together on New Year\'s Day. Under this system, an infant born on December 31st would turn 2 years old on January 1st despite having lived for less than 24 hours. On June 28, 2023, South Korea officially abolished this legal standard, mandating international chronological age across all administrative contracts and civil law.
-              </p>
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. East Asian Traditional Age Reckoning (Korean Age Abolition)</strong>
+              Traditionally in Korea, China, and Japan, babies were considered 1 year old on their day of birth, and everyone gained an additional year together on New Year's Day. Under this system, an infant born on December 31st would turn 2 years old on January 1st despite having lived for less than 24 hours. On June 28, 2023, South Korea officially abolished this legal standard, mandating international chronological age across all administrative contracts and civil law.
             </div>
 
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #3b82f6; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 3: Chronological Age vs Biological Epigenetic Age</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                Chronological age is merely a measure of how many 365.2425-day astronomical orbits Earth has completed since your birth. In contrast, modern biomedical science evaluates <strong>Biological Age</strong> through epigenetic clocks (such as Steve Horvath\'s DNA methylation clock), telomere length attrition, and organ biomarkers. A 45-year-old marathon runner with optimal cardiovascular markers may register a biological age of 38, while chronic inflammation can elevate biological age far above calendar years.
-              </p>
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. Chronological Calendar Age vs. Epigenetic Biological Age</strong>
+              Chronological age is merely a measure of how many 365.2425-day astronomical orbits Earth has completed since your birth. In contrast, modern biomedical science evaluates <strong>Biological Age</strong> through epigenetic clocks (such as Steve Horvath's DNA methylation clock), telomere length attrition, and organ biomarkers. A 45-year-old marathon runner with optimal cardiovascular markers may register a biological age of 38, while chronic inflammation can elevate biological age far above calendar years.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. Statutory Retirement & Social Security "Day Before" Birth Rule</strong>
+              Under US Federal regulations (20 CFR § 404.102) and common law, a person legally attains a given age on the day <em>before</em> their calendar anniversary of birth. For example, an individual born on January 1st legally attains age 65 on December 31st of the preceding year. This statutory quirk allows retirees to qualify for Medicare or Social Security benefits a full month earlier than intuitive calendar counting suggests.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. Pediatric Corrected Gestational Age Discrepancy</strong>
+              For preterm infants born before 37 completed weeks of gestation, tracking growth and neurological development strictly by chronological age misidentifies normal progress as developmental delay. Pediatricians apply Corrected Gestational Age: <code>Corrected Age = Chronological Age - (40 weeks - Gestational Age at Birth)</code>. A 6-month-old infant born 2 months premature has a developmental corrected age of 4 months.
             </div>
           </div>
 
-          <div class="ad-blend-box" style="margin: 2rem 0;">
-            <span class="ad-label">Sponsored Resource</span>
-            <div class="ad-unit-300x250">
-              <script type="text/javascript">
-                atOptions = {
-                  'key' : '335d807d460eaf2491fcca0f635474ce',
-                  'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
-                  'params' : {}
-                };
-              </script>
-              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-            </div>
+          <!-- Frequently Asked Questions Accordion -->
+          <div style="margin-top: 2.5rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details class="faq-item" open>
+              <summary>How is exact chronological age calculated across leap years and variable month lengths?</summary>
+              <div>Chronological age is calculated using calendar month and day borrowing. If the target day is smaller than the birth day, we borrow the exact number of days from the preceding month (28, 29, 30, or 31). If the target month is smaller than the birth month, we borrow 12 months from the year.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What happens if I was born on Leap Day (February 29)? When is my legal birthday?</summary>
+              <div>In non-leap years, legal maturity for leap day babies varies by jurisdiction. In the United Kingdom and common-law countries, statutory age increments on March 1st. In some US states (like California) and Taiwan, rights legally vest on February 28th.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What is the difference between chronological age and biological age?</summary>
+              <div>Chronological age measures the elapsed orbital cycles around the Sun since birth. Biological age reflects cellular senescence, DNA methylation (epigenetic clocks like Horvath's clock), telomere length, and cardiovascular health.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Why did South Korea abolish its traditional East Asian age reckoning system?</summary>
+              <div>Under traditional East Asian reckoning, a baby was considered 1 year old at birth and gained a year every January 1st (meaning a baby born on Dec 31 turned 2 the next day). South Korea officially abolished this in June 2023 to eliminate administrative and legal confusion.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How are planetary ages (Mars, Venus, Jupiter) calculated?</summary>
+              <div>Planetary age divides your total days alive by the orbital period of the planet. For example, a Mars year is 686.98 Earth days, so someone aged 30 on Earth is approximately 15.9 Mars years old.</div>
+            </details>
           </div>
         </div>
 
@@ -1649,29 +1899,20 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               { name: 'Rat 🐀', trait: 'Quick-witted & resourceful' },
               { name: 'Ox 🐂', trait: 'Diligent & dependable' },
               { name: 'Tiger 🐅', trait: 'Brave & confident' },
-              { name: 'Rabbit 🐇', trait: 'Quiet, elegant & kind' },
-              { name: 'Dragon 🐉', trait: 'Enthusiastic & bold' },
-              { name: 'Snake 🐍', trait: 'Wise & intuitive' },
-              { name: 'Horse 🐎', trait: 'Animated & energetic' },
-              { name: 'Goat 🐐', trait: 'Gentle & sympathetic' },
-              { name: 'Monkey 🐒', trait: 'Smart & curious' },
-              { name: 'Rooster 🐓', trait: 'Hardworking & observant' },
-              { name: 'Dog 🐕', trait: 'Honest & loyal' },
-              { name: 'Pig 🐖', trait: 'Compassionate & generous' }
+              { name: 'Rabbit 🐇', trait: 'Quiet & elegant' },
+              { name: 'Dragon 🐉', trait: 'Charismatic & strong' },
+              { name: 'Snake 🐍', trait: 'Enigmatic & intelligent' },
+              { name: 'Horse 🐎', trait: 'Energetic & independent' },
+              { name: 'Goat 🐐', trait: 'Gentle & calm' },
+              { name: 'Monkey 🐒', trait: 'Clever & curious' },
+              { name: 'Rooster 🐓', trait: 'Observant & hardworking' },
+              { name: 'Dog 🐕', trait: 'Loyal & honest' },
+              { name: 'Pig 🐖', trait: 'Generous & diligent' }
             ];
-            var idx = (year - 4) % 12;
-            if (idx < 0) idx += 12;
-            var animal = animals[idx];
-
-            var lastDigit = Math.abs(year) % 10;
-            var element = '';
-            if (lastDigit === 0 || lastDigit === 1) element = 'Metal';
-            else if (lastDigit === 2 || lastDigit === 3) element = 'Water';
-            else if (lastDigit === 4 || lastDigit === 5) element = 'Wood';
-            else if (lastDigit === 6 || lastDigit === 7) element = 'Fire';
-            else if (lastDigit === 8 || lastDigit === 9) element = 'Earth';
-
-            return { animal: animal.name, element: element, trait: animal.trait };
+            var animal = animals[(year - 4) % 12];
+            var elements = ['Wood 🌳', 'Wood 🌳', 'Fire 🔥', 'Fire 🔥', 'Earth 🏔️', 'Earth 🏔️', 'Metal ⚔️', 'Metal ⚔️', 'Water 🌊', 'Water 🌊'];
+            var element = elements[(year - 4) % 10];
+            return { animal: animal.name, trait: animal.trait, element: element };
           }
 
           function calcAge() {
@@ -1682,12 +1923,14 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var dob = new Date(dobVal + 'T00:00:00');
             var at = new Date(atVal + 'T00:00:00');
 
+            if (isNaN(dob.getTime()) || isNaN(at.getTime())) return;
+
             document.getElementById('dobWeekdayLabel').textContent = weekdaysArr[dob.getDay()] + ', ' + dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             document.getElementById('targetWeekdayLabel').textContent = weekdaysArr[at.getDay()] + ', ' + at.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-            if (at < dob) {
-              document.getElementById('ageResults').innerHTML = '<div style="padding:1rem; background:#fee2e2; border:1px solid #ef4444; border-radius:4px; color:#b91c1c;">Target date cannot precede your date of birth! Please pick a date after ' + dobVal + '.</div>';
-              document.getElementById('ageDerivationBox').innerHTML = '<em>Awaiting valid forward chronological dates...</em>';
+            var totalMs = at.getTime() - dob.getTime();
+            if (totalMs < 0) {
+              document.getElementById('ageResults').innerHTML = '<div style="color:#ef4444; padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">Target date cannot precede birth date.</div>';
               return;
             }
 
@@ -1695,160 +1938,119 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var months = at.getMonth() - dob.getMonth();
             var days = at.getDate() - dob.getDate();
 
-            var borrowedDays = 0;
+            var borrowedDays = false;
+            var borrowedMonths = false;
             var borrowedMonthDaysCount = 0;
+
             if (days < 0) {
               months--;
+              borrowedDays = true;
               var prevMonth = new Date(at.getFullYear(), at.getMonth(), 0);
               borrowedMonthDaysCount = prevMonth.getDate();
               days += borrowedMonthDaysCount;
-              borrowedDays = 1;
-            }
-            var borrowedMonths = 0;
-            if (months < 0) {
-              years--;
-              months += 12;
-              borrowedMonths = 1;
             }
 
-            var totalMs = at.getTime() - dob.getTime();
-            var totalDays = Math.floor(totalMs / (1000 * 60 * 60 * 24));
+            if (months < 0) {
+              years--;
+              borrowedMonths = true;
+              months += 12;
+            }
+
+            var totalDays = Math.floor(totalMs / 86400000);
+            var totalWeeks = Math.floor(totalDays / 7);
+            var remWeekDays = totalDays % 7;
             var totalHours = totalDays * 24;
             var totalMinutes = totalHours * 60;
             var totalSeconds = totalMinutes * 60;
-            var totalWeeks = Math.floor(totalDays / 7);
-            var remWeekDays = totalDays % 7;
             var decimalYears = (totalDays / 365.2425).toFixed(2);
 
-            // Weekday of birth
-            var bornWeekday = weekdaysArr[dob.getDay()];
+            var avgHeartRateBpm = 75;
+            var totalHeartbeats = Math.round(totalDays * 24 * 60 * avgHeartRateBpm);
+            var totalBreaths = Math.round(totalDays * 24 * 60 * 15);
+            var sleepYears = (years * 0.33).toFixed(1);
 
-            // Next birthday countdown
-            var nextBday = new Date(at.getFullYear(), dob.getMonth(), dob.getDate());
-            var isLeapBaby = (dob.getMonth() === 1 && dob.getDate() === 29);
-            var checkLeapYear = function(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); };
-
-            if (isLeapBaby && !checkLeapYear(nextBday.getFullYear())) {
-              nextBday = new Date(nextBday.getFullYear(), 2, 1); // March 1st
+            var nextBdayYear = at.getFullYear();
+            var nextBday = new Date(nextBdayYear, dob.getMonth(), dob.getDate());
+            if (dob.getMonth() === 1 && dob.getDate() === 29) {
+              var isLeap = (nextBdayYear % 4 === 0 && nextBdayYear % 100 !== 0) || (nextBdayYear % 400 === 0);
+              if (!isLeap) nextBday = new Date(nextBdayYear, 1, 28);
             }
             if (nextBday < at) {
-              var nextYr = at.getFullYear() + 1;
-              nextBday = new Date(nextYr, dob.getMonth(), dob.getDate());
-              if (isLeapBaby && !checkLeapYear(nextYr)) {
-                nextBday = new Date(nextYr, 2, 1);
+              nextBdayYear++;
+              nextBday = new Date(nextBdayYear, dob.getMonth(), dob.getDate());
+              if (dob.getMonth() === 1 && dob.getDate() === 29) {
+                var isLeap2 = (nextBdayYear % 4 === 0 && nextBdayYear % 100 !== 0) || (nextBdayYear % 400 === 0);
+                if (!isLeap2) nextBday = new Date(nextBdayYear, 1, 28);
               }
             }
+
             var msUntilBday = nextBday.getTime() - at.getTime();
-            var daysUntilBday = Math.ceil(msUntilBday / (1000 * 60 * 60 * 24));
-            var nextAge = (nextBday.getFullYear() - dob.getFullYear());
+            var daysUntilBday = Math.ceil(msUntilBday / 86400000);
+            var nextAge = years + 1;
             var nextBdayWeekday = weekdaysArr[nextBday.getDay()];
 
-            // Half-birthday calculation (6 months after birth month)
-            var halfBdayMonth = (dob.getMonth() + 6) % 12;
-            var halfBdayMonthName = new Date(2000, halfBdayMonth, 1).toLocaleDateString('en-US', { month: 'long' });
-
-            // Vitality Estimates
-            var totalHeartbeats = Math.round(totalDays * 103680); // 72 bpm avg
-            var totalBreaths = Math.round(totalDays * 23040); // 16 breaths/min
-            var sleepYears = (totalDays * (8 / 24) / 365.2425).toFixed(1);
-            var pctLifespan = Math.min(100, (totalDays / (73.4 * 365.2425)) * 100).toFixed(1);
-
-            // Zodiacs
             var wz = getWesternZodiac(dob.getMonth() + 1, dob.getDate());
             var cz = getChineseZodiac(dob.getFullYear());
+            var bornWeekday = weekdaysArr[dob.getDay()];
 
-            // Planetary Ages
             var mercuryAge = (totalDays / 87.97).toFixed(1);
             var venusAge = (totalDays / 224.7).toFixed(1);
             var marsAge = (totalDays / 686.98).toFixed(1);
             var jupiterAge = (totalDays / 4332.59).toFixed(2);
 
-            var container = document.getElementById('ageResults');
-            container.innerHTML = 
-              '<!-- Primary Hero Card -->' +
-              '<div style="padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
-                '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Exact Chronological Age</span>' +
-                  '<span style="font-size: 0.75rem; color: #10b981; font-weight: bold;">' + decimalYears + ' Solar Years</span>' +
-                '</div>' +
-                '<div style="font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">' + years + ' Years, ' + months + ' Months, ' + days + ' Days</div>' +
-                '<div style="font-size: 0.85rem; color: var(--fg);">' +
-                  'Born on a <strong>' + bornWeekday + '</strong>' + (isLeapBaby ? ' <span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:3px; font-size:0.75rem; font-weight:bold;">Leap Day Baby (Feb 29)</span>' : '') +
-                '</div>' +
+            var resContainer = document.getElementById('ageResults');
+            resContainer.innerHTML = 
+              '<div style="padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Exact Chronological Age</span>' +
+                '<div style="font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">' + years + ' Years, ' + months + ' Months, ' + days + ' Days</div>' +
+                '<div style="font-size: 0.85rem; color: var(--text-muted);">' + decimalYears + ' solar years &bull; Born on a ' + bornWeekday + '</div>' +
               '</div>' +
 
-              '<!-- Next Birthday Card -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">' +
-                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<div style="padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">' +
+                '<div>' +
                   '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Next Birthday Countdown</span>' +
-                  '<div style="font-size: 1.4rem; font-weight: bold; color: #eab308; margin: 0.2rem 0;">' + (daysUntilBday === 0 ? 'Today! 🎂' : daysUntilBday + ' Days Away') + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Turns ' + nextAge + ' on ' + nextBdayWeekday + ', ' + nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</div>' +
+                  '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">' + 
+                    (daysUntilBday === 0 ? 'Today! 🎂 Happy Birthday!' : daysUntilBday + ' Days to go') + 
+                  '</div>' +
                 '</div>' +
-                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Annual Half-Birthday</span>' +
-                  '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; margin: 0.2rem 0;">' + halfBdayMonthName + ' ' + dob.getDate() + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Exact 6-month halfway milestone mark</div>' +
+                '<div style="text-align: right;">' +
+                  '<div style="font-size: 0.85rem; color: var(--fg); font-weight: 600;">Turns ' + nextAge + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + nextBdayWeekday + ', ' + nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</div>' +
                 '</div>' +
               '</div>' +
 
-              '<!-- Lifetime Milestones Grid -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem;">' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 0.75rem;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
                   '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Days</span>' +
                   '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalDays.toLocaleString() + '</div>' +
                 '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Weeks & Days</span>' +
-                  '<div style="font-size: 1.05rem; font-weight: bold; color: var(--fg);">' + totalWeeks.toLocaleString() + 'w ' + remWeekDays + 'd</div>' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Weeks</span>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalWeeks.toLocaleString() + ' w, ' + remWeekDays + ' d</div>' +
                 '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
                   '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Hours</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalHours.toLocaleString() + 'h</div>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalHours.toLocaleString() + '</div>' +
                 '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
                   '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Minutes</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalMinutes.toLocaleString() + 'm</div>' +
-                '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Seconds</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalSeconds.toLocaleString() + 's</div>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalMinutes.toLocaleString() + '</div>' +
                 '</div>' +
               '</div>' +
 
-              '<!-- Biological & Physiological Vitality Stats -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">' +
+              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">' +
                 '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Estimated Heartbeats</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #ef4444; margin: 0.15rem 0;">' + totalHeartbeats.toLocaleString() + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 72 bpm resting pulse</div>' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Western Zodiac</span>' +
+                  '<div style="font-size: 1.1rem; font-weight: bold; color: #3b82f6;">' + wz.sign + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + wz.element + ' &bull; ' + wz.dates + '</div>' +
                 '</div>' +
                 '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Breaths Inhaled</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #06b6d4; margin: 0.15rem 0;">' + totalBreaths.toLocaleString() + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 16 breaths/minute</div>' +
-                '</div>' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Cumulative Sleep</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #8b5cf6; margin: 0.15rem 0;">' + sleepYears + ' Years</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">~8 hours nightly restorative sleep</div>' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Chinese Zodiac</span>' +
+                  '<div style="font-size: 1.1rem; font-weight: bold; color: #f59e0b;">' + cz.animal + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + cz.element + ' &bull; ' + cz.trait + '</div>' +
                 '</div>' +
               '</div>' +
 
-              '<!-- Cosmic & Astrological Profile -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Western Zodiac Sign</span>' +
-                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + wz.sign + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + wz.element + ' • ' + wz.dates + '</div>' +
-                '</div>' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Chinese Zodiac</span>' +
-                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + cz.element + ' ' + cz.animal + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + cz.trait + '</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Planetary Ages -->' +
               '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
                 '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">Planetary Orbits (Your Age on Other Worlds)</span>' +
                 '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; text-align: center;">' +
@@ -1917,23 +2119,23 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           window.copyAgeReport = function() {
             if (!currentAgeData) return;
             var text = 
-              '[Exact Chronological Age & Lifetime Milestone Report]\\n' +
-              '• Date of Birth: ' + currentAgeData.dob + ' (' + currentAgeData.bornWeekday + ')\\n' +
-              '• As of Date: ' + currentAgeData.target + '\\n' +
-              '• Exact Age: ' + currentAgeData.years + ' Years, ' + currentAgeData.months + ' Months, ' + currentAgeData.days + ' Days (' + currentAgeData.decimalYears + ' solar years)\\n' +
-              '• Lifetime Traversed: ' + currentAgeData.totalDays.toLocaleString() + ' Days (' + currentAgeData.totalWeeks.toLocaleString() + ' weeks, ' + currentAgeData.remWeekDays + ' days)\\n' +
-              '• Total Hours Lived: ' + currentAgeData.totalHours.toLocaleString() + ' Hours (' + currentAgeData.totalMinutes.toLocaleString() + ' minutes)\\n' +
-              '• Estimated Heartbeats: ~' + currentAgeData.totalHeartbeats.toLocaleString() + ' beats\\n' +
-              '• Restorative Sleep: ~' + currentAgeData.sleepYears + ' cumulative years\\n' +
-              '• Western Zodiac: ' + currentAgeData.zodiacWestern + '\\n' +
-              '• Chinese Zodiac: ' + currentAgeData.zodiacChinese + '\\n' +
-              '• Next Birthday: ' + (currentAgeData.daysUntilBday === 0 ? 'Today! 🎂' : currentAgeData.daysUntilBday + ' days away (Turns ' + currentAgeData.nextAge + ' on ' + currentAgeData.nextBdayWeekday + ', ' + currentAgeData.nextBdayDateStr + ')') + '\\n' +
+              '[Exact Chronological Age & Lifetime Milestone Report]\n' +
+              '• Date of Birth: ' + currentAgeData.dob + ' (' + currentAgeData.bornWeekday + ')\n' +
+              '• As of Date: ' + currentAgeData.target + '\n' +
+              '• Exact Age: ' + currentAgeData.years + ' Years, ' + currentAgeData.months + ' Months, ' + currentAgeData.days + ' Days (' + currentAgeData.decimalYears + ' solar years)\n' +
+              '• Lifetime Traversed: ' + currentAgeData.totalDays.toLocaleString() + ' Days (' + currentAgeData.totalWeeks.toLocaleString() + ' weeks, ' + currentAgeData.remWeekDays + ' days)\n' +
+              '• Total Hours Lived: ' + currentAgeData.totalHours.toLocaleString() + ' Hours (' + currentAgeData.totalMinutes.toLocaleString() + ' minutes)\n' +
+              '• Estimated Heartbeats: ~' + currentAgeData.totalHeartbeats.toLocaleString() + ' beats\n' +
+              '• Restorative Sleep: ~' + currentAgeData.sleepYears + ' cumulative years\n' +
+              '• Western Zodiac: ' + currentAgeData.zodiacWestern + '\n' +
+              '• Chinese Zodiac: ' + currentAgeData.zodiacChinese + '\n' +
+              '• Next Birthday: ' + (currentAgeData.daysUntilBday === 0 ? 'Today! 🎂' : currentAgeData.daysUntilBday + ' days away (Turns ' + currentAgeData.nextAge + ' on ' + currentAgeData.nextBdayWeekday + ', ' + currentAgeData.nextBdayDateStr + ')') + '\n' +
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/age-calculator';
 
             navigator.clipboard.writeText(text).then(function() {
               var btn = document.getElementById('copyAgeReportBtn');
               var orig = btn.innerHTML;
-              btn.innerHTML = '<span style=\"color:#fff; font-weight:bold;\">✓ Copied Milestone Report!</span>';
+              btn.innerHTML = '<span style="color:#fff; font-weight:bold;">✓ Copied Milestone Report!</span>';
               setTimeout(function() { btn.innerHTML = orig; }, 2200);
             });
           };

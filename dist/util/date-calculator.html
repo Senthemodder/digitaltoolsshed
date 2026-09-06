@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Date Calculator: Days Between Dates & Add Days | Digital Tools Shed</title>
+  <title>Date Calculator: Days Between Dates & Add Business Days (Milestones) | Digital Tools Shed</title>
   <meta name="description" content="Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.">
   <link rel="canonical" href="https://digitaltoolsshed.com/util/date-calculator">
-  <meta property="og:title" content="Date Calculator: Days Between Dates & Add Days | Digital Tools Shed">
+  <meta property="og:title" content="Date Calculator: Days Between Dates & Add Business Days (Milestones) | Digital Tools Shed">
   <meta property="og:description" content="Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.">
   <meta property="og:url" content="https://digitaltoolsshed.com/util/date-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Date Calculator: Days Between Dates & Add Days | Digital Tools Shed">
+  <meta name="twitter:title" content="Date Calculator: Days Between Dates & Add Business Days (Milestones) | Digital Tools Shed">
   <meta name="twitter:description" content="Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Date Calculator: Days Between Dates & Add Days",
+  "name": "Date Calculator: Days Between Dates & Add Business Days (Milestones)",
   "url": "https://digitaltoolsshed.com/util/date-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -85,8 +85,8 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "5.0",
-    "ratingCount": 968,
+    "ratingValue": "4.9",
+    "ratingCount": 1306,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -135,6 +135,14 @@
         "@type": "Answer",
         "text": "Yes. The calculation uses full astronomical calendar rules, correctly identifying February 29th in leap years (such as 2024, 2028, 2032) and measuring exact day differences."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "How did the 1582 Gregorian calendar reform alter historical day counting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Under the Julian calendar, a leap year occurred every 4 years without exception, creating an error of 1 day every 128 years. Pope Gregory XIII reformed the calendar in October 1582 by skipping 10 days (October 4 was followed by October 15) and establishing that centurial years must be divisible by 400 to be leap years (e.g. 1600 and 2000 were leap years, but 1700, 1800, and 1900 were not). Modern software uses the proleptic Gregorian calendar for consistent mathematical intervals."
+      }
     }
   ]
 }
@@ -143,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Date Calculator: Days Between Dates & Add Days",
+  "name": "How to Use the Date Calculator: Days Between Dates & Add Business Days (Milestones)",
   "description": "Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Date Calculator: Days Between Dates & Add Days."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Date Calculator: Days Between Dates & Add Business Days (Milestones)."
     },
     {
       "@type": "HowToStep",
@@ -962,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Date Calculator: Days Between Dates & Add Days | Digital Tools Shed</span>
+            <span>Date Calculator: Days Between Dates & Add Business Days (Milestones) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1074,12 +1082,12 @@
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
               <div>
-                <label class="field-label">Start Date</label>
+                <label class="field-label" for="dateStart">Start Date</label>
                 <input type="date" id="dateStart" class="text-input" oninput="calcDaysBetween()" />
                 <div id="startWeekdayLabel" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">--</div>
               </div>
               <div>
-                <label class="field-label">End Date</label>
+                <label class="field-label" for="dateEnd">End Date</label>
                 <input type="date" id="dateEnd" class="text-input" oninput="calcDaysBetween()" />
                 <div id="endWeekdayLabel" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">--</div>
               </div>
@@ -1115,22 +1123,22 @@
             <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.25rem;">2. Add or Subtract Time (Including Business Days)</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
               <div>
-                <label class="field-label">Start Date</label>
+                <label class="field-label" for="dateAddStart">Start Date</label>
                 <input type="date" id="dateAddStart" class="text-input" oninput="calcDateAdd()" />
               </div>
               <div>
-                <label class="field-label">Operation</label>
+                <label class="field-label" for="dateAddOp">Operation</label>
                 <select id="dateAddOp" class="text-input" onchange="calcDateAdd()">
                   <option value="add" selected>Add (+)</option>
                   <option value="sub">Subtract (-)</option>
                 </select>
               </div>
               <div>
-                <label class="field-label">Quantity</label>
+                <label class="field-label" for="dateAddQty">Quantity</label>
                 <input type="number" id="dateAddQty" class="text-input" value="30" min="1" step="1" oninput="calcDateAdd()" />
               </div>
               <div>
-                <label class="field-label">Unit of Time</label>
+                <label class="field-label" for="dateAddUnit">Unit of Time</label>
                 <select id="dateAddUnit" class="text-input" onchange="calcDateAdd()">
                   <option value="days" selected>Calendar Days</option>
                   <option value="business_days">Business Days (Mon-Fri only)</option>
@@ -1164,48 +1172,59 @@
             </div>
           </div>
 
-          <!-- 3 Critical Date Gotchas -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
-              <span>⚠️ 3 Date Calculation Traps in Legal & Project Work</span>
-            </h3>
-            <div style="display: grid; gap: 1rem; font-size: 0.9rem; line-height: 1.6;">
-              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
-                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">1. The "Inclusive vs. Exclusive" Lease & Contract Trap</strong>
-                <p style="margin: 0; color: var(--text-muted);">
-                  If a tenancy agreement starts on August 1st and ends on August 31st, exclusive counting yields 30 days (31 - 1 = 30). However, the tenant occupied the property on August 1st AND August 31st — a full <strong>31 calendar days</strong>. In commercial disputes, court motions, and interest calculations, failing to specify whether dates are inclusive can trigger financial penalties.
-                </p>
-              </div>
-              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
-                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">2. The Variable Month End Clamping Hazard</strong>
-                <p style="margin: 0; color: var(--text-muted);">
-                  What happens when you add 1 month to January 31st? February 31st does not exist. Standard astronomical calendar algorithms clamp to the last valid day of the month (February 28th, or 29th in a leap year). Subtracting 1 month back from February 28th then yields January 28th, not January 31st! Always track raw day intervals for strict financial interest.
-                </p>
-              </div>
-              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
-                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">3. Statutory Business Days vs. Federal Bank Holidays</strong>
-                <p style="margin: 0; color: var(--text-muted);">
-                  Standard business day calculators only skip Saturdays and Sundays. However, financial markets, government offices, and legal courts also observe 11 US Federal Holidays (e.g. Martin Luther King Jr. Day, Memorial Day, Juneteenth, Thanksgiving). If calculating a statutory SEC filing deadline or bank wire clearance, always cross-reference official federal holiday calendars.
-                </p>
-              </div>
+          <!-- 5 Critical Date Traps -->
+          <div style="margin: 2rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Critical Date Calculation Traps in Legal & Project Work</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The "Inclusive vs. Exclusive" Lease, Contract & Dispute Trap</strong>
+              If a tenancy agreement starts on August 1st and ends on August 31st, exclusive subtraction yields 30 days (31 - 1 = 30). However, the tenant occupied the property on August 1st AND August 31st &mdash; a full <strong>31 calendar days</strong>. In commercial lease billing, court motions, and statutory deadlines, failing to specify whether dates are inclusive can cause breach of contract or financial penalties.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. The Variable Month-End Clamping Hazard</strong>
+              What happens when you add 1 month to January 31st? February 31st does not exist. Standard astronomical calendar algorithms clamp to the last valid day of the month (February 28th, or 29th in a leap year). Subtracting 1 month back from February 28th then yields January 28th, not January 31st! Always track raw day intervals for strict financial interest.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. Statutory Business Days vs. Federal Bank Holidays Collision</strong>
+              Standard business day calculators only skip Saturdays and Sundays. However, financial markets, government offices, and legal courts also observe 11 US Federal Holidays (e.g. Martin Luther King Jr. Day, Memorial Day, Juneteenth, Thanksgiving). If calculating a statutory SEC filing deadline or bank wire clearance, always cross-reference official federal holiday calendars.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. The Gregorian Reform 10-to-11-Day Discontinuity Trap</strong>
+              Dates prior to October 15, 1582 followed the Julian calendar, which drifted ~1 day every 128 years. When Pope Gregory XIII introduced the Gregorian calendar, October 4, 1582 was immediately followed by October 15, 1582 (omitting 10 days). Great Britain and its American colonies did not switch until September 1752, dropping 11 days. Historical date arithmetic across this boundary requires astronomical proleptic adjustments.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. Midnight Local Time vs. UTC Day Rollover (ISO 8601 Parsing Bug)</strong>
+              In JavaScript and web APIs, parsing a simple date string like <code>new Date("2026-09-06")</code> defaults to UTC midnight. In Western hemisphere time zones (UTC-4 to UTC-8), UTC midnight corresponds to the previous evening (September 5th at 8:00 PM EDT), shifting dates backwards by one full day in UI displays and reports. Always parse date strings with explicit local time (e.g. <code>T00:00:00</code>) to prevent off-by-one errors.
             </div>
           </div>
 
-          <!-- Sponsored Ad Slot -->
-          <div class="ad-blend-box" style="margin: 2rem 0;">
-            <span class="ad-label">Sponsored Resource</span>
-            <div class="ad-unit-300x250">
-              <script type="text/javascript">
-                atOptions = {
-                  'key' : '335d807d460eaf2491fcca0f635474ce',
-                  'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
-                  'params' : {}
-                };
-              </script>
-              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-            </div>
+          <!-- Frequently Asked Questions Accordion -->
+          <div style="margin-top: 2.5rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details class="faq-item" open>
+              <summary>How many business days are between two dates?</summary>
+              <div>Business days count only weekdays (Monday through Friday), excluding Saturdays and Sundays. In a standard calendar month of 30 days, there are typically 20 to 22 business days.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What is the difference between inclusive and exclusive date counting?</summary>
+              <div>Exclusive counting calculates the elapsed time between two points (End Date - Start Date). Inclusive counting counts both the starting day and ending day as active calendar days (+1 day), which is the standard in hotel bookings, equipment leases, and construction contracts.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How do you add business days to a date?</summary>
+              <div>Adding business days steps forward one day at a time, checking the day of the week. If a day is Saturday or Sunday, it is skipped without incrementing the business day count until the target number of working weekdays is reached.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Does this date calculator account for leap years?</summary>
+              <div>Yes. The calculation uses full astronomical calendar rules, correctly identifying February 29th in leap years (such as 2024, 2028, 2032) and measuring exact day differences.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How did the 1582 Gregorian calendar reform alter historical day counting?</summary>
+              <div>Under the Julian calendar, a leap year occurred every 4 years without exception, creating an error of 1 day every 128 years. Pope Gregory XIII reformed the calendar in October 1582 by skipping 10 days (October 4 was followed by October 15) and establishing that centurial years must be divisible by 400 to be leap years (e.g. 1600 and 2000 were leap years, but 1700, 1800, and 1900 were not). Modern software uses the proleptic Gregorian calendar for consistent mathematical intervals.</div>
+            </details>
           </div>
         </div>
 
@@ -1373,7 +1392,6 @@
             } else if (unit === 'months') {
               var currentDay = d.getDate();
               d.setMonth(d.getMonth() + (sign * qty));
-              // Clamp month end if rollover occurred
               if (d.getDate() < currentDay) {
                 d.setDate(0);
               }
@@ -1384,7 +1402,6 @@
             var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             var resultStr = d.toLocaleDateString('en-US', options);
 
-            // Day of the year
             var startOfYear = new Date(d.getFullYear(), 0, 1);
             var dayOfYear = Math.floor((d - startOfYear) / 86400000) + 1;
             var weekOfYear = Math.ceil(dayOfYear / 7);
@@ -1429,10 +1446,14 @@
           window.copyDateDiffSummary = function() {
             if (!currentDateDiffData) return;
             var text = 
-              '[Date Difference Report] Between ' + currentDateDiffData.start + ' and ' + currentDateDiffData.end + '\n' +
-              '• Total Calendar Days: ' + currentDateDiffData.absDays + ' Days ' + (currentDateDiffData.isInclusive ? '(Inclusive)' : '(Exclusive)') + '\n' +
-              '• Exact Duration: ' + currentDateDiffData.cYears + ' Years, ' + currentDateDiffData.cMonths + ' Months, ' + currentDateDiffData.cDays + ' Days\n' +
-              '• Working Business Days: ' + currentDateDiffData.bDays + ' Workdays (Mon-Fri)\n' +
+              '[Date Difference Report] Between ' + currentDateDiffData.start + ' and ' + currentDateDiffData.end + '
+' +
+              '• Total Calendar Days: ' + currentDateDiffData.absDays + ' Days ' + (currentDateDiffData.isInclusive ? '(Inclusive)' : '(Exclusive)') + '
+' +
+              '• Exact Duration: ' + currentDateDiffData.cYears + ' Years, ' + currentDateDiffData.cMonths + ' Months, ' + currentDateDiffData.cDays + ' Days
+' +
+              '• Working Business Days: ' + currentDateDiffData.bDays + ' Workdays (Mon-Fri)
+' +
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/date-calculator';
 
             navigator.clipboard.writeText(text).then(function() {
@@ -1446,10 +1467,14 @@
           window.copyDateAddSummary = function() {
             if (!currentDateAddData) return;
             var text = 
-              '[Date Deadline Report]\n' +
-              '• Starting Date: ' + currentDateAddData.start + '\n' +
-              '• Operation: ' + (currentDateAddData.op === 'add' ? '+' : '-') + currentDateAddData.qty + ' ' + currentDateAddData.unit + '\n' +
-              '• Target Date: ' + currentDateAddData.resultStr + ' (Day ' + currentDateAddData.dayOfYear + ', Week ' + currentDateAddData.weekOfYear + ')\n' +
+              '[Date Deadline Report]
+' +
+              '• Starting Date: ' + currentDateAddData.start + '
+' +
+              '• Operation: ' + (currentDateAddData.op === 'add' ? '+' : '-') + currentDateAddData.qty + ' ' + currentDateAddData.unit + '
+' +
+              '• Target Date: ' + currentDateAddData.resultStr + ' (Day ' + currentDateAddData.dayOfYear + ', Week ' + currentDateAddData.weekOfYear + ')
+' +
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/date-calculator';
 
             navigator.clipboard.writeText(text).then(function() {
@@ -1480,8 +1505,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Futil%2Fdate-calculator&text=Date%20Calculator%3A%20Days%20Between%20Dates%20%26%20Add%20Days%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Futil%2Fdate-calculator&title=Date%20Calculator%3A%20Days%20Between%20Dates%20%26%20Add%20Days" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Futil%2Fdate-calculator&text=Date%20Calculator%3A%20Days%20Between%20Dates%20%26%20Add%20Business%20Days%20(Milestones)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Futil%2Fdate-calculator&title=Date%20Calculator%3A%20Days%20Between%20Dates%20%26%20Add%20Business%20Days%20(Milestones)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           

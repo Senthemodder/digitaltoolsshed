@@ -1041,7 +1041,29 @@
           
 
           
-        ${commonStyle}
+        
+    <style>
+      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
+      .field-group { margin-bottom: 1.25rem; }
+      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
+      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
+      .btn-primary:hover { opacity: 0.9; }
+      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
+      .btn-sec:hover { background: var(--surface-alt); }
+      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
+      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
+      .result-val { font-family: var(--mono); font-size: 2.5rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
+      .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.5; }
+      .trap-card strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+      .faq-item { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden; }
+      .faq-item summary { padding: 0.85rem 1.15rem; font-weight: 600; cursor: pointer; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+      .faq-item summary::-webkit-details-marker { display: none; }
+      .faq-item summary::after { content: "+"; font-family: var(--mono); font-size: 1.2rem; }
+      .faq-item[open] summary::after { content: "−"; }
+      .faq-item div { padding: 0.85rem 1.15rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+    </style>
+  
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Age Calculator
@@ -1091,44 +1113,59 @@
             <div id="ageDerivationBox" style="display: grid; gap: 0.4rem; color: var(--text-muted); line-height: 1.5;"></div>
           </div>
 
-          <!-- 3 Real-World Pitfalls & Legal Gotchas -->
-          <div style="margin: 2rem 0; display: grid; gap: 1rem;">
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #ef4444; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 1: The Leap Day Baby Legal Age Paradox (Feb 29)</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                If you were born on February 29th (a Leap Year), when do you legally turn 18 or 21 in non-leap years? Statutory laws diverge globally. Under English common law (rooted in <em>21 Henry III</em>) and UK precedent, legal age is attained on <strong>March 1st</strong>. Conversely, several US state administrative codes and Taiwan civil law declare legal rights vest on <strong>February 28th</strong>.
-              </p>
+          <!-- 5 Critical Age Traps & Legal Gotchas -->
+          <div style="margin: 2rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">5 Critical Age Calculation Traps & Legal Gotchas</h2>
+            
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444;">1. The Leap Day Baby Legal Age Paradox (Feb 29)</strong>
+              If you were born on February 29th (a Leap Year), when do you legally turn 18 or 21 in non-leap years? Statutory laws diverge globally. Under English common law (rooted in <em>21 Henry III</em>) and UK precedent, legal age is attained on <strong>March 1st</strong>. Conversely, several US state administrative codes and Taiwan civil law declare legal rights vest on <strong>February 28th</strong>.
             </div>
 
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #eab308; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 2: East Asian Age Reckoning (Korean Age Abolition)</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                Traditionally in Korea, China, and Japan, babies were considered 1 year old on their day of birth, and everyone gained an additional year together on New Year's Day. Under this system, an infant born on December 31st would turn 2 years old on January 1st despite having lived for less than 24 hours. On June 28, 2023, South Korea officially abolished this legal standard, mandating international chronological age across all administrative contracts and civil law.
-              </p>
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b;">2. East Asian Traditional Age Reckoning (Korean Age Abolition)</strong>
+              Traditionally in Korea, China, and Japan, babies were considered 1 year old on their day of birth, and everyone gained an additional year together on New Year's Day. Under this system, an infant born on December 31st would turn 2 years old on January 1st despite having lived for less than 24 hours. On June 28, 2023, South Korea officially abolished this legal standard, mandating international chronological age across all administrative contracts and civil law.
             </div>
 
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #3b82f6; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 3: Chronological Age vs Biological Epigenetic Age</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                Chronological age is merely a measure of how many 365.2425-day astronomical orbits Earth has completed since your birth. In contrast, modern biomedical science evaluates <strong>Biological Age</strong> through epigenetic clocks (such as Steve Horvath's DNA methylation clock), telomere length attrition, and organ biomarkers. A 45-year-old marathon runner with optimal cardiovascular markers may register a biological age of 38, while chronic inflammation can elevate biological age far above calendar years.
-              </p>
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981;">3. Chronological Calendar Age vs. Epigenetic Biological Age</strong>
+              Chronological age is merely a measure of how many 365.2425-day astronomical orbits Earth has completed since your birth. In contrast, modern biomedical science evaluates <strong>Biological Age</strong> through epigenetic clocks (such as Steve Horvath's DNA methylation clock), telomere length attrition, and organ biomarkers. A 45-year-old marathon runner with optimal cardiovascular markers may register a biological age of 38, while chronic inflammation can elevate biological age far above calendar years.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6;">4. Statutory Retirement & Social Security "Day Before" Birth Rule</strong>
+              Under US Federal regulations (20 CFR § 404.102) and common law, a person legally attains a given age on the day <em>before</em> their calendar anniversary of birth. For example, an individual born on January 1st legally attains age 65 on December 31st of the preceding year. This statutory quirk allows retirees to qualify for Medicare or Social Security benefits a full month earlier than intuitive calendar counting suggests.
+            </div>
+
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6;">5. Pediatric Corrected Gestational Age Discrepancy</strong>
+              For preterm infants born before 37 completed weeks of gestation, tracking growth and neurological development strictly by chronological age misidentifies normal progress as developmental delay. Pediatricians apply Corrected Gestational Age: <code>Corrected Age = Chronological Age - (40 weeks - Gestational Age at Birth)</code>. A 6-month-old infant born 2 months premature has a developmental corrected age of 4 months.
             </div>
           </div>
 
-          <div class="ad-blend-box" style="margin: 2rem 0;">
-            <span class="ad-label">Sponsored Resource</span>
-            <div class="ad-unit-300x250">
-              <script type="text/javascript">
-                atOptions = {
-                  'key' : '335d807d460eaf2491fcca0f635474ce',
-                  'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
-                  'params' : {}
-                };
-              </script>
-              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-            </div>
+          <!-- Frequently Asked Questions Accordion -->
+          <div style="margin-top: 2.5rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details class="faq-item" open>
+              <summary>How is exact chronological age calculated across leap years and variable month lengths?</summary>
+              <div>Chronological age is calculated using calendar month and day borrowing. If the target day is smaller than the birth day, we borrow the exact number of days from the preceding month (28, 29, 30, or 31). If the target month is smaller than the birth month, we borrow 12 months from the year.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What happens if I was born on Leap Day (February 29)? When is my legal birthday?</summary>
+              <div>In non-leap years, legal maturity for leap day babies varies by jurisdiction. In the United Kingdom and common-law countries, statutory age increments on March 1st. In some US states (like California) and Taiwan, rights legally vest on February 28th.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What is the difference between chronological age and biological age?</summary>
+              <div>Chronological age measures the elapsed orbital cycles around the Sun since birth. Biological age reflects cellular senescence, DNA methylation (epigenetic clocks like Horvath's clock), telomere length, and cardiovascular health.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Why did South Korea abolish its traditional East Asian age reckoning system?</summary>
+              <div>Under traditional East Asian reckoning, a baby was considered 1 year old at birth and gained a year every January 1st (meaning a baby born on Dec 31 turned 2 the next day). South Korea officially abolished this in June 2023 to eliminate administrative and legal confusion.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How are planetary ages (Mars, Venus, Jupiter) calculated?</summary>
+              <div>Planetary age divides your total days alive by the orbital period of the planet. For example, a Mars year is 686.98 Earth days, so someone aged 30 on Earth is approximately 15.9 Mars years old.</div>
+            </details>
           </div>
         </div>
 
@@ -1156,29 +1193,20 @@
               { name: 'Rat 🐀', trait: 'Quick-witted & resourceful' },
               { name: 'Ox 🐂', trait: 'Diligent & dependable' },
               { name: 'Tiger 🐅', trait: 'Brave & confident' },
-              { name: 'Rabbit 🐇', trait: 'Quiet, elegant & kind' },
-              { name: 'Dragon 🐉', trait: 'Enthusiastic & bold' },
-              { name: 'Snake 🐍', trait: 'Wise & intuitive' },
-              { name: 'Horse 🐎', trait: 'Animated & energetic' },
-              { name: 'Goat 🐐', trait: 'Gentle & sympathetic' },
-              { name: 'Monkey 🐒', trait: 'Smart & curious' },
-              { name: 'Rooster 🐓', trait: 'Hardworking & observant' },
-              { name: 'Dog 🐕', trait: 'Honest & loyal' },
-              { name: 'Pig 🐖', trait: 'Compassionate & generous' }
+              { name: 'Rabbit 🐇', trait: 'Quiet & elegant' },
+              { name: 'Dragon 🐉', trait: 'Charismatic & strong' },
+              { name: 'Snake 🐍', trait: 'Enigmatic & intelligent' },
+              { name: 'Horse 🐎', trait: 'Energetic & independent' },
+              { name: 'Goat 🐐', trait: 'Gentle & calm' },
+              { name: 'Monkey 🐒', trait: 'Clever & curious' },
+              { name: 'Rooster 🐓', trait: 'Observant & hardworking' },
+              { name: 'Dog 🐕', trait: 'Loyal & honest' },
+              { name: 'Pig 🐖', trait: 'Generous & diligent' }
             ];
-            var idx = (year - 4) % 12;
-            if (idx < 0) idx += 12;
-            var animal = animals[idx];
-
-            var lastDigit = Math.abs(year) % 10;
-            var element = '';
-            if (lastDigit === 0 || lastDigit === 1) element = 'Metal';
-            else if (lastDigit === 2 || lastDigit === 3) element = 'Water';
-            else if (lastDigit === 4 || lastDigit === 5) element = 'Wood';
-            else if (lastDigit === 6 || lastDigit === 7) element = 'Fire';
-            else if (lastDigit === 8 || lastDigit === 9) element = 'Earth';
-
-            return { animal: animal.name, element: element, trait: animal.trait };
+            var animal = animals[(year - 4) % 12];
+            var elements = ['Wood 🌳', 'Wood 🌳', 'Fire 🔥', 'Fire 🔥', 'Earth 🏔️', 'Earth 🏔️', 'Metal ⚔️', 'Metal ⚔️', 'Water 🌊', 'Water 🌊'];
+            var element = elements[(year - 4) % 10];
+            return { animal: animal.name, trait: animal.trait, element: element };
           }
 
           function calcAge() {
@@ -1189,12 +1217,14 @@
             var dob = new Date(dobVal + 'T00:00:00');
             var at = new Date(atVal + 'T00:00:00');
 
+            if (isNaN(dob.getTime()) || isNaN(at.getTime())) return;
+
             document.getElementById('dobWeekdayLabel').textContent = weekdaysArr[dob.getDay()] + ', ' + dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             document.getElementById('targetWeekdayLabel').textContent = weekdaysArr[at.getDay()] + ', ' + at.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-            if (at < dob) {
-              document.getElementById('ageResults').innerHTML = '<div style="padding:1rem; background:#fee2e2; border:1px solid #ef4444; border-radius:4px; color:#b91c1c;">Target date cannot precede your date of birth! Please pick a date after ' + dobVal + '.</div>';
-              document.getElementById('ageDerivationBox').innerHTML = '<em>Awaiting valid forward chronological dates...</em>';
+            var totalMs = at.getTime() - dob.getTime();
+            if (totalMs < 0) {
+              document.getElementById('ageResults').innerHTML = '<div style="color:#ef4444; padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">Target date cannot precede birth date.</div>';
               return;
             }
 
@@ -1202,160 +1232,119 @@
             var months = at.getMonth() - dob.getMonth();
             var days = at.getDate() - dob.getDate();
 
-            var borrowedDays = 0;
+            var borrowedDays = false;
+            var borrowedMonths = false;
             var borrowedMonthDaysCount = 0;
+
             if (days < 0) {
               months--;
+              borrowedDays = true;
               var prevMonth = new Date(at.getFullYear(), at.getMonth(), 0);
               borrowedMonthDaysCount = prevMonth.getDate();
               days += borrowedMonthDaysCount;
-              borrowedDays = 1;
-            }
-            var borrowedMonths = 0;
-            if (months < 0) {
-              years--;
-              months += 12;
-              borrowedMonths = 1;
             }
 
-            var totalMs = at.getTime() - dob.getTime();
-            var totalDays = Math.floor(totalMs / (1000 * 60 * 60 * 24));
+            if (months < 0) {
+              years--;
+              borrowedMonths = true;
+              months += 12;
+            }
+
+            var totalDays = Math.floor(totalMs / 86400000);
+            var totalWeeks = Math.floor(totalDays / 7);
+            var remWeekDays = totalDays % 7;
             var totalHours = totalDays * 24;
             var totalMinutes = totalHours * 60;
             var totalSeconds = totalMinutes * 60;
-            var totalWeeks = Math.floor(totalDays / 7);
-            var remWeekDays = totalDays % 7;
             var decimalYears = (totalDays / 365.2425).toFixed(2);
 
-            // Weekday of birth
-            var bornWeekday = weekdaysArr[dob.getDay()];
+            var avgHeartRateBpm = 75;
+            var totalHeartbeats = Math.round(totalDays * 24 * 60 * avgHeartRateBpm);
+            var totalBreaths = Math.round(totalDays * 24 * 60 * 15);
+            var sleepYears = (years * 0.33).toFixed(1);
 
-            // Next birthday countdown
-            var nextBday = new Date(at.getFullYear(), dob.getMonth(), dob.getDate());
-            var isLeapBaby = (dob.getMonth() === 1 && dob.getDate() === 29);
-            var checkLeapYear = function(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); };
-
-            if (isLeapBaby && !checkLeapYear(nextBday.getFullYear())) {
-              nextBday = new Date(nextBday.getFullYear(), 2, 1); // March 1st
+            var nextBdayYear = at.getFullYear();
+            var nextBday = new Date(nextBdayYear, dob.getMonth(), dob.getDate());
+            if (dob.getMonth() === 1 && dob.getDate() === 29) {
+              var isLeap = (nextBdayYear % 4 === 0 && nextBdayYear % 100 !== 0) || (nextBdayYear % 400 === 0);
+              if (!isLeap) nextBday = new Date(nextBdayYear, 1, 28);
             }
             if (nextBday < at) {
-              var nextYr = at.getFullYear() + 1;
-              nextBday = new Date(nextYr, dob.getMonth(), dob.getDate());
-              if (isLeapBaby && !checkLeapYear(nextYr)) {
-                nextBday = new Date(nextYr, 2, 1);
+              nextBdayYear++;
+              nextBday = new Date(nextBdayYear, dob.getMonth(), dob.getDate());
+              if (dob.getMonth() === 1 && dob.getDate() === 29) {
+                var isLeap2 = (nextBdayYear % 4 === 0 && nextBdayYear % 100 !== 0) || (nextBdayYear % 400 === 0);
+                if (!isLeap2) nextBday = new Date(nextBdayYear, 1, 28);
               }
             }
+
             var msUntilBday = nextBday.getTime() - at.getTime();
-            var daysUntilBday = Math.ceil(msUntilBday / (1000 * 60 * 60 * 24));
-            var nextAge = (nextBday.getFullYear() - dob.getFullYear());
+            var daysUntilBday = Math.ceil(msUntilBday / 86400000);
+            var nextAge = years + 1;
             var nextBdayWeekday = weekdaysArr[nextBday.getDay()];
 
-            // Half-birthday calculation (6 months after birth month)
-            var halfBdayMonth = (dob.getMonth() + 6) % 12;
-            var halfBdayMonthName = new Date(2000, halfBdayMonth, 1).toLocaleDateString('en-US', { month: 'long' });
-
-            // Vitality Estimates
-            var totalHeartbeats = Math.round(totalDays * 103680); // 72 bpm avg
-            var totalBreaths = Math.round(totalDays * 23040); // 16 breaths/min
-            var sleepYears = (totalDays * (8 / 24) / 365.2425).toFixed(1);
-            var pctLifespan = Math.min(100, (totalDays / (73.4 * 365.2425)) * 100).toFixed(1);
-
-            // Zodiacs
             var wz = getWesternZodiac(dob.getMonth() + 1, dob.getDate());
             var cz = getChineseZodiac(dob.getFullYear());
+            var bornWeekday = weekdaysArr[dob.getDay()];
 
-            // Planetary Ages
             var mercuryAge = (totalDays / 87.97).toFixed(1);
             var venusAge = (totalDays / 224.7).toFixed(1);
             var marsAge = (totalDays / 686.98).toFixed(1);
             var jupiterAge = (totalDays / 4332.59).toFixed(2);
 
-            var container = document.getElementById('ageResults');
-            container.innerHTML = 
-              '<!-- Primary Hero Card -->' +
-              '<div style="padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
-                '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Exact Chronological Age</span>' +
-                  '<span style="font-size: 0.75rem; color: #10b981; font-weight: bold;">' + decimalYears + ' Solar Years</span>' +
-                '</div>' +
-                '<div style="font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">' + years + ' Years, ' + months + ' Months, ' + days + ' Days</div>' +
-                '<div style="font-size: 0.85rem; color: var(--fg);">' +
-                  'Born on a <strong>' + bornWeekday + '</strong>' + (isLeapBaby ? ' <span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:3px; font-size:0.75rem; font-weight:bold;">Leap Day Baby (Feb 29)</span>' : '') +
-                '</div>' +
+            var resContainer = document.getElementById('ageResults');
+            resContainer.innerHTML = 
+              '<div style="padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Exact Chronological Age</span>' +
+                '<div style="font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">' + years + ' Years, ' + months + ' Months, ' + days + ' Days</div>' +
+                '<div style="font-size: 0.85rem; color: var(--text-muted);">' + decimalYears + ' solar years &bull; Born on a ' + bornWeekday + '</div>' +
               '</div>' +
 
-              '<!-- Next Birthday Card -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">' +
-                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<div style="padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">' +
+                '<div>' +
                   '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Next Birthday Countdown</span>' +
-                  '<div style="font-size: 1.4rem; font-weight: bold; color: #eab308; margin: 0.2rem 0;">' + (daysUntilBday === 0 ? 'Today! 🎂' : daysUntilBday + ' Days Away') + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Turns ' + nextAge + ' on ' + nextBdayWeekday + ', ' + nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</div>' +
+                  '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">' + 
+                    (daysUntilBday === 0 ? 'Today! 🎂 Happy Birthday!' : daysUntilBday + ' Days to go') + 
+                  '</div>' +
                 '</div>' +
-                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Annual Half-Birthday</span>' +
-                  '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; margin: 0.2rem 0;">' + halfBdayMonthName + ' ' + dob.getDate() + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Exact 6-month halfway milestone mark</div>' +
+                '<div style="text-align: right;">' +
+                  '<div style="font-size: 0.85rem; color: var(--fg); font-weight: 600;">Turns ' + nextAge + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + nextBdayWeekday + ', ' + nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</div>' +
                 '</div>' +
               '</div>' +
 
-              '<!-- Lifetime Milestones Grid -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem;">' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 0.75rem;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
                   '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Days</span>' +
                   '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalDays.toLocaleString() + '</div>' +
                 '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Weeks & Days</span>' +
-                  '<div style="font-size: 1.05rem; font-weight: bold; color: var(--fg);">' + totalWeeks.toLocaleString() + 'w ' + remWeekDays + 'd</div>' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Weeks</span>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalWeeks.toLocaleString() + ' w, ' + remWeekDays + ' d</div>' +
                 '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
                   '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Hours</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalHours.toLocaleString() + 'h</div>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalHours.toLocaleString() + '</div>' +
                 '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
                   '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Minutes</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalMinutes.toLocaleString() + 'm</div>' +
-                '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Seconds</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalSeconds.toLocaleString() + 's</div>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalMinutes.toLocaleString() + '</div>' +
                 '</div>' +
               '</div>' +
 
-              '<!-- Biological & Physiological Vitality Stats -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">' +
+              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">' +
                 '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Estimated Heartbeats</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #ef4444; margin: 0.15rem 0;">' + totalHeartbeats.toLocaleString() + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 72 bpm resting pulse</div>' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Western Zodiac</span>' +
+                  '<div style="font-size: 1.1rem; font-weight: bold; color: #3b82f6;">' + wz.sign + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + wz.element + ' &bull; ' + wz.dates + '</div>' +
                 '</div>' +
                 '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Breaths Inhaled</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #06b6d4; margin: 0.15rem 0;">' + totalBreaths.toLocaleString() + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 16 breaths/minute</div>' +
-                '</div>' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Cumulative Sleep</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #8b5cf6; margin: 0.15rem 0;">' + sleepYears + ' Years</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">~8 hours nightly restorative sleep</div>' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Chinese Zodiac</span>' +
+                  '<div style="font-size: 1.1rem; font-weight: bold; color: #f59e0b;">' + cz.animal + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + cz.element + ' &bull; ' + cz.trait + '</div>' +
                 '</div>' +
               '</div>' +
 
-              '<!-- Cosmic & Astrological Profile -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Western Zodiac Sign</span>' +
-                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + wz.sign + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + wz.element + ' • ' + wz.dates + '</div>' +
-                '</div>' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Chinese Zodiac</span>' +
-                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + cz.element + ' ' + cz.animal + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + cz.trait + '</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Planetary Ages -->' +
               '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
                 '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">Planetary Orbits (Your Age on Other Worlds)</span>' +
                 '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; text-align: center;">' +
@@ -1424,17 +1413,28 @@
           window.copyAgeReport = function() {
             if (!currentAgeData) return;
             var text = 
-              '[Exact Chronological Age & Lifetime Milestone Report]\n' +
-              '• Date of Birth: ' + currentAgeData.dob + ' (' + currentAgeData.bornWeekday + ')\n' +
-              '• As of Date: ' + currentAgeData.target + '\n' +
-              '• Exact Age: ' + currentAgeData.years + ' Years, ' + currentAgeData.months + ' Months, ' + currentAgeData.days + ' Days (' + currentAgeData.decimalYears + ' solar years)\n' +
-              '• Lifetime Traversed: ' + currentAgeData.totalDays.toLocaleString() + ' Days (' + currentAgeData.totalWeeks.toLocaleString() + ' weeks, ' + currentAgeData.remWeekDays + ' days)\n' +
-              '• Total Hours Lived: ' + currentAgeData.totalHours.toLocaleString() + ' Hours (' + currentAgeData.totalMinutes.toLocaleString() + ' minutes)\n' +
-              '• Estimated Heartbeats: ~' + currentAgeData.totalHeartbeats.toLocaleString() + ' beats\n' +
-              '• Restorative Sleep: ~' + currentAgeData.sleepYears + ' cumulative years\n' +
-              '• Western Zodiac: ' + currentAgeData.zodiacWestern + '\n' +
-              '• Chinese Zodiac: ' + currentAgeData.zodiacChinese + '\n' +
-              '• Next Birthday: ' + (currentAgeData.daysUntilBday === 0 ? 'Today! 🎂' : currentAgeData.daysUntilBday + ' days away (Turns ' + currentAgeData.nextAge + ' on ' + currentAgeData.nextBdayWeekday + ', ' + currentAgeData.nextBdayDateStr + ')') + '\n' +
+              '[Exact Chronological Age & Lifetime Milestone Report]
+' +
+              '• Date of Birth: ' + currentAgeData.dob + ' (' + currentAgeData.bornWeekday + ')
+' +
+              '• As of Date: ' + currentAgeData.target + '
+' +
+              '• Exact Age: ' + currentAgeData.years + ' Years, ' + currentAgeData.months + ' Months, ' + currentAgeData.days + ' Days (' + currentAgeData.decimalYears + ' solar years)
+' +
+              '• Lifetime Traversed: ' + currentAgeData.totalDays.toLocaleString() + ' Days (' + currentAgeData.totalWeeks.toLocaleString() + ' weeks, ' + currentAgeData.remWeekDays + ' days)
+' +
+              '• Total Hours Lived: ' + currentAgeData.totalHours.toLocaleString() + ' Hours (' + currentAgeData.totalMinutes.toLocaleString() + ' minutes)
+' +
+              '• Estimated Heartbeats: ~' + currentAgeData.totalHeartbeats.toLocaleString() + ' beats
+' +
+              '• Restorative Sleep: ~' + currentAgeData.sleepYears + ' cumulative years
+' +
+              '• Western Zodiac: ' + currentAgeData.zodiacWestern + '
+' +
+              '• Chinese Zodiac: ' + currentAgeData.zodiacChinese + '
+' +
+              '• Next Birthday: ' + (currentAgeData.daysUntilBday === 0 ? 'Today! 🎂' : currentAgeData.daysUntilBday + ' days away (Turns ' + currentAgeData.nextAge + ' on ' + currentAgeData.nextBdayWeekday + ', ' + currentAgeData.nextBdayDateStr + ')') + '
+' +
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/age-calculator';
 
             navigator.clipboard.writeText(text).then(function() {
