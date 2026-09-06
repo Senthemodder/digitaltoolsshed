@@ -188,6 +188,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/api-520-rupture-disk-sizing-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/api-521-flare-header-backpressure-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -207,6 +213,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/api-610-pump-npsh-margin-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/api-618-reciprocating-compressor-rod-load-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1472,6 +1484,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/joukowsky-water-hammer-surge-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/joules-to-btu</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -2685,6 +2703,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/steam-table-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/steam-turbine-expansion-efficiency-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

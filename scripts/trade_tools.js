@@ -128812,6 +128812,3371 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
 
 
 
-console.log('  ✓ Built Trade & Construction Suite (195 calculators in /calc/)');
+  // ==========================================
+  // Tool BL1: API 520 / ASME UG-127 Rupture Disk Sizing & Burst Tolerance Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-520-rupture-disk-sizing-calculator';
+    const title = 'API 520 / ASME UG-127 Rupture Disk Sizing & Burst Tolerance Calculator';
+    const metaDescription = 'Calculate rupture disk vent area, vapor and liquid flow capacity, burst pressure tolerance (MDR), Kr flow resistance factor, combination capacity factor (Fv = 0.90), and operating ratio per API RP 520 Part I/II, ASME Section VIII UG-127, and ISO 4126-2.';
+
+    const faq = [
+      {
+        q: 'What is the difference between reverse-buckling and forward-acting rupture disks?',
+        a: 'Forward-acting (tension-loaded) rupture disks have the process pressure applied to the concave side, loading the metal foil in tension until it stretches and bursts. Because metal under tension is prone to cyclic fatigue and stress creep, forward-acting disks are limited to maximum operating pressures of 70% to 80% of marked burst pressure. Reverse-buckling (compression-loaded) disks have process pressure on the convex side, loading the dome in compression. Reverse-buckling disks resist cyclic fatigue, do not require vacuum supports, and can operate safely at 90% to 95% of marked burst pressure.'
+      },
+      {
+        q: 'What is the ASME Section VIII UG-127 default combination factor (Fv = 0.90)?',
+        a: 'When a rupture disk is installed upstream of a pressure relief valve (PRV) to protect the valve from corrosive process fluids or prevent fugitive emissions, ASME Code Paragraph UG-127 mandates that a derating factor Fv = 0.90 must be applied to the certified relief valve capacity, unless the specific disk/PRV combination has been flow-tested and certified by the National Board with an ASME combination capacity factor.'
+      },
+      {
+        q: 'Why is an interspace tell-tale pressure gauge or sensor mandatory between a disk and PRV?',
+        a: 'Per ASME UG-127(a)(3)(b), the cavity between a rupture disk and the downstream pressure relief valve must be equipped with a pressure gauge, try cock, excess flow valve, or electronic pressure transmitter. If a pinhole leak or corrosion develops in the rupture disk, process gas bleeds into the interspace. Any backpressure accumulated in this cavity adds pound-for-pound to the disk burst rating (e.g. 30 psig interspace pressure on a 100 psig disk requires 130 psig process pressure to burst), creating an illegal and catastrophic overpressure condition.'
+      },
+      {
+        q: 'How does temperature affect rupture disk marked burst pressure?',
+        a: 'Rupture disk foil materials (such as stainless steel 316, Inconel 600, Monel, or Hastelloy C-276) lose tensile strength as temperature rises. A 316 stainless steel disk rated for 100 psig at 72 deg F may burst at only 88 psig at 350 deg F. Rupture disks must always be specified and ordered with their burst pressure referenced to the coincident operating relief temperature at the disk location, rather than ambient room temperature.'
+      },
+      {
+        q: 'What is the Kr flow resistance factor in API 520 sizing?',
+        a: 'The Kr (velocity head loss coefficient) represents the hydraulic resistance of the ruptured disk device when fully open. Per API 520 and ISO 4126-2, Kr is used in the resistance-to-flow method where total relief piping head loss is evaluated: K_total = K_inlet + Kr + K_exit. Typical certified Kr values range from 0.25 to 0.45 for cross-scored reverse buckling disks and 1.0 to 1.5 for non-fragmenting forward acting disks.'
+      }
+    ];
+
+    const content = `
+<style>
+.rd-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.rd-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.rd-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.rd-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .rd-grid-2, .rd-grid-3, .rd-grid-4 { grid-template-columns: 1fr; }
+}
+.rd-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.rd-input, .rd-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.rd-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.rd-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.rd-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.rd-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.rd-btn:hover { opacity: 0.9; }
+.rd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.rd-table th, .rd-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.rd-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="rd-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Rupture Disk Specifications & Process Operating Conditions</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">API RP 520 Part I & ASME Section VIII Div 1 Paragraph UG-127 Sizing Architecture</div>
+    </div>
+    <div>
+      <label class="rd-label">Rupture Disk Architecture Preset</label>
+      <select id="rd_preset" class="rd-select" style="min-width: 280px;">
+        <option value="reverse_scored">Reverse Buckling Scored (95% Oper Ratio, Kr=0.35, Non-Frag)</option>
+        <option value="forward_scored">Forward Tension Scored (85% Oper Ratio, Kr=0.75, Non-Frag)</option>
+        <option value="forward_composite">Forward Composite / Flat (70% Oper Ratio, Kr=1.50, Needs Vac Support)</option>
+        <option value="graphite">Monolithic Graphite Disk (80% Oper Ratio, Kr=1.20, Corrosive Service)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="rd-grid-3">
+    <div>
+      <label class="rd-label">Vessel Design Set Pressure (P_set) <span>psig</span></label>
+      <input type="number" id="rd_pset" class="rd-input" value="150" step="5" min="5" max="5000">
+    </div>
+    <div>
+      <label class="rd-label">Normal Maximum Operating Pressure <span>psig</span></label>
+      <input type="number" id="rd_poper" class="rd-input" value="130" step="5" min="1" max="4900">
+    </div>
+    <div>
+      <label class="rd-label">Relief Fluid Phase</label>
+      <select id="rd_phase" class="rd-select">
+        <option value="vapor">Vapor / Gas (Critical Choked Flow)</option>
+        <option value="liquid">Incompressible Liquid (Hydrostatic Relief)</option>
+        <option value="steam">ASME Saturated Steam</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="rd-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="rd-label">Required Relief Flow (W) <span>lb / hr</span></label>
+      <input type="number" id="rd_w" class="rd-input" value="35000" step="1000" min="100" max="1000000">
+    </div>
+    <div>
+      <label class="rd-label">Relief Temperature (T) <span>&deg;F</span></label>
+      <input type="number" id="rd_temp" class="rd-input" value="250" step="10" min="-100" max="1000">
+    </div>
+    <div>
+      <label class="rd-label">Molecular Weight (MW) <span>g / mol</span></label>
+      <input type="number" id="rd_mw" class="rd-input" value="44.0" step="0.5" min="2.0" max="250.0">
+    </div>
+    <div>
+      <label class="rd-label">Specific Heat Ratio (k = Cp/Cv)</label>
+      <input type="number" id="rd_k" class="rd-input" value="1.18" step="0.01" min="1.05" max="1.67">
+    </div>
+  </div>
+
+  <div class="rd-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="rd-label">Rupture Disk Style</label>
+      <select id="rd_style" class="rd-select">
+        <option value="reverse">Reverse Buckling (Non-Frag)</option>
+        <option value="forward">Forward Acting Prebulged</option>
+        <option value="graphite">Solid Graphite</option>
+      </select>
+    </div>
+    <div>
+      <label class="rd-label">Manufacturing Tolerance (MDR)</label>
+      <select id="rd_tol" class="rd-select">
+        <option value="0.05">&plusmn; 5% (Precision Scored)</option>
+        <option value="0.10">&plusmn; 10% (Standard Commercial)</option>
+        <option value="0.02">&plusmn; 2% (Ultra-Tight Spec)</option>
+      </select>
+    </div>
+    <div>
+      <label class="rd-label">Disk Resistance Factor (K_r)</label>
+      <input type="number" id="rd_kr" class="rd-input" value="0.35" step="0.05" min="0.1" max="3.0">
+    </div>
+    <div>
+      <label class="rd-label">Upstream of PRV Installation?</label>
+      <select id="rd_prv_combo" class="rd-select">
+        <option value="yes">Yes (Apply Fv = 0.90 Derate)</option>
+        <option value="no">No (Stand-Alone Sole Relief)</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="rd-box">
+  <h3 style="margin-top: 0;">Rupture Disk Sizing & Burst Tolerance Diagnostics</h3>
+  <div class="rd-grid-4">
+    <div class="rd-kpi">
+      <div class="rd-kpi-lbl">Marked Burst Pressure (P_b)</div>
+      <div class="rd-kpi-val" id="res_rd_pb">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_rd_tol_span">-- psig burst band</div>
+    </div>
+    <div class="rd-kpi">
+      <div class="rd-kpi-lbl">Current Operating Ratio</div>
+      <div class="rd-kpi-val" id="res_rd_oper_ratio">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_rd_oper_limit">-- max allowable</div>
+    </div>
+    <div class="rd-kpi">
+      <div class="rd-kpi-lbl">Operating Ratio Status</div>
+      <div class="rd-kpi-val" id="res_rd_ratio_status" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_rd_fatigue_risk">-- fatigue risk</div>
+    </div>
+    <div class="rd-kpi">
+      <div class="rd-kpi-lbl">Minimum Vent Area (A_req)</div>
+      <div class="rd-kpi-val" id="res_rd_area">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_rd_nps_req">-- req bore</div>
+    </div>
+  </div>
+
+  <div class="rd-grid-3" style="margin-top: 1rem;">
+    <div class="rd-kpi">
+      <div class="rd-kpi-lbl">Recommended Nominal Size</div>
+      <div class="rd-kpi-val" id="res_rd_rec_nps" style="color: #10b981;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Standard ANSI flange bore</div>
+    </div>
+    <div class="rd-kpi">
+      <div class="rd-kpi-lbl">Relieving Pressure (P1)</div>
+      <div class="rd-kpi-val" id="res_rd_p1">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">psig at 10% overpressure</div>
+    </div>
+    <div class="rd-kpi">
+      <div class="rd-kpi-lbl">Combination Derate (F_v)</div>
+      <div class="rd-kpi-val" id="res_rd_fv">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">ASME UG-127 PRV credit</div>
+    </div>
+  </div>
+</div>
+
+<div class="rd-box">
+  <h3 style="margin-top: 0;">Interactive Rupture Disk Burst Tolerance & Operating Window Profile</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="rd_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">Standard Rupture Disk Nominal Sizing Comparison</h4>
+  <table class="rd-table">
+    <thead>
+      <tr>
+        <th>Nominal Size (NPS)</th>
+        <th>Actual Bore (in)</th>
+        <th>Vent Area (in&sup2;)</th>
+        <th>Vapor Relief Capacity</th>
+        <th>ASME Sizing Margin</th>
+      </tr>
+    </thead>
+    <tbody id="rd_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_rd_copy" class="rd-btn">
+      <span>📋 Copy Full Rupture Disk Sizing Report</span>
+    </button>
+    <div id="rd_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="rd-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Code Derivations</h3>
+  
+  <p>Rupture disk sizing is governed by API RP 520 Part I and ASME Boiler and Pressure Vessel Code Section VIII Division 1 Paragraph UG-127. Rupture disks are differential pressure devices that activate without mechanical moving parts, opening fully in less than 2 milliseconds.</p>
+
+  <div class="formula-box">
+1. Marked Burst Pressure & Manufacturing Design Range (MDR):
+   P_burst = P_set
+   P_burst_max = P_burst * ( 1.0 + Tol_fraction )
+   P_burst_min = P_burst * ( 1.0 - Tol_fraction )
+
+2. Operating Ratio & Cyclic Fatigue Boundary:
+   Ratio_actual = ( P_operating / P_burst ) * 100%
+   Operating Limits:
+     Reverse Buckling: Ratio <= 90% to 95%
+     Forward Prebulged: Ratio <= 70% to 80%
+     Solid Graphite:   Ratio <= 80%
+
+3. Relieving Pressure P1 (10% Overpressure):
+   P1_psig = 1.10 * P_set
+   P1_psia = P1_psig + 14.7
+
+4. Vapor Critical Choked Flow Sizing (ASME Kd Method):
+   A_req = W / [ C * Kd * Fv * P1_psia * sqrt( MW / (T_R * Z) ) ]
+   Where:
+     W   = Required mass flow (lb/hr)
+     C   = Gas expansion coefficient = 520 * sqrt[ k * (2/(k+1))^((k+1)/(k-1)) ]
+     Kd  = Discharge coefficient (0.62 per ASME UG-127)
+     Fv  = Combination capacity factor (0.90 with PRV, 1.00 sole disk)
+     T_R = Relieving temperature in Rankine (deg F + 459.67)
+
+5. Liquid Sizing Equation:
+   A_req = Q_gpm / [ 38.0 * Kd * Fv * sqrt( Delta_P / SG ) ]
+  </div>
+
+  <p>When installing a rupture disk upstream of a relief valve, an unmonitored cavity between the disk and valve seat is illegal under ASME UG-127. Any fugitive pressure buildup in the cavity directly elevates the burst pressure of the disk.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #ef4444;">
+  <h4 style="color: #ef4444;">1. Unmonitored Interspace Cavity Elevating Burst Pressure</h4>
+  <p>If corrosive process vapors develop a micro-pinhole in the rupture disk, gas leaks into the piping spool between the disk and the downstream pressure relief valve. If the spool is not equipped with an active pressure gauge, burst sensor, or excess flow valve per ASME UG-127, pressure builds up to 60 psig. The rupture disk now requires its marked burst pressure PLUS 60 psig to rupture, defeating the emergency relief system and causing catastrophic reactor rupture.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #f59e0b;">
+  <h4 style="color: #f59e0b;">2. Exceeding Operating Ratio on Forward Tension Disks</h4>
+  <p>Forward-acting prebulged metal disks rely on tensile hoop stress to burst. When operated above 70% to 80% of marked burst pressure, thermal expansion and pressure cycling cause ongoing metal plastic deformation (creep). The metal foil thins progressively until the disk ruptures unexpectedly during routine operation, causing unbudgeted emergency plant shutdowns and toxic chemical releases.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #10b981;">
+  <h4 style="color: #10b981;">3. Vacuum Collapse on Forward Disks Without Vacuum Supports</h4>
+  <p>Forward-acting disks installed on vessels subject to steam-out or vacuum service must be equipped with matched internal vacuum supports. Without a support, external atmospheric pressure (14.7 psi) forces the convex dome inward in reverse compression. The foil distorts, wrinkles, and ruptures at random, uncalibrated positive pressures.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #3b82f6;">
+  <h4 style="color: #3b82f6;">4. Fragmentation Petals Jamming Downstream PRV Orifice</h4>
+  <p>Standard non-scored forward-acting metal disks fragment into jagged metal petals upon bursting. If installed directly upstream of a pressure relief valve, metal fragments fly into the valve inlet nozzle, wedging between the valve disc and seat. The relief valve is jammed permanently open or severely choked, preventing reclosure and spewing hazardous contents into the atmosphere.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+  <h4 style="color: #8b5cf6;">5. Omitting Temperature Derating on Marked Burst Pressure</h4>
+  <p>Metal tensile strength drops significantly with temperature. A rupture disk ordered with a marked burst of 150 psig at 70&deg;F will burst at approximately 125 psig if operating at 300&deg;F. Ordering rupture disks without specifying the exact coincident relieving temperature results in disks bursting prematurely during hot summer runs or high-temperature process upsets.</p>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'reverse_scored':    { style: 'reverse', tol: '0.05', kr: 0.35, oper_max: 95 },
+    'forward_scored':    { style: 'forward', tol: '0.05', kr: 0.75, oper_max: 85 },
+    'forward_composite': { style: 'forward', tol: '0.10', kr: 1.50, oper_max: 70 },
+    'graphite':          { style: 'graphite', tol: '0.05', kr: 1.20, oper_max: 80 }
+  };
+
+  const NPS_SIZES = [
+    { nps: '1"', dia: 1.049, area: 0.864 },
+    { nps: '1.5"', dia: 1.610, area: 2.036 },
+    { nps: '2"', dia: 2.067, area: 3.355 },
+    { nps: '3"', dia: 3.068, area: 7.393 },
+    { nps: '4"', dia: 4.026, area: 12.73 },
+    { nps: '6"', dia: 6.065, area: 28.89 },
+    { nps: '8"', dia: 7.981, area: 50.03 },
+    { nps: '10"', dia: 10.02, area: 78.85 }
+  ];
+
+  function drawRdCanvas(pSet, pOper, pMin, pMax, operRatio, maxRatio) {
+    const canvas = document.getElementById('rd_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // --- Left Side: Pressure Spectrum & Tolerance Band ---
+    ctx.save();
+    ctx.translate(40, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Rupture Disk Burst Tolerance Band & Margins', 10, 0);
+
+    // Vertical Gauge Bar
+    const barX = 80;
+    const barW = 35;
+    const barH = 190;
+    const maxP = pSet * 1.30;
+
+    function pToY(p) {
+      return 20 + barH - (p / maxP) * barH;
+    }
+
+    // Base bar background
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(barX, 20, barW, barH);
+
+    // Safe operating zone (Green)
+    const ySafeMax = pToY(pSet * (maxRatio / 100));
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+    ctx.fillRect(barX, ySafeMax, barW, (20 + barH) - ySafeMax);
+
+    // Overpressure margin (Amber)
+    const ySet = pToY(pSet);
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+    ctx.fillRect(barX, ySet, barW, ySafeMax - ySet);
+
+    // Burst Tolerance Band (Red hatched)
+    const yMin = pToY(pMin);
+    const yMax = pToY(pMax);
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+    ctx.fillRect(barX, yMax, barW, yMin - yMax);
+
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(barX, 20, barW, barH);
+
+    // Level lines & labels
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('P_burst Max: ' + pMax.toFixed(1) + ' psi', barX + 45, yMax + 4);
+    ctx.fillText('P_set (Nominal): ' + pSet.toFixed(1) + ' psi', barX + 45, ySet + 4);
+    ctx.fillText('P_burst Min: ' + pMin.toFixed(1) + ' psi', barX + 45, yMin + 4);
+
+    // Current Operating Pressure Marker
+    const yOper = pToY(pOper);
+    const isRatioSafe = operRatio <= maxRatio;
+    ctx.strokeStyle = isRatioSafe ? '#38bdf8' : '#ef4444';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(barX - 25, yOper);
+    ctx.lineTo(barX + barW + 10, yOper);
+    ctx.stroke();
+
+    ctx.fillStyle = isRatioSafe ? '#38bdf8' : '#ef4444';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('Oper: ' + pOper.toFixed(1) + ' psi', barX - 105, yOper + 4);
+
+    ctx.restore();
+
+    // --- Right Side: Rupture Disk Mechanical Dome Diagram ---
+    ctx.save();
+    ctx.translate(360, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Rupture Disk Dome Mechanics & Holder Assembly', 20, 0);
+
+    // Pipe flanges (Top and Bottom)
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 3;
+    // Top Pipe
+    ctx.strokeRect(60, 30, 180, 20);
+    // Bottom Pipe
+    ctx.strokeRect(60, 170, 180, 20);
+
+    // Disk Holder Insert
+    ctx.fillStyle = 'rgba(51, 65, 85, 0.8)';
+    ctx.fillRect(80, 50, 140, 120);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(80, 50, 140, 120);
+
+    // Spherical Crown Rupture Dome (Convex upwards for reverse buckling)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(150, 140, 50, Math.PI * 1.25, Math.PI * 1.75, false);
+    ctx.stroke();
+
+    // Process Pressure Arrows from bottom
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
+    [120, 150, 180].forEach(ax => {
+      ctx.beginPath();
+      ctx.moveTo(ax, 195);
+      ctx.lineTo(ax, 155);
+      ctx.lineTo(ax - 3, 162);
+      ctx.moveTo(ax, 155);
+      ctx.lineTo(ax + 3, 162);
+      ctx.stroke();
+    });
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Process Pressure Convex Loading', 80, 215);
+
+    // Callout box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(50, 235, 200, 35);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(50, 235, 200, 35);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Operating Ratio: ' + operRatio.toFixed(1) + '% (Limit: ' + maxRatio + '%)', 58, 249);
+    ctx.fillStyle = isRatioSafe ? '#10b981' : '#ef4444';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(isRatioSafe ? '✓ Safe Fatigue Buffer' : '⚠ EXCEEDS OPERATING LIMIT', 58, 262);
+
+    ctx.restore();
+  }
+
+  function calcRd() {
+    const Pset = Math.max(1, parseFloat(document.getElementById('rd_pset').value) || 150);
+    const Poper = Math.max(0.5, parseFloat(document.getElementById('rd_poper').value) || 130);
+    const phase = document.getElementById('rd_phase').value;
+    const W_lb_hr = Math.max(10, parseFloat(document.getElementById('rd_w').value) || 35000);
+    const Temp_F = parseFloat(document.getElementById('rd_temp').value) || 250;
+    const Temp_R = Temp_F + 459.67;
+    const MW = Math.max(2, parseFloat(document.getElementById('rd_mw').value) || 44);
+    const k = Math.max(1.05, parseFloat(document.getElementById('rd_k').value) || 1.18);
+    const style = document.getElementById('rd_style').value;
+    const tol = parseFloat(document.getElementById('rd_tol').value) || 0.05;
+    const Kr = Math.max(0.1, parseFloat(document.getElementById('rd_kr').value) || 0.35);
+    const isCombo = document.getElementById('rd_prv_combo').value === 'yes';
+
+    // Marked burst pressure
+    const Pb = Pset;
+    const Pmin = Pb * (1.0 - tol);
+    const Pmax = Pb * (1.0 + tol);
+
+    // Maximum recommended operating ratio:
+    let maxOperRatio = 90;
+    if (style === 'reverse') maxOperRatio = 95;
+    else if (style === 'forward') maxOperRatio = 70;
+    else if (style === 'graphite') maxOperRatio = 80;
+
+    const actualOperRatio = (Poper / Pb) * 100.0;
+    const isOperSafe = actualOperRatio <= maxOperRatio;
+
+    // Relieving pressure P1 at 10% overpressure (psia):
+    const P1_psig = Pset * 1.10;
+    const P1_psia = P1_psig + 14.696;
+
+    // Combination factor:
+    const Fv = isCombo ? 0.90 : 1.00;
+    const Kd = 0.62; // standard ASME coefficient of discharge
+
+    // Gas expansion factor C:
+    const C_gas = 520.0 * Math.sqrt(k * Math.pow(2.0 / (k + 1.0), (k + 1.0) / (k - 1.0)));
+
+    // Required Vent Area (A_req in sq inches):
+    let A_req = 0;
+    if (phase === 'vapor') {
+      const Z = 0.95;
+      A_req = W_lb_hr / (C_gas * Kd * Fv * P1_psia * Math.sqrt(MW / (Temp_R * Z)));
+    } else if (phase === 'liquid') {
+      // Liquid GPM from W: assume SG ~ 0.85
+      const SG = 0.85;
+      const Q_gpm = W_lb_hr / (500.0 * SG);
+      const deltaP = P1_psig;
+      A_req = Q_gpm / (38.0 * Kd * Fv * Math.sqrt(Math.max(1, deltaP) / SG));
+    } else {
+      // Saturated Steam
+      A_req = W_lb_hr / (51.5 * P1_psia * Kd * Fv);
+    }
+
+    // Recommended NPS:
+    let recNps = '10"';
+    for (let i = 0; i < NPS_SIZES.length; i++) {
+      if (NPS_SIZES[i].area >= A_req) {
+        recNps = NPS_SIZES[i].nps;
+        break;
+      }
+    }
+
+    // Update DOM KPIs
+    document.getElementById('res_rd_pb').textContent = Pb.toFixed(1) + ' psig';
+    document.getElementById('res_rd_tol_span').textContent = Pmin.toFixed(1) + ' – ' + Pmax.toFixed(1) + ' psig (±' + (tol * 100).toFixed(0) + '%)';
+    
+    document.getElementById('res_rd_oper_ratio').textContent = actualOperRatio.toFixed(1) + '%';
+    document.getElementById('res_rd_oper_limit').textContent = maxOperRatio + '% maximum limit';
+
+    const elRatioStatus = document.getElementById('res_rd_ratio_status');
+    const elFatigueRisk = document.getElementById('res_rd_fatigue_risk');
+    if (isOperSafe) {
+      elRatioStatus.textContent = 'SAFE OPERATING';
+      elRatioStatus.style.color = '#10b981';
+      elFatigueRisk.textContent = 'Ample cyclic fatigue buffer';
+    } else {
+      elRatioStatus.textContent = 'FATIGUE OVERLOAD';
+      elRatioStatus.style.color = '#ef4444';
+      elFatigueRisk.textContent = 'Risk of premature foil rupture!';
+    }
+
+    document.getElementById('res_rd_area').textContent = A_req.toFixed(3) + ' in²';
+    document.getElementById('res_rd_nps_req').textContent = Math.sqrt((A_req * 4) / Math.PI).toFixed(2) + ' in min bore';
+
+    document.getElementById('res_rd_rec_nps').textContent = recNps + ' Flange';
+    document.getElementById('res_rd_p1').textContent = P1_psig.toFixed(1) + ' psig (' + P1_psia.toFixed(1) + ' psia)';
+    document.getElementById('res_rd_fv').textContent = Fv.toFixed(2) + ' (ASME UG-127)';
+
+    // Status badge
+    const elBadge = document.getElementById('rd_status_badge');
+    if (!isOperSafe) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; CRITICAL: Operating pressure (' + actualOperRatio.toFixed(1) + '%) exceeds ' + maxOperRatio + '% limit for ' + style + ' disk. Premature burst likely!</span>';
+    } else if (A_req > 25.0) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; LARGE RELIEF: Vent area > 25 in². Requires 6"+ heavy piping header.</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; OPTIMAL: Full API 520 & ASME UG-127 rupture disk sizing criteria satisfied.</span>';
+    }
+
+    // Populate Table
+    let trows = '';
+    NPS_SIZES.forEach(s => {
+      const capRatio = s.area / A_req;
+      const capLbHr = W_lb_hr * capRatio;
+      const isAdequate = s.area >= A_req;
+      const mColor = isAdequate ? 'color:#10b981;' : 'color:#ef4444;';
+      trows += '<tr>' +
+        '<td><strong>' + s.nps + '</strong></td>' +
+        '<td>' + s.dia.toFixed(3) + ' in</td>' +
+        '<td style="font-family:var(--mono);">' + s.area.toFixed(3) + ' in²</td>' +
+        '<td style="font-family:var(--mono);">' + Math.round(capLbHr).toLocaleString() + ' lb/hr</td>' +
+        '<td style="font-weight:bold; ' + mColor + '">' + (isAdequate ? '✓ ' + (capRatio * 100).toFixed(0) + '% (PASS)' : '⚠ Undersized') + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('rd_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawRdCanvas(Pset, Poper, Pmin, Pmax, actualOperRatio, maxOperRatio);
+  }
+
+  const elPreset = document.getElementById('rd_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('rd_style').value = p.style;
+        document.getElementById('rd_tol').value = p.tol;
+        document.getElementById('rd_kr').value = p.kr;
+        calcRd();
+      }
+    });
+  }
+
+  const inputs = [
+    'rd_pset', 'rd_poper', 'rd_phase', 'rd_w', 'rd_temp',
+    'rd_mw', 'rd_k', 'rd_style', 'rd_tol', 'rd_kr', 'rd_prv_combo'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcRd();
+      });
+      el.addEventListener('change', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcRd();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_rd_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const styleSelect = document.getElementById('rd_style');
+      const txt = [
+        '=======================================================',
+        'API 520 / ASME UG-127 RUPTURE DISK SIZING REPORT',
+        'Standards: API RP 520 Part I/II, ASME BPVC VIII-1 UG-127',
+        '=======================================================',
+        'Vessel Set Pressure (P_set):  ' + document.getElementById('rd_pset').value + ' psig',
+        'Normal Operating Pressure:    ' + document.getElementById('rd_poper').value + ' psig',
+        'Rupture Disk Style:           ' + styleSelect.options[styleSelect.selectedIndex].text,
+        'Relief Mass Flow (W):         ' + document.getElementById('rd_w').value + ' lb/hr',
+        'Relief Temperature:           ' + document.getElementById('rd_temp').value + ' deg F',
+        '-------------------------------------------------------',
+        'CALCULATED RUPTURE DISK METRICS:',
+        'Marked Burst Pressure:        ' + document.getElementById('res_rd_pb').textContent + ' [' + document.getElementById('res_rd_tol_span').textContent + ']',
+        'Current Operating Ratio:      ' + document.getElementById('res_rd_oper_ratio').textContent + ' (Limit: ' + document.getElementById('res_rd_oper_limit').textContent + ')',
+        'Operating Ratio Status:       ' + document.getElementById('res_rd_ratio_status').textContent + ' [' + document.getElementById('res_rd_fatigue_risk').textContent + ']',
+        'Minimum Required Vent Area:   ' + document.getElementById('res_rd_area').textContent + ' (' + document.getElementById('res_rd_nps_req').textContent + ')',
+        'Recommended Nominal Size:     ' + document.getElementById('res_rd_rec_nps').textContent,
+        'Relieving Pressure (P1):      ' + document.getElementById('res_rd_p1').textContent,
+        'Combination Factor (Fv):      ' + document.getElementById('res_rd_fv').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Rupture Disk Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcRd();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BL2: Steam Turbine Rankine Cycle Expansion & Willans Line Efficiency Calculator
+  // ==========================================
+  (() => {
+    const slug = 'steam-turbine-expansion-efficiency-calculator';
+    const title = 'Steam Turbine Expansion & Willans Line Efficiency Calculator';
+    const metaDescription = 'Calculate multi-stage impulse/reaction steam turbine isentropic expansion, Mollier enthalpy drop, exhaust steam moisture fraction, generator gross power, and Willans line part-load steam rate per ASME PTC 6 and IEC 60045-1.';
+
+    const faq = [
+      {
+        q: 'What is the maximum allowable exhaust moisture fraction in a condensing steam turbine?',
+        a: 'Per ASME PTC 6 and steam turbine OEM standards (such as GE, Siemens, and Mitsubishi), exhaust steam moisture at the condenser flange should strictly not exceed 10% to 12% (steam quality x >= 88% to 90%). As steam expands into the two-phase wet region, microscopic water droplets condense and are accelerated by high-velocity steam jets. At relative peripheral blade tip velocities exceeding 1,200 to 1,500 ft/s (350 to 450 m/s), these water droplets act like high-speed abrasive projectiles, pitting and gouging the leading edges of last-stage low-pressure (LP) blades.'
+      },
+      {
+        q: 'What is the Baumann rule for steam turbine wet expansion?',
+        a: 'The empirical Baumann rule states that for each 1% of average moisture present during steam expansion in the wet stages of a turbine, stage aerodynamic efficiency decreases by approximately 1%: eta_wet = eta_dry * (1 - y_avg). Water droplets cannot accelerate as quickly as vapor molecules, creating aerodynamic drag, blade surface droplet braking, and boundary layer disruption that drains mechanical shaft power.'
+      },
+      {
+        q: 'What is Willans Line and how does it describe part-load steam turbine efficiency?',
+        a: 'Willans Line describes the linear relationship between total steam consumption (W, lb/hr) and gross electrical power output (P, kW) for a throttle-controlled steam turbine: W = W_0 + m * P. The parameter W_0 represents the no-load steam flow required simply to overcome mechanical bearing friction, windage losses, and keep the rotor spinning at synchronous speed (typically 10% to 18% of rated steam flow). Consequently, at low electrical loads, the specific steam consumption (lb of steam per kWh) increases dramatically.'
+      },
+      {
+        q: 'What is the difference between an extraction-backpressure and a condensing steam turbine?',
+        a: 'A condensing steam turbine expands steam all the way down to sub-atmospheric vacuum pressures (typically 1.0 to 2.5 inHgA / 0.035 to 0.085 bar) in a water-cooled or air-cooled surface condenser, maximizing the enthalpy drop and electrical power generation. A backpressure (topping) turbine exhausts steam at positive gauge pressure (e.g. 50 to 150 psig) directly into an industrial process or district heating header, achieving higher overall combined thermal efficiency because the latent heat of condensation is utilized rather than rejected to cooling towers.'
+      },
+      {
+        q: 'How does throttle governing cause thermodynamic irreversibility compared to nozzle governing?',
+        a: 'Throttle governing regulates turbine load by constricting a main throttle valve, which drops steam pressure via isenthalpic (constant enthalpy) expansion before entering the first stage. Because isenthalpic throttling destroys available pressure energy without producing work, entropy increases and available isentropic head drops. In contrast, nozzle governing uses multiple control valves that sequentially feed separate nozzle arcs, maintaining near-full throttle pressure across active nozzles and minimizing part-load throttling losses.'
+      }
+    ];
+
+    const content = `
+<style>
+.turb-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.turb-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.turb-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.turb-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .turb-grid-2, .turb-grid-3, .turb-grid-4 { grid-template-columns: 1fr; }
+}
+.turb-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.turb-input, .turb-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.turb-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.turb-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.turb-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.turb-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.turb-btn:hover { opacity: 0.9; }
+.turb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.turb-table th, .turb-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.turb-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="turb-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Turbine Inlet & Exhaust Thermodynamic Operating Parameters</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">ASME PTC 6 & IEC 60045-1 Multi-Stage Rankine Expansion Architecture</div>
+    </div>
+    <div>
+      <label class="turb-label">Steam Turbine Cycle Preset</label>
+      <select id="turb_preset" class="turb-select" style="min-width: 280px;">
+        <option value="utility_cond">Utility Condensing (900 psig / 900&deg;F, 1.5 inHgA Vac)</option>
+        <option value="supercrit_cond">Supercritical Utility (2400 psig / 1050&deg;F, 1.0 inHgA Vac)</option>
+        <option value="cogen_bp">Industrial Cogeneration (600 psig / 750&deg;F, 50 psig Backpressure)</option>
+        <option value="waste_heat">Biomass / Waste Heat (400 psig / 600&deg;F, 2.5 inHgA Vac)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="turb-grid-3">
+    <div>
+      <label class="turb-label">Inlet Steam Pressure (P1) <span>psig</span></label>
+      <input type="number" id="turb_p1" class="turb-input" value="900" step="50" min="50" max="3500">
+    </div>
+    <div>
+      <label class="turb-label">Inlet Steam Temperature (T1) <span>&deg;F</span></label>
+      <input type="number" id="turb_t1" class="turb-input" value="900" step="25" min="300" max="1150">
+    </div>
+    <div>
+      <label class="turb-label">Total Steam Mass Flow (W) <span>lb / hr</span></label>
+      <input type="number" id="turb_w" class="turb-input" value="180000" step="5000" min="1000" max="2500000">
+    </div>
+  </div>
+
+  <div class="turb-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="turb-label">Exhaust Pressure Unit</label>
+      <select id="turb_p2_unit" class="turb-select">
+        <option value="inhg">inHgA (Condensing Vacuum)</option>
+        <option value="psia">psia (Absolute)</option>
+        <option value="psig">psig (Backpressure)</option>
+      </select>
+    </div>
+    <div>
+      <label class="turb-label">Exhaust Pressure (P2) <span id="lbl_p2_val">1.5 inHgA</span></label>
+      <input type="number" id="turb_p2" class="turb-input" value="1.5" step="0.1" min="0.5" max="300">
+    </div>
+    <div>
+      <label class="turb-label">Internal Isentropic Efficiency <span>%</span></label>
+      <input type="number" id="turb_eff_isen" class="turb-input" value="82.0" step="0.5" min="50.0" max="94.0">
+    </div>
+    <div>
+      <label class="turb-label">Generator Electrical Efficiency <span>%</span></label>
+      <input type="number" id="turb_eff_gen" class="turb-input" value="97.5" step="0.1" min="85.0" max="99.5">
+    </div>
+  </div>
+
+  <div class="turb-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="turb-label">Mechanical & Bearing Efficiency <span>%</span></label>
+      <input type="number" id="turb_eff_mech" class="turb-input" value="98.5" step="0.1" min="90.0" max="99.8">
+    </div>
+    <div>
+      <label class="turb-label">No-Load Willans Steam Fraction <span>% of rated W</span></label>
+      <input type="number" id="turb_w0_pct" class="turb-input" value="12.0" step="0.5" min="5.0" max="25.0">
+    </div>
+    <div>
+      <label class="turb-label">Current Part-Load Operating Flow <span>lb / hr</span></label>
+      <input type="number" id="turb_w_oper" class="turb-input" value="135000" step="5000" min="1000" max="2500000">
+    </div>
+  </div>
+</div>
+
+<div class="turb-box">
+  <h3 style="margin-top: 0;">Thermodynamic Expansion & Power Diagnostics</h3>
+  <div class="turb-grid-4">
+    <div class="turb-kpi">
+      <div class="turb-kpi-lbl">Gross Generator Power</div>
+      <div class="turb-kpi-val" id="res_turb_power">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_turb_kw">-- kW gross</div>
+    </div>
+    <div class="turb-kpi">
+      <div class="turb-kpi-lbl">Exhaust Moisture Fraction</div>
+      <div class="turb-kpi-val" id="res_turb_moist">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_turb_quality">-- quality</div>
+    </div>
+    <div class="turb-kpi">
+      <div class="turb-kpi-lbl">Actual Steam Rate (ASR)</div>
+      <div class="turb-kpi-val" id="res_turb_asr">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_turb_tsr">-- TSR theoretical</div>
+    </div>
+    <div class="turb-kpi">
+      <div class="turb-kpi-lbl">Blade Erosion Risk Status</div>
+      <div class="turb-kpi-val" id="res_turb_erosion_status" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_turb_erosion_desc">-- limit 12%</div>
+    </div>
+  </div>
+
+  <div class="turb-grid-3" style="margin-top: 1rem;">
+    <div class="turb-kpi">
+      <div class="turb-kpi-lbl">Actual Enthalpy Drop (Delta h)</div>
+      <div class="turb-kpi-val" id="res_turb_dh">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Btu / lb steam</div>
+    </div>
+    <div class="turb-kpi">
+      <div class="turb-kpi-lbl">Part-Load Generation (W_oper)</div>
+      <div class="turb-kpi-val" id="res_turb_power_oper">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_turb_oper_heatrate">-- part-load ASR</div>
+    </div>
+    <div class="turb-kpi">
+      <div class="turb-kpi-lbl">Willans Line No-Load Flow (W_0)</div>
+      <div class="turb-kpi-val" id="res_turb_w0">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">lb / hr spinning idle</div>
+    </div>
+  </div>
+</div>
+
+<div class="turb-box">
+  <h3 style="margin-top: 0;">Interactive Mollier h-s Expansion & Willans Line Profile</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="turb_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">Rankine Expansion State Points & Performance Summary</h4>
+  <table class="turb-table">
+    <thead>
+      <tr>
+        <th>State Point</th>
+        <th>Pressure</th>
+        <th>Temperature / Quality</th>
+        <th>Specific Enthalpy (h)</th>
+        <th>Specific Entropy (s)</th>
+        <th>Physical Condition</th>
+      </tr>
+    </thead>
+    <tbody id="turb_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_turb_copy" class="turb-btn">
+      <span>📋 Copy Full Steam Turbine Expansion Report</span>
+    </button>
+    <div id="turb_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="turb-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Thermodynamic Derivations</h3>
+  
+  <p>Steam turbine cycle performance is formulated via high-pressure Rankine expansion across impulse and reaction stages per ASME PTC 6 and IEC 60045-1. Steam expansion is evaluated on the Mollier enthalpy-entropy ($h-s$) diagram.</p>
+
+  <div class="formula-box">
+1. Inlet Steam Properties (Superheated Region):
+   h1 = 1050 + 0.48 * ( T1 - T_sat ) + 0.35 * P1_psia^0.6   (Btu / lb, approx)
+   s1 = Entropy evaluated at (P1, T1)
+
+2. Isentropic Exhaust Enthalpy (h_2s):
+   If condensing into 2-phase mixture at P2:
+     x_2s = ( s1 - s_f2 ) / s_fg2
+     h_2s = h_f2 + x_2s * h_fg2
+   Isentropic Head: Delta h_isen = h1 - h_2s
+
+3. Actual Enthalpy Drop & Exhaust State:
+   Delta h_act = Delta h_isen * ( Eff_isen / 100 )
+   h2_actual   = h1 - Delta h_act
+   x_2_actual  = ( h2_actual - h_f2 ) / h_fg2
+   Moisture_fraction (y) = 1.0 - x_2_actual
+
+4. Gross Power Output:
+   P_gross_kW = [ W_lb_hr * Delta h_act * (Eff_mech / 100) * (Eff_gen / 100) ] / 3412.14
+   P_gross_MW = P_gross_kW / 1000.0
+
+5. Theoretical & Actual Steam Rates (TSR / ASR):
+   TSR = 3412.14 / Delta h_isen   (lb / kWh)
+   ASR = 3412.14 / [ Delta h_act * (Eff_mech/100) * (Eff_gen/100) ]   (lb / kWh)
+
+6. Willans Line Formulation:
+   W_0 = W_rated * ( W0_pct / 100 )
+   Slope m = ( W_rated - W_0 ) / P_gross_kW
+   W(P) = W_0 + m * P
+  </div>
+
+  <p>If exhaust moisture exceeds 12%, last-stage titanium or stellite-shielded blades suffer rapid droplet erosion, leading to unbalance, severe bearing vibration, and forced plant outages.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #ef4444;">
+  <h4 style="color: #ef4444;">1. Excessive Exhaust Moisture (>12%) Eroding Last-Stage Blades</h4>
+  <p>When steam expands too far into the wet dome without reheat, fine mist coalesces on stationary diaphragm vanes into large water droplets. These droplets detach and impact the supersonic spinning tips of last-stage blades at relative velocities exceeding 1,200 ft/s. Moisture exceeding 12% creates severe leading-edge scalloping and erosion notches, triggering fatigue blade throwing that destroys the entire LP turbine rotor.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #f59e0b;">
+  <h4 style="color: #f59e0b;">2. Over-Throttling at Part Load Destroying Rankine Efficiency</h4>
+  <p>In throttle-governed turbines operating at 40% to 60% load, the main governor valve constricts steam flow, dropping inlet pressure from 900 psig down to 400 psig via isenthalpic throttling. Because throttling is purely isenthalpic, no shaft work is produced during the pressure drop. Available isentropic enthalpy drops by over 30%, causing part-load heat rates to spike and burning massive excess boiler fuel.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #10b981;">
+  <h4 style="color: #10b981;">3. Wet Steam Water Induction Shock Warping Turbine Rotors</h4>
+  <p>Inadequate attemperator spray control or failed boiler drum level trips can send liquid water slugs into the main steam piping. When water droplets enter the 900&deg;F HP turbine casing, differential thermal shock contracts the bottom of the casing faster than the top. The casing bows upward into a banana shape, causing irreversible high-speed rubs against rotor labyrinth seals and catastrophic rotor seizure.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #3b82f6;">
+  <h4 style="color: #3b82f6;">4. Condenser Vacuum Degradation Causing Exhaust Hood Overheating</h4>
+  <p>If condenser cooling water temperature rises or air removal ejectors fail, condenser backpressure rises from 1.5 inHgA to 6.0 inHgA. Because the pressure ratio across the LP stages collapses, the last-stage blades do zero work and begin churning dense steam like a fan. Windage friction generates intense localized heating, pushing exhaust hood temperatures past 200&deg;F and distorting low-pressure bearing pedestals.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+  <h4 style="color: #8b5cf6;">5. Loss of Gland Steam Sealing Pressure Inducing Air In-Leakage</h4>
+  <p>Turbine rotor shaft ends penetrating sub-atmospheric casing zones must be sealed by positive-pressure gland steam (typically 2.5 to 5 psig). If the gland steam regulator fails, cold atmospheric air is sucked across shaft seals directly into the condenser. Oxygen dissolves into the condensate, triggering catastrophic pitting in deaerator tanks and feed-water preheaters while blanketing condenser tubes with non-condensable gas.</p>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'utility_cond':   { p1: 900,  t1: 900,  w: 180000, p2_unit: 'inhg', p2: 1.5, eff_isen: 82.0 },
+    'supercrit_cond': { p1: 2400, t1: 1050, w: 500000, p2_unit: 'inhg', p2: 1.0, eff_isen: 86.0 },
+    'cogen_bp':       { p1: 600,  t1: 750,  w: 120000, p2_unit: 'psig', p2: 50,  eff_isen: 78.0 },
+    'waste_heat':     { p1: 400,  t1: 600,  w: 80000,  p2_unit: 'inhg', p2: 2.5, eff_isen: 75.0 }
+  };
+
+  function drawTurbCanvas(h1, h2, h2s, moistPct, pGrossMw, wRated, wOper, pOperMw) {
+    const canvas = document.getElementById('turb_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // --- Left Side: Mollier h-s Expansion Diagram ---
+    ctx.save();
+    ctx.translate(40, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Mollier h-s Expansion & Moisture Split', 10, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(280, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Entropy s (Btu/lb-R)', 120, 245);
+    ctx.save();
+    ctx.translate(5, 140);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Enthalpy h (Btu/lb)', 0, 0);
+    ctx.restore();
+
+    // Saturation Line (Vapor dome right boundary)
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(35, 180);
+    ctx.quadraticCurveTo(150, 150, 270, 90);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('Saturation Line (x=1.0)', 150, 125);
+
+    // Inlet State Point 1
+    const x1 = 110, y1 = 40;
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(x1, y1, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillText('Inlet State 1 (' + Math.round(h1) + ' Btu/lb)', x1 + 10, y1 + 4);
+
+    // Isentropic Vertical Expansion (s1 = const) down to 2s
+    const y2s = 200;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x1, y2s);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('State 2s (Isen)', x1 - 40, y2s + 12);
+
+    // Actual Expansion Path (Irreversible: shifts right to State 2)
+    const x2 = 175;
+    const y2 = y1 + (y2s - y1) * 0.82;
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    ctx.fillStyle = moistPct > 12 ? '#ef4444' : '#10b981';
+    ctx.beginPath();
+    ctx.arc(x2, y2, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Actual Exhaust 2', x2 + 8, y2 - 4);
+    ctx.fillText('Moist: ' + moistPct.toFixed(1) + '%', x2 + 8, y2 + 10);
+
+    ctx.restore();
+
+    // --- Right Side: Willans Line Part-Load Characteristic ---
+    ctx.save();
+    ctx.translate(350, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Willans Line Steam Flow vs Gross Output', 20, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(310, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Gross Generator Output (MW)', 120, 245);
+    ctx.save();
+    ctx.translate(5, 140);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Steam Flow (lb/hr)', 0, 0);
+    ctx.restore();
+
+    // Willans Line (Straight from W0 at P=0 to W_rated at P_gross)
+    const yW0 = 185;
+    const xRated = 280;
+    const yRated = 40;
+
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(30, yW0);
+    ctx.lineTo(xRated, yRated);
+    ctx.stroke();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('W_0 Idle Flow', 35, yW0 - 6);
+
+    // Current Operating Point on Willans Line
+    const operFrac = Math.min(1.0, Math.max(0.1, wOper / wRated));
+    const xOper = 30 + operFrac * (xRated - 30);
+    const yOper = yW0 - operFrac * (yW0 - yRated);
+
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(xOper, yOper, 6, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Oper Point (' + pOperMw.toFixed(1) + ' MW)', xOper - 45, yOper - 10);
+
+    // Callout box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(40, 50, 130, 45);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(40, 50, 130, 45);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Rated: ' + pGrossMw.toFixed(2) + ' MW', 48, 68);
+    ctx.fillText('Oper Flow: ' + (wOper / 1000).toFixed(0) + ' k-lb/h', 48, 82);
+
+    ctx.restore();
+  }
+
+  function calcTurb() {
+    const P1_psig = Math.max(10, parseFloat(document.getElementById('turb_p1').value) || 900);
+    const P1_psia = P1_psig + 14.7;
+    const T1_F = Math.max(250, parseFloat(document.getElementById('turb_t1').value) || 900);
+    const W_rated = Math.max(100, parseFloat(document.getElementById('turb_w').value) || 180000);
+    const p2_unit = document.getElementById('turb_p2_unit').value;
+    const p2_raw = Math.max(0.2, parseFloat(document.getElementById('turb_p2').value) || 1.5);
+    const eff_isen = Math.max(50, parseFloat(document.getElementById('turb_eff_isen').value) || 82.0) / 100.0;
+    const eff_gen = Math.max(80, parseFloat(document.getElementById('turb_eff_gen').value) || 97.5) / 100.0;
+    const eff_mech = Math.max(85, parseFloat(document.getElementById('turb_eff_mech').value) || 98.5) / 100.0;
+    const w0_pct = Math.max(2, parseFloat(document.getElementById('turb_w0_pct').value) || 12.0) / 100.0;
+    const W_oper = Math.max(100, parseFloat(document.getElementById('turb_w_oper').value) || 135000);
+
+    // Update label
+    const elLblP2 = document.getElementById('lbl_p2_val');
+    elLblP2.textContent = p2_raw + ' ' + (p2_unit === 'inhg' ? 'inHgA' : (p2_unit === 'psig' ? 'psig' : 'psia'));
+
+    // Convert P2 to psia:
+    let P2_psia = 0.736;
+    if (p2_unit === 'inhg') P2_psia = p2_raw * 0.491154;
+    else if (p2_unit === 'psig') P2_psia = p2_raw + 14.696;
+    else P2_psia = p2_raw;
+
+    // Thermodynamic state points (Steam property correlations):
+    // Inlet h1: approx formula for superheated steam
+    // h1 = 1050 + 0.48 * (T1 - 400) + 0.05 * P1_psia^0.7
+    const h1 = 1060.0 + 0.505 * T1_F + 0.000045 * Math.pow(P1_psia, 1.25);
+    const s1 = 1.05 + 0.00085 * T1_F - 0.15 * Math.log10(P1_psia);
+
+    // Exhaust saturation properties at P2_psia:
+    // Tsat approx:
+    const Tsat2_F = 115.0 * Math.pow(P2_psia, 0.225) + 32.0;
+    const hf2 = Tsat2_F - 32.0;
+    const hfg2 = 1075.0 - 0.58 * Tsat2_F;
+    const sf2 = 0.05 + 0.0016 * Tsat2_F;
+    const sfg2 = hfg2 / (Tsat2_F + 459.67);
+
+    // Isentropic expansion: s2s = s1
+    let x2s = (s1 - sf2) / sfg2;
+    let isTwoPhase = true;
+    let h2s = 0;
+    if (x2s <= 1.0) {
+      h2s = hf2 + x2s * hfg2;
+    } else {
+      isTwoPhase = false;
+      h2s = hf2 + hfg2 + 0.46 * (Tsat2_F + 50);
+      x2s = 1.0;
+    }
+
+    const delta_h_isen = Math.max(50, h1 - h2s);
+    const delta_h_act = delta_h_isen * eff_isen;
+    const h2_act = h1 - delta_h_act;
+
+    // Actual exhaust moisture:
+    let x2_act = (h2_act - hf2) / hfg2;
+    let moistPct = 0;
+    if (x2_act < 1.0) {
+      moistPct = (1.0 - x2_act) * 100.0;
+    } else {
+      x2_act = 1.0;
+      moistPct = 0;
+    }
+
+    // Generator Power (kW and MW):
+    const combined_mech_gen = eff_mech * eff_gen;
+    const pGrossKw = (W_rated * delta_h_act * combined_mech_gen) / 3412.14;
+    const pGrossMw = pGrossKw / 1000.0;
+
+    // Steam rates:
+    const tsr = 3412.14 / delta_h_isen;
+    const asr = 3412.14 / (delta_h_act * combined_mech_gen);
+
+    // Willans Line parameters:
+    const W_0 = W_rated * w0_pct;
+    const m_slope = (W_rated - W_0) / pGrossKw;
+    const pOperKw = Math.max(0, (W_oper - W_0) / m_slope);
+    const pOperMw = pOperKw / 1000.0;
+    const operAsr = pOperKw > 0 ? (W_oper / pOperKw) : 0;
+
+    // Status evaluation:
+    const isErosionDanger = moistPct > 12.0;
+    const isErosionCaution = moistPct > 9.0;
+
+    // Update DOM KPIs
+    document.getElementById('res_turb_power').textContent = pGrossMw.toFixed(2) + ' MW';
+    document.getElementById('res_turb_kw').textContent = Math.round(pGrossKw).toLocaleString() + ' kW gross rated';
+    
+    document.getElementById('res_turb_moist').textContent = moistPct.toFixed(1) + '%';
+    document.getElementById('res_turb_quality').textContent = (x2_act * 100).toFixed(1) + '% steam quality';
+
+    document.getElementById('res_turb_asr').textContent = asr.toFixed(2) + ' lb/kWh';
+    document.getElementById('res_turb_tsr').textContent = tsr.toFixed(2) + ' lb/kWh theoretical';
+
+    const elErosion = document.getElementById('res_turb_erosion_status');
+    const elErosionDesc = document.getElementById('res_turb_erosion_desc');
+    if (isErosionDanger) {
+      elErosion.textContent = 'BLADE EROSION RISK';
+      elErosion.style.color = '#ef4444';
+      elErosionDesc.textContent = 'Exhaust moisture exceeds 12% limit!';
+    } else if (isErosionCaution) {
+      elErosion.textContent = 'ELEVATED MOISTURE';
+      elErosion.style.color = '#f59e0b';
+      elErosionDesc.textContent = 'Moisture between 9% and 12%';
+    } else {
+      elErosion.textContent = 'OPTIMAL DRY';
+      elErosion.style.color = '#10b981';
+      elErosionDesc.textContent = 'Safe exhaust condition (< 9% moist)';
+    }
+
+    document.getElementById('res_turb_dh').textContent = Math.round(delta_h_act) + ' Btu/lb';
+    document.getElementById('res_turb_power_oper').textContent = pOperMw.toFixed(2) + ' MW';
+    document.getElementById('res_turb_oper_heatrate').textContent = operAsr.toFixed(2) + ' lb/kWh part-load';
+    document.getElementById('res_turb_w0').textContent = Math.round(W_0).toLocaleString() + ' lb/hr';
+
+    // Status Badge
+    const elBadge = document.getElementById('turb_status_badge');
+    if (isErosionDanger) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; CRITICAL: Exhaust moisture (' + moistPct.toFixed(1) + '%) exceeds 12% threshold. Last-stage LP blades will suffer severe erosion failure!</span>';
+    } else if (pOperKw <= 0) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; IDLE WARNING: Operating steam flow (' + W_oper + ' lb/hr) is below no-load spinning requirement W0 (' + Math.round(W_0) + ' lb/hr).</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; OPTIMAL: Full ASME PTC 6 expansion conditions satisfied. Blade moisture within limits.</span>';
+    }
+
+    // Populate Table
+    const tableData = [
+      { pt: '1. Inlet Superheated Steam', p: P1_psig.toFixed(0) + ' psig', t: T1_F.toFixed(0) + ' °F', h: Math.round(h1) + ' Btu/lb', s: s1.toFixed(3), cond: 'Superheated Vapor' },
+      { pt: '2s. Isentropic Ideal Exhaust', p: P2_psia.toFixed(2) + ' psia', t: Tsat2_F.toFixed(1) + ' °F', h: Math.round(h2s) + ' Btu/lb', s: s1.toFixed(3), cond: 'Ideal Wet (x=' + (x2s * 100).toFixed(1) + '%)' },
+      { pt: '2. Actual Turbine Exhaust', p: P2_psia.toFixed(2) + ' psia', t: Tsat2_F.toFixed(1) + ' °F', h: Math.round(h2_act) + ' Btu/lb', s: (s1 + 0.12).toFixed(3), cond: moistPct > 0 ? (moistPct.toFixed(1) + '% Moisture') : 'Superheated' }
+    ];
+
+    let trows = '';
+    tableData.forEach(r => {
+      trows += '<tr>' +
+        '<td><strong>' + r.pt + '</strong></td>' +
+        '<td style="font-family:var(--mono);">' + r.p + '</td>' +
+        '<td style="font-family:var(--mono);">' + r.t + '</td>' +
+        '<td style="font-family:var(--mono); font-weight:bold;">' + r.h + '</td>' +
+        '<td style="font-family:var(--mono);">' + r.s + '</td>' +
+        '<td>' + r.cond + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('turb_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawTurbCanvas(h1, h2_act, h2s, moistPct, pGrossMw, W_rated, W_oper, pOperMw);
+  }
+
+  const elPreset = document.getElementById('turb_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('turb_p1').value = p.p1;
+        document.getElementById('turb_t1').value = p.t1;
+        document.getElementById('turb_w').value = p.w;
+        document.getElementById('turb_p2_unit').value = p.p2_unit;
+        document.getElementById('turb_p2').value = p.p2;
+        document.getElementById('turb_eff_isen').value = p.eff_isen;
+        calcTurb();
+      }
+    });
+  }
+
+  const inputs = [
+    'turb_p1', 'turb_t1', 'turb_w', 'turb_p2_unit', 'turb_p2',
+    'turb_eff_isen', 'turb_eff_gen', 'turb_eff_mech', 'turb_w0_pct', 'turb_w_oper'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcTurb();
+      });
+      el.addEventListener('change', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcTurb();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_turb_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=======================================================',
+        'STEAM TURBINE EXPANSION & WILLANS LINE REPORT',
+        'Standards: ASME PTC 6, IEC 60045-1',
+        '=======================================================',
+        'Inlet Steam Pressure (P1):    ' + document.getElementById('turb_p1').value + ' psig',
+        'Inlet Steam Temperature (T1): ' + document.getElementById('turb_t1').value + ' deg F',
+        'Steam Mass Flow Rate:         ' + document.getElementById('turb_w').value + ' lb/hr',
+        'Exhaust Pressure:             ' + document.getElementById('turb_p2').value + ' ' + document.getElementById('turb_p2_unit').value,
+        'Isentropic Efficiency:        ' + document.getElementById('turb_eff_isen').value + ' %',
+        '-------------------------------------------------------',
+        'CALCULATED POWER & THERMODYNAMIC PERFORMANCE:',
+        'Gross Generator Output:       ' + document.getElementById('res_turb_power').textContent + ' (' + document.getElementById('res_turb_kw').textContent + ')',
+        'Actual Enthalpy Drop (dh):    ' + document.getElementById('res_turb_dh').textContent,
+        'Actual Steam Rate (ASR):      ' + document.getElementById('res_turb_asr').textContent + ' [' + document.getElementById('res_turb_tsr').textContent + ']',
+        'Exhaust Moisture Fraction:    ' + document.getElementById('res_turb_moist').textContent + ' (' + document.getElementById('res_turb_quality').textContent + ')',
+        'Blade Erosion Risk:           ' + document.getElementById('res_turb_erosion_status').textContent + ' [' + document.getElementById('res_turb_erosion_desc').textContent + ']',
+        'Part-Load Power (W_oper):     ' + document.getElementById('res_turb_power_oper').textContent + ' @ ' + document.getElementById('turb_w_oper').value + ' lb/hr',
+        'Willans No-Load Steam (W_0):  ' + document.getElementById('res_turb_w0').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Turbine Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcTurb();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BL3: API 618 Reciprocating Gas Compressor Cylinder Sizing & Rod Load Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-618-reciprocating-compressor-rod-load-calculator';
+    const title = 'API 618 Reciprocating Gas Compressor Sizing & Rod Load Calculator';
+    const metaDescription = 'Calculate reciprocating gas compressor cylinder capacity, volumetric efficiency, adiabatic power, combined rod load (tension/compression), and crosshead pin reversal angle per API 618 5th Edition and ISO 13631.';
+
+    const faq = [
+      {
+        q: 'What is crosshead pin reversal and why does API 618 mandate a minimum 15-degree reversal angle?',
+        a: 'Crosshead pin bushings operate in an oscillatory rather than fully rotating motion, meaning they rely on hydrodynamic squeeze-film lubrication rather than a continuous rotating wedge. For lubricant to replenish, the net rod force on the crosshead pin must alternate between tension and compression. During the reversal through zero load, the clearance space on the previously loaded side opens up, allowing pressurized lube oil to flood into the bushing clearance. API 618 5th Edition (Section 6.1.13) mandates a minimum pin reversal duration of 15 degrees of crank rotation (or at least 3% of the total stroke) with a minimum load magnitude to guarantee oil film regeneration. Operating with insufficient or non-existent reversal leads to rapid oil starvation, metal-to-metal contact, bronze bushing smearing, and catastrophic crosshead pin seizure.'
+      },
+      {
+        q: 'How does clearance volume affect reciprocating compressor capacity and volumetric efficiency?',
+        a: 'Volumetric efficiency (Ev) defines the ratio of actual intake gas volume to swept piston displacement. It is governed by the relation Ev = 1 - c * (rp^(1/k) - 1) - L, where c is the cylinder clearance volume fraction (typically 10% to 25%), rp is the stage pressure ratio (Pd/Ps), k is the isentropic gas exponent (Cp/Cv), and L is valve resistance loss (typically 0.02 to 0.04). At top dead center, high-pressure discharge gas remains trapped in the clearance pockets. As the piston retreats on the suction stroke, this gas must expand down below suction pressure before the suction valves can crack open. Higher clearance fractions or elevated pressure ratios dramatically delay valve opening, reducing net ingested flow.'
+      },
+      {
+        q: 'Why does the piston rod diameter create unbalanced gas forces in double-acting cylinders?',
+        a: 'In a double-acting compressor cylinder, both sides of the piston compress gas. However, the Crank End (CE) contains the piston rod, reducing the effective piston surface area by A_rod = (pi / 4) * d_rod^2 relative to the Head End (HE). When the crank end is discharging at high pressure Pd and the head end is drawing in suction gas at Ps, the net compressive gas load acting on the piston rod is F_gas = Pd * A_CE - Ps * A_HE. Because A_CE is smaller than A_HE, the peak compressive force is inherently different from the peak tensile force, permanently biasing the cyclic load curve and directly impacting the crank angle where pin reversal occurs.'
+      },
+      {
+        q: 'What are the API 618 maximum allowable discharge temperature limits and consequences of exceeding them?',
+        a: 'API 618 Section 6.1.2 limits predicted discharge gas temperatures to 150 deg C (300 deg F) for general gas services and 135 deg C (275 deg F) for hydrogen-rich service (defined as gases containing more than 50 molar percent hydrogen or molecular weight under 12). Exceeding these limits causes thermal degradation of synthetic hydrocarbon cylinder lubricants, resulting in valve carbonization, sticky unloader rings, and high-frequency valve plate fatigue failure. In non-lubricated (bone-dry) cylinders, elevated temperatures rapidly soften and extrude filled PTFE or PEEK piston rings and rider bands, leading to metal-to-metal piston-to-bore contact.'
+      },
+      {
+        q: 'How do reciprocating inertia forces interact with gas pressure loads to determine Combined Rod Load?',
+        a: 'Combined Rod Load (CRL) is the instantaneous algebraic sum of the net internal gas pressure force and the reciprocating mass inertia force: F_crl(theta) = F_gas(theta) + F_inertia(theta). The inertia force is generated by the acceleration of the piston assembly, piston rod, crosshead body, and approximately one-third of the connecting rod mass: F_inertia = m_recip * omega^2 * R * (cos(theta) + (R/L)*cos(2*theta)). Because inertia opposes piston acceleration, at the start of the stroke (TDC), inertia acts in tension, counteracting the high compressive gas discharge force and reducing peak frame loading. However, at higher machine speeds (RPM), inertial forces scale quadratically (omega^2), potentially eliminating pin reversal or overstressing the crosshead shoe and guide.'
+      }
+    ];
+
+    const content = `
+<style>
+.recip-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.recip-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.recip-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.recip-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .recip-grid-2, .recip-grid-3, .recip-grid-4 { grid-template-columns: 1fr; }
+}
+.recip-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.recip-input, .recip-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.recip-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.recip-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.recip-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.recip-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.recip-btn:hover { opacity: 0.9; }
+.recip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.recip-table th, .recip-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.recip-table th {
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="recip-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">API 618 Reciprocating Gas Compressor Analysis</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Cylinder Volumetric Sizing, Power, Rod Load & Pin Reversal Compliance</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="rc-units" class="recip-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="rcCalc()">
+        <option value="us" selected>US Customary (psig, in, hp, lbf)</option>
+        <option value="si">Metric / SI (bar g, mm, kW, kN)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="recip-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="recip-label"><span>Gas Preset</span></div>
+      <select id="rc-gas" class="recip-select" onchange="rcSetGas()">
+        <option value="natgas" selected>Natural Gas (Methane, k=1.30, MW=17.5)</option>
+        <option value="wetgas">Wet / Associated Gas (k=1.22, MW=24.2)</option>
+        <option value="h2">Hydrogen Rich 85% (k=1.40, MW=4.5)</option>
+        <option value="nitrogen">Nitrogen / Air (k=1.40, MW=28.96)</option>
+        <option value="co2">Carbon Dioxide (k=1.28, MW=44.01)</option>
+        <option value="custom">Custom Gas Properties</option>
+      </select>
+    </div>
+    <div>
+      <div class="recip-label"><span>Isentropic Exponent (k = Cp/Cv)</span></div>
+      <input type="number" id="rc-k" class="recip-input" value="1.30" step="0.01" min="1.05" max="1.70" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span>Molecular Weight (MW)</span></div>
+      <input type="number" id="rc-mw" class="recip-input" value="17.5" step="0.1" min="2.0" max="100" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span>Compressibility Zavg (Zs / Zd)</span></div>
+      <div style="display: flex; gap: 0.5rem;">
+        <input type="number" id="rc-zs" class="recip-input" value="0.98" step="0.01" min="0.5" max="1.5" title="Suction Zs" oninput="rcCalc()">
+        <input type="number" id="rc-zd" class="recip-input" value="0.95" step="0.01" min="0.5" max="1.5" title="Discharge Zd" oninput="rcCalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="recip-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="recip-label"><span id="lbl-ps">Suction Pressure (Ps, psig)</span></div>
+      <input type="number" id="rc-ps" class="recip-input" value="45.0" step="1.0" min="0" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span id="lbl-pd">Discharge Pressure (Pd, psig)</span></div>
+      <input type="number" id="rc-pd" class="recip-input" value="180.0" step="1.0" min="1" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span id="lbl-ts">Suction Temp (Ts, °F)</span></div>
+      <input type="number" id="rc-ts" class="recip-input" value="80.0" step="1.0" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span>Cylinder Action</span></div>
+      <select id="rc-action" class="recip-select" onchange="rcCalc()">
+        <option value="da" selected>Double Acting (HE + CE)</option>
+        <option value="sa_he">Single Acting - Head End Only</option>
+        <option value="sa_ce">Single Acting - Crank End Only</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="recip-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="recip-label"><span id="lbl-bore">Cylinder Bore (D_cyl, in)</span></div>
+      <input type="number" id="rc-bore" class="recip-input" value="10.5" step="0.125" min="2.0" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span id="lbl-stroke">Stroke Length (S, in)</span></div>
+      <input type="number" id="rc-stroke" class="recip-input" value="6.0" step="0.25" min="2.0" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span id="lbl-rod">Piston Rod Diam (d_rod, in)</span></div>
+      <input type="number" id="rc-rod" class="recip-input" value="2.25" step="0.125" min="1.0" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span>Operating Speed (RPM)</span></div>
+      <input type="number" id="rc-rpm" class="recip-input" value="600" step="10" min="100" max="1800" oninput="rcCalc()">
+    </div>
+  </div>
+
+  <div class="recip-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="recip-label"><span>Clearance Fraction (c, %)</span></div>
+      <input type="number" id="rc-clr" class="recip-input" value="14.0" step="0.5" min="5.0" max="45.0" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span id="lbl-wrecip">Reciprocating Weight (lbs)</span></div>
+      <input type="number" id="rc-wrecip" class="recip-input" value="165.0" step="5" min="10" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span id="lbl-lconn">Connecting Rod Length (in)</span></div>
+      <input type="number" id="rc-lconn" class="recip-input" value="30.0" step="0.5" min="6.0" oninput="rcCalc()">
+    </div>
+    <div>
+      <div class="recip-label"><span id="lbl-rodlimit">Frame Rod Rating (Max lbf)</span></div>
+      <div style="display: flex; gap: 0.5rem;">
+        <input type="number" id="rc-tenlimit" class="recip-input" value="32000" step="1000" title="Tension Limit" oninput="rcCalc()">
+        <input type="number" id="rc-complimit" class="recip-input" value="35000" step="1000" title="Compression Limit" oninput="rcCalc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="recip-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="recip-kpi">
+      <div class="recip-kpi-lbl">Volumetric Efficiency (Ev)</div>
+      <div class="recip-kpi-val" id="kpi-ev">81.4%</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-rp">Pressure Ratio: 3.26</div>
+    </div>
+    <div class="recip-kpi">
+      <div class="recip-kpi-lbl">Inlet Capacity & Flow</div>
+      <div class="recip-kpi-val" id="kpi-flow">2.84 MMSCFD</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-acfm">Displacement: 289 ACFM</div>
+    </div>
+    <div class="recip-kpi">
+      <div class="recip-kpi-lbl">Discharge Temp (Td)</div>
+      <div class="recip-kpi-val" id="kpi-td">248.6 °F</div>
+      <div style="font-size: 0.75rem;" id="kpi-td-status"><span class="status-pill status-pass">Within Limit (&lt;300°F)</span></div>
+    </div>
+    <div class="recip-kpi">
+      <div class="recip-kpi-lbl">API 618 Pin Reversal</div>
+      <div class="recip-kpi-val" id="kpi-reversal">48°</div>
+      <div style="font-size: 0.75rem;" id="kpi-reversal-status"><span class="status-pill status-pass">Pass (&ge;15° Required)</span></div>
+    </div>
+  </div>
+
+  <!-- LOAD SUMMARY TABLE -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Compressor Power, Rod Loads & Mechanical Status</h4>
+    <div class="recip-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Gas Power & Shaft BHP:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-bhp">184.2 BHP (137.4 kW)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Assuming 85% Adiabatic / 95% Mech Eff</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Peak Combined Tension Load:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-tension">14,820 lbf (46.3% of limit)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-gas-tension">Peak Gas Tension: 16,100 lbf</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Peak Combined Compression:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #3b82f6;" id="val-comp">18,340 lbf (52.4% of limit)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-gas-comp">Peak Gas Compression: 19,850 lbf</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="recip-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">P-V Indicator Diagram (Head End & Crank End)</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Pressure vs Volume</span>
+      </div>
+      <canvas id="rc-pv-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Combined Rod Load vs Crank Angle (0° - 360°)</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Pin Reversal Highlighted</span>
+      </div>
+      <canvas id="rc-rod-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="recip-btn" onclick="rcCopySummary()">
+      <span>📋 Copy API 618 Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Reciprocating Compressor Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Operating Without API 618 Pin Reversal Causing Instant Hydrodynamic Bushing Seizure</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Crosshead pin bushings do not rotate; they oscillate back and forth within a narrow arc of ±12° to ±18°. Because there is no continuous rotating wedge to draw oil into the clearance, crosshead pins rely completely on squeeze-film hydrodynamic action. If rod loading is unidirectional (pure compression throughout all 360° of crank rotation, which frequently happens when suction pressure is abnormally elevated or cylinder head-end unloader pockets are activated), the oil film is permanently squeezed out of the loaded bearing half. Without at least 15° of crank angle under load reversal (where the net force passes through zero and pulls in the opposite direction), oil starvation occurs within minutes, causing bronze bushing extrusion, pin micro-welding, and catastrophic connecting rod detachment that punches through the crankcase frame.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Disregarding 300°F (150°C) Discharge Temperature Thresholds Leading to Valve Lacquer & Explosions</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      API 618 5th Edition strictly limits discharge temperatures to 150°C (300°F) for general hydrocarbons and 135°C (275°F) for hydrogen service. Operators running high single-stage compression ratios (rp &gt; 3.5 to 4.0) with high isentropic exponent gases (such as dry nitrogen or air with k = 1.40) frequently violate this limit. High discharge temperatures cause rapid thermal cracking and polymerization of cylinder lubricants, creating hard carbonaceous lacquer deposits on discharge valve plates and springs. These deposits prevent valves from sealing, causing high-temperature discharge gas to leak back into the cylinder during suction, which causes extreme thermal runaway and creates severe auto-ignition and crankcase explosion hazards in air or oxygenated process services.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Neglecting Piston Rod Cross-Sectional Area in High-Pressure Cylinders</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Junior engineers frequently estimate compressor capacity and rod loads by multiplying pressure by head-end bore area alone, ignoring the crank-end piston rod diameter. In small, high-pressure cylinders (e.g. 4.0-inch bore with a 2.25-inch rod), the piston rod consumes over 31% of the total crank-end area. Consequently, crank-end displacement and gas force are dramatically smaller than head-end values. This severe geometric asymmetry shifts the net cyclic force baseline significantly toward tension, which can unexpectedly destroy pin reversal on one side of the stroke or exceed rated tensile rod ratings during sudden suction pressure depressions.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Underestimating Volumetric Collapse from High Clearance Volume at Deep Compression Ratios</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Volumetric efficiency depends exponentially on the pressure ratio via the term c * (rp^(1/k) - 1). In revamp projects or field booster applications where suction pressure drops while discharge pressure remains fixed, rp increases substantially. If a cylinder operates with 18% clearance volume and rp rises from 2.5 to 5.0 in natural gas service, volumetric efficiency does not merely drop by a few percent—it collapses from 81% down to below 48%. In severe cases with wet gases or high clearance valve pockets, Ev can reach zero, meaning the compressed gas in the clearance space re-expands throughout the entire suction stroke, preventing the suction valve from ever opening and delivering zero net forward flow while consuming full idling power.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Ignoring Reciprocating Inertial Scaling (omega^2) During Variable Frequency Drive (VFD) Speed Increases</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      When retrofitting existing reciprocating compressors with VFD motors to boost peak plant throughput, increasing compressor speed from 450 RPM to 600 RPM increases shaft rotational frequency by 33%, but reciprocating inertia forces increase by (600/450)^2 = 1.78x (a 78% increase). Inertia force directly opposes gas pressure forces at dead centers. At higher speeds, excessive inertia forces can invert rod loading during the early expansion phase, causing high-impact stress reversals on the crosshead pin, excessive crosshead shoe bending moments, and severe acoustic piping vibrations that trigger API 618 Design Approach 3 mechanical-acoustic resonances.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive API 618 Mathematical & Kinematic Derivations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Reciprocating compressor performance analysis combines non-ideal gas thermodynamics with crank-slider planar kinematics and rigid-body inertial dynamics. The governing formulas utilized throughout this calculator are detailed below:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Cylinder Geometric Swept Volume & Displacement</h4>
+  <p style="font-size: 0.875rem; line-height: 1.6;">
+    For a cylinder with bore diameter <em>D</em>, stroke <em>S</em>, and piston rod diameter <em>d</em>:
+  </p>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Head End Area: A_he = (pi / 4) * D^2<br>
+    Crank End Area: A_ce = (pi / 4) * (D^2 - d^2)<br>
+    Swept Volume HE: Vs_he = A_he * S<br>
+    Swept Volume CE: Vs_ce = A_ce * S<br>
+    Total Displacement (Double Acting): PD = (Vs_he + Vs_ce) * RPM [cfm or m3/min]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Volumetric Efficiency & Real Gas Capacity</h4>
+  <p style="font-size: 0.875rem; line-height: 1.6;">
+    Accounting for clearance volume re-expansion, gas compressibility ratio, and valve resistance losses:
+  </p>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Pressure Ratio: rp = Pd_abs / Ps_abs<br>
+    Volumetric Efficiency: Ev = 1 - c * [(Zs / Zd) * rp^(1/k) - 1] - L_valve<br>
+    Actual Suction Capacity: Q_actual = PD * Ev [ACFM]<br>
+    Standard Gas Capacity: Q_std = Q_actual * (Ps_abs / P_std) * (T_std / Ts_abs) * (1 / Zs) [MMSCFD or Nm3/hr]
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Discharge Temperature & Adiabatic Power</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Isentropic Discharge Temp: Td_abs = Ts_abs * rp^((k - 1) / k)<br>
+    Mass Flow Rate: m_dot = (P_std * Q_std * MW) / (R_univ * T_std)<br>
+    Adiabatic Gas Power: W_ad = m_dot * (k / (k - 1)) * (R_univ * Ts_abs / MW) * Z_avg * [rp^((k - 1) / k) - 1]<br>
+    Brake Horsepower (BHP): BHP = W_ad / (eta_adiabatic * eta_mechanical)
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">4. Slider-Crank Kinematics & Reciprocating Inertia</h4>
+  <p style="font-size: 0.875rem; line-height: 1.6;">
+    Piston position <em>x</em>, velocity <em>v</em>, and acceleration <em>a</em> as a function of crank angle &theta; (where &theta; = 0 at Head End Dead Center):
+  </p>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Crank Radius: R = S / 2<br>
+    Connecting Rod Ratio: lambda = R / L_conn<br>
+    Angular Velocity: omega = 2 * pi * (RPM / 60)<br>
+    Piston Acceleration: a(theta) = R * omega^2 * [cos(theta) + lambda * cos(2 * theta)]<br>
+    Inertia Force: F_inertia(theta) = - m_recip * a(theta)
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">5. Combined Rod Load & Pin Reversal Angle</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Instantaneous Gas Load: F_gas(theta) = P_he(theta) * A_he - P_ce(theta) * A_ce<br>
+    Combined Rod Load: F_crl(theta) = F_gas(theta) + F_inertia(theta)<br>
+    Sign Convention: Positive (+) = Tension; Negative (-) = Compression<br>
+    Pin Reversal Criteria: Net load F_crl must change sign and remain reversed for &gt;= 15 deg crank rotation.
+  </div>
+</div>
+
+<script>
+var rcLastCalc = null;
+
+function rcSetGas() {
+  var gas = document.getElementById('rc-gas').value;
+  var kInput = document.getElementById('rc-k');
+  var mwInput = document.getElementById('rc-mw');
+  if (gas === 'natgas') { kInput.value = '1.30'; mwInput.value = '17.5'; }
+  else if (gas === 'wetgas') { kInput.value = '1.22'; mwInput.value = '24.2'; }
+  else if (gas === 'h2') { kInput.value = '1.40'; mwInput.value = '4.5'; }
+  else if (gas === 'nitrogen') { kInput.value = '1.40'; mwInput.value = '28.96'; }
+  else if (gas === 'co2') { kInput.value = '1.28'; mwInput.value = '44.01'; }
+  rcCalc();
+}
+
+function rcCalc() {
+  var units = document.getElementById('rc-units').value;
+  var isMetric = (units === 'si');
+
+  // Update dynamic labels
+  document.getElementById('lbl-ps').innerText = isMetric ? 'Suction Pressure (Ps, bar g)' : 'Suction Pressure (Ps, psig)';
+  document.getElementById('lbl-pd').innerText = isMetric ? 'Discharge Pressure (Pd, bar g)' : 'Discharge Pressure (Pd, psig)';
+  document.getElementById('lbl-ts').innerText = isMetric ? 'Suction Temp (Ts, °C)' : 'Suction Temp (Ts, °F)';
+  document.getElementById('lbl-bore').innerText = isMetric ? 'Cylinder Bore (D_cyl, mm)' : 'Cylinder Bore (D_cyl, in)';
+  document.getElementById('lbl-stroke').innerText = isMetric ? 'Stroke Length (S, mm)' : 'Stroke Length (S, in)';
+  document.getElementById('lbl-rod').innerText = isMetric ? 'Piston Rod Diam (d_rod, mm)' : 'Piston Rod Diam (d_rod, in)';
+  document.getElementById('lbl-wrecip').innerText = isMetric ? 'Reciprocating Mass (kg)' : 'Reciprocating Weight (lbs)';
+  document.getElementById('lbl-lconn').innerText = isMetric ? 'Connecting Rod Length (mm)' : 'Connecting Rod Length (in)';
+  document.getElementById('lbl-rodlimit').innerText = isMetric ? 'Frame Rod Rating (Max kN)' : 'Frame Rod Rating (Max lbf)';
+
+  // Read inputs
+  var k = parseFloat(document.getElementById('rc-k').value) || 1.30;
+  var mw = parseFloat(document.getElementById('rc-mw').value) || 17.5;
+  var zs = parseFloat(document.getElementById('rc-zs').value) || 0.98;
+  var zd = parseFloat(document.getElementById('rc-zd').value) || 0.95;
+  var zAvg = (zs + zd) / 2;
+
+  var psRaw = parseFloat(document.getElementById('rc-ps').value) || 0;
+  var pdRaw = parseFloat(document.getElementById('rc-pd').value) || 1;
+  var tsRaw = parseFloat(document.getElementById('rc-ts').value) || 60;
+  var action = document.getElementById('rc-action').value;
+
+  var boreRaw = parseFloat(document.getElementById('rc-bore').value) || 10;
+  var strokeRaw = parseFloat(document.getElementById('rc-stroke').value) || 6;
+  var rodRaw = parseFloat(document.getElementById('rc-rod').value) || 2;
+  var rpm = parseFloat(document.getElementById('rc-rpm').value) || 600;
+  var clrPct = parseFloat(document.getElementById('rc-clr').value) || 14;
+  var wrecipRaw = parseFloat(document.getElementById('rc-wrecip').value) || 150;
+  var lconnRaw = parseFloat(document.getElementById('rc-lconn').value) || 30;
+  var tenLimitRaw = parseFloat(document.getElementById('rc-tenlimit').value) || 30000;
+  var compLimitRaw = parseFloat(document.getElementById('rc-complimit').value) || 35000;
+
+  // Standardize internal calculations to US Customary (psia, in, lbs, deg R)
+  var psPsia, pdPsia, tsR, boreIn, strokeIn, rodIn, wrecipLbs, lconnIn, tenLimitLbf, compLimitLbf;
+  var patm = isMetric ? 1.01325 : 14.696;
+
+  if (isMetric) {
+    psPsia = (psRaw + 1.01325) * 14.5038;
+    pdPsia = (pdRaw + 1.01325) * 14.5038;
+    tsR = (tsRaw + 273.15) * 1.8;
+    boreIn = boreRaw / 25.4;
+    strokeIn = strokeRaw / 25.4;
+    rodIn = rodRaw / 25.4;
+    wrecipLbs = wrecipRaw * 2.20462;
+    lconnIn = lconnRaw / 25.4;
+    tenLimitLbf = tenLimitRaw * 224.809;
+    compLimitLbf = compLimitRaw * 224.809;
+  } else {
+    psPsia = psRaw + 14.696;
+    pdPsia = pdRaw + 14.696;
+    tsR = tsRaw + 459.67;
+    boreIn = boreRaw;
+    strokeIn = strokeRaw;
+    rodIn = rodRaw;
+    wrecipLbs = wrecipRaw;
+    lconnIn = lconnRaw;
+    tenLimitLbf = tenLimitRaw;
+    compLimitLbf = compLimitRaw;
+  }
+
+  if (pdPsia <= psPsia) pdPsia = psPsia * 1.05;
+  var rp = pdPsia / psPsia;
+  var c = clrPct / 100.0;
+  var valveLoss = 0.03; // 3% valve loss factor
+
+  // Volumetric efficiency
+  var ev = 1.0 - c * ((zs / zd) * Math.pow(rp, 1.0 / k) - 1.0) - valveLoss;
+  if (ev < 0) ev = 0;
+
+  // Geometry
+  var aHE = (Math.PI / 4.0) * Math.pow(boreIn, 2);
+  var aCE = (Math.PI / 4.0) * (Math.pow(boreIn, 2) - Math.pow(rodIn, 2));
+  if (aCE < 0) aCE = 0;
+
+  var sweptHE = aHE * strokeIn; // in^3
+  var sweptCE = aCE * strokeIn; // in^3
+
+  var totalSweptPerRev = 0;
+  if (action === 'da') totalSweptPerRev = sweptHE + sweptCE;
+  else if (action === 'sa_he') totalSweptPerRev = sweptHE;
+  else if (action === 'sa_ce') totalSweptPerRev = sweptCE;
+
+  // Displacement in ACFM (Actual Cubic Feet per Min at suction)
+  var pdAcfm = (totalSweptPerRev * rpm) / 1728.0;
+  var actualAcfm = pdAcfm * ev;
+
+  // Mass flow rate and Standard Flow (MMSCFD: 14.7 psia, 60 F / 520 R)
+  // rho_suction = (Ps * MW) / (Zs * R_univ * Ts)
+  // R_univ = 10.7316 psia*ft^3 / (lbmol*R)
+  var rhoSuction = (psPsia * mw) / (zs * 10.7316 * tsR); // lbm / ft^3
+  var massFlowLbmMin = actualAcfm * rhoSuction; // lbm / min
+  var massFlowLbmHr = massFlowLbmMin * 60.0;
+
+  // Standard Volume Rate: V_std = m_dot / rho_std
+  var rhoStd = (14.696 * mw) / (1.0 * 10.7316 * 519.67);
+  var scfm = (massFlowLbmMin / rhoStd);
+  var mmscfd = (scfm * 60.0 * 24.0) / 1e6;
+  var nm3hr = mmscfd * 1177.2;
+
+  // Discharge Temperature
+  var tdR = tsR * Math.pow(rp, (k - 1.0) / k);
+  var tdF = tdR - 459.67;
+  var tdC = (tdF - 32.0) * (5.0 / 9.0);
+
+  // Power Calculation (Adiabatic)
+  // W_ad = m_dot * (k/(k-1)) * (R/MW) * Ts * [rp^((k-1)/k) - 1]
+  var rSpecific = 1545.35 / mw; // ft*lbf / (lbm*R)
+  var expVal = (k - 1.0) / k;
+  var wAdFtLbfMin = massFlowLbmMin * (k / (k - 1.0)) * rSpecific * tsR * zAvg * (Math.pow(rp, expVal) - 1.0);
+  var adHp = wAdFtLbfMin / 33000.0;
+  var etaAd = 0.84;
+  var etaMech = 0.95;
+  var totalBhp = adHp / (etaAd * etaMech);
+  var totalKw = totalBhp * 0.7457;
+
+  // Kinematics and Rod Load across 360 degrees
+  var crankR = strokeIn / 2.0; // inches
+  var lambda = crankR / lconnIn;
+  var omega = 2.0 * Math.PI * (rpm / 60.0); // rad/s
+  var mRecipSlugs = wrecipLbs / 32.174;
+
+  var maxTension = -1e9;
+  var maxCompression = -1e9;
+  var maxGasTension = -1e9;
+  var maxGasComp = -1e9;
+
+  var angles = [];
+  var crlArr = [];
+  var gasLoadArr = [];
+  var inertiaArr = [];
+  var pHeArr = [];
+  var pCeArr = [];
+  var vHeArr = [];
+
+  var revCount = 0;
+  var totalAngles = 360;
+
+  for (var deg = 0; deg <= 360; deg++) {
+    var rad = (deg * Math.PI) / 180.0;
+    angles.push(deg);
+
+    // Piston position from HE TDC: x(0) = 0, x(180) = stroke
+    // x = R * (1 - cos(theta) + (1/lambda)*(1 - sqrt(1 - lambda^2 * sin^2(theta))))
+    var cosT = Math.cos(rad);
+    var sinT = Math.sin(rad);
+    var x = crankR * ((1.0 - cosT) + (1.0 / lambda) * (1.0 - Math.sqrt(Math.max(0.001, 1.0 - Math.pow(lambda * sinT, 2)))));
+
+    // Piston acceleration in ft/s^2: a = (R/12) * omega^2 * (cos(theta) + lambda*cos(2*theta))
+    var accelFtS2 = (crankR / 12.0) * Math.pow(omega, 2) * (cosT + lambda * Math.cos(2.0 * rad));
+    // Inertia force in lbf: F_inertia = - m * a (acts in direction of acceleration when sign flipped)
+    // When moving away from TDC (0-180), acceleration is positive toward CE, so inertia force resists toward HE (tension).
+    var fInertia = - mRecipSlugs * accelFtS2;
+
+    // Instantaneous Gas Pressures in HE and CE
+    // HE: theta from 0 to 180 is expansion / suction. theta 180 to 360 is compression / discharge.
+    var pHE = psPsia;
+    var pCE = psPsia;
+
+    // Head End Pressure Model
+    var vHeClr = c * sweptHE;
+    var vHeCur = vHeClr + (aHE * x);
+    vHeArr.push(vHeCur);
+
+    if (action === 'da' || action === 'sa_he') {
+      if (deg <= 180) {
+        // Retreating from TDC: Re-expansion of clearance gas, then suction intake
+        // Clearance gas at Pd expands: P = Pd * (V_clr / V_cur)^k
+        var pExp = pdPsia * Math.pow(vHeClr / vHeCur, k);
+        pHE = Math.max(psPsia, pExp);
+      } else {
+        // Moving 180 -> 360: Compression from Ps up to Pd, then discharge plateau
+        // At 180: V = vHeClr + sweptHE
+        var vBottom = vHeClr + sweptHE;
+        var pComp = psPsia * Math.pow(vBottom / vHeCur, k);
+        pHE = Math.min(pdPsia, pComp);
+      }
+    } else {
+      pHE = psPsia; // Inactive chamber
+    }
+
+    // Crank End Pressure Model (180 deg out of phase)
+    var vCeClr = c * sweptCE;
+    var vCeCur = vCeClr + (aCE * (strokeIn - x));
+
+    if (action === 'da' || action === 'sa_ce') {
+      if (deg >= 180) {
+        // Retreating from CE BDC: Re-expansion of clearance gas, then suction intake
+        var pCeExp = pdPsia * Math.pow(vCeClr / vCeCur, k);
+        pCE = Math.max(psPsia, pCeExp);
+      } else {
+        // Moving 0 -> 180: Compression from Ps up to Pd, then discharge
+        var vCeBottom = vCeClr + sweptCE;
+        var pCeComp = psPsia * Math.pow(vCeBottom / vCeCur, k);
+        pCE = Math.min(pdPsia, pCeComp);
+      }
+    } else {
+      pCE = psPsia; // Inactive chamber
+    }
+
+    pHeArr.push(pHE);
+    pCeArr.push(pCE);
+
+    // Gas Force on Rod: F_gas = P_he * A_he - P_ce * A_ce
+    // Positive (+) = pushing rod toward crank (Compression on rod)
+    // Negative (-) = pulling rod toward cylinder head (Tension on rod)
+    // Standard API convention: Tension is (+), Compression is (-)
+    // Gas Load: Head End pushes toward crank (Compression: -), Crank End pushes toward head (Tension: +)
+    var fGas = (pCE * aCE) - (pHE * aHE); // Positive = Tension; Negative = Compression
+    var fCombined = fGas + fInertia;
+
+    gasLoadArr.push(fGas);
+    inertiaArr.push(fInertia);
+    crlArr.push(fCombined);
+
+    if (fCombined > 0) {
+      if (fCombined > maxTension) maxTension = fCombined;
+      revCount++;
+    } else {
+      var compMag = Math.abs(fCombined);
+      if (compMag > maxCompression) maxCompression = compMag;
+    }
+
+    if (fGas > 0) {
+      if (fGas > maxGasTension) maxGasTension = fGas;
+    } else {
+      var gCompMag = Math.abs(fGas);
+      if (gCompMag > maxGasComp) maxGasComp = gCompMag;
+    }
+  }
+
+  // Pin reversal degrees
+  // Find continuous segments of reversal through zero
+  var reversalDeg = 0;
+  var curRevSeg = 0;
+  var maxRevSeg = 0;
+  for (var i = 0; i < crlArr.length; i++) {
+    // If sign is positive (Tension), count reversal duration
+    if (crlArr[i] > 50) { // at least 50 lbf threshold
+      curRevSeg++;
+      if (curRevSeg > maxRevSeg) maxRevSeg = curRevSeg;
+    } else {
+      curRevSeg = 0;
+    }
+  }
+  reversalDeg = maxRevSeg;
+
+  // Save diagnostic cache
+  rcLastCalc = {
+    isMetric: isMetric,
+    ev: ev,
+    rp: rp,
+    actualAcfm: actualAcfm,
+    mmscfd: mmscfd,
+    nm3hr: nm3hr,
+    tdF: tdF,
+    tdC: tdC,
+    totalBhp: totalBhp,
+    totalKw: totalKw,
+    maxTensionLbf: maxTension,
+    maxCompLbf: maxCompression,
+    tenLimitLbf: tenLimitLbf,
+    compLimitLbf: compLimitLbf,
+    reversalDeg: reversalDeg,
+    gasLoadArr: gasLoadArr,
+    crlArr: crlArr,
+    angles: angles,
+    pHeArr: pHeArr,
+    pCeArr: pCeArr,
+    vHeArr: vHeArr
+  };
+
+  // Update DOM Display
+  document.getElementById('kpi-ev').innerText = (ev * 100).toFixed(1) + '%';
+  document.getElementById('kpi-rp').innerText = 'Pressure Ratio: ' + rp.toFixed(2);
+
+  if (isMetric) {
+    document.getElementById('kpi-flow').innerText = nm3hr.toFixed(0) + ' Nm³/h';
+    document.getElementById('kpi-acfm').innerText = 'Displacement: ' + (actualAcfm * 0.0283168).toFixed(2) + ' m³/min';
+    document.getElementById('kpi-td').innerText = tdC.toFixed(1) + ' °C';
+    document.getElementById('val-bhp').innerText = totalKw.toFixed(1) + ' kW (' + totalBhp.toFixed(1) + ' BHP)';
+
+    var tenKn = maxTension * 0.00444822;
+    var tenLimitKn = tenLimitLbf * 0.00444822;
+    var tenPct = (tenKn / tenLimitKn) * 100;
+    document.getElementById('val-tension').innerText = tenKn.toFixed(1) + ' kN (' + tenPct.toFixed(1) + '% of rating)';
+
+    var compKn = maxCompression * 0.00444822;
+    var compLimitKn = compLimitLbf * 0.00444822;
+    var compPct = (compKn / compLimitKn) * 100;
+    document.getElementById('val-comp').innerText = compKn.toFixed(1) + ' kN (' + compPct.toFixed(1) + '% of rating)';
+
+    document.getElementById('val-gas-tension').innerText = 'Peak Gas Tension: ' + (maxGasTension * 0.00444822).toFixed(1) + ' kN';
+    document.getElementById('val-gas-comp').innerText = 'Peak Gas Compression: ' + (maxGasComp * 0.00444822).toFixed(1) + ' kN';
+  } else {
+    document.getElementById('kpi-flow').innerText = mmscfd.toFixed(2) + ' MMSCFD';
+    document.getElementById('kpi-acfm').innerText = 'Displacement: ' + actualAcfm.toFixed(1) + ' ACFM';
+    document.getElementById('kpi-td').innerText = tdF.toFixed(1) + ' °F';
+    document.getElementById('val-bhp').innerText = totalBhp.toFixed(1) + ' BHP (' + totalKw.toFixed(1) + ' kW)';
+
+    var tenPctUS = (maxTension / tenLimitLbf) * 100;
+    document.getElementById('val-tension').innerText = Math.round(maxTension).toLocaleString() + ' lbf (' + tenPctUS.toFixed(1) + '% of rating)';
+
+    var compPctUS = (maxCompression / compLimitLbf) * 100;
+    document.getElementById('val-comp').innerText = Math.round(maxCompression).toLocaleString() + ' lbf (' + compPctUS.toFixed(1) + '% of rating)';
+
+    document.getElementById('val-gas-tension').innerText = 'Peak Gas Tension: ' + Math.round(maxGasTension).toLocaleString() + ' lbf';
+    document.getElementById('val-gas-comp').innerText = 'Peak Gas Compression: ' + Math.round(maxGasComp).toLocaleString() + ' lbf';
+  }
+
+  // Check Temperature Thresholds (API limit: 300°F / 150°C)
+  var tdLimit = isMetric ? 150.0 : 300.0;
+  var tdVal = isMetric ? tdC : tdF;
+  var tdUnitStr = isMetric ? '°C' : '°F';
+  if (tdVal <= tdLimit) {
+    document.getElementById('kpi-td-status').innerHTML = '<span class="status-pill status-pass">Pass (&lt;' + tdLimit + tdUnitStr + ')</span>';
+  } else {
+    document.getElementById('kpi-td-status').innerHTML = '<span class="status-pill status-fail">Exceeds API Limit (&gt;' + tdLimit + tdUnitStr + ')</span>';
+  }
+
+  // Check Pin Reversal (API 618: >= 15 deg)
+  document.getElementById('kpi-reversal').innerText = reversalDeg + '°';
+  if (reversalDeg >= 15) {
+    document.getElementById('kpi-reversal-status').innerHTML = '<span class="status-pill status-pass">Pass (&ge;15° Required)</span>';
+  } else if (reversalDeg > 0) {
+    document.getElementById('kpi-reversal-status').innerHTML = '<span class="status-pill status-warn">Warning (' + reversalDeg + '° &lt; 15°)</span>';
+  } else {
+    document.getElementById('kpi-reversal-status').innerHTML = '<span class="status-pill status-fail">No Reversal (0° Seizure Risk)</span>';
+  }
+
+  // Render Charts
+  rcDrawPV();
+  rcDrawRodLoad();
+}
+
+function rcDrawPV() {
+  var canvas = document.getElementById('rc-pv-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!rcLastCalc) return;
+  var pHe = rcLastCalc.pHeArr;
+  var vHe = rcLastCalc.vHeArr;
+
+  var minP = 1e9, maxP = -1e9;
+  var minV = 1e9, maxV = -1e9;
+  for (var i = 0; i < pHe.length; i++) {
+    if (pHe[i] < minP) minP = pHe[i];
+    if (pHe[i] > maxP) maxP = pHe[i];
+    if (vHe[i] < minV) minV = vHe[i];
+    if (vHe[i] > maxV) maxV = vHe[i];
+  }
+  minP = Math.max(0, minP * 0.85);
+  maxP = maxP * 1.15;
+  var rangeP = maxP - minP;
+  var rangeV = maxV - minV;
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  for (var gx = 0; gx <= 4; gx++) {
+    var x = padL + (plotW * gx) / 4;
+    ctx.moveTo(x, padT);
+    ctx.lineTo(x, padT + plotH);
+  }
+  ctx.stroke();
+
+  // Draw Head End P-V loop
+  ctx.beginPath();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  for (var j = 0; j < pHe.length; j++) {
+    var px = padL + ((vHe[j] - minV) / rangeV) * plotW;
+    var py = padT + plotH - ((pHe[j] - minP) / rangeP) * plotH;
+    if (j === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxP) + ' psia', padL - 6, padT + 10);
+  ctx.fillText(Math.round(minP) + ' psia', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Cylinder Swept Volume (in³)', padL + plotW / 2, h - 10);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Head End Indicator Loop', padL + 10, padT + 15);
+}
+
+function rcDrawRodLoad() {
+  var canvas = document.getElementById('rc-rod-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 55, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!rcLastCalc) return;
+  var crl = rcLastCalc.crlArr;
+  var gas = rcLastCalc.gasLoadArr;
+  var limitTen = rcLastCalc.tenLimitLbf;
+  var limitComp = rcLastCalc.compLimitLbf;
+
+  var maxVal = Math.max(limitTen, limitComp, 30000) * 1.1;
+  var minVal = - maxVal;
+
+  function toY(v) {
+    return padT + plotH / 2 - (v / maxVal) * (plotH / 2);
+  }
+  function toX(deg) {
+    return padL + (deg / 360.0) * plotW;
+  }
+
+  // Zero axis line
+  var yZero = toY(0);
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, yZero);
+  ctx.lineTo(padL + plotW, yZero);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Shaded Reversal Region (where CRL > 0, i.e. in tension)
+  ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+  for (var d = 0; d < 360; d++) {
+    if (crl[d] > 0) {
+      var x1 = toX(d);
+      var x2 = toX(d + 1);
+      ctx.fillRect(x1, padT, x2 - x1, plotH);
+    }
+  }
+
+  // Rating limit lines
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 2]);
+  ctx.beginPath();
+  ctx.moveTo(padL, toY(limitTen));
+  ctx.lineTo(padL + plotW, toY(limitTen));
+  ctx.moveTo(padL, toY(-limitComp));
+  ctx.lineTo(padL + plotW, toY(-limitComp));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Gas load curve (dashed blue)
+  ctx.beginPath();
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 1.5;
+  for (var g = 0; g <= 360; g++) {
+    var gx = toX(g);
+    var gy = toY(gas[g]);
+    if (g === 0) ctx.moveTo(gx, gy);
+    else ctx.lineTo(gx, gy);
+  }
+  ctx.stroke();
+
+  // Combined Rod Load curve (solid green/amber)
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  for (var cIdx = 0; cIdx <= 360; cIdx++) {
+    var cx = toX(cIdx);
+    var cy = toY(crl[cIdx]);
+    if (cIdx === 0) ctx.moveTo(cx, cy);
+    else ctx.lineTo(cx, cy);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('+' + Math.round(limitTen / 1000) + 'k (Ten)', padL - 6, toY(limitTen) + 4);
+  ctx.fillText('0', padL - 6, yZero + 4);
+  ctx.fillText('-' + Math.round(limitComp / 1000) + 'k (Comp)', padL - 6, toY(-limitComp) + 4);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Crank Angle (0° = TDC, 180° = BDC, 360°)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Combined Rod Load', padL + 10, padT + 12);
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('-- Gas Load Only', padL + 150, padT + 12);
+}
+
+function rcCopySummary() {
+  if (!rcLastCalc) return;
+  var d = rcLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var pUnit = d.isMetric ? 'bar g' : 'psig';
+  var tUnit = d.isMetric ? '°C' : '°F';
+  var fUnit = d.isMetric ? 'kN' : 'lbf';
+
+  var text = '=== API 618 RECIPROCATING COMPRESSOR DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: API 618 5th Ed / ISO 13631\n' +
+    'Units System: ' + u + '\n' +
+    'Stage Pressure Ratio (rp): ' + d.rp.toFixed(2) + '\n' +
+    'Volumetric Efficiency (Ev): ' + (d.ev * 100).toFixed(1) + '%\n' +
+    'Inlet Gas Capacity: ' + (d.isMetric ? d.nm3hr.toFixed(0) + ' Nm3/hr' : d.mmscfd.toFixed(2) + ' MMSCFD') + ' (' + (d.isMetric ? (d.actualAcfm * 0.0283168).toFixed(2) + ' m3/min' : d.actualAcfm.toFixed(1) + ' ACFM') + ')\n' +
+    'Predicted Discharge Temp: ' + (d.isMetric ? d.tdC.toFixed(1) + ' °C' : d.tdF.toFixed(1) + ' °F') + ' [API Limit: ' + (d.isMetric ? '150 °C' : '300 °F') + ']\n' +
+    'Shaft Power: ' + d.totalBhp.toFixed(1) + ' BHP (' + d.totalKw.toFixed(1) + ' kW)\n' +
+    'Peak Combined Tension: ' + (d.isMetric ? (d.maxTensionLbf * 0.00444822).toFixed(1) : Math.round(d.maxTensionLbf).toLocaleString()) + ' ' + fUnit + '\n' +
+    'Peak Combined Compression: ' + (d.isMetric ? (d.maxCompLbf * 0.00444822).toFixed(1) : Math.round(d.maxCompLbf).toLocaleString()) + ' ' + fUnit + '\n' +
+    'Pin Reversal Duration: ' + d.reversalDeg + '° of crank rotation [API 618 Min: 15°]\n' +
+    'Compliance Status: ' + (d.reversalDeg >= 15 ? 'API 618 COMPLIANT' : 'FAIL - REVERSAL STARVATION') + '\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.recip-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  rcCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ==========================================
+  // Tool BL4: Piping Water Hammer Joukowsky Pressure Surge & Air Chamber Sizing Calculator
+  // ==========================================
+  (() => {
+    const slug = 'joukowsky-water-hammer-surge-calculator';
+    const title = 'Piping Water Hammer Joukowsky Surge & Air Chamber Sizing Calculator';
+    const metaDescription = 'Calculate fluid transient water hammer acoustic wave velocity, Joukowsky pressure surge, critical valve closure time, vapor column cavitation risk, and hydropneumatic surge vessel sizing per AWWA M51 and ASME B31.3/B31.4.';
+
+    const faq = [
+      {
+        q: 'What is the Joukowsky equation for water hammer and when is it valid?',
+        a: 'The fundamental Joukowsky equation defines the instantaneous pressure rise caused by an abrupt change in fluid velocity: Delta_P = rho * c * Delta_v, or in head units Delta_H = (c * Delta_v) / g, where rho is fluid density, c is the acoustic wave speed in the pipe-fluid system, and Delta_v is the velocity reduction. This maximum theoretical surge pressure occurs whenever the valve closure time (t_v) is less than or equal to the critical acoustic wave reflection period: t_v <= T_c = 2*L / c (where L is pipeline length). If the valve closes within this critical window, the reflected relief wave from the upstream reservoir cannot reach the valve before full closure, subjecting the valve and adjacent piping to the full unabated Joukowsky pressure shock.'
+      },
+      {
+        q: 'How does pipe material and wall elasticity affect the acoustic wave speed (c)?',
+        a: 'The sonic wave speed in an elastic pipe is governed by the Halliwell-Korteweg formulation: c = sqrt( (K / rho) / (1 + (K / E) * (D / t) * c1) ), where K is the fluid bulk modulus of elasticity, E is the pipe material Young modulus, D is internal diameter, t is wall thickness, and c1 is the pipe restraint coefficient. While sound travels through unconfined 20 deg C water at approximately 1,480 m/s (4,850 ft/s), the elastic radial expansion of the pipe walls absorbs acoustic energy and significantly reduces wave velocity. In rigid carbon steel pipes (E = 205 GPa), wave speed is typically 1,000 to 1,250 m/s. In ductile iron (E = 170 GPa), it ranges from 950 to 1,150 m/s. In flexible thermoplastics such as HDPE (E = 0.9 GPa) or PVC (E = 3.0 GPa), intense wall elasticity dramatically reduces wave speed down to 250 to 450 m/s, which lowers peak surge pressure but significantly increases the critical closure period T_c.'
+      },
+      {
+        q: 'What is vapor column separation and why is secondary water hammer often catastrophic?',
+        a: 'During a pump trip or downstream valve closure, an acoustic rarefaction (downsurge) wave travels through the pipeline, dropping local line pressure: P_min = P_operating - Delta_P. If local pressure drops to the fluid vapor pressure (approximately -14.4 psig / 0.023 bar a for ambient water), the liquid column ruptures and boils, creating an expanding vapor pocket (cavitation column separation), most commonly at high-elevation knees or summit points. When flow reverses or positive acoustic reflection waves return, the separated liquid columns accelerate toward each other and slam closed against the collapsing vapor void with near-zero hydraulic cushioning. The resulting secondary cavity-collapse shock wave frequently reaches 2 to 5 times the initial Joukowsky surge pressure, causing catastrophic pipeline ruptures and foundation shearing.'
+      },
+      {
+        q: 'How does a hydropneumatic surge vessel (air chamber) mitigate transient pressure extremes?',
+        a: 'A hydropneumatic surge vessel (or air cushion chamber) is an ASME pressure vessel containing an initial volume of pressurized gas (typically nitrogen or air) above a liquid reservoir, connected to the pipeline through an asymmetrical throttling orifice. During a positive pressure surge, liquid surges into the vessel, compressing the gas cushion according to the polytropic gas law (P * V^n = constant, with n = 1.2 to 1.4), converting destructive kinetic energy into potential gas compression. During a downsurge, the compressed gas instantly expands, discharging liquid into the pipeline to maintain positive line pressure above vapor pressure and prevent column separation. The sizing depends on the stored kinetic energy of the water column: V_air = (2 * A_pipe * L * v0 / c) / ((P_max / P0)^(1/n) - 1).'
+      },
+      {
+        q: 'What is the difference between geometric valve closure time and effective valve closure time?',
+        a: 'Actuator stroke time is rarely equal to hydraulic closure time. Most standard quarter-turn valves (such as butterfly, ball, and eccentric plug valves) exhibit highly non-linear flow coefficients (Cv vs rotation angle). Over the first 70% to 80% of valve disc rotation from full open, the cross-sectional flow area remains large, causing minimal head loss and almost zero flow reduction. Nearly 85% to 90% of total fluid deceleration occurs in the final 10% to 15% of valve travel. Consequently, a motorized valve with an apparently slow 10-second stroke time may have an effective closure time (t_eff) of only 1.0 to 1.5 seconds. If t_eff is less than 2L/c, the pipeline experiences full instantaneous Joukowsky water hammer despite the operator assuming a slow closure.'
+      }
+    ];
+
+    const content = `
+<style>
+.wh-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.wh-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.wh-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.wh-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .wh-grid-2, .wh-grid-3, .wh-grid-4 { grid-template-columns: 1fr; }
+}
+.wh-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.wh-input, .wh-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.wh-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.wh-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.wh-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.wh-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.wh-btn:hover { opacity: 0.9; }
+.trap-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.status-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+</style>
+
+<div class="wh-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Piping Water Hammer Joukowsky Transient Analysis</h3>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Wave Speed, Pressure Surge, Critical Closure & Surge Vessel Sizing</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Units:</span>
+      <select id="wh-units" class="wh-select" style="width: auto; padding: 0.4rem 0.75rem;" onchange="whCalc()">
+        <option value="us" selected>US Customary (ft, in, psig, gpm, psi)</option>
+        <option value="si">Metric / SI (m, mm, bar g, m³/h, bar)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="wh-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="wh-label"><span>Pipe Material Preset</span></div>
+      <select id="wh-mat" class="wh-select" onchange="whSetMat()">
+        <option value="steel" selected>Carbon Steel (E = 205 GPa / 29.7 Mpsi)</option>
+        <option value="di">Ductile Iron (E = 170 GPa / 24.6 Mpsi)</option>
+        <option value="pvc">PVC Schedule 80 (E = 3.0 GPa / 435 kpsi)</option>
+        <option value="hdpe">HDPE PE100 SDR 11 (E = 0.9 GPa / 130 kpsi)</option>
+        <option value="copper">Copper Tube (E = 110 GPa / 16.0 Mpsi)</option>
+        <option value="custom">Custom Modulus</option>
+      </select>
+    </div>
+    <div>
+      <div class="wh-label"><span id="lbl-emod">Pipe Young's Modulus (E, Mpsi)</span></div>
+      <input type="number" id="wh-emod" class="wh-input" value="29.7" step="0.1" min="0.05" oninput="whCalc()">
+    </div>
+    <div>
+      <div class="wh-label"><span>Fluid Preset</span></div>
+      <select id="wh-fluid" class="wh-select" onchange="whSetFluid()">
+        <option value="water20" selected>Water @ 20°C (68°F, K=2.19 GPa, SG=1.0)</option>
+        <option value="water80">Hot Water @ 80°C (176°F, K=2.14 GPa, SG=0.97)</option>
+        <option value="seawater">Seawater 3.5% (K=2.33 GPa, SG=1.025)</option>
+        <option value="crude">Light Crude Oil (K=1.50 GPa, SG=0.85)</option>
+        <option value="diesel">Diesel Fuel (K=1.65 GPa, SG=0.83)</option>
+      </select>
+    </div>
+    <div>
+      <div class="wh-label"><span id="lbl-kmod">Fluid Bulk Modulus (K, kpsi)</span></div>
+      <input type="number" id="wh-kmod" class="wh-input" value="317.6" step="1.0" min="50" oninput="whCalc()">
+    </div>
+  </div>
+
+  <div class="wh-grid-4" style="margin-bottom: 1rem;">
+    <div>
+      <div class="wh-label"><span id="lbl-diam">Internal Diameter (D_i, in)</span></div>
+      <input type="number" id="wh-diam" class="wh-input" value="12.0" step="0.25" min="0.5" oninput="whCalc()">
+    </div>
+    <div>
+      <div class="wh-label"><span id="lbl-thick">Wall Thickness (t, in)</span></div>
+      <input type="number" id="wh-thick" class="wh-input" value="0.375" step="0.025" min="0.02" oninput="whCalc()">
+    </div>
+    <div>
+      <div class="wh-label"><span id="lbl-len">Pipeline Length (L, ft)</span></div>
+      <input type="number" id="wh-len" class="wh-input" value="4500" step="100" min="10" oninput="whCalc()">
+    </div>
+    <div>
+      <div class="wh-label"><span>Restraint Support (c1)</span></div>
+      <select id="wh-restraint" class="wh-select" onchange="whCalc()">
+        <option value="anchored" selected>Anchored Both Ends (c1 = 1 - nu^2)</option>
+        <option value="free">Expansion Joints Throughout (c1 = 1.0)</option>
+        <option value="one_end">Anchored Upstream Only (c1 = 1 - nu/2)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="wh-grid-4" style="margin-bottom: 1.25rem;">
+    <div>
+      <div class="wh-label"><span id="lbl-p0">Operating Pressure (P0, psig)</span></div>
+      <input type="number" id="wh-p0" class="wh-input" value="85.0" step="5" min="0" oninput="whCalc()">
+    </div>
+    <div>
+      <div class="wh-label"><span id="lbl-maop">Pipe Rating / MAOP (psig)</span></div>
+      <input type="number" id="wh-maop" class="wh-input" value="175.0" step="5" min="10" oninput="whCalc()">
+    </div>
+    <div>
+      <div class="wh-label"><span id="lbl-v0">Initial Velocity (v0, ft/s)</span></div>
+      <input type="number" id="wh-v0" class="wh-input" value="6.5" step="0.1" min="0.1" max="40" oninput="whCalc()">
+    </div>
+    <div>
+      <div class="wh-label"><span>Valve Closure Time (t_v, s)</span></div>
+      <input type="number" id="wh-tv" class="wh-input" value="1.8" step="0.1" min="0.05" oninput="whCalc()">
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY CARDS -->
+  <div class="wh-grid-4" style="margin-bottom: 1.5rem;">
+    <div class="wh-kpi">
+      <div class="wh-kpi-lbl">Acoustic Wave Speed (c)</div>
+      <div class="wh-kpi-val" id="kpi-wavespeed">3,640 ft/s</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="kpi-speed-si">1,109 m/s (Steel/Water)</div>
+    </div>
+    <div class="wh-kpi">
+      <div class="wh-kpi-lbl">Critical Time (Tc = 2L/c)</div>
+      <div class="wh-kpi-val" id="kpi-tc">2.47 s</div>
+      <div style="font-size: 0.75rem;" id="kpi-closure-type"><span class="status-pill status-fail">Rapid (t_v &le; Tc)</span></div>
+    </div>
+    <div class="wh-kpi">
+      <div class="wh-kpi-lbl">Max Surge Pressure (Pmax)</div>
+      <div class="wh-kpi-val" id="kpi-pmax">406.8 psig</div>
+      <div style="font-size: 0.75rem;" id="kpi-maop-status"><span class="status-pill status-fail">Exceeds MAOP (175 psi)</span></div>
+    </div>
+    <div class="wh-kpi">
+      <div class="wh-kpi-lbl">Vapor Cavitation Risk (Pmin)</div>
+      <div class="wh-kpi-val" id="kpi-pmin">-236.8 psig</div>
+      <div style="font-size: 0.75rem;" id="kpi-cav-status"><span class="status-pill status-fail">Column Separation Alert</span></div>
+    </div>
+  </div>
+
+  <!-- DETAILED DIAGNOSTICS & SURGE VESSEL SIZING -->
+  <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Water Hammer Diagnostics & Surge Mitigation Sizing</h4>
+    <div class="wh-grid-3">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Joukowsky Surge Head Rise:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: var(--text);" id="val-surge-head">734.8 ft (321.8 psi)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-flow-gpm">Flow Rate: 2,295 GPM (521 m³/h)</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Transient Closure Factor:</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #f59e0b;" id="val-closure-factor">100% Full Joukowsky Shock</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-slow-equiv">Slow Closure Equiv: 2.47 s needed</div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Air Chamber Net Air Volume (V0):</div>
+        <div style="font-size: 1.2rem; font-weight: 700; font-family: var(--mono); color: #10b981;" id="val-vessel-vol">385 gal (1,457 L)</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;" id="val-vessel-total">Total Rec Tank Size: ~650 gal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CANVASES -->
+  <div class="wh-grid-2" style="margin-bottom: 1.5rem;">
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Hydraulic Grade Line (HGL) Profile along Pipeline</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Valve (x=0) to Reservoir (x=L)</span>
+      </div>
+      <canvas id="wh-hgl-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.875rem;">Transient Pressure vs Time P(t) at Valve</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Unprotected vs Damped Vessel</span>
+      </div>
+      <canvas id="wh-time-canvas" width="450" height="240" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0f172a;"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center;">
+    <button class="wh-btn" onclick="whCopySummary()">
+      <span>📋 Copy Water Hammer Diagnostic Summary</span>
+    </button>
+  </div>
+</div>
+
+<!-- FATAL TRAPS & ENGINEERING PITFALLS SECTION -->
+<div style="margin-top: 2rem;">
+  <h3 style="margin-bottom: 1rem;">Fatal Traps & Water Hammer Transient Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #ef4444;">Trap 1: Assuming Slow Closure from Actuator Run Time on Quarter-Turn Valves</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Standard ball, butterfly, and plug valves do not shut off flow proportionally with travel. Because of the spherical or elliptical aperture geometry, 80% to 90% of flow reduction occurs in the final 10% to 15% of valve rotation. If an electric actuator is programmed for a 10-second stroke, the effective deceleration time t_eff is actually less than 1.5 seconds. If the pipeline critical period 2L/c is 2.0 seconds, the system suffers the full, catastrophic Joukowsky pressure shock because t_eff &lt; 2L/c. Designers must analyze the intrinsic valve flow characteristic (inherent and installed Cv curves) rather than total mechanical cycle time.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b;">Trap 2: Catastrophic Secondary Water Hammer from Vapor Column Separation & Cavity Collapse</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Engineers frequently design pipe wall thickness to resist the initial positive pressure rise P_max, ignoring the subsequent downsurge wave P_min = P0 - Delta_P. When P_min drops below atmospheric pressure to the liquid vapor pressure (-14.4 psig / 0.023 bar a), liquid column separation occurs, vaporizing fluid and creating huge cavitation voids at high elevation summits. When the hydraulic grade line rebounds, the split fluid columns slam back together with zero liquid cushioning. The resulting cavity collapse produces localized shock pressures up to 300% to 500% higher than the original Joukowsky surge, instantly shattering ductile iron bell-and-spigot joints and bursting pump volutes.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">Trap 3: Overlooking Severe Temperature Derating of Young's Modulus in HDPE and PVC Pipelines</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      Thermoplastic pipes have low modulus of elasticity (HDPE E = 0.9 GPa vs Steel E = 205 GPa), which yields low wave velocities (c = 300 to 450 m/s) and smaller Joukowsky pressure surges. However, thermoplastic polymers are highly viscoelastic and sensitive to temperature. Operating at 40°C (104°F) instead of 20°C cuts the tensile yield strength and burst pressure of PE100 by over 25%. Furthermore, lower wave speed dramatically increases the critical time 2L/c (a 1,500 m HDPE line has Tc = 8.5 seconds compared to 2.5 seconds for steel). Valves that would easily qualify as "slow closure" on a steel main become violently "instantaneous" on thermoplastic lines.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">Trap 4: Check Valve Slam During Emergency Pump Station Trip</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      When multiple pumps discharge into a common header and one pump trips, the fluid column in that branch decelerates rapidly and attempts to reverse before the standard swing check valve disc can close. Standard swing check valves rely on gravity and reverse flow drag to close, causing the disc to slam shut against the seat only after reverse flow has reached 1 to 3 m/s. The instantaneous deceleration of this reversed flow creates extreme localized check valve slam that destroys disc pins, cracks flanges, and shears anchor bolts. High-deceleration pump systems require spring-assisted non-slam nozzle check valves that close at the precise moment forward velocity reaches zero.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">Trap 5: Improper Pre-Charge Pressure and Thermal Gas Loss in Hydropneumatic Surge Vessels</h4>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6;">
+      A hydropneumatic surge vessel is useless if its gas pre-charge pressure is improperly set. If pre-charge pressure is too low, the vessel becomes water-logged during normal operating pressure, leaving insufficient compressible air volume to absorb incoming positive surges. If pre-charge pressure is set too high (above steady-state pipeline pressure), all liquid is expelled during normal operation, allowing high-pressure gas to blow directly into the water main during a minor downsurge. Furthermore, un-bladdered air vessels suffer continuous air absorption into the flowing water stream (Henry's Law), draining the air cushion within weeks unless equipped with automatic compressor replenishment systems.
+    </p>
+  </div>
+</div>
+
+<!-- TECHNICAL DERIVATION & WORKED MATHEMATICAL FORMULATIONS -->
+<div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+  <h3 style="margin-top: 0;">Comprehensive Joukowsky & Transient Mathematical Derivations</h3>
+  
+  <p style="font-size: 0.9rem; line-height: 1.6;">
+    Hydraulic transient analysis evaluates fluid momentum conservation combined with pipe-wall strain mechanics. The equations governing elastic wave propagation, pressure rise, and vessel sizing are formulated below:
+  </p>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">1. Acoustic Wave Velocity in Elastic Conduits (Halliwell-Korteweg)</h4>
+  <p style="font-size: 0.875rem; line-height: 1.6;">
+    Accounting for fluid compressibility and pipe radial dilation:
+  </p>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Wave Speed: c = sqrt( (K / rho) / [ 1 + (K / E) * (D_i / t) * c1 ] )<br>
+    Restraint Factors (Poisson ratio nu = 0.30):<br>
+    - Anchored Both Ends: c1 = 1 - nu^2 = 0.91<br>
+    - Expansion Joints: c1 = 1.0<br>
+    - Anchored One End: c1 = 1 - (nu / 2) = 0.85
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">2. Critical Time & Instantaneous Surge (Joukowsky)</h4>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Wave Reflection Period: T_c = 2 * L / c<br>
+    Rapid Closure (t_v &le; T_c):<br>
+    &nbsp;&nbsp;Delta_P = rho * c * Delta_v [Pa or psi]<br>
+    &nbsp;&nbsp;Delta_H = (c * Delta_v) / g [meters or feet of head]<br>
+    Slow Closure (t_v &gt; T_c, Michaud Approximation):<br>
+    &nbsp;&nbsp;Delta_P_slow = Delta_P * (T_c / t_v)<br>
+    Maximum Transient Pressure: P_max = P_0 + Delta_P<br>
+    Minimum Downsurge Pressure: P_min = P_0 - Delta_P
+  </div>
+
+  <h4 style="margin-top: 1.25rem; font-size: 0.95rem;">3. Hydropneumatic Air Chamber Sizing (AWWA M51 / Polytropic Expansion)</h4>
+  <p style="font-size: 0.875rem; line-height: 1.6;">
+    For an air vessel maintaining maximum surge pressure within allowable limit <em>P_limit</em>:
+  </p>
+  <div style="background: var(--bg); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; margin: 0.5rem 0;">
+    Kinetic Energy of Flow Column: KE = 0.5 * rho * A_pipe * L * v0^2<br>
+    Polytropic Air Expansion (n = 1.2): P * V^n = const<br>
+    Required Net Air Volume at Normal Operation (P0):<br>
+    &nbsp;&nbsp;V_0 = (2 * A_pipe * L * v0 / c) / [ (P_limit / P_0)^(1 / n) - 1 ]<br>
+    Total Vessel Size (accounting for liquid emergency reserve & low-level deadband):<br>
+    &nbsp;&nbsp;V_total = 1.65 * V_0
+  </div>
+</div>
+
+<script>
+var whLastCalc = null;
+
+function whSetMat() {
+  var mat = document.getElementById('wh-mat').value;
+  var eInput = document.getElementById('wh-emod');
+  var units = document.getElementById('wh-units').value;
+  var isMetric = (units === 'si');
+
+  if (mat === 'steel') eInput.value = isMetric ? '205.0' : '29.7';
+  else if (mat === 'di') eInput.value = isMetric ? '170.0' : '24.6';
+  else if (mat === 'pvc') eInput.value = isMetric ? '3.0' : '0.435';
+  else if (mat === 'hdpe') eInput.value = isMetric ? '0.9' : '0.130';
+  else if (mat === 'copper') eInput.value = isMetric ? '110.0' : '16.0';
+  whCalc();
+}
+
+function whSetFluid() {
+  var fl = document.getElementById('wh-fluid').value;
+  var kInput = document.getElementById('wh-kmod');
+  var units = document.getElementById('wh-units').value;
+  var isMetric = (units === 'si');
+
+  if (fl === 'water20') kInput.value = isMetric ? '2.19' : '317.6';
+  else if (fl === 'water80') kInput.value = isMetric ? '2.14' : '310.4';
+  else if (fl === 'seawater') kInput.value = isMetric ? '2.33' : '337.9';
+  else if (fl === 'crude') kInput.value = isMetric ? '1.50' : '217.5';
+  else if (fl === 'diesel') kInput.value = isMetric ? '1.65' : '239.3';
+  whCalc();
+}
+
+function whCalc() {
+  var units = document.getElementById('wh-units').value;
+  var isMetric = (units === 'si');
+
+  // Dynamic labels
+  document.getElementById('lbl-emod').innerText = isMetric ? "Pipe Young's Modulus (E, GPa)" : "Pipe Young's Modulus (E, Mpsi)";
+  document.getElementById('lbl-kmod').innerText = isMetric ? "Fluid Bulk Modulus (K, GPa)" : "Fluid Bulk Modulus (K, kpsi)";
+  document.getElementById('lbl-diam').innerText = isMetric ? "Internal Diameter (D_i, mm)" : "Internal Diameter (D_i, in)";
+  document.getElementById('lbl-thick').innerText = isMetric ? "Wall Thickness (t, mm)" : "Wall Thickness (t, in)";
+  document.getElementById('lbl-len').innerText = isMetric ? "Pipeline Length (L, m)" : "Pipeline Length (L, ft)";
+  document.getElementById('lbl-p0').innerText = isMetric ? "Operating Pressure (P0, bar g)" : "Operating Pressure (P0, psig)";
+  document.getElementById('lbl-maop').innerText = isMetric ? "Pipe Rating / MAOP (bar g)" : "Pipe Rating / MAOP (psig)";
+  document.getElementById('lbl-v0').innerText = isMetric ? "Initial Velocity (v0, m/s)" : "Initial Velocity (v0, ft/s)";
+
+  var eRaw = parseFloat(document.getElementById('wh-emod').value) || 29.7;
+  var kRaw = parseFloat(document.getElementById('wh-kmod').value) || 317.6;
+  var diamRaw = parseFloat(document.getElementById('wh-diam').value) || 12;
+  var thickRaw = parseFloat(document.getElementById('wh-thick').value) || 0.375;
+  var lenRaw = parseFloat(document.getElementById('wh-len').value) || 4500;
+  var p0Raw = parseFloat(document.getElementById('wh-p0').value) || 85;
+  var maopRaw = parseFloat(document.getElementById('wh-maop').value) || 175;
+  var v0Raw = parseFloat(document.getElementById('wh-v0').value) || 6.5;
+  var tvRaw = parseFloat(document.getElementById('wh-tv').value) || 1.8;
+  var restraint = document.getElementById('wh-restraint').value;
+  var flType = document.getElementById('wh-fluid').value;
+
+  // Fluid density in kg/m3 and lb/ft3
+  var rhoKgM3 = 1000.0;
+  if (flType === 'water80') rhoKgM3 = 971.8;
+  else if (flType === 'seawater') rhoKgM3 = 1025.0;
+  else if (flType === 'crude') rhoKgM3 = 850.0;
+  else if (flType === 'diesel') rhoKgM3 = 830.0;
+
+  // Restraint factor c1 (nu = 0.30)
+  var c1 = 0.91; // anchored both ends
+  if (restraint === 'free') c1 = 1.0;
+  else if (restraint === 'one_end') c1 = 0.85;
+
+  // SI Standard Units calculation (Pa, m, m/s, s)
+  var ePa, kPa, dM, tM, lM, p0Pa, maopPa, v0MS, tvS;
+  if (isMetric) {
+    ePa = eRaw * 1e9;
+    kPa = kRaw * 1e9;
+    dM = diamRaw / 1000.0;
+    tM = thickRaw / 1000.0;
+    lM = lenRaw;
+    p0Pa = p0Raw * 1e5;
+    maopPa = maopRaw * 1e5;
+    v0MS = v0Raw;
+    tvS = tvRaw;
+  } else {
+    ePa = eRaw * 1e6 * 6894.76;
+    kPa = kRaw * 1e3 * 6894.76;
+    dM = (diamRaw * 0.0254);
+    tM = (thickRaw * 0.0254);
+    lM = lenRaw * 0.3048;
+    p0Pa = p0Raw * 6894.76;
+    maopPa = maopRaw * 6894.76;
+    v0MS = v0Raw * 0.3048;
+    tvS = tvRaw;
+  }
+
+  // Wave velocity c = sqrt((K / rho) / (1 + (K / E) * (D / t) * c1))
+  var termDOverT = dM / Math.max(0.0001, tM);
+  var denom = 1.0 + (kPa / ePa) * termDOverT * c1;
+  var waveSpeedMS = Math.sqrt((kPa / rhoKgM3) / denom);
+  var waveSpeedFtS = waveSpeedMS * 3.28084;
+
+  // Critical closure time Tc = 2L / c
+  var tc = (2.0 * lM) / waveSpeedMS;
+
+  // Joukowsky surge pressure Delta P = rho * c * Delta v
+  var deltaPFullPa = rhoKgM3 * waveSpeedMS * v0MS;
+  var isRapid = (tvS <= tc);
+  var closureRatio = isRapid ? 1.0 : (tc / tvS);
+  var deltaPEffPa = deltaPFullPa * closureRatio;
+
+  // Peak and Minimum Pressures
+  var pMaxPa = p0Pa + deltaPEffPa;
+  var pMinPa = p0Pa - deltaPEffPa;
+  var pVaporPa = -101325.0 + 2338.0; // absolute vapor pressure ~ 2.3 kPa (approx -0.99 bar g)
+
+  // Surge Head in meters and feet: H = Delta P / (rho * g)
+  var g = 9.80665;
+  var surgeHeadM = deltaPEffPa / (rhoKgM3 * g);
+  var surgeHeadFt = surgeHeadM * 3.28084;
+
+  // Flow Rate
+  var pipeAreaM2 = (Math.PI / 4.0) * Math.pow(dM, 2);
+  var flowM3S = pipeAreaM2 * v0MS;
+  var flowM3Hr = flowM3S * 3600.0;
+  var flowGpm = flowM3Hr * 4.40287;
+
+  // Hydropneumatic Air Chamber Sizing (AWWA M51, Polytropic n = 1.2)
+  // Sized to limit surge to 1.30 * P0 or MAOP
+  var pAllowPa = Math.min(maopPa, p0Pa * 1.35);
+  if (pAllowPa <= p0Pa) pAllowPa = p0Pa * 1.20;
+  var pRatio = (pAllowPa + 101325.0) / (p0Pa + 101325.0);
+  var nPoly = 1.2;
+  var expTerm = Math.pow(pRatio, 1.0 / nPoly) - 1.0;
+  var v0AirM3 = 0;
+  if (expTerm > 0.01) {
+    v0AirM3 = (2.0 * pipeAreaM2 * lM * v0MS / waveSpeedMS) / expTerm;
+  }
+  var v0AirGal = v0AirM3 * 264.172;
+  var vTotalM3 = v0AirM3 * 1.65;
+  var vTotalGal = v0AirGal * 1.65;
+
+  // Convert for Display
+  var pMaxDisplay, pMinDisplay, deltaPDisplay, p0Display, maopDisplay;
+  if (isMetric) {
+    pMaxDisplay = pMaxPa / 1e5;
+    pMinDisplay = pMinPa / 1e5;
+    deltaPDisplay = deltaPEffPa / 1e5;
+    p0Display = p0Raw;
+    maopDisplay = maopRaw;
+  } else {
+    pMaxDisplay = pMaxPa / 6894.76;
+    pMinDisplay = pMinPa / 6894.76;
+    deltaPDisplay = deltaPEffPa / 6894.76;
+    p0Display = p0Raw;
+    maopDisplay = maopRaw;
+  }
+
+  whLastCalc = {
+    isMetric: isMetric,
+    waveSpeedMS: waveSpeedMS,
+    waveSpeedFtS: waveSpeedFtS,
+    tc: tc,
+    tvS: tvS,
+    isRapid: isRapid,
+    deltaPEffPa: deltaPEffPa,
+    pMaxPa: pMaxPa,
+    pMinPa: pMinPa,
+    p0Pa: p0Pa,
+    maopPa: maopPa,
+    surgeHeadM: surgeHeadM,
+    surgeHeadFt: surgeHeadFt,
+    flowGpm: flowGpm,
+    flowM3Hr: flowM3Hr,
+    v0AirGal: v0AirGal,
+    v0AirM3: v0AirM3,
+    vTotalGal: vTotalGal,
+    vTotalM3: vTotalM3,
+    lM: lM
+  };
+
+  // Update DOM KPIs
+  if (isMetric) {
+    document.getElementById('kpi-wavespeed').innerText = Math.round(waveSpeedMS).toLocaleString() + ' m/s';
+    document.getElementById('kpi-speed-si').innerText = Math.round(waveSpeedFtS).toLocaleString() + ' ft/s';
+    document.getElementById('kpi-pmax').innerText = pMaxDisplay.toFixed(1) + ' bar g';
+    document.getElementById('kpi-pmin').innerText = pMinDisplay.toFixed(1) + ' bar g';
+    document.getElementById('val-surge-head').innerText = surgeHeadM.toFixed(1) + ' m (' + deltaPDisplay.toFixed(1) + ' bar)';
+    document.getElementById('val-flow-gpm').innerText = 'Flow Rate: ' + flowM3Hr.toFixed(1) + ' m³/h (' + flowGpm.toFixed(0) + ' GPM)';
+    document.getElementById('val-vessel-vol').innerText = Math.round(v0AirM3 * 1000).toLocaleString() + ' L (' + v0AirM3.toFixed(2) + ' m³)';
+    document.getElementById('val-vessel-total').innerText = 'Total Rec Tank Size: ~' + Math.round(vTotalM3 * 1000).toLocaleString() + ' L';
+  } else {
+    document.getElementById('kpi-wavespeed').innerText = Math.round(waveSpeedFtS).toLocaleString() + ' ft/s';
+    document.getElementById('kpi-speed-si').innerText = Math.round(waveSpeedMS).toLocaleString() + ' m/s';
+    document.getElementById('kpi-pmax').innerText = pMaxDisplay.toFixed(1) + ' psig';
+    document.getElementById('kpi-pmin').innerText = pMinDisplay.toFixed(1) + ' psig';
+    document.getElementById('val-surge-head').innerText = surgeHeadFt.toFixed(1) + ' ft (' + deltaPDisplay.toFixed(1) + ' psi)';
+    document.getElementById('val-flow-gpm').innerText = 'Flow Rate: ' + Math.round(flowGpm).toLocaleString() + ' GPM (' + flowM3Hr.toFixed(0) + ' m³/h)';
+    document.getElementById('val-vessel-vol').innerText = Math.round(v0AirGal).toLocaleString() + ' gal (' + (v0AirM3 * 1000).toFixed(0) + ' L)';
+    document.getElementById('val-vessel-total').innerText = 'Total Rec Tank Size: ~' + Math.round(vTotalGal).toLocaleString() + ' gal';
+  }
+
+  document.getElementById('kpi-tc').innerText = tc.toFixed(2) + ' s';
+  if (isRapid) {
+    document.getElementById('kpi-closure-type').innerHTML = '<span class="status-pill status-fail">Rapid (t_v &le; Tc)</span>';
+    document.getElementById('val-closure-factor').innerText = '100% Full Joukowsky Shock';
+    document.getElementById('val-closure-factor').style.color = '#ef4444';
+  } else {
+    var pct = Math.round(closureRatio * 100);
+    document.getElementById('kpi-closure-type').innerHTML = '<span class="status-pill status-pass">Slow (t_v &gt; Tc)</span>';
+    document.getElementById('val-closure-factor').innerText = pct + '% Reduced Joukowsky Surge';
+    document.getElementById('val-closure-factor').style.color = '#10b981';
+  }
+  document.getElementById('val-slow-equiv').innerText = 'Critical Period Tc: ' + tc.toFixed(2) + ' s';
+
+  // MAOP Check
+  var pUnitStr = isMetric ? ' bar g' : ' psig';
+  if (pMaxPa <= maopPa) {
+    document.getElementById('kpi-maop-status').innerHTML = '<span class="status-pill status-pass">Within MAOP (' + maopDisplay.toFixed(1) + pUnitStr + ')</span>';
+  } else {
+    document.getElementById('kpi-maop-status').innerHTML = '<span class="status-pill status-fail">Exceeds MAOP (' + maopDisplay.toFixed(1) + pUnitStr + ')</span>';
+  }
+
+  // Cavitation Check
+  if (pMinPa > -70000) {
+    document.getElementById('kpi-cav-status').innerHTML = '<span class="status-pill status-pass">Positive Pressure Pass</span>';
+  } else if (pMinPa > pVaporPa) {
+    document.getElementById('kpi-cav-status').innerHTML = '<span class="status-pill status-warn">Transient Vacuum Formed</span>';
+  } else {
+    document.getElementById('kpi-cav-status').innerHTML = '<span class="status-pill status-fail">Vapor Cavity Rupture!</span>';
+  }
+
+  whDrawHGL();
+  whDrawTime();
+}
+
+function whDrawHGL() {
+  var canvas = document.getElementById('wh-hgl-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!whLastCalc) return;
+  var d = whLastCalc;
+  var isMetric = d.isMetric;
+
+  var p0 = isMetric ? d.p0Pa / 1e5 : d.p0Pa / 6894.76;
+  var maop = isMetric ? d.maopPa / 1e5 : d.maopPa / 6894.76;
+  var pMax = isMetric ? d.pMaxPa / 1e5 : d.pMaxPa / 6894.76;
+  var pMin = isMetric ? d.pMinPa / 1e5 : d.pMinPa / 6894.76;
+  var pAtm = 0; // gauge 0
+
+  var maxVal = Math.max(pMax, maop) * 1.15;
+  var minVal = Math.min(pMin, -15);
+  var range = maxVal - minVal;
+
+  function toY(val) {
+    return padT + plotH - ((val - minVal) / range) * plotH;
+  }
+  function toX(frac) {
+    return padL + frac * plotW;
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (var gy = 0; gy <= 4; gy++) {
+    var y = padT + (plotH * gy) / 4;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + plotW, y);
+  }
+  ctx.stroke();
+
+  // Zero / Atmospheric line
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(padL, toY(0));
+  ctx.lineTo(padL + plotW, toY(0));
+  ctx.stroke();
+
+  // MAOP line (dashed red)
+  ctx.strokeStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.moveTo(padL, toY(maop));
+  ctx.lineTo(padL + plotW, toY(maop));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Steady State HGL Line (horizontal P0 to reservoir)
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(p0));
+  ctx.lineTo(toX(1), toY(p0));
+  ctx.stroke();
+
+  // Maximum Surge Envelope (slopes down from Valve x=0 to Reservoir x=L where P=P0)
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(pMax));
+  ctx.lineTo(toX(1), toY(p0));
+  ctx.stroke();
+
+  // Minimum Downsurge Envelope
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(pMin));
+  ctx.lineTo(toX(1), toY(p0));
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxVal) + (isMetric ? ' bar' : ' psi'), padL - 6, padT + 10);
+  ctx.fillText('0', padL - 6, toY(0) + 4);
+  ctx.fillText(Math.round(minVal) + '', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Pipeline Profile: Valve (x=0) ➔ Upstream Reservoir (x=L)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('● Peak Surge Envelope', padL + 10, padT + 12);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillText('-- MAOP Rating', padL + 150, padT + 12);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('● Downsurge Envelope', padL + 250, padT + 12);
+}
+
+function whDrawTime() {
+  var canvas = document.getElementById('wh-time-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  var padL = 50, padR = 20, padT = 25, padB = 35;
+  var plotW = w - padL - padR;
+  var plotH = h - padT - padB;
+
+  if (!whLastCalc) return;
+  var d = whLastCalc;
+  var isMetric = d.isMetric;
+
+  var p0 = isMetric ? d.p0Pa / 1e5 : d.p0Pa / 6894.76;
+  var pMax = isMetric ? d.pMaxPa / 1e5 : d.pMaxPa / 6894.76;
+  var pMin = isMetric ? d.pMinPa / 1e5 : d.pMinPa / 6894.76;
+  var maop = isMetric ? d.maopPa / 1e5 : d.maopPa / 6894.76;
+  var tc = d.tc;
+
+  var maxVal = Math.max(pMax, maop) * 1.15;
+  var minVal = Math.min(pMin, -15);
+  var range = maxVal - minVal;
+
+  function toY(val) {
+    return padT + plotH - ((val - minVal) / range) * plotH;
+  }
+
+  // Draw 4 cycles of 2L/c
+  var totalTime = tc * 4.0;
+  function toX(t) {
+    return padL + (t / totalTime) * plotW;
+  }
+
+  // Atmospheric zero line
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(padL, toY(0));
+  ctx.lineTo(padL + plotW, toY(0));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Unprotected square wave response with damping
+  ctx.beginPath();
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  var pts = 120;
+  for (var i = 0; i <= pts; i++) {
+    var t = (i / pts) * totalTime;
+    var waveNum = Math.floor(t / tc);
+    var damp = Math.exp(-0.35 * (t / tc));
+    var val = p0;
+    if (t > 0.1) {
+      if (waveNum % 2 === 0) {
+        val = p0 + (pMax - p0) * damp;
+      } else {
+        val = p0 - (p0 - pMin) * damp;
+      }
+    }
+    var px = toX(t);
+    var py = toY(val);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Damped Air Chamber response (smooth sinusoidal decay)
+  ctx.beginPath();
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.5;
+  var pVesselMax = p0 + (pMax - p0) * 0.35; // vessel reduces surge by 65%
+  for (var j = 0; j <= pts; j++) {
+    var tj = (j / pts) * totalTime;
+    var amp = (pVesselMax - p0) * Math.exp(-0.7 * (tj / tc));
+    var valDamped = p0 + amp * Math.cos(2.0 * Math.PI * (tj / (tc * 2.0)));
+    var vx = toX(tj);
+    var vy = toY(valDamped);
+    if (j === 0) ctx.moveTo(vx, vy);
+    else ctx.lineTo(vx, vy);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(maxVal) + '', padL - 6, padT + 10);
+  ctx.fillText('0', padL - 6, toY(0) + 4);
+  ctx.fillText(Math.round(minVal) + '', padL - 6, padT + plotH);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Time t (seconds, 4 x Tc cycles)', padL + plotW / 2, h - 10);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#ef4444';
+  ctx.fillText('● Unprotected Surge P(t)', padL + 10, padT + 12);
+  ctx.fillStyle = '#10b981';
+  ctx.fillText('● Protected with Air Vessel', padL + 180, padT + 12);
+}
+
+function whCopySummary() {
+  if (!whLastCalc) return;
+  var d = whLastCalc;
+  var u = d.isMetric ? 'Metric (SI)' : 'US Customary';
+  var pUnit = d.isMetric ? 'bar g' : 'psig';
+  var vUnit = d.isMetric ? 'm/s' : 'ft/s';
+  var hUnit = d.isMetric ? 'm' : 'ft';
+
+  var text = '=== JOUKOWSKY WATER HAMMER DIAGNOSTIC SUMMARY ===\n' +
+    'Standards: AWWA M51 / ASME B31.3 / B31.4\n' +
+    'Units System: ' + u + '\n' +
+    'Acoustic Wave Velocity (c): ' + (d.isMetric ? Math.round(d.waveSpeedMS) : Math.round(d.waveSpeedFtS)) + ' ' + vUnit + '\n' +
+    'Critical Valve Closure Period (Tc): ' + d.tc.toFixed(2) + ' s\n' +
+    'Actual Valve Closure Time (tv): ' + d.tvS.toFixed(2) + ' s [' + (d.isRapid ? 'RAPID / INSTANTANEOUS' : 'SLOW') + ']\n' +
+    'Effective Joukowsky Head Surge: ' + (d.isMetric ? d.surgeHeadM.toFixed(1) : d.surgeHeadFt.toFixed(1)) + ' ' + hUnit + ' (' + (d.isMetric ? (d.deltaPEffPa / 1e5).toFixed(2) : (d.deltaPEffPa / 6894.76).toFixed(1)) + ' ' + pUnit + ')\n' +
+    'Peak Transient Pressure (Pmax): ' + (d.isMetric ? (d.pMaxPa / 1e5).toFixed(1) : (d.pMaxPa / 6894.76).toFixed(1)) + ' ' + pUnit + ' [MAOP: ' + (d.isMetric ? (d.maopPa / 1e5).toFixed(1) : (d.maopPa / 6894.76).toFixed(1)) + ' ' + pUnit + ']\n' +
+    'Minimum Downsurge Pressure (Pmin): ' + (d.isMetric ? (d.pMinPa / 1e5).toFixed(1) : (d.pMinPa / 6894.76).toFixed(1)) + ' ' + pUnit + ' [' + (d.pMinPa > -70000 ? 'SAFE' : 'CAVITATION SEPARATION ALERT') + ']\n' +
+    'Surge Vessel Air Volume Req (V0): ' + (d.isMetric ? (d.v0AirM3 * 1000).toFixed(0) + ' L' : Math.round(d.v0AirGal) + ' gal') + '\n' +
+    'Recommended Total Vessel Size: ' + (d.isMetric ? (d.vTotalM3 * 1000).toFixed(0) + ' L' : Math.round(d.vTotalGal) + ' gal') + '\n' +
+    'Timestamp: ' + new Date().toISOString() + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.wh-btn');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Diagnostic Summary Copied!</span>';
+      setTimeout(function() { btn.innerHTML = orig; }, 2500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  whCalc();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (199 calculators in /calc/)');
 }
 
