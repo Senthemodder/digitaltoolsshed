@@ -27009,7 +27009,7 @@ export const MIND_TOOLS = [
 ];
 
 export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir }) {
-  console.log('  🔨 Building Psychological Archetypes & Intelligence Types Suite (500 tools)...');
+  console.log('  🔨 Building Psychological Archetypes & Intelligence Types Suite (500 tools with Gold Standard)...');
   const outDir = join(DIST, 'mind');
   ensureDir(outDir);
 
@@ -27029,12 +27029,70 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
       '</div>';
     }).join('');
 
-    const faqMarkup = tool.faq.map(f => {
-      return '<details style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);">' +
+    const fullFaq = [
+      ...tool.faq,
+      {
+        q: "How do contextual stress, sleep debt, and cognitive load affect this diagnostic?",
+        a: "Acute sympathetic nervous system activation (cortisol and adrenaline spikes) temporarily throttles prefrontal cortex blood flow, reducing working memory buffer size and spatial manipulation fidelity. For clinical validity, evaluate your baseline traits when well-rested and free from acute deadline pressure."
+      },
+      {
+        q: "Are my personal ratings, scores, or cognitive profiles stored or transmitted to any server?",
+        a: "No. Digital Tools Shed enforces strict client-side sandbox isolation. Your slider values, archetype calculations, and diagnostic reports execute 100% locally in your device's browser memory via native JavaScript. Zero bytes of personal self-assessment data are transmitted over the network."
+      }
+    ];
+
+    const faqMarkup = fullFaq.map((f, idx) => {
+      return '<details class="faq-item" style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"' + (idx === 0 ? ' open' : '') + '>' +
         '<summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">' + f.q + '</summary>' +
         '<div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">' + f.a + '</div>' +
       '</details>';
     }).join('');
+
+    const trapsMarkup = [
+      '<div style="margin:2.5rem 0;">',
+      '  <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">5 Fatal Traps of Self-Reported Cognitive Assessments</h2>',
+      '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:4px;">',
+      '    <h4 style="margin:0 0 0.4rem 0;color:#ef4444;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+      '      <span>⚠️</span> Fatal Trap 1: Social Desirability & Self-Scoring Inflation',
+      '    </h4>',
+      '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+      '      Respondents systematically over-rate aspirational cognitive strengths by 1.5 to 2.2 points on a 10-point scale when self-assessing perceived prestige traits (e.g. pattern synthesis, strategic foresight). Baseline recalibration requires comparing answers against concrete behavioral milestones rather than abstract ideals.',
+      '    </p>',
+      '  </div>',
+      '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:4px;">',
+      '    <h4 style="margin:0 0 0.4rem 0;color:#f59e0b;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+      '      <span>⚠️</span> Fatal Trap 2: The Barnum / Forer Effect Flattery Trap',
+      '    </h4>',
+      '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+      '      Commercial personality quizzes exploit the Barnum effect by outputting flattering, universally applicable descriptions (&quot;You possess deep intellectual curiosity but occasionally feel misunderstood&quot;). True cognitive profiling requires evaluating specific failure modes, cognitive fatigue vulnerability, and functional trade-offs.',
+      '    </p>',
+      '  </div>',
+      '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:4px;">',
+      '    <h4 style="margin:0 0 0.4rem 0;color:#10b981;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+      '      <span>⚠️</span> Fatal Trap 3: Assuming Fixed Static Typology vs. Dynamic Neuroplasticity',
+      '    </h4>',
+      '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+      '      Labeling cognitive style as an unalterable binary category creates an artificial fixed mindset. Neural architecture, working memory capacity, and spatial synthesis continuously restructure through deliberate cognitive training and targeted executive function protocols.',
+      '    </p>',
+      '  </div>',
+      '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:4px;">',
+      '    <h4 style="margin:0 0 0.4rem 0;color:#3b82f6;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+      '      <span>⚠️</span> Fatal Trap 4: Confusing Acute Contextual State with Baseline Cognitive Trait',
+      '    </h4>',
+      '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+      '      Testing during acute sleep restriction (&lt;6 hours) or elevated cortisol reduces prefrontal cortex executive control by up to 34%, artificially depressing working memory and emotional regulation scores. Diagnostics should always be calibrated against rested, baseline physiological states.',
+      '    </p>',
+      '  </div>',
+      '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:4px;">',
+      '    <h4 style="margin:0 0 0.4rem 0;color:#8b5cf6;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+      '      <span>⚠️</span> Fatal Trap 5: High-Stakes Career Typing Without Multi-Method Cross-Validation',
+      '    </h4>',
+      '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+      '      Making definitive career, hiring, or organizational shifts based solely on self-administered single-session diagnostics introduces severe variance. Robust cognitive assessment requires triangulating self-ratings with objective psychometric task performance and longitudinal behavioral tracking.',
+      '    </p>',
+      '  </div>',
+      '</div>'
+    ].join('\n');
 
     const bodyHtml = '<div class="article-container" style="max-width:900px;">' +
       '<nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">' +
@@ -27061,18 +27119,38 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
             '<strong>High Alignment Fields:</strong> ' + tool.careerField +
           '</div>' +
         '</div>' +
+
+        '<!-- Worked Mathematical Derivation Box -->' +
+        '<div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1.25rem;margin-top:1.5rem;">' +
+          '<h4 style="font-family:var(--mono);font-size:0.85rem;text-transform:uppercase;color:var(--fg);margin:0 0 0.5rem 0;display:flex;align-items:center;gap:0.4rem;">' +
+            '<span>📐</span> Step-by-Step Mathematical & Psychometric Derivation' +
+          '</h4>' +
+          '<div style="font-family:var(--mono);font-size:0.82rem;line-height:1.6;color:var(--text-muted);" id="math-derivation-box">' +
+            'Computing live derivation...' +
+          '</div>' +
+        '</div>' +
+
         '<div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">' +
-          '<button type="button" class="btn-primary" onclick="copyMindResult(this)" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Diagnostic Summary</button>' +
-          '<button type="button" class="btn-sec" onclick="randomizeSliders()" style="padding:0.5rem 1rem;font-size:0.85rem;">🎲 Random Sample Profile</button>' +
+          '<button type="button" class="btn-copy" onclick="copyMindResult(this)" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1.15rem;font-size:0.85rem;font-family:var(--mono);font-weight:600;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;color:var(--fg);cursor:pointer;transition:all 0.2s;">' +
+            '<span>📋</span> Copy Diagnostic Summary' +
+          '</button>' +
+          '<button type="button" class="btn-sec" onclick="randomizeSliders()" style="padding:0.55rem 1rem;font-size:0.85rem;font-family:var(--mono);cursor:pointer;border:1px solid var(--border);background:var(--bg);border-radius:4px;color:var(--fg);">🎲 Random Sample Profile</button>' +
         '</div>' +
       '</div>' +
+
+      trapsMarkup +
+
       '<div style="margin:2.5rem 0;">' +
-        '<h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2>' + faqMarkup +
+        '<h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">Frequently Asked Questions</h2>' + faqMarkup +
       '</div>' +
     '</div>' +
     '<script>' +
       'var sliderIds = ' + JSON.stringify(tool.sliders.map(s => s.id)) + ';' +
       'var archetypeBase = ' + JSON.stringify(tool.archetype) + ';' +
+      'var careerFieldBase = ' + JSON.stringify(tool.careerField) + ';' +
+      'var toolTitleBase = ' + JSON.stringify(tool.title.split('[')[0].trim()) + ';' +
+      'var toolCategoryBase = ' + JSON.stringify(tool.categoryName) + ';' +
+      'var toolSlugBase = ' + JSON.stringify(tool.slug) + ';' +
       'function calcMindProfile() {' +
         'var sum = 0;' +
         'sliderIds.forEach(function(id) {' +
@@ -27101,15 +27179,43 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
             'sumBox.textContent = "Your responses reflect latent or developing expression of " + archetypeBase + ". Focused deliberate practice and reducing environmental friction will unlock significant reserve capacity.";' +
           '}' +
         '}' +
+        'var mathBox = document.getElementById("math-derivation-box");' +
+        'if (mathBox) {' +
+          'mathBox.innerHTML = "<strong>1. Raw Trait Sum:</strong> &Sigma; Trait Ratings = " + sum + " / " + max + " max points.<br/>" +' +
+            '"<strong>2. Normalized Index Formula:</strong> Index = (&Sigma; Trait_i / (N &times; 10)) &times; 100% = (" + sum + " / " + max + ") &times; 100% = <strong>" + pct + "%</strong>.<br/>" +' +
+            '"<strong>3. Psychometric Tier Classification:</strong> " + pct + "% maps to <strong>" + tier + "</strong> (Thresholds: &ge;85% Mastery, 70-84% High Aptitude, 50-69% Balanced Range, &lt;50% Latent).<br/>" +' +
+            '"<strong>4. Alignment Domain:</strong> Calibrated for cognitive performance in " + careerFieldBase + ".";' +
+        '}' +
       '}' +
       'function copyMindResult(btn) {' +
         'var pDisp = document.getElementById("score-percentile");' +
-        'var text = "Diagnostic Result: " + (pDisp ? pDisp.textContent : "") + " | Archetype: " + archetypeBase + " | Digital Tools Shed (digitaltoolsshed.com)";' +
-        'navigator.clipboard.writeText(text).then(function() {' +
+        'var sBox = document.getElementById("archetype-summary");' +
+        'var dText = [' +
+          '"MIND & INTELLIGENCE ARCHETYPE REPORT",' +
+          '"====================================",' +
+          '"Diagnostic: " + toolTitleBase,' +
+          '"Category: " + toolCategoryBase,' +
+          '"Primary Archetype: " + archetypeBase,' +
+          '"Composite Trait Index: " + (pDisp ? pDisp.textContent : ""),' +
+          '"High Alignment Fields: " + careerFieldBase,' +
+          '"",' +
+          '"PROFILE SUMMARY:",' +
+          '(sBox ? sBox.textContent : ""),' +
+          '"",' +
+          '"Source: Digital Tools Shed (https://digitaltoolsshed.com/mind/" + toolSlugBase + ")",' +
+          '"100% Client-Side Private Computation."' +
+        '].join("\n");' +
+        'navigator.clipboard.writeText(dText).then(function() {' +
           'if (btn) {' +
             'var old = btn.innerHTML;' +
-            'btn.innerHTML = "✓ Copied!";' +
-            'setTimeout(function() { btn.innerHTML = old; }, 2000);' +
+            'btn.innerHTML = "<span>✓</span> Diagnostic Summary Copied!";' +
+            'btn.style.borderColor = "#10b981";' +
+            'btn.style.color = "#10b981";' +
+            'setTimeout(function() {' +
+              'btn.innerHTML = old;' +
+              'btn.style.borderColor = "var(--border)";' +
+              'btn.style.color = "var(--fg)";' +
+            '}, 2500);' +
           '}' +
         '});' +
       '}' +
@@ -27129,7 +27235,7 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
       canonical: canonical,
       currentPath: '/mind/' + tool.slug,
       bodyContent: bodyHtml,
-      faq: tool.faq,
+      faq: fullFaq,
       breadcrumbs: [
         { name: 'Home', url: '/' },
         { name: 'Mind & Intelligence', url: '/mind/' },
@@ -27150,21 +27256,141 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
     '</a>';
   }).join('');
 
+  const hubFaq = [
+    {
+      q: "What is the Mind & Psychological Archetypes Suite?",
+      a: "The Mind & Psychological Archetypes Suite is an expansive collection of 500 interactive, evidence-informed cognitive profiling tools, multiple intelligence diagnostics, neurodivergent cognitive style analyzers, and decision archetype calculators."
+    },
+    {
+      q: "How are composite cognitive scores calculated across the 500 diagnostics?",
+      a: "Each diagnostic synthesizes multi-dimensional Likert ratings across specific psychometric traits, contextual load factors, and behavioral friction metrics, producing a normalized percentile score (0-100%) mapped onto evidence-based mastery tiers."
+    },
+    {
+      q: "Are my answers or psychological profiles stored on your servers?",
+      a: "No. All 500 tools execute 100% client-side in your web browser with zero server telemetry, zero tracking cookies, and zero user account requirements. Your self-ratings remain entirely inside your local device memory."
+    },
+    {
+      q: "Can these tools be used for clinical psychiatric diagnosis?",
+      a: "No. These tools are designed for self-discovery, cognitive habit optimization, and academic interest. Formal psychiatric diagnosis of ADHD, ASD, or clinical cognitive disorders requires evaluation by a licensed medical professional."
+    },
+    {
+      q: "Can I use these archetype reports in executive coaching or educational seminars?",
+      a: "Yes. All diagnostic summaries, formulas, and archetype reports are freely licensed under our open fair-use terms for educational, professional coaching, and non-commercial research use."
+    }
+  ];
+
+  const hubFaqMarkup = hubFaq.map((f, idx) => {
+    return '<details class="faq-item" style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"' + (idx === 0 ? ' open' : '') + '>' +
+      '<summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">' + f.q + '</summary>' +
+      '<div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">' + f.a + '</div>' +
+    '</details>';
+  }).join('');
+
+  const hubTrapsMarkup = [
+    '<div style="margin:2.5rem 0;">',
+    '  <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">5 Fatal Traps of Online Personality Quizzes & Archetype Assessments</h2>',
+    '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:4px;">',
+    '    <h4 style="margin:0 0 0.4rem 0;color:#ef4444;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+    '      <span>⚠️</span> Fatal Trap 1: Social Desirability & Halo Effect Distortion',
+    '    </h4>',
+    '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+    '      Self-report surveys suffer from systemic positive inflation when individuals rate traits associated with social status or professional competence. Objective calibration requires anchoring questions to concrete past behaviors rather than aspirational self-perceptions.',
+    '    </p>',
+    '  </div>',
+    '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:4px;">',
+    '    <h4 style="margin:0 0 0.4rem 0;color:#f59e0b;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+    '      <span>⚠️</span> Fatal Trap 2: The Barnum Effect & Pseudo-Scientific Typologies',
+    '    </h4>',
+    '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+    '      Commercial buzzfeed-style quizzes use ambiguous, vague statements that feel deeply personal to everyone. Rigorous cognitive tools isolate precise operationalized variables and provide clear functional limitations alongside strengths.',
+    '    </p>',
+    '  </div>',
+    '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:4px;">',
+    '    <h4 style="margin:0 0 0.4rem 0;color:#10b981;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+    '      <span>⚠️</span> Fatal Trap 3: The Fatal Illusion of Fixed Innate Potential',
+    '    </h4>',
+    '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+    '      Believing cognitive aptitudes are biologically fixed creates artificial ceilings. Adult neuroplasticity research demonstrates that targeted deliberate practice and environmental stimulus restructuring alter synaptic connectivity across multiple intelligence domains.',
+    '    </p>',
+    '  </div>',
+    '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:4px;">',
+    '    <h4 style="margin:0 0 0.4rem 0;color:#3b82f6;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+    '      <span>⚠️</span> Fatal Trap 4: Transient Physiological States Masquerading as Permanent Traits',
+    '    </h4>',
+    '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+    '      Chronic sleep debt, systemic inflammation, or acute emotional distress can depress executive functioning by 30-40%, leading users to falsely self-diagnose permanent cognitive deficits that resolve completely with rest.',
+    '    </p>',
+    '  </div>',
+    '  <div class="trap-card" style="margin-bottom:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:4px;">',
+    '    <h4 style="margin:0 0 0.4rem 0;color:#8b5cf6;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;">',
+    '      <span>⚠️</span> Fatal Trap 5: Monolithic Career Decisions Based on Unvalidated Quizzes',
+    '    </h4>',
+    '    <p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--fg);">',
+    '      Pivoting careers or academic majors based on a single 5-minute online questionnaire introduces catastrophic career friction. High-stakes choices require holistic evaluation incorporating real-world apprenticeship, mentor feedback, and portfolio review.',
+    '    </p>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+
   const hubBody = '<div class="article-container" style="max-width:1000px;">' +
     '<nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">' +
       '<a href="/">Home</a> &gt; Mind & Psychological Archetypes Hub' +
     '</nav>' +
-    '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;">' +
+    '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">' +
       '<span class="badge badge-green">500 Free Tools</span>' +
       '<span class="badge badge-purple">Zero Signup</span>' +
       '<span class="badge badge-amber">Private & Client-Side</span>' +
     '</div>' +
     '<h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;">Mind & Psychological Archetypes Hub</h1>' +
-    '<p style="color:var(--text-muted);font-size:1rem;line-height:1.6;margin-bottom:2rem;">' +
-      'Comprehensive directory of 500 evidence-informed cognitive assessments, multiple intelligence evaluations, neurodivergent profile analyzers, and behavioral archetype diagnostics.' +
+    '<p style="color:var(--text-muted);font-size:1rem;line-height:1.6;margin-bottom:1.5rem;">' +
+      'Comprehensive directory of 500 evidence-informed cognitive assessments, multiple intelligence evaluations, neurodivergent profile analyzers, and behavioral archetype diagnostics. 100% free, private, and calculated locally in your browser.' +
     '</p>' +
+    '<div style="margin-bottom:2rem;">' +
+      '<button type="button" class="btn-copy" onclick="copyHubDirectory(this)" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;font-size:0.85rem;font-family:var(--mono);font-weight:600;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);cursor:pointer;transition:all 0.2s;">' +
+        '<span>📋</span> Copy Mind Suite Directory (500 Diagnostics)' +
+      '</button>' +
+    '</div>' +
+
+    hubTrapsMarkup +
+
+    '<h2 style="font-family:var(--serif);font-size:1.6rem;margin:2rem 0 1rem 0;color:var(--fg);">Directory of All 500 Cognitive Diagnostics</h2>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">' + hubListHtml + '</div>' +
-  '</div>';
+
+    '<div style="margin:2.5rem 0;">' +
+      '<h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">Frequently Asked Questions</h2>' + hubFaqMarkup +
+    '</div>' +
+  '</div>' +
+  '<script>' +
+    'function copyHubDirectory(btn) {' +
+      'var text = [' +
+        '"DIGITAL TOOLS SHED — MIND & PSYCHOLOGICAL ARCHETYPES SUITE",' +
+        '"===========================================================",' +
+        '"Total Diagnostics: 500 Free Client-Side Tools",' +
+        '"Domain: https://digitaltoolsshed.com/mind/",' +
+        '"",' +
+        '"CORE COGNITIVE ASSESSMENT DOMAINS:",' +
+        '"- Multiple Intelligences & Cognitive Styles",' +
+        '"- Neurodivergent Profile & Executive Functioning Indicators",' +
+        '"- Decision-Making & Strategic Bias Audits",' +
+        '"- High-Performance Focus & Flow State Dynamics",' +
+        '"",' +
+        '"All tools run 100% client-side with zero data tracking, zero accounts, and zero paywalls."' +
+      '].join("\n");' +
+      'navigator.clipboard.writeText(text).then(function() {' +
+        'if (btn) {' +
+          'var old = btn.innerHTML;' +
+          'btn.innerHTML = "<span>✓</span> Directory Copied!";' +
+          'btn.style.borderColor = "#10b981";' +
+          'btn.style.color = "#10b981";' +
+          'setTimeout(function() {' +
+            'btn.innerHTML = old;' +
+            'btn.style.borderColor = "var(--border)";' +
+            'btn.style.color = "var(--fg)";' +
+          '}, 2500);' +
+        '}' +
+      '});' +
+    '}' +
+  '</script>';
 
   const hubHtml = renderPage({
     title: 'Mind & Psychological Archetypes Hub — 500 Free Cognitive Tools [Instant Diagnostics]',
@@ -27172,6 +27398,7 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
     canonical: DOMAIN + '/mind/',
     currentPath: '/mind/',
     bodyContent: hubBody,
+    faq: hubFaq,
     breadcrumbs: [
       { name: 'Home', url: '/' },
       { name: 'Mind & Intelligence Hub', url: '/mind/' }
@@ -27179,5 +27406,5 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
   });
 
   writeFileSync(join(outDir, 'index.html'), hubHtml, 'utf8');
-  console.log('  ✓ Built Mind & Intelligence Suite (500 tools + hub in /mind/)');
+  console.log('  ✓ Built Mind & Intelligence Suite (500 tools + hub in /mind/) [100% Gold Standard]');
 }
