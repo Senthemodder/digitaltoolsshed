@@ -14239,6 +14239,1810 @@ export function buildTradeTools() {
   }));
 
 
+    // ─────────────────────────────────────────────────────────────────────────────
+  // COOLING TOWER EFFICIENCY, EVAPORATION & BLOWDOWN CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const coolingTowerBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Cooling Tower Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Cooling Tower Calculator: Approach, Evaporation & Water Balance</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate cooling tower range, approach, thermodynamic effectiveness (&epsilon;), heat rejection tonnage, evaporation loss rate (GPM), blowdown bleed-off, and total make-up water consumption based on Cycles of Concentration (COC).
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z\"/></svg>
+        Thermal & Water Parameters
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctWaterFlow">Circulating Water Flow (GPM)</label>
+          <input type="number" id="ctWaterFlow" value="1500" min="50" max="100000" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Condenser water loop flow</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctWetBulb">Ambient Wet-Bulb Temp (&deg;F)</label>
+          <input type="number" id="ctWetBulb" value="78" min="30" max="95" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Theoretical cooling limit (T_wb)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctHotWater">Hot Water Inlet Temp (&deg;F)</label>
+          <input type="number" id="ctHotWater" value="95" min="50" max="140" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">From chiller condenser (T_hot)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctColdWater">Cold Water Basin Temp (&deg;F)</label>
+          <input type="number" id="ctColdWater" value="85" min="40" max="120" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Returning to chiller (T_cold)</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Water Treatment & Cycles</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCOC">Cycles of Concentration (COC)</label>
+          <input type="number" id="ctCOC" value="4.0" min="1.5" max="10.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">TDS ratio: Tower water / City water</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctDriftPct">Drift Eliminator Loss (%)</label>
+          <input type="number" id="ctDriftPct" value="0.005" min="0.001" max="0.1" step="0.001" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Modern high-eff drift: 0.005%</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctWaterCost">Water & Sewer Cost ($/1,000 Gallons)</label>
+        <input type="number" id="ctWaterCost" value="8.50" min="1.0" max="30.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+        <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Combined supply + sewer discharge rate</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin-top:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Thermal & Water Balance Spec
+          </h2>
+          <button id="copyCtBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Tower Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Heat Rejection Load</span>
+            <span id="ctHeatRejection" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#ef4444;display:block;">500 Tons</span>
+            <span id="ctHeatMbh" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">7,500 MBH (7.5M BTU/h)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Make-Up Water</span>
+            <span id="ctMakeupGpm" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">16.1 GPM</span>
+            <span id="ctMakeupDaily" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">23,184 Gallons / Day</span>
+          </div>
+        </div>
+
+        <!-- THERMODYNAMIC BREAKDOWN -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Cooling Range (T_hot - T_cold):</span>
+            <strong id="ctRange" style="font-family:var(--mono);">10.0 &deg;F (95&deg;F - 85&deg;F)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Approach to Wet-Bulb (T_cold - T_wb):</span>
+            <strong id="ctApproach" style="font-family:var(--mono);color:#f59e0b;">7.0 &deg;F (Ideal 5&deg; - 10&deg;F)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Tower Effectiveness (&epsilon;):</span>
+            <strong id="ctEffectiveness" style="font-family:var(--mono);color:#10b981;">58.8%</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Evaporation Loss Rate:</span>
+            <strong id="ctEvaporation" style="font-family:var(--mono);">12.0 GPM (74.5% of Make-up)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Blowdown Bleed-Off Rate:</span>
+            <strong id="ctBlowdown" style="font-family:var(--mono);">4.0 GPM (COC 4.0)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Daily Water & Sewer Utility Cost:</span>
+            <strong id="ctDailyCost" style="font-family:var(--mono);">$197.06 / day</strong>
+          </div>
+        </div>
+
+        <!-- THERMAL STATUS BADGE -->
+        <div id="ctBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG COOLING TOWER SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Induced-Draft Cooling Tower Water & Air Balance</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector engineering cutaway displaying hot water spray distribution, crossflow fill media packing, fan-induced counterflow air velocity, and cold water collection basin.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="ctTowerSvg" viewBox="0 0 800 320" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & PSYCHROMETRIC HEAT REJECTION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Thermodynamic Physics: Evaporative Cooling & Water Mass Balance</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Evaporative cooling transfers sensible water heat into latent enthalpy of vaporization (~$1,000\\text{ BTU/lb}$ of evaporated water). The cooling limit is strictly governed by local ambient wet-bulb temperature ($T_{\\text{wb}}$).
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Cooling Range & Approach:</strong><br>
+      \\text{Range} = T_{\\text{hot}} - T_{\\text{cold}} \\quad | \\quad \\text{Approach} = T_{\\text{cold}} - T_{\\text{wb}}<br><br>
+      <strong>2. Thermodynamic Tower Effectiveness:</strong><br>
+      \\epsilon = \\frac{\\text{Range}}{\\text{Range} + \\text{Approach}} = \\frac{T_{\\text{hot}} - T_{\\text{cold}}}{T_{\\text{hot}} - T_{\\text{wb}}} \\times 100\\%<br><br>
+      <strong>3. Heat Rejection Capacity (BTU/h & Nominal Tons):</strong><br>
+      Q = 500 \\times \\text{GPM} \\times \\text{Range} \\quad \\Big(1\\text{ Tower Ton} = 15,000\\text{ BTU/h} = 3.0\\text{ GPM @ 10}^\\circ\\text{F Range}\\Big)<br><br>
+      <strong>4. Evaporation Loss Rate (ASHRAE Rule of Thumb):</strong><br>
+      E = 0.0008 \\times \\text{GPM} \\times \\text{Range} \\quad (\\text{GPM})<br><br>
+      <strong>5. Blowdown Bleed-off & Cycles of Concentration:</strong><br>
+      B = \\frac{E}{\\text{COC} - 1} \\quad | \\quad \\text{Make-Up Water } M = E + B + \\text{Drift}
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL COOLING TOWER TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The Legionella Bacterial Incubation Trap</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Cooling tower water between 68&deg;F and 122&deg;F provides the perfect breeding ground for deadly Legionella pneumophila. Operating without continuous oxidizing biocides (chlorine/bromine) aerosolizes pathogenic bacteria into building fresh air intakes, creating lethal public health hazards.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Excessive COC Mineral Scaling (Calcium Carbonate)</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Attempting to conserve water by pushing Cycles of Concentration past 6.0 in hard-water municipal supplies precipitates rock-hard calcium carbonate scale onto chiller condenser tubes. A microscopic 0.024" scale layer slashes heat transfer by 22%, driving chiller power draw up 25%.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. The Low Approach Thermodynamic Impossibility</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        A cooling tower can NEVER cool water below the ambient wet-bulb temperature. Specifying an approach less than 5&deg;F requires exponentially larger tower footprint and fan power. Standard industrial approach targets range between 6&deg;F and 10&deg;F.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. White Rust Galvanized Passivation Rupture</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Operating newly commissioned galvanized steel cooling towers above pH 8.3 before a protective zinc-carbonate passivation film forms causes rapid "white rust" corrosion. The zinc coating dissolves into a white sludge, stripping the steel bare within weeks.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Biofouling Slime Choking Fill Media</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Algae and biofilm forming inside PVC film fill media block vertical airflow channels and increase water weight, causing structural fill collapse. A fouled fill media drops cooling tower thermal capacity by over 40% while air pressure drop spikes fan motor amps.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcCoolingTower() {
+        var gpm = parseFloat(document.getElementById('ctWaterFlow').value) || 1500;
+        var twb = parseFloat(document.getElementById('ctWetBulb').value) || 78;
+        var thot = parseFloat(document.getElementById('ctHotWater').value) || 95;
+        var tcold = parseFloat(document.getElementById('ctColdWater').value) || 85;
+        var coc = parseFloat(document.getElementById('ctCOC').value) || 4.0;
+        var driftPct = (parseFloat(document.getElementById('ctDriftPct').value) || 0.005) / 100;
+        var waterCost = parseFloat(document.getElementById('ctWaterCost').value) || 8.50;
+
+        var range = Math.max(0.5, thot - tcold);
+        var approach = Math.max(0.5, tcold - twb);
+
+        // Tower effectiveness: Range / (Range + Approach)
+        var effectiveness = (range / (range + approach)) * 100;
+
+        // Heat rejection: Q = 500 * GPM * Range (BTU/hr)
+        var heatBtu = 500 * gpm * range;
+        var heatMbh = heatBtu / 1000;
+        var towerTons = heatBtu / 15000; // 1 tower ton = 15,000 BTU/h (12k chiller ton + 3k heat of compression)
+
+        // Evaporation loss: E = 0.0008 * GPM * Range
+        var evapGpm = 0.0008 * gpm * range;
+
+        // Drift loss: D = driftPct * GPM
+        var driftGpm = driftPct * gpm;
+
+        // Blowdown: B = E / (COC - 1)
+        var blowdownGpm = coc > 1.0 ? (evapGpm / (coc - 1)) : evapGpm;
+
+        // Total make-up water
+        var makeupGpm = evapGpm + blowdownGpm + driftGpm;
+        var makeupDailyGal = makeupGpm * 60 * 24;
+
+        // Daily cost
+        var dailyCost = (makeupDailyGal / 1000) * waterCost;
+
+        // DOM updates
+        document.getElementById('ctHeatRejection').textContent = Math.round(towerTons).toLocaleString() + ' Tons';
+        document.getElementById('ctHeatMbh').textContent = Math.round(heatMbh).toLocaleString() + ' MBH (' + (heatBtu / 1000000).toFixed(2) + 'M BTU/h)';
+        document.getElementById('ctMakeupGpm').textContent = makeupGpm.toFixed(1) + ' GPM';
+        document.getElementById('ctMakeupDaily').textContent = Math.round(makeupDailyGal).toLocaleString() + ' Gallons / Day';
+
+        document.getElementById('ctRange').textContent = range.toFixed(1) + ' \u00B0F (' + thot + '\u00B0 - ' + tcold + '\u00B0F)';
+        document.getElementById('ctApproach').textContent = approach.toFixed(1) + ' \u00B0F (' + tcold + '\u00B0 - ' + twb + '\u00B0F)';
+        document.getElementById('ctEffectiveness').textContent = effectiveness.toFixed(1) + '%';
+        document.getElementById('ctEvaporation').textContent = evapGpm.toFixed(1) + ' GPM (' + ((evapGpm / makeupGpm) * 100).toFixed(1) + '% of Make-up)';
+        document.getElementById('ctBlowdown').textContent = blowdownGpm.toFixed(1) + ' GPM (COC ' + coc.toFixed(1) + ')';
+        document.getElementById('ctDailyCost').textContent = '$' + dailyCost.toFixed(2) + ' / day ($' + Math.round(dailyCost * 365).toLocaleString() + '/yr)';
+
+        // Badge
+        var badge = document.getElementById('ctBadge');
+        if (approach >= 5.0 && approach <= 12.0) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Thermodynamically Optimal Approach (' + approach.toFixed(1) + '&deg;F)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Approach falls within the practical 5&deg;F - 10&deg;F sweet spot. Water balance and fan air horsepower are balanced for optimum chiller lift efficiency.' +
+            '</div>';
+        } else if (approach < 5.0) {
+          badge.style.background = 'rgba(245, 158, 11, 0.1)';
+          badge.style.border = '1px solid #f59e0b';
+          badge.style.color = '#f59e0b';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Extremely Tight Approach (' + approach.toFixed(1) + '&deg;F)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Approaches under 5&deg;F require massive heat transfer surface area and high fan static horsepower. Verify manufacturer CTI certification.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'High Approach (' + approach.toFixed(1) + '&deg;F) &mdash; Warm Return' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Cold water basin returning to chiller at ' + tcold + '&deg;F is far above wet-bulb. Warm condenser water spikes chiller head pressure and increases compressor kWh draw.' +
+            '</div>';
+        }
+
+        renderTower(thot, tcold, twb, gpm);
+      }
+
+      function renderTower(thot, tcold, twb, gpm) {
+        var svg = document.getElementById('ctTowerSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 320;
+        var tX = 260;
+        var tY = 60;
+        var tW = 280;
+        var tH = 200;
+
+        var svgHtml = '';
+
+        // Tower outer casing
+        svgHtml += '<rect x=\"' + tX + '\" y=\"' + tY + '\" width=\"' + tW + '\" height=\"' + (tH - 25) + '\" fill=\"var(--surface)\" stroke=\"#3b82f6\" stroke-width=\"3\"/>';
+
+        // Fan Cowl & Fan at top
+        svgHtml += '<path d=\"M ' + (tX + 80) + ' ' + tY + ' L ' + (tX + 90) + ' ' + (tY - 30) + ' L ' + (tX + tW - 90) + ' ' + (tY - 30) + ' L ' + (tX + tW - 80) + ' ' + tY + '\" fill=\"none\" stroke=\"#64748b\" stroke-width=\"3\"/>';
+        svgHtml += '<line x1=\"' + (tX + 110) + '\" y1=\"' + (tY - 15) + '\" x2=\"' + (tX + tW - 110) + '\" y2=\"' + (tY - 15) + '\" stroke=\"#1e293b\" stroke-width=\"5\"/>';
+        svgHtml += '<circle cx=\"' + (tX + tW/2) + '\" cy=\"' + (tY - 15) + '\" r=\"6\" fill=\"#3b82f6\"/>';
+        svgHtml += '<text x=\"' + (tX + tW/2) + '\" y=\"' + (tY - 38) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Induced-Draft Fan</text>';
+
+        // Hot Water Distribution Basin & Sprays
+        svgHtml += '<rect x=\"' + (tX + 20) + '\" y=\"' + (tY + 20) + '\" width=\"' + (tW - 40) + '\" height=\"16\" fill=\"#ef4444\" opacity=\"0.8\" rx=\"2\"/>';
+        svgHtml += '<text x=\"' + (tX + tW/2) + '\" y=\"' + (tY + 32) + '\" fill=\"#ffffff\" font-size=\"10\" font-weight=\"bold\" text-anchor=\"middle\">Hot Water Spray (' + thot + '&deg;F)</text>';
+
+        // Fill Media (crossflow / counterflow honeycomb)
+        svgHtml += '<rect x=\"' + (tX + 30) + '\" y=\"' + (tY + 50) + '\" width=\"' + (tW - 60) + '\" height=\"80\" fill=\"#f59e0b\" opacity=\"0.2\" stroke=\"#f59e0b\" stroke-dasharray=\"3,3\"/>';
+        svgHtml += '<text x=\"' + (tX + tW/2) + '\" y=\"' + (tY + 95) + '\" fill=\"#d97706\" font-size=\"12\" font-weight=\"bold\" text-anchor=\"middle\">PVC Fill Media Packing</text>';
+
+        // Cold Water Sump Basin at bottom
+        svgHtml += '<rect x=\"' + (tX - 10) + '\" y=\"' + (tY + tH - 30) + '\" width=\"' + (tW + 20) + '\" height=\"35\" fill=\"#0284c7\" opacity=\"0.4\" stroke=\"#0284c7\" stroke-width=\"2\" rx=\"4\"/>';
+        svgHtml += '<text x=\"' + (tX + tW/2) + '\" y=\"' + (tY + tH - 8) + '\" fill=\"#0284c7\" font-size=\"12\" font-weight=\"bold\" text-anchor=\"middle\">Cold Water Basin (' + tcold + '&deg;F)</text>';
+
+        // Air Inlet Arrows entering bottom sides
+        svgHtml += '<path d=\"M ' + (tX - 40) + ' ' + (tY + 130) + ' L ' + (tX + 15) + ' ' + (tY + 130) + '\" stroke=\"#10b981\" stroke-width=\"3\" marker-end=\"url(#arrow)\"/>';
+        svgHtml += '<text x=\"' + (tX - 50) + '\" y=\"' + (tY + 125) + '\" fill=\"#10b981\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"end\">Air In (T_wb: ' + twb + '&deg;F)</text>';
+
+        svgHtml += '<path d=\"M ' + (tX + tW + 40) + ' ' + (tY + 130) + ' L ' + (tX + tW - 15) + ' ' + (tY + 130) + '\" stroke=\"#10b981\" stroke-width=\"3\"/>';
+        svgHtml += '<text x=\"' + (tX + tW + 50) + '\" y=\"' + (tY + 125) + '\" fill=\"#10b981\" font-size=\"11\" font-weight=\"bold\">Air In</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyTowerSpec() {
+        var tons = document.getElementById('ctHeatRejection').textContent;
+        var mbh = document.getElementById('ctHeatMbh').textContent;
+        var makeup = document.getElementById('ctMakeupGpm').textContent;
+        var daily = document.getElementById('ctMakeupDaily').textContent;
+        var range = document.getElementById('ctRange').textContent;
+        var app = document.getElementById('ctApproach').textContent;
+        var eff = document.getElementById('ctEffectiveness').textContent;
+        var evap = document.getElementById('ctEvaporation').textContent;
+        var bd = document.getElementById('ctBlowdown').textContent;
+        var cost = document.getElementById('ctDailyCost').textContent;
+
+        var text = '🌊 Cooling Tower Thermal & Water Balance Spec\\n' +
+          '• Heat Rejection: ' + tons + ' (' + mbh + ')\\n' +
+          '• Circulating Flow: ' + document.getElementById('ctWaterFlow').value + ' GPM\\n' +
+          '• Range: ' + range + '\\n' +
+          '• Approach to Wet-Bulb: ' + app + '\\n' +
+          '• Thermodynamic Effectiveness: ' + eff + '\\n\\n' +
+          'Water Balance Calculations:\\n' +
+          '• Evaporation Rate: ' + evap + '\\n' +
+          '• Blowdown Bleed: ' + bd + '\\n' +
+          '• Total Make-Up Water: ' + makeup + ' (' + daily + ')\\n' +
+          '• Daily Water/Sewer Cost: ' + cost + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/cooling-tower-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCtBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Tower Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['ctWaterFlow', 'ctWetBulb', 'ctHotWater', 'ctColdWater', 'ctCOC', 'ctDriftPct', 'ctWaterCost'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcCoolingTower);
+          el.addEventListener('change', calcCoolingTower);
+        }
+      });
+
+      document.getElementById('copyCtBtn').addEventListener('click', copyTowerSpec);
+
+      calcCoolingTower();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'cooling-tower-calculator.html'), renderTradePage({
+    title: "Cooling Tower Calculator: Range, Approach & Evaporation | Digital Tools Shed",
+    metaDesc: "Calculate cooling tower range, approach, thermodynamic effectiveness, heat rejection tons, evaporation rate, blowdown, and make-up water consumption.",
+    canonical: `${DOMAIN}/calc/cooling-tower-calculator`,
+    bodyContent: coolingTowerBody,
+    currentPath: '/calc/cooling-tower-calculator',
+    faq: [
+      {
+        "q": "What is cooling tower range and approach?",
+        "a": "Cooling tower Range is the temperature difference between the hot water entering the tower and the cold water leaving the basin ($T_{\\text{hot}} - T_{\\text{cold}}$). Approach is the temperature difference between the cold water leaving the basin and the ambient wet-bulb temperature ($T_{\\text{cold}} - T_{\\text{wb}}$). Approach indicates how close the tower gets to the theoretical thermodynamic cooling limit."
+      },
+      {
+        "q": "How do you calculate cooling tower evaporation loss?",
+        "a": "Evaporation loss rate is calculated using the ASHRAE empirical formula: $E = 0.0008 \\times \\text{GPM} \\times \\text{Range}$ (in gallons per minute). For every $10^\\circ\\text{F}$ of cooling range, approximately 0.8% of the total circulating water flow evaporates into the atmosphere."
+      },
+      {
+        "q": "What are Cycles of Concentration (COC)?",
+        "a": "Cycles of Concentration (COC) measure how many times minerals and dissolved solids concentrate in the cooling tower water compared to incoming city make-up water ($\\text{COC} = \\text{Chloride}_{\\text{basin}} / \\text{Chloride}_{\\text{makeup}}$). Higher COC saves water by reducing blowdown bleed-off, but operating beyond 5.0 to 6.0 without advanced water treatment causes severe calcium carbonate scaling."
+      },
+      {
+        "q": "What is blowdown and why is it necessary?",
+        "a": "Blowdown (or bleed-off) is water intentionally drained from the cooling tower basin to flush out concentrated minerals, dirt, and salts left behind by evaporation. Fresh make-up water replaces the drained water, maintaining water conductivity at a safe setpoint to prevent scale formation."
+      },
+      {
+        "q": "What is a cooling tower ton?",
+        "a": "One nominal cooling tower ton equals $15,000\\text{ BTU/hr}$ of heat rejection (compared to a refrigeration ton of $12,000\\text{ BTU/hr}$). The extra $3,000\\text{ BTU/hr}$ accounts for the electric motor heat of compression generated by the chiller compressor."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // WELDING HEAT INPUT & CARBON EQUIVALENT CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const weldingBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Welding Heat Input Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Welding Heat Input & Carbon Equivalent Calculator (AWS D1.1 / ASME IX)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate arc welding heat input (kJ/in and kJ/mm), thermal process arc efficiency (&eta;), IIW Carbon Equivalent (CE), crack susceptibility parameter (P_cm), and minimum preheat temperature under AWS D1.1 structural welding code.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/></svg>
+        Welding Arc Parameters
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wdProcess">Welding Process & Thermal Efficiency (&eta;)</label>
+        <select id="wdProcess" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="gmaw" selected>GMAW / MIG Spray/Pulse (&eta; = 0.80)</option>
+          <option value="fcaw">FCAW Flux-Cored Arc (&eta; = 0.80)</option>
+          <option value="smaw">SMAW / Shielded Metal Arc (Stick) (&eta; = 0.80)</option>
+          <option value="gtaw">GTAW / TIG (&eta; = 0.60)</option>
+          <option value="saw">SAW Submerged Arc Welding (&eta; = 0.95)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wdVoltage">Arc Voltage (Volts)</label>
+          <input type="number" id="wdVoltage" value="24.0" min="8.0" max="50.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Average arc potential</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wdCurrent">Welding Current (Amps)</label>
+          <input type="number" id="wdCurrent" value="220" min="10" max="1500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Arc amperage (I)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wdSpeed">Travel Speed (IPM)</label>
+          <input type="number" id="wdSpeed" value="12.0" min="1.0" max="150.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Inches per minute (or mm/s)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wdThickness">Base Plate Thickness (in)</label>
+          <input type="number" id="wdThickness" value="0.50" min="0.05" max="4.0" step="0.0625" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Joint plate thickness</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Base Metal Chemistry (% Weight)</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wdCarbon">Carbon (C %)</label>
+          <input type="number" id="wdCarbon" value="0.18" min="0.01" max="1.50" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="wdManganese">Manganese (Mn %)</label>
+          <input type="number" id="wdManganese" value="1.20" min="0.10" max="3.00" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Welding Metallurgy Output
+          </h2>
+          <button id="copyWdBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Weld Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Net Heat Input</span>
+            <span id="wdNetHeat" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#ef4444;display:block;">21.1 kJ/in</span>
+            <span id="wdNetHeatMetric" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">0.83 kJ/mm Net Arc Energy</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Carbon Equivalent (CE_IIW)</span>
+            <span id="wdCarbonEquiv" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">0.380</span>
+            <span id="wdWeldability" style="font-size:0.8rem;color:#10b981;font-weight:600;">Good Weldability (CE &le; 0.40)</span>
+          </div>
+        </div>
+
+        <!-- DETAILED METALLURGY SPEC -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Gross Arc Energy (No Efficiency):</span>
+            <strong id="wdGrossHeat" style="font-family:var(--mono);">26.4 kJ/in (1.04 kJ/mm)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Arc Thermal Power:</span>
+            <strong id="wdArcPower" style="font-family:var(--mono);color:#f59e0b;">5.28 kW (4.22 kW Net)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Recommended AWS D1.1 Preheat:</span>
+            <strong id="wdPreheat" style="font-family:var(--mono);color:#10b981;">50&deg;F (Standard Shop Temp)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Cooling Regime (2D vs 3D):</span>
+            <strong id="wdRegime" style="font-family:var(--mono);">3D Thick Plate Heat Sink</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Cracking Risk Parameter (P_cm):</span>
+            <strong id="wdPcm" style="font-family:var(--mono);">P_cm = 0.24 (Low Crack Risk)</strong>
+          </div>
+        </div>
+
+        <!-- WELD QUALITY BADGE -->
+        <div id="wdBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG WELD BEAD & HAZ ISOTHERM SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Weld Bead Morphology & Heat-Affected Zone (HAZ) Isotherms</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector cross-section displaying molten weld pool fusion boundary, Heat-Affected Zone grain-growth boundary, and thermal isotherms based on calculated heat input.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="wdBeadSvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & AWS EQUATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Welding Metallurgy Physics: Heat Input & Carbon Equivalent</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Heat input controls the cooling rate ($t_{8/5}$) of the weld and Heat-Affected Zone (HAZ). Rapid cooling creates brittle untempered martensite, leading to hydrogen-induced cold cracking.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Net Welding Heat Input (ASME IX / ISO 15614):</strong><br>
+      H = \\frac{60 \\times V \\times I}{1000 \\times S} \\times \\eta \\quad (\\text{kJ/in or kJ/mm})<br><br>
+      <strong>2. IIW Carbon Equivalent (CE):</strong><br>
+      CE_{\\text{IIW}} = C + \\frac{Mn}{6} + \\frac{Cr + Mo + V}{5} + \\frac{Ni + Cu}{15}<br><br>
+      <strong>3. Ito-Bessyo Crack Susceptibility Parameter (P_cm):</strong><br>
+      P_{cm} = C + \\frac{Si}{30} + \\frac{Mn + Cu + Cr}{20} + \\frac{Ni}{60} + \\frac{Mo}{15} + \\frac{V}{10} + 5B<br><br>
+      <strong>4. AWS D1.1 Preheat Rules:</strong><br>
+      CE \\le 0.40 \\implies 50^\\circ\\text{F} \\quad | \\quad 0.40 < CE \\le 0.45 \\implies 150^\\circ\\text{F} \\quad | \\quad CE > 0.45 \\implies 225^\\circ\\text{F}+
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL WELDING METALLURGY TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. Hydrogen-Induced Delayed Cold Cracking (HICC)</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        When welding steel with $CE > 0.42$, fast cooling forms brittle martensite in the HAZ. Diffusible hydrogen from humid air, dirty wire, or damp flux migrates into microscopic grain boundaries under weld shrinkage stress, causing delayed cracks to pop 24 to 72 hours AFTER the weld passes inspection.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Excessive Heat Input Toughness Annihilation</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Pumping high heat input ($>60\\text{ kJ/in}$) to speed up welding keeps the HAZ in the austenite grain-growth range for too long. Massive coarse grains form, destroying Charpy V-Notch impact toughness and causing brittle fracture under seismic or low-temperature impact.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Short-Circuit GMAW Cold Lapping (Lack of Fusion)</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Using short-circuit transfer MIG on plates thicker than 3/16" produces an aesthetically smooth bead that has zero penetration into the sidewall. The molten puddle rolls over cold steel without fusing, creating invisible lack-of-fusion defects that fail bend tests catastrophically.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Omitting Interpass Temperature Controls</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        On multi-pass welds, laying down the next bead while the joint is over $550^\\circ\\text{F}$ slows the cooling rate excessively. High-strength quenched-and-tempered steels (like A514/Hardox) will over-temper and permanently lose up to 30% of their tensile yield strength.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Burn-Through on Thin Backing Regimes</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Welding plates under 1/8" at travel speeds below 8 IPM concentrates heat input into 2D sheet conduction. The puddle cannot conduct heat away quickly enough, causing the weld pool to sag and blow through the root opening.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      var processEff = {
+        gmaw: 0.80,
+        fcaw: 0.80,
+        smaw: 0.80,
+        gtaw: 0.60,
+        saw:  0.95
+      };
+
+      function calcWelding() {
+        var procKey = document.getElementById('wdProcess').value;
+        var volts = parseFloat(document.getElementById('wdVoltage').value) || 24.0;
+        var amps = parseFloat(document.getElementById('wdCurrent').value) || 220;
+        var speedIpm = parseFloat(document.getElementById('wdSpeed').value) || 12.0;
+        var thickIn = parseFloat(document.getElementById('wdThickness').value) || 0.50;
+        var carbon = parseFloat(document.getElementById('wdCarbon').value) || 0.18;
+        var mn = parseFloat(document.getElementById('wdManganese').value) || 1.20;
+
+        var eff = processEff[procKey] || 0.80;
+
+        // Gross Heat Input (kJ/in) = (60 * V * I) / (1000 * Speed)
+        var grossHeatKjIn = (60 * volts * amps) / (1000 * speedIpm);
+        var netHeatKjIn = grossHeatKjIn * eff;
+
+        // Metric conversions
+        var grossHeatKjMm = grossHeatKjIn / 25.4;
+        var netHeatKjMm = netHeatKjIn / 25.4;
+
+        // Arc Power
+        var arcKw = (volts * amps) / 1000;
+        var netKw = arcKw * eff;
+
+        // Carbon Equivalent (IIW): CE = C + Mn/6 + (Cr+Mo+V)/5 + (Ni+Cu)/15
+        // Assuming typical trace elements for structural carbon steel: Cr 0.05, Mo 0.02, Ni 0.05, Cu 0.05
+        var ce = carbon + (mn / 6.0) + (0.07 / 5.0) + (0.10 / 15.0);
+
+        // P_cm = C + Si/30 + (Mn+Cu+Cr)/20 + Ni/60 + Mo/15 + V/10 + 5B (assuming Si 0.25)
+        var pcm = carbon + (0.25 / 30.0) + ((mn + 0.10) / 20.0) + (0.05 / 60.0) + (0.02 / 15.0);
+
+        // AWS D1.1 Preheat estimate based on CE and thickness
+        var preheatDegF = 50;
+        if (ce > 0.45 || thickIn > 1.5) {
+          preheatDegF = 225;
+        } else if (ce > 0.40 || thickIn > 0.75) {
+          preheatDegF = 150;
+        } else if (ce > 0.35 && thickIn > 0.50) {
+          preheatDegF = 100;
+        }
+
+        // 2D vs 3D Heat Flow Regime
+        var is3D = thickIn >= 0.375;
+
+        // DOM updates
+        document.getElementById('wdNetHeat').textContent = netHeatKjIn.toFixed(1) + ' kJ/in';
+        document.getElementById('wdNetHeatMetric').textContent = netHeatKjMm.toFixed(2) + ' kJ/mm Net Arc Energy';
+
+        document.getElementById('wdCarbonEquiv').textContent = ce.toFixed(3);
+        var weldStatus = document.getElementById('wdWeldability');
+        if (ce <= 0.40) {
+          weldStatus.textContent = 'Excellent Weldability (CE \u2264 0.40)';
+          weldStatus.style.color = '#10b981';
+        } else if (ce <= 0.45) {
+          weldStatus.textContent = 'Moderate Weldability (Preheat Advised)';
+          weldStatus.style.color = '#f59e0b';
+        } else {
+          weldStatus.textContent = 'Difficult Weldability (High Crack Hazard)';
+          weldStatus.style.color = '#ef4444';
+        }
+
+        document.getElementById('wdGrossHeat').textContent = grossHeatKjIn.toFixed(1) + ' kJ/in (' + grossHeatKjMm.toFixed(2) + ' kJ/mm)';
+        document.getElementById('wdArcPower').textContent = arcKw.toFixed(2) + ' kW (' + netKw.toFixed(2) + ' kW Net Heat)';
+        document.getElementById('wdPreheat').textContent = preheatDegF + '\u00B0F (' + Math.round((preheatDegF - 32) * 5/9) + '\u00B0C Minimum)';
+        document.getElementById('wdRegime').textContent = is3D ? '3D Thick Plate Heat Sink' : '2D Thin Sheet Conductive Regime';
+        document.getElementById('wdPcm').textContent = 'P_cm = ' + pcm.toFixed(2) + (pcm <= 0.25 ? ' (Low Crack Risk)' : ' (Elevated Crack Risk)');
+
+        // Badge
+        var badge = document.getElementById('wdBadge');
+        if (netHeatKjIn >= 15 && netHeatKjIn <= 45 && ce <= 0.42) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Optimum Heat Input & Grain Structure' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Heat input (' + netHeatKjIn.toFixed(1) + ' kJ/in) provides sufficient fusion penetration without HAZ grain coarsening. Impact toughness preserved.' +
+            '</div>';
+        } else if (netHeatKjIn > 45) {
+          badge.style.background = 'rgba(245, 158, 11, 0.1)';
+          badge.style.border = '1px solid #f59e0b';
+          badge.style.color = '#f59e0b';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'High Heat Input Warning (' + netHeatKjIn.toFixed(1) + ' kJ/in)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Excessive arc energy slows cooling rate, causing austenite grain coarsening in the HAZ and degrading Charpy impact toughness.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Low Heat Input / Rapid Quench Risk' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Low heat input (' + netHeatKjIn.toFixed(1) + ' kJ/in) risks rapid quench hardening into martensite and incomplete fusion sidewall cold lap.' +
+            '</div>';
+        }
+
+        renderBead(thickIn, netHeatKjIn);
+      }
+
+      function renderBead(thick, heat) {
+        var svg = document.getElementById('wdBeadSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 300;
+        var cx = svgW / 2;
+        var baseTopY = 160;
+
+        var svgHtml = '';
+
+        // Base plate plates (left and right with V-groove)
+        svgHtml += '<rect x=\"80\" y=\"' + baseTopY + '\" width=\"280\" height=\"80\" fill=\"var(--surface)\" stroke=\"#64748b\" stroke-width=\"2\"/>';
+        svgHtml += '<rect x=\"440\" y=\"' + baseTopY + '\" width=\"280\" height=\"80\" fill=\"var(--surface)\" stroke=\"#64748b\" stroke-width=\"2\"/>';
+        svgHtml += '<text x=\"160\" y=\"' + (baseTopY + 45) + '\" fill=\"var(--text-muted)\" font-size=\"12\" font-weight=\"bold\">Base Plate (' + thick.toFixed(2) + '\\\")</text>';
+
+        // Heat-Affected Zone (HAZ) envelope
+        var hazSpread = Math.min(65, Math.max(25, heat * 1.5));
+        svgHtml += '<ellipse cx=\"' + cx + '\" cy=\"' + (baseTopY + 25) + '\" rx=\"' + (60 + hazSpread) + '\" ry=\"' + (30 + hazSpread/2) + '\" fill=\"rgba(245, 158, 11, 0.2)\" stroke=\"#f59e0b\" stroke-dasharray=\"4,3\" stroke-width=\"1.5\"/>';
+        svgHtml += '<text x=\"' + cx + '\" y=\"' + (baseTopY + 65 + hazSpread/2) + '\" fill=\"#d97706\" font-size=\"10\" font-weight=\"bold\" text-anchor=\"middle\">Heat-Affected Zone (HAZ Boundary)</text>';
+
+        // Weld Fusion Bead
+        svgHtml += '<path d=\"M 340 ' + baseTopY + ' Q ' + cx + ' ' + (baseTopY - 25) + ' 460 ' + baseTopY + ' Q ' + cx + ' ' + (baseTopY + 45) + ' 340 ' + baseTopY + '\" fill=\"#3b82f6\" opacity=\"0.85\" stroke=\"#1d4ed8\" stroke-width=\"2\"/>';
+        svgHtml += '<text x=\"' + cx + '\" y=\"' + (baseTopY + 8) + '\" fill=\"#ffffff\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Weld Fusion Zone</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyWeldSpec() {
+        var net = document.getElementById('wdNetHeat').textContent;
+        var metric = document.getElementById('wdNetHeatMetric').textContent;
+        var ce = document.getElementById('wdCarbonEquiv').textContent;
+        var gross = document.getElementById('wdGrossHeat').textContent;
+        var kw = document.getElementById('wdArcPower').textContent;
+        var preheat = document.getElementById('wdPreheat').textContent;
+        var pcm = document.getElementById('wdPcm').textContent;
+
+        var text = '🔥 Welding Heat Input & Metallurgy Spec\\n' +
+          '• Process: ' + document.getElementById('wdProcess').options[document.getElementById('wdProcess').selectedIndex].text + '\\n' +
+          '• Net Heat Input: ' + net + ' (' + metric + ')\\n' +
+          '• Gross Heat Energy: ' + gross + '\\n' +
+          '• Arc Power: ' + kw + '\\n\\n' +
+          'Metallurgical Crack Evaluation:\\n' +
+          '• IIW Carbon Equivalent: ' + ce + '\\n' +
+          '• Crack Parameter: ' + pcm + '\\n' +
+          '• Mandatory AWS D1.1 Preheat: ' + preheat + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/welding-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyWdBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Weld Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['wdProcess', 'wdVoltage', 'wdCurrent', 'wdSpeed', 'wdThickness', 'wdCarbon', 'wdManganese'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcWelding);
+          el.addEventListener('change', calcWelding);
+        }
+      });
+
+      document.getElementById('copyWdBtn').addEventListener('click', copyWeldSpec);
+
+      calcWelding();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'welding-calculator.html'), renderTradePage({
+    title: "Welding Heat Input Calculator: AWS D1.1 & Carbon Equivalent | Digital Tools Shed",
+    metaDesc: "Calculate welding heat input in kJ/in and kJ/mm, process thermal efficiency, IIW Carbon Equivalent (CE), and AWS D1.1 preheat temperatures for structural welds.",
+    canonical: `${DOMAIN}/calc/welding-calculator`,
+    bodyContent: weldingBody,
+    currentPath: '/calc/welding-calculator',
+    faq: [
+      {
+        "q": "How do you calculate welding heat input?",
+        "a": "Heat input is calculated as arc electrical energy divided by weld travel speed, multiplied by process thermal arc efficiency: $H = \\frac{60 \\times V \\times I}{1000 \\times S} \\times \\eta$ (in kJ/in or kJ/mm), where $V$ is arc voltage, $I$ is current in amps, $S$ is travel speed in inches per minute (or mm/s), and $\\eta$ is process efficiency factor."
+      },
+      {
+        "q": "What are the arc efficiency factors for welding processes?",
+        "a": "Under ASME Section IX and ISO 15614 standards: Gas Metal Arc Welding (GMAW/MIG) and Flux-Cored Arc (FCAW) have an efficiency of 0.80; Shielded Metal Arc (SMAW/Stick) is 0.80; Gas Tungsten Arc (GTAW/TIG) is 0.60; and Submerged Arc Welding (SAW) is 0.95 due to complete flux blanket encapsulation."
+      },
+      {
+        "q": "What is Carbon Equivalent (CE) in steel welding?",
+        "a": "Carbon Equivalent ($CE_{\\text{IIW}} = C + Mn/6 + (Cr+Mo+V)/5 + (Ni+Cu)/15$) measures the total hardenability of steel by normalizing alloying elements to an equivalent carbon percentage. Steels with $CE \\le 0.40$ possess excellent weldability; steels with $CE > 0.45$ require strict preheat and interpass temperature controls to prevent hydrogen cold cracking."
+      },
+      {
+        "q": "Why is excessive heat input dangerous?",
+        "a": "Excessive heat input slows the cooling rate through the critical $800^\\circ\\text{C}$ to $500^\\circ\\text{C}$ range ($t_{8/5}$), causing coarse austenite grain growth in the Heat-Affected Zone (HAZ). Coarse grain microstructure severely degrades Charpy V-Notch impact toughness and lowers yield strength in high-strength alloys."
+      },
+      {
+        "q": "When is preheat required under AWS D1.1?",
+        "a": "Under AWS D1.1 structural welding code, preheat is required when base plate thickness exceeds threshold limits or when Carbon Equivalent indicates crack susceptibility. Preheating slows the cooling rate, allowing diffusible hydrogen to escape from the weld pool before martensite can form."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BELT CONVEYOR CAPACITY & DRIVE POWER CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const beltConveyorBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Belt Conveyor Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Belt Conveyor Capacity & Drive Horsepower Calculator (CEMA)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate bulk material handling capacity in Tons Per Hour (TPH), volumetric throughput (ft&sup3;/hr), belt speed (FPM), effective drive tension (T_e), and electric motor horsepower according to CEMA standards.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"12\" r=\"3\"/><line x1=\"6\" y1=\"9\" x2=\"18\" y2=\"9\"/><line x1=\"6\" y1=\"15\" x2=\"18\" y2=\"15\"/></svg>
+        Conveyor Geometry & Material
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="bcWidth">Belt Width (Inches)</label>
+          <select id="bcWidth" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="18">18" (450 mm)</option>
+            <option value="24">24" (600 mm)</option>
+            <option value="30">30" (750 mm)</option>
+            <option value="36" selected>36" (900 mm)</option>
+            <option value="42">42" (1050 mm)</option>
+            <option value="48">48" (1200 mm)</option>
+            <option value="54">54" (1350 mm)</option>
+            <option value="60">60" (1500 mm)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="bcTrough">Troughing Angle</label>
+          <select id="bcTrough" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+            <option value="20">20&deg; Standard 3-Roll Idler</option>
+            <option value="35" selected>35&deg; Deep Trough 3-Roll</option>
+            <option value="45">45&deg; High Capacity Grain/Ore</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="bcSpeed">Belt Speed (FPM)</label>
+          <input type="number" id="bcSpeed" value="350" min="50" max="1200" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Feet per minute</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="bcLength">Conveyor Center Distance (ft)</label>
+          <input type="number" id="bcLength" value="250" min="10" max="5000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Pulley to pulley length</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="bcLift">Vertical Lift / Drop (ft)</label>
+          <input type="number" id="bcLift" value="25" min="-500" max="500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Positive = Incline; Negative = Decline</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="bcDensity">Bulk Density (lb/cu ft)</label>
+          <input type="number" id="bcDensity" value="100" min="15" max="250" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Gravel: 100; Coal: 50; Iron Ore: 160</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Capacity & Motor Spec
+          </h2>
+          <button id="copyBcBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Conveyor Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Throughput Capacity</span>
+            <span id="bcTotalTph" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">784 TPH</span>
+            <span id="bcVolumetric" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">15,680 cu ft / hr</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Motor Drive Power</span>
+            <span id="bcMotorHp" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#10b981;display:block;">30.0 HP</span>
+            <span id="bcMotorKw" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">22.4 kW Electrical Power</span>
+          </div>
+        </div>
+
+        <!-- DETAILED ENGINEERING SPEC -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Effective Tension (T_e):</span>
+            <strong id="bcEffectiveTension" style="font-family:var(--mono);">2,460 lbs (CEMA Standard)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Material Lift Power:</span>
+            <strong id="bcLiftHp" style="font-family:var(--mono);color:#f59e0b;">19.8 HP (25 ft Lift)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Empty Belt Friction Power:</span>
+            <strong id="bcEmptyHp" style="font-family:var(--mono);">4.2 HP (250 ft Center)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Conveyor Slope Angle:</span>
+            <strong id="bcSlopeAngle" style="font-family:var(--mono);">5.7&deg; (Max Gravel Limit 15&deg;)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Cross-Sectional Load Area:</span>
+            <strong id="bcLoadArea" style="font-family:var(--mono);">0.747 sq ft (35&deg; Trough)</strong>
+          </div>
+        </div>
+
+        <!-- STATUS BADGE -->
+        <div id="bcBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG TROUGHED BELT IDLER & SIDE ELEVATION SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">CEMA Troughed Idler Cross-Section & Material Surcharge</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector cross-section illustrating 3-roll idler troughing angle, material surcharge angle ($20^\circ$), and side elevation profile with head/tail pulleys.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="bcConveyorSvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & CEMA PRINCIPLES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Bulk Material Mechanics: CEMA Capacity & Drive Tension Equations</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Conveyor capacity is governed by cross-sectional material load area on troughed idlers and linear belt velocity. Drive horsepower must overcome empty friction, material horizontal translation, and gravitational lift.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Conveyor Throughput Tonnage (TPH):</strong><br>
+      \\text{TPH} = \\frac{A_{\\text{cross}} \\times V_{\\text{speed}} \\times \\rho_{\\text{bulk}} \\times 60}{2000}<br><br>
+      <strong>2. Material Gravitational Lift Horsepower:</strong><br>
+      HP_{\\text{lift}} = \\frac{\\text{TPH} \\times H_{\\text{lift}}}{990} \\quad \\Big(1\\text{ HP} = 33,000\\text{ ft-lb/min}\\Big)<br><br>
+      <strong>3. Effective Drive Tension (T_e):</strong><br>
+      T_e = \\frac{HP_{\\text{motor}} \\times 33,000 \\times \\eta_{\\text{drive}}}{V_{\\text{speed}}}<br><br>
+      <strong>4. Euler-Eytelwein Drive Pulley Slip Condition:</strong><br>
+      \\frac{T_1}{T_2} \\le e^{\\mu \\theta} \\quad (\\mu = 0.35 \\text{ for rubber lagged pulley; } \\theta = 210^\\circ \\text{ wrap})
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL BULK CONVEYOR TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. Drive Pulley Slip Belt Fire Catastrophe</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        When slack-side tension ($T_2$) drops due to insufficient counterweight take-up, the drive pulley spins against a stalled belt ($T_1/T_2 > e^{\\mu\\theta}$). Friction generates $800^\\circ\\text{F}$ within 90 seconds, melting the rubber carcass and igniting massive coal/grain conveyor gallery fires.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Exceeding Maximum Incline Slope Rollback</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Every bulk material has a maximum safe incline angle (e.g. wet gravel $15^\\circ$, dry sand $18^\\circ$). Exceeding this angle causes round stones to roll backward down the belt like bowling balls, destroying loading skirtboards and showering workers.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. 45-Degree Idler Junction Fatigue Slit</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Deep $45^\\circ$ troughing idlers maximize tonnage but bend the rubber belt sharply over the gap between center and wing rollers. Heavy steel-cable or fabric belts not rated for $45^\\circ$ troughing will fatigue and split longitudinally down the idler junction lines.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Lump Size vs Belt Width Blockage</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        CEMA mandates that belt width must be at least 3 times the maximum uniform lump size (or 2.5 times the maximum irregular lump size). Loading 10" boulders onto a 24" belt jams transfer chutes, slices belt covers, and causes instantaneous material spillage.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Underestimating Starting Torque & Sag</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Starting a fully loaded conveyor requires 200% to 250% of running motor torque to overcome static inertia and sag between idlers. Sizing the motor purely for steady-state run horsepower causes the motor to stall on loaded restart, tripping circuit breakers.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      // CEMA load area coefficients (sq ft) for standard 3-roll idlers (20 deg surcharge)
+      var cemaAreas = {
+        '18': { '20': 0.144, '35': 0.178, '45': 0.198 },
+        '24': { '20': 0.278, '35': 0.345, '45': 0.385 },
+        '30': { '20': 0.456, '35': 0.567, '45': 0.635 },
+        '36': { '20': 0.680, '35': 0.847, '45': 0.950 },
+        '42': { '20': 0.946, '35': 1.180, '45': 1.325 },
+        '48': { '20': 1.258, '35': 1.570, '45': 1.765 },
+        '54': { '20': 1.614, '35': 2.015, '45': 2.268 },
+        '60': { '20': 2.016, '35': 2.520, '45': 2.835 }
+      };
+
+      var nemaHp = [3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300];
+
+      function calcConveyor() {
+        var wKey = document.getElementById('bcWidth').value;
+        var trKey = document.getElementById('bcTrough').value;
+        var speed = parseFloat(document.getElementById('bcSpeed').value) || 350;
+        var lenFt = parseFloat(document.getElementById('bcLength').value) || 250;
+        var liftFt = parseFloat(document.getElementById('bcLift').value) || 25;
+        var density = parseFloat(document.getElementById('bcDensity').value) || 100;
+
+        var areaData = cemaAreas[wKey] || cemaAreas['36'];
+        var crossArea = areaData[trKey] || 0.847;
+
+        // Volumetric throughput: ft^3/hr = crossArea * speed (ft/min) * 60
+        var cuFtHr = crossArea * speed * 60;
+
+        // Gravimetric throughput: TPH = (cuFtHr * density) / 2000
+        var tph = (cuFtHr * density) / 2000;
+
+        // Power components (CEMA simplified):
+        // 1. Lift Power: HP_lift = (TPH * Lift) / 990
+        var hpLift = (tph * liftFt) / 990;
+
+        // 2. Horizontal material translation: HP_mat = (TPH * Len * 0.03) / 990
+        var hpMat = (tph * lenFt * 0.03) / 990;
+
+        // 3. Empty belt friction: HP_empty = (CEMA friction factor * Len * speed * belt weight)
+        var beltWtLbFt = parseInt(wKey, 10) * 0.45; // approx 16 lbs/ft for 36"
+        var hpEmpty = (0.035 * lenFt * speed * (beltWtLbFt * 2)) / 33000;
+
+        var totalShaftHp = Math.max(1.0, hpLift + hpMat + hpEmpty);
+        var driveEff = 0.88; // Gearbox + motor efficiency
+        var totalMotorHp = totalShaftHp / driveEff;
+
+        // Find standard NEMA motor
+        var standardMotor = 300;
+        for (var i = 0; i < nemaHp.length; i++) {
+          if (nemaHp[i] >= totalMotorHp * 1.10) { // 10% safety margin
+            standardMotor = nemaHp[i];
+            break;
+          }
+        }
+
+        var motorKw = standardMotor * 0.7457;
+
+        // Effective Tension: T_e = (totalShaftHp * 33000) / speed
+        var te = (totalShaftHp * 33000) / speed;
+
+        // Slope angle
+        var slopeAngleDeg = lenFt > 0 ? (Math.asin(Math.min(1.0, Math.abs(liftFt) / lenFt)) * (180 / Math.PI)) : 0;
+
+        // DOM updates
+        document.getElementById('bcTotalTph').textContent = Math.round(tph).toLocaleString() + ' TPH';
+        document.getElementById('bcVolumetric').textContent = Math.round(cuFtHr).toLocaleString() + ' cu ft / hr (' + (cuFtHr / 27).toFixed(0) + ' yd\u00B3/h)';
+        document.getElementById('bcMotorHp').textContent = standardMotor + ' HP (' + totalMotorHp.toFixed(1) + ' HP Req)';
+        document.getElementById('bcMotorKw').textContent = motorKw.toFixed(1) + ' kW Electrical Rating';
+
+        document.getElementById('bcEffectiveTension').textContent = Math.round(te).toLocaleString() + ' lbs (T_e Drive Force)';
+        document.getElementById('bcLiftHp').textContent = hpLift.toFixed(1) + ' HP (' + liftFt + ' ft Elevation)';
+        document.getElementById('bcEmptyHp').textContent = (hpMat + hpEmpty).toFixed(1) + ' HP (Friction & Drag)';
+        document.getElementById('bcSlopeAngle').textContent = slopeAngleDeg.toFixed(1) + '\u00B0 Incline (Max Material: 15\u00B0 - 18\u00B0)';
+        document.getElementById('bcLoadArea').textContent = crossArea.toFixed(3) + ' sq ft (CEMA 20\u00B0 Surcharge)';
+
+        // Badge
+        var badge = document.getElementById('bcBadge');
+        if (slopeAngleDeg <= 15) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Stable Conveying Geometry (' + slopeAngleDeg.toFixed(1) + '&deg; Slope)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Incline angle is safely below the maximum rollback threshold. Effective tension (' + Math.round(te) + ' lbs) and motor size (' + standardMotor + ' HP) are well-matched.' +
+            '</div>';
+        } else if (slopeAngleDeg <= 18) {
+          badge.style.background = 'rgba(245, 158, 11, 0.1)';
+          badge.style.border = '1px solid #f59e0b';
+          badge.style.color = '#f59e0b';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Steep Incline Warning (' + slopeAngleDeg.toFixed(1) + '&deg; Slope)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Incline approaches maximum limit for granular materials. Spherical gravel or dry lump coal may experience rollback. Use chevron cleated belt if rollback occurs.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'EXCESSIVE INCLINE ROLLBACK HAZARD (' + slopeAngleDeg.toFixed(1) + '&deg;)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Incline exceeds the angle of repose for standard bulk materials. Material will avalanche down the belt. Lengthen center distance to reduce slope or specify a sidewall pocket belt.' +
+            '</div>';
+        }
+
+        renderConveyor(trKey, slopeAngleDeg);
+      }
+
+      function renderConveyor(trAngle, slope) {
+        var svg = document.getElementById('bcConveyorSvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 300;
+
+        var svgHtml = '';
+
+        // Troughed Idler Cross-Section on Left
+        var cx = 220;
+        var cy = 180;
+        var rollLen = 60;
+        var trRad = (parseFloat(trAngle) * Math.PI) / 180;
+
+        // Center roller
+        svgHtml += '<line x1=\"' + (cx - rollLen/2) + '\" y1=\"' + cy + '\" x2=\"' + (cx + rollLen/2) + '\" y2=\"' + cy + '\" stroke=\"#1e293b\" stroke-width=\"8\" stroke-linecap=\"round\"/>';
+
+        // Left wing roller
+        var lx = (cx - rollLen/2) - Math.cos(trRad) * rollLen;
+        var ly = cy - Math.sin(trRad) * rollLen;
+        svgHtml += '<line x1=\"' + (cx - rollLen/2) + '\" y1=\"' + cy + '\" x2=\"' + lx + '\" y2=\"' + ly + '\" stroke=\"#1e293b\" stroke-width=\"8\" stroke-linecap=\"round\"/>';
+
+        // Right wing roller
+        var rx = (cx + rollLen/2) + Math.cos(trRad) * rollLen;
+        var ry = cy - Math.sin(trRad) * rollLen;
+        svgHtml += '<line x1=\"' + (cx + rollLen/2) + '\" y1=\"' + cy + '\" x2=\"' + rx + '\" y2=\"' + ry + '\" stroke=\"#1e293b\" stroke-width=\"8\" stroke-linecap=\"round\"/>';
+
+        // Rubber belt profile over idlers
+        svgHtml += '<path d=\"M ' + (lx - 10) + ' ' + (ly - 6) + ' L ' + (cx - rollLen/2) + ' ' + (cy - 6) + ' L ' + (cx + rollLen/2) + ' ' + (cy - 6) + ' L ' + (rx + 10) + ' ' + (ry - 6) + '\" fill=\"none\" stroke=\"#3b82f6\" stroke-width=\"4\"/>';
+
+        // Bulk material heap with 20 deg surcharge
+        svgHtml += '<path d=\"M ' + (lx + 5) + ' ' + (ly - 6) + ' Q ' + cx + ' ' + (ly - 35) + ' ' + (rx - 5) + ' ' + (ry - 6) + ' L ' + (cx + rollLen/2) + ' ' + (cy - 6) + ' L ' + (cx - rollLen/2) + ' ' + (cy - 6) + ' Z\" fill=\"#f59e0b\" opacity=\"0.65\" stroke=\"#d97706\" stroke-width=\"2\"/>';
+        svgHtml += '<text x=\"' + cx + '\" y=\"' + (cy + 30) + '\" fill=\"var(--text-muted)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">3-Roll Troughed Idler (' + trAngle + '&deg;)</text>';
+
+        // Conveyor Side Elevation on Right
+        var ex1 = 460;
+        var ey1 = 200;
+        var ex2 = 720;
+        var ey2 = 120; // inclined
+
+        // Tail pulley
+        svgHtml += '<circle cx=\"' + ex1 + '\" cy=\"' + ey1 + '\" r=\"22\" fill=\"none\" stroke=\"#64748b\" stroke-width=\"4\"/>';
+        // Head / Drive pulley
+        svgHtml += '<circle cx=\"' + ex2 + '\" cy=\"' + ey2 + '\" r=\"26\" fill=\"none\" stroke=\"#10b981\" stroke-width=\"5\"/>';
+
+        // Top carry strand
+        svgHtml += '<line x1=\"' + ex1 + '\" y1=\"' + (ey1 - 22) + '\" x2=\"' + ex2 + '\" y2=\"' + (ey2 - 26) + '\" stroke=\"#3b82f6\" stroke-width=\"4\"/>';
+        // Return strand
+        svgHtml += '<line x1=\"' + ex1 + '\" y1=\"' + (ey1 + 22) + '\" x2=\"' + ex2 + '\" y2=\"' + (ey2 + 26) + '\" stroke=\"#64748b\" stroke-width=\"3\" stroke-dasharray=\"4,3\"/>';
+
+        svgHtml += '<text x=\"' + ex1 + '\" y=\"' + (ey1 + 42) + '\" fill=\"var(--text-muted)\" font-size=\"10\" text-anchor=\"middle\">Tail Pulley</text>';
+        svgHtml += '<text x=\"' + ex2 + '\" y=\"' + (ey2 + 45) + '\" fill=\"#10b981\" font-size=\"10\" font-weight=\"bold\" text-anchor=\"middle\">Drive Pulley</text>';
+        svgHtml += '<text x=\"' + (ex1 + ex2)/2 + '\" y=\"' + ((ey1 + ey2)/2 - 35) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Slope: ' + slope.toFixed(1) + '&deg;</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyConveyorSpec() {
+        var tph = document.getElementById('bcTotalTph').textContent;
+        var vol = document.getElementById('bcVolumetric').textContent;
+        var hp = document.getElementById('bcMotorHp').textContent;
+        var kw = document.getElementById('bcMotorKw').textContent;
+        var te = document.getElementById('bcEffectiveTension').textContent;
+        var lift = document.getElementById('bcLiftHp').textContent;
+        var slope = document.getElementById('bcSlopeAngle').textContent;
+
+        var text = '🚜 CEMA Belt Conveyor Engineering Spec\\n' +
+          '• Belt: ' + document.getElementById('bcWidth').value + '\" @ ' + document.getElementById('bcSpeed').value + ' FPM (' + document.getElementById('bcTrough').value + '° Trough)\\n' +
+          '• Material Throughput: ' + tph + ' (' + vol + ')\\n' +
+          '• Motor Sizing: ' + hp + ' (' + kw + ')\\n' +
+          '• Effective Drive Tension (T_e): ' + te + '\\n' +
+          '• Lift Elevation Power: ' + lift + '\\n' +
+          '• Conveyor Slope: ' + slope + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/belt-conveyor-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyBcBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Conveyor Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['bcWidth', 'bcTrough', 'bcSpeed', 'bcLength', 'bcLift', 'bcDensity'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcConveyor);
+          el.addEventListener('change', calcConveyor);
+        }
+      });
+
+      document.getElementById('copyBcBtn').addEventListener('click', copyConveyorSpec);
+
+      calcConveyor();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'belt-conveyor-calculator.html'), renderTradePage({
+    title: "Belt Conveyor Calculator: CEMA Capacity & Drive Horsepower | Digital Tools Shed",
+    metaDesc: "Calculate bulk material handling capacity in Tons Per Hour (TPH), belt speed, CEMA troughed idler cross-sectional area, drive tension (T_e), and motor horsepower.",
+    canonical: `${DOMAIN}/calc/belt-conveyor-calculator`,
+    bodyContent: beltConveyorBody,
+    currentPath: '/calc/belt-conveyor-calculator',
+    faq: [
+      {
+        "q": "How is belt conveyor capacity calculated?",
+        "a": "Conveyor capacity is calculated using the CEMA standard formula: $\\text{TPH} = \\frac{A_{\\text{cross}} \\times V_{\\text{speed}} \\times \\rho_{\\text{bulk}} \\times 60}{2000}$, where $A_{\\text{cross}}$ is the material cross-sectional area on the troughed idler (sq ft), $V_{\\text{speed}}$ is belt speed in feet per minute (FPM), and $\\rho_{\\text{bulk}}$ is bulk material density in $\\text{lb/ft}^3$."
+      },
+      {
+        "q": "What is troughing angle and why does it matter?",
+        "a": "The troughing angle ($20^\\circ, 35^\\circ,$ or $45^\\circ$) is the incline angle of the wing rollers on a 3-roll idler set. Increasing troughing from $20^\\circ$ to $35^\\circ$ expands the cross-sectional load cup by 25%, allowing the conveyor to carry significantly more tonnage on the same belt width without spillage."
+      },
+      {
+        "q": "How much horsepower is needed to lift material vertically?",
+        "a": "Gravitational lift power is calculated as: $HP_{\\text{lift}} = \\frac{\\text{TPH} \\times H_{\\text{lift}}}{990}$. For example, elevating 500 Tons Per Hour up a 40-foot lift requires exactly 20.2 shaft horsepower devoted strictly to overcoming gravity, independent of belt friction."
+      },
+      {
+        "q": "What causes drive pulley slip?",
+        "a": "Drive pulley slip occurs when the tension ratio between the tight side ($T_1$) and slack side ($T_2$) exceeds the friction holding capability of the pulley wrap (governed by Euler's equation $T_1 / T_2 \\le e^{\\mu \\theta}$). Inadequate gravity take-up counterweight, worn rubber lagging, or wet operating conditions cause the pulley to spin against the belt, generating destructive frictional heat."
+      },
+      {
+        "q": "What is maximum conveyor incline angle?",
+        "a": "The maximum safe incline angle is limited by the bulk material's internal friction and lump shape to prevent rollback. Sized crushed gravel can safely travel at $15^\\circ$ to $18^\\circ$, coal at $16^\\circ$, and dry sand at $15^\\circ$. Exceeding these angles requires chevron-patterned or cleated belts."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PIPE FRICTION LOSS & DARCY-WEISBACH CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const pipeFrictionBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Pipe Friction Loss Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Pipe Friction Loss Calculator (Darcy-Weisbach & Colebrook)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate pipe pressure drop (PSI & Bar), head loss (ft & m), Reynolds number (Re), Colebrook-White friction factor (f), and flow velocity across Schedule 40/80 steel, copper, PVC, and ductile iron piping.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"/></svg>
+        Fluid Flow & Pipe Sizing
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pfFlow">Volumetric Flow (GPM)</label>
+          <input type="number" id="pfFlow" value="100" min="1" max="50000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Liquid delivery rate</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pfLength">Pipe Run Length (ft)</label>
+          <input type="number" id="pfLength" value="200" min="5" max="20000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Physical pipe distance</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pfDiameter">Nominal Pipe Size (NPS)</label>
+          <select id="pfDiameter" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.0">1.0" NPS (1.049" ID)</option>
+            <option value="1.25">1.25" NPS (1.380" ID)</option>
+            <option value="1.5">1.5" NPS (1.610" ID)</option>
+            <option value="2.0" selected>2.0" NPS (2.067" ID)</option>
+            <option value="2.5">2.5" NPS (2.469" ID)</option>
+            <option value="3.0">3.0" NPS (3.068" ID)</option>
+            <option value="4.0">4.0" NPS (4.026" ID)</option>
+            <option value="6.0">6.0" NPS (6.065" ID)</option>
+            <option value="8.0">8.0" NPS (7.981" ID)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pfMaterial">Pipe Material & Roughness (&epsilon;)</label>
+          <select id="pfMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="pvc" selected>PVC / CPVC / Smooth Plastic (0.000005 ft)</option>
+            <option value="copper">Drawn Copper / Brass (0.000005 ft)</option>
+            <option value="steel">Commercial Carbon Steel Sched 40 (0.00015 ft)</option>
+            <option value="galv">Galvanized Steel / Iron (0.00050 ft)</option>
+            <option value="ductile">Cast / Ductile Iron Unlined (0.00085 ft)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pfFluidTemp">Fluid Temperature (&deg;F)</label>
+          <input type="number" id="pfFluidTemp" value="68" min="35" max="210" step="2" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Governs water kinematic viscosity</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pfFittings">Valves & Fittings Equiv Length (ft)</label>
+          <input type="number" id="pfFittings" value="35" min="0" max="2000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Equivalent length (L_eq) for elbows, tees</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg>
+            Pressure Drop & Flow Dynamics
+          </h2>
+          <button id="copyPfBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>
+            <span>Copy Friction Spec</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Pressure Drop</span>
+            <span id="pfTotalPsi" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#ef4444;display:block;">13.4 PSI</span>
+            <span id="pfTotalBar" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">0.92 Bar (30.9 ft Head Loss)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Flow Velocity</span>
+            <span id="pfVelocity" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">9.57 ft/s</span>
+            <span id="pfVelocityMetric" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">2.92 m/s (High Velocity)</span>
+          </div>
+        </div>
+
+        <!-- FLUID DYNAMICS SPEC -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Reynolds Number (Re):</span>
+            <strong id="pfReynolds" style="font-family:var(--mono);">183,400 (Fully Turbulent)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Darcy Friction Factor (f):</span>
+            <strong id="pfFactor" style="font-family:var(--mono);color:#f59e0b;">f = 0.0162 (Colebrook-White)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Loss per 100 ft of Pipe:</span>
+            <strong id="pfLoss100" style="font-family:var(--mono);">5.70 PSI / 100 ft (13.1 ft/100')</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Total Equivalent Length (L_tot):</span>
+            <strong id="pfTotalLength" style="font-family:var(--mono);">235 ft (200' Pipe + 35' Fittings)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Kinematic Viscosity (&nu;):</span>
+            <strong id="pfViscosity" style="font-family:var(--mono);">1.08 cSt (1.004 x 10^-5 ft&sup2;/s)</strong>
+          </div>
+        </div>
+
+        <!-- VELOCITY STATUS BADGE -->
+        <div id="pfBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG MOODY DIAGRAM & VELOCITY PROFILE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Moody Chart Operating Point & Cross-Section Velocity Profile</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector schematic showing the operating coordinate on the Moody diagram (Reynolds number Re vs friction factor f) alongside the turbulent flat-top fluid boundary layer.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="pfMoodySvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & FLUID MECHANICS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Fluid Mechanics: Darcy-Weisbach & Colebrook-White Equations</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      The Darcy-Weisbach equation is the universal physical model for fluid pipe flow. In turbulent regimes, the friction factor ($f$) is solved iteratively using the Colebrook-White equation or Swamee-Jain explicit formula.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Darcy-Weisbach Head Loss Equation:</strong><br>
+      \\Delta h = f \\times \\frac{L_{\\text{total}}}{D} \\times \\frac{v^2}{2g} \\quad (\\text{feet of liquid})<br><br>
+      <strong>2. Pressure Drop Conversion:</strong><br>
+      \\Delta P = \\frac{\\Delta h \\times \\text{SG}}{2.3067} \\quad (\\text{PSI}) = \\frac{\\Delta P}{14.5038} \\quad (\\text{Bar})<br><br>
+      <strong>3. Reynolds Number:</strong><br>
+      Re = \\frac{v \\times D}{\\nu} \\quad (\\text{Laminar } < 2300 \\quad | \\quad \\text{Turbulent } > 4000)<br><br>
+      <strong>4. Swamee-Jain Explicit Approximation to Colebrook-White:</strong><br>
+      f = \\frac{0.25}{\\left[\\log_{10}\\left(\\frac{\\varepsilon / D}{3.7} + \\frac{5.74}{Re^{0.9}}\\right)\\right]^2}
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL PIPE FRICTION TRAPS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;margin-bottom:2.5rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. The Water Hammer Shockwave Rupture</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Operating pipes above 10 ft/s creates massive kinetic momentum ($E_k = \\frac{1}{2} m v^2$). Slamming a quarter-turn ball valve or fast solenoid shut arrests that momentum in milliseconds, generating hydraulic shockwaves exceeding $500\\text{ PSI}$ that shatter PVC elbows and rupture pipe joints.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Using Hazen-Williams for Non-Water Fluids</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        The Hazen-Williams formula is strictly calibrated for water at $60^\\circ\\text{F}$. Using Hazen-Williams for glycol chiller loops, hydraulic oil, or hot water ($180^\\circ\\text{F}$) causes massive errors (up to 300%) because it completely ignores kinematic viscosity variations. Always use Darcy-Weisbach.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Internal Scale Buildup & The D^5 Penalty</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        Head loss is inversely proportional to the fifth power of pipe diameter ($h_f \\propto 1/D^5$). If hard-water scale or rust tuberculation reduces a 2" pipe's internal diameter by just 15% (to 1.7"), pressure drop jumps by over 130% at the same flow rate!
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Ignoring Minor Loss Fittings in Short Runs</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        In mechanical boiler rooms or pump houses with compact piping, 10 elbows, a check valve, and a globe valve have an equivalent length of over 150 feet of straight pipe. Ignoring fitting $K$-factors under-predicts pump head requirement by more than half.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+      <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Erosive Velocity in Copper Piping</h3>
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+        The Copper Development Association strictly limits water velocity in domestic copper tubing to 8 ft/s for cold water and 5 ft/s for hot water ($>140^\\circ\\text{F}$). High velocity strips the protective copper-oxide patina from tube walls, causing pinhole erosion leaks within 2 to 4 years.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      // Schedule 40 steel / PVC internal diameters (inches)
+      var pipeIDs = {
+        '1.0': 1.049,
+        '1.25': 1.380,
+        '1.5': 1.610,
+        '2.0': 2.067,
+        '2.5': 2.469,
+        '3.0': 3.068,
+        '4.0': 4.026,
+        '6.0': 6.065,
+        '8.0': 7.981
+      };
+
+      // Absolute roughness epsilon (ft)
+      var roughnessTable = {
+        pvc: 0.000005,
+        copper: 0.000005,
+        steel: 0.000150,
+        galv: 0.000500,
+        ductile: 0.000850
+      };
+
+      // Water kinematic viscosity (ft^2/s) based on temperature F
+      function getViscosity(tempF) {
+        // Empirical approximation for water
+        // 32F: 1.93e-5, 68F: 1.08e-5, 140F: 0.50e-5, 212F: 0.31e-5
+        var tC = (tempF - 32) * (5 / 9);
+        var vCSt = 1.79 / (1 + 0.03368 * tC + 0.000221 * tC * tC);
+        return vCSt * 1.07639e-5; // Convert cSt to ft^2/s
+      }
+
+      function calcPipeFriction() {
+        var gpm = parseFloat(document.getElementById('pfFlow').value) || 100;
+        var lenFt = parseFloat(document.getElementById('pfLength').value) || 200;
+        var diaKey = document.getElementById('pfDiameter').value;
+        var matKey = document.getElementById('pfMaterial').value;
+        var tempF = parseFloat(document.getElementById('pfFluidTemp').value) || 68;
+        var fittingsEqFt = parseFloat(document.getElementById('pfFittings').value) || 0;
+
+        var dInches = pipeIDs[diaKey] || 2.067;
+        var dFt = dInches / 12;
+        var epsFt = roughnessTable[matKey] || 0.000005;
+
+        var totalLen = lenFt + fittingsEqFt;
+
+        // Flow velocity: v = Q / A
+        var qCuFtSec = gpm / 448.831;
+        var areaSqFt = (Math.PI * Math.pow(dFt, 2)) / 4;
+        var velocity = areaSqFt > 0 ? (qCuFtSec / areaSqFt) : 0;
+        var velocityMs = velocity * 0.3048;
+
+        // Kinematic viscosity
+        var nu = getViscosity(tempF);
+        var nuCSt = nu / 1.07639e-5;
+
+        // Reynolds Number
+        var Re = (velocity * dFt) / nu;
+
+        // Friction factor (f)
+        var f = 0.02;
+        if (Re < 2300) {
+          f = Re > 0 ? (64 / Re) : 0.02;
+        } else {
+          // Swamee-Jain explicit Colebrook approximation
+          var relRough = epsFt / dFt;
+          var term1 = relRough / 3.7;
+          var term2 = 5.74 / Math.pow(Re, 0.9);
+          var logTerm = Math.log10(term1 + term2);
+          f = 0.25 / Math.pow(logTerm, 2);
+        }
+
+        // Darcy-Weisbach head loss: h_f = f * (L / D) * (v^2 / 2g)
+        var g = 32.174;
+        var headLossFt = f * (totalLen / dFt) * (Math.pow(velocity, 2) / (2 * g));
+        var headLossM = headLossFt * 0.3048;
+
+        // Pressure drop in PSI (water SG = 1.0)
+        var psi = headLossFt / 2.3067;
+        var bar = psi / 14.5038;
+
+        var psiPer100 = (f * (100 / dFt) * (Math.pow(velocity, 2) / (2 * g))) / 2.3067;
+        var ftPer100 = psiPer100 * 2.3067;
+
+        // DOM updates
+        document.getElementById('pfTotalPsi').textContent = psi.toFixed(1) + ' PSI';
+        document.getElementById('pfTotalBar').textContent = bar.toFixed(2) + ' Bar (' + headLossFt.toFixed(1) + ' ft Head Loss)';
+        document.getElementById('pfVelocity').textContent = velocity.toFixed(2) + ' ft/s';
+        document.getElementById('pfVelocityMetric').textContent = velocityMs.toFixed(2) + ' m/s ' + (velocity <= 8 ? '(Acceptable)' : '(High Velocity)');
+
+        var reRegime = Re > 4000 ? 'Fully Turbulent' : Re > 2300 ? 'Transitional Flow' : 'Laminar Flow';
+        document.getElementById('pfReynolds').textContent = Math.round(Re).toLocaleString() + ' (' + reRegime + ')';
+        document.getElementById('pfFactor').textContent = 'f = ' + f.toFixed(4) + ' (Colebrook-White)';
+        document.getElementById('pfLoss100').textContent = psiPer100.toFixed(2) + ' PSI / 100 ft (' + ftPer100.toFixed(1) + ' ft/100\')';
+        document.getElementById('pfTotalLength').textContent = totalLen + ' ft (' + lenFt + '\' Pipe + ' + fittingsEqFt + '\' Fittings)';
+        document.getElementById('pfViscosity').textContent = nuCSt.toFixed(2) + ' cSt (' + (nu * 1e5).toFixed(3) + ' x 10\u207B\u2075 ft\u00B2/s)';
+
+        // Badge
+        var badge = document.getElementById('pfBadge');
+        if (velocity >= 4.0 && velocity <= 8.0) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>' +
+              'Optimum Engineering Velocity (' + velocity.toFixed(1) + ' ft/s)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Velocity falls within standard ASHRAE / CDA design guidelines (4 to 8 ft/s). Prevents pipe erosion, sediment settling, and excessive friction losses.' +
+            '</div>';
+        } else if (velocity < 4.0) {
+          badge.style.background = 'rgba(59, 130, 246, 0.1)';
+          badge.style.border = '1px solid #3b82f6';
+          badge.style.color = '#3b82f6';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'Low Velocity / Oversized Pipe (' + velocity.toFixed(1) + ' ft/s)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Very low pressure drop, but pipe size may be uneconomically large. In slurry or wastewater systems, velocities below 3 ft/s risk solids settling.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>' +
+              'HIGH VELOCITY EROSION WARNING (' + velocity.toFixed(1) + ' ft/s)' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Flow velocity exceeds 8.0 ft/s (CDA maximum). Risk of acoustic noise, rapid pipe erosion corrosion, and severe water hammer pressure spikes. Upsize pipe diameter.' +
+            '</div>';
+        }
+
+        renderMoody(Re, f, velocity);
+      }
+
+      function renderMoody(re, fVal, vel) {
+        var svg = document.getElementById('pfMoodySvg');
+        if (!svg) return;
+
+        var svgW = 800;
+        var svgH = 300;
+
+        var svgHtml = '';
+
+        // Pipe Cross-Section Velocity Profile on Left
+        var pX = 80;
+        var pY = 70;
+        var pW = 240;
+        var pH = 120;
+
+        // Pipe wall top & bottom
+        svgHtml += '<rect x=\"' + pX + '\" y=\"' + (pY - 10) + '\" width=\"' + pW + '\" height=\"10\" fill=\"#64748b\"/>';
+        svgHtml += '<rect x=\"' + pX + '\" y=\"' + (pY + pH) + '\" width=\"' + pW + '\" height=\"10\" fill=\"#64748b\"/>';
+
+        // Turbulent flat-top velocity arrows inside pipe
+        var midY = pY + pH/2;
+        for (var a = 0; a < 7; a++) {
+          var ay = pY + 15 + a * 15;
+          var dist = Math.abs(ay - midY) / (pH/2);
+          var arrowLen = Math.max(30, 160 * (1 - Math.pow(dist, 7))); // 1/7th power law turbulent profile
+          svgHtml += '<line x1=\"' + (pX + 20) + '\" y1=\"' + ay + '\" x2=\"' + (pX + 20 + arrowLen) + '\" y2=\"' + ay + '\" stroke=\"#3b82f6\" stroke-width=\"2\"/>';
+          svgHtml += '<polygon points=\"' + (pX + 20 + arrowLen) + ',' + (ay - 3) + ' ' + (pX + 26 + arrowLen) + ',' + ay + ' ' + (pX + 20 + arrowLen) + ',' + (ay + 3) + '\" fill=\"#3b82f6\"/>';
+        }
+
+        svgHtml += '<text x=\"' + (pX + pW/2) + '\" y=\"' + (pY + pH + 30) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Turbulent Velocity Profile (v = ' + vel.toFixed(1) + ' ft/s)</text>';
+
+        // Simplified Moody Diagram on Right
+        var mX = 420;
+        var mY = 50;
+        var mW = 320;
+        var mH = 180;
+
+        // Axes
+        svgHtml += '<line x1=\"' + mX + '\" y1=\"' + (mY + mH) + '\" x2=\"' + (mX + mW) + '\" y2=\"' + (mY + mH) + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';
+        svgHtml += '<line x1=\"' + mX + '\" y1=\"' + (mY + mH) + '\" x2=\"' + mX + '\" y2=\"' + mY + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';
+
+        svgHtml += '<text x=\"' + (mX + mW/2) + '\" y=\"' + (mY + mH + 35) + '\" fill=\"var(--text-muted)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">Reynolds Number (Log Re)</text>';
+        svgHtml += '<text x=\"' + (mX - 35) + '\" y=\"' + (mY + mH/2) + '\" fill=\"var(--text-muted)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\" transform=\"rotate(-90 ' + (mX - 35) + ' ' + (mY + mH/2) + ')\">Friction Factor (f)</text>';
+
+        // Laminar line (64/Re)
+        svgHtml += '<line x1=\"' + (mX + 10) + '\" y1=\"' + (mY + 20) + '\" x2=\"' + (mX + 70) + '\" y2=\"' + (mY + mH - 20) + '\" stroke=\"#10b981\" stroke-width=\"2\"/>';
+        svgHtml += '<text x=\"' + (mX + 35) + '\" y=\"' + (mY + 30) + '\" fill=\"#10b981\" font-size=\"10\">Laminar</text>';
+
+        // Transition zone shading
+        svgHtml += '<rect x=\"' + (mX + 70) + '\" y=\"' + mY + '\" width=\"30\" height=\"' + mH + '\" fill=\"rgba(245, 158, 11, 0.1)\"/>';
+
+        // Turbulent curves
+        svgHtml += '<path d=\"M ' + (mX + 100) + ' ' + (mY + 110) + ' Q ' + (mX + 180) + ' ' + (mY + 135) + ' ' + (mX + mW) + ' ' + (mY + 140) + '\" fill=\"none\" stroke=\"#ef4444\" stroke-width=\"2\"/>';
+        svgHtml += '<path d=\"M ' + (mX + 100) + ' ' + (mY + 80) + ' Q ' + (mX + 180) + ' ' + (mY + 95) + ' ' + (mX + mW) + ' ' + (mY + 100) + '\" fill=\"none\" stroke=\"#f59e0b\" stroke-width=\"2\"/>';
+
+        // Operating point dot
+        var logRe = Math.log10(Math.max(100, re));
+        var dotX = mX + Math.min(mW - 10, Math.max(10, ((logRe - 3) / 4) * mW));
+        var dotY = mY + Math.min(mH - 10, Math.max(10, (1 - (fVal / 0.05)) * mH));
+
+        svgHtml += '<circle cx=\"' + dotX + '\" cy=\"' + dotY + '\" r=\"7\" fill=\"#3b82f6\" stroke=\"#ffffff\" stroke-width=\"2\"/>';
+        svgHtml += '<text x=\"' + (dotX + 10) + '\" y=\"' + (dotY - 8) + '\" fill=\"#3b82f6\" font-size=\"11\" font-weight=\"bold\">Operating Point</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyFrictionSpec() {
+        var psi = document.getElementById('pfTotalPsi').textContent;
+        var bar = document.getElementById('pfTotalBar').textContent;
+        var vel = document.getElementById('pfVelocity').textContent;
+        var re = document.getElementById('pfReynolds').textContent;
+        var fVal = document.getElementById('pfFactor').textContent;
+        var loss100 = document.getElementById('pfLoss100').textContent;
+        var totL = document.getElementById('pfTotalLength').textContent;
+
+        var text = '🌊 Pipe Friction Loss & Fluid Dynamics Spec\\n' +
+          '• Flow Rate: ' + document.getElementById('pfFlow').value + ' GPM\\n' +
+          '• Pipe: ' + document.getElementById('pfDiameter').value + '\" (' + document.getElementById('pfMaterial').options[document.getElementById('pfMaterial').selectedIndex].text + ')\\n' +
+          '• Total Pressure Drop: ' + psi + ' (' + bar + ')\\n' +
+          '• Flow Velocity: ' + vel + '\\n' +
+          '• Total Equivalent Length: ' + totL + '\\n\\n' +
+          'Fluid Mechanics Parameters:\\n' +
+          '• Reynolds Number: ' + re + '\\n' +
+          '• Friction Factor: ' + fVal + '\\n' +
+          '• Unit Head Loss: ' + loss100 + '\\n\\n' +
+          'Calculated at digitaltoolsshed.com/calc/pipe-friction-loss-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyPfBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Friction Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['pfFlow', 'pfLength', 'pfDiameter', 'pfMaterial', 'pfFluidTemp', 'pfFittings'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcPipeFriction);
+          el.addEventListener('change', calcPipeFriction);
+        }
+      });
+
+      document.getElementById('copyPfBtn').addEventListener('click', copyFrictionSpec);
+
+      calcPipeFriction();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'pipe-friction-loss-calculator.html'), renderTradePage({
+    title: "Pipe Friction Loss Calculator: Darcy-Weisbach & Colebrook | Digital Tools Shed",
+    metaDesc: "Calculate pipe pressure drop (PSI & Bar), head loss, flow velocity, Reynolds number, and Colebrook-White friction factor across steel, copper, PVC, and iron piping.",
+    canonical: `${DOMAIN}/calc/pipe-friction-loss-calculator`,
+    bodyContent: pipeFrictionBody,
+    currentPath: '/calc/pipe-friction-loss-calculator',
+    faq: [
+      {
+        "q": "What is the Darcy-Weisbach equation?",
+        "a": "The Darcy-Weisbach equation is the fundamental theoretical formula used in fluid mechanics to calculate friction head loss in pipes: $\\Delta h = f \\times \\frac{L}{D} \\times \\frac{v^2}{2g}$, where $f$ is the dimensionless Darcy friction factor, $L$ is pipe length, $D$ is hydraulic internal diameter, $v$ is fluid velocity, and $g$ is gravitational acceleration."
+      },
+      {
+        "q": "What is the Colebrook-White equation?",
+        "a": "The Colebrook-White equation is an implicit empirical relationship that solves for the friction factor ($f$) in turbulent pipe flow based on the pipe's relative roughness ($\\varepsilon/D$) and Reynolds number ($Re$): $\\frac{1}{\\sqrt{f}} = -2 \\log_{10}\\left(\\frac{\\varepsilon/D}{3.7} + \\frac{2.51}{Re \\sqrt{f}}\\right)$. The Swamee-Jain equation is an explicit algebraic approximation accurate to within 1%."
+      },
+      {
+        "q": "What is the recommended maximum water velocity in pipes?",
+        "a": "For commercial and residential building plumbing, ASHRAE and the Copper Development Association recommend a maximum flow velocity between 4.0 and 8.0 ft/s (1.2 to 2.4 m/s). Velocities above 8 ft/s cause severe erosion corrosion of copper and aluminum piping, excessive acoustic rushing noise, and dangerous water hammer pressure surges."
+      },
+      {
+        "q": "Why does Hazen-Williams fail for hot water or oil?",
+        "a": "The empirical Hazen-Williams equation was derived exclusively for water at room temperature ($60^\\circ\\text{F}$) and contains no term for fluid viscosity. As water heats up to $180^\\circ\\text{F}$ in hydronic heating systems, its kinematic viscosity drops by more than 60%, significantly altering the boundary layer friction that only the Darcy-Weisbach equation accounts for."
+      },
+      {
+        "q": "What is equivalent length in pipe fittings?",
+        "a": "Fittings such as $90^\\circ$ elbows, tees, and valves create turbulent eddies that dissipate fluid energy. To simplify pressure drop calculations, fitting losses are converted into an equivalent length ($L_{\\text{eq}}$) of straight pipe that produces the exact same head loss. For example, a standard 2\" $90^\\circ$ elbow has an equivalent length of approximately 5.5 feet."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
