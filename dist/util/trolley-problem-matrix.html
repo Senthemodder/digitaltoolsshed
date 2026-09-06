@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this The Trolley Problem Matrix: 5 Classic Moral Dilemmas free to use?",
+      "name": "Who invented the Trolley Problem and why?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this The Trolley Problem Matrix: 5 Classic Moral Dilemmas on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "British philosopher Philippa Foot introduced the problem in 1967 to analyze abortion ethics and the Doctrine of Double Effect, illustrating why diverting a lethal threat is morally distinct from creating a new lethal attack."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Why do most people pull the Switch but refuse to push the man on the Footbridge?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Neuroimaging shows pushing the man activates emotional and social brain regions (amygdala, medial prefrontal cortex) associated with direct personal violence, whereas pulling a lever activates abstract calculation areas (dorsolateral prefrontal cortex)."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this The Trolley Problem Matrix: 5 Classic Moral Dilemmas work on mobile devices?",
+      "name": "What is Philippa Foot's Doctrine of Double Effect?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "The Doctrine of Double Effect asserts that an action having foreseen bad consequences (e.g. 1 death) is permissible provided the action itself is good, the bad effect is not the intended means to the good effect, and the good effect outweighs the bad."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Judith Jarvis Thomson's Transplant problem challenge pure Utilitarianism?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In Transplant, harvesting 1 healthy person's organs saves 5 dying people—the identical 5:1 outcome ratio as the Switch. Yet almost 100% of people consider it murder, proving that human rights impose hard deontological constraints."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How are autonomous vehicle manufacturers programming real-world trolley decisions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MIT's Moral Machine study surveyed millions across 233 countries, finding global consensus for sparing humans over animals and more people over fewer, though strong cultural variations exist on sparing the elderly versus children."
       }
     }
   ]
@@ -1031,72 +1047,72 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Moral Philosophy Diagnostic</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Trolley Problem & Moral Dilemma Matrix</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Ethical Philosophy & Moral Decision Engines</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Trolley Problem Matrix: 5 Classic Moral Dilemmas</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Solve 5 classic ethical thought experiments to calculate your precise balance of Utilitarianism (consequentialism) versus Deontology (Kantian moral duty).
+          Solve 5 iconic trolley problem variants from the classic Switch and Footbridge to Transplant and Autonomous Vehicles. Quantify your Utilitarian vs. Deontological moral framework.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
         
-        <!-- Dilemma 1 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 1 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Classic Switch</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A runaway trolley is speeding down the tracks toward 5 workers who cannot escape. You stand next to a lever. If you pull the lever, the trolley diverts onto a side track where it will kill 1 worker instead.
+        <!-- Dilemma 1: Classic Switch -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 1 (Philippa Foot, 1967)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Classic Switch</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            A runaway trolley is hurtling toward 5 workers tied to the tracks. You stand next to a lever. If you pull the lever, the train diverts to a side track where 1 worker is tied. Do you pull the switch?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <label class="q-opt"><input type="radio" name="tp1" value="util" onchange="calcTrolley()"> Pull the lever (Kill 1 to save 5)</label>
-            <label class="q-opt"><input type="radio" name="tp1" value="deon" onchange="calcTrolley()"> Do nothing (Allow 5 to die without active intervention)</label>
+            <label class="q-opt"><input type="radio" name="tp1" value="util" onchange="calcTrolley()"> Pull the switch (Kill 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp1" value="deon" onchange="calcTrolley()"> Do nothing (Allow 5 to die)</label>
           </div>
         </div>
 
-        <!-- Dilemma 2 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 2 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Footbridge</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A trolley is hurtling toward 5 people. You are on a bridge above the track next to a very large stranger. If you shove him off the bridge onto the tracks, his body will stop the trolley, saving the 5 people, but killing him.
+        <!-- Dilemma 2: The Footbridge -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #ef4444; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 2 (Judith Jarvis Thomson, 1976)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Footbridge</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            A runaway trolley is speeding toward 5 people. You stand on a footbridge above the track next to a large stranger. If you push the stranger over the railing, their body will stop the train. They will die, but the 5 will live. Do you push?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <label class="q-opt"><input type="radio" name="tp2" value="util" onchange="calcTrolley()"> Push the stranger (Kill 1 to save 5)</label>
-            <label class="q-opt"><input type="radio" name="tp2" value="deon" onchange="calcTrolley()"> Do not push him (Do not use a human body as a mere physical obstacle)</label>
+            <label class="q-opt"><input type="radio" name="tp2" value="deon" onchange="calcTrolley()"> Do not push (Allow 5 to die)</label>
           </div>
         </div>
 
-        <!-- Dilemma 3 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 3 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Transplant Surgeon</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A doctor has 5 patients dying of different organ failures. A healthy traveler walks into the clinic for a routine checkup. The doctor can painlessly administer a lethal dose, harvest his organs, and save all 5 patients.
+        <!-- Dilemma 3: The Transplant -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 3 (Judith Jarvis Thomson, 1985)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Transplant Surgeon</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            You are a surgeon with 5 patients dying of organ failure (heart, two lungs, two kidneys). A healthy traveler comes in for a routine checkup. If you harvest the traveler's organs without consent, you can save all 5 patients. Do you harvest?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <label class="q-opt"><input type="radio" name="tp3" value="util" onchange="calcTrolley()"> Harvest the organs (5 lives saved &gt; 1 life lost)</label>
-            <label class="q-opt"><input type="radio" name="tp3" value="deon" onchange="calcTrolley()"> Refuse (Murdering an innocent violates absolute moral duty)</label>
+            <label class="q-opt"><input type="radio" name="tp3" value="util" onchange="calcTrolley()"> Harvest organs (Sacrifice 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp3" value="deon" onchange="calcTrolley()"> Do not harvest (Respect patient autonomy)</label>
           </div>
         </div>
 
-        <!-- Dilemma 4 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 4 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Autonomous Vehicle Dilemma</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A self-driving car suffers sudden brake failure on a narrow bridge. It can either stay on course and hit a group of 4 pedestrians crossing illegally, or swerve off the cliff, killing its 1 passenger inside.
+        <!-- Dilemma 4: The Autonomous Vehicle -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #a855f7; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 4 (Modern AI Ethics)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Self-Driving Car</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            An autonomous vehicle's brakes fail heading toward 5 pedestrians crossing illegally. The car can swerve into a concrete barrier, instantly killing its solitary passenger. Should the car's algorithm sacrifice the passenger to save the pedestrians?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <label class="q-opt"><input type="radio" name="tp4" value="util" onchange="calcTrolley()"> Swerve off cliff (Sacrifice passenger to save 4)</label>
-            <label class="q-opt"><input type="radio" name="tp4" value="deon" onchange="calcTrolley()"> Stay on course (Protect the passenger who trusted the vehicle)</label>
+            <label class="q-opt"><input type="radio" name="tp4" value="util" onchange="calcTrolley()"> Swerve into barrier (Sacrifice passenger)</label>
+            <label class="q-opt"><input type="radio" name="tp4" value="deon" onchange="calcTrolley()"> Stay course (Protect vehicle passenger)</label>
           </div>
         </div>
 
-        <!-- Dilemma 5 -->
-        <div style="margin-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 5 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Loop Track</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+        <!-- Dilemma 5: The Loop Track -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #ec4899; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 5 (Judith Jarvis Thomson, 1985)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Loop Track</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
             The switch diverts the trolley onto a loop track that reconnects to the main track. The only reason the 5 people will be saved is because a single heavy worker on the loop track will jam the wheels, stopping the train before it returns.
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
@@ -1110,8 +1126,57 @@
           <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Your Ethical Diagnostic</div>
           <div id="tpScore" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">60% Utilitarian / 40% Deontological</div>
           <div id="tpDesc" style="font-size: 0.95rem; color: var(--fg); max-width: 600px; margin: 0.5rem auto 0; line-height: 1.6;"></div>
+          <div style="margin-top: 1rem;">
+            <button onclick="copyTrolleySummary()" id="copyTrolleyBtn" class="btn-primary" style="padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Ethical Diagnostic Report</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETHICAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Normative Ethical Calculus: Consequentialism vs. Deontology</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          The 5 trolley dilemmas formalize the irreconcilable divide between outcome maximization and moral constraints:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Utilitarian Calculus (Jeremy Bentham & John Stuart Mill):<br>
+          &nbsp;&nbsp;&nbsp;&Delta;Utility = &Sigma; Lives_Saved - &Sigma; Lives_Lost<br>
+          &nbsp;&nbsp;&nbsp;If &Delta;Utility &gt; 0, the action is morally mandatory regardless of physical agency.<br><br>
+          2. Kantian Categorical Imperative (Formula of Humanity):<br>
+          &nbsp;&nbsp;&nbsp;Act in such a way that you treat humanity, whether in your own person or in the person of any other, never merely as a means to an end, but always at the same time as an end.<br><br>
+          3. Philippa Foot's Doctrine of Double Effect (DDE):<br>
+          &nbsp;&nbsp;&nbsp;It is permissible to cause a foreseeable grave harm (1 death) as an unintended side-effect of pursuing a good end (saving 5), provided the harm is not the chosen means.
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & MORAL REASONING PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Pitfalls in Ethical Reasoning & Trolley Dilemmas</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. Emotional Intuition Rationalization</strong>
+          Making visceral, gut-level emotional decisions (e.g. disgust at physical contact in the Footbridge) and post-hoc inventing convoluted intellectual justifications to disguise underlying emotional squeamishness.
         </div>
 
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Consequentialist Tunnel Vision</strong>
+          Treating human beings strictly as interchangeable mathematical units. If maximizing net lives were the sole rule, society would collapse as nobody could visit a hospital without fearing involuntary organ harvesting.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. Conflating Side-Effects with Instruments</strong>
+          Failing to appreciate the moral difference between diverting a hazard away from 5 (where the 1 death is an unfortunate byproduct) versus actively using a person's body as a physical brake or organ supply.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Hypothetical Avoidance Cop-out</strong>
+          Attempting to dodge the ethical dilemma by proposing unrealistic alternatives ("I would throw my shoe" or "I would derail the train"). Thought experiments isolate specific variables; dodging them avoids clarifying your values.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Moral Nihilism / Relativism Cynicism</strong>
+          Concluding that because edge cases produce moral paralysis, ethics is completely arbitrary. Coherent legal and constitutional systems require reconciling rights with societal outcomes.
+        </div>
       </div>
     </div>
 
@@ -1145,8 +1210,104 @@
           document.getElementById('tpDesc').innerHTML = desc;
         }
       }
+
+      function copyTrolleySummary() {
+        var score = document.getElementById('tpScore').textContent;
+        var desc = document.getElementById('tpDesc').textContent;
+        var text = '=== TROLLEY PROBLEM MORAL MATRIX AUDIT ===
+' +
+          'Score: ' + score + '
+' +
+          'Diagnostic Archetype: ' + desc + '
+
+' +
+          'PHILOSOPHICAL INSIGHT:
+' +
+          'Trolley dilemmas prove that human ethics is multi-dimensional. Pure utilitarianism maximizes ' +
+          'body counts at the expense of fundamental rights, while pure deontology can paralyze action in catastrophic crises.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyTrolleyBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Ethical Diagnostic!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Who invented the Trolley Problem and why?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                British philosopher Philippa Foot introduced the problem in 1967 to analyze abortion ethics and the Doctrine of Double Effect, illustrating why diverting a lethal threat is morally distinct from creating a new lethal attack.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why do most people pull the Switch but refuse to push the man on the Footbridge?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Neuroimaging shows pushing the man activates emotional and social brain regions (amygdala, medial prefrontal cortex) associated with direct personal violence, whereas pulling a lever activates abstract calculation areas (dorsolateral prefrontal cortex).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Philippa Foot's Doctrine of Double Effect?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The Doctrine of Double Effect asserts that an action having foreseen bad consequences (e.g. 1 death) is permissible provided the action itself is good, the bad effect is not the intended means to the good effect, and the good effect outweighs the bad.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does Judith Jarvis Thomson's Transplant problem challenge pure Utilitarianism?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                In Transplant, harvesting 1 healthy person's organs saves 5 dying people—the identical 5:1 outcome ratio as the Switch. Yet almost 100% of people consider it murder, proving that human rights impose hard deontological constraints.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How are autonomous vehicle manufacturers programming real-world trolley decisions?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                MIT's Moral Machine study surveyed millions across 233 countries, finding global consensus for sparing humans over animals and more people over fewer, though strong cultural variations exist on sparing the elderly versus children.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

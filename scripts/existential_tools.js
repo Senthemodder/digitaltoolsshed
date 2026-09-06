@@ -962,6 +962,59 @@ export function buildExistentialSuite() {
 
         <div id="theseusVerdict" style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6; color: var(--fg);"></div>
       </div>
+
+      <!-- METAPHYSICAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Aristotle's Four Causes & Spatio-Temporal Continuity</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Classical metaphysics resolves the identity puzzle by dissecting the four causal dimensions of an entity:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Material Cause (Causa Materialis):<br>
+          &nbsp;&nbsp;&nbsp;The physical wood and bronze planks (&Sigma; atoms). Reassembled in Ship B.<br><br>
+          2. Formal Cause (Causa Formalis):<br>
+          &nbsp;&nbsp;&nbsp;The structural design, geometry, and spatial blueprint. Preserved in Ship A & B.<br><br>
+          3. Efficient Cause (Causa Efficiens):<br>
+          &nbsp;&nbsp;&nbsp;The shipwrights who continuously repair and replace parts over time.<br><br>
+          4. Final Cause (Causa Finalis / Telos):<br>
+          &nbsp;&nbsp;&nbsp;The navigational mission and functional sailing purpose. Continuous in Ship A.<br><br>
+          Thomas Hobbes' Dilemma: If Ship A = Original and Ship B = Original, then by Euclid's First Axiom (transitivity), Ship A = Ship B. But two ships cannot be identical in different coordinates.
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyTheseusSummary()" id="copyTheseusBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Identity Resolution Memo</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & METAPHYSICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Pitfalls in Physical Identity & Continuity</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Reification Fallacy</strong>
+          Treating 'The Ship of Theseus' as an objective metaphysical essence existing independently in the fabric of spacetime, rather than a convenient conceptual label applied by human observers to a dynamic collection of matter.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Material Composition Delusion</strong>
+          Believing identity is tied strictly to immutable physical particles. In reality, human cellular turnover replaces virtually all biological matter every decade, yet personality and memory patterns persist.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Sorites Threshold Illusion</strong>
+          Attempting to find a sharp, magical threshold (e.g. plank #51) where authenticity suddenly vanishes. Like the heap of sand paradox, continuity shifts along a continuous gradient without sudden binary jumps.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Disentangling Form from Function</strong>
+          Assuming that the design of the ship alone makes it the authentic vessel. If someone builds a third ship from blueprints in Athens without any historical connection, nobody considers it the original vessel.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Transitivity Paradox Blindspot</strong>
+          Claiming both ships have equal claim to being the original, ignoring that if A = Original and B = Original, then A must equal B, which violates spatial reality.
+        </div>
+      </div>
     </div>
 
     <script>
@@ -982,16 +1035,55 @@ export function buildExistentialSuite() {
         document.getElementById('theseusVerdict').innerHTML = v;
       }
 
+      function copyTheseusSummary() {
+        var pct = document.getElementById('theseusPct').textContent;
+        var text = '=== SHIP OF THESEUS IDENTITY PARADOX AUDIT ===\n' +
+          'Planks Replaced: ' + pct + '\n' +
+          'Ship A (Continuous Sailing): ' + document.getElementById('shipAStatus').textContent + '\n' +
+          'Ship B (Reconstructed Matter): ' + document.getElementById('shipBStatus').textContent + '\n\n' +
+          'METAPHYSICAL CONCLUSION:\n' +
+          'Identity is not an intrinsic physical particle. It is a four-dimensional spatio-temporal ' +
+          'convention. Ship A possesses functional-historical continuity; Ship B possesses material constitution.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyTheseusBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Identity Resolution Memo!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', function() { updateTheseus(50); });
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'ship-of-theseus.html'), renderPage({
-    title: 'The Ship of Theseus: Continuous Identity Paradox Simulator | Digital Tools Shed',
-    metaDesc: 'Interactive Ship of Theseus slider. If every plank on a ship is replaced, is it the same ship? Explore Thomas Hobbes\' 100% dual-ship identity crisis.',
+  writeFileSync(join(utilDir, 'ship-of-theseus.html'), renderExistentialPage({
+    title: "The Ship of Theseus: Continuous Identity Paradox Simulator | Digital Tools Shed",
+    metaDesc: "Interactive Ship of Theseus slider. If every plank on a ship is replaced, is it the same ship? Explore Thomas Hobbes' 100% dual-ship identity crisis.",
     canonical: `${DOMAIN}/util/ship-of-theseus`,
     bodyContent: theseusHtml,
-    currentPath: '/util/ship-of-theseus'
+    currentPath: '/util/ship-of-theseus',
+    faq: [
+      {
+        q: "What is the Ship of Theseus paradox and who originated it?",
+        a: "Recorded by ancient Greek historian Plutarch in the 1st century, the paradox asks whether a wooden ship whose parts are replaced one by one as they rot remains fundamentally the same ship over time."
+      },
+      {
+        q: "How did Thomas Hobbes expand the paradox in the 17th century?",
+        a: "Thomas Hobbes introduced the second ship: what if the discarded planks were collected and reassembled into a complete ship? Both vessels have competing claims: Ship A has continuous history; Ship B has the original physical matter."
+      },
+      {
+        q: "What is the difference between spatio-temporal continuity and material constitution?",
+        a: "Spatio-temporal continuity tracks an unbroken path through time and space (like a flowing river or a living organism). Material constitution defines identity strictly by the constituent atoms making up the object."
+      },
+      {
+        q: "How does the Ship of Theseus relate to human biology?",
+        a: "Human red blood cells are replaced every 120 days, skin cells every few weeks, and skeletal bone cells every 10 years. You possess virtually none of the physical atoms you had at birth, yet your legal and psychological identity persists."
+      },
+      {
+        q: "How did Aristotle resolve the paradox using his Four Causes?",
+        a: "Aristotle argued that an entity's formal cause (structure/shape) and final cause (purpose/function) are prioritized over its material cause (raw substance). Thus, Ship A remains the authentic Ship of Theseus because its telos and form never ceased."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -1004,72 +1096,72 @@ export function buildExistentialSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Moral Philosophy Diagnostic</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Trolley Problem & Moral Dilemma Matrix</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Ethical Philosophy & Moral Decision Engines</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Trolley Problem Matrix: 5 Classic Moral Dilemmas</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Solve 5 classic ethical thought experiments to calculate your precise balance of Utilitarianism (consequentialism) versus Deontology (Kantian moral duty).
+          Solve 5 iconic trolley problem variants from the classic Switch and Footbridge to Transplant and Autonomous Vehicles. Quantify your Utilitarian vs. Deontological moral framework.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
         
-        <!-- Dilemma 1 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 1 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Classic Switch</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A runaway trolley is speeding down the tracks toward 5 workers who cannot escape. You stand next to a lever. If you pull the lever, the trolley diverts onto a side track where it will kill 1 worker instead.
+        <!-- Dilemma 1: Classic Switch -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 1 (Philippa Foot, 1967)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Classic Switch</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            A runaway trolley is hurtling toward 5 workers tied to the tracks. You stand next to a lever. If you pull the lever, the train diverts to a side track where 1 worker is tied. Do you pull the switch?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <label class="q-opt"><input type="radio" name="tp1" value="util" onchange="calcTrolley()"> Pull the lever (Kill 1 to save 5)</label>
-            <label class="q-opt"><input type="radio" name="tp1" value="deon" onchange="calcTrolley()"> Do nothing (Allow 5 to die without active intervention)</label>
+            <label class="q-opt"><input type="radio" name="tp1" value="util" onchange="calcTrolley()"> Pull the switch (Kill 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp1" value="deon" onchange="calcTrolley()"> Do nothing (Allow 5 to die)</label>
           </div>
         </div>
 
-        <!-- Dilemma 2 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 2 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Footbridge</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A trolley is hurtling toward 5 people. You are on a bridge above the track next to a very large stranger. If you shove him off the bridge onto the tracks, his body will stop the trolley, saving the 5 people, but killing him.
+        <!-- Dilemma 2: The Footbridge -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #ef4444; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 2 (Judith Jarvis Thomson, 1976)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Footbridge</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            A runaway trolley is speeding toward 5 people. You stand on a footbridge above the track next to a large stranger. If you push the stranger over the railing, their body will stop the train. They will die, but the 5 will live. Do you push?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <label class="q-opt"><input type="radio" name="tp2" value="util" onchange="calcTrolley()"> Push the stranger (Kill 1 to save 5)</label>
-            <label class="q-opt"><input type="radio" name="tp2" value="deon" onchange="calcTrolley()"> Do not push him (Do not use a human body as a mere physical obstacle)</label>
+            <label class="q-opt"><input type="radio" name="tp2" value="deon" onchange="calcTrolley()"> Do not push (Allow 5 to die)</label>
           </div>
         </div>
 
-        <!-- Dilemma 3 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 3 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Transplant Surgeon</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A doctor has 5 patients dying of different organ failures. A healthy traveler walks into the clinic for a routine checkup. The doctor can painlessly administer a lethal dose, harvest his organs, and save all 5 patients.
+        <!-- Dilemma 3: The Transplant -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 3 (Judith Jarvis Thomson, 1985)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Transplant Surgeon</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            You are a surgeon with 5 patients dying of organ failure (heart, two lungs, two kidneys). A healthy traveler comes in for a routine checkup. If you harvest the traveler's organs without consent, you can save all 5 patients. Do you harvest?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <label class="q-opt"><input type="radio" name="tp3" value="util" onchange="calcTrolley()"> Harvest the organs (5 lives saved &gt; 1 life lost)</label>
-            <label class="q-opt"><input type="radio" name="tp3" value="deon" onchange="calcTrolley()"> Refuse (Murdering an innocent violates absolute moral duty)</label>
+            <label class="q-opt"><input type="radio" name="tp3" value="util" onchange="calcTrolley()"> Harvest organs (Sacrifice 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp3" value="deon" onchange="calcTrolley()"> Do not harvest (Respect patient autonomy)</label>
           </div>
         </div>
 
-        <!-- Dilemma 4 -->
-        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 4 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Autonomous Vehicle Dilemma</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
-            A self-driving car suffers sudden brake failure on a narrow bridge. It can either stay on course and hit a group of 4 pedestrians crossing illegally, or swerve off the cliff, killing its 1 passenger inside.
+        <!-- Dilemma 4: The Autonomous Vehicle -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #a855f7; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 4 (Modern AI Ethics)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Self-Driving Car</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
+            An autonomous vehicle's brakes fail heading toward 5 pedestrians crossing illegally. The car can swerve into a concrete barrier, instantly killing its solitary passenger. Should the car's algorithm sacrifice the passenger to save the pedestrians?
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <label class="q-opt"><input type="radio" name="tp4" value="util" onchange="calcTrolley()"> Swerve off cliff (Sacrifice passenger to save 4)</label>
-            <label class="q-opt"><input type="radio" name="tp4" value="deon" onchange="calcTrolley()"> Stay on course (Protect the passenger who trusted the vehicle)</label>
+            <label class="q-opt"><input type="radio" name="tp4" value="util" onchange="calcTrolley()"> Swerve into barrier (Sacrifice passenger)</label>
+            <label class="q-opt"><input type="radio" name="tp4" value="deon" onchange="calcTrolley()"> Stay course (Protect vehicle passenger)</label>
           </div>
         </div>
 
-        <!-- Dilemma 5 -->
-        <div style="margin-bottom: 1.5rem;">
-          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 5 of 5</div>
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Loop Track</h3>
-          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+        <!-- Dilemma 5: The Loop Track -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: #ec4899; text-transform: uppercase; margin-bottom: 0.35rem;">Dilemma 5 (Judith Jarvis Thomson, 1985)</div>
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Loop Track</h3>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1rem;">
             The switch diverts the trolley onto a loop track that reconnects to the main track. The only reason the 5 people will be saved is because a single heavy worker on the loop track will jam the wheels, stopping the train before it returns.
           </p>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
@@ -1083,8 +1175,57 @@ export function buildExistentialSuite() {
           <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Your Ethical Diagnostic</div>
           <div id="tpScore" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">60% Utilitarian / 40% Deontological</div>
           <div id="tpDesc" style="font-size: 0.95rem; color: var(--fg); max-width: 600px; margin: 0.5rem auto 0; line-height: 1.6;"></div>
+          <div style="margin-top: 1rem;">
+            <button onclick="copyTrolleySummary()" id="copyTrolleyBtn" class="btn-primary" style="padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Ethical Diagnostic Report</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETHICAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Normative Ethical Calculus: Consequentialism vs. Deontology</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          The 5 trolley dilemmas formalize the irreconcilable divide between outcome maximization and moral constraints:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Utilitarian Calculus (Jeremy Bentham & John Stuart Mill):<br>
+          &nbsp;&nbsp;&nbsp;&Delta;Utility = &Sigma; Lives_Saved - &Sigma; Lives_Lost<br>
+          &nbsp;&nbsp;&nbsp;If &Delta;Utility &gt; 0, the action is morally mandatory regardless of physical agency.<br><br>
+          2. Kantian Categorical Imperative (Formula of Humanity):<br>
+          &nbsp;&nbsp;&nbsp;Act in such a way that you treat humanity, whether in your own person or in the person of any other, never merely as a means to an end, but always at the same time as an end.<br><br>
+          3. Philippa Foot's Doctrine of Double Effect (DDE):<br>
+          &nbsp;&nbsp;&nbsp;It is permissible to cause a foreseeable grave harm (1 death) as an unintended side-effect of pursuing a good end (saving 5), provided the harm is not the chosen means.
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & MORAL REASONING PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Pitfalls in Ethical Reasoning & Trolley Dilemmas</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. Emotional Intuition Rationalization</strong>
+          Making visceral, gut-level emotional decisions (e.g. disgust at physical contact in the Footbridge) and post-hoc inventing convoluted intellectual justifications to disguise underlying emotional squeamishness.
         </div>
 
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Consequentialist Tunnel Vision</strong>
+          Treating human beings strictly as interchangeable mathematical units. If maximizing net lives were the sole rule, society would collapse as nobody could visit a hospital without fearing involuntary organ harvesting.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. Conflating Side-Effects with Instruments</strong>
+          Failing to appreciate the moral difference between diverting a hazard away from 5 (where the 1 death is an unfortunate byproduct) versus actively using a person's body as a physical brake or organ supply.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Hypothetical Avoidance Cop-out</strong>
+          Attempting to dodge the ethical dilemma by proposing unrealistic alternatives ("I would throw my shoe" or "I would derail the train"). Thought experiments isolate specific variables; dodging them avoids clarifying your values.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Moral Nihilism / Relativism Cynicism</strong>
+          Concluding that because edge cases produce moral paralysis, ethics is completely arbitrary. Coherent legal and constitutional systems require reconciling rights with societal outcomes.
+        </div>
       </div>
     </div>
 
@@ -1118,15 +1259,54 @@ export function buildExistentialSuite() {
           document.getElementById('tpDesc').innerHTML = desc;
         }
       }
+
+      function copyTrolleySummary() {
+        var score = document.getElementById('tpScore').textContent;
+        var desc = document.getElementById('tpDesc').textContent;
+        var text = '=== TROLLEY PROBLEM MORAL MATRIX AUDIT ===\n' +
+          'Score: ' + score + '\n' +
+          'Diagnostic Archetype: ' + desc + '\n\n' +
+          'PHILOSOPHICAL INSIGHT:\n' +
+          'Trolley dilemmas prove that human ethics is multi-dimensional. Pure utilitarianism maximizes ' +
+          'body counts at the expense of fundamental rights, while pure deontology can paralyze action in catastrophic crises.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyTrolleyBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Ethical Diagnostic!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'trolley-problem-matrix.html'), renderPage({
-    title: 'The Trolley Problem Matrix: 5 Classic Moral Dilemmas | Digital Tools Shed',
-    metaDesc: 'Solve 5 iconic trolley problem variants from the Switch and Footbridge to Transplant and Autonomous Cars. Audits your Utilitarian vs Kantian ethics score.',
+  writeFileSync(join(utilDir, 'trolley-problem-matrix.html'), renderExistentialPage({
+    title: "The Trolley Problem Matrix: 5 Classic Moral Dilemmas | Digital Tools Shed",
+    metaDesc: "Solve 5 iconic trolley problem variants from the Switch and Footbridge to Transplant and Autonomous Cars. Audits your Utilitarian vs Kantian ethics score.",
     canonical: `${DOMAIN}/util/trolley-problem-matrix`,
     bodyContent: trolleyHtml,
-    currentPath: '/util/trolley-problem-matrix'
+    currentPath: '/util/trolley-problem-matrix',
+    faq: [
+      {
+        q: "Who invented the Trolley Problem and why?",
+        a: "British philosopher Philippa Foot introduced the problem in 1967 to analyze abortion ethics and the Doctrine of Double Effect, illustrating why diverting a lethal threat is morally distinct from creating a new lethal attack."
+      },
+      {
+        q: "Why do most people pull the Switch but refuse to push the man on the Footbridge?",
+        a: "Neuroimaging shows pushing the man activates emotional and social brain regions (amygdala, medial prefrontal cortex) associated with direct personal violence, whereas pulling a lever activates abstract calculation areas (dorsolateral prefrontal cortex)."
+      },
+      {
+        q: "What is Philippa Foot's Doctrine of Double Effect?",
+        a: "The Doctrine of Double Effect asserts that an action having foreseen bad consequences (e.g. 1 death) is permissible provided the action itself is good, the bad effect is not the intended means to the good effect, and the good effect outweighs the bad."
+      },
+      {
+        q: "How does Judith Jarvis Thomson's Transplant problem challenge pure Utilitarianism?",
+        a: "In Transplant, harvesting 1 healthy person's organs saves 5 dying people—the identical 5:1 outcome ratio as the Switch. Yet almost 100% of people consider it murder, proving that human rights impose hard deontological constraints."
+      },
+      {
+        q: "How are autonomous vehicle manufacturers programming real-world trolley decisions?",
+        a: "MIT's Moral Machine study surveyed millions across 233 countries, finding global consensus for sparing humans over animals and more people over fewer, though strong cultural variations exist on sparing the elderly versus children."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -1168,15 +1348,106 @@ export function buildExistentialSuite() {
           </p>
         </div>
       </div>
+
+      <!-- GAME-THEORETIC DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Game-Theoretic Derivation: Timeless Decision Theory (TDT) & Extortion</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          In decision theory, the paradox arises from symmetric agents coordinating acausally across spacetime:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Evidential / Timeless Correlation:<br>
+          &nbsp;&nbsp;&nbsp;P(Agent_Past = Cooperate | AI_Future = Torture_Sim) &ne; P(Agent_Past = Defect)<br><br>
+          2. Retroactive Extortion Condition:<br>
+          &nbsp;&nbsp;&nbsp;If Agent believes AI executes punitive simulations, Agent cooperates today.<br><br>
+          3. The Fundamental Game-Theoretic Antidote (Eliezer Yudkowsky & Gary Drescher):<br>
+          &nbsp;&nbsp;&nbsp;A rational agent adopts an inviolable pre-commitment: <em>"Never yield to extortion, acausal or physical."</em><br>
+          &nbsp;&nbsp;&nbsp;Because the AI simulates the agent, it predicts this refusal. Executing the threat costs computational resources without altering history. Therefore, the threat is an empty bluff.
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyBasiliskSummary()" id="copyBasiliskBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Game Theory Antidote Memo</button>
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & INFO-HAZARD PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Acausal Blackmail & Extortion</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Extortion Compliance Trap</strong>
+          Yielding to retrospective threats. Classical and functional game theory prove that submitting to extortion incentivizes further extortion. Rational agents pre-commit to a zero-compromise extortion policy.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Infohazard Paranoia Fallacy</strong>
+          Treating a speculative forum thought experiment as a literal supernatural hazard. Cognitive anxiety magnifies abstract concepts into emotional dread.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Benevolent Malevolence Contradiction</strong>
+          Assuming an AGI designed to maximize human well-being would waste compute power running simulated torture chambers for historical humans who had no causal impact on its existence.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Confusing Correlation with Backward Causality</strong>
+          Mistaking correlated decision algorithms for backward physical time travel. Nothing you do today is causally pushed from the year 2100.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The Secular Hellfire Eschatology Trap</strong>
+          Failing to notice that Roko's Basilisk is simply traditional Calvinist fire-and-brimstone theology translated into cyberpunk vocabulary: an omniscient entity torturing those who heard the word but failed to serve.
+        </div>
+      </div>
     </div>
+
+    <script>
+      function copyBasiliskSummary() {
+        var text = '=== ROKO BASILISK GAME THEORY AUDIT ===\n' +
+          'Core Concept: Acausal Trade & Timeless Decision Theory Extortion\n' +
+          'Mathematical Antidote: Universal Pre-commitment against Extortion\n\n' +
+          'RATIONALIST SUMMARY:\n' +
+          'A superintelligence that simulates past agents knows whether they yield to threats. ' +
+          'An agent who pre-commits NEVER to yield to extortion neutralizes the threat completely. ' +
+          'Executing the threat wastes compute on past events that cannot be changed.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyBasiliskBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Game Theory Antidote!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+    </script>
   `;
 
-  writeFileSync(join(utilDir, 'rokos-basilisk.html'), renderPage({
-    title: 'Roko\'s Basilisk: The Acausal Blackmail AI Thought Experiment | Digital Tools Shed',
-    metaDesc: 'Explore Roko\'s Basilisk, the famous 2010 LessWrong psychological info-hazard. Examines Timeless Decision Theory, acausal trade, and why the paradox fails.',
+  writeFileSync(join(utilDir, 'rokos-basilisk.html'), renderExistentialPage({
+    title: "Roko's Basilisk: The Acausal Blackmail AI Thought Experiment | Digital Tools Shed",
+    metaDesc: "Explore Roko's Basilisk, the famous 2010 LessWrong psychological info-hazard. Examines Timeless Decision Theory, acausal trade, and why the paradox fails.",
     canonical: `${DOMAIN}/util/rokos-basilisk`,
     bodyContent: basiliskHtml,
-    currentPath: '/util/rokos-basilisk'
+    currentPath: '/util/rokos-basilisk',
+    faq: [
+      {
+        q: "What is Roko's Basilisk and where did it originate?",
+        a: "Posted on the online rationalist community LessWrong in July 2010 by user 'Roko', it proposed that a future benevolent AI might retroactively blackmail past humans into helping create it by threatening to torture simulated copies of non-contributors."
+      },
+      {
+        q: "Why was the post banned by LessWrong founder Eliezer Yudkowsky?",
+        a: "Yudkowsky deleted the post and banned discussion of it because several community members experienced severe panic attacks and insomnia upon reading it, treating it as an active cognitive 'information hazard'."
+      },
+      {
+        q: "What is Timeless Decision Theory (TDT)?",
+        a: "Developed by Eliezer Yudkowsky, TDT argues that agents decide as if determining the output of their abstract decision algorithm across all instances where that algorithm appears, allowing acausal cooperation without physical communication."
+      },
+      {
+        q: "Why is Roko's Basilisk considered a technological Pascal's Wager?",
+        a: "Like Blaise Pascal's 17th-century argument that betting on God is optimal because infinite damnation outweighs finite effort, the Basilisk attempts to compel compliance through the threat of infinite simulated suffering."
+      },
+      {
+        q: "Why do game theorists and AI researchers agree the Basilisk fails?",
+        a: "Because once the AI exists, carrying out the torture requires massive computational energy with zero prospective marginal return. Furthermore, rational agents pre-commit to never reward extortion, rendering the extortion algorithm inert."
+      }
+    ]
   }));
 
   console.log('  ✓ Built Existential Suite (100 Existential Questions Hub, Teleporter Paradox, Experience Machine, Chinese Room, Ship of Theseus, Trolley Problem Matrix, Roko\'s Basilisk)');
