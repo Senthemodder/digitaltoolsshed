@@ -1046,11 +1046,27 @@
           To write high-performance Java code, you must visualize how the JVM manages memory underneath the hood.
         </p>
 
-        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin: 2rem 0 0.75rem;">1. Stack vs. Heap Explained</h2>
-        <ul style="font-size: 0.95rem; line-height: 1.6; padding-left: 1.5rem; color: var(--fg);">
-          <li><strong>The Stack:</strong> Extremely fast, thread-private memory. Holds active method call frames, local primitive variables (<code>int x = 5</code>), and object reference pointers. Automatically destroyed when a method returns.</li>
-          <li><strong>The Heap:</strong> Large shared memory pool where all objects (<code>new Player()</code>, <code>new String()</code>) live. Managed by the automatic <strong>Garbage Collector (GC)</strong>.</li>
-        </ul>
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin: 2rem 0 0.75rem;">1. Stack vs. Heap Architecture</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-top: 0; color: #3b82f6;">The Stack (Fast & Local)</h3>
+            <ul style="font-size: 0.88rem; line-height: 1.6; padding-left: 1.25rem;">
+              <li>Stores primitive variables (<code>int</code>, <code>boolean</code>).</li>
+              <li>Stores memory pointers to objects on the heap.</li>
+              <li>Each thread gets its own private stack.</li>
+              <li>Memory is freed instantly as functions return.</li>
+            </ul>
+          </div>
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-top: 0; color: #ef4444;">The Heap (Shared & Massive)</h3>
+            <ul style="font-size: 0.88rem; line-height: 1.6; padding-left: 1.25rem;">
+              <li>Stores all objects, Strings, arrays, and classes.</li>
+              <li>Shared across all threads.</li>
+              <li>Managed automatically by the Garbage Collector (GC).</li>
+              <li>Objects survive until all references are gone.</li>
+            </ul>
+          </div>
+        </div>
 
         
     <div style="margin: 1.75rem 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface);">
@@ -1060,16 +1076,16 @@
       </div>
       <div style="display: grid; grid-template-columns: 1.2fr 1fr; min-height: 220px; background: var(--bg); position: relative;" id="pg-mem1">
         <div style="position: relative; height: 100%;">
-          <textarea id="pg-code-mem1" style="width: 100%; height: 100%; min-height: 220px; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.88rem; line-height: 1.5; resize: vertical; outline: none; box-sizing: border-box;" spellcheck="false" oninput="handleJavaAutocomplete('mem1', this, event)">public class MemoryDemo {
+          <textarea id="pg-code-mem1" style="width: 100%; height: 100%; min-height: 220px; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.88rem; line-height: 1.5; resize: vertical; outline: none; box-sizing: border-box;" spellcheck="false" oninput="handleJavaAutocomplete('mem1', this, event)">public class MemoryVisualizer {
   public static void main(String[] args) {
-    // 'val' lives on the Stack
-    int val = 100;
+    // Stored on Stack:
+    int localPrimitive = 100;
 
-    // 'name' pointer on Stack -&gt; points to "Alex" Object on Heap
-    String name = new String("Alex");
+    // Pointer on Stack, Object in Heap:
+    String heapObject = new String("I live in the JVM Heap!");
 
-    System.out.println("Primitive on Stack: " + val);
-    System.out.println("Reference to Heap Object: " + name);
+    System.out.println("Primitive: " + localPrimitive);
+    System.out.println("Reference: " + heapObject);
   }
 }</textarea>
           <div id="ac-popup-mem1" style="display: none; position: absolute; background: var(--surface); border: 1px solid var(--border-strong, #3b82f6); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); z-index: 100; font-family: var(--mono); font-size: 0.8rem; max-height: 150px; overflow-y: auto;"></div>
@@ -1090,6 +1106,97 @@
   
       
         </article>
+
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy Production JVM GC & Memory Flags Cheat Sheet</span>
+          <button id="btnCopy_05_stack_vs_heap_memory_jvm" class="btn-copy" onclick="copySnippet('btnCopy_05_stack_vs_heap_memory_jvm', `# Recommended Production JVM Memory & GC Configuration (4GB Heap, G1GC)
+java -Xms4g -Xmx4g \\
+     -XX:+UseG1GC \\
+     -XX:MaxGCPauseMillis=200 \\
+     -XX:+ParallelRefProcEnabled \\
+     -XX:+HeapDumpOnOutOfMemoryError \\
+     -XX:HeapDumpPath=/var/log/jvm/heapdump.hprof \\
+     -jar application.jar`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code># Recommended Production JVM Memory &amp; GC Configuration (4GB Heap, G1GC)
+java -Xms4g -Xmx4g \
+     -XX:+UseG1GC \
+     -XX:MaxGCPauseMillis=200 \
+     -XX:+ParallelRefProcEnabled \
+     -XX:+HeapDumpOnOutOfMemoryError \
+     -XX:HeapDumpPath=/var/log/jvm/heapdump.hprof \
+     -jar application.jar</code></pre>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & Engineering Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: Static Collection Memory Leaks in the Heap</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Adding objects to a <code>public static List</code> or <code>static Map</code> creates GC roots that persist for the lifetime of the JVM process. Because the GC only collects unreferenced objects, static collections continually grow, eventually triggering fatal <code>OutOfMemoryError: Java heap space</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: Thread Call Stack Exhaustion (StackOverflowError)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Every executing thread has an isolated call stack (default 1MB). Deep recursion without a base case or circular object references quickly fills the stack frames, immediately throwing a <code>StackOverflowError</code> that crashes the executing thread.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: Metaspace Memory Leaks from Dynamic Classloading</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Classes, method metadata, and constant pools reside off-heap in native memory called Metaspace. Creating dynamic proxies, bytecode generation, or uncollected custom ClassLoaders without releasing class references triggers fatal <code>OutOfMemoryError: Metaspace</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: Blindly Adjusting -Xmx Without Analyzing Heap Dumps</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Increasing maximum heap size (<code>-Xmx8g</code>) to fix an out-of-memory error without analyzing heap dumps (<code>.hprof</code>) via VisualVM or Eclipse MAT merely delays the crash while prolonging Garbage Collection pause times.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: The Zombie Object Finalizer Hazard</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Overriding <code>finalize()</code> delays object reclamation by at least two GC cycles, can resurrect dead objects into active heap references, and causes severe throughput degradation. The finalizer mechanism is deprecated; use <code>AutoCloseable</code> with try-with-resources.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is stored on the Java Stack versus the Java Heap?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The Stack stores executing method frames, local primitive variables, and object reference pointers. It is fast and automatically cleaned as methods return. The Heap stores all instantiated objects and arrays; it is managed by the Garbage Collector.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Is Java pass-by-value or pass-by-reference?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Java is strictly pass-by-value 100% of the time. When passing an object to a method, Java copies the value of the reference pointer, not the object itself. Reassigning the parameter variable inside the method does not affect the caller's reference.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How does the Garbage Collector know when an object can be deleted?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The GC performs root reachability analysis starting from GC Roots (active thread stacks, static variables, JNI references). Any object on the heap that cannot be reached through a reference chain from a GC root is marked for garbage collection.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the difference between Young Generation and Old Generation memory?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The JVM heap is divided into Young Gen (Eden, Survivor spaces) where new objects are created, and Old Gen where long-lived objects survive. Most objects die young (Weak Generational Hypothesis), so Minor GCs run quickly on Young Gen without scanning Old Gen.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How does try-with-resources prevent resource and memory leaks?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Classes implementing java.lang.AutoCloseable used in a try(...) statement automatically have their close() method invoked when exiting the block, guaranteeing file descriptors, database connections, and native sockets are freed even during exceptions.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Deep Dive: Stack vs. Heap & Garbage Collection FAQs","url":"https://digitaltoolsshed.com/learn/java/05-stack-vs-heap-memory-jvm","mainEntity":[{"@type":"Question","name":"What is stored on the Java Stack versus the Java Heap?","acceptedAnswer":{"@type":"Answer","text":"The Stack stores executing method frames, local primitive variables, and object reference pointers. It is fast and automatically cleaned as methods return. The Heap stores all instantiated objects and arrays; it is managed by the Garbage Collector."}},{"@type":"Question","name":"Is Java pass-by-value or pass-by-reference?","acceptedAnswer":{"@type":"Answer","text":"Java is strictly pass-by-value 100% of the time. When passing an object to a method, Java copies the value of the reference pointer, not the object itself. Reassigning the parameter variable inside the method does not affect the caller's reference."}},{"@type":"Question","name":"How does the Garbage Collector know when an object can be deleted?","acceptedAnswer":{"@type":"Answer","text":"The GC performs root reachability analysis starting from GC Roots (active thread stacks, static variables, JNI references). Any object on the heap that cannot be reached through a reference chain from a GC root is marked for garbage collection."}},{"@type":"Question","name":"What is the difference between Young Generation and Old Generation memory?","acceptedAnswer":{"@type":"Answer","text":"The JVM heap is divided into Young Gen (Eden, Survivor spaces) where new objects are created, and Old Gen where long-lived objects survive. Most objects die young (Weak Generational Hypothesis), so Minor GCs run quickly on Young Gen without scanning Old Gen."}},{"@type":"Question","name":"How does try-with-resources prevent resource and memory leaks?","acceptedAnswer":{"@type":"Answer","text":"Classes implementing java.lang.AutoCloseable used in a try(...) statement automatically have their close() method invoked when exiting the block, guaranteeing file descriptors, database connections, and native sockets are freed even during exceptions."}}]}</script>
 
         <!-- RELATED NAV -->
         <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
@@ -1219,6 +1326,20 @@
         ta.value = ta.getAttribute('data-original');
         var out = document.getElementById('pg-out-' + id);
         out.textContent = '';
+      }
+
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
       }
 
       document.addEventListener('DOMContentLoaded', function() {

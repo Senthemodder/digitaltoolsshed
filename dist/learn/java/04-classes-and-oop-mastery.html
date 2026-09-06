@@ -1098,6 +1098,135 @@ public class Main {
       
         </article>
 
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy Java OOP Encapsulated Class & Record Pattern</span>
+          <button id="btnCopy_04_classes_and_oop_mastery" class="btn-copy" onclick="copySnippet('btnCopy_04_classes_and_oop_mastery', `import java.util.Objects;
+
+// Modern Immutable Java Record (JDK 16+)
+public record Player(String username, int level, double health) {
+    public Player {
+        Objects.requireNonNull(username, "Username cannot be null");
+        if (level < 1) throw new IllegalArgumentException("Level must be >= 1");
+    }
+}
+
+// Classical Encapsulated OOP Blueprint
+public class Weapon {
+    private final String id;
+    private int durability;
+
+    public Weapon(String id, int durability) {
+        this.id = Objects.requireNonNull(id, "Weapon ID cannot be null");
+        this.durability = durability;
+    }
+
+    public void use() {
+        if (durability > 0) durability--;
+    }
+
+    public int getDurability() { return durability; }
+    public String getId() { return id; }
+}`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code>import java.util.Objects;
+
+// Modern Immutable Java Record (JDK 16+)
+public record Player(String username, int level, double health) {
+    public Player {
+        Objects.requireNonNull(username, "Username cannot be null");
+        if (level &lt; 1) throw new IllegalArgumentException("Level must be &gt;= 1");
+    }
+}
+
+// Classical Encapsulated OOP Blueprint
+public class Weapon {
+    private final String id;
+    private int durability;
+
+    public Weapon(String id, int durability) {
+        this.id = Objects.requireNonNull(id, "Weapon ID cannot be null");
+        this.durability = durability;
+    }
+
+    public void use() {
+        if (durability &gt; 0) durability--;
+    }
+
+    public int getDurability() { return durability; }
+    public String getId() { return id; }
+}</code></pre>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & Engineering Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: Overriding equals() Without Overriding hashCode()</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">If two objects are considered equal via <code>equals()</code>, they MUST return the exact same <code>hashCode()</code> integer. Overriding <code>equals()</code> alone causes objects to vanish inside <code>HashSet</code> or become completely unretrievable from <code>HashMap</code> keys.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: Leaking Mutable Internal State Through Getters</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Returning a direct reference to a mutable field (e.g., <code>public List&lt;Item&gt; getInventory() { return this.items; }</code>) allows external callers to modify the private state without validation. Always return defensive copies or unmodifiable wrappers like <code>Collections.unmodifiableList(items)</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: Calling Overridable Methods Inside Constructors</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Invoking a non-private, non-final method inside a superclass constructor can trigger a subclass method override before the subclass fields have been initialized. This leads to subtle, hard-to-trace <code>NullPointerException</code>s during instantiation.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: The Fragile Base Class & Deep Inheritance Hell</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Creating inheritance chains deeper than 2 levels tightly couples child classes to parent implementation details. A change in a base class method breaks behavior across dozens of subclasses. Prefer object composition and interfaces over class inheritance.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: Anemic Domain Models (Getters and Setters Everywhere)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Creating classes with only private fields and automatic getters/setters for every field turns classes into dumb data containers, violating encapsulation. Business rules, state validations, and mutations should be encapsulated directly within domain methods.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the contract between equals() and hashCode() in Java?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">If two objects evaluate to true via equals(), their hashCode() values must be identical. If hashCode() differs, they are guaranteed not equal. However, two unequal objects may share the same hash code (a hash collision).</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Why is composition generally favored over inheritance in modern Java?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Composition provides loose coupling, allows changing behavior dynamically at runtime by swapping component implementations, and avoids exposing subclass internals to fragile base class changes.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What are Java Records and when should they be used instead of regular classes?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Records (introduced in Java 16) are concise immutable data carriers. The compiler automatically generates constructor, getters, equals(), hashCode(), and toString() methods, eliminating boilerplate code.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the difference between an Interface and an Abstract Class in Java?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">An abstract class can maintain mutable instance state, constructors, and default implementations (single inheritance). An interface defines a contract or capability (multiple inheritance) and can only declare public static final constants and default/static methods.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Why is invoking polymorphic methods from within a constructor dangerous?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">When a superclass constructor runs, the subclass instance fields have not yet been initialized. If the constructor calls a method overridden by the subclass, that method executes against null/uninitialized subclass state.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Object-Oriented Programming (OOP): Blueprints & Objects FAQs","url":"https://digitaltoolsshed.com/learn/java/04-classes-and-oop-mastery","mainEntity":[{"@type":"Question","name":"What is the contract between equals() and hashCode() in Java?","acceptedAnswer":{"@type":"Answer","text":"If two objects evaluate to true via equals(), their hashCode() values must be identical. If hashCode() differs, they are guaranteed not equal. However, two unequal objects may share the same hash code (a hash collision)."}},{"@type":"Question","name":"Why is composition generally favored over inheritance in modern Java?","acceptedAnswer":{"@type":"Answer","text":"Composition provides loose coupling, allows changing behavior dynamically at runtime by swapping component implementations, and avoids exposing subclass internals to fragile base class changes."}},{"@type":"Question","name":"What are Java Records and when should they be used instead of regular classes?","acceptedAnswer":{"@type":"Answer","text":"Records (introduced in Java 16) are concise immutable data carriers. The compiler automatically generates constructor, getters, equals(), hashCode(), and toString() methods, eliminating boilerplate code."}},{"@type":"Question","name":"What is the difference between an Interface and an Abstract Class in Java?","acceptedAnswer":{"@type":"Answer","text":"An abstract class can maintain mutable instance state, constructors, and default implementations (single inheritance). An interface defines a contract or capability (multiple inheritance) and can only declare public static final constants and default/static methods."}},{"@type":"Question","name":"Why is invoking polymorphic methods from within a constructor dangerous?","acceptedAnswer":{"@type":"Answer","text":"When a superclass constructor runs, the subclass instance fields have not yet been initialized. If the constructor calls a method overridden by the subclass, that method executes against null/uninitialized subclass state."}}]}</script>
+
         <!-- RELATED NAV -->
         <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
           <a href="/learn/java/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; Java Hub</a>
@@ -1226,6 +1355,20 @@ public class Main {
         ta.value = ta.getAttribute('data-original');
         var out = document.getElementById('pg-out-' + id);
         out.textContent = '';
+      }
+
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
       }
 
       document.addEventListener('DOMContentLoaded', function() {

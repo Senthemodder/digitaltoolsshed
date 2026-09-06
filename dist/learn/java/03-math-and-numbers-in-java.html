@@ -1051,7 +1051,7 @@
           In Java, dividing two integers always yields an integer. It completely throws away the decimal remainder without rounding!
         </p>
         <ul style="font-size: 0.95rem; line-height: 1.6; padding-left: 1.5rem;">
-          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <code>double result = 5 / 2;</code> &rarr; Evaluates to <code>2.0</code>!</li>
+          <li>❌ <code>double result = 5 / 2;</code> &rarr; Evaluates to <code>2.0</code>!</li>
           <li>✅ <code>double result = 5.0 / 2;</code> &rarr; Correctly evaluates to <code>2.5</code>.</li>
         </ul>
 
@@ -1104,6 +1104,107 @@
         </p>
       
         </article>
+
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy Java Precision Math & Safe Arithmetic Template</span>
+          <button id="btnCopy_03_math_and_numbers_in_java" class="btn-copy" onclick="copySnippet('btnCopy_03_math_and_numbers_in_java', `import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+// Financial / Exact Currency Calculation
+BigDecimal price = new BigDecimal("19.99");
+BigDecimal taxRate = new BigDecimal("0.0825");
+BigDecimal total = price.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+
+// Safe Modulo for Negative Numbers
+int safeMod = Math.floorMod(-7, 4); // Returns 1 (unlike -7 % 4 which returns -3)
+
+// Overflow-Safe Arithmetic (Throws ArithmeticException on overflow)
+long safeSum = Math.addExact(2000000000L, 500000000L);`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code>import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+// Financial / Exact Currency Calculation
+BigDecimal price = new BigDecimal("19.99");
+BigDecimal taxRate = new BigDecimal("0.0825");
+BigDecimal total = price.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+
+// Safe Modulo for Negative Numbers
+int safeMod = Math.floorMod(-7, 4); // Returns 1 (unlike -7 % 4 which returns -3)
+
+// Overflow-Safe Arithmetic (Throws ArithmeticException on overflow)
+long safeSum = Math.addExact(2000000000L, 500000000L);</code></pre>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & Engineering Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: The new BigDecimal(double) Inexact Constructor Trap</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Instantiating <code>new BigDecimal(0.1)</code> does NOT create an exact 0.1; it creates <code>0.1000000000000000055511151231257827021181583404541015625</code> because 0.1 cannot be represented precisely in binary float. Always use <code>new BigDecimal("0.1")</code> or <code>BigDecimal.valueOf(0.1)</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: Negative Modulo Operator Trap (-7 % 4 == -3)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">In Java, the <code>%</code> operator is a remainder operator based on truncated division, meaning <code>-7 % 4</code> evaluates to <code>-3</code> rather than <code>1</code>. When calculating array wrap-around or cyclic clock positions, always use <code>Math.floorMod(-7, 4)</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: The Math.abs(Integer.MIN_VALUE) Trap</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Due to two's complement binary representation, the negative range is 1 greater than the positive range. <code>Math.abs(-2147483648)</code> returns <code>-2147483648</code>, completely failing to make the number positive! Always handle <code>Integer.MIN_VALUE</code> before calling absolute value.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: Silent Floating-Point NaN and Infinity Propagation</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">In double arithmetic, dividing <code>0.0 / 0.0</code> yields <code>Double.NaN</code>, and <code>1.0 / 0.0</code> yields <code>Double.POSITIVE_INFINITY</code> without raising an exception. Any further math with NaN produces NaN, silently poisoning entire physics simulation states.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: Compound Assignment Operator Implicit Narrowing</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Writing <code>short s = 5; s += 10.5;</code> compiles without warnings because compound assignment inserts an invisible cast: <code>s = (short)(s + 10.5)</code>. This silently truncates floating-point numbers and discards high-order bits without developer awareness.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Why should floating-point double and float never be used for financial transactions in Java?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">IEEE 754 binary floating-point numbers cannot represent simple base-10 decimal fractions like 0.10 or 0.05 exactly. Cumulative rounding errors cause bank accounts to drift by pennies. Always use java.math.BigDecimal or store monetary values as whole cents in a long.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How does Math.floorMod() differ from the standard % remainder operator?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The % operator rounds division toward zero (truncated division), producing negative results for negative dividends (-7 % 4 = -3). Math.floorMod() rounds division toward negative infinity (floored division), guaranteeing results match the divisor sign (Math.floorMod(-7, 4) = 1).</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Why does Math.abs(Integer.MIN_VALUE) fail to return a positive integer?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">32-bit signed integers range from -2,147,483,648 to +2,147,483,647. Because +2,147,483,648 does not exist in 32-bit two's complement, attempting to negate Integer.MIN_VALUE overflows back to itself.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the difference between float and double precision in memory?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">A float occupies 32 bits (1 sign, 8 exponent, 23 mantissa) providing ~7 decimal digits of precision. A double occupies 64 bits (1 sign, 11 exponent, 52 mantissa) providing ~15 to 17 decimal digits of precision.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How do Math.addExact() and Math.multiplyExact() prevent silent arithmetic overflows?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Unlike the standard + and * operators which silently wrap around upon exceeding bit limits, Math.addExact() checks CPU overflow flags and immediately throws an ArithmeticException, preventing data corruption.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Math in Java & The Dangerous Integer Division Trap FAQs","url":"https://digitaltoolsshed.com/learn/java/03-math-and-numbers-in-java","mainEntity":[{"@type":"Question","name":"Why should floating-point double and float never be used for financial transactions in Java?","acceptedAnswer":{"@type":"Answer","text":"IEEE 754 binary floating-point numbers cannot represent simple base-10 decimal fractions like 0.10 or 0.05 exactly. Cumulative rounding errors cause bank accounts to drift by pennies. Always use java.math.BigDecimal or store monetary values as whole cents in a long."}},{"@type":"Question","name":"How does Math.floorMod() differ from the standard % remainder operator?","acceptedAnswer":{"@type":"Answer","text":"The % operator rounds division toward zero (truncated division), producing negative results for negative dividends (-7 % 4 = -3). Math.floorMod() rounds division toward negative infinity (floored division), guaranteeing results match the divisor sign (Math.floorMod(-7, 4) = 1)."}},{"@type":"Question","name":"Why does Math.abs(Integer.MIN_VALUE) fail to return a positive integer?","acceptedAnswer":{"@type":"Answer","text":"32-bit signed integers range from -2,147,483,648 to +2,147,483,647. Because +2,147,483,648 does not exist in 32-bit two's complement, attempting to negate Integer.MIN_VALUE overflows back to itself."}},{"@type":"Question","name":"What is the difference between float and double precision in memory?","acceptedAnswer":{"@type":"Answer","text":"A float occupies 32 bits (1 sign, 8 exponent, 23 mantissa) providing ~7 decimal digits of precision. A double occupies 64 bits (1 sign, 11 exponent, 52 mantissa) providing ~15 to 17 decimal digits of precision."}},{"@type":"Question","name":"How do Math.addExact() and Math.multiplyExact() prevent silent arithmetic overflows?","acceptedAnswer":{"@type":"Answer","text":"Unlike the standard + and * operators which silently wrap around upon exceeding bit limits, Math.addExact() checks CPU overflow flags and immediately throws an ArithmeticException, preventing data corruption."}}]}</script>
 
         <!-- RELATED NAV -->
         <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
@@ -1233,6 +1334,20 @@
         ta.value = ta.getAttribute('data-original');
         var out = document.getElementById('pg-out-' + id);
         out.textContent = '';
+      }
+
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
       }
 
       document.addEventListener('DOMContentLoaded', function() {

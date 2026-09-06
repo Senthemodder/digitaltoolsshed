@@ -1038,6 +1038,38 @@
         </p>
       </header>
 
+      
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy Java CLI Toolchain & Maven Project Setup Cheat Sheet</span>
+          <button id="btnCopyHubSetup" class="btn-copy" onclick="copySnippet('btnCopyHubSetup', `# Verify Java Development Kit (JDK 21 LTS Recommended)
+javac -version
+java -version
+
+# Generate Maven Starter Project
+mvn archetype:generate -DgroupId=com.example -DartifactId=app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+# Build & Package Application
+cd app && mvn clean package
+
+# Run Compiled Application JAR
+java -cp target/app-1.0-SNAPSHOT.jar com.example.App`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code># Verify Java Development Kit (JDK 21 LTS Recommended)
+javac -version
+java -version
+
+# Generate Maven Starter Project
+mvn archetype:generate -DgroupId=com.example -DartifactId=app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+# Build &amp; Package Application
+cd app &amp;&amp; mvn clean package
+
+# Run Compiled Application JAR
+java -cp target/app-1.0-SNAPSHOT.jar com.example.App</code></pre>
+      </div>
+    
+
       <!-- JAVASCRIPT VS JAVA NOTICE -->
       <div style="background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.25); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
         <div>
@@ -1091,35 +1123,249 @@
   
     <a href="/learn/java/06-optimization-and-performance" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;">
       <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; text-transform: uppercase; font-weight: bold;">Guide 06</span>
-      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">Java Performance: StringBuilder, GC Tuning & Fast Arrays</h3>
-      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Optimize Java performance: StringBuilder vs String concatenation, primitive arrays vs boxed collections, and cache-friendly coding.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">High-Performance Java: JIT, Memory & StringBuilder</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Optimize Java for enterprise speed and game servers: StringBuilder vs string concat, primitive arrays vs boxed collections, and JIT compiler secrets.</p>
     </a>
   
     <a href="/learn/java/07-what-not-to-do-anti-patterns" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;">
       <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; text-transform: uppercase; font-weight: bold;">Guide 07</span>
-      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">What to NEVER Do in Java (The Anti-Pattern Hall of Fame)</h3>
-      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Common Java beginner mistakes to avoid: == vs .equals(), NullPointerExceptions, swallowing exceptions, and modifying lists during loops.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">Java Anti-Patterns: What NOT To Do (Production Traps)</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Avoid common Java beginner mistakes and anti-patterns: null pointer traps, swallowed exceptions, raw thread spawning, and mutable singletons.</p>
     </a>
   
     <a href="/learn/java/08-want-to-mod-minecraft" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;">
       <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; text-transform: uppercase; font-weight: bold;">Guide 08</span>
-      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">Want to Mod Minecraft? The Java Developer’s Bridge</h3>
-      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">How Minecraft Java Edition is architected: Forge vs Fabric, Mixins, Events, Registries, and getting started with Java Minecraft modding.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">So You Want to Mod Minecraft: Fabric, Forge & Java 21</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">A practical bridge from Java programming to Minecraft modding: Fabric ModInitializer, registries, Mixins, client vs server side, and Gradle setup.</p>
     </a>
   
     <a href="/learn/java/09-concurrency-and-threads" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;">
       <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; text-transform: uppercase; font-weight: bold;">Guide 09</span>
-      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">Concurrency, Multithreading & Modern Virtual Threads</h3>
-      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Master Java multithreading: Threads, Runnable, synchronized blocks, ExecutorService, and Java 21 Project Loom Virtual Threads.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">Multithreading & Concurrency: Virtual Threads in Java 21</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Master Java concurrency: Platform threads vs Virtual Threads (Project Loom), synchronized locks, race conditions, and ExecutorService.</p>
     </a>
   
     <a href="/learn/java/10-modern-streams-and-lambdas" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;">
       <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; text-transform: uppercase; font-weight: bold;">Guide 010</span>
-      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">Modern Java: Functional Streams, Lambdas & Records</h3>
-      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Modern Java 17-21 features: Stream API (.filter, .map, .reduce), Lambda expressions, immutable Records, and Pattern Matching.</p>
+      <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">Modern Java: Functional Streams, Lambdas & Optional</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Write elegant, modern Java: Stream API pipelines, lambda expressions, method references, Collectors, and eliminating NullPointerExceptions with Optional.</p>
     </a>
   
       </div>
+
+      
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & Engineering Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: The Tutorial Purgatory Trap</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Passively watching dozens of YouTube tutorials creates an illusion of competence. In software engineering, proficiency only develops when you build independent projects, encounter compiler errors, and debug stack traces without hand-holding.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: Learning Spring Boot Before Mastering Core Java & OOP</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Jumping directly into enterprise frameworks like Spring Boot or Micronaut without understanding Java collections, threading, memory references, and exception hierarchies makes diagnosing dependency injection bugs and runtime errors impossible.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: Conflating Java with JavaScript</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Assuming Java and JavaScript share runtime mechanics or syntax paradigms creates fundamental confusion. Java is strongly typed, class-based, and runs on the JVM; JavaScript is dynamically typed, prototype-based, and runs in browsers and Node.js.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: Studying Obsolete Java 7 and Java 8 Tutorials</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Learning deprecated idioms like raw threads, Vector/Hashtable, or legacy Date/Calendar prepares you for decade-old legacy codebases. Modern Java (Java 17/21 LTS) emphasizes Records, Pattern Matching, Virtual Threads, and Sealed Classes.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: Neglecting Build Automation Tools (Maven & Gradle)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Relying exclusively on IDE GUI buttons without learning Maven pom.xml or Gradle build.gradle scripts leaves you incapable of setting up automated CI/CD pipelines, multi-module architectures, or containerized Docker deployments.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+      
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the recommended roadmap to master Java from beginner to enterprise engineer?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Start with Guide 01 (variables and primitives), progress through OOP and JVM memory architecture (Guides 04-05), master performance and defensive idioms (Guides 07-08), and conquer multithreading and Streams (Guides 09-10). Build real CLI tools, REST APIs, and Minecraft mods along the way.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Which version of Java should I install for modern development in 2026?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Install Java 21 LTS (Long-Term Support). It provides virtual threads (Project Loom), modern pattern matching, record patterns, and high-performance Garbage Collectors like G1 and ZGC.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Can learning Java help me develop Minecraft mods and Android apps?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Absolutely! Minecraft: Java Edition is built entirely on the JVM, and modding frameworks like Fabric and NeoForge use modern Java. Android native development uses Java and Kotlin interchangeably on the Android Runtime (ART).</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How long does it take to learn Java well enough to get an entry-level job?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">With consistent deliberate practice (10-15 hours per week), dedicated learners typically grasp core Java in 8-12 weeks and master enterprise frameworks (Spring Boot, SQL, REST APIs, Docker) in 6 months.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Why does Java continue to dominate enterprise and cloud computing?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Java offers unbeatable backward compatibility, massive multi-decade ecosystem support, high-performance HotSpot JIT compilation, state-of-the-art garbage collection, and strong typing that keeps million-line codebases maintainable.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Complete Java Master Guide Curriculum FAQs","url":"https://digitaltoolsshed.com/learn/java/","mainEntity":[{"@type":"Question","name":"What is the recommended roadmap to master Java from beginner to enterprise engineer?","acceptedAnswer":{"@type":"Answer","text":"Start with Guide 01 (variables and primitives), progress through OOP and JVM memory architecture (Guides 04-05), master performance and defensive idioms (Guides 07-08), and conquer multithreading and Streams (Guides 09-10). Build real CLI tools, REST APIs, and Minecraft mods along the way."}},{"@type":"Question","name":"Which version of Java should I install for modern development in 2026?","acceptedAnswer":{"@type":"Answer","text":"Install Java 21 LTS (Long-Term Support). It provides virtual threads (Project Loom), modern pattern matching, record patterns, and high-performance Garbage Collectors like G1 and ZGC."}},{"@type":"Question","name":"Can learning Java help me develop Minecraft mods and Android apps?","acceptedAnswer":{"@type":"Answer","text":"Absolutely! Minecraft: Java Edition is built entirely on the JVM, and modding frameworks like Fabric and NeoForge use modern Java. Android native development uses Java and Kotlin interchangeably on the Android Runtime (ART)."}},{"@type":"Question","name":"How long does it take to learn Java well enough to get an entry-level job?","acceptedAnswer":{"@type":"Answer","text":"With consistent deliberate practice (10-15 hours per week), dedicated learners typically grasp core Java in 8-12 weeks and master enterprise frameworks (Spring Boot, SQL, REST APIs, Docker) in 6 months."}},{"@type":"Question","name":"Why does Java continue to dominate enterprise and cloud computing?","acceptedAnswer":{"@type":"Answer","text":"Java offers unbeatable backward compatibility, massive multi-decade ecosystem support, high-performance HotSpot JIT compilation, state-of-the-art garbage collection, and strong typing that keeps million-line codebases maintainable."}}]}</script>
+
+      
+    <script>
+      var AUTOCOMPLETE_SUGGESTIONS = [
+        { trigger: 'sys', insert: 'System.out.println("");', label: 'System.out.println()' },
+        { trigger: 'sout', insert: 'System.out.println("");', label: 'sout -> System.out.println()' },
+        { trigger: 'math.', insert: 'Math.sqrt()', label: 'Math.sqrt(double a)' },
+        { trigger: 'math.p', insert: 'Math.pow(2, 3)', label: 'Math.pow(a, b)' },
+        { trigger: 'for', insert: 'for (int i = 0; i < 5; i++) {\n  System.out.println(i);\n}', label: 'for loop (int i = 0; ...)' },
+        { trigger: 'psvm', insert: 'public static void main(String[] args) {\n  \n}', label: 'public static void main(String[] args)' },
+        { trigger: 'str', insert: 'String text = "Hello";', label: 'String declaration' },
+        { trigger: 'sb', insert: 'StringBuilder sb = new StringBuilder();', label: 'StringBuilder sb = ...' }
+      ];
+
+      function handleJavaAutocomplete(id, textarea, event) {
+        var val = textarea.value;
+        var pos = textarea.selectionStart;
+        var lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+        var currentWord = val.slice(lineStart, pos).trim().toLowerCase();
+
+        var popup = document.getElementById('ac-popup-' + id);
+        if (!popup) return;
+
+        if (currentWord.length < 2) {
+          popup.style.display = 'none';
+          return;
+        }
+
+        var matches = AUTOCOMPLETE_SUGGESTIONS.filter(function(s) {
+          return s.trigger.startsWith(currentWord) || s.label.toLowerCase().includes(currentWord);
+        });
+
+        if (matches.length === 0) {
+          popup.style.display = 'none';
+          return;
+        }
+
+        popup.innerHTML = '';
+        matches.forEach(function(m) {
+          var item = document.createElement('div');
+          item.style.padding = '0.35rem 0.65rem';
+          item.style.cursor = 'pointer';
+          item.style.borderBottom = '1px solid var(--border)';
+          item.textContent = m.label;
+          item.onmouseover = function() { item.style.background = 'var(--surface-hover, #222)'; };
+          item.onmouseout = function() { item.style.background = 'transparent'; };
+          item.onmousedown = function(e) {
+            e.preventDefault();
+            var before = val.slice(0, lineStart);
+            var after = val.slice(pos);
+            textarea.value = before + m.insert + after;
+            popup.style.display = 'none';
+            textarea.focus();
+          };
+          popup.appendChild(item);
+        });
+
+        popup.style.display = 'block';
+        popup.style.top = '40px';
+        popup.style.left = '20px';
+      }
+
+      function runJavaPlayground(id) {
+        var code = document.getElementById('pg-code-' + id).value;
+        var out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        out.style.color = '#a5f3fc';
+
+        var stdout = [];
+        var System = {
+          out: {
+            println: function(arg) { stdout.push(arg === undefined ? '' : String(arg)); },
+            print: function(arg) {
+              if (stdout.length === 0) stdout.push(String(arg));
+              else stdout[stdout.length - 1] += String(arg);
+            },
+            printf: function(fmt) {
+              var args = Array.prototype.slice.call(arguments, 1);
+              var str = fmt.replace(/%[dsf]/g, function() { return args.shift(); });
+              stdout.push(str);
+            }
+          }
+        };
+
+        var StringBuilder = function(initial) {
+          this.str = initial || '';
+          this.append = function(s) { this.str += String(s); return this; };
+          this.toString = function() { return this.str; };
+          this.length = function() { return this.str.length; };
+        };
+
+        try {
+          // Transpile lightweight Java constructs into browser JS for instant simulation
+          var jsCode = code
+            .replace(/public\s+class\s+\w+\s*\{/g, '{')
+            .replace(/public\s+static\s+void\s+main\s*\([^)]*\)\s*\{/g, '{')
+            .replace(/System\.out\.println/g, 'System.out.println')
+            .replace(/System\.out\.print/g, 'System.out.print')
+            .replace(/System\.out\.printf/g, 'System.out.printf')
+            .replace(/\b(int|double|float|long|short|byte|boolean|char|String)\s+/g, 'var ')
+            .replace(/\bfinal\s+/g, 'const ')
+            .replace(/\bnew\s+StringBuilder/g, 'new StringBuilder');
+
+          var runner = new Function('System', 'StringBuilder', 'Math', jsCode);
+          runner(System, StringBuilder, Math);
+
+          if (stdout.length === 0) {
+            out.textContent = '[Process finished with exit code 0 (No output)]';
+            out.style.color = '#94a3b8';
+          } else {
+            out.textContent = stdout.join('\n');
+          }
+        } catch(e) {
+          out.textContent = 'Exception in thread "main" java.lang.RuntimeException: ' + e.message;
+          out.style.color = '#f87171';
+        }
+      }
+
+      function resetJavaPlayground(id) {
+        var ta = document.getElementById('pg-code-' + id);
+        ta.value = ta.getAttribute('data-original');
+        var out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+      }
+
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('textarea[id^="pg-code-"]').forEach(function(ta) {
+          ta.setAttribute('data-original', ta.value);
+        });
+      });
+    </script>
+  
     </div>
   
 
