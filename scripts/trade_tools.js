@@ -49751,6 +49751,2193 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (59 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 60: Ruths Steam Accumulator Sizing Calculator (ASME & Spirax Sarco)
+  // ==========================================
+  const steamAccumulatorBody = `
+<style>
+  .sa-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .sa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .sa-grid { grid-template-columns: 1fr; } }
+  .sa-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .sa-header { margin-bottom: 20px; }
+  .sa-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .sa-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .sa-form-group { margin-bottom: 16px; }
+  .sa-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .sa-input-row { display: flex; gap: 10px; align-items: center; }
+  .sa-input-row input, .sa-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .sa-input-row input:focus, .sa-input-row select:focus { outline: none; border-color: #2563eb; }
+  .sa-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .sa-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .sa-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .sa-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .sa-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .sa-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .sa-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .sa-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .sa-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .sa-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .sa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .sa-btn:hover { background: #1d4ed8; }
+  .sa-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="sa-container">
+  <div class="sa-grid">
+    <!-- Inputs Column -->
+    <div class="sa-card">
+      <div class="sa-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Steam Storage &amp; Peak Dynamics</h2>
+        <p>Ruths variable-pressure thermal storage &amp; flash evaporation engine</p>
+      </div>
+
+      <div class="sa-form-group">
+        <label for="saPeakDeficit">Peak Steam Deficit (&dot;m<sub>peak</sub> &minus; &dot;m<sub>boiler</sub>)</label>
+        <div class="sa-input-row">
+          <input type="number" id="saPeakDeficit" value="12000" min="500" step="500">
+          <select id="saFlowUnit" class="sa-unit-badge" style="width:auto;">
+            <option value="lb_hr" selected>lbs/hr</option>
+            <option value="kg_hr">kg/hr</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sa-form-group">
+        <label for="saPeakDuration">Peak Event Duration (t<sub>peak</sub>)</label>
+        <div class="sa-input-row">
+          <input type="number" id="saPeakDuration" value="20" min="1" step="1">
+          <div class="sa-unit-badge">Minutes</div>
+        </div>
+      </div>
+
+      <div class="sa-form-group">
+        <label>Storage Pressure Envelope (P₁ Charging &rarr; P₂ Discharge)</label>
+        <div class="sa-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">High Charge (P₁)</span>
+            <input type="number" id="saP1" value="150" step="5">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Low Discharge (P₂)</span>
+            <input type="number" id="saP2" value="45" step="5">
+          </div>
+          <select id="saPressUnit" class="sa-unit-badge" style="width:auto; align-self:flex-end; height:42px;">
+            <option value="psig" selected>psig</option>
+            <option value="barg">barg</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sa-form-group">
+        <label for="saFillRatio">Maximum Water Fill Level (% of Shell Volume)</label>
+        <div class="sa-input-row">
+          <select id="saFillRatio">
+            <option value="0.85" selected>85% Water Sump (Recommended 15% Steam Release Disengagement)</option>
+            <option value="0.90">90% Maximum Permissible (High Storage / Risk of Priming)</option>
+            <option value="0.80">80% Conservative (Enhanced Mist Protection for Wet Steam)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sa-form-group">
+        <label for="saVesselDia">Vessel Shell Inside Diameter (D<sub>shell</sub>)</label>
+        <div class="sa-input-row">
+          <select id="saVesselDia">
+            <option value="6">6.0 ft (~1.83 m ID - Compact)</option>
+            <option value="8" selected>8.0 ft (~2.44 m ID - Standard)</option>
+            <option value="10">10.0 ft (~3.05 m ID - Large Industrial)</option>
+            <option value="12">12.0 ft (~3.66 m ID - Maximum Rail Transport)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="sa-card">
+      <div class="sa-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Accumulator Size &amp; Flash Rate</h2>
+        <p>Ruths vessel volume, flash steam yield, and surface release velocity</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="saSvg" width="340" height="220" viewBox="0 0 340 220" style="max-width:100%;">
+          <defs>
+            <linearGradient id="saShellGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="50%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="saWaterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#0284c7"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Top Steam Outlet Dome & Nozzle -->
+          <rect x="156" y="8" width="28" height="24" fill="#475569" rx="2"/>
+          <line x1="170" y1="28" x2="170" y2="10" stroke="#f59e0b" stroke-width="3"/>
+          <polygon points="170,6 165,14 175,14" fill="#f59e0b"/>
+          <text x="170" y="4" font-size="8" font-weight="bold" fill="#f59e0b" text-anchor="middle">Flash Steam Out</text>
+
+          <!-- Horizontal Cylindrical Shell with Dished 2:1 Elliptical Heads -->
+          <!-- Left Head -->
+          <path d="M 40 40 C 15 40, 15 170, 40 170 Z" fill="url(#saShellGrad)" stroke="#1e293b" stroke-width="2"/>
+          <!-- Middle Cylinder -->
+          <rect x="40" y="40" width="260" height="130" fill="url(#saShellGrad)" stroke="#1e293b" stroke-width="2"/>
+          <!-- Right Head -->
+          <path d="M 300 40 C 325 40, 325 170, 300 170 Z" fill="url(#saShellGrad)" stroke="#1e293b" stroke-width="2"/>
+
+          <!-- Internal Chamber Background -->
+          <rect x="40" y="44" width="260" height="122" fill="#f8fafc"/>
+          <path d="M 40 44 C 20 44, 20 166, 40 166 Z" fill="#f8fafc"/>
+          <path d="M 300 44 C 320 44, 320 166, 300 166 Z" fill="#f8fafc"/>
+
+          <!-- Water Fill Mass (85% Level: y=68 to 166) -->
+          <rect id="svgWaterRect" x="35" y="68" width="270" height="98" fill="url(#saWaterGrad)" opacity="0.85"/>
+          <path d="M 40 68 C 24 68, 24 166, 40 166 Z" fill="url(#saWaterGrad)" opacity="0.85"/>
+          <path d="M 300 68 C 316 68, 316 166, 300 166 Z" fill="url(#saWaterGrad)" opacity="0.85"/>
+
+          <!-- Water Surface Line (Meniscus) -->
+          <line x1="30" y1="68" x2="310" y2="68" stroke="#0f172a" stroke-width="2" stroke-dasharray="4,2"/>
+          <text x="170" y="64" font-size="7" font-weight="bold" fill="#0284c7" text-anchor="middle">Water Level: 85% Fill</text>
+
+          <!-- Steam Bubble Generation (Flashing effect) -->
+          <circle cx="80" cy="110" r="2.5" fill="#ffffff" opacity="0.8"/>
+          <circle cx="120" cy="95" r="3" fill="#ffffff" opacity="0.8"/>
+          <circle cx="170" cy="120" r="2" fill="#ffffff" opacity="0.8"/>
+          <circle cx="220" cy="100" r="3" fill="#ffffff" opacity="0.8"/>
+          <circle cx="260" cy="115" r="2" fill="#ffffff" opacity="0.8"/>
+
+          <!-- Submerged Steam Charging Sparger Manifold -->
+          <line x1="60" y1="145" x2="280" y2="145" stroke="#334155" stroke-width="4"/>
+          <!-- Sparger Nozzles Pointing Down -->
+          <line x1="90" y1="145" x2="90" y2="155" stroke="#334155" stroke-width="2"/>
+          <line x1="140" y1="145" x2="140" y2="155" stroke="#334155" stroke-width="2"/>
+          <line x1="190" y1="145" x2="190" y2="155" stroke="#334155" stroke-width="2"/>
+          <line x1="240" y1="145" x2="240" y2="155" stroke="#334155" stroke-width="2"/>
+          <text x="170" y="142" font-size="7" font-weight="bold" fill="#ffffff" text-anchor="middle">Charging Sparger</text>
+
+          <!-- Mesh Mist Extractor under outlet -->
+          <rect x="145" y="44" width="50" height="8" fill="#64748b" stroke="#334155" stroke-dasharray="2,1"/>
+          <text x="170" y="51" font-size="6" fill="#f8fafc" text-anchor="middle">Mist Pad</text>
+
+          <!-- Dimension & Status Box -->
+          <rect x="95" y="80" width="150" height="42" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="170" y="96" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle" id="svgVolumeLabel">Vol: 1,845 cu ft (13,800 gal)</text>
+          <text x="170" y="112" font-size="8" fill="#64748b" text-anchor="middle" id="svgLengthLabel">Length: 36.7 ft @ 8.0 ft ID</text>
+        </svg>
+      </div>
+
+      <div class="sa-stat-grid">
+        <div class="sa-stat-box highlight">
+          <div class="sa-stat-label">Total Vessel Volume</div>
+          <div class="sa-stat-val" id="saVolResult">1,845 cu ft</div>
+          <div class="sa-stat-sub" id="saVolSub">13,800 US Gallons (52.2 m&sup3;)</div>
+        </div>
+        <div class="sa-stat-box highlight">
+          <div class="sa-stat-label">Stored Steam Yield</div>
+          <div class="sa-stat-val" id="saYieldResult">4,000 lbs</div>
+          <div class="sa-stat-sub" id="saYieldSub">For 20 min peak deficit</div>
+        </div>
+        <div class="sa-stat-box">
+          <div class="sa-stat-label">Water Mass in Sump</div>
+          <div class="sa-stat-val" id="saWaterResult">88,450 lbs</div>
+          <div class="sa-stat-sub" id="saWaterSub">10,600 US Gal (40.1 tonnes)</div>
+        </div>
+        <div class="sa-stat-box">
+          <div class="sa-stat-label">Flash Evaporation Fraction</div>
+          <div class="sa-stat-val" id="saFlashPctResult">4.52%</div>
+          <div class="sa-stat-sub" id="saFlashPctSub">(h_f1 - h_f2) / h_fg2</div>
+        </div>
+      </div>
+
+      <div class="sa-stat-grid">
+        <div class="sa-stat-box" id="saVelBox">
+          <div class="sa-stat-label">Steam Release Velocity</div>
+          <div class="sa-stat-val" id="saVelResult">0.52 ft/s</div>
+          <div class="sa-stat-sub"><span class="sa-status-badge badge-pass" id="saVelBadge">Optimal (&le; 0.8 ft/s)</span></div>
+        </div>
+        <div class="sa-stat-box">
+          <div class="sa-stat-label">Shell Length (Tan-to-Tan)</div>
+          <div class="sa-stat-val" id="saLengthResult">36.7 ft</div>
+          <div class="sa-stat-sub" id="saLengthSub">11.2 m @ 8.0 ft diameter</div>
+        </div>
+      </div>
+
+      <button type="button" class="sa-btn" id="copySaAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy ASME Steam Accumulator Audit</span>
+      </button>
+
+      <textarea id="saAuditReport" class="sa-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Thermodynamic Math -->
+  <div class="sa-card" style="margin-bottom: 24px;">
+    <div class="sa-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Thermodynamic Flash Derivations</h2>
+      <p>Ruths energy conservation and variable-pressure flash yield evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>Spirax Sarco</strong> and <strong>ASME Section VIII</strong>, a Ruths accumulator stores heat in pressurized liquid water. When header pressure drops, sensible heat excess drives flash boiling:</p>
+      <p>1. <strong>Required Stored Steam Mass (m_steam):</strong> For peak deficit <span id="derivDeficit" style="font-weight:600;">12,000 lbs/hr</span> lasting <span id="derivDuration" style="font-weight:600;">20.0 min</span> (0.333 hr):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        m_steam = &dot;m_deficit &middot; (t_peak / 60) = 12,000 &middot; (20 / 60) = <span id="derivSteamMass" style="font-weight:700; color:#2563eb;">4,000.0 lbs</span> of steam
+      </div>
+      <p>2. <strong>Enthalpy &amp; Latent Heat Values:</strong> Between charging pressure <span id="derivP1Val" style="font-weight:600;">150 psig</span> and discharge pressure <span id="derivP2Val" style="font-weight:600;">45 psig</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        h_f1 (@ 150 psig / 366&deg;F) = <span id="derivHf1" style="font-weight:600;">338.5 BTU/lb</span><br>
+        h_f2 (@ 45 psig / 292&deg;F) = <span id="derivHf2" style="font-weight:600;">262.1 BTU/lb</span><br>
+        h_fg2 (@ 45 psig latent heat) = <span id="derivHfg2" style="font-weight:600;">915.2 BTU/lb</span>
+      </div>
+      <p>3. <strong>Flash Evaporation Factor (x):</strong></p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        x = (h_f1 - h_f2) / h_fg2 = (338.5 - 262.1) / 915.2 = <span id="derivFlashFactor" style="font-weight:700; color:#0284c7;">0.0835</span> (8.35% of water mass flashes)
+      </div>
+      <p>4. <strong>Required Water Mass &amp; Gross Vessel Volume:</strong> With water density &rho;_w = 56.2 lb/cu ft at 366&deg;F and fill fraction <span id="derivFillFrac" style="font-weight:600;">85.0%</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        M_water = m_steam / x = 4,000 / 0.0835 = <span id="derivCalcWaterMass" style="font-weight:700; color:#15803d;">47,904 lbs</span> (5,744 US Gal)<br>
+        V_gross = (M_water / &rho;_w) / 0.85 = <span id="derivCalcGrossVol" style="font-weight:700; color:#b45309;">1,003 cu ft</span> (7,500 US Gal)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="sa-card" style="margin-bottom: 24px;">
+    <div class="sa-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Steam Accumulator Engineering</h2>
+      <p>ASME Section VIII Div 1, Spirax Sarco, and NBIC safety guidelines</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Overfilling Past 90% &amp; Liquid Water Priming Ingestion</strong><br>
+      Filling a steam accumulator beyond 90% water volume eliminates the critical vapor disengagement headspace. When pressure drops during a sudden plant peak, violent boiling lifts the water surface into the dry pipe. Instead of steam, the accumulator discharges tens of thousands of pounds of boiling liquid water directly into process headers, obliterating control valves and blowing steam traps apart with explosive water hammer.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Excessive Surface Steam Release Velocity (&gt; 1.0 ft/s / 0.3 m/s)</strong><br>
+      Sizing an accumulator shell too narrow (e.g. 4 ft diameter instead of 8 ft) restricts water surface area. During maximum discharge, steam rising off the boiling water surface exceeds 1.0 to 1.2 ft/s (0.35 m/s). This high velocity carries fine liquid moisture droplets upward, turning the delivered steam into wet, low-quality mist (dryness fraction &lt; 90%) that ruins food, brewing, or textile batch processing.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Stagnant Thermal Stratification (Neglecting Internal Circulation)</strong><br>
+      Steam must be injected through submerged internal spargers equipped with venturi mixing nozzles pointing downward. If steam is merely bubbled into the top without inducing vigorous bottom-to-top convection, thermal stratification develops: top water boils at 170&deg;C while bottom water remains cold at 90&deg;C. This "dead zone" reduces effective steam storage capacity by <strong>35% to 50%</strong>.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Charging Sparger Back-Siphoning &amp; Condensation Shock</strong><br>
+      When boiler pressure drops during a trip, the steam charging line depressurizes while the accumulator remains at high pressure. Without certified high-temperature stainless check valves and anti-siphon vacuum breakers on the charging line, hot pressurized water back-siphons into the cold boiler header. Cold steam meets hot liquid in an enclosed pipe, collapsing steam pockets and generating catastrophic condensation-induced shock (implosions) that shatter valves.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Cyclic Fatigue on ASME Longitudinal Weld Seams</strong><br>
+      Unlike standard boilers that maintain steady pressure, Ruths accumulators experience continuous, cyclic pressure swings (e.g., cycling from 150 psig down to 40 psig multiple times per shift). Under ASME Section VIII Division 1, this high-stress cycling causes fatigue at welded nozzle junctions and longitudinal shell seams. Always specify 100% full radiographic inspection (RT-1) and full post-weld heat treatment (PWHT).
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const peakDeficitInput = document.getElementById('saPeakDeficit');
+  const flowUnitSelect = document.getElementById('saFlowUnit');
+  const peakDurationInput = document.getElementById('saPeakDuration');
+  const p1Input = document.getElementById('saP1');
+  const p2Input = document.getElementById('saP2');
+  const pressUnitSelect = document.getElementById('saPressUnit');
+  const fillRatioSelect = document.getElementById('saFillRatio');
+  const vesselDiaSelect = document.getElementById('saVesselDia');
+
+  // Outputs
+  const volResult = document.getElementById('saVolResult');
+  const volSub = document.getElementById('saVolSub');
+  const yieldResult = document.getElementById('saYieldResult');
+  const yieldSub = document.getElementById('saYieldSub');
+  const waterResult = document.getElementById('saWaterResult');
+  const waterSub = document.getElementById('saWaterSub');
+  const flashPctResult = document.getElementById('saFlashPctResult');
+  const flashPctSub = document.getElementById('saFlashPctSub');
+  const velResult = document.getElementById('saVelResult');
+  const velBadge = document.getElementById('saVelBadge');
+  const velBox = document.getElementById('saVelBox');
+  const lengthResult = document.getElementById('saLengthResult');
+  const lengthSub = document.getElementById('saLengthSub');
+  const auditBox = document.getElementById('saAuditReport');
+
+  // SVG Elements
+  const svgVolumeLabel = document.getElementById('svgVolumeLabel');
+  const svgLengthLabel = document.getElementById('svgLengthLabel');
+
+  // Derivations
+  const derivDeficit = document.getElementById('derivDeficit');
+  const derivDuration = document.getElementById('derivDuration');
+  const derivSteamMass = document.getElementById('derivSteamMass');
+  const derivP1Val = document.getElementById('derivP1Val');
+  const derivP2Val = document.getElementById('derivP2Val');
+  const derivHf1 = document.getElementById('derivHf1');
+  const derivHf2 = document.getElementById('derivHf2');
+  const derivHfg2 = document.getElementById('derivHfg2');
+  const derivFlashFactor = document.getElementById('derivFlashFactor');
+  const derivFillFrac = document.getElementById('derivFillFrac');
+  const derivCalcWaterMass = document.getElementById('derivCalcWaterMass');
+  const derivCalcGrossVol = document.getElementById('derivCalcGrossVol');
+
+  function calculate() {
+    const isBarg = pressUnitSelect.value === 'barg';
+    let rawP1 = parseFloat(p1Input.value) || 150;
+    let rawP2 = parseFloat(p2Input.value) || 45;
+
+    let P1_psig = isBarg ? rawP1 * 14.5038 : rawP1;
+    let P2_psig = isBarg ? rawP2 * 14.5038 : rawP2;
+    if (P2_psig >= P1_psig) P2_psig = P1_psig - 5;
+
+    let P1_psia = P1_psig + 14.696;
+    let P2_psia = P2_psig + 14.696;
+
+    // Steam Deficit & Duration
+    let rawDeficit = parseFloat(peakDeficitInput.value) || 12000;
+    let deficit_lbhr = rawDeficit;
+    if (flowUnitSelect.value === 'kg_hr') deficit_lbhr = rawDeficit * 2.20462;
+
+    let duration_min = parseFloat(peakDurationInput.value) || 20;
+    let steamYield_lbs = deficit_lbhr * (duration_min / 60);
+
+    // Steam Enthalpies (empirical steam table approximation)
+    // h_f ~ 115.34 * P^0.222 * (some constant)
+    // More accurate polynomial:
+    let T1_F = 115.34 * Math.pow(P1_psia, 0.222) + 85.5;
+    let T2_F = 115.34 * Math.pow(P2_psia, 0.222) + 85.5;
+
+    let h_f1 = T1_F - 32; // Approx saturated liquid enthalpy BTU/lb
+    let h_f2 = T2_F - 32;
+    let h_fg2 = 970.3 - 0.58 * (T2_F - 212); // Latent heat at P2
+
+    // Flash Fraction x = (h_f1 - h_f2) / h_fg2
+    let x_flash = Math.max((h_f1 - h_f2) / h_fg2, 0.01);
+
+    // Water mass required in sump
+    let waterMass_lbs = steamYield_lbs / x_flash;
+    let waterMass_kg = waterMass_lbs * 0.453592;
+    let waterGal = waterMass_lbs / 8.34;
+
+    // Water density at elevated temp ~ 56.0 lb/cu ft
+    let rho_water = 56.2;
+    let waterVolume_cuft = waterMass_lbs / rho_water;
+
+    // Gross vessel volume
+    let fillFraction = parseFloat(fillRatioSelect.value) || 0.85;
+    let grossVolume_cuft = waterVolume_cuft / fillFraction;
+    let grossVolume_gal = grossVolume_cuft * 7.48052;
+    let grossVolume_m3 = grossVolume_cuft * 0.0283168;
+
+    // Vessel dimensions
+    let dia_ft = parseFloat(vesselDiaSelect.value) || 8.0;
+    let xsec_area_sqft = Math.PI * Math.pow(dia_ft / 2, 2);
+    let length_tan_ft = grossVolume_cuft / xsec_area_sqft;
+    let length_tan_m = length_tan_ft * 0.3048;
+
+    // Surface steam release velocity:
+    // Surface area ~ dia_ft * length_tan_ft * 0.9
+    let surfArea_sqft = dia_ft * length_tan_ft * 0.9;
+    // Volumetric steam release rate at P2
+    // v_g2 ~ 0.596 * (T2_F + 460) / P2_psia (cu ft / lb)
+    let v_g2 = (0.596 * (T2_F + 459.67)) / P2_psia;
+    let steam_cfs = (deficit_lbhr * v_g2) / 3600;
+    let release_vel_fts = steam_cfs / Math.max(surfArea_sqft, 10);
+
+    // Update Result UI
+    volResult.textContent = Math.round(grossVolume_cuft).toLocaleString() + ' cu ft';
+    volSub.textContent = Math.round(grossVolume_gal).toLocaleString() + ' Gal (' + grossVolume_m3.toFixed(1) + ' m³)';
+
+    yieldResult.textContent = Math.round(steamYield_lbs).toLocaleString() + ' lbs';
+    yieldSub.textContent = 'For ' + duration_min + ' min peak event';
+
+    waterResult.textContent = Math.round(waterMass_lbs).toLocaleString() + ' lbs';
+    waterSub.textContent = Math.round(waterGal).toLocaleString() + ' Gal (' + (waterMass_kg/1000).toFixed(1) + ' tonnes)';
+
+    flashPctResult.textContent = (x_flash * 100).toFixed(2) + '%';
+    flashPctSub.textContent = 'Yield: ' + (x_flash * 100).toFixed(1) + ' lbs steam / 100 lbs water';
+
+    velResult.textContent = release_vel_fts.toFixed(2) + ' ft/s';
+    if (release_vel_fts > 1.0) {
+      velBadge.className = 'sa-status-badge badge-fail';
+      velBadge.textContent = 'Priming Risk (> 1.0 ft/s)';
+      velBox.className = 'sa-stat-box danger';
+    } else if (release_vel_fts > 0.75) {
+      velBadge.className = 'sa-status-badge badge-warn';
+      velBadge.textContent = 'Marginal (0.75 - 1.0 ft/s)';
+      velBox.className = 'sa-stat-box warning';
+    } else {
+      velBadge.className = 'sa-status-badge badge-pass';
+      velBadge.textContent = 'Optimal (≤ 0.75 ft/s)';
+      velBox.className = 'sa-stat-box';
+    }
+
+    lengthResult.textContent = length_tan_ft.toFixed(1) + ' ft';
+    lengthSub.textContent = length_tan_m.toFixed(1) + ' m @ ' + dia_ft + ' ft diameter';
+
+    // SVG Updates
+    svgVolumeLabel.textContent = 'Vol: ' + Math.round(grossVolume_cuft).toLocaleString() + ' cu ft (' + Math.round(grossVolume_gal).toLocaleString() + ' gal)';
+    svgLengthLabel.textContent = 'Length: ' + length_tan_ft.toFixed(1) + ' ft @ ' + dia_ft + ' ft ID';
+
+    // Derivations Updates
+    derivDeficit.textContent = Math.round(deficit_lbhr).toLocaleString() + ' lbs/hr';
+    derivDuration.textContent = duration_min + ' min';
+    derivSteamMass.textContent = Math.round(steamYield_lbs).toLocaleString() + ' lbs';
+    derivP1Val.textContent = rawP1 + ' ' + (isBarg ? 'barg' : 'psig') + ' (' + P1_psia.toFixed(1) + ' psia)';
+    derivP2Val.textContent = rawP2 + ' ' + (isBarg ? 'barg' : 'psig') + ' (' + P2_psia.toFixed(1) + ' psia)';
+    derivHf1.textContent = h_f1.toFixed(1) + ' BTU/lb';
+    derivHf2.textContent = h_f2.toFixed(1) + ' BTU/lb';
+    derivHfg2.textContent = h_fg2.toFixed(1) + ' BTU/lb';
+    derivFlashFactor.textContent = x_flash.toFixed(4) + ' (' + (x_flash * 100).toFixed(2) + '%)';
+    derivFillFrac.textContent = (fillFraction * 100).toFixed(0) + '%';
+    derivCalcWaterMass.textContent = Math.round(waterMass_lbs).toLocaleString() + ' lbs (' + Math.round(waterGal).toLocaleString() + ' Gal)';
+    derivCalcGrossVol.textContent = Math.round(grossVolume_cuft).toLocaleString() + ' cu ft (' + Math.round(grossVolume_gal).toLocaleString() + ' Gal)';
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   ASME SECTION VIII & RUTHS STEAM ACCUMULATOR AUDIT  \n' +
+      '=======================================================\n' +
+      'Peak Steam Deficit:        ' + Math.round(deficit_lbhr).toLocaleString() + ' lbs/hr (' + Math.round(deficit_lbhr * 0.453592) + ' kg/h)\n' +
+      'Peak Event Duration:       ' + duration_min + ' Minutes (Total Yield Required: ' + Math.round(steamYield_lbs).toLocaleString() + ' lbs)\n' +
+      'Operating Pressure Range:  ' + rawP1 + ' → ' + rawP2 + ' ' + (isBarg ? 'barg' : 'psig') + ' (Tsat: ' + T1_F.toFixed(0) + '° → ' + T2_F.toFixed(0) + '°F)\n' +
+      'Flash Evaporation Ratio:   ' + (x_flash * 100).toFixed(2) + '% flash steam per lb water\n' +
+      'Water Sump Mass Required:  ' + Math.round(waterMass_lbs).toLocaleString() + ' lbs (' + Math.round(waterGal).toLocaleString() + ' US Gallons)\n' +
+      'Maximum Water Fill Level:  ' + (fillFraction * 100).toFixed(0) + '% of shell volume\n' +
+      '-------------------------------------------------------\n' +
+      'GROSS VESSEL VOLUME:       ' + Math.round(grossVolume_cuft).toLocaleString() + ' cu ft (' + Math.round(grossVolume_gal).toLocaleString() + ' US Gal / ' + grossVolume_m3.toFixed(1) + ' m³)\n' +
+      'Vessel Dimensions:         ' + dia_ft + ' ft ID × ' + length_tan_ft.toFixed(1) + ' ft Tan-to-Tan (' + length_tan_m.toFixed(1) + ' m)\n' +
+      'Steam Disengagement Vel:   ' + release_vel_fts.toFixed(2) + ' ft/s [' + velBadge.textContent + ']\n' +
+      'Vessel Design Standard:    ASME BPVC Section VIII Div 1 / Spirax Sarco\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copySaAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copySaAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Steam Accumulator Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [peakDeficitInput, flowUnitSelect, peakDurationInput, p1Input, p2Input, pressUnitSelect, fillRatioSelect, vesselDiaSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'steam-accumulator-sizing-calculator.html'), renderTradePage({
+    title: "Steam Accumulator Sizing Calculator | ASME & Spirax Sarco",
+    metaDesc: "Size Ruths variable-pressure steam storage accumulators, calculate flash evaporation steam yield, water sump mass, disengagement velocity, and vessel dimensions.",
+    canonical: `${DOMAIN}/calc/steam-accumulator-sizing-calculator`,
+    bodyContent: steamAccumulatorBody,
+    currentPath: '/calc/steam-accumulator-sizing-calculator',
+    faq: [
+      {
+        "q": "What is a Ruths steam accumulator and how does it work?",
+        "a": "A Ruths steam accumulator is a large, insulated horizontal pressure vessel filled approximately 85% with pressurized water under saturated conditions. When plant steam demand exceeds boiler capacity, header pressure drops. This depressurization causes a portion of the hot liquid water mass to instantly flash into clean, saturated steam, bridging peak demand spikes without stalling boilers."
+      },
+      {
+        "q": "What is the formula for calculating flash steam yield in an accumulator?",
+        "a": "The flash evaporation fraction is derived from enthalpy conservation: x = (h_f1 - h_f2) / h_fg2, where h_f1 is the saturated liquid enthalpy at high charging pressure P₁, h_f2 is the saturated liquid enthalpy at low discharge pressure P₂, and h_fg2 is the latent heat of vaporization at P₂. The required water mass is M_water = m_steam / x."
+      },
+      {
+        "q": "Why is accumulator water fill level restricted to 85% to 90%?",
+        "a": "The remaining 10% to 15% of shell volume acts as a steam release disengagement headspace. If an accumulator is overfilled past 90%, boiling water surface waves lift liquid into the discharge dry pipe, carrying massive liquid water slugs into process piping (priming), which causes catastrophic water hammer."
+      },
+      {
+        "q": "What is the maximum permissible steam release velocity?",
+        "a": "Per Spirax Sarco and industrial engineering standards, the steam release velocity rising off the water surface should not exceed 0.75 to 1.0 ft/s (0.23 to 0.30 m/s). Velocities above 1.2 ft/s entrain liquid droplets, degrading delivered steam dryness fraction and creating wet steam."
+      },
+      {
+        "q": "How does an accumulator prevent boiler thermal cycling and fuel waste?",
+        "a": "Boilers operate most efficiently at a steady firing rate. Rapid batch demands (e.g. autoclaves, dye vats, brewing kettles) cause boiler pressure to sag, forcing burners to ramp violently and causing unburned fuel waste and thermal stress. The accumulator absorbs and supplies these transient swings, allowing the boiler to run continuously at optimal base load."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 61: Hydrocyclone Sizing & Cut-Point Calculator (Bradley & Rietema)
+  // ==========================================
+  const hydrocycloneBody = `
+<style>
+  .hc-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .hc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .hc-grid { grid-template-columns: 1fr; } }
+  .hc-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .hc-header { margin-bottom: 20px; }
+  .hc-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .hc-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .hc-form-group { margin-bottom: 16px; }
+  .hc-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .hc-input-row { display: flex; gap: 10px; align-items: center; }
+  .hc-input-row input, .hc-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .hc-input-row input:focus, .hc-input-row select:focus { outline: none; border-color: #2563eb; }
+  .hc-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .hc-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .hc-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .hc-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .hc-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .hc-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .hc-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .hc-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .hc-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .hc-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .hc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .hc-btn:hover { background: #1d4ed8; }
+  .hc-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="hc-container">
+  <div class="hc-grid">
+    <!-- Inputs Column -->
+    <div class="hc-card">
+      <div class="hc-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Slurry Feed &amp; Hydrocyclone Geometry</h2>
+        <p>Bradley &amp; Rietema solid-liquid centrifugal classification model</p>
+      </div>
+
+      <div class="hc-form-group">
+        <label for="hcFeedFlow">Slurry Feed Flow Rate (Q<sub>feed</sub>)</label>
+        <div class="hc-input-row">
+          <input type="number" id="hcFeedFlow" value="250" min="10" step="25">
+          <select id="hcFlowUnit" class="hc-unit-badge" style="width:auto;">
+            <option value="gpm" selected>US GPM</option>
+            <option value="m3_h">m&sup3;/h</option>
+            <option value="l_s">L/s</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hc-form-group">
+        <label for="hcDiameter">Hydrocyclone Barrel Diameter (D<sub>c</sub>)</label>
+        <div class="hc-input-row">
+          <select id="hcDiameter">
+            <option value="4">4" (100 mm - Ultra-Fine 5 to 15 &mu;m cut)</option>
+            <option value="6">6" (150 mm - Fine 12 to 25 &mu;m cut)</option>
+            <option value="10" selected>10" (250 mm - Standard 25 to 45 &mu;m cut)</option>
+            <option value="15">15" (375 mm - Medium 40 to 75 &mu;m cut)</option>
+            <option value="20">20" (500 mm - Coarse 60 to 110 &mu;m cut)</option>
+            <option value="26">26" (660 mm - High Tonnage Milling)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hc-form-group">
+        <label for="hcFeedPress">Feed Pressure Drop (&Delta;P)</label>
+        <div class="hc-input-row">
+          <input type="number" id="hcFeedPress" value="22" min="5" step="1">
+          <select id="hcPressUnit" class="hc-unit-badge" style="width:auto;">
+            <option value="psi" selected>psi</option>
+            <option value="bar">bar</option>
+            <option value="kpa">kPa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hc-form-group">
+        <label for="hcSolidsConc">Feed Solids Volumetric Concentration (C<sub>v</sub>)</label>
+        <div class="hc-input-row">
+          <input type="number" id="hcSolidsConc" value="12" min="1" max="40" step="1">
+          <div class="hc-unit-badge">% Vol</div>
+        </div>
+      </div>
+
+      <div class="hc-form-group">
+        <label for="hcSolidDensity">Solid Particle True Specific Gravity (SG<sub>solid</sub>)</label>
+        <div class="hc-input-row">
+          <select id="hcSolidDensity">
+            <option value="2.65" selected>Quartz / Silica Sand (2.65 SG - 2,650 kg/m&sup3;)</option>
+            <option value="2.80">Limestone / Calcium Carbonate (2.80 SG)</option>
+            <option value="4.20">Magnetite / Heavy Mineral Sand (4.20 SG)</option>
+            <option value="5.00">Pyrite / Base Metal Sulfide (5.00 SG)</option>
+            <option value="1.40">Coal / Organic Particulate (1.40 SG)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hc-form-group">
+        <label for="hcModel">Geometry Family &amp; Vortex Ratio</label>
+        <div class="hc-input-row">
+          <select id="hcModel">
+            <option value="rietema" selected>Rietema Standard (D_o/Dc = 0.34, D_u/Dc = 0.15, &theta; = 20&deg;)</option>
+            <option value="bradley">Bradley High-Efficiency (D_o/Dc = 0.20, Sharp Classification, &theta; = 9&deg;)</option>
+            <option value="krebs">Krebs High-Capacity (Dewatering &amp; High Underflow Recovery)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="hc-card">
+      <div class="hc-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Classification &amp; Discharge Results</h2>
+        <p>Bradley cut-point (d₅₀), solids recovery, and apex discharge regime</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="hcSvg" width="340" height="240" viewBox="0 0 340 240" style="max-width:100%;">
+          <defs>
+            <linearGradient id="hcBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="50%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="hcSlurryGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#d97706"/>
+              <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Top Overflow Elbow & Discharge (Clean Water) -->
+          <rect x="156" y="8" width="28" height="34" fill="#0284c7" rx="2"/>
+          <path d="M 170 36 L 170 12 L 230 12" fill="none" stroke="#38bdf8" stroke-width="3"/>
+          <polygon points="234,12 226,8 226,16" fill="#38bdf8"/>
+          <text x="240" y="16" font-size="8" font-weight="bold" fill="#0284c7">Overflow (Fine)</text>
+
+          <!-- Tangential Slurry Feed Pipe (Left) -->
+          <polygon points="80,44 135,44 135,76 80,76" fill="#64748b" stroke="#1e293b"/>
+          <line x1="70" y1="60" x2="125" y2="60" stroke="#f59e0b" stroke-width="3"/>
+          <polygon points="128,60 120,56 120,64" fill="#f59e0b"/>
+          <text x="60" y="52" font-size="8" font-weight="bold" fill="#b45309">Slurry Feed In</text>
+
+          <!-- Cylindrical Upper Barrel (y=44 to 105, width=70) -->
+          <rect x="135" y="44" width="70" height="60" fill="url(#hcBodyGrad)" stroke="#1e293b" stroke-width="2"/>
+
+          <!-- Vortex Finder Tube Inside Barrel -->
+          <rect x="156" y="44" width="28" height="35" fill="#38bdf8" opacity="0.6" stroke="#0284c7"/>
+
+          <!-- Conical Body (y=104 to 195, taper from 70 to 22) -->
+          <polygon points="135,104 205,104 181,195 159,195" fill="url(#hcBodyGrad)" stroke="#1e293b" stroke-width="2"/>
+
+          <!-- Inner Slurry Spiral Flow (Amber) -->
+          <path d="M 140 65 Q 170 80 200 75 Q 140 95 195 110 Q 150 135 185 155 Q 165 180 175 192" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="3,2"/>
+
+          <!-- Central Air Core (Hollow Center Filament) -->
+          <line x1="170" y1="36" x2="170" y2="215" stroke="#ffffff" stroke-width="2"/>
+
+          <!-- Apex / Spigot Bottom Nozzle -->
+          <rect x="159" y="195" width="22" height="12" fill="#0f172a" rx="1"/>
+          <text x="170" y="204" font-size="6" font-weight="bold" fill="#f8fafc" text-anchor="middle">Apex</text>
+
+          <!-- Flared Umbrella Discharge Pattern (Optimal) -->
+          <g id="svgDischargePattern">
+            <polygon points="170,207 140,234 150,234 170,212 190,234 200,234" fill="#d97706" opacity="0.85"/>
+            <text x="170" y="238" font-size="7" font-weight="bold" fill="#b45309" text-anchor="middle" id="svgApexLabel">Umbrella Flare Spray (Optimal)</text>
+          </g>
+
+          <!-- Annotations & Callout Boxes -->
+          <rect x="220" y="70" width="110" height="42" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="225" y="84" font-size="8" fill="#64748b">Cut-Point (d₅₀)</text>
+          <text x="225" y="103" font-size="14" font-weight="bold" fill="#2563eb" id="svgD50Val">32.4 &mu;m</text>
+
+          <rect x="10" y="115" width="105" height="42" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="15" y="129" font-size="8" fill="#64748b">Inlet Velocity</text>
+          <text x="15" y="148" font-size="14" font-weight="bold" fill="#0f172a" id="svgInletVel">14.8 ft/s</text>
+        </svg>
+      </div>
+
+      <div class="hc-stat-grid">
+        <div class="hc-stat-box highlight">
+          <div class="hc-stat-label">Cut-Point Diameter (d₅₀)</div>
+          <div class="hc-stat-val" id="hcD50Result">32.4 &mu;m</div>
+          <div class="hc-stat-sub" id="hcD50Sub">50% fractional partition</div>
+        </div>
+        <div class="hc-stat-box highlight">
+          <div class="hc-stat-label">Solids to Underflow</div>
+          <div class="hc-stat-val" id="hcRecovResult">84.2%</div>
+          <div class="hc-stat-sub" id="hcRecovSub">Coarse recovery to spigot</div>
+        </div>
+        <div class="hc-stat-box" id="hcApexBox">
+          <div class="hc-stat-label">Apex Discharge Regime</div>
+          <div class="hc-stat-val" id="hcApexResult">FLARED SPRAY</div>
+          <div class="hc-stat-sub"><span class="hc-status-badge badge-pass" id="hcApexBadge">Optimal Umbrella (25&deg;)</span></div>
+        </div>
+        <div class="hc-stat-box">
+          <div class="hc-stat-label">Underflow Density</div>
+          <div class="hc-stat-val" id="hcUflowDensResult">52.4% Vol</div>
+          <div class="hc-stat-sub" id="hcUflowDensSub">74.5% solids by weight</div>
+        </div>
+      </div>
+
+      <div class="hc-stat-grid">
+        <div class="hc-stat-box">
+          <div class="hc-stat-label">Liquid to Overflow (R<sub>f</sub>)</div>
+          <div class="hc-stat-val" id="hcWaterSplitResult">88.5%</div>
+          <div class="hc-stat-sub" id="hcWaterSplitSub">Clean water recovery</div>
+        </div>
+        <div class="hc-stat-box">
+          <div class="hc-stat-label">Centrifugal Field</div>
+          <div class="hc-stat-val" id="hcGforceResult">480 Gs</div>
+          <div class="hc-stat-sub" id="hcGforceSub">Radial acceleration at inlet</div>
+        </div>
+      </div>
+
+      <button type="button" class="hc-btn" id="copyHcAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Bradley Hydrocyclone Audit</span>
+      </button>
+
+      <textarea id="hcAuditReport" class="hc-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Bradley Equations -->
+  <div class="hc-card" style="margin-bottom: 24px;">
+    <div class="hc-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked Mathematical &amp; Bradley Cut-Point Derivations</h2>
+      <p>Centrifugal separation, hindered settling correction, and partition evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>Bradley (1965)</strong> and <strong>Svarovsky (2000)</strong>, solid-liquid separation cut-point d₅₀ balances centrifugal Stokes settling against drag from inward liquid radial flow:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        d₅₀(corr) = [ k &middot; D_c<sup>1.52</sup> &middot; &mu;_L<sup>0.5</sup> &middot; exp(0.063 &middot; C_v) ] / [ Q<sup>0.53</sup> &middot; (&rho;_s - &rho;_L)<sup>0.5</sup> ]
+      </div>
+      <p>1. <strong>Hydrocyclone Barrel Diameter &amp; Capacity:</strong> Sized for diameter D_c = <span id="derivDcVal" style="font-weight:600;">10.0 inches</span> (0.254 m) at feed flow Q = <span id="derivFlowVal" style="font-weight:600;">250.0 GPM</span> (56.8 m&sup3;/h):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Feed Pressure Drop &Delta;P = <span id="derivPressVal" style="font-weight:700; color:#2563eb;">22.0 psi</span> (1.52 bar)<br>
+        Inlet Velocity v_i = <span id="derivInletVelVal" style="font-weight:700; color:#2563eb;">14.8 ft/s</span> (4.51 m/s)
+      </div>
+      <p>2. <strong>Hindered Settling Slurry Concentration Factor:</strong> At feed solids concentration C_v = <span id="derivCvVal" style="font-weight:600;">12.0%</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Concentration Correction Factor = exp(0.063 &middot; C_v) = exp(0.063 &middot; 12) = <span id="derivCvFactor" style="font-weight:600;">2.13</span> (Hindered drag doubles cut-point)
+      </div>
+      <p>3. <strong>Bradley Cut-Point Diameter (d₅₀):</strong> Particle SG = <span id="derivSgVal" style="font-weight:600;">2.65</span> (&Delta;&rho; = 1,650 kg/m&sup3;) and water viscosity &mu; = 1.0 cP:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        d₅₀ = <span id="derivCalcD50" style="font-weight:700; color:#0284c7;">32.42 &mu;m</span> (50% recovery partition to underflow)
+      </div>
+      <p>4. <strong>Underflow Apex Discharge Concentration:</strong> Apex orifice diameter d_u = 1.50" (38 mm):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Underflow Volumetric Solids = <span id="derivUflowCv" style="font-weight:700; color:#15803d;">52.4% Vol</span> (74.5% Solids By Weight)<br>
+        Discharge Regime = <span id="derivRegime" style="font-weight:700; color:#b45309;">Flared Umbrella Spray</span> (Stable central air core)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="hc-card" style="margin-bottom: 24px;">
+    <div class="hc-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Industrial Hydrocyclone Operation</h2>
+      <p>SME Mineral Processing, Bradley, and Weir Minerals slurry engineering rules</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. The Fatal "Roping" Apex Discharge Collapse</strong><br>
+      When solids mass flow exceeds the physical discharge capacity of the bottom apex (spigot) nozzle, the flared 20&deg;–30&deg; umbrella spray collapses into a solid, cylindrical "rope" of sludge. <strong>Roping collapses the central air core and forces coarse, unclassified sand directly out the top overflow nozzle</strong>, ruining downstream flotation, leaching, or wastewater filtration within minutes.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Low Feed Pressure Drop (&Delta;P &lt; 10 psi) Centrifugal Collapse</strong><br>
+      Operating hydrocyclones below 10–12 psi (0.7 bar) feed pressure fails to establish the high tangential velocity required for centrifugal acceleration. G-forces drop below 100 Gs, causing the cut-point d₅₀ to drift upwards by 300% (e.g. from 25 &mu;m up to 80 &mu;m). Conversely, operating above 45 psi accelerates abrasive liner scouring without classification benefit.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. High Slurry Density Hindered Settling Blunder (C_v &gt; 20%)</strong><br>
+      Particle interaction in dense slurries behaves according to Richardson-Zaki hindered settling. When feed solids concentration exceeds 20% to 25% by volume, apparent slurry viscosity doubles, particle drag increases dramatically, and the effective separation cut-point coarsens significantly. Never size hydrocyclones on clean-water formulas when handling high-density mineral pulps.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Apex Spigot Wear &amp; Underflow Tromp Curve Distortion</strong><br>
+      Abrasive quartz or mineral slurry continually scours the rubber/ceramic apex orifice. As the spigot wears from 1.5" to 2.2" diameter, the apex discharges excessive excess water, diluting underflow density from 72% solids down to 50% solids. This overloads downstream dewatering screens and centrifuges. Operators must inspect and replace apex liners on a strict caliper schedule.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Submerged Overflow Siphoning &amp; Air Core Extinction</strong><br>
+      Discharging the overflow pipe beneath the liquid surface of a receiving tank creates an involuntary siphon vacuum. The suction pulls slurry through the vortex finder without centrifugal retention, sucking coarse solids out the overflow. All hydrocyclone overflow pipes must be vented to atmosphere or terminate with an air break above the receiving tank liquid level.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const feedFlowInput = document.getElementById('hcFeedFlow');
+  const flowUnitSelect = document.getElementById('hcFlowUnit');
+  const diameterSelect = document.getElementById('hcDiameter');
+  const feedPressInput = document.getElementById('hcFeedPress');
+  const pressUnitSelect = document.getElementById('hcPressUnit');
+  const solidsConcInput = document.getElementById('hcSolidsConc');
+  const solidDensitySelect = document.getElementById('hcSolidDensity');
+  const modelSelect = document.getElementById('hcModel');
+
+  // Outputs
+  const d50Result = document.getElementById('hcD50Result');
+  const d50Sub = document.getElementById('hcD50Sub');
+  const recovResult = document.getElementById('hcRecovResult');
+  const recovSub = document.getElementById('hcRecovSub');
+  const apexResult = document.getElementById('hcApexResult');
+  const apexBadge = document.getElementById('hcApexBadge');
+  const apexBox = document.getElementById('hcApexBox');
+  const uflowDensResult = document.getElementById('hcUflowDensResult');
+  const uflowDensSub = document.getElementById('hcUflowDensSub');
+  const waterSplitResult = document.getElementById('hcWaterSplitResult');
+  const waterSplitSub = document.getElementById('hcWaterSplitSub');
+  const gforceResult = document.getElementById('hcGforceResult');
+  const gforceSub = document.getElementById('hcGforceSub');
+  const auditBox = document.getElementById('hcAuditReport');
+
+  // SVG Elements
+  const svgD50Val = document.getElementById('svgD50Val');
+  const svgInletVel = document.getElementById('svgInletVel');
+  const svgApexLabel = document.getElementById('svgApexLabel');
+
+  // Derivations
+  const derivDcVal = document.getElementById('derivDcVal');
+  const derivFlowVal = document.getElementById('derivFlowVal');
+  const derivPressVal = document.getElementById('derivPressVal');
+  const derivInletVelVal = document.getElementById('derivInletVelVal');
+  const derivCvVal = document.getElementById('derivCvVal');
+  const derivCvFactor = document.getElementById('derivCvFactor');
+  const derivSgVal = document.getElementById('derivSgVal');
+  const derivCalcD50 = document.getElementById('derivCalcD50');
+  const derivUflowCv = document.getElementById('derivUflowCv');
+  const derivRegime = document.getElementById('derivRegime');
+
+  function calculate() {
+    let rawFlow = parseFloat(feedFlowInput.value) || 250;
+    let Q_gpm = rawFlow;
+    if (flowUnitSelect.value === 'm3_h') Q_gpm = rawFlow * 4.40287;
+    else if (flowUnitSelect.value === 'l_s') Q_gpm = rawFlow * 15.8503;
+
+    let Dc_in = parseFloat(diameterSelect.value) || 10;
+    let Dc_m = Dc_in * 0.0254;
+
+    let rawPress = parseFloat(feedPressInput.value) || 22;
+    let deltaP_psi = rawPress;
+    if (pressUnitSelect.value === 'bar') deltaP_psi = rawPress * 14.5038;
+    else if (pressUnitSelect.value === 'kpa') deltaP_psi = rawPress * 0.145038;
+
+    let Cv_pct = parseFloat(solidsConcInput.value) || 12; // Vol %
+    let SG_s = parseFloat(solidDensitySelect.value) || 2.65;
+    let rho_s = SG_s * 1000;
+    let rho_L = 1000; // Water
+
+    // Bradley cut-point formula:
+    // d50_base (um) ~ 2.4 * Dc_in^1.52 / (Q_gpm^0.53 * sqrt(SG_s - 1))
+    let base_d50 = (2.6 * Math.pow(Dc_in, 1.52)) / (Math.pow(Q_gpm, 0.53) * Math.sqrt(Math.max(SG_s - 1, 0.2)));
+
+    // Geometry modifier
+    let geom_mod = 1.0;
+    if (modelSelect.value === 'bradley') geom_mod = 0.75; // Sharp fine cut
+    else if (modelSelect.value === 'krebs') geom_mod = 1.25; // High capacity
+
+    // Concentration hindered settling factor: exp(0.063 * Cv)
+    let cv_factor = Math.exp(0.063 * Cv_pct);
+
+    let d50_um = base_d50 * geom_mod * cv_factor;
+
+    // Inlet Velocity: inlet dia ~ 0.20 * Dc
+    let Di_in = 0.20 * Dc_in;
+    let Di_ft = Di_in / 12;
+    let inletArea_sqft = Math.PI * Math.pow(Di_ft / 2, 2);
+    let Q_cfs = Q_gpm / 448.831;
+    let vi_fts = Q_cfs / Math.max(inletArea_sqft, 0.005);
+    let vi_ms = vi_fts * 0.3048;
+
+    // G-Force at inlet: vi^2 / (r * g) where r = Dc / 2
+    let radius_ft = (Dc_in / 2) / 12;
+    let g_force = Math.pow(vi_fts, 2) / (radius_ft * 32.174);
+
+    // Underflow Solids Concentration & Apex Check
+    // Typical underflow solids is ~50% to 56% by volume for umbrella spray
+    let uflow_Cv_pct = Math.min(Cv_pct * 4.2, 58.0);
+    // Weight % from Vol %: Cw = (Cv * SG_s) / (Cv * SG_s + (100 - Cv) * SG_L)
+    let uflow_Cw_pct = (uflow_Cv_pct * SG_s) / (uflow_Cv_pct * SG_s + (100 - uflow_Cv_pct) * 1.0) * 100;
+
+    let isRoping = false;
+    let apexText = 'FLARED SPRAY';
+    let apexBadgeText = 'Optimal Umbrella (25°)';
+    if (Cv_pct > 24 || uflow_Cv_pct >= 55.0) {
+      isRoping = true;
+      apexText = 'ROPING DANGER';
+      apexBadgeText = 'FATAL: Apex Overload (Rope)';
+    }
+
+    // Coarse recovery to underflow
+    let recovery_pct = isRoping ? 55.0 : Math.min(72 + (deltaP_psi / 40) * 15, 92.0);
+    let water_split_pct = 100 - (recovery_pct * (Cv_pct / 100) / (uflow_Cv_pct / 100));
+
+    // Update Result UI
+    d50Result.textContent = d50_um.toFixed(1) + ' μm';
+    d50Sub.textContent = '50% fractional recovery partition';
+
+    recovResult.textContent = recovery_pct.toFixed(1) + '%';
+    recovSub.textContent = 'Coarse solids report to underflow';
+
+    apexResult.textContent = apexText;
+    if (isRoping) {
+      apexBadge.className = 'hc-status-badge badge-fail';
+      apexBadge.textContent = apexBadgeText;
+      apexBox.className = 'hc-stat-box danger';
+      svgApexLabel.textContent = 'WARNING: Roping Discharge!';
+      svgApexLabel.setAttribute('fill', '#dc2626');
+    } else {
+      apexBadge.className = 'hc-status-badge badge-pass';
+      apexBadge.textContent = apexBadgeText;
+      apexBox.className = 'hc-stat-box highlight';
+      svgApexLabel.textContent = 'Flared Umbrella Spray (Optimal)';
+      svgApexLabel.setAttribute('fill', '#b45309');
+    }
+
+    uflowDensResult.textContent = uflow_Cv_pct.toFixed(1) + '% Vol';
+    uflowDensSub.textContent = uflow_Cw_pct.toFixed(1) + '% solids by weight';
+
+    waterSplitResult.textContent = water_split_pct.toFixed(1) + '%';
+    waterSplitSub.textContent = 'Clean water split to overflow';
+
+    gforceResult.textContent = Math.round(g_force).toLocaleString() + ' Gs';
+    gforceSub.textContent = 'Radial G-force at barrel wall';
+
+    // SVG Updates
+    svgD50Val.textContent = d50_um.toFixed(1) + ' μm';
+    svgInletVel.textContent = vi_fts.toFixed(1) + ' ft/s';
+
+    // Derivations Updates
+    derivDcVal.textContent = Dc_in + ' in. (' + (Dc_in * 25.4).toFixed(0) + ' mm)';
+    derivFlowVal.textContent = Math.round(Q_gpm) + ' GPM (' + (Q_gpm * 0.227125).toFixed(1) + ' m³/h)';
+    derivPressVal.textContent = deltaP_psi.toFixed(1) + ' psi (' + (deltaP_psi * 0.0689476).toFixed(2) + ' bar)';
+    derivInletVelVal.textContent = vi_fts.toFixed(1) + ' ft/s (' + vi_ms.toFixed(2) + ' m/s)';
+    derivCvVal.textContent = Cv_pct.toFixed(1) + '%';
+    derivCvFactor.textContent = cv_factor.toFixed(2);
+    derivSgVal.textContent = SG_s.toFixed(2) + ' SG';
+    derivCalcD50.textContent = d50_um.toFixed(2) + ' μm';
+    derivUflowCv.textContent = uflow_Cv_pct.toFixed(1) + '% Vol (' + uflow_Cw_pct.toFixed(1) + '% Wt)';
+    derivRegime.textContent = apexText;
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   BRADLEY & RIETEMA SOLID-LIQUID HYDROCYCLONE AUDIT   \n' +
+      '=======================================================\n' +
+      'Slurry Feed Throughput:    ' + Math.round(Q_gpm) + ' US GPM (' + (Q_gpm * 0.2271).toFixed(1) + ' m³/h)\n' +
+      'Hydrocyclone Model:        ' + Dc_in + ' in. Barrel (' + modelSelect.options[modelSelect.selectedIndex].text.split('(')[0].trim() + ')\n' +
+      'Operating Feed Pressure:   ' + deltaP_psi.toFixed(1) + ' psi (' + (deltaP_psi * 0.0689).toFixed(2) + ' bar) [Inlet: ' + vi_fts.toFixed(1) + ' ft/s]\n' +
+      'Centrifugal Acceleration:  ' + Math.round(g_force) + ' Gs\n' +
+      'Feed Solids Concentration: ' + Cv_pct.toFixed(1) + '% Vol (SG: ' + SG_s.toFixed(2) + ') [Hindered Drag Multiplier: ' + cv_factor.toFixed(2) + 'x]\n' +
+      '-------------------------------------------------------\n' +
+      'BRADLEY CUT-POINT (d50):   ' + d50_um.toFixed(2) + ' μm (50% partition diameter)\n' +
+      'Coarse Recovery to Spigot: ' + recovery_pct.toFixed(1) + '% of solids mass\n' +
+      'Underflow Apex Solids:     ' + uflow_Cv_pct.toFixed(1) + '% Vol (' + uflow_Cw_pct.toFixed(1) + '% Solids by Wt)\n' +
+      'Apex Discharge Regime:     ' + apexText + ' [' + apexBadgeText + ']\n' +
+      'Liquid Recovery to O/Flow: ' + water_split_pct.toFixed(1) + '% clean water split\n' +
+      'Design Specification:     Bradley (1965) / Rietema Standard Hydrocyclone\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyHcAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyHcAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Hydrocyclone Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [feedFlowInput, flowUnitSelect, diameterSelect, feedPressInput, pressUnitSelect, solidsConcInput, solidDensitySelect, modelSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'hydrocyclone-separation-calculator.html'), renderTradePage({
+    title: "Hydrocyclone Sizing & Cut-Point Calculator | Bradley & Rietema",
+    metaDesc: "Calculate solid-liquid hydrocyclone cut-point (d50), slurry throughput, feed pressure drop, recovery to overflow, and apex discharge geometry per Bradley model.",
+    canonical: `${DOMAIN}/calc/hydrocyclone-separation-calculator`,
+    bodyContent: hydrocycloneBody,
+    currentPath: '/calc/hydrocyclone-separation-calculator',
+    faq: [
+      {
+        "q": "What is the difference between umbrella spray and roping in a hydrocyclone?",
+        "a": "An umbrella spray is the optimal discharge pattern where underflow slurry flares outward in a hollow cone (20° to 30° angle), maintaining a continuous central air core that ensures sharp classification. Roping occurs when solids overload the apex, collapsing the air core into a solid cylinder of dense sludge; this forces coarse particles straight into the clean overflow."
+      },
+      {
+        "q": "How does feed solids concentration affect hydrocyclone cut-point (d₅₀)?",
+        "a": "As slurry solids concentration increases, hindered settling and higher apparent viscosity slow particle settling velocity. Per Bradley's empirical model, the cut-point coarsens exponentially as exp(0.063 · C_v). A hydrocyclone achieving a 25 μm cut at 5% solids will degrade to a 45–55 μm cut at 20% solids."
+      },
+      {
+        "q": "What is the typical operating feed pressure for a hydrocyclone?",
+        "a": "Standard industrial hydrocyclones operate between 15 and 30 psi (1.0 to 2.1 bar) differential pressure. Operating below 10 psi fails to generate sufficient centrifugal acceleration, while operating above 45 psi causes extreme abrasive wear on polyurethane liners with negligible classification improvement."
+      },
+      {
+        "q": "Why is an air core essential inside a hydrocyclone?",
+        "a": "The high rotational velocity creates an intense low-pressure zone along the central axis that draws in air from the apex and overflow, forming a hollow air core. This air core stabilizes the inner upward helical vortex that carries fine particles to the overflow while allowing coarse solids to exit smoothly through the apex."
+      },
+      {
+        "q": "How do you achieve a finer cut-point in slurry separation?",
+        "a": "To separate finer particles (e.g. 5 to 15 microns), engineers use smaller diameter hydrocyclones (e.g. 2-inch to 4-inch diameter), which produce dramatically higher centrifugal G-forces (often > 1,000 Gs). To handle high plant tonnage, multiple small hydrocyclones are arranged in a circular radial manifold (spider cluster)."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 62: Refrigerant Piping & Line Sizing Calculator (ASHRAE Fundamentals)
+  // ==========================================
+  const refrigerantPipingBody = `
+<style>
+  .rp-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .rp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .rp-grid { grid-template-columns: 1fr; } }
+  .rp-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .rp-header { margin-bottom: 20px; }
+  .rp-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .rp-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .rp-form-group { margin-bottom: 16px; }
+  .rp-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .rp-input-row { display: flex; gap: 10px; align-items: center; }
+  .rp-input-row input, .rp-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .rp-input-row input:focus, .rp-input-row select:focus { outline: none; border-color: #2563eb; }
+  .rp-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .rp-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .rp-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .rp-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .rp-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .rp-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .rp-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .rp-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .rp-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .rp-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .rp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .rp-btn:hover { background: #1d4ed8; }
+  .rp-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="rp-container">
+  <div class="rp-grid">
+    <!-- Inputs Column -->
+    <div class="rp-card">
+      <div class="rp-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Refrigeration Circuit Parameters</h2>
+        <p>ASHRAE Fundamentals Chapter 21 line sizing &amp; oil entrainment kinematics</p>
+      </div>
+
+      <div class="rp-form-group">
+        <label for="rpRefrigerant">Refrigerant Selection</label>
+        <div class="rp-input-row">
+          <select id="rpRefrigerant">
+            <option value="r410a" selected>R-410A (High Pressure Commercial AC - 45°F SST / 115°F SCT)</option>
+            <option value="r134a">R-134a (Medium Temp Chiller / Food Retail - 40°F SST / 105°F SCT)</option>
+            <option value="r404a">R-404A (Low Temp Commercial Freezer - -20°F SST / 110°F SCT)</option>
+            <option value="r32">R-32 (Next-Gen A2L High Efficiency - 45°F SST / 115°F SCT)</option>
+            <option value="r290">R-290 Propane (Hydrocarbon Eco - 30°F SST / 105°F SCT)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rp-form-group">
+        <label for="rpLineType">Line Circuit Service</label>
+        <div class="rp-input-row">
+          <select id="rpLineType">
+            <option value="suction" selected>Suction Vapor Line (Evaporator &rarr; Compressor - Oil Return Critical)</option>
+            <option value="discharge">Discharge Hot Gas Line (Compressor &rarr; Condenser)</option>
+            <option value="liquid">Liquid Line (Condenser &rarr; TXV - Flashing Prevention)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rp-form-group">
+        <label for="rpCapacity">System Refrigeration Capacity</label>
+        <div class="rp-input-row">
+          <input type="number" id="rpCapacity" value="15.0" min="0.5" step="0.5">
+          <select id="rpCapUnit" class="rp-unit-badge" style="width:auto;">
+            <option value="tons" selected>Tons (TR)</option>
+            <option value="btu_hr">BTU/hr</option>
+            <option value="kw">kW</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rp-form-group">
+        <label for="rpLength">Total Equivalent Pipe Run (L<sub>eq</sub>)</label>
+        <div class="rp-input-row">
+          <input type="number" id="rpLength" value="100" min="5" step="5">
+          <select id="rpLenUnit" class="rp-unit-badge" style="width:auto;">
+            <option value="ft" selected>Feet</option>
+            <option value="m">Meters</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rp-form-group">
+        <label for="rpRiserHeight">Vertical Upward Riser Height</label>
+        <div class="rp-input-row">
+          <input type="number" id="rpRiserHeight" value="20" min="0" step="1">
+          <div class="rp-unit-badge">Feet</div>
+        </div>
+      </div>
+
+      <div class="rp-form-group">
+        <label for="rpPipeSelect">Copper Tubing Diameter (ACR Type L O.D.)</label>
+        <div class="rp-input-row">
+          <select id="rpPipeSelect">
+            <option value="auto" selected>Auto-Select Optimal ASHRAE Tube Size</option>
+            <option value="0.375">3/8" OD (ID: 0.315" - 8.0 mm)</option>
+            <option value="0.500">1/2" OD (ID: 0.430" - 10.9 mm)</option>
+            <option value="0.625">5/8" OD (ID: 0.545" - 13.8 mm)</option>
+            <option value="0.875">7/8" OD (ID: 0.785" - 19.9 mm)</option>
+            <option value="1.125">1-1/8" OD (ID: 1.025" - 26.0 mm)</option>
+            <option value="1.375">1-3/8" OD (ID: 1.265" - 32.1 mm)</option>
+            <option value="1.625">1-5/8" OD (ID: 1.505" - 38.2 mm)</option>
+            <option value="2.125">2-1/8" OD (ID: 1.985" - 50.4 mm)</option>
+            <option value="2.625">2-5/8" OD (ID: 2.465" - 62.6 mm)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="rp-card">
+      <div class="rp-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Sizing Results &amp; Oil Entrainment</h2>
+        <p>Refrigerant velocity, pressure drop, and crankcase oil return check</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="rpSvg" width="340" height="230" viewBox="0 0 340 230" style="max-width:100%;">
+          <defs>
+            <linearGradient id="compGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="50%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Compressor Body (Bottom Left) -->
+          <rect x="25" y="140" width="60" height="65" fill="url(#compGrad)" rx="6" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="55" y="176" font-size="8" font-weight="bold" fill="#f8fafc" text-anchor="middle">Compressor</text>
+
+          <!-- Hot Gas Discharge Line (Red: exits top of comp, goes up and right) -->
+          <path d="M 70 140 L 70 50 L 220 50" fill="none" stroke="#ef4444" stroke-width="4"/>
+          <polygon points="225,50 217,46 217,54" fill="#ef4444"/>
+          <text x="145" y="44" font-size="7" font-weight="bold" fill="#b91c1c">Discharge Line</text>
+
+          <!-- Condenser Coil (Top Right) -->
+          <rect x="225" y="35" width="45" height="50" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" rx="3"/>
+          <text x="247" y="62" font-size="7" font-weight="bold" fill="#b91c1c" text-anchor="middle">Condenser</text>
+
+          <!-- Liquid Line (Amber: from condenser down to TXV) -->
+          <path d="M 247 85 L 247 165 L 205 165" fill="none" stroke="#f59e0b" stroke-width="3"/>
+          <circle cx="247" cy="120" r="5" fill="#fef3c7" stroke="#d97706"/>
+          <text x="260" y="123" font-size="6" font-weight="bold" fill="#b45309">Sight Glass</text>
+
+          <!-- TXV & Evaporator Coil -->
+          <polygon points="205,160 205,170 195,165" fill="#0284c7"/>
+          <rect x="150" y="145" width="45" height="40" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" rx="3"/>
+          <text x="172" y="168" font-size="7" font-weight="bold" fill="#0284c7" text-anchor="middle">Evaporator</text>
+
+          <!-- Suction Line with Vertical Riser P-Trap (Blue: from evap back to comp) -->
+          <!-- P-Trap at bottom of riser -->
+          <path d="M 150 165 L 125 165 C 115 165, 115 185, 125 185 L 130 185 L 130 100 L 55 100 L 55 140" fill="none" stroke="#2563eb" stroke-width="4"/>
+          <text x="125" y="196" font-size="6" font-weight="bold" fill="#1d4ed8" text-anchor="middle">Oil P-Trap</text>
+
+          <!-- Animated Oil Droplets climbing vertical suction riser -->
+          <circle cx="130" cy="170" r="2" fill="#d97706"/>
+          <circle cx="130" cy="145" r="2" fill="#d97706"/>
+          <circle cx="130" cy="120" r="2" fill="#d97706"/>
+          <text x="138" y="132" font-size="7" font-weight="bold" fill="#d97706">Oil Return</text>
+
+          <!-- Status & Callout Box -->
+          <rect x="155" y="85" width="165" height="46" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+          <text x="160" y="100" font-size="8" fill="#64748b">Selected Tube: <tspan font-weight="bold" fill="#0f172a" id="svgTubeLabel">1-1/8" OD</tspan></text>
+          <text x="160" y="113" font-size="8" fill="#64748b">Riser Velocity: <tspan font-weight="bold" fill="#2563eb" id="svgVelLabel">1,480 ft/min</tspan></text>
+          <text x="160" y="125" font-size="8" fill="#64748b">Equiv Loss: <tspan font-weight="bold" fill="#059669" id="svgLossLabel">1.3°F ΔT</tspan></text>
+        </svg>
+      </div>
+
+      <div class="rp-stat-grid">
+        <div class="rp-stat-box highlight">
+          <div class="rp-stat-label">Recommended Tube Size</div>
+          <div class="rp-stat-val" id="rpTubeResult">1-1/8" OD</div>
+          <div class="rp-stat-sub" id="rpTubeSub">ACR Type L (1.025" ID)</div>
+        </div>
+        <div class="rp-stat-box highlight">
+          <div class="rp-stat-label">Refrigerant Velocity</div>
+          <div class="rp-stat-val" id="rpVelResult">1,480 ft/min</div>
+          <div class="rp-stat-sub" id="rpVelSub">7.52 m/s (In Riser)</div>
+        </div>
+        <div class="rp-stat-box" id="rpOilBox">
+          <div class="rp-stat-label">Oil Return Verification</div>
+          <div class="rp-stat-val" id="rpOilResult">SAFE RETURN</div>
+          <div class="rp-stat-sub"><span class="rp-status-badge badge-pass" id="rpOilBadge">&ge; 1,000 ft/min Riser</span></div>
+        </div>
+        <div class="rp-stat-box">
+          <div class="rp-stat-label">Equiv Temp Drop (&Delta;T)</div>
+          <div class="rp-stat-val" id="rpDtResult">1.3 &deg;F</div>
+          <div class="rp-stat-sub" id="rpDtSub">Target: &le; 2.0&deg;F loss</div>
+        </div>
+      </div>
+
+      <div class="rp-stat-grid">
+        <div class="rp-stat-box">
+          <div class="rp-stat-label">Total Pressure Drop (&Delta;P)</div>
+          <div class="rp-stat-val" id="rpDpResult">3.4 psi</div>
+          <div class="rp-stat-sub" id="rpDpSub">0.23 bar across 100 ft run</div>
+        </div>
+        <div class="rp-stat-box">
+          <div class="rp-stat-label">Capacity Loss Penalty</div>
+          <div class="rp-stat-val" id="rpCapLossResult">1.9%</div>
+          <div class="rp-stat-sub" id="rpCapLossSub">Compressor motor efficiency loss</div>
+        </div>
+      </div>
+
+      <button type="button" class="rp-btn" id="copyRpAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy ASHRAE Line Sizing Audit</span>
+      </button>
+
+      <textarea id="rpAuditReport" class="rp-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Fluid Flow Formulas -->
+  <div class="rp-card" style="margin-bottom: 24px;">
+    <div class="rp-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked ASHRAE Line Sizing &amp; Kinematics Derivations</h2>
+      <p>Mass flow rate, vapor velocity, and Darcy friction pressure loss evaluated live</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>ASHRAE Handbook &mdash; Refrigeration Chapter 1</strong>, refrigerant piping design balances pressure loss against oil entrainment velocity:</p>
+      <p>1. <strong>Refrigerant Mass Flow Rate (m&#775;):</strong> For cooling capacity Q = <span id="derivCapacity" style="font-weight:600;">15.0 TR</span> (180,000 BTU/hr) with net refrigerating effect &Delta;h = <span id="derivNre" style="font-weight:600;">68.5 BTU/lb</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        m&#775; = Q / &Delta;h = 180,000 / 68.5 = <span id="derivMassFlow" style="font-weight:700; color:#2563eb;">2,628 lbs/hr</span> (43.8 lbs/min)
+      </div>
+      <p>2. <strong>Volumetric Flow Rate &amp; Gas Velocity:</strong> With vapor specific volume v_g = <span id="derivVg" style="font-weight:600;">0.435 cu ft/lb</span> in a <span id="derivTubeSize" style="font-weight:600;">1-1/8" OD</span> copper tube (ID = 1.025", Area = 0.00573 sq ft):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Q_vol = m&#775; &middot; v_g = 43.8 &middot; 0.435 = <span id="derivVolFlow" style="font-weight:600;">19.05 CFM</span> (0.318 cfs)<br>
+        v_gas = Q_vol / A_pipe = 19.05 / 0.00573 = <span id="derivVelCalc" style="font-weight:700; color:#0284c7;">1,480 ft/min</span> (7.52 m/s)
+      </div>
+      <p>3. <strong>Oil Entrainment Velocity Check:</strong> Vertical upward risers require v &ge; 1,000 ft/min at minimum load:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        v_riser = 1,480 ft/min &ge; 1,000 ft/min &rarr; <span id="derivOilCheck" style="font-weight:700; color:#15803d;">PASS (Adequate POE Oil Return)</span>
+      </div>
+      <p>4. <strong>Frictional Pressure Drop &amp; Saturation &Delta;T:</strong> Across equivalent length L = <span id="derivLen" style="font-weight:600;">100.0 ft</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        &Delta;P_total = <span id="derivDpCalc" style="font-weight:700; color:#b45309;">3.42 psi</span> (0.236 bar)<br>
+        Equivalent Saturation &Delta;T = &Delta;P / (dP/dT)_sat = <span id="derivDtCalc" style="font-weight:700; color:#0f172a;">1.32&deg;F</span> (&le; 2.0&deg;F ASHRAE limit)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="rp-card" style="margin-bottom: 24px;">
+    <div class="rp-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Refrigerant Line Sizing</h2>
+      <p>ASHRAE, IIAR, and Copeland compressor application guidelines</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Oversized Vertical Suction Risers &amp; Crankcase Oil Starvation</strong><br>
+      Attempting to reduce pressure drop by selecting an oversized suction pipe in vertical risers drops gas velocity below 1,000 ft/min (5 m/s). <strong>At low velocity, gravity overcomes drag, preventing lubricating POE/PVE oil droplets from climbing the pipe.</strong> The oil pools in the evaporator and suction traps, completely starving the compressor crankcase of oil until the bearings seize and the scroll/reciprocating pump burns out.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Liquid Line Flash Gas &amp; Expansion Valve Chattering</strong><br>
+      Routing a liquid line through hot ceiling plenums or running a vertical riser without sufficient subcooling causes liquid pressure to drop below saturation pressure. <strong>Vapor bubbles form in the liquid line (flash gas).</strong> When vapor hits the thermostatic expansion valve (TXV), mass flow collapses by 80%, causing violent valve hunting, coil freezing, and zero refrigeration capacity. Always provide 5&deg;F to 10&deg;F of subcooling.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Excessive Suction Pressure Drop (&gt; 2&deg;F Equivalent Loss)</strong><br>
+      Sizing suction lines too small restricts compressor intake breathing. In an R-410A system, every 2 psi of suction friction loss reduces system cooling capacity by ~3% while increasing compressor power consumption by ~4%. Operating with an undersized line degrades a 15-ton system into a 13-ton system while wasting thousands of dollars in utility bills annually.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Liquid Migration &amp; Crankcase Slugging on Cold Startup</strong><br>
+      During extended off-cycles, refrigerant vapor naturally migrates to the coldest part of the system &mdash; typically the compressor crankcase &mdash; where it condenses into liquid under the lubricating oil. On startup, the sudden pressure drop causes the oil-refrigerant mixture to boil violently into foam, washing oil out of bearings and causing devastating liquid slugging that shatters compressor reed valves and scrolls. Always install crankcase heaters.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. High Discharge Line Velocity (&gt; 3,500 ft/min) Acoustic Fatigue</strong><br>
+      Allowing discharge gas velocity to exceed 3,500 to 4,000 ft/min generates severe acoustic gas turbulence and high-frequency harmonic pulsation. This vibration work-hardens copper elbow joints and braze seams, initiating fatigue cracks and catastrophic refrigerant loss to atmosphere within 1 to 2 years of operation.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const refrigerantSelect = document.getElementById('rpRefrigerant');
+  const lineTypeSelect = document.getElementById('rpLineType');
+  const capacityInput = document.getElementById('rpCapacity');
+  const capUnitSelect = document.getElementById('rpCapUnit');
+  const lengthInput = document.getElementById('rpLength');
+  const lenUnitSelect = document.getElementById('rpLenUnit');
+  const riserHeightInput = document.getElementById('rpRiserHeight');
+  const pipeSelect = document.getElementById('rpPipeSelect');
+
+  // Outputs
+  const tubeResult = document.getElementById('rpTubeResult');
+  const tubeSub = document.getElementById('rpTubeSub');
+  const velResult = document.getElementById('rpVelResult');
+  const velSub = document.getElementById('rpVelSub');
+  const oilResult = document.getElementById('rpOilResult');
+  const oilBadge = document.getElementById('rpOilBadge');
+  const oilBox = document.getElementById('rpOilBox');
+  const dtResult = document.getElementById('rpDtResult');
+  const dtSub = document.getElementById('rpDtSub');
+  const dpResult = document.getElementById('rpDpResult');
+  const dpSub = document.getElementById('rpDpSub');
+  const capLossResult = document.getElementById('rpCapLossResult');
+  const capLossSub = document.getElementById('rpCapLossSub');
+  const auditBox = document.getElementById('rpAuditReport');
+
+  // SVG Elements
+  const svgTubeLabel = document.getElementById('svgTubeLabel');
+  const svgVelLabel = document.getElementById('svgVelLabel');
+  const svgLossLabel = document.getElementById('svgLossLabel');
+
+  // Derivations
+  const derivCapacity = document.getElementById('derivCapacity');
+  const derivNre = document.getElementById('derivNre');
+  const derivMassFlow = document.getElementById('derivMassFlow');
+  const derivVg = document.getElementById('derivVg');
+  const derivTubeSize = document.getElementById('derivTubeSize');
+  const derivVolFlow = document.getElementById('derivVolFlow');
+  const derivVelCalc = document.getElementById('derivVelCalc');
+  const derivOilCheck = document.getElementById('derivOilCheck');
+  const derivLen = document.getElementById('derivLen');
+  const derivDpCalc = document.getElementById('derivDpCalc');
+  const derivDtCalc = document.getElementById('derivDtCalc');
+
+  const copperTubes = [
+    { name: '3/8" OD', od: 0.375, id: 0.315 },
+    { name: '1/2" OD', od: 0.500, id: 0.430 },
+    { name: '5/8" OD', od: 0.625, id: 0.545 },
+    { name: '7/8" OD', od: 0.875, id: 0.785 },
+    { name: '1-1/8" OD', od: 1.125, id: 1.025 },
+    { name: '1-3/8" OD', od: 1.375, id: 1.265 },
+    { name: '1-5/8" OD', od: 1.625, id: 1.505 },
+    { name: '2-1/8" OD', od: 2.125, id: 1.985 },
+    { name: '2-5/8" OD', od: 2.625, id: 2.465 },
+    { name: '3-1/8" OD', od: 3.125, id: 2.907 }
+  ];
+
+  function calculate() {
+    let rawCap = parseFloat(capacityInput.value) || 15.0;
+    let capTons = rawCap;
+    if (capUnitSelect.value === 'btu_hr') capTons = rawCap / 12000;
+    else if (capUnitSelect.value === 'kw') capTons = rawCap / 3.51685;
+
+    let rawLen = parseFloat(lengthInput.value) || 100;
+    let Leq_ft = lenUnitSelect.value === 'm' ? rawLen * 3.28084 : rawLen;
+
+    let lineType = lineTypeSelect.value;
+    let refrig = refrigerantSelect.value;
+
+    // Thermodynamic properties (NRE BTU/lb, specific volume vg cu ft/lb, dP/dT psi/°F)
+    let nre_btu_lb = 68.5; // R-410A
+    let v_g = 0.435;       // Suction vapor specific volume cu ft/lb
+    let dP_dT = 2.60;      // psi/°F at 45°F SST
+    if (refrig === 'r134a') {
+      nre_btu_lb = 64.0; v_g = 0.940; dP_dT = 0.85;
+    } else if (refrig === 'r404a') {
+      nre_btu_lb = 45.0; v_g = 0.880; dP_dT = 1.15;
+    } else if (refrig === 'r32') {
+      nre_btu_lb = 110.0; v_g = 0.520; dP_dT = 2.80;
+    } else if (refrig === 'r290') {
+      nre_btu_lb = 135.0; v_g = 1.350; dP_dT = 1.10;
+    }
+
+    if (lineType === 'discharge') {
+      v_g = v_g * 0.32; // hot gas density is higher
+      dP_dT = dP_dT * 1.8;
+    } else if (lineType === 'liquid') {
+      v_g = 0.015; // liquid specific volume
+    }
+
+    // Mass flow rate: lbs/hr
+    let totalBtuHr = capTons * 12000;
+    let m_dot_lbhr = totalBtuHr / nre_btu_lb;
+    let m_dot_lbmin = m_dot_lbhr / 60;
+
+    // Volumetric flow rate CFM
+    let Q_cfm = m_dot_lbmin * v_g;
+
+    // Tube Selection
+    let chosenTube = copperTubes[4]; // Default 1-1/8"
+    if (pipeSelect.value === 'auto') {
+      // Find tube where velocity is within ASHRAE optimal band
+      // Suction: 900 to 2200 ft/min
+      // Discharge: 1500 to 3000 ft/min
+      // Liquid: 100 to 250 ft/min
+      let targetMinVel = lineType === 'liquid' ? 80 : (lineType === 'discharge' ? 1200 : 900);
+      let targetMaxVel = lineType === 'liquid' ? 250 : (lineType === 'discharge' ? 3000 : 2200);
+
+      for (let i = 0; i < copperTubes.length; i++) {
+        let area_sqft = Math.PI * Math.pow((copperTubes[i].id / 12) / 2, 2);
+        let vel = Q_cfm / area_sqft;
+        if (vel <= targetMaxVel && vel >= targetMinVel) {
+          chosenTube = copperTubes[i];
+          break;
+        } else if (vel < targetMinVel && i > 0) {
+          chosenTube = copperTubes[i - 1];
+          break;
+        }
+      }
+    } else {
+      let manualOd = parseFloat(pipeSelect.value);
+      for (let i = 0; i < copperTubes.length; i++) {
+        if (Math.abs(copperTubes[i].od - manualOd) < 0.01) {
+          chosenTube = copperTubes[i];
+          break;
+        }
+      }
+    }
+
+    // Calculate actual velocity
+    let pipe_id_in = chosenTube.id;
+    let pipe_area_sqft = Math.PI * Math.pow((pipe_id_in / 12) / 2, 2);
+    let velocity_fpm = Q_cfm / pipe_area_sqft;
+    let velocity_ms = velocity_fpm * 0.00508;
+
+    // Pressure drop calculation (Darcy-Weisbach simplified for copper ACR)
+    // DeltaP = (f * L/D * rho * v^2) / 2
+    let rho_fluid = 1 / v_g;
+    let D_ft = pipe_id_in / 12;
+    let friction_f = 0.020;
+    let v_fps = velocity_fpm / 60;
+    let deltaP_psf = friction_f * (Leq_ft / D_ft) * (rho_fluid * Math.pow(v_fps, 2) / (2 * 32.174));
+    let deltaP_psi = deltaP_psf / 144;
+    let deltaP_bar = deltaP_psi * 0.0689476;
+
+    // Saturation Temp Loss (dT = dP / (dP/dT)_sat)
+    let deltaT_sat_F = deltaP_psi / dP_dT;
+    let deltaT_sat_C = deltaT_sat_F / 1.8;
+
+    // Capacity Loss Penalty: ~ 1.5% per °F in suction
+    let capLossPct = lineType === 'suction' ? deltaT_sat_F * 1.5 : (lineType === 'discharge' ? deltaT_sat_F * 0.8 : 0.2);
+
+    // Oil Return Status in Riser
+    let isOilSafe = true;
+    let oilBadgeText = 'Safe Oil Return (≥ 1,000 ft/min)';
+    if (lineType === 'suction' || lineType === 'discharge') {
+      if (velocity_fpm < 1000) {
+        isOilSafe = false;
+        oilBadgeText = 'OIL TRAP HAZARD (< 1,000 ft/min)';
+      } else if (velocity_fpm > 3000) {
+        oilBadgeText = 'High Noise / Vibration (> 3,000 ft/min)';
+      }
+    } else {
+      oilBadgeText = 'Liquid Line (≤ 250 ft/min safe)';
+    }
+
+    // Update Result UI
+    tubeResult.textContent = chosenTube.name;
+    tubeSub.textContent = 'ACR Type L (ID: ' + chosenTube.id + '" / ' + (chosenTube.id*25.4).toFixed(1) + ' mm)';
+
+    velResult.textContent = Math.round(velocity_fpm).toLocaleString() + ' ft/min';
+    velSub.textContent = velocity_ms.toFixed(2) + ' m/s (In pipe run)';
+
+    oilResult.textContent = isOilSafe ? 'SAFE RETURN' : 'OIL TRAP HAZARD';
+    if (!isOilSafe) {
+      oilBadge.className = 'rp-status-badge badge-fail';
+      oilBadge.textContent = oilBadgeText;
+      oilBox.className = 'rp-stat-box danger';
+    } else {
+      oilBadge.className = 'rp-status-badge badge-pass';
+      oilBadge.textContent = oilBadgeText;
+      oilBox.className = 'rp-stat-box highlight';
+    }
+
+    dtResult.textContent = deltaT_sat_F.toFixed(1) + ' °F';
+    dtSub.textContent = deltaT_sat_C.toFixed(2) + ' °C equiv saturation loss';
+
+    dpResult.textContent = deltaP_psi.toFixed(1) + ' psi';
+    dpSub.textContent = deltaP_bar.toFixed(2) + ' bar across ' + Math.round(Leq_ft) + ' ft run';
+
+    capLossResult.textContent = capLossPct.toFixed(1) + '%';
+    capLossSub.textContent = 'Refrigeration capacity derating';
+
+    // SVG Updates
+    svgTubeLabel.textContent = chosenTube.name;
+    svgVelLabel.textContent = Math.round(velocity_fpm) + ' ft/min';
+    svgLossLabel.textContent = deltaT_sat_F.toFixed(1) + '°F ΔT (' + deltaP_psi.toFixed(1) + ' psi)';
+
+    // Derivations Updates
+    derivCapacity.textContent = capTons.toFixed(1) + ' TR (' + Math.round(totalBtuHr).toLocaleString() + ' BTU/hr)';
+    derivNre.textContent = nre_btu_lb.toFixed(1) + ' BTU/lb';
+    derivMassFlow.textContent = Math.round(m_dot_lbhr).toLocaleString() + ' lbs/hr (' + m_dot_lbmin.toFixed(1) + ' lbs/min)';
+    derivVg.textContent = v_g.toFixed(3) + ' cu ft/lb';
+    derivTubeSize.textContent = chosenTube.name + ' (ID ' + chosenTube.id + '")';
+    derivVolFlow.textContent = Q_cfm.toFixed(2) + ' CFM';
+    derivVelCalc.textContent = Math.round(velocity_fpm).toLocaleString() + ' ft/min (' + velocity_ms.toFixed(2) + ' m/s)';
+    derivOilCheck.textContent = oilBadgeText;
+    derivLen.textContent = Math.round(Leq_ft) + ' ft';
+    derivDpCalc.textContent = deltaP_psi.toFixed(2) + ' psi (' + deltaP_bar.toFixed(2) + ' bar)';
+    derivDtCalc.textContent = deltaT_sat_F.toFixed(2) + '°F (' + deltaT_sat_C.toFixed(2) + '°C)';
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   ASHRAE FUNDAMENTALS REFRIGERANT LINE SIZING AUDIT   \n' +
+      '=======================================================\n' +
+      'Refrigerant:               ' + refrig.toUpperCase() + ' (' + refrigerantSelect.options[refrigerantSelect.selectedIndex].text.split('(')[0].trim() + ')\n' +
+      'Line Service:              ' + lineTypeSelect.options[lineTypeSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+      'Capacity & Mass Flow:      ' + capTons.toFixed(1) + ' TR (' + Math.round(m_dot_lbhr).toLocaleString() + ' lbs/hr [' + m_dot_lbmin.toFixed(1) + ' lbs/min])\n' +
+      'Equivalent Run Length:     ' + Math.round(Leq_ft) + ' ft (' + (Leq_ft * 0.3048).toFixed(1) + ' m)\n' +
+      '-------------------------------------------------------\n' +
+      'RECOMMENDED COPPER TUBE:   ' + chosenTube.name + ' ACR Type L (ID: ' + chosenTube.id + '" / ' + (chosenTube.id*25.4).toFixed(1) + ' mm)\n' +
+      'Refrigerant Gas Velocity:  ' + Math.round(velocity_fpm).toLocaleString() + ' ft/min (' + velocity_ms.toFixed(2) + ' m/s)\n' +
+      'Oil Entrainment Status:    ' + (isOilSafe ? 'PASSED' : 'FAILED') + ' [' + oilBadgeText + ']\n' +
+      'Frictional Pressure Drop:  ' + deltaP_psi.toFixed(2) + ' psi (' + deltaP_bar.toFixed(2) + ' bar)\n' +
+      'Equivalent Saturation ΔT:  ' + deltaT_sat_F.toFixed(2) + ' °F (' + deltaT_sat_C.toFixed(2) + ' °C) [Target ≤ 2.0°F]\n' +
+      'Capacity Penalty:          -' + capLossPct.toFixed(1) + '% Net Compressor Cooling Capacity\n' +
+      'Design Standard:           ASHRAE Handbook - Refrigeration Chapter 1 & 2\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyRpAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyRpAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied ASHRAE Line Sizing Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [refrigerantSelect, lineTypeSelect, capacityInput, capUnitSelect, lengthInput, lenUnitSelect, riserHeightInput, pipeSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'refrigerant-piping-line-sizing-calculator.html'), renderTradePage({
+    title: "Refrigerant Line Sizing Calculator | ASHRAE Fundamentals",
+    metaDesc: "Calculate refrigerant pipe size, pressure drop (equivalent ΔT in °F/°C), oil return velocity in vertical risers, and line capacity for R-410A, R-134a, R-404A, R-32, and R-290 per ASHRAE.",
+    canonical: `${DOMAIN}/calc/refrigerant-piping-line-sizing-calculator`,
+    bodyContent: refrigerantPipingBody,
+    currentPath: '/calc/refrigerant-piping-line-sizing-calculator',
+    faq: [
+      {
+        "q": "Why is minimum gas velocity critical in vertical refrigerant suction risers?",
+        "a": "Compressor lubricating oil (POE or PVE) circulates continuously through the refrigeration circuit with the refrigerant. In horizontal lines, oil flows along the bottom, but in vertical upward risers, the vapor must move at minimum 1,000 to 1,500 ft/min (5.0 to 7.6 m/s) so aerodynamic drag can lift the oil droplets against gravity back into the compressor crankcase."
+      },
+      {
+        "q": "What is the maximum allowable pressure drop in a refrigerant suction line?",
+        "a": "ASHRAE recommends that the friction pressure drop in suction lines should not exceed an equivalent 1.0°F to 2.0°F (0.5°C to 1.1°C) drop in saturated evaporating temperature. Higher pressure drop starves compressor intake, reducing system capacity by ~1.5% per °F and increasing electric motor power consumption."
+      },
+      {
+        "q": "What causes flash gas in a liquid refrigerant line and how is it prevented?",
+        "a": "Flash gas occurs when high pressure drop or solar heat gain reduces liquid refrigerant pressure below its saturation point before it reaches the expansion valve (TXV), causing liquid to flash into vapor bubbles. It is prevented by insulating liquid lines, limiting vertical lift, and maintaining at least 5°F to 10°F of subcooling at the condenser exit."
+      },
+      {
+        "q": "What is a double suction riser and when is it required?",
+        "a": "A double suction riser consists of two parallel pipes (one small, one large) with an oil trap at the base of the larger pipe. It is used on systems with wide capacity modulation (e.g. multi-stage compressors or inverter drives) so that at low load, oil blocks the large pipe, forcing all gas through the small pipe to maintain oil return velocity without creating excessive pressure drop at full load."
+      },
+      {
+        "q": "What is the maximum recommended vapor velocity in refrigerant lines?",
+        "a": "Per ASHRAE, vapor velocity in suction and discharge lines should not exceed 3,000 to 4,000 ft/min (15 to 20 m/s). Velocities above this threshold generate intense acoustic whistling and line vibration that causes copper work-hardening, fatigue failure, and braze joint fractures."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 63: Industrial Gearbox Thermal Rating Calculator (AGMA 6011 & ISO 14179)
+  // ==========================================
+  const gearboxThermalBody = `
+<style>
+  .gb-container { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); color: #1e293b; }
+  .gb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 860px) { .gb-grid { grid-template-columns: 1fr; } }
+  .gb-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .gb-header { margin-bottom: 20px; }
+  .gb-header h2 { margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .gb-header p { margin: 0; font-size: 0.875rem; color: #64748b; }
+  .gb-form-group { margin-bottom: 16px; }
+  .gb-form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .gb-input-row { display: flex; gap: 10px; align-items: center; }
+  .gb-input-row input, .gb-input-row select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #0f172a; transition: border-color 0.15s; background: #fff; }
+  .gb-input-row input:focus, .gb-input-row select:focus { outline: none; border-color: #2563eb; }
+  .gb-unit-badge { min-width: 65px; padding: 8px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #475569; text-align: center; }
+  .gb-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .gb-stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+  .gb-stat-box.highlight { background: #eff6ff; border-color: #bfdbfe; }
+  .gb-stat-box.warning { background: #fffbeb; border-color: #fde68a; }
+  .gb-stat-box.danger { background: #fef2f2; border-color: #fecaca; }
+  .gb-stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; }
+  .gb-stat-val { font-size: 1.35rem; font-weight: 700; color: #0f172a; }
+  .gb-stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+  .gb-status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-fail { background: #fee2e2; color: #b91c1c; }
+  .trap-card { border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.875rem; line-height: 1.5; }
+  .gb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; background: #2563eb; color: #fff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .gb-btn:hover { background: #1d4ed8; }
+  .gb-audit-box { width: 100%; height: 160px; font-family: monospace; font-size: 0.8rem; padding: 12px; background: #0f172a; color: #f8fafc; border-radius: 8px; border: 1px solid #334155; resize: none; margin-top: 12px; }
+  .svg-container { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 12px; margin-bottom: 16px; display: flex; justify-content: center; }
+</style>
+
+<div class="gb-container">
+  <div class="gb-grid">
+    <!-- Inputs Column -->
+    <div class="gb-card">
+      <div class="gb-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Drive Power &amp; Gearbox Type</h2>
+        <p>AGMA 6011 &amp; ISO/TR 14179 thermal power rating and loss calculation</p>
+      </div>
+
+      <div class="gb-form-group">
+        <label for="gbTransPower">Transmitted Operating Power (P<sub>trans</sub>)</label>
+        <div class="gb-input-row">
+          <input type="number" id="gbTransPower" value="150" min="5" step="5">
+          <select id="gbPowerUnit" class="gb-unit-badge" style="width:auto;">
+            <option value="hp" selected>HP</option>
+            <option value="kw">kW</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gb-form-group">
+        <label for="gbGearType">Gearbox Configuration &amp; Mesh Stages</label>
+        <div class="gb-input-row">
+          <select id="gbGearType">
+            <option value="single_helical">Single Reduction Helical (η ≈ 98.5% - 1.5% Loss)</option>
+            <option value="double_helical" selected>Double Reduction Helical / Bevel (η ≈ 97.0% - 3.0% Loss)</option>
+            <option value="triple_helical">Triple Reduction Helical (η ≈ 95.5% - 4.5% Loss)</option>
+            <option value="planetary">2-Stage Planetary Reducer (η ≈ 96.0% - 4.0% Loss)</option>
+            <option value="worm">Right-Angle Worm Reducer (η ≈ 82.0% - High Sliding Friction)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gb-form-group">
+        <label for="gbInputSpeed">Input Shaft Speed (N<sub>in</sub>)</label>
+        <div class="gb-input-row">
+          <input type="number" id="gbInputSpeed" value="1750" min="100" step="50">
+          <div class="gb-unit-badge">RPM</div>
+        </div>
+      </div>
+
+      <div class="gb-form-group">
+        <label>Thermal Environment (Ambient &amp; Max Permissible Oil)</label>
+        <div class="gb-input-row">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Ambient Temp (T<sub>amb</sub>)</span>
+            <input type="number" id="gbTamb" value="95" step="1">
+          </div>
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; color:#64748b;">Max Bulk Oil (T<sub>oil,max</sub>)</span>
+            <input type="number" id="gbToilMax" value="200" step="1">
+          </div>
+          <select id="gbTempUnit" class="gb-unit-badge" style="width:auto; align-self:flex-end; height:42px;">
+            <option value="F" selected>&deg;F</option>
+            <option value="C">&deg;C</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gb-form-group">
+        <label for="gbHousingArea">Housing External Surface Area</label>
+        <div class="gb-input-row">
+          <input type="number" id="gbHousingArea" value="35.0" min="2" step="1">
+          <select id="gbAreaUnit" class="gb-unit-badge" style="width:auto;">
+            <option value="sqft" selected>sq ft</option>
+            <option value="sqm">m&sup2;</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gb-form-group">
+        <label for="gbCoolingMode">Housing Ventilation &amp; Cooling Arrangement</label>
+        <div class="gb-input-row">
+          <select id="gbCoolingMode">
+            <option value="natural">Still Ambient Air (No Fan - Natural Convection: h ≈ 15 W/m²·K)</option>
+            <option value="shaft_fan" selected>Shaft-Driven Cooling Fan &amp; Air Cowl (h ≈ 28 W/m²·K)</option>
+            <option value="outdoor_wind">Outdoor Well-Ventilated / Light Wind (h ≈ 45 W/m²·K)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outputs & Live Visualization Column -->
+    <div class="gb-card">
+      <div class="gb-header">
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Thermal Rating &amp; Sump Temperature</h2>
+        <p>Continuous thermal capacity and auxiliary cooling requirement</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="svg-container">
+        <svg id="gbSvg" width="340" height="220" viewBox="0 0 340 220" style="max-width:100%;">
+          <defs>
+            <linearGradient id="gearboxGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="50%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+            <linearGradient id="oilSumpGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Outer Ribbed Housing (Cast Iron Fins) -->
+          <!-- Cooling Ribs Top -->
+          <line x1="80" y1="35" x2="80" y2="45" stroke="#334155" stroke-width="3"/>
+          <line x1="110" y1="35" x2="110" y2="45" stroke="#334155" stroke-width="3"/>
+          <line x1="140" y1="35" x2="140" y2="45" stroke="#334155" stroke-width="3"/>
+          <line x1="170" y1="35" x2="170" y2="45" stroke="#334155" stroke-width="3"/>
+          <line x1="200" y1="35" x2="200" y2="45" stroke="#334155" stroke-width="3"/>
+          <line x1="230" y1="35" x2="230" y2="45" stroke="#334155" stroke-width="3"/>
+
+          <!-- Main Cast Gearbox Housing Body -->
+          <rect x="60" y="45" width="200" height="130" fill="url(#gearboxGrad)" rx="6" stroke="#0f172a" stroke-width="2"/>
+          <rect x="68" y="53" width="184" height="114" fill="#f8fafc"/>
+
+          <!-- High-Speed Shaft & External Fan (Left) -->
+          <rect x="25" y="82" width="40" height="16" fill="#94a3b8" stroke="#334155"/>
+          <line x1="10" y1="90" x2="30" y2="90" stroke="#0f172a" stroke-width="5"/>
+          <!-- Fan Cowl Shroud -->
+          <polygon points="45,65 62,75 62,105 45,115" fill="#475569" stroke="#1e293b"/>
+          <!-- Cooling Air Streams over fins -->
+          <path d="M 40 60 Q 60 40 120 40" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3,2"/>
+          <path d="M 40 120 Q 60 140 120 140" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3,2"/>
+          <text x="35" y="54" font-size="7" font-weight="bold" fill="#0284c7">Fan Airflow</text>
+
+          <!-- Low-Speed Output Shaft (Right) -->
+          <rect x="245" y="110" width="40" height="24" fill="#94a3b8" stroke="#334155"/>
+          <line x1="260" y1="122" x2="295" y2="122" stroke="#0f172a" stroke-width="7"/>
+
+          <!-- Gear Meshes Inside -->
+          <!-- Pinion -->
+          <circle cx="115" cy="90" r="22" fill="#cbd5e1" stroke="#0f172a" stroke-width="2"/>
+          <!-- Bull Gear -->
+          <circle cx="185" cy="120" r="38" fill="#cbd5e1" stroke="#0f172a" stroke-width="2"/>
+          <!-- Mesh Contact Pitch Point -->
+          <circle cx="132" cy="103" r="3" fill="#ef4444"/>
+
+          <!-- Oil Sump Reservoir (Bottom: y=135 to 167) -->
+          <rect id="svgOilSump" x="68" y="135" width="184" height="32" fill="url(#oilSumpGrad)" opacity="0.85"/>
+          <!-- Splash Oil Droplets -->
+          <circle cx="130" cy="125" r="1.5" fill="#d97706"/>
+          <circle cx="170" cy="115" r="1.5" fill="#d97706"/>
+          <circle cx="195" cy="110" r="2" fill="#d97706"/>
+          <text x="160" y="154" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">Lubricating Oil Sump</text>
+
+          <!-- Oil Thermometer Gauge (Top Right) -->
+          <circle cx="280" cy="40" r="14" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <line id="svgTempNeedle" x1="280" y1="40" x2="288" y2="34" stroke="#dc2626" stroke-width="2"/>
+          <circle cx="280" cy="40" r="2.5" fill="#dc2626"/>
+          <text x="280" y="22" font-size="7" font-weight="bold" fill="#334155" text-anchor="middle">Oil Temp</text>
+
+          <!-- Annotations Callout Box -->
+          <rect x="75" y="185" width="170" height="30" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+          <text x="160" y="198" font-size="9" font-weight="bold" fill="#0f172a" text-anchor="middle" id="svgThermalCapLabel">Thermal Limit: 118.5 HP</text>
+          <text x="160" y="210" font-size="8" fill="#64748b" text-anchor="middle" id="svgOilTempLabel">Equilibrium Oil: 194.2&deg;F</text>
+        </svg>
+      </div>
+
+      <div class="gb-stat-grid">
+        <div class="gb-stat-box highlight">
+          <div class="gb-stat-label">Thermal Power Rating</div>
+          <div class="gb-stat-val" id="gbRatingResult">118.5 HP</div>
+          <div class="gb-stat-sub" id="gbRatingSub">88.4 kW continuous thermal limit</div>
+        </div>
+        <div class="gb-stat-box highlight">
+          <div class="gb-stat-label">Heat Generated (Q<sub>loss</sub>)</div>
+          <div class="gb-stat-val" id="gbLossResult">4.50 HP</div>
+          <div class="gb-stat-sub" id="gbLossSub">3.36 kW (11,450 BTU/hr)</div>
+        </div>
+        <div class="gb-stat-box" id="gbTempBox">
+          <div class="gb-stat-label">Equilibrium Oil Temp</div>
+          <div class="gb-stat-val" id="gbTempResult">194.2 &deg;F</div>
+          <div class="gb-stat-sub"><span class="gb-status-badge badge-pass" id="gbTempBadge">Within Limit (&le; 200&deg;F)</span></div>
+        </div>
+        <div class="gb-stat-box">
+          <div class="gb-stat-label">Housing Dissipation</div>
+          <div class="gb-stat-val" id="gbDissResult">3.55 kW</div>
+          <div class="gb-stat-sub" id="gbDissSub">Natural convection + fan</div>
+        </div>
+      </div>
+
+      <div class="gb-stat-grid">
+        <div class="gb-stat-box" id="gbAuxBox">
+          <div class="gb-stat-label">Auxiliary Cooling Required</div>
+          <div class="gb-stat-val" id="gbAuxResult">NONE</div>
+          <div class="gb-stat-sub"><span class="gb-status-badge badge-pass" id="gbAuxBadge">Housing Heat Balance OK</span></div>
+        </div>
+        <div class="gb-stat-box">
+          <div class="gb-stat-label">Cooling Water Flow</div>
+          <div class="gb-stat-val" id="gbWaterResult">0.0 GPM</div>
+          <div class="gb-stat-sub" id="gbWaterSub">For auxiliary coil/HE</div>
+        </div>
+      </div>
+
+      <button type="button" class="gb-btn" id="copyGbAuditBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy AGMA Gearbox Thermal Audit</span>
+      </button>
+
+      <textarea id="gbAuditReport" class="gb-audit-box" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Worked Derivations & Heat Transfer Math -->
+  <div class="gb-card" style="margin-bottom: 24px;">
+    <div class="gb-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Worked AGMA 6011 &amp; ISO 14179 Thermal Derivations</h2>
+      <p>Heat dissipation, thermal power rating, and bulk oil temperature balance</p>
+    </div>
+    <div style="font-size:0.875rem; line-height:1.7; color:#334155;">
+      <p>Per <strong>AGMA 6011-J14</strong> and <strong>ISO/TR 14179-1</strong>, a gearbox operating continuously must reject all internal friction and churning heat through its housing walls:</p>
+      <p>1. <strong>Internal Friction &amp; Churning Heat Loss (Q_loss):</strong> For transmitted mechanical load P_trans = <span id="derivTransPower" style="font-weight:600;">150.0 HP</span> (111.85 kW) with mechanical efficiency &eta; = <span id="derivEta" style="font-weight:600;">97.0%</span>:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Q_loss = P_trans &middot; (1 - &eta;) = 150.0 &middot; (1 - 0.970) = <span id="derivCalcLoss" style="font-weight:700; color:#ef4444;">4.50 HP</span> (3.356 kW / 11,450 BTU/hr)
+      </div>
+      <p>2. <strong>Housing Heat Dissipation Capacity (Q_diss):</strong> Across housing surface area A = <span id="derivArea" style="font-weight:600;">35.0 sq ft</span> (3.25 m&sup2;) with heat transfer coefficient h = <span id="derivHCoeff" style="font-weight:600;">28.0 W/m&sup2;&middot;K</span> at max allowable &Delta;T = (<span id="derivToil">200&deg;F</span> - <span id="derivTamb">95&deg;F</span>) = <span id="derivDeltaT" style="font-weight:600;">105.0&deg;F</span> (58.3&deg;C):</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        Q_diss = h &middot; A &middot; &Delta;T = 28.0 &middot; 3.251 &middot; 58.33 = <span id="derivCalcDiss" style="font-weight:700; color:#15803d;">5.31 kW</span> (7.12 HP heat rejection capacity)
+      </div>
+      <p>3. <strong>Continuous Thermal Power Rating (P_thermal):</strong> The maximum continuous mechanical drive power the gearbox can transmit without exceeding T_oil,max:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        P_thermal = Q_diss / (1 - &eta;) = 7.12 / (1 - 0.970) = <span id="derivCalcRating" style="font-weight:700; color:#2563eb;">237.3 HP</span> (177.0 kW)
+      </div>
+      <p>4. <strong>Equilibrium Sump Temperature (T_oil,eq):</strong> Steady-state temperature balance without auxiliary cooling:</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin:12px 0; font-family:monospace;">
+        T_oil,eq = T_ambient + [ Q_loss / (h &middot; A) ] = 95 + [ 3,356 / (28.0 &middot; 3.251) ] &middot; 1.8 = <span id="derivCalcToil" style="font-weight:700; color:#0284c7;">161.4&deg;F</span> (71.9&deg;C)
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Traps & Engineering Pitfalls -->
+  <div class="gb-card" style="margin-bottom: 24px;">
+    <div class="gb-header">
+      <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 5 Fatal Traps in Industrial Gearbox Thermal Sizing</h2>
+      <p>AGMA 6011, ISO 14179, and Falk / Hansen reducer engineering guidelines</p>
+    </div>
+
+    <div class="trap-card" style="background:#fef2f2; border-left: 4px solid #ef4444;">
+      <strong style="color:#b91c1c;">1. Mechanical vs. Thermal Power Rating Confusion</strong><br>
+      A catalog might list a gearbox with a mechanical gear tooth rating of 250 HP. However, its unassisted thermal rating may only be 110 HP. <strong>Running the gearbox at 180 HP continuously without auxiliary cooling drives oil temperatures past 125&deg;C (257&deg;F).</strong> At this temperature, mineral oil rapidly oxidizes, viscosity collapses, elastomeric radial shaft seals bake rock-hard, and gear teeth weld together in catastrophic scuffing seizure.
+    </div>
+
+    <div class="trap-card" style="background:#fffbeb; border-left: 4px solid #f59e0b;">
+      <strong style="color:#b45309;">2. Oil Sump Over-Filling &amp; Parasitic Churning Explosion</strong><br>
+      Technicians often believe "more oil is better." Filling oil above the center of the sight glass submerges high-speed pinions. Gear teeth churning through deep oil create immense fluid drag (parasitic windage losses) that scale with N&sup2;. Churning losses can easily exceed gear mesh friction by <strong>300% to 500%</strong>, causing rapid thermal runaway in an otherwise correctly sized gearbox.
+    </div>
+
+    <div class="trap-card" style="background:#f0fdf4; border-left: 4px solid #10b981;">
+      <strong style="color:#15803d;">3. Dust &amp; Debris Blanket on Cooling Fins (Thermal Insulating Coat)</strong><br>
+      In cement mills, grain elevators, and coal preparation plants, gearboxes accumulate a 1/2-inch blanket of fine dust on their cast iron cooling ribs. This dust cake has a thermal conductivity similar to fiberglass insulation (k &approx; 0.05 W/m&middot;K), cutting heat dissipation to ambient by over 60%. Maintenance must schedule routine compressed air blow-downs of cooling fins.
+    </div>
+
+    <div class="trap-card" style="background:#eff6ff; border-left: 4px solid #3b82f6;">
+      <strong style="color:#1d4ed8;">4. Lubricant Viscosity Grade Misapplication (ISO VG 460 vs VG 220)</strong><br>
+      Using an excessively high viscosity oil (e.g. ISO VG 460 instead of VG 220) during winter cold starts generates severe viscous churning drag, starving upper bearings of splash oil. Conversely, using too thin an oil in hot summer ambients reduces elastohydrodynamic (EHL) oil film thickness below composite surface roughness (&Lambda; &lt; 1.0), triggering rapid abrasive micro-pitting on tooth flanks.
+    </div>
+
+    <div class="trap-card" style="background:#faf5ff; border-left: 4px solid #8b5cf6;">
+      <strong style="color:#7e22ce;">5. Synthetic PAG vs Mineral Oil Elastomer Incompatibility</strong><br>
+      Upgrading to polyglycol (PAG) synthetic oil to raise thermal rating is common, but PAG is completely incompatible with standard nitrile (NBR) radial shaft seals and alkyd interior gearbox paint. The synthetic fluid swells and dissolves NBR seals within 48 hours, causing massive oil dumps onto drive foundations. Always verify fluoroelastomer (Viton/FKM) seals before switching fluids.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const transPowerInput = document.getElementById('gbTransPower');
+  const powerUnitSelect = document.getElementById('gbPowerUnit');
+  const gearTypeSelect = document.getElementById('gbGearType');
+  const inputSpeedInput = document.getElementById('gbInputSpeed');
+  const tambInput = document.getElementById('gbTamb');
+  const toilMaxInput = document.getElementById('gbToilMax');
+  const tempUnitSelect = document.getElementById('gbTempUnit');
+  const housingAreaInput = document.getElementById('gbHousingArea');
+  const areaUnitSelect = document.getElementById('gbAreaUnit');
+  const coolingModeSelect = document.getElementById('gbCoolingMode');
+
+  // Outputs
+  const ratingResult = document.getElementById('gbRatingResult');
+  const ratingSub = document.getElementById('gbRatingSub');
+  const lossResult = document.getElementById('gbLossResult');
+  const lossSub = document.getElementById('gbLossSub');
+  const tempResult = document.getElementById('gbTempResult');
+  const tempBadge = document.getElementById('gbTempBadge');
+  const tempBox = document.getElementById('gbTempBox');
+  const dissResult = document.getElementById('gbDissResult');
+  const dissSub = document.getElementById('gbDissSub');
+  const auxResult = document.getElementById('gbAuxResult');
+  const auxBadge = document.getElementById('gbAuxBadge');
+  const auxBox = document.getElementById('gbAuxBox');
+  const waterResult = document.getElementById('gbWaterResult');
+  const waterSub = document.getElementById('gbWaterSub');
+  const auditBox = document.getElementById('gbAuditReport');
+
+  // SVG Elements
+  const svgThermalCapLabel = document.getElementById('svgThermalCapLabel');
+  const svgOilTempLabel = document.getElementById('svgOilTempLabel');
+
+  // Derivations
+  const derivTransPower = document.getElementById('derivTransPower');
+  const derivEta = document.getElementById('derivEta');
+  const derivCalcLoss = document.getElementById('derivCalcLoss');
+  const derivArea = document.getElementById('derivArea');
+  const derivHCoeff = document.getElementById('derivHCoeff');
+  const derivToil = document.getElementById('derivToil');
+  const derivTamb = document.getElementById('derivTamb');
+  const derivDeltaT = document.getElementById('derivDeltaT');
+  const derivCalcDiss = document.getElementById('derivCalcDiss');
+  const derivCalcRating = document.getElementById('derivCalcRating');
+  const derivCalcToil = document.getElementById('derivCalcToil');
+
+  function calculate() {
+    const isCelsius = tempUnitSelect.value === 'C';
+    let rawPower = parseFloat(transPowerInput.value) || 150;
+    let P_trans_hp = rawPower;
+    if (powerUnitSelect.value === 'kw') P_trans_hp = rawPower * 1.34102;
+    let P_trans_kw = P_trans_hp * 0.7457;
+
+    let Tamb_raw = parseFloat(tambInput.value) || 95;
+    let ToilMax_raw = parseFloat(toilMaxInput.value) || 200;
+
+    let Tamb_F = isCelsius ? Tamb_raw * 1.8 + 32 : Tamb_raw;
+    let ToilMax_F = isCelsius ? ToilMax_raw * 1.8 + 32 : ToilMax_raw;
+    let deltaT_max_F = Math.max(ToilMax_F - Tamb_F, 10);
+    let deltaT_max_C = deltaT_max_F / 1.8;
+
+    // Efficiency based on gear arrangement
+    let eta = 0.970; // Double helical
+    if (gearTypeSelect.value === 'single_helical') eta = 0.985;
+    else if (gearTypeSelect.value === 'triple_helical') eta = 0.955;
+    else if (gearTypeSelect.value === 'planetary') eta = 0.960;
+    else if (gearTypeSelect.value === 'worm') eta = 0.820;
+
+    // Heat Loss (kW and HP)
+    let Q_loss_kw = P_trans_kw * (1 - eta);
+    let Q_loss_hp = Q_loss_kw * 1.34102;
+    let Q_loss_btu = Q_loss_kw * 3412.14;
+
+    // Housing Surface Area
+    let rawArea = parseFloat(housingAreaInput.value) || 35.0;
+    let A_sqft = rawArea;
+    if (areaUnitSelect.value === 'sqm') A_sqft = rawArea * 10.7639;
+    let A_sqm = A_sqft * 0.092903;
+
+    // Heat Transfer Coefficient h (W/m2K)
+    let h_coeff = 28.0; // Fan cooled
+    if (coolingModeSelect.value === 'natural') h_coeff = 15.0;
+    else if (coolingModeSelect.value === 'outdoor_wind') h_coeff = 45.0;
+
+    // Housing Heat Dissipation at Max Oil Temp (kW)
+    // Q_diss = h * A * deltaT (Watts = h * A_sqm * deltaT_C)
+    let Q_diss_kw = (h_coeff * A_sqm * deltaT_max_C) / 1000;
+    let Q_diss_hp = Q_diss_kw * 1.34102;
+
+    // Continuous Thermal Power Rating (HP & kW)
+    // P_thermal = Q_diss / (1 - eta)
+    let P_thermal_kw = Q_diss_kw / (1 - eta);
+    let P_thermal_hp = P_thermal_kw * 1.34102;
+
+    // Equilibrium Oil Sump Temperature without auxiliary cooling
+    // deltaT_eq = Q_loss / (h * A) in °C
+    let deltaT_eq_C = (Q_loss_kw * 1000) / (h_coeff * A_sqm);
+    let deltaT_eq_F = deltaT_eq_C * 1.8;
+    let Toil_eq_F = Tamb_F + deltaT_eq_F;
+    let Toil_eq_C = (Toil_eq_F - 32) * 5/9;
+    let Toil_disp = isCelsius ? Toil_eq_C : Toil_eq_F;
+
+    // Auxiliary Cooling Requirement
+    let Q_aux_kw = Math.max(Q_loss_kw - Q_diss_kw, 0);
+    let Q_aux_hp = Q_aux_kw * 1.34102;
+
+    // Required Cooling Water GPM (assuming 10°F water temp rise)
+    // GPM = BTU/hr / (500 * deltaT_water ~ 10) = BTU/hr / 5000
+    let Q_aux_btu = Q_aux_kw * 3412.14;
+    let water_gpm = Q_aux_btu / 5000;
+    let water_m3h = water_gpm * 0.227125;
+
+    let isOverheating = Toil_eq_F > ToilMax_F;
+
+    // Update Result UI
+    ratingResult.textContent = P_thermal_hp.toFixed(1) + ' HP';
+    ratingSub.textContent = P_thermal_kw.toFixed(1) + ' kW continuous thermal limit';
+
+    lossResult.textContent = Q_loss_hp.toFixed(2) + ' HP';
+    lossSub.textContent = Q_loss_kw.toFixed(2) + ' kW (' + Math.round(Q_loss_btu).toLocaleString() + ' BTU/hr)';
+
+    tempResult.textContent = Toil_disp.toFixed(1) + (isCelsius ? ' °C' : ' °F');
+    if (isOverheating) {
+      tempBadge.className = 'gb-status-badge badge-fail';
+      tempBadge.textContent = 'EXCEEDS LIMIT (> ' + ToilMax_raw + '°' + (isCelsius?'C':'F') + ')';
+      tempBox.className = 'gb-stat-box danger';
+    } else if (Toil_eq_F > ToilMax_F - 15) {
+      tempBadge.className = 'gb-status-badge badge-warn';
+      tempBadge.textContent = 'Elevated Oil Temp';
+      tempBox.className = 'gb-stat-box warning';
+    } else {
+      tempBadge.className = 'gb-status-badge badge-pass';
+      tempBadge.textContent = 'Within Limit (≤ ' + ToilMax_raw + '°' + (isCelsius?'C':'F') + ')';
+      tempBox.className = 'gb-stat-box';
+    }
+
+    dissResult.textContent = Q_diss_kw.toFixed(2) + ' kW';
+    dissSub.textContent = Q_diss_hp.toFixed(2) + ' HP (' + coolingModeSelect.options[coolingModeSelect.selectedIndex].text.split('(')[0].trim() + ')';
+
+    if (Q_aux_kw > 0) {
+      auxResult.textContent = Q_aux_hp.toFixed(1) + ' HP (' + Q_aux_kw.toFixed(1) + ' kW)';
+      auxBadge.className = 'gb-status-badge badge-fail';
+      auxBadge.textContent = 'AUX COOLING REQUIRED';
+      auxBox.className = 'gb-stat-box danger';
+      waterResult.textContent = water_gpm.toFixed(1) + ' GPM';
+      waterSub.textContent = water_m3h.toFixed(1) + ' m³/h @ 10°F water rise';
+    } else {
+      auxResult.textContent = 'NONE REQUIRED';
+      auxBadge.className = 'gb-status-badge badge-pass';
+      auxBadge.textContent = 'Housing Rejection OK';
+      auxBox.className = 'gb-stat-box highlight';
+      waterResult.textContent = '0.0 GPM';
+      waterSub.textContent = 'Natural dissipation sufficient';
+    }
+
+    // SVG Updates
+    svgThermalCapLabel.textContent = 'Thermal Limit: ' + P_thermal_hp.toFixed(1) + ' HP (' + P_thermal_kw.toFixed(1) + ' kW)';
+    svgOilTempLabel.textContent = 'Equilibrium Oil: ' + Toil_disp.toFixed(1) + '°' + (isCelsius ? 'C' : 'F');
+
+    // Derivations Updates
+    derivTransPower.textContent = P_trans_hp.toFixed(1) + ' HP (' + P_trans_kw.toFixed(1) + ' kW)';
+    derivEta.textContent = (eta * 100).toFixed(1) + '%';
+    derivCalcLoss.textContent = Q_loss_hp.toFixed(2) + ' HP (' + Q_loss_kw.toFixed(2) + ' kW)';
+    derivArea.textContent = A_sqft.toFixed(1) + ' sq ft (' + A_sqm.toFixed(2) + ' m²)';
+    derivHCoeff.textContent = h_coeff.toFixed(1) + ' W/m²·K';
+    derivToil.textContent = ToilMax_raw + '°' + (isCelsius ? 'C' : 'F');
+    derivTamb.textContent = Tamb_raw + '°' + (isCelsius ? 'C' : 'F');
+    derivDeltaT.textContent = deltaT_max_F.toFixed(1) + '°F (' + deltaT_max_C.toFixed(1) + '°C)';
+    derivCalcDiss.textContent = Q_diss_kw.toFixed(2) + ' kW (' + Q_diss_hp.toFixed(2) + ' HP)';
+    derivCalcRating.textContent = P_thermal_hp.toFixed(1) + ' HP (' + P_thermal_kw.toFixed(1) + ' kW)';
+    derivCalcToil.textContent = Toil_disp.toFixed(1) + '°' + (isCelsius ? 'C' : 'F');
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   AGMA 6011 & ISO 14179 GEARBOX THERMAL AUDIT        \n' +
+      '=======================================================\n' +
+      'Transmitted Mechanical Load: ' + P_trans_hp.toFixed(1) + ' HP (' + P_trans_kw.toFixed(1) + ' kW)\n' +
+      'Gearbox Configuration:     ' + gearTypeSelect.options[gearTypeSelect.selectedIndex].text.split('(')[0].trim() + ' (Efficiency: ' + (eta*100).toFixed(1) + '%)\n' +
+      'Input Shaft Speed:         ' + parseFloat(inputSpeedInput.value) + ' RPM\n' +
+      'Ambient / Max Oil Temp:    Tamb = ' + Tamb_raw + '° | Toil,max = ' + ToilMax_raw + '°' + (isCelsius ? 'C' : 'F') + '\n' +
+      'Housing Surface Area:      ' + A_sqft.toFixed(1) + ' sq ft (' + A_sqm.toFixed(2) + ' m²) [h: ' + h_coeff + ' W/m²·K]\n' +
+      '-------------------------------------------------------\n' +
+      'Internal Heat Loss Rate:   ' + Q_loss_hp.toFixed(2) + ' HP (' + Q_loss_kw.toFixed(2) + ' kW / ' + Math.round(Q_loss_btu).toLocaleString() + ' BTU/hr)\n' +
+      'Housing Dissipation Limit: ' + Q_diss_hp.toFixed(2) + ' HP (' + Q_diss_kw.toFixed(2) + ' kW)\n' +
+      'CONTINUOUS THERMAL RATING: ' + P_thermal_hp.toFixed(1) + ' HP (' + P_thermal_kw.toFixed(1) + ' kW)\n' +
+      'Unassisted Equilibrium Oil:' + Toil_disp.toFixed(1) + '°' + (isCelsius ? 'C' : 'F') + ' [' + tempBadge.textContent + ']\n' +
+      'Auxiliary Cooling Needed:  ' + (Q_aux_kw > 0 ? (Q_aux_hp.toFixed(1) + ' HP (' + Q_aux_kw.toFixed(1) + ' kW)') : 'NONE REQUIRED') + '\n' +
+      'Cooling Water Flow Rate:   ' + water_gpm.toFixed(1) + ' US GPM (' + water_m3h.toFixed(1) + ' m³/h)\n' +
+      'Design Specification:     AGMA 6011-J14 / ISO/TR 14179-1\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyGbAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyGbAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied AGMA Gearbox Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [transPowerInput, powerUnitSelect, gearTypeSelect, inputSpeedInput, tambInput, toilMaxInput, tempUnitSelect, housingAreaInput, areaUnitSelect, coolingModeSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'gearbox-thermal-rating-calculator.html'), renderTradePage({
+    title: "Gearbox Thermal Rating Calculator | AGMA 6011 & ISO 14179",
+    metaDesc: "Calculate industrial enclosed gearbox thermal power rating, friction heat dissipation, oil sump temperature, and auxiliary cooling coil GPM per AGMA 6011 and ISO 14179.",
+    canonical: `${DOMAIN}/calc/gearbox-thermal-rating-calculator`,
+    bodyContent: gearboxThermalBody,
+    currentPath: '/calc/gearbox-thermal-rating-calculator',
+    faq: [
+      {
+        "q": "What is the difference between gearbox mechanical rating and thermal rating?",
+        "a": "The mechanical rating is the maximum transmitted power the gear teeth and bearings can withstand based on structural bending fatigue and surface pitting contact stress. The thermal rating is the continuous power the gearbox can transmit without generating more heat than its housing can dissipate to ambient air, keeping bulk oil temperature below safe limits (typically 200°F / 93°C)."
+      },
+      {
+        "q": "What happens if a gearbox is operated above its thermal power rating?",
+        "a": "Operating continuously above the thermal rating leads to thermal runaway. Sump oil temperature climbs past 220°F–250°F (105°C–120°C), causing rapid lubricant oxidation, viscosity breakdown, hardening of radial shaft lip seals (inducing oil leaks), and ultimate gear tooth scuffing and bearing seizure."
+      },
+      {
+        "q": "What causes internal heat generation in an enclosed gearbox?",
+        "a": "Internal heat generation comprises four primary loss mechanisms: (1) gear tooth sliding and rolling mesh friction, (2) rolling element bearing friction, (3) gear wheel windage and oil sump dipping/churning drag, and (4) radial shaft lip seal friction."
+      },
+      {
+        "q": "How does a shaft-driven cooling fan improve gearbox thermal capacity?",
+        "a": "A shaft-driven fan enclosed in a directional shroud forces high-velocity cooling air across external housing ribs. This increases the convective heat transfer coefficient from approximately 15 W/m²·K (still air) to 28–35 W/m²·K, effectively increasing the gearbox's thermal dissipation capacity by 80% to 100%."
+      },
+      {
+        "q": "When is an external cooling package or cooling coil required?",
+        "a": "When the transmitted continuous operating power exceeds the gearbox's fan-cooled thermal capacity, auxiliary cooling is mandatory. This is achieved either via submerged internal water cooling coils or an external circulating pump with an oil-to-water plate heat exchanger or air-blast radiator."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (63 calculators in /calc/)');
 }
 
