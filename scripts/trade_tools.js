@@ -175717,6 +175717,2267 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (271 calculators in /calc/)');
+  
+  // ─── TOOL CE1: MEMBRANE AERATED BIOFILM REACTOR (MABR) SIZING CALCULATOR ───
+  (() => {
+    const slug = 'membrane-aerated-biofilm-reactor-mabr-wastewater-calculator';
+    const title = 'Membrane Aerated Biofilm Reactor (MABR) Sizing Calculator | Counter-Diffusion BNR Engine';
+    const desc = 'Advanced Membrane Aerated Biofilm Reactor (MABR) sizing calculator for municipal and industrial wastewater biological nutrient removal (BNR). Size counter-diffusional biofilm kinetics, oxygen transfer efficiency (OTE >80%), ammonia nitrification rates, membrane area, and aeration energy savings.';
+
+    const faqs = [
+      {
+        q: 'How does a Membrane Aerated Biofilm Reactor (MABR) achieve simultaneous nitrification and denitrification (SND)?',
+        a: 'Conventional activated sludge uses co-diffusion where oxygen and nutrients enter the biofilm from the same liquid side, making simultaneous nitrification and denitrification difficult without separate aerobic and anoxic zones. MABR utilizes revolutionary counter-diffusion: low-pressure air is supplied to the inside lumen of gas-permeable hollow-fiber membranes. Oxygen diffuses through the membrane wall into the root of the attached biofilm, establishing an aerobic zone at the base populated by autotrophic nitrifiers (AOB and NOB). Simultaneously, ammonia and organic carbon (BOD) diffuse into the biofilm from the bulk wastewater outside. The outer biofilm layer remains anoxic, allowing heterotrophic denitrifiers to reduce nitrate directly into harmless nitrogen gas (N2) within a single microscopic biofilm layer.'
+      },
+      {
+        q: 'Why does MABR achieve 75% higher Oxygen Transfer Efficiency (OTE) than fine bubble aeration?',
+        a: 'In conventional wastewater treatment, fine bubble diffusers pump thousands of cubic meters of compressed air through 4 to 6 meters of liquid depth. Bubbles rise rapidly and burst at the surface, achieving an Oxygen Transfer Efficiency (OTE) of only 10% to 15% (meaning 85% to 90% of the compressed air is wasted). In MABR, oxygen transfers across the dense silicone or polymethylpentene membrane molecularly without forming bubbles, achieving an OTE of 70% to 85%. Because air is supplied at ultra-low pressure (15 to 35 kPa) merely to overcome lumen friction rather than hydraulic liquid head, specific energy consumption plummets from ~1.1 kWh/kg O2 down to 0.18-0.25 kWh/kg O2.'
+      },
+      {
+        q: 'How is MABR utilized as a drop-in retrofit to intensify existing wastewater plants?',
+        a: 'Municipal wastewater treatment plants facing tighter nitrogen discharge limits or population growth often lack the footprint to build new concrete aeration tanks. MABR membrane cassettes can be submerged directly into existing anoxic or aerobic basins as a drop-in upgrade. The attached autotrophic nitrifying biofilm handles the nitrification load independently of the suspended mixed liquor suspended solids (MLSS). This decouples the solids retention time (SRT) of nitrifiers from the secondary clarifier hydraulic limits, effectively doubling plant treatment capacity without pouring a single yard of new concrete.'
+      },
+      {
+        q: 'What is the typical specific nitrification rate and biofilm thickness in MABR design?',
+        a: 'Commercial MABR systems operate with a specific nitrification rate between 1.5 and 3.2 g NH4-N removed per square meter of membrane surface per day at 20 deg C. Optimal biofilm thickness is maintained between 200 and 500 microns. If the biofilm grows thicker than 600 microns, diffusion resistance prevents ammonia from reaching the inner aerobic zone, while a biofilm thinner than 150 microns allows oxygen to break through into the bulk liquid, ruining denitrification. Biofilm thickness is actively regulated using periodic low-pressure air scouring bursts (typically 10 to 30 seconds every 1 to 4 hours).'
+      },
+      {
+        q: 'How does water temperature affect MABR biological kinetics compared to conventional suspended growth?',
+        a: 'Autotrophic nitrifying bacteria are notoriously temperature-sensitive; in conventional activated sludge, nitrification rates plummet by over 60% as wastewater temperatures drop from 20 deg C to 10 deg C in winter, frequently forcing plants into non-compliance. Because MABR membranes supply high oxygen concentrations directly to the protected basal biofilm layer, dissolved oxygen levels at the bacterial cell surface remain exceptionally high (>4 mg/L). This high substrate driving force partially buffers against Arrhenius temperature derating, allowing MABR systems to maintain stable winter nitrification with significantly less volume expansion.'
+      }
+    ];
+
+    const content = `<style>
+      .mabr-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .mabr-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .mabr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .mabr-group { margin-bottom: 16px; }
+      .mabr-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .mabr-group select, .mabr-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .mabr-group select:focus, .mabr-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .mabr-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-teal { background: #f0fdfa; color: #0d9488; }
+      .mabr-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .mabr-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .mabr-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .mabr-res-sub { font-size: 0.8rem; color: #64748b; }
+      .mabr-btn { background: #0d9488; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .mabr-btn:hover { background: #0f766e; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="mabr-wrap">
+      <div class="mabr-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Membrane Aerated Biofilm Reactor (MABR) Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Counter-diffusional biofilm kinetics, high-efficiency oxygen transfer modeling, and biological nutrient removal (BNR).</p>
+          </div>
+          <span class="mabr-badge badge-teal">WEF BNR & Net-Zero Wastewater</span>
+        </div>
+
+        <div class="mabr-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Wastewater Influent & Targets</h3>
+            <div class="mabr-group">
+              <label for="mabr_flow">Wastewater Flow Rate</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="mabr_flow" value="15000" min="100" step="500">
+                <select id="mabr_flow_unit" style="width:130px;">
+                  <option value="m3_d" selected>m3/day</option>
+                  <option value="MGD">MGD (US)</option>
+                  <option value="MLD">MLD</option>
+                </select>
+              </div>
+            </div>
+            <div class="mabr-group">
+              <label for="mabr_nh4_in">Influent Ammonia (NH4-N, mg/L)</label>
+              <input type="number" id="mabr_nh4_in" value="38.0" min="5.0" max="200.0" step="1.0">
+            </div>
+            <div class="mabr-group">
+              <label for="mabr_nh4_out">Target Effluent NH4-N (mg/L)</label>
+              <input type="number" id="mabr_nh4_out" value="2.0" min="0.1" max="15.0" step="0.5">
+            </div>
+            <div class="mabr-group">
+              <label for="mabr_bod_in">Influent BOD5 (mg/L)</label>
+              <input type="number" id="mabr_bod_in" value="220" min="50" max="800" step="10">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Membrane & Biofilm Kinetics</h3>
+            <div class="mabr-group">
+              <label for="mabr_temp">Wastewater Design Temperature (deg C)</label>
+              <input type="number" id="mabr_temp" value="15" min="5" max="32" step="1">
+              <small style="color:#64748b;">Critical for winter nitrification sizing.</small>
+            </div>
+            <div class="mabr-group">
+              <label for="mabr_mem_type">Membrane Polymer Material</label>
+              <select id="mabr_mem_type">
+                <option value="silicone" selected>Dense Silicone Hollow-Fiber (High O2 permeability)</option>
+                <option value="pmp">Polymethylpentene (PMP) Composite (Ultra-thin)</option>
+                <option value="cord">Supported Hollow-Fiber Cord (High mechanical tensile)</option>
+              </select>
+            </div>
+            <div class="mabr-group">
+              <label for="mabr_ote">Design Oxygen Transfer Efficiency (% OTE)</label>
+              <input type="number" id="mabr_ote" value="78" min="60" max="90" step="1">
+              <small style="color:#64748b;">Typically 75% to 85% for molecular lumen diffusion.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Energy & Economic Factors</h3>
+            <div class="mabr-group">
+              <label for="mabr_elec_cost">Electricity Rate ($/kWh)</label>
+              <input type="number" id="mabr_elec_cost" value="0.12" min="0.02" max="0.50" step="0.01">
+            </div>
+            <div class="mabr-group">
+              <label for="mabr_conv_kwh">Conventional Baseline Energy (kWh / kg O2)</label>
+              <input type="number" id="mabr_conv_kwh" value="1.05" min="0.75" max="1.50" step="0.05">
+              <small style="color:#64748b;">Fine-bubble aeration benchmark: 0.9 to 1.2 kWh/kg O2.</small>
+            </div>
+            <div class="mabr-group">
+              <label for="mabr_mabr_kwh">MABR Specific Energy (kWh / kg O2)</label>
+              <input type="number" id="mabr_mabr_kwh" value="0.22" min="0.15" max="0.40" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="mabr-btn" id="mabr_calc_btn">Compute MABR Membrane Area & Aeration Savings</button>
+        </div>
+      </div>
+
+      <div class="mabr-card" id="mabr_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">MABR Biofilm Sizing & Energy Output</h2>
+          <button class="copy-btn" id="mabr_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="mabr_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="mabr-res-grid">
+          <div class="mabr-res-card">
+            <div class="mabr-res-sub">Required Membrane Area</div>
+            <div class="mabr-res-val" id="res_mem_area">0 m2</div>
+            <div class="mabr-res-sub" id="res_mem_area_ft2">0 ft2</div>
+          </div>
+          <div class="mabr-res-card">
+            <div class="mabr-res-sub">Nitrogen Removal Rate</div>
+            <div class="mabr-res-val" id="res_n_removed">0 kg N/d</div>
+            <div class="mabr-res-sub" id="res_n_rem_pct">Removal: 0%</div>
+          </div>
+          <div class="mabr-res-card">
+            <div class="mabr-res-sub">Specific Nitrification Rate</div>
+            <div class="mabr-res-val" id="res_spec_rate">0 g N/(m2*d)</div>
+            <div class="mabr-res-sub" id="res_sotr">SOTR: 0 g O2/(m2*d)</div>
+          </div>
+          <div class="mabr-res-card">
+            <div class="mabr-res-sub">Annual Energy Cost Savings</div>
+            <div class="mabr-res-val" id="res_dollar_savings">$0 / yr</div>
+            <div class="mabr-res-sub" id="res_pct_energy_saved">Aeration Power Cut: 0%</div>
+          </div>
+          <div class="mabr-res-card">
+            <div class="mabr-res-sub">Low-Pressure Air Supply</div>
+            <div class="mabr-res-val" id="res_air_flow">0 Nm3/h</div>
+            <div class="mabr-res-sub" id="res_air_scfm">0 SCFM @ 25 kPa</div>
+          </div>
+          <div class="mabr-res-card">
+            <div class="mabr-res-sub">Cassette Module Estimate</div>
+            <div class="mabr-res-val" id="res_cassettes">0 Cassettes</div>
+            <div class="mabr-res-sub" id="res_cassette_spec">~1,800 m2 per cassette</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Oxygen Demand & Power Comparison</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Total Oxygen Delivered: <strong id="res_total_o2">0 kg O2/day</strong></div>
+            <div>MABR Operating Power: <strong id="res_mabr_kw">0 kW</strong></div>
+            <div>Baseline Conventional Power: <strong id="res_conv_kw">0 kW (Fine Bubble Blower)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Microscopic Counter-Diffusion Biofilm Cross-Section Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing hollow-fiber membrane wall, oxygen diffusing outward into basal nitrifying zone, and NH4/COD diffusing inward from bulk wastewater.</p>
+          <div class="anim-box">
+            <canvas id="mabr_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="mabr-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Thick Biofilm Suffocation & Heterotrophic Overgrowth</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">If wastewater contains excessive readily biodegradable soluble COD (BOD/N ratio > 4.5) entering the MABR zone, fast-growing heterotrophic bacteria outcompete nitrifiers on the outer biofilm. The biofilm swells beyond 700 microns, creating severe diffusion resistance. Incoming ammonia cannot penetrate through the thick heterotrophic layer to reach the oxygenated basal zone. Ammonia removal efficiency collapses from 95% down to under 20% within two weeks.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Lumen Condensation Water-Logging & Air Choke</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Warm, water-saturated hollow-fiber membranes operate submerged in liquid. Water vapor naturally permeates across the membrane into the cooler air lumen, where it condenses into liquid water droplets. If automated periodic lumen exhaust purging (high-velocity air sweeping) is neglected, condensed water blocks the microscopic fiber lumens (typically 0.2 to 0.4 mm ID). Air supply halts completely; the attached biofilm starves of oxygen and dies, shedding into the bulk liquid.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Over-Scouring & Detachment of Slow-Growing Nitrifiers</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Biofilm thickness is managed by scouring with coarse air bubbles. Autotrophic nitrifiers have slow doubling times (18 to 36 hours). If maintenance operators increase air scour frequency or duration in an attempt to clean the membranes "like an MBR", the entire active nitrifying biofilm is sheared off into the bulk liquid. Re-establishing a mature, nitrifying MABR biofilm requires 4 to 8 weeks of sluggish re-inoculation, during which the plant violates effluent discharge limits.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Ragging & Fiber Bundling from Inadequate Pre-Screening</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Municipal sewage carries hair, wipes, and synthetic fibers. MABR cassettes consist of thousands of densely packed flexible hollow fibers. If upstream primary treatment lacks 2 mm to 3 mm fine screening, rags and hair accumulate across the bottom headers and wrap around fibers. Fibers clump together into impenetrable "ropes" with zero surface area. Trapped sludge inside the clump rots anaerobically, generating hydrogen sulfide that degrades the membrane polymer.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Bulk Liquid DO Inversion & Denitrification Destruction</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">MABR achieves simultaneous denitrification only if the outer biofilm boundary and surrounding bulk liquid remain strictly anoxic (DO < 0.2 mg/L). If the lumen air pressure is set too high or if the biofilm is stripped too thin, surplus oxygen breaks through the outer biofilm into the mixed liquor. Once bulk DO rises above 0.5 mg/L, nitrate reduction enzymes in denitrifying bacteria are immediately suppressed; total nitrogen removal halts and nitrate accumulates in the effluent.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Counter-Diffusional Biofilm Kinetics & Mass Balance Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The steady-state counter-diffusion of oxygen and ammonia inside an MABR biofilm is modeled by <strong>Fickian diffusion coupled with Monod reaction kinetics</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$D_{e,O2} \frac{d^2 S_{O2}}{dz^2} = \mu_{max,AOB} \cdot X_{AOB} \left( \frac{S_{O2}}{K_{O2} + S_{O2}} \right) \left( \frac{S_{NH4}}{K_{NH4} + S_{NH4}} \right) \cdot Y_{O2/N}$$
+          </div>
+          <p>Where $z=0$ is the membrane interface ($S_{O2} = S_{O2,sat}$) and $z=L_f$ is the bulk wastewater interface ($S_{O2} \approx 0$).</p>
+          <p>The <strong>Specific Nitrification Rate ($J_{N}$)</strong> at temperature $T$ (deg C) is corrected via the <strong>modified Arrhenius relation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$J_{N}(T) = J_{N,20} \cdot \theta_{MABR}^{(T - 20)} \quad \left[ \frac{\text{g NH}_4\text{-N}}{\text{m}^2 \cdot \text{d}} \right]$$
+          </div>
+          <p>Where $\theta_{MABR} \approx 1.045$ (significantly more resilient than conventional activated sludge where $\theta \approx 1.072$).</p>
+          <p>The required membrane surface area $A_{mem}$ and total oxygen transfer demand ($SOTR$) are:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$A_{mem} = \frac{Q \cdot (S_{NH4,in} - S_{NH4,out})}{J_N(T)}, \qquad \text{SOTR} = A_{mem} \cdot \left[ 4.57 \cdot J_N + J_{BOD} \right]$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var flowInput = document.getElementById('mabr_flow');
+        var flowUnitSel = document.getElementById('mabr_flow_unit');
+        var nh4InInput = document.getElementById('mabr_nh4_in');
+        var nh4OutInput = document.getElementById('mabr_nh4_out');
+        var bodInInput = document.getElementById('mabr_bod_in');
+        var tempInput = document.getElementById('mabr_temp');
+        var memTypeSel = document.getElementById('mabr_mem_type');
+        var oteInput = document.getElementById('mabr_ote');
+        var elecCostInput = document.getElementById('mabr_elec_cost');
+        var convKwhInput = document.getElementById('mabr_conv_kwh');
+        var mabrKwhInput = document.getElementById('mabr_mabr_kwh');
+        var calcBtn = document.getElementById('mabr_calc_btn');
+        var copyBtn = document.getElementById('mabr_copy_btn');
+        var copyMsg = document.getElementById('mabr_copy_msg');
+
+        var resMemArea = document.getElementById('res_mem_area');
+        var resMemAreaFt2 = document.getElementById('res_mem_area_ft2');
+        var resNRemoved = document.getElementById('res_n_removed');
+        var resNRemPct = document.getElementById('res_n_rem_pct');
+        var resSpecRate = document.getElementById('res_spec_rate');
+        var resSotr = document.getElementById('res_sotr');
+        var resDollarSavings = document.getElementById('res_dollar_savings');
+        var resPctEnergySaved = document.getElementById('res_pct_energy_saved');
+        var resAirFlow = document.getElementById('res_air_flow');
+        var resAirScfm = document.getElementById('res_air_scfm');
+        var resCassettes = document.getElementById('res_cassettes');
+        var resCassetteSpec = document.getElementById('res_cassette_spec');
+        var resTotalO2 = document.getElementById('res_total_o2');
+        var resMabrKw = document.getElementById('res_mabr_kw');
+        var resConvKw = document.getElementById('res_conv_kw');
+
+        var canvas = document.getElementById('mabr_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var rawFlow = parseFloat(flowInput.value) || 15000;
+          var unit = flowUnitSel.value;
+          var nh4In = parseFloat(nh4InInput.value) || 38.0;
+          var nh4Out = parseFloat(nh4OutInput.value) || 2.0;
+          var bodIn = parseFloat(bodInInput.value) || 220;
+          var tempC = parseFloat(tempInput.value) || 15;
+          var memType = memTypeSel.value;
+          var otePct = (parseFloat(oteInput.value) || 78) / 100;
+          var tariff = parseFloat(elecCostInput.value) || 0.12;
+          var convKwhPerKgO2 = parseFloat(convKwhInput.value) || 1.05;
+          var mabrKwhPerKgO2 = parseFloat(mabrKwhInput.value) || 0.22;
+
+          // Normalize flow to m3/day
+          var flowM3d = rawFlow;
+          if (unit === 'MGD') flowM3d = rawFlow * 3785.41;
+          else if (unit === 'MLD') flowM3d = rawFlow * 1000;
+
+          // Nitrogen mass to remove
+          var deltaNh4MgL = Math.max(0, nh4In - nh4Out);
+          var remPct = (deltaNh4MgL / nh4In) * 100;
+          var massNRemovedKgD = (flowM3d * deltaNh4MgL) / 1000; // kg N/day
+
+          // Temperature-corrected specific nitrification rate J_N (g N/(m2*d))
+          // Benchmark at 20C: ~2.4 g N/(m2*d) for silicone, 2.8 for PMP, 2.2 for cord
+          var baseRate20 = 2.4;
+          if (memType === 'pmp') baseRate20 = 2.8;
+          else if (memType === 'cord') baseRate20 = 2.1;
+
+          var thetaMabr = 1.045;
+          var specRateJN = baseRate20 * Math.pow(thetaMabr, tempC - 20); // g N/(m2*d)
+
+          // Required membrane surface area (m2)
+          var reqMemAreaM2 = (massNRemovedKgD * 1000) / specRateJN;
+          var reqMemAreaFt2 = reqMemAreaM2 * 10.7639;
+
+          // Oxygen requirements:
+          // 4.57 kg O2 per kg N nitrified + 0.6 kg O2 per kg BOD removed in biofilm (~20% of influent BOD)
+          var o2ForNitrogenKgD = massNRemovedKgD * 4.57;
+          var bodRemovedBiofilmKgD = (flowM3d * bodIn * 0.20) / 1000;
+          var o2ForBodKgD = bodRemovedBiofilmKgD * 0.60;
+          var totalO2DemandKgD = o2ForNitrogenKgD + o2ForBodKgD;
+
+          // SOTR in g O2 / (m2 * d)
+          var sotr = (totalO2DemandKgD * 1000) / reqMemAreaM2;
+
+          // Lumen air flow requirement
+          // Air contains 0.298 kg O2 per Nm3
+          var o2PerNm3Air = 0.298;
+          var nm3AirPerDay = totalO2DemandKgD / (o2PerNm3Air * otePct);
+          var nm3AirPerHr = nm3AirPerDay / 24;
+          var airScfm = nm3AirPerHr * 0.622;
+
+          // Energy consumption & Power comparison
+          var mabrPowerKw = (totalO2DemandKgD * mabrKwhPerKgO2) / 24;
+          var convPowerKw = (totalO2DemandKgD * convKwhPerKgO2) / 24;
+          var savedPowerKw = convPowerKw - mabrPowerKw;
+          var pctEnergySaved = (savedPowerKw / convPowerKw) * 100;
+
+          var annualDollarSavings = (savedPowerKw * 8760) * tariff;
+
+          // Cassette module estimation (~1,800 m2 per commercial cassette)
+          var cassetteArea = 1800;
+          var numCassettes = Math.ceil(reqMemAreaM2 / cassetteArea);
+
+          // Update DOM
+          resMemArea.innerText = Math.round(reqMemAreaM2).toLocaleString() + ' m2';
+          resMemAreaFt2.innerText = Math.round(reqMemAreaFt2).toLocaleString() + ' ft2 of Hollow-Fiber';
+          resNRemoved.innerText = Math.round(massNRemovedKgD).toLocaleString() + ' kg N/day';
+          resNRemPct.innerText = 'Removal Efficiency: ' + remPct.toFixed(1) + '%';
+          resSpecRate.innerText = specRateJN.toFixed(2) + ' g N/(m2*d)';
+          resSotr.innerText = 'SOTR: ' + sotr.toFixed(1) + ' g O2/(m2*d) @ ' + tempC + 'C';
+          resDollarSavings.innerText = '$' + Math.round(annualDollarSavings).toLocaleString() + ' / yr';
+          resPctEnergySaved.innerText = 'Saves ' + pctEnergySaved.toFixed(0) + '% Aeration Energy';
+          resAirFlow.innerText = Math.round(nm3AirPerHr).toLocaleString() + ' Nm3/h';
+          resAirScfm.innerText = Math.round(airScfm) + ' SCFM @ 25 kPa (Low Pressure)';
+          resCassettes.innerText = numCassettes + ' Cassette Modules';
+          resCassetteSpec.innerText = '~' + cassetteArea + ' m2 per cassette (' + (numCassettes * cassetteArea).toLocaleString() + ' m2 total)';
+          resTotalO2.innerText = Math.round(totalO2DemandKgD).toLocaleString() + ' kg O2/day';
+          resMabrKw.innerText = mabrPowerKw.toFixed(1) + ' kW (MABR Blower)';
+          resConvKw.innerText = convPowerKw.toFixed(1) + ' kW (Conv. Fine Bubble)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Microscopic Counter-Diffusional Biofilm Cutaway Diagram
+          // Left: Membrane Lumen & Wall (Air)
+          var mX = 60, mY = 40, mW = 120, mH = 240;
+          ctx.fillStyle = '#0f172a';
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.rect(mX, mY, mW, mH); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('AIR LUMEN', mX + mW/2, mY + 30);
+          ctx.fillStyle = '#38bdf8'; ctx.font = '10px sans-serif';
+          ctx.fillText('Low-P Air (21% O2)', mX + mW/2, mY + 50);
+
+          // Membrane Polymer Wall (Silicone / PMP)
+          var wallX = mX + mW;
+          var wallW = 40;
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(wallX, mY, wallW, mH);
+          ctx.fillStyle = '#cbd5e1'; ctx.font = 'bold 9px sans-serif';
+          ctx.save(); ctx.translate(wallX + 20, mY + mH/2); ctx.rotate(-Math.PI/2);
+          ctx.fillText('MEMBRANE WALL', 0, 0); ctx.restore();
+
+          // Zone 1: Aerobic Biofilm Zone (Nitrification)
+          var b1X = wallX + wallW;
+          var b1W = 90;
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
+          ctx.fillRect(b1X, mY, b1W, mH);
+          ctx.fillStyle = '#34d399'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('AEROBIC ROOT', b1X + b1W/2, mY + 25);
+          ctx.fillStyle = '#ffffff'; ctx.font = '9px sans-serif';
+          ctx.fillText('DO > 4 mg/L', b1X + b1W/2, mY + 45);
+          ctx.fillText('AOB / NOB', b1X + b1W/2, mY + 65);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('NH4 -> NO3', b1X + b1W/2, mY + 85);
+
+          // Zone 2: Anoxic Biofilm Zone (Denitrification)
+          var b2X = b1X + b1W;
+          var b2W = 85;
+          ctx.fillStyle = 'rgba(168, 85, 247, 0.35)';
+          ctx.fillRect(b2X, mY, b2W, mH);
+          ctx.fillStyle = '#c084fc'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('ANOXIC LAYER', b2X + b2W/2, mY + 25);
+          ctx.fillStyle = '#ffffff'; ctx.font = '9px sans-serif';
+          ctx.fillText('DO < 0.2 mg/L', b2X + b2W/2, mY + 45);
+          ctx.fillText('Denitrifiers', b2X + b2W/2, mY + 65);
+          ctx.fillStyle = '#a855f7';
+          ctx.fillText('NO3 -> N2 gas', b2X + b2W/2, mY + 85);
+
+          // Zone 3: Bulk Wastewater
+          var wX = b2X + b2W;
+          var wW = 120;
+          ctx.fillStyle = 'rgba(2, 132, 199, 0.2)';
+          ctx.fillRect(wX, mY, wW, mH);
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('BULK WATER', wX + wW/2, mY + 25);
+          ctx.fillStyle = '#94a3b8'; ctx.font = '9px sans-serif';
+          ctx.fillText('NH4: ' + nh4InInput.value + ' mg/L', wX + wW/2, mY + 48);
+          ctx.fillText('BOD: ' + bodInInput.value + ' mg/L', wX + wW/2, mY + 65);
+          ctx.fillText('Bulk DO ~ 0 mg/L', wX + wW/2, mY + 82);
+
+          // Molecular Diffusion Arrows:
+          // Oxygen moving OUTWARD (Right) from Lumen into Biofilm
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          for (var py = mY + 120; py < mY + mH - 30; py += 35) {
+            ctx.beginPath();
+            ctx.moveTo(wallX + 5, py);
+            ctx.lineTo(b1X + b1W - 10, py);
+            ctx.stroke();
+          }
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('O2 OUTWARD ->', b1X + 45, mY + 115);
+
+          // NH4 and BOD moving INWARD (Left) from Bulk Water into Biofilm
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 3;
+          for (var py2 = mY + 135; py2 < mY + mH - 15; py2 += 35) {
+            ctx.beginPath();
+            ctx.moveTo(wX + 30, py2);
+            ctx.lineTo(b1X + 15, py2);
+            ctx.stroke();
+          }
+          ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('<- NH4 & BOD INWARD', b2X + 35, mY + 130);
+
+          // Right: Telemetry & SND Kinetics Panel
+          var pX = 540, pY = 40, pW = 500, pH = 240;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(pX, pY, pW, pH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('MABR COUNTER-DIFFUSION BIOFILM METRICS', pX + 20, pY + 25);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Total Membrane Area: ' + resMemArea.innerText + ' (' + resCassettes.innerText + ')', pX + 20, pY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Specific Nitrification: ' + resSpecRate.innerText + ' @ ' + tempInput.value + ' deg C', pX + 20, pY + 75);
+          ctx.fillText('Oxygen Transfer Efficiency: ' + oteInput.value + '% (Bubble-less lumen diffusion)', pX + 20, pY + 95);
+          ctx.fillText('Simultaneous Nitrification & Denitrification (SND) Active', pX + 20, pY + 115);
+          ctx.fillText('Low-Pressure Blower: ' + resAirFlow.innerText + ' (' + resAirScfm.innerText + ')', pX + 20, pY + 135);
+          ctx.fillText('Aeration Power Savings: ' + resPctEnergySaved.innerText, pX + 20, pY + 155);
+
+          ctx.fillStyle = '#34d399'; ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('Annual Energy Savings: ' + resDollarSavings.innerText, pX + 20, pY + 195);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Drop-In Retrofit: Expands BNR without new concrete tanks', pX + 20, pY + 218);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== MABR BIOFILM REACTOR SIZING REPORT ===',
+            'Wastewater Flow Rate: ' + flowInput.value + ' ' + flowUnitSel.value,
+            'Influent / Effluent NH4-N: ' + nh4InInput.value + ' -> ' + nh4OutInput.value + ' mg/L (' + resNRemPct.innerText + ')',
+            'Nitrogen Removed: ' + resNRemoved.innerText + ' (SND Active)',
+            'Membrane Surface Area: ' + resMemArea.innerText + ' (' + resMemAreaFt2.innerText + ')',
+            'Cassette Module Sizing: ' + resCassettes.innerText + ' (' + resCassetteSpec.innerText + ')',
+            'Specific Nitrification Rate: ' + resSpecRate.innerText + ' (' + resSotr.innerText + ')',
+            'Oxygen Transfer Efficiency: ' + oteInput.value + '% OTE',
+            'Low-Pressure Air Supply: ' + resAirFlow.innerText + ' (' + resAirScfm.innerText + ')',
+            'Operating Power: ' + resMabrKw.innerText + ' (vs ' + resConvKw.innerText + ' Baseline)',
+            'Annual Operating Cost Savings: ' + resDollarSavings.innerText + ' (' + resPctEnergySaved.innerText + ')',
+            'Standards: WEF Biological Nutrient Removal (BNR) & Net-Zero WWTP Architecture'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [flowInput, flowUnitSel, nh4InInput, nh4OutInput, bodInInput, tempInput, memTypeSel, oteInput, elecCostInput, convKwhInput, mabrKwhInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CE2: DIRECT CONTACT CONDENSER (DCC) & BAROMETRIC LEG SIZING CALCULATOR ───
+  (() => {
+    const slug = 'direct-contact-condenser-dcc-barometric-leg-calculator';
+    const title = 'Direct Contact Condenser (DCC) & Barometric Leg Sizing Calculator | Barometric Condenser Hydraulics';
+    const desc = 'Industrial Direct Contact Condenser (DCC) and barometric leg sizing calculator. Calculate vapor condensation heat duty, cooling water flow rates, tailpipe barometric seal leg height, siphon breaker safety margins, and condenser shell diameter for chemical, power, and vacuum evaporation systems.';
+
+    const faqs = [
+      {
+        q: 'How does a barometric direct contact condenser work without a mechanical pump?',
+        a: 'A barometric direct contact condenser mixes cooling water directly with process vapors inside an elevated vessel operating under high vacuum. Condensation creates warm liquid water that drains continuously down a vertical tailpipe into an open atmospheric seal pot (hotwell). The height of the water column inside the tailpipe naturally balances the pressure differential between atmospheric pressure (101.3 kPa) and the deep condenser vacuum (e.g., 5 to 10 kPa abs). This hydrostatic water head allows liquid to discharge by pure gravity into the atmospheric hotwell continuously without requiring a costly mechanical slurry or condensate pump.'
+      },
+      {
+        q: 'Why is a minimum barometric tailpipe height of 10.5 to 11.5 meters strictly required?',
+        a: 'At standard atmospheric sea-level pressure (101.325 kPa) and typical warm condensate water densities (~990 kg/m3), a complete perfect vacuum (0 kPa abs) supports a static water column of exactly 101,325 / (990 * 9.80665) = 10.43 meters. In real industrial systems, the total tailpipe height must exceed this static head to account for: (1) high local barometric atmospheric pressure variations (up to 104 kPa), (2) tailpipe fluid friction losses at design water velocities (1.2 to 2.1 m/s), (3) entry and exit kinetic velocity head, and (4) a mandatory safety margin of at least 0.8 to 1.5 meters to prevent atmospheric water from being siphoned back into the condenser during vacuum surges.'
+      },
+      {
+        q: 'What is the difference between counter-current and co-current direct contact condensers?',
+        a: 'In a counter-current condenser, vapor enters near the bottom and flows upward through descending water curtains (created by spray nozzles, disc-and-doughnut trays, or shed decks). Non-condensable gases (NCGs) exit at the top where they contact the coldest incoming cooling water, minimizing vapor carryover into the vacuum ejector or liquid ring vacuum pump. In a co-current (jet) condenser, water sprays downward in the same direction as vapor flow; high-velocity water jets can entrain and compress non-condensables, eliminating or reducing external vacuum ejector loads, but achieving a less efficient thermal approach.'
+      },
+      {
+        q: 'How is the approach temperature (TTD) defined and why is it critical?',
+        a: 'The approach temperature, or Terminal Temperature Difference (TTD), is the difference between the saturation temperature of the condensing vapor ($T_{sat}$) and the outlet warm water temperature ($T_{out}$): TTD = $T_{sat} - T_{out}$. In well-designed counter-current direct contact condensers, typical TTD values range between 2.5 deg C and 5.0 deg C. A tighter approach requires higher contact stages (more trays or finer sprays) and reduces cooling water demand, whereas a wider approach requires higher cooling water flow rates to absorb the latent heat.'
+      },
+      {
+        q: 'How do non-condensable gases (NCGs) impact direct contact condenser performance?',
+        a: 'Non-condensable gases (dissolved air in cooling water, atmospheric in-leakage, and process off-gases like CO2 or NH3) do not condense at operating temperatures. As vapor condenses, NCG concentrations increase locally, forming a stagnant gas boundary layer around water droplets that dramatically retards mass transfer and vapor diffusion. Furthermore, NCGs must be continuously removed by two-stage steam ejectors or vacuum pumps. An undersized vacuum vent results in gas blanketing, causing condenser pressure to rise and collapsing upstream process vacuum.'
+      }
+    ];
+
+    const content = `<style>
+      .dcc-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .dcc-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .dcc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .dcc-group { margin-bottom: 16px; }
+      .dcc-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .dcc-group select, .dcc-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .dcc-group select:focus, .dcc-group input:focus { border-color: #0284c7; outline: none; ring: 2px ring #7dd3fc; }
+      .dcc-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-sky { background: #f0f9ff; color: #0284c7; }
+      .dcc-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .dcc-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .dcc-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .dcc-res-sub { font-size: 0.8rem; color: #64748b; }
+      .dcc-btn { background: #0284c7; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .dcc-btn:hover { background: #0369a1; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="dcc-wrap">
+      <div class="dcc-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Direct Contact Condenser (DCC) & Barometric Leg Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Barometric tailpipe hydrostatic head, cooling water flow, condenser shell diameter, and non-condensable gas venting.</p>
+          </div>
+          <span class="dcc-badge badge-sky">HEI Vacuum & Evaporator Hydraulics</span>
+        </div>
+
+        <div class="dcc-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Vapor Conditions & Vacuum Level</h3>
+            <div class="dcc-group">
+              <label for="dcc_vapor_flow">Process Vapor Flow Rate (kg/h)</label>
+              <input type="number" id="dcc_vapor_flow" value="12000" min="100" max="250000" step="500">
+            </div>
+            <div class="dcc-group">
+              <label for="dcc_vac_press">Condenser Operating Vacuum (kPa absolute)</label>
+              <input type="number" id="dcc_vac_press" value="12.5" min="1.0" max="100.0" step="0.5">
+              <small style="color:#64748b;">E.g., 12.5 kPa abs (~50.3 deg C steam saturation).</small>
+            </div>
+            <div class="dcc-group">
+              <label for="dcc_ncg_rate">Non-Condensable Gases (NCG, kg/h)</label>
+              <input type="number" id="dcc_ncg_rate" value="45" min="0" max="1000" step="5">
+              <small style="color:#64748b;">Air in-leakage + dissolved air in water.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Cooling Water & Heat Transfer</h3>
+            <div class="dcc-group">
+              <label for="dcc_water_tin">Cooling Water Inlet Temp (deg C)</label>
+              <input type="number" id="dcc_water_tin" value="28" min="5" max="45" step="1">
+            </div>
+            <div class="dcc-group">
+              <label for="dcc_ttd">Approach Temperature / TTD (deg C)</label>
+              <input type="number" id="dcc_ttd" value="4.0" min="1.5" max="15.0" step="0.5">
+              <small style="color:#64748b;">$T_{out} = T_{sat} - TTD$. Typically 3.0 to 5.0 deg C.</small>
+            </div>
+            <div class="dcc-group">
+              <label for="dcc_internals">Condenser Internal Geometry</label>
+              <select id="dcc_internals">
+                <option value="disc_doughnut" selected>Disc-and-Doughnut Baffle Trays (Low fouling)</option>
+                <option value="spray_nozzle">Full-Cone Spray Nozzle Array (High compact heat transfer)</option>
+                <option value="shed_deck">Shed Deck Angle Baffles (Heavy solids slurries)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Barometric Leg & Site Installation</h3>
+            <div class="dcc-group">
+              <label for="dcc_patm">Local Atmospheric Pressure (kPa)</label>
+              <input type="number" id="dcc_patm" value="101.3" min="70.0" max="105.0" step="0.5">
+              <small style="color:#64748b;">Standard sea level: 101.3 kPa (high altitude lower).</small>
+            </div>
+            <div class="dcc-group">
+              <label for="dcc_pipe_vel">Design Tailpipe Water Velocity (m/s)</label>
+              <input type="number" id="dcc_pipe_vel" value="1.5" min="0.8" max="2.5" step="0.1">
+              <small style="color:#64748b;">HEI standard: 1.2 to 1.8 m/s avoids air entrainment lock.</small>
+            </div>
+            <div class="dcc-group">
+              <label for="dcc_safety_margin">Barometric Safety Margin (meters)</label>
+              <input type="number" id="dcc_safety_margin" value="1.2" min="0.5" max="3.0" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="dcc-btn" id="dcc_calc_btn">Calculate Condenser & Tailpipe Hydraulics</button>
+        </div>
+      </div>
+
+      <div class="dcc-card" id="dcc_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Hydraulic & Thermodynamic Results</h2>
+          <button class="copy-btn" id="dcc_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="dcc_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="dcc-res-grid">
+          <div class="dcc-res-card">
+            <div class="dcc-res-sub">Barometric Leg Height ($H_{total}$)</div>
+            <div class="dcc-res-val" id="res_leg_height">0.0 m</div>
+            <div class="dcc-res-sub" id="res_leg_height_ft">0.0 ft static + friction</div>
+          </div>
+          <div class="dcc-res-card">
+            <div class="dcc-res-sub">Cooling Water Flow Rate</div>
+            <div class="dcc-res-val" id="res_water_flow">0 m3/h</div>
+            <div class="dcc-res-sub" id="res_water_flow_gpm">0 GPM ($T_{out}$: 0 deg C)</div>
+          </div>
+          <div class="dcc-res-card">
+            <div class="dcc-res-sub">Tailpipe Internal Diameter</div>
+            <div class="dcc-res-val" id="res_tailpipe_dia">0 mm</div>
+            <div class="dcc-res-sub" id="res_tailpipe_inch">0 inches NPS</div>
+          </div>
+          <div class="dcc-res-card">
+            <div class="dcc-res-sub">Condenser Shell Diameter</div>
+            <div class="dcc-res-val" id="res_shell_dia">0.0 m</div>
+            <div class="dcc-res-sub" id="res_shell_dia_in">0 inches ID (Souders-Brown)</div>
+          </div>
+          <div class="dcc-res-card">
+            <div class="dcc-res-sub">Condensation Thermal Duty</div>
+            <div class="dcc-res-val" id="res_heat_duty">0.0 MW</div>
+            <div class="dcc-res-sub" id="res_heat_duty_btu">0 MMBtu/h</div>
+          </div>
+          <div class="dcc-res-card">
+            <div class="dcc-res-sub">NCG Vacuum Suction Volume</div>
+            <div class="dcc-res-val" id="res_ncg_acfm">0 ACFM</div>
+            <div class="dcc-res-sub" id="res_sat_temp">Steam $T_{sat}$: 0.0 deg C</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Hydraulic Pressure Head Breakdown</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Static Vacuum Head: <strong id="res_static_head">0.0 m</strong></div>
+            <div>Pipe Friction + Fittings Head: <strong id="res_friction_head">0.0 m</strong></div>
+            <div>Velocity Exit Head: <strong id="res_vel_head">0.0 m</strong></div>
+            <div>Engineering Safety Buffer: <strong id="res_safety_head">0.0 m</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Direct Contact Condenser & Barometric Hotwell Dynamic Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Elevated condenser vessel, internal spray curtains, non-condensable gas overheads, hydrostatic barometric column, and atmospheric seal pot.</p>
+          <div class="anim-box">
+            <canvas id="dcc_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="dcc-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Barometric Leg Siphon Backflow & Process Drowning</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">If the tailpipe height is sized only for theoretical static vacuum without adding safety margins and weather-induced high atmospheric pressures (e.g. 104 kPa during winter cold snaps), the water column rises into the bottom of the condenser. Once warm cooling water floods the lower vapor inlet duct, thousands of gallons of water are siphoned upstream into evaporators, vacuum distillation columns, or reaction vessels, causing devastating thermal shock and contaminated product charges.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Non-Condensable Gas Blanketing & Vacuum Loss</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Engineers frequently size vacuum ejectors based solely on ambient air in-leakage, forgetting that raw cooling water carries dissolved air (up to 25 mg/L). In a system utilizing 500 m3/h of river water, dissolved gases flash into the deep vacuum chamber, releasing over 12 kg/h of non-condensables. If the vacuum vent line or ejector is undersized, an inert gas blanket wraps around the water curtains, halving heat transfer coefficients and causing absolute pressure to skyrocket.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Tailpipe Air Entrainment & Hydraulic Choking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">If the tailpipe diameter is oversized to "be conservative", water velocity drops below 0.8 m/s. At low velocities, water trickles down the pipe walls while trapped air pockets migrate upwards, causing severe hydraulic burping and fluctuating vacuum. Conversely, if tailpipe velocity exceeds 2.2 m/s, friction loss increases exponentially, requiring a taller physical support structure and risking turbulent vortexing in the hotwell.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Hotwell Seal Pot Unseating During Rapid Restart</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">The bottom of the tailpipe must be submerged into the atmospheric hotwell seal pot by at least 1.5 times the pipe diameter (minimum 0.45 m), and the seal pot volume must exceed 1.5 times the total tailpipe internal volume. When vacuum is pulled during startup, water from the hotwell is sucked up into the tailpipe. If the seal pot volume is too small, the water level in the pot drops below the pipe bottom, sucking atmospheric air into the tailpipe and causing violent water hammer and lost prime.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Absence of Mechanical Vacuum Breaker on Emergency Trip</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">When the cooling water supply pump trips during a power outage, vapor continues to enter the condenser momentarily while vacuum persists. Without an automated, fast-acting mechanical vacuum-breaker valve on the condenser shell, hot vapor expands through dry internals and thermal differential forces water upwards from the hotwell. Installing a spring-loaded or air-actuated siphon breaker on the condenser dome is mandatory per ASME and HEI standards.</p>
+        </div>
+      </div>
+
+      <div class="dcc-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Barometric Hydrostatics & Thermal Energy Balance Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The required cooling water mass flow rate ($\dot{m}_w$) is determined by the <strong>first law thermal energy balance</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\dot{Q} = \dot{m}_v \left[ h_{fg} + c_{p,v}(T_v - T_{sat}) \right] = \dot{m}_w c_{p,w} (T_{out} - T_{in})$$
+          </div>
+          <p>Where $T_{out} = T_{sat} - \text{TTD}$, and $h_{fg}$ is the latent heat of water vapor at condenser saturation pressure $P_{vac}$.</p>
+          <p>The <strong>minimum vertical barometric tailpipe height ($H_{leg}$)</strong> from hotwell overflow weir to condenser bottom flange is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$H_{leg} = \frac{P_{atm} - P_{vac}}{\rho_w \cdot g} + f \frac{H_{leg}}{D_{pipe}} \frac{v^2}{2g} + \sum K_L \frac{v^2}{2g} + H_{safety}$$
+          </div>
+          <p>The condenser shell cross-sectional area and internal diameter ($D_{shell}$) are sized via the <strong>Souders-Brown vapor velocity limit</strong> to prevent water droplet entrainment into the overhead vacuum vent:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$v_{max} = K_{SB} \sqrt{\frac{\rho_L - \rho_v}{\rho_v}}, \qquad D_{shell} = \sqrt{\frac{4 \dot{V}_v}{\pi \cdot v_{max}}}$$
+          </div>
+          <p>Where $K_{SB} \approx 0.05$ to $0.07$ m/s for direct-contact disc-and-doughnut baffle trays.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var vaporFlowInput = document.getElementById('dcc_vapor_flow');
+        var vacPressInput = document.getElementById('dcc_vac_press');
+        var ncgRateInput = document.getElementById('dcc_ncg_rate');
+        var waterTinInput = document.getElementById('dcc_water_tin');
+        var ttdInput = document.getElementById('dcc_ttd');
+        var internalsSel = document.getElementById('dcc_internals');
+        var patmInput = document.getElementById('dcc_patm');
+        var pipeVelInput = document.getElementById('dcc_pipe_vel');
+        var safetyMarginInput = document.getElementById('dcc_safety_margin');
+        var calcBtn = document.getElementById('dcc_calc_btn');
+        var copyBtn = document.getElementById('dcc_copy_btn');
+        var copyMsg = document.getElementById('dcc_copy_msg');
+
+        var resLegHeight = document.getElementById('res_leg_height');
+        var resLegHeightFt = document.getElementById('res_leg_height_ft');
+        var resWaterFlow = document.getElementById('res_water_flow');
+        var resWaterFlowGpm = document.getElementById('res_water_flow_gpm');
+        var resTailpipeDia = document.getElementById('res_tailpipe_dia');
+        var resTailpipeInch = document.getElementById('res_tailpipe_inch');
+        var resShellDia = document.getElementById('res_shell_dia');
+        var resShellDiaIn = document.getElementById('res_shell_dia_in');
+        var resHeatDuty = document.getElementById('res_heat_duty');
+        var resHeatDutyBtu = document.getElementById('res_heat_duty_btu');
+        var resNcgAcfm = document.getElementById('res_ncg_acfm');
+        var resSatTemp = document.getElementById('res_sat_temp');
+
+        var resStaticHead = document.getElementById('res_static_head');
+        var resFrictionHead = document.getElementById('res_friction_head');
+        var resVelHead = document.getElementById('res_vel_head');
+        var resSafetyHead = document.getElementById('res_safety_head');
+
+        var canvas = document.getElementById('dcc_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // Approximate saturation temperature of steam from pressure (Antoine correlation for H2O)
+        function getSteamSatTemp(pAbsKPa) {
+          // Antoine equation: log10(P_bar) = A - B / (T_K + C)
+          // For H2O: A=5.20389, B=1733.926, C=-39.485 (P in bar, T in K)
+          var pBar = pAbsKPa / 100;
+          if (pBar <= 0) pBar = 0.01;
+          var logP = Math.log10(pBar);
+          var T_K = 1733.926 / (5.20389 - logP) + 39.485;
+          return T_K - 273.15;
+        }
+
+        // Approximate latent heat of water vapor h_fg (kJ/kg)
+        function getLatentHeat(tC) {
+          return 2501.0 - 2.37 * tC;
+        }
+
+        function calculate() {
+          var mvKgH = parseFloat(vaporFlowInput.value) || 12000;
+          var pVacKPa = parseFloat(vacPressInput.value) || 12.5;
+          var ncgKgH = parseFloat(ncgRateInput.value) || 45;
+          var tWaterIn = parseFloat(waterTinInput.value) || 28;
+          var ttd = parseFloat(ttdInput.value) || 4.0;
+          var pAtmKPa = parseFloat(patmInput.value) || 101.3;
+          var targetPipeVel = parseFloat(pipeVelInput.value) || 1.5;
+          var safetyMargin = parseFloat(safetyMarginInput.value) || 1.2;
+          var internals = internalsSel.value;
+
+          var tSat = getSteamSatTemp(pVacKPa);
+          var tWaterOut = tSat - ttd;
+          if (tWaterOut <= tWaterIn) {
+            tWaterOut = tWaterIn + 2.0; // Prevent div by zero if cooling water is too warm
+          }
+
+          var deltaTWater = tWaterOut - tWaterIn;
+          var hfg = getLatentHeat(tSat); // kJ/kg
+          var cpWater = 4.184; // kJ/(kg*K)
+
+          // Heat duty (kJ/h and MW)
+          var qTotalKjH = mvKgH * hfg;
+          var qDutyMw = (qTotalKjH / 3600) / 1000;
+          var qDutyMmbtu = qDutyMw * 3.41214;
+
+          // Cooling water mass flow
+          var mwKgH = qTotalKjH / (cpWater * deltaTWater);
+          var rhoWaterAvg = 990; // kg/m3 at ~40C
+          var waterFlowM3H = mwKgH / rhoWaterAvg;
+          var waterFlowGpm = waterFlowM3H * 4.40287;
+
+          // Combined drainage flow down the tailpipe (Cooling water + condensed vapor)
+          var totalTailpipeMassKgH = mwKgH + mvKgH;
+          var totalTailpipeM3S = (totalTailpipeMassKgH / rhoWaterAvg) / 3600;
+
+          // Tailpipe diameter based on design velocity
+          var pipeArea = totalTailpipeM3S / targetPipeVel;
+          var pipeDiaM = Math.sqrt((4 * pipeArea) / Math.PI);
+          var pipeDiaMm = pipeDiaM * 1000;
+          var pipeDiaInches = pipeDiaM * 39.37;
+
+          // Hydraulics & Barometric Leg Sizing
+          var g = 9.80665;
+          var deltaPPa = (pAtmKPa - pVacKPa) * 1000;
+          var staticHeadM = deltaPPa / (rhoWaterAvg * g);
+
+          // Friction head: Darcy-Weisbach with friction factor f ~ 0.020, length estimated ~12m
+          var fRough = 0.020;
+          var estimatedLegLength = staticHeadM + safetyMargin + 1.0;
+          var frictionHeadM = fRough * (estimatedLegLength / pipeDiaM) * (Math.pow(targetPipeVel, 2) / (2 * g));
+          var velHeadM = Math.pow(targetPipeVel, 2) / (2 * g); // Exit loss K ~ 1.0
+          var totalLegHeightM = staticHeadM + frictionHeadM + velHeadM + safetyMargin;
+          var totalLegHeightFt = totalLegHeightM * 3.28084;
+
+          // Condenser Shell Sizing via Souders-Brown
+          // Vapor density rho_v = P_vac / (R_spec * T_K)
+          var rSpecSteam = 0.4615; // kJ/(kg*K)
+          var rhoV = pVacKPa / (rSpecSteam * (tSat + 273.15));
+          var kSb = 0.06;
+          if (internals === 'spray_nozzle') kSb = 0.08;
+          else if (internals === 'shed_deck') kSb = 0.05;
+
+          var vVaporMax = kSb * Math.sqrt((rhoWaterAvg - rhoV) / rhoV);
+          var vaporM3S = (mvKgH / 3600) / rhoV;
+          var shellArea = vaporM3S / vVaporMax;
+          var shellDiaM = Math.sqrt((4 * shellArea) / Math.PI);
+          var shellDiaIn = shellDiaM * 39.37;
+
+          // NCG Suction Volume at Condenser Top (Operating conditions)
+          // Molecular weight of air ~ 28.96 kg/kmol
+          var rGasAir = 0.287; // kJ/(kg*K)
+          var tTopC = tWaterIn + 2.0; // Air is subcooled near water inlet
+          var ncgDensity = pVacKPa / (rGasAir * (tTopC + 273.15));
+          var ncgM3H = ncgKgH / ncgDensity;
+          var ncgAcfm = ncgM3H * 0.588578;
+
+          // Update UI
+          resLegHeight.innerText = totalLegHeightM.toFixed(2) + ' m';
+          resLegHeightFt.innerText = totalLegHeightFt.toFixed(1) + ' ft (Flange to Hotwell)';
+          resWaterFlow.innerText = Math.round(waterFlowM3H).toLocaleString() + ' m3/h';
+          resWaterFlowGpm.innerText = Math.round(waterFlowGpm).toLocaleString() + ' GPM (Out: ' + tWaterOut.toFixed(1) + ' deg C)';
+          resTailpipeDia.innerText = Math.round(pipeDiaMm) + ' mm';
+          resTailpipeInch.innerText = pipeDiaInches.toFixed(1) + ' in NPS (at ' + targetPipeVel.toFixed(1) + ' m/s)';
+          resShellDia.innerText = shellDiaM.toFixed(2) + ' m';
+          resShellDiaIn.innerText = shellDiaIn.toFixed(1) + ' in ID (K=' + kSb + ')';
+          resHeatDuty.innerText = qDutyMw.toFixed(2) + ' MW';
+          resHeatDutyBtu.innerText = qDutyMmbtu.toFixed(1) + ' MMBtu/h';
+          resNcgAcfm.innerText = Math.round(ncgAcfm).toLocaleString() + ' ACFM';
+          resSatTemp.innerText = 'Steam Tsat: ' + tSat.toFixed(1) + ' deg C @ ' + pVacKPa + ' kPa';
+
+          resStaticHead.innerText = staticHeadM.toFixed(2) + ' m';
+          resFrictionHead.innerText = frictionHeadM.toFixed(2) + ' m';
+          resVelHead.innerText = velHeadM.toFixed(2) + ' m';
+          resSafetyHead.innerText = safetyMargin.toFixed(2) + ' m';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Elevated Condenser Vessel & Barometric Leg Diagram
+          // Condenser Body at Top Left
+          var cX = 140, cY = 30, cW = 110, cH = 120;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(cX, cY, cW, cH, 12);
+          ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('DIRECT CONTACT', cX + cW/2, cY + 22);
+          ctx.fillText('CONDENSER', cX + cW/2, cY + 36);
+
+          // Cooling Water Inlet (Top Right into Vessel)
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(cX + cW + 40, cY + 45); ctx.lineTo(cX + cW, cY + 45); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('COOLING WATER IN (' + waterTinInput.value + 'C)', cX + cW + 45, cY + 48);
+
+          // Vapor Inlet (Bottom Side of Vessel)
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 5;
+          ctx.beginPath(); ctx.moveTo(cX - 50, cY + 95); ctx.lineTo(cX, cY + 95); ctx.stroke();
+          ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'right';
+          ctx.fillText('PROCESS VAPOR IN ->', cX - 55, cY + 98);
+
+          // Overhead Vacuum Line to Ejector / Pump
+          ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(cX + cW/2, cY); ctx.lineTo(cX + cW/2, cY - 20); ctx.lineTo(cX + cW/2 + 50, cY - 20); ctx.stroke();
+          ctx.fillStyle = '#c084fc'; ctx.font = '9px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('TO VACUUM SKID (NCG)', cX + cW/2 + 55, cY - 17);
+
+          // Internal Spray / Baffles inside condenser
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+          for (var i = 0; i < 4; i++) {
+            var bY = cY + 50 + i * 16;
+            ctx.fillRect(cX + 15, bY, cW - 30, 4);
+          }
+
+          // Vertical Barometric Tailpipe extending down to Hotwell
+          var tX = cX + cW/2 - 12;
+          var tW = 24;
+          var tTopY = cY + cH;
+          var hotwellY = 280;
+          var tLen = hotwellY - tTopY + 30; // Submerged into hotwell
+
+          ctx.fillStyle = '#0f172a';
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.rect(tX, tTopY, tW, tLen); ctx.fill(); ctx.stroke();
+
+          // Water column inside tailpipe (Hydrostatic level)
+          ctx.fillStyle = 'rgba(2, 132, 199, 0.7)';
+          ctx.fillRect(tX + 2, tTopY + 15, tW - 4, tLen - 15);
+
+          // Tailpipe Water Flow Particles (Moving downward)
+          ctx.fillStyle = '#7dd3fc';
+          for (var p = 0; p < 5; p++) {
+            var py = (tTopY + 20 + ((animStep * 2 + p * 30) % (tLen - 30)));
+            ctx.beginPath(); ctx.arc(tX + tW/2, py, 2.5, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Hotwell / Seal Pot at the bottom
+          var hwX = cX + cW/2 - 60;
+          var hwW = 120;
+          var hwH = 50;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.rect(hwX, hotwellY, hwW, hwH); ctx.fill(); ctx.stroke();
+
+          // Water in Hotwell with Overflow
+          ctx.fillStyle = 'rgba(2, 132, 199, 0.5)';
+          ctx.fillRect(hwX + 2, hotwellY + 10, hwW - 4, hwH - 12);
+
+          // Overflow Weir Discharge to Cooling Tower / Basin
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(hwX + hwW, hotwellY + 20); ctx.lineTo(hwX + hwW + 40, hotwellY + 20); ctx.lineTo(hwX + hwW + 40, hotwellY + 45); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('WARM WATER OVERFLOW', hwX + hwW + 45, hotwellY + 28);
+          ctx.fillText('TO COOLING TOWER', hwX + hwW + 45, hotwellY + 40);
+
+          // Dimensional annotations: Barometric Leg Height
+          var dimX = cX - 35;
+          ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(dimX, tTopY); ctx.lineTo(dimX, hotwellY + 20); ctx.stroke();
+          // Ticks
+          ctx.beginPath(); ctx.moveTo(dimX - 6, tTopY); ctx.lineTo(dimX + 6, tTopY); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(dimX - 6, hotwellY + 20); ctx.lineTo(dimX + 6, hotwellY + 20); ctx.stroke();
+
+          ctx.fillStyle = '#10b981'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'right';
+          ctx.save(); ctx.translate(dimX - 10, (tTopY + hotwellY) / 2); ctx.rotate(-Math.PI/2);
+          ctx.fillText('TOTAL BAROMETRIC LEG: ' + resLegHeight.innerText, 0, 0); ctx.restore();
+
+          // Right: Comprehensive Engineering Telemetry Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('BAROMETRIC HYDRAULIC & THERMAL TELEMETRY', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Required Leg Elevation: ' + resLegHeight.innerText + ' (' + resLegHeightFt.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Static Vacuum Water Head: ' + resStaticHead.innerText + ' (' + vacPressInput.value + ' kPa abs)', dX + 20, dY + 76);
+          ctx.fillText('Dynamic Pipe Friction & Fittings: ' + resFrictionHead.innerText + ' @ ' + pipeVelInput.value + ' m/s', dX + 20, dY + 97);
+          ctx.fillText('Engineering Safety Elevation Margin: ' + resSafetyHead.innerText, dX + 20, dY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Tailpipe Sizing: ' + resTailpipeDia.innerText + ' (' + resTailpipeInch.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Cooling Water Demand: ' + resWaterFlow.innerText + ' (' + resWaterFlowGpm.innerText + ')', dX + 20, dY + 165);
+          ctx.fillText('Thermal Condensation Duty: ' + resHeatDuty.innerText + ' (' + resHeatDutyBtu.innerText + ')', dX + 20, dY + 186);
+          ctx.fillText('Vessel Shell Diameter: ' + resShellDia.innerText + ' (' + resShellDiaIn.innerText + ')', dX + 20, dY + 207);
+
+          ctx.fillStyle = '#c084fc';
+          ctx.fillText('Non-Condensable Gas (NCG) Vent: ' + resNcgAcfm.innerText + ' (' + ncgRateInput.value + ' kg/h)', dX + 20, dY + 233);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Gravity Tailpipe Discharge: 0 kW mechanical pumping power', dX + 20, dY + 258);
+          ctx.fillText('Compliance: Heat Exchange Institute (HEI) Standards for Barometric Condensers', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== DIRECT CONTACT CONDENSER (DCC) & BAROMETRIC LEG REPORT ===',
+            'Operating Vacuum: ' + vacPressInput.value + ' kPa abs (Tsat: ' + resSatTemp.innerText + ')',
+            'Atmospheric Pressure: ' + patmInput.value + ' kPa',
+            'Vapor Flow Rate: ' + vaporFlowInput.value + ' kg/h',
+            'Thermal Condensation Duty: ' + resHeatDuty.innerText + ' (' + resHeatDutyBtu.innerText + ')',
+            'Cooling Water Demand: ' + resWaterFlow.innerText + ' (' + resWaterFlowGpm.innerText + ')',
+            'Total Barometric Leg Height: ' + resLegHeight.innerText + ' (' + resLegHeightFt.innerText + ')',
+            '  - Static Head: ' + resStaticHead.innerText,
+            '  - Pipe Friction & Velocity: ' + resFrictionHead.innerText + ' + ' + resVelHead.innerText,
+            '  - Safety Margin: ' + resSafetyHead.innerText,
+            'Tailpipe Sizing: ' + resTailpipeDia.innerText + ' (' + resTailpipeInch.innerText + ')',
+            'Condenser Shell Diameter: ' + resShellDia.innerText + ' (' + resShellDiaIn.innerText + ')',
+            'NCG Vent Load: ' + ncgRateInput.value + ' kg/h (' + resNcgAcfm.innerText + ')',
+            'Standards: HEI Standards for Direct Contact Barometric Condensers'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [vaporFlowInput, vacPressInput, ncgRateInput, waterTinInput, ttdInput, internalsSel, patmInput, pipeVelInput, safetyMarginInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CE3: SIEVE TRAY DISTILLATION COLUMN HYDRAULICS CALCULATOR ───
+  (() => {
+    const slug = 'sieve-tray-distillation-column-hydraulics-calculator';
+    const title = 'Sieve Tray Distillation Column Hydraulics & Weeping/Flooding Calculator | Fair Correlation Engine';
+    const desc = 'Industrial Sieve Tray Distillation Column hydraulics calculator. Calculate tray spacing, active hole area, weeping limits, jet entrainment flooding (Fair correlation), downcomer liquid backup, and total pressure drop per tray for chemical and refinery separation towers.';
+
+    const faqs = [
+      {
+        q: 'What causes weeping versus entrainment flooding in a sieve tray distillation column?',
+        a: 'Sieve trays rely entirely on upward vapor kinetic energy to support liquid flowing across the perforated tray deck. At low vapor rates, the dry hole pressure drop becomes insufficient to overcome liquid hydrostatic head, causing liquid to weep (drain prematurely through perforations rather than flowing over the outlet weir). This destroys counter-current stage contact and collapses tray mass transfer efficiency. Conversely, at excessively high vapor rates, upward gas velocity exceeds terminal droplet settling velocities, carrying liquid droplets into the tray above (jet entrainment flooding), or liquid backs up in the downcomer faster than it can disengage (downcomer backup flooding).'
+      },
+      {
+        q: 'How does the Fair correlation calculate the jet flooding limit?',
+        a: 'The Fair correlation calculates the flooding vapor capacity factor ($C_{sb}$) as a function of tray spacing ($T_s$) and the dimensionless liquid-to-vapor flow parameter $F_{LV} = (L/V) \\cdot \\sqrt{\\rho_V / \\rho_L}$. The maximum flooding velocity is given by $u_{flood} = C_{sb} \\cdot (\\sigma / 20)^{0.2} \\cdot \\sqrt{(\\rho_L - \\rho_V) / \\rho_V}$, where $\\sigma$ is liquid surface tension in dyn/cm (mN/m). Modern columns are typically engineered to operate between 70% and 82% of this flooding limit to provide dynamic operational headroom during feed rate variations.'
+      },
+      {
+        q: 'What is downcomer backup and what percentage of tray spacing is safe?',
+        a: 'Downcomer backup ($h_{dc}$) is the total liquid and froth head accumulated inside the downcomer channel. It represents the sum of the tray clear liquid crest, the dry and hydraulic tray pressure drop, and the hydraulic friction loss under the downcomer apron clearance. Because aerated downcomer liquid consists of froth with a density of 0.4 to 0.6 of clear liquid, engineering design standards mandate that downcomer backup must never exceed 40% to 50% of tray spacing ($T_s$). Exceeding this threshold causes froth to spill backward onto the tray above, initiating catastrophic tower flooding.'
+      },
+      {
+        q: 'Why is the weeping point sensitive to weir height and hole diameter?',
+        a: 'The weep point is governed by the force balance between vapor kinetic thrust through tray perforations and liquid hydrostatic head on the deck. A taller outlet weir ($h_w$) increases liquid pool depth, requiring higher vapor velocity to prevent weeping and raising the minimum stable operating throughput (turndown limit). Smaller perforations (e.g., 3.2 mm to 5 mm) produce higher surface tension resistance to weeping than large holes (12.7 mm), giving smaller sieve holes a wider stable operating envelope, albeit with higher manufacturing cost and greater fouling susceptibility.'
+      },
+      {
+        q: 'What is the typical operating turndown ratio for sieve trays compared to valve trays?',
+        a: 'Unvalved sieve trays have an operating turndown ratio of approximately 2:1 (meaning throughput can drop to ~50% of maximum design before weeping degrades separation efficiency below acceptable limits). Movable valve trays (such as caged or disc valves) expand turndown to 3:1 or 4:1 by mechanically closing at lower vapor velocities to restrict active opening area and maintain dry pressure drop. However, sieve trays offer lower fouling tendency, zero moving parts, lower fabrication costs, and lower pressure drop per theoretical stage.'
+      }
+    ];
+
+    const content = `<style>
+      .tray-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .tray-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .tray-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .tray-group { margin-bottom: 16px; }
+      .tray-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .tray-group select, .tray-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .tray-group select:focus, .tray-group input:focus { border-color: #6366f1; outline: none; ring: 2px ring #c7d2fe; }
+      .tray-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-indigo { background: #eef2ff; color: #4f46e5; }
+      .tray-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .tray-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .tray-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .tray-res-sub { font-size: 0.8rem; color: #64748b; }
+      .tray-btn { background: #4f46e5; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .tray-btn:hover { background: #4338ca; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="tray-wrap">
+      <div class="tray-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Sieve Tray Distillation Column Hydraulics Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Fair correlation jet flooding, weeping limits, downcomer backup, and pressure drop per tray.</p>
+          </div>
+          <span class="tray-badge badge-indigo">AIChE Distillation Hydraulics</span>
+        </div>
+
+        <div class="tray-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Vapor & Liquid Loadings</h3>
+            <div class="tray-group">
+              <label for="tray_v_flow">Vapor Mass Flow Rate (kg/h)</label>
+              <input type="number" id="tray_v_flow" value="28000" min="500" max="500000" step="1000">
+            </div>
+            <div class="tray-group">
+              <label for="tray_l_flow">Liquid Mass Flow Rate (kg/h)</label>
+              <input type="number" id="tray_l_flow" value="35000" min="500" max="500000" step="1000">
+            </div>
+            <div class="tray-group">
+              <label for="tray_rho_v">Vapor Density (kg/m3)</label>
+              <input type="number" id="tray_rho_v" value="2.8" min="0.1" max="50.0" step="0.1">
+              <small style="color:#64748b;">Typical hydrocarbon vapor: 1.5 to 5.0 kg/m3.</small>
+            </div>
+            <div class="tray-group">
+              <label for="tray_rho_l">Liquid Density (kg/m3)</label>
+              <input type="number" id="tray_rho_l" value="780" min="400" max="1500" step="10">
+            </div>
+            <div class="tray-group">
+              <label for="tray_sigma">Surface Tension (mN/m or dyn/cm)</label>
+              <input type="number" id="tray_sigma" value="18.0" min="5.0" max="75.0" step="1.0">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Tray Geometry & Dimensions</h3>
+            <div class="tray-group">
+              <label for="tray_dia">Column Internal Diameter (m)</label>
+              <input type="number" id="tray_dia" value="2.2" min="0.5" max="8.0" step="0.1">
+            </div>
+            <div class="tray-group">
+              <label for="tray_spacing">Tray Spacing ($T_s$, mm)</label>
+              <input type="number" id="tray_spacing" value="500" min="300" max="900" step="50">
+              <small style="color:#64748b;">Standard refinery tray spacing: 450 to 600 mm.</small>
+            </div>
+            <div class="tray-group">
+              <label for="tray_hole_ratio">Hole Area / Active Area ($A_h / A_a$, %)</label>
+              <input type="number" id="tray_hole_ratio" value="10.0" min="5.0" max="16.0" step="0.5">
+            </div>
+            <div class="tray-group">
+              <label for="tray_hole_dia">Hole Perforation Diameter ($d_h$, mm)</label>
+              <input type="number" id="tray_hole_dia" value="4.8" min="2.0" max="15.0" step="0.2">
+              <small style="color:#64748b;">Standard sieve holes: 3.2 mm (1/8 in) to 6.4 mm (1/4 in).</small>
+            </div>
+            <div class="tray-group">
+              <label for="tray_dc_ratio">Downcomer Area / Total Area ($A_{dc} / A$, %)</label>
+              <input type="number" id="tray_dc_ratio" value="12.0" min="6.0" max="25.0" step="1.0">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Weir & Downcomer Clearance</h3>
+            <div class="tray-group">
+              <label for="tray_weir_h">Outlet Weir Height ($h_w$, mm)</label>
+              <input type="number" id="tray_weir_h" value="50" min="20" max="100" step="5">
+            </div>
+            <div class="tray-group">
+              <label for="tray_dc_clear">Downcomer Apron Clearance ($h_{cl}$, mm)</label>
+              <input type="number" id="tray_dc_clear" value="38" min="15" max="75" step="1">
+              <small style="color:#64748b;">Must be 6 to 12 mm less than weir height for liquid seal.</small>
+            </div>
+            <div class="tray-group">
+              <label for="tray_aeration_factor">Aeration Factor ($\beta$)</label>
+              <input type="number" id="tray_aeration_factor" value="0.75" min="0.5" max="0.95" step="0.05">
+              <small style="color:#64748b;">Froth density ratio: typically 0.65 to 0.80.</small>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="tray-btn" id="tray_calc_btn">Run Hydraulic Sieve Tray Analysis</button>
+        </div>
+      </div>
+
+      <div class="tray-card" id="tray_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Hydraulic Status & Tray Performance</h2>
+          <button class="copy-btn" id="tray_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="tray_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="tray-res-grid">
+          <div class="tray-res-card">
+            <div class="tray-res-sub">Jet Entrainment Flooding</div>
+            <div class="tray-res-val" id="res_flood_pct">0.0%</div>
+            <div class="tray-res-sub" id="res_flood_status">Safe (Target: 70-82%)</div>
+          </div>
+          <div class="tray-res-card">
+            <div class="tray-res-sub">Weeping Margin</div>
+            <div class="tray-res-val" id="res_weep_ratio">0.0x</div>
+            <div class="tray-res-sub" id="res_weep_status">No Weeping (>1.0 safe)</div>
+          </div>
+          <div class="tray-res-card">
+            <div class="tray-res-sub">Downcomer Backup ($h_{dc}$)</div>
+            <div class="tray-res-val" id="res_dc_backup_pct">0.0%</div>
+            <div class="tray-res-sub" id="res_dc_backup_mm">0 mm clear liquid (<50% Ts)</div>
+          </div>
+          <div class="tray-res-card">
+            <div class="tray-res-sub">Total Pressure Drop / Tray</div>
+            <div class="tray-res-val" id="res_delta_p">0.0 mbar</div>
+            <div class="tray-res-sub" id="res_delta_p_mm">0 mm liquid head</div>
+          </div>
+          <div class="tray-res-card">
+            <div class="tray-res-sub">Active Hole Velocity ($u_h$)</div>
+            <div class="tray-res-val" id="res_hole_vel">0.0 m/s</div>
+            <div class="tray-res-sub" id="res_dry_drop">Dry drop: 0.0 mm liquid</div>
+          </div>
+          <div class="tray-res-card">
+            <div class="tray-res-sub">Flow Parameter ($F_{LV}$)</div>
+            <div class="tray-res-val" id="res_flv">0.000</div>
+            <div class="tray-res-sub" id="res_csb">Capacity Csb: 0.000 m/s</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Hydraulic Pressure Breakdown per Tray</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Dry Perforation Head: <strong id="res_hd_mm">0.0 mm</strong></div>
+            <div>Effective Liquid Pool ($h_l$): <strong id="res_hl_mm">0.0 mm</strong></div>
+            <div>Surface Tension Head ($h_\sigma$): <strong id="res_hsigma_mm">0.0 mm</strong></div>
+            <div>Weir Crest Head ($h_{ow}$): <strong id="res_how_mm">0.0 mm</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Sieve Tray Dynamic Hydraulic Froth & Downcomer Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: Vapor bubbles jetting through perforations, aerated cross-flow froth regime, downcomer apron clearance, liquid seal, and outlet weir crest.</p>
+          <div class="anim-box">
+            <canvas id="tray_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="tray-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Severe Turndown Weeping & Stage Efficiency Collapse</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">When tower throughput is throttled to 50% during plant turnarounds or feed cutbacks, vapor velocity through perforations drops below the critical weeping velocity ($u_{w}$). Liquid simply drains straight down through the holes instead of traveling across the active deck. Overall tray stage efficiency collapses from 75% to under 25%, off-spec products accumulate in both overheads and bottoms, and reboiler energy is wasted recycling unseparated mixtures.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Downcomer Apron Seal Loss & Vapor Bypass Choke</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">The bottom edge of the downcomer apron must extend below the outlet weir height by at least 10 mm to create an authentic hydrostatic liquid seal. If the downcomer clearance is improperly fabricated with an excessive gap ($h_{cl} > h_w$), rising vapor bypasses the active tray deck and rushes directly up through the downcomer. This blocks descending liquid, rapidly choking the downcomer and triggering premature tower flooding at merely 60% of rated capacity.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Downcomer Froth Backup Overfilling (>50% Tray Spacing)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Downcomer aerated liquid contains high vapor fraction (froth density $\approx 0.5$). If the clear liquid downcomer backup calculation exceeds 50% of the physical tray spacing ($T_s$), the actual froth height inside the downcomer reaches 100% of tray spacing. Aerated liquid spills back over the inlet weir onto the tray above, causing massive liquid recirculation, high column differential pressure, and catastrophic hydraulic lockup.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Vapor Cross-Flow Maldistribution in Large Diameter Towers (>3 m)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">In columns wider than 2.5 to 3.0 meters, liquid flowing across a single-pass tray experiences hydraulic gradient (liquid depth is thicker near the inlet downcomer than near the outlet weir). Because vapor follows the path of least hydraulic resistance, vapor preferentially channels through the shallow liquid zone near the outlet weir, causing weeping near the inlet and jet flooding near the outlet. Multi-pass trays (2-pass, 4-pass) or stepped weir decks must be specified for wide diameters.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Hole Corrosion / Fouling & Unbalanced Pressure Drop</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">In service environments with salts, polymers, or corrosive acidic condensates, sieve holes can plug or corrode. Corrosive enlargement of holes lowers dry pressure drop, inducing severe weeping. Conversely, fouling deposits plug 20% to 30% of hole area, sending hole vapor velocity and dry pressure drop soaring, driving the column into severe entrainment flooding at normal operating flow rates.</p>
+        </div>
+      </div>
+
+      <div class="tray-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Distillation Tray Hydraulic Engineering Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>dimensionless flow parameter ($F_{LV}$)</strong> dictates the phase momentum ratio:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$F_{LV} = \frac{L}{V} \sqrt{\frac{\rho_V}{\rho_L}}$$
+          </div>
+          <p>The <strong>Fair Flooding Capacity Factor ($C_{sb}$)</strong> is modeled as a function of tray spacing $T_s$ and $F_{LV}$:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$C_{sb} = 0.038 \cdot \log_{10}\left( \frac{T_s}{100} \right) - 0.027 \cdot \log_{10}(F_{LV}) + 0.015, \qquad u_{flood} = C_{sb} \left( \frac{\sigma}{20} \right)^{0.2} \sqrt{\frac{\rho_L - \rho_V}{\rho_V}}$$
+          </div>
+          <p>The <strong>Total Tray Pressure Drop ($h_t$)</strong> in millimeters of clear liquid is the sum of dry hole drop, aerated liquid head, and surface tension:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$h_d = 51.0 \left( \frac{u_h}{C_0} \right)^2 \left( \frac{\rho_V}{\rho_L} \right), \qquad h_t = h_d + \beta (h_w + h_{ow}) + \frac{4 \sigma}{\rho_L g d_h}$$
+          </div>
+          <p>Where $h_{ow} = 0.664 \cdot (q / W)^{2/3}$ is the Francis weir crest head, and downcomer backup is $h_{dc} = h_t + h_w + h_{ow} + h_{da}$.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var vFlowInput = document.getElementById('tray_v_flow');
+        var lFlowInput = document.getElementById('tray_l_flow');
+        var rhoVInput = document.getElementById('tray_rho_v');
+        var rhoLInput = document.getElementById('tray_rho_l');
+        var sigmaInput = document.getElementById('tray_sigma');
+        var diaInput = document.getElementById('tray_dia');
+        var spacingInput = document.getElementById('tray_spacing');
+        var holeRatioInput = document.getElementById('tray_hole_ratio');
+        var holeDiaInput = document.getElementById('tray_hole_dia');
+        var dcRatioInput = document.getElementById('tray_dc_ratio');
+        var weirHInput = document.getElementById('tray_weir_h');
+        var dcClearInput = document.getElementById('tray_dc_clear');
+        var betaInput = document.getElementById('tray_aeration_factor');
+        var calcBtn = document.getElementById('tray_calc_btn');
+        var copyBtn = document.getElementById('tray_copy_btn');
+        var copyMsg = document.getElementById('tray_copy_msg');
+
+        var resFloodPct = document.getElementById('res_flood_pct');
+        var resFloodStatus = document.getElementById('res_flood_status');
+        var resWeepRatio = document.getElementById('res_weep_ratio');
+        var resWeepStatus = document.getElementById('res_weep_status');
+        var resDcBackupPct = document.getElementById('res_dc_backup_pct');
+        var resDcBackupMm = document.getElementById('res_dc_backup_mm');
+        var resDeltaP = document.getElementById('res_delta_p');
+        var resDeltaPMm = document.getElementById('res_delta_p_mm');
+        var resHoleVel = document.getElementById('res_hole_vel');
+        var resDryDrop = document.getElementById('res_dry_drop');
+        var resFlv = document.getElementById('res_flv');
+        var resCsb = document.getElementById('res_csb');
+
+        var resHdMm = document.getElementById('res_hd_mm');
+        var resHlMm = document.getElementById('res_hl_mm');
+        var resHsigmaMm = document.getElementById('res_hsigma_mm');
+        var resHowMm = document.getElementById('res_how_mm');
+
+        var canvas = document.getElementById('tray_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var vKgH = parseFloat(vFlowInput.value) || 28000;
+          var lKgH = parseFloat(lFlowInput.value) || 35000;
+          var rhoV = parseFloat(rhoVInput.value) || 2.8;
+          var rhoL = parseFloat(rhoLInput.value) || 780;
+          var sigma = parseFloat(sigmaInput.value) || 18.0; // mN/m
+          var colDiaM = parseFloat(diaInput.value) || 2.2;
+          var spacingMm = parseFloat(spacingInput.value) || 500;
+          var holeRatioPct = parseFloat(holeRatioInput.value) || 10.0;
+          var holeDiaMm = parseFloat(holeDiaInput.value) || 4.8;
+          var dcRatioPct = parseFloat(dcRatioInput.value) || 12.0;
+          var hwMm = parseFloat(weirHInput.value) || 50;
+          var hclMm = parseFloat(dcClearInput.value) || 38;
+          var beta = parseFloat(betaInput.value) || 0.75;
+
+          // Volumetric flows
+          var vM3s = (vKgH / 3600) / rhoV;
+          var lM3s = (lKgH / 3600) / rhoL;
+
+          // Areas
+          var aTotal = (Math.PI / 4) * Math.pow(colDiaM, 2);
+          var aDc = aTotal * (dcRatioPct / 100);
+          var aActive = aTotal - (2 * aDc); // Single pass cross-flow tray has inlet and outlet downcomers
+          var aHole = aActive * (holeRatioPct / 100);
+          var aNet = aTotal - aDc; // Vapor flow area (bubbling area + downcomer exit)
+
+          // Flow parameter F_LV
+          var fLV = (lKgH / vKgH) * Math.sqrt(rhoV / rhoL);
+          if (fLV <= 0.01) fLV = 0.01;
+
+          // Fair capacity factor C_sb (m/s)
+          // Empirical fit to Fair curves
+          var spacingIn = spacingMm / 25.4;
+          var baseCsb = (0.027 + 0.002 * spacingIn) * Math.pow(fLV, -0.26);
+          if (baseCsb > 0.16) baseCsb = 0.16;
+          if (baseCsb < 0.03) baseCsb = 0.03;
+
+          // Surface tension correction
+          var sigmaCorr = Math.pow(sigma / 20.0, 0.2);
+          var csbCorr = baseCsb * sigmaCorr;
+
+          // Flooding velocity u_flood (m/s based on net area A_net)
+          var uFlood = csbCorr * Math.sqrt((rhoL - rhoV) / rhoV);
+          var actualVaporNetVel = vM3s / aNet;
+          var floodPct = (actualVaporNetVel / uFlood) * 100;
+
+          // Hole vapor velocity u_h (m/s)
+          var uH = vM3s / aHole;
+
+          // Dry tray pressure drop (mm of liquid)
+          // Orifice coefficient C_0 ~ 0.74 for typical sheet metal sieve trays
+          var c0 = 0.74;
+          var hdMm = 51.0 * Math.pow(uH / c0, 2) * (rhoV / rhoL);
+
+          // Francis weir crest head h_ow (mm)
+          // Weir length L_w approximated for chord: L_w ~ 0.7 * colDiaM
+          var lWeirM = 0.72 * colDiaM;
+          var qWeirM3sM = lM3s / lWeirM; // m3/(s * m of weir)
+          var howMm = 664.0 * Math.pow(qWeirM3sM, 0.667);
+
+          // Surface tension head h_sigma (mm)
+          var g = 9.80665;
+          var hSigmaMm = (4.0 * (sigma / 1000.0) / (rhoL * g * (holeDiaMm / 1000.0))) * 1000.0;
+
+          // Aerated liquid pool drop h_l (mm)
+          var hlMm = beta * (hwMm + howMm);
+
+          // Total tray pressure drop h_t (mm of liquid)
+          var htMm = hdMm + hlMm + hSigmaMm;
+          // Delta P in mbar
+          var deltaPMbar = (rhoL * g * (htMm / 1000.0)) / 100.0;
+
+          // Weeping check (Eduljee / Fair correlation)
+          // Minimum hole velocity to avoid weeping: u_w ~ (0.0229 / rhoV^0.5) * (rhoL*hwMm)^0.5
+          var uWeep = (4.2 * Math.sqrt(hwMm + howMm)) / Math.sqrt(rhoV);
+          var weepRatio = uH / uWeep;
+
+          // Downcomer head loss under apron h_da (mm)
+          // Area under apron A_apron = lWeirM * (hclMm / 1000)
+          var aApron = lWeirM * (hclMm / 1000.0);
+          var uApron = lM3s / aApron;
+          var hdaMm = 165.0 * Math.pow(uApron, 2);
+
+          // Downcomer backup h_dc (mm)
+          var hdcMm = htMm + hwMm + howMm + hdaMm;
+          var dcBackupPct = (hdcMm / spacingMm) * 100;
+
+          // Update DOM
+          resFloodPct.innerText = floodPct.toFixed(1) + '%';
+          if (floodPct < 70) {
+            resFloodStatus.innerText = 'Safe (Low Loading / Turndown)';
+            resFloodStatus.style.color = '#3b82f6';
+          } else if (floodPct <= 85) {
+            resFloodStatus.innerText = 'Optimal Design Window (70-85%)';
+            resFloodStatus.style.color = '#10b981';
+          } else {
+            resFloodStatus.innerText = 'WARNING: Flooding Risk (>85%)';
+            resFloodStatus.style.color = '#ef4444';
+          }
+
+          resWeepRatio.innerText = weepRatio.toFixed(2) + 'x';
+          if (weepRatio > 1.25) {
+            resWeepStatus.innerText = 'No Weeping (Robust Vapor Thrust)';
+            resWeepStatus.style.color = '#10b981';
+          } else if (weepRatio >= 1.0) {
+            resWeepStatus.innerText = 'Near Weep Limit (Minor Weeping)';
+            resWeepStatus.style.color = '#f59e0b';
+          } else {
+            resWeepStatus.innerText = 'CRITICAL WEEPING (Severe Dump)';
+            resWeepStatus.style.color = '#ef4444';
+          }
+
+          resDcBackupPct.innerText = dcBackupPct.toFixed(1) + '%';
+          resDcBackupMm.innerText = Math.round(hdcMm) + ' mm (<' + Math.round(spacingMm * 0.5) + ' mm limit)';
+          if (dcBackupPct > 50) {
+            resDcBackupMm.style.color = '#ef4444';
+          } else {
+            resDcBackupMm.style.color = '#64748b';
+          }
+
+          resDeltaP.innerText = deltaPMbar.toFixed(1) + ' mbar';
+          resDeltaPMm.innerText = Math.round(htMm) + ' mm liquid head';
+          resHoleVel.innerText = uH.toFixed(1) + ' m/s';
+          resDryDrop.innerText = 'Dry drop: ' + Math.round(hdMm) + ' mm liquid';
+          resFlv.innerText = fLV.toFixed(3);
+          resCsb.innerText = 'Capacity Csb: ' + csbCorr.toFixed(3) + ' m/s';
+
+          resHdMm.innerText = hdMm.toFixed(1) + ' mm';
+          resHlMm.innerText = hlMm.toFixed(1) + ' mm';
+          resHsigmaMm.innerText = hSigmaMm.toFixed(1) + ' mm';
+          resHowMm.innerText = howMm.toFixed(1) + ' mm';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Distillation Column Tray Shell Cross-Section
+          var tX = 50, tY = 30, tW = 440, tH = 290;
+          ctx.strokeStyle = '#64748b'; ctx.lineWidth = 3;
+          // Column walls (left & right)
+          ctx.beginPath(); ctx.moveTo(tX, tY); ctx.lineTo(tX, tY + tH); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(tX + tW, tY); ctx.lineTo(tX + tW, tY + tH); ctx.stroke();
+
+          // Inlet Downcomer from Tray Above (Left)
+          var inDcW = 60;
+          var inDcH = 110;
+          ctx.fillStyle = 'rgba(79, 70, 229, 0.15)';
+          ctx.fillRect(tX, tY, inDcW, inDcH);
+          ctx.strokeStyle = '#818cf8'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(tX + inDcW, tY); ctx.lineTo(tX + inDcW, tY + inDcH); ctx.stroke();
+          ctx.fillStyle = '#818cf8'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('INLET DC', tX + inDcW/2, tY + 25);
+
+          // Active Sieve Tray Deck (Horizontal line with perforations)
+          var deckY = tY + inDcH + 20;
+          var deckStartX = tX;
+          var outDcStartX = tX + tW - 70;
+          var weirH = 30;
+
+          // Metal Tray Deck
+          ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(deckStartX, deckY); ctx.lineTo(outDcStartX, deckY); ctx.stroke();
+
+          // Perforated Holes along active area
+          ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 4;
+          for (var hx = deckStartX + inDcW + 15; hx < outDcStartX - 15; hx += 20) {
+            ctx.beginPath(); ctx.moveTo(hx, deckY); ctx.lineTo(hx + 8, deckY); ctx.stroke();
+          }
+
+          // Outlet Weir (Vertical baffle before outlet downcomer)
+          ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(outDcStartX, deckY); ctx.lineTo(outDcStartX, deckY - weirH); ctx.stroke();
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 9px sans-serif';
+          ctx.fillText('WEIR', outDcStartX, deckY - weirH - 5);
+
+          // Outlet Downcomer to Tray Below (Right)
+          ctx.fillStyle = 'rgba(79, 70, 229, 0.25)';
+          ctx.fillRect(outDcStartX, deckY, 70, tH - (deckY - tY));
+          ctx.fillStyle = '#a5b4fc'; ctx.font = 'bold 9px sans-serif';
+          ctx.fillText('OUTLET DC', outDcStartX + 35, deckY + 30);
+
+          // Aerated Liquid / Froth Pool on Active Deck
+          var frothHeight = 45;
+          ctx.fillStyle = 'rgba(99, 102, 241, 0.35)';
+          ctx.fillRect(deckStartX + inDcW, deckY - frothHeight, outDcStartX - (deckStartX + inDcW), frothHeight);
+
+          // Liquid Crest flowing over outlet weir into downcomer
+          ctx.fillStyle = 'rgba(99, 102, 241, 0.4)';
+          ctx.fillRect(outDcStartX, deckY - weirH - 10, 20, 10);
+
+          // Rising Vapor Bubbles through Sieve Perforations (Animated)
+          ctx.fillStyle = '#38bdf8';
+          for (var bx = deckStartX + inDcW + 18; bx < outDcStartX - 15; bx += 20) {
+            for (var k = 0; k < 3; k++) {
+              var by = deckY - 4 - ((animStep * 3 + k * 18 + bx) % (frothHeight + 15));
+              ctx.beginPath(); ctx.arc(bx + 4, by, 2.5, 0, Math.PI * 2); ctx.fill();
+            }
+          }
+
+          // Legend labels inside column graphic
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('AERATED FROTH REGIME', (deckStartX + inDcW + outDcStartX)/2, deckY - frothHeight/2);
+
+          // Right: Comprehensive Diagnostic Dashboard
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('SIEVE TRAY HYDRAULIC AUDIT & STATUS', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#818cf8';
+          ctx.fillText('Jet Entrainment Flooding: ' + resFloodPct.innerText + ' (' + resFloodStatus.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Fair Correlation Capacity Csb: ' + resCsb.innerText, dX + 20, dY + 76);
+          ctx.fillText('Weep Margin Factor: ' + resWeepRatio.innerText + ' (' + resWeepStatus.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Downcomer Froth Backup: ' + resDcBackupPct.innerText + ' of Spacing (' + resDcBackupMm.innerText + ')', dX + 20, dY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Total Pressure Drop: ' + resDeltaP.innerText + ' (' + resDeltaPMm.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Dry Perforation Loss: ' + resHdMm.innerText + ' | Active Hole Velocity: ' + resHoleVel.innerText, dX + 20, dY + 165);
+          ctx.fillText('Clear Liquid Froth Head: ' + resHlMm.innerText + ' | Weir Crest (how): ' + resHowMm.innerText, dX + 20, dY + 186);
+          ctx.fillText('Flow Parameter F_LV: ' + resFlv.innerText + ' | Surface Tension Head: ' + resHsigmaMm.innerText, dX + 20, dY + 207);
+
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Operating Regime: Stable Froth Contact (Zero Spray Choke)', dX + 20, dY + 233);
+          ctx.fillText('Design Turndown Envelope: 50% to 110% of rated capacity', dX + 20, dY + 258);
+          ctx.fillText('Standards: AIChE Distillation Tray Manual & Perry Chemical Engineers Handbook', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== SIEVE TRAY DISTILLATION COLUMN HYDRAULICS REPORT ===',
+            'Column Diameter: ' + diaInput.value + ' m | Tray Spacing: ' + spacingInput.value + ' mm',
+            'Vapor / Liquid Rates: ' + vFlowInput.value + ' kg/h V / ' + lFlowInput.value + ' kg/h L',
+            'Vapor / Liquid Densities: ' + rhoVInput.value + ' kg/m3 V / ' + rhoLInput.value + ' kg/m3 L',
+            'Jet Entrainment Flooding: ' + resFloodPct.innerText + ' (' + resFloodStatus.innerText + ')',
+            'Weeping Margin: ' + resWeepRatio.innerText + ' (' + resWeepStatus.innerText + ')',
+            'Downcomer Backup: ' + resDcBackupPct.innerText + ' of Tray Spacing (' + resDcBackupMm.innerText + ')',
+            'Total Tray Pressure Drop: ' + resDeltaP.innerText + ' (' + resDeltaPMm.innerText + ')',
+            'Active Hole Velocity: ' + resHoleVel.innerText + ' (Dry Drop: ' + resDryDrop.innerText + ')',
+            'Flow Parameter (FLV): ' + resFlv.innerText + ' | Capacity Factor: ' + resCsb.innerText,
+            'Standards: AIChE Distillation Tray Standards & Fair Flooding Model'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [vFlowInput, lFlowInput, rhoVInput, rhoLInput, sigmaInput, diaInput, spacingInput, holeRatioInput, holeDiaInput, dcRatioInput, weirHInput, dcClearInput, betaInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CE4: THERMAL OXIDIZER (RTO / TO) RESIDENCE TIME & DESTRUCTION EFFICIENCY CALCULATOR ───
+  (() => {
+    const slug = 'thermal-oxidizer-rto-voc-destruction-efficiency-calculator';
+    const title = 'Thermal Oxidizer (RTO / TO) Residence Time & Destruction Efficiency Calculator | EPA DRE Engine';
+    const desc = 'Industrial Regenerative Thermal Oxidizer (RTO) and Direct Fired Thermal Oxidizer (DFTO) sizing calculator. Calculate combustion chamber residence time, VOC destruction removal efficiency (DRE >99%), auxiliary natural gas fuel demand, thermal energy recovery (TER), and NFPA 86 LEL safety thresholds.';
+
+    const faqs = [
+      {
+        q: 'What is the fundamental difference between an RTO and a Direct-Fired Thermal Oxidizer (DFTO)?',
+        a: 'A Direct-Fired Thermal Oxidizer (DFTO or afterburner) mixes process exhaust directly with auxiliary burner flame to reach 750 to 850 deg C with zero or minimal heat recovery, consuming tremendous quantities of natural gas. A Regenerative Thermal Oxidizer (RTO) incorporates multiple ceramic structured packing media beds that capture up to 95% to 97% of the thermal energy from the exiting clean exhaust. As incoming cold process gas enters a preheated ceramic bed, it absorbs stored heat and reaches near-oxidation temperature before ever contacting the burner. This thermal energy recovery (TER) slashes auxiliary fuel consumption by 90% or more.'
+      },
+      {
+        q: 'What are the Three Ts of Combustion and how do they determine VOC destruction removal efficiency (DRE)?',
+        a: 'The Three Ts of Combustion are: (1) Temperature: typically 760 deg C to 850 deg C (1400 deg F to 1550 deg F) to overcome activation energy hurdles; (2) Time: a minimum chamber residence time of 0.5 to 1.0 second under fully mixed plug flow conditions; and (3) Turbulence: high Reynolds number mixing inside the combustion chamber to ensure oxygen molecules collide with volatile organic compounds. When all three parameters are satisfied, first-order Arrhenius oxidation kinetics convert hazardous hydrocarbons into harmless carbon dioxide and water vapor with DRE exceeding 99.0% to 99.9%.'
+      },
+      {
+        q: 'What is the autothermal (self-sustaining) operating point in an RTO?',
+        a: 'The autothermal point is the inlet VOC concentration at which the heat released from the exothermic oxidation of volatile organic compounds exactly equals the heat losses through the stack and casing. At 95% TER, an RTO becomes completely self-sustaining at surprisingly low solvent concentrations (typically 1.2 to 2.0 g/Nm3 of hydrocarbons, or ~3% to 5% of Lower Explosive Limit). Above this autothermal concentration, auxiliary burners turn off completely and pilot flames modulate to standby, operating at zero auxiliary gas fuel cost.'
+      },
+      {
+        q: 'Why does NFPA 86 enforce a strict 25% LEL limit on oxidizer inlet gas?',
+        a: 'National Fire Protection Association standard NFPA 86 mandates that solvent vapor concentrations entering a thermal oxidizer must not exceed 25% of the Lower Explosive Limit (LEL) under normal unmonitored conditions, or 50% LEL if certified continuous catalytic or optical LEL analyzers with automatic dilution dampers are installed. If solvent concentrations inadvertently spike above 25% LEL, excessive exothermic heat release can cause thermal runaway inside ceramic beds, melt metal structural support grates, or trigger an explosive flashback through upstream ductwork.'
+      },
+      {
+        q: 'How does an RTO handle poppet valve switching puffs to prevent environmental non-compliance?',
+        a: 'In a 2-bed RTO, when poppet valves cycle to reverse airflow direction, untreated VOC-laden gas remaining in the inlet bed is pushed directly out the stack, causing a short spike in emissions known as a switching puff. This transient bypass can lower overall 24-hour average DRE from 99% down to 96%. Modern high-efficiency systems utilize either 3-bed designs with a dedicated purge cycle or an auxiliary puff capture expansion chamber that recycles the unburned slug back into the combustion zone before exhaust valves open.'
+      }
+    ];
+
+    const content = `<style>
+      .rto-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .rto-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .rto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .rto-group { margin-bottom: 16px; }
+      .rto-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .rto-group select, .rto-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .rto-group select:focus, .rto-group input:focus { border-color: #f97316; outline: none; ring: 2px ring #fdba74; }
+      .rto-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-orange { background: #fff7ed; color: #ea580c; }
+      .rto-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .rto-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .rto-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .rto-res-sub { font-size: 0.8rem; color: #64748b; }
+      .rto-btn { background: #ea580c; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .rto-btn:hover { background: #c2410c; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 350px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="rto-wrap">
+      <div class="rto-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Thermal Oxidizer (RTO / TO) Sizing & Destruction Efficiency Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">EPA DRE kinetics, combustion chamber residence time, auxiliary fuel consumption, and autothermal self-sustenance.</p>
+          </div>
+          <span class="rto-badge badge-orange">EPA Clean Air Act & NFPA 86</span>
+        </div>
+
+        <div class="rto-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Process Exhaust & Solvent Stream</h3>
+            <div class="rto-group">
+              <label for="rto_gas_flow">Exhaust Gas Flow Rate</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="rto_gas_flow" value="25000" min="500" max="250000" step="1000">
+                <select id="rto_flow_unit" style="width:130px;">
+                  <option value="nm3_h" selected>Nm3/h</option>
+                  <option value="scfm">SCFM</option>
+                </select>
+              </div>
+            </div>
+            <div class="rto-group">
+              <label for="rto_tin">Inlet Gas Temperature (deg C)</label>
+              <input type="number" id="rto_tin" value="35" min="0" max="150" step="5">
+            </div>
+            <div class="rto-group">
+              <label for="rto_voc_spec">Primary Target VOC Species</label>
+              <select id="rto_voc_spec">
+                <option value="toluene" selected>Toluene (LHV: 40.5 MJ/kg, LEL: 1.1% vol)</option>
+                <option value="benzene">Benzene (LHV: 40.0 MJ/kg, LEL: 1.2% vol)</option>
+                <option value="mek">Methyl Ethyl Ketone / MEK (LHV: 31.5 MJ/kg, LEL: 1.4% vol)</option>
+                <option value="ipa">Isopropanol / IPA (LHV: 30.5 MJ/kg, LEL: 2.0% vol)</option>
+                <option value="acetone">Acetone (LHV: 29.0 MJ/kg, LEL: 2.5% vol)</option>
+                <option value="hexane">n-Hexane (LHV: 45.0 MJ/kg, LEL: 1.1% vol)</option>
+              </select>
+            </div>
+            <div class="rto-group">
+              <label for="rto_voc_conc">VOC Concentration (mg/Nm3)</label>
+              <input type="number" id="rto_voc_conc" value="2800" min="50" max="40000" step="100">
+              <small style="color:#64748b;">Must verify NFPA 86 safety limit (<25% LEL).</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Combustion Chamber & Thermal Kinetics</h3>
+            <div class="rto-group">
+              <label for="rto_comb_temp">Combustion Chamber Temperature (deg C)</label>
+              <input type="number" id="rto_comb_temp" value="815" min="700" max="1100" step="10">
+              <small style="color:#64748b;">Typically 815 deg C (1500 deg F) for >99% DRE.</small>
+            </div>
+            <div class="rto-group">
+              <label for="rto_chamber_vol">Combustion Chamber Volume ($V_c$, m3)</label>
+              <input type="number" id="rto_chamber_vol" value="22.0" min="2.0" max="150.0" step="0.5">
+            </div>
+            <div class="rto-group">
+              <label for="rto_oxidizer_type">Oxidizer Thermal Architecture</label>
+              <select id="rto_oxidizer_type">
+                <option value="rto_95" selected>Regenerative RTO (95% Thermal Recovery - Ceramic Bed)</option>
+                <option value="rto_90">Regenerative RTO (90% Thermal Recovery - 2-Bed)</option>
+                <option value="recup_70">Recuperative Thermal Oxidizer (70% Metallic HEX)</option>
+                <option value="dfto_0">Direct-Fired Thermal Oxidizer (DFTO - 0% Heat Recovery)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Fuel Economics & Operational Schedule</h3>
+            <div class="rto-group">
+              <label for="rto_gas_cost">Natural Gas Tariff ($/MMBtu)</label>
+              <input type="number" id="rto_gas_cost" value="6.50" min="1.0" max="25.0" step="0.5">
+            </div>
+            <div class="rto-group">
+              <label for="rto_hours">Annual Operating Hours</label>
+              <input type="number" id="rto_hours" value="8400" min="1000" max="8760" step="100">
+            </div>
+            <div class="rto-group">
+              <label for="rto_casing_loss">Casing Heat Radiation Loss (%)</label>
+              <input type="number" id="rto_casing_loss" value="3.0" min="1.0" max="8.0" step="0.5">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="rto-btn" id="rto_calc_btn">Calculate Oxidizer Kinetics & Fuel Economics</button>
+        </div>
+      </div>
+
+      <div class="rto-card" id="rto_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Combustion Performance & Environmental Audit</h2>
+          <button class="copy-btn" id="rto_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="rto_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="rto-res-grid">
+          <div class="rto-res-card">
+            <div class="rto-res-sub">Destruction Removal Efficiency</div>
+            <div class="rto-res-val" id="res_dre_pct">99.0%</div>
+            <div class="rto-res-sub" id="res_dre_status">EPA Compliant (>99%)</div>
+          </div>
+          <div class="rto-res-card">
+            <div class="rto-res-sub">Combustion Residence Time</div>
+            <div class="rto-res-val" id="res_res_time">0.00 s</div>
+            <div class="rto-res-sub" id="res_plug_flow">Actual Hot Gas Plug Flow</div>
+          </div>
+          <div class="rto-res-card">
+            <div class="rto-res-sub">Inlet % of LEL</div>
+            <div class="rto-res-val" id="res_lel_pct">0.0% LEL</div>
+            <div class="rto-res-sub" id="res_lel_status">NFPA 86 Safe (<25%)</div>
+          </div>
+          <div class="rto-res-card">
+            <div class="rto-res-sub">Auxiliary Natural Gas Fuel</div>
+            <div class="rto-res-val" id="res_natgas_flow">0 Nm3/h</div>
+            <div class="rto-res-sub" id="res_natgas_mmbtu">0 MMBtu/h Burner Duty</div>
+          </div>
+          <div class="rto-res-card">
+            <div class="rto-res-sub">Annual Fuel Operating Cost</div>
+            <div class="rto-res-val" id="res_annual_cost">$0 / yr</div>
+            <div class="rto-res-sub" id="res_fuel_saved">TER Savings Active</div>
+          </div>
+          <div class="rto-res-card">
+            <div class="rto-res-sub">Thermal Operating Regime</div>
+            <div class="rto-res-val" id="res_autothermal_status">Sub-Autothermal</div>
+            <div class="rto-res-sub" id="res_autothermal_target">Target: 0 mg/Nm3</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Thermal Mass & Energy Balance Audit</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Gross Heat Requirement: <strong id="res_gross_heat">0 kW</strong></div>
+            <div>Heat Released by VOC Combustion: <strong id="res_voc_heat">0 kW</strong></div>
+            <div>Stack Exhaust Temperature: <strong id="res_t_stack">0 deg C</strong></div>
+            <div>Direct Fossil CO2 Generation: <strong id="res_co2_tons">0 tons/yr</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Regenerative Thermal Oxidizer (RTO) Multi-Bed Dynamic Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Interactive schematic: 3 ceramic media beds cycling through preheat, purge, and heat-capture recovery states, high-temperature burner combustion dome, and poppet valving.</p>
+          <div class="anim-box">
+            <canvas id="rto_canvas" width="1090" height="350" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="rto-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. LEL Exceedance & Flashback Duct Detonation</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">NFPA 86 mandates that inlet VOC concentrations must never exceed 25% LEL without dual fail-safe continuous LEL monitors. During process batch upsets (e.g., solvent dryer oven venting or coating line spills), solvent surges above 50% LEL enter the oxidizer. The resulting uncontrolled deflagration inside the ceramic bed blows off vessel explosion relief doors and sends a high-speed flame front racing backward through inlet ducts, destroying exhaust fans and endangering plant personnel.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Silicone Glazing & Ceramic Media Bed Masking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">In industries using silicone lubricants, adhesives, or release agents, siloxanes oxidize inside the 800 deg C combustion chamber into amorphous silicon dioxide ($SiO_2$) fine white powder. This vitreous silica coats ceramic saddle packing and monolith honeycombs, sintering into an impenetrable glass crust. Within 6 months, oxidizer system differential pressure quadruples, choking the process exhaust fan and forcing a $150,000 emergency ceramic media cleanout.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Poppet Valve Switching Puffs & Continuous Emission Violations</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">In twin-bed RTOs, when poppet valves cycle every 90 to 120 seconds to reverse flow, untreated VOC-laden gas trapped in the bottom manifold of the inlet bed is vented directly out the stack before entering the combustion zone. While steady-state DRE may exceed 99%, switching puffs cause short-term VOC spikes that trigger continuous emission monitoring system (CEMS) exceedances and EPA Title V notice of violations. High-efficiency plants require a 3-bed configuration or puff-purge accumulator.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Low Stack Temperature Acid Dewpoint Condensation</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">A 95% TER RTO operates with exceptionally low stack temperatures (often 75 deg C to 95 deg C). If the process stream contains even minor amounts of sulfur (H2S, mercaptans) or halogens (chlorinated solvents), combustion produces SO2 and HCl. At temperatures below the acid dew point (~120 deg C), aggressive sulfuric and hydrochloric acids condense in the cold face poppet valves, exhaust plenum, and carbon steel exhaust stack, corroding structural sheet metal through within months.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Cold Face Media Thermal Shock & Ceramic Cracking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Ceramic saddles and structured media undergo rapid cyclic thermal stress (swinging from 80 deg C to 800 deg C every 2 minutes). If the oxidizer startup heating curve is rushed faster than 50 deg C per hour, or if cold ambient rainwater leaks into the inlet ducts during sudden downpours, thermal shock causes ceramics to fracture and crumble. Pulverized ceramic shards migrate into poppet valve seating surfaces, destroying valve seal integrity and causing severe raw gas bypass.</p>
+        </div>
+      </div>
+
+      <div class="rto-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">EPA Destruction Kinetics & Thermal Recovery Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>Destruction and Removal Efficiency (DRE)</strong> is governed by first-order Arrhenius thermal kinetics:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{DRE} = \left[ 1 - \exp(-k \cdot t_{res}) \right] \times 100\%, \qquad k = A \cdot \exp\left( -\frac{E_a}{R \cdot (T_{comb} + 273.15)} \right)$$
+          </div>
+          <p>Where $A$ is the pre-exponential frequency factor ($s^{-1}$) and $E_a$ is the activation energy of the target solvent.</p>
+          <p>The <strong>combustion chamber actual residence time ($t_{res}$)</strong> at operating temperature $T_{comb}$ is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$t_{res} = \frac{V_c}{Q_{actual}} = \frac{V_c}{Q_{std} \cdot \left( \frac{T_{comb} + 273.15}{273.15} \right)}$$
+          </div>
+          <p>The net auxiliary burner thermal fuel requirement ($\dot{Q}_{aux}$) balances sensible heating with exothermic VOC enthalpy release:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\dot{Q}_{aux} = \dot{m}_{gas} c_p (T_{comb} - T_{in}) (1 - \text{TER}) \cdot (1 + f_{loss}) - \dot{m}_{VOC} \cdot \text{LHV}_{VOC}$$
+          </div>
+          <p>When $\dot{Q}_{aux} \le 0$, the oxidizer achieves <strong>autothermal self-sustenance</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var gasFlowInput = document.getElementById('rto_gas_flow');
+        var flowUnitSel = document.getElementById('rto_flow_unit');
+        var tinInput = document.getElementById('rto_tin');
+        var vocSpecSel = document.getElementById('rto_voc_spec');
+        var vocConcInput = document.getElementById('rto_voc_conc');
+        var combTempInput = document.getElementById('rto_comb_temp');
+        var chamberVolInput = document.getElementById('rto_chamber_vol');
+        var oxidizerTypeSel = document.getElementById('rto_oxidizer_type');
+        var gasCostInput = document.getElementById('rto_gas_cost');
+        var hoursInput = document.getElementById('rto_hours');
+        var casingLossInput = document.getElementById('rto_casing_loss');
+        var calcBtn = document.getElementById('rto_calc_btn');
+        var copyBtn = document.getElementById('rto_copy_btn');
+        var copyMsg = document.getElementById('rto_copy_msg');
+
+        var resDrePct = document.getElementById('res_dre_pct');
+        var resDreStatus = document.getElementById('res_dre_status');
+        var resResTime = document.getElementById('res_res_time');
+        var resPlugFlow = document.getElementById('res_plug_flow');
+        var resLelPct = document.getElementById('res_lel_pct');
+        var resLelStatus = document.getElementById('res_lel_status');
+        var resNatgasFlow = document.getElementById('res_natgas_flow');
+        var resNatgasMmbtu = document.getElementById('res_natgas_mmbtu');
+        var resAnnualCost = document.getElementById('res_annual_cost');
+        var resFuelSaved = document.getElementById('res_fuel_saved');
+        var resAutothermalStatus = document.getElementById('res_autothermal_status');
+        var resAutothermalTarget = document.getElementById('res_autothermal_target');
+
+        var resGrossHeat = document.getElementById('res_gross_heat');
+        var resVocHeat = document.getElementById('res_voc_heat');
+        var resTStack = document.getElementById('res_t_stack');
+        var resCo2Tons = document.getElementById('res_co2_tons');
+
+        var canvas = document.getElementById('rto_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // VOC Species Database: [LHV (MJ/kg), LEL (mg/Nm3 at 20C), Arrhenius Ea (J/mol), Arrhenius A (1/s)]
+        var vocData = {
+          toluene: { lhv: 40.5, lelMg: 42000, ea: 185000, a: 3.5e11 },
+          benzene: { lhv: 40.0, lelMg: 39000, ea: 195000, a: 5.0e11 },
+          mek:     { lhv: 31.5, lelMg: 42000, ea: 170000, a: 2.0e11 },
+          ipa:     { lhv: 30.5, lelMg: 50000, ea: 160000, a: 1.5e11 },
+          acetone: { lhv: 29.0, lelMg: 60000, ea: 165000, a: 1.8e11 },
+          hexane:  { lhv: 45.0, lelMg: 39000, ea: 175000, a: 2.5e11 }
+        };
+
+        function calculate() {
+          var rawFlow = parseFloat(gasFlowInput.value) || 25000;
+          var unit = flowUnitSel.value;
+          var tInC = parseFloat(tinInput.value) || 35;
+          var vocKey = vocSpecSel.value;
+          var vocConcMg = parseFloat(vocConcInput.value) || 2800;
+          var tCombC = parseFloat(combTempInput.value) || 815;
+          var vChamberM3 = parseFloat(chamberVolInput.value) || 22.0;
+          var oxType = oxidizerTypeSel.value;
+          var gasTariff = parseFloat(gasCostInput.value) || 6.50; // $/MMBtu
+          var opHours = parseFloat(hoursInput.value) || 8400;
+          var casingLossPct = (parseFloat(casingLossInput.value) || 3.0) / 100;
+
+          // Convert flow to Nm3/h (0 deg C, 1 atm)
+          var flowNm3H = rawFlow;
+          if (unit === 'scfm') flowNm3H = rawFlow * 1.6075; // SCFM (60F) to Nm3/h (0C)
+
+          // Thermal Energy Recovery (TER) factor
+          var ter = 0.95;
+          if (oxType === 'rto_90') ter = 0.90;
+          else if (oxType === 'recup_70') ter = 0.70;
+          else if (oxType === 'dfto_0') ter = 0.00;
+
+          // 1. NFPA 86 LEL Evaluation
+          var species = vocData[vocKey] || vocData.toluene;
+          var lelPct = (vocConcMg / species.lelMg) * 100;
+
+          // 2. Actual Hot Gas Flow & Residence Time
+          // Q_actual (m3/s) = (flowNm3H / 3600) * ((tCombC + 273.15) / 273.15)
+          var qActualM3s = (flowNm3H / 3600.0) * ((tCombC + 273.15) / 273.15);
+          var resTimeSec = vChamberM3 / qActualM3s;
+
+          // 3. EPA DRE via Arrhenius First-Order Kinetics
+          // k = A * exp(-Ea / (R * T_K))
+          var rGas = 8.314; // J/(mol*K)
+          var tCombK = tCombC + 273.15;
+          var kRate = species.a * Math.exp(-species.ea / (rGas * tCombK));
+          var dreFraction = 1.0 - Math.exp(-kRate * resTimeSec);
+          var drePct = Math.min(99.999, Math.max(80.0, dreFraction * 100.0));
+
+          // 4. Thermal Energy Balance & Auxiliary Fuel
+          // Air density at 0C = 1.293 kg/Nm3, Cp = 1.05 kJ/(kg*K)
+          var mGasKgS = (flowNm3H * 1.293) / 3600.0;
+          var cpAir = 1.05; // kJ/(kg*K)
+
+          // Sensible heat delta (kW): m * Cp * deltaT * (1 - TER) * (1 + casingLoss)
+          var deltaTSensible = Math.max(0, tCombC - tInC);
+          var grossSensibleKw = mGasKgS * cpAir * deltaTSensible;
+          var netSensibleKw = grossSensibleKw * (1.0 - ter) * (1.0 + casingLossPct);
+
+          // Heat released by VOC oxidation:
+          // Mass of VOC (kg/h) = (flowNm3H * vocConcMg) / 1e6
+          var vocMassKgH = (flowNm3H * vocConcMg) / 1000000.0;
+          var vocHeatKw = (vocMassKgH * (species.lhv * 1000.0)) / 3600.0; // kW
+
+          // Auxiliary burner heat demand
+          var auxHeatKw = Math.max(0, netSensibleKw - vocHeatKw);
+          var auxHeatMmbtuH = (auxHeatKw * 3600.0) / 1055056.0; // MMBtu/h
+
+          // Natural gas fuel consumption (Heating value ~ 38.0 MJ/Nm3)
+          var natGasNm3H = (auxHeatKw * 3600.0) / 38000.0;
+          var annualFuelCost = auxHeatMmbtuH * gasTariff * opHours;
+
+          // Autothermal VOC concentration threshold (where netSensible == vocHeat)
+          var autothermalVocMgNm3 = (netSensibleKw * 3600.0 * 1000000.0) / (flowNm3H * species.lhv * 1000.0);
+
+          // Stack Exhaust Temperature estimate: T_stack = T_in + deltaT * (1 - TER)
+          var tStackC = tInC + deltaTSensible * (1.0 - ter);
+
+          // Carbon Emissions: Nat gas (~0.053 tonnes CO2/MMBtu) + VOC carbon (~3.0 kg CO2 / kg VOC)
+          var natGasCo2TonsYr = auxHeatMmbtuH * 0.053 * opHours;
+          var vocCo2TonsYr = (vocMassKgH * 3.0 * opHours) / 1000.0;
+          var totalCo2TonsYr = natGasCo2TonsYr + vocCo2TonsYr;
+
+          // Update UI
+          resDrePct.innerText = drePct.toFixed(2) + '%';
+          if (drePct >= 99.0) {
+            resDreStatus.innerText = 'EPA Title V Compliant (>99%)';
+            resDreStatus.style.color = '#10b981';
+          } else {
+            resDreStatus.innerText = 'Non-Compliant (Increase Temp/Time)';
+            resDreStatus.style.color = '#ef4444';
+          }
+
+          resResTime.innerText = resTimeSec.toFixed(2) + ' s';
+          resPlugFlow.innerText = 'Hot Vol: ' + Math.round(qActualM3s) + ' m3/s @ ' + tCombC + 'C';
+
+          resLelPct.innerText = lelPct.toFixed(1) + '% LEL';
+          if (lelPct < 25.0) {
+            resLelStatus.innerText = 'NFPA 86 Safe (<25% LEL)';
+            resLelStatus.style.color = '#10b981';
+          } else if (lelPct <= 50.0) {
+            resLelStatus.innerText = 'CAUTION: Requires Dual LEL Analyzers';
+            resLelStatus.style.color = '#f59e0b';
+          } else {
+            resLelStatus.innerText = 'CRITICAL DANGER: >50% LEL (Dilution Mandatory)';
+            resLelStatus.style.color = '#ef4444';
+          }
+
+          resNatgasFlow.innerText = Math.round(natGasNm3H) + ' Nm3/h';
+          resNatgasMmbtu.innerText = auxHeatMmbtuH.toFixed(2) + ' MMBtu/h Burner Duty';
+          resAnnualCost.innerText = '$' + Math.round(annualFuelCost).toLocaleString() + ' / yr';
+
+          if (auxHeatKw <= 0) {
+            resAutothermalStatus.innerText = 'Autothermal (Self-Sustaining!)';
+            resAutothermalStatus.style.color = '#10b981';
+            resFuelSaved.innerText = 'Aux Burner at 0% Pilot Standby';
+          } else {
+            resAutothermalStatus.innerText = 'Sub-Autothermal (Burner Firing)';
+            resAutothermalStatus.style.color = '#f97316';
+            resFuelSaved.innerText = 'Saves ' + Math.round(ter * 100) + '% vs Direct Fired';
+          }
+          resAutothermalTarget.innerText = 'Self-sustains at >= ' + Math.round(autothermalVocMgNm3) + ' mg/Nm3';
+
+          resGrossHeat.innerText = Math.round(grossSensibleKw).toLocaleString() + ' kW';
+          resVocHeat.innerText = Math.round(vocHeatKw).toLocaleString() + ' kW (Exothermic)';
+          resTStack.innerText = Math.round(tStackC) + ' deg C';
+          resCo2Tons.innerText = Math.round(totalCo2TonsYr).toLocaleString() + ' tons/yr (Fossil + VOC)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // 3-Bed Regenerative Thermal Oxidizer (RTO) Diagram
+          // Top Horizontal Combustion Chamber
+          var ccX = 60, ccY = 35, ccW = 400, ccH = 65;
+          ctx.fillStyle = '#451a03'; ctx.strokeStyle = '#f97316'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(ccX, ccY, ccW, ccH, 10); ctx.fill(); ctx.stroke();
+
+          // Burner Flame in middle of Combustion Chamber
+          ctx.fillStyle = '#ea580c'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('COMBUSTION CHAMBER (' + combTempInput.value + ' deg C)', ccX + ccW/2, ccY + 28);
+          ctx.fillStyle = '#fbbf24'; ctx.font = '10px sans-serif';
+          ctx.fillText('Residence Time: ' + resResTime.innerText + ' (DRE: ' + resDrePct.innerText + ')', ccX + ccW/2, ccY + 46);
+
+          // 3 Ceramic Media Heat Exchanger Beds below
+          var bedW = 100;
+          var bedH = 140;
+          var bedY = ccY + ccH + 5;
+          var b1X = ccX + 15;
+          var b2X = ccX + 150;
+          var b3X = ccX + 285;
+
+          // Bed 1: Preheating Mode (Incoming Gas)
+          ctx.fillStyle = 'rgba(234, 88, 12, 0.25)'; ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.rect(b1X, bedY, bedW, bedH); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#f97316'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('BED 1 (PREHEAT)', b1X + bedW/2, bedY + 22);
+          ctx.fillStyle = '#cbd5e1'; ctx.font = '9px sans-serif';
+          ctx.fillText('Ceramic Media', b1X + bedW/2, bedY + 45);
+          ctx.fillText('Absorbing Gas Heat', b1X + bedW/2, bedY + 65);
+          ctx.fillText('Flow: UPWARDS ^', b1X + bedW/2, bedY + 95);
+
+          // Bed 2: Purge Mode
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.15)'; ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.rect(b2X, bedY, bedW, bedH); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('BED 2 (PURGE)', b2X + bedW/2, bedY + 22);
+          ctx.fillStyle = '#cbd5e1'; ctx.font = '9px sans-serif';
+          ctx.fillText('Zero Puff Bypass', b2X + bedW/2, bedY + 45);
+          ctx.fillText('Clean Air Sweep', b2X + bedW/2, bedY + 65);
+          ctx.fillText('EPA Compliance', b2X + bedW/2, bedY + 95);
+
+          // Bed 3: Heat Capture / Cooling Mode (Clean Exhaust Gas)
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.25)'; ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.rect(b3X, bedY, bedW, bedH); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#10b981'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('BED 3 (RECOVERY)', b3X + bedW/2, bedY + 22);
+          ctx.fillStyle = '#cbd5e1'; ctx.font = '9px sans-serif';
+          ctx.fillText('Hot Gas Exit', b3X + bedW/2, bedY + 45);
+          ctx.fillText('Heating Ceramics', b3X + bedW/2, bedY + 65);
+          ctx.fillText('Flow: DOWNWARDS v', b3X + bedW/2, bedY + 95);
+
+          // Bottom Poppet Valve Manifold
+          var pY = bedY + bedH + 10;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(ccX, pY, ccW, 45, 8); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('POPPET SWITCHING VALVES & INLET / OUTLET MANIFOLD', ccX + ccW/2, pY + 28);
+
+          // Animated Gas Particles:
+          // Inlet entering Bed 1
+          ctx.fillStyle = '#f97316';
+          for (var p = 0; p < 4; p++) {
+            var py1 = pY - 5 - ((animStep * 2 + p * 30) % (bedH - 10));
+            ctx.beginPath(); ctx.arc(b1X + bedW/2, py1, 3, 0, Math.PI * 2); ctx.fill();
+          }
+          // Exhaust leaving Bed 3
+          ctx.fillStyle = '#10b981';
+          for (var p2 = 0; p2 < 4; p2++) {
+            var py3 = bedY + 10 + ((animStep * 2 + p2 * 30) % (bedH - 10));
+            ctx.beginPath(); ctx.arc(b3X + bedW/2, py3, 3, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // Right: Engineering Telemetry Panel
+          var dX = 520, dY = 30, dW = 520, dH = 295;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(dX, dY, dW, dH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('THERMAL OXIDIZER KINETICS & FUEL AUDIT', dX + 20, dY + 26);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#f97316';
+          ctx.fillText('VOC Destruction Efficiency: ' + resDrePct.innerText + ' (' + resDreStatus.innerText + ')', dX + 20, dY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Chamber Residence Time: ' + resResTime.innerText + ' @ ' + combTempInput.value + ' deg C', dX + 20, dY + 76);
+          ctx.fillText('Inlet LEL Safety Check: ' + resLelPct.innerText + ' (' + resLelStatus.innerText + ')', dX + 20, dY + 97);
+          ctx.fillText('Thermal Recovery: ' + oxidizerTypeSel.options[oxidizerTypeSel.selectedIndex].text.split('(')[0], dX + 20, dY + 118);
+
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Auxiliary Natural Gas: ' + resNatgasFlow.innerText + ' (' + resNatgasMmbtu.innerText + ')', dX + 20, dY + 144);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Annual Fuel Expenditure: ' + resAnnualCost.innerText + ' (' + hoursInput.value + ' hrs/yr)', dX + 20, dY + 165);
+          ctx.fillText('Exothermic VOC Heat Enthalpy: ' + resVocHeat.innerText + ' vs Sensible: ' + resGrossHeat.innerText, dX + 20, dY + 186);
+          ctx.fillText('Stack Clean Gas Temperature: ' + resTStack.innerText + ' (Acid Dew Point Check)', dX + 20, dY + 207);
+
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Operating State: ' + resAutothermalStatus.innerText, dX + 20, dY + 233);
+          ctx.fillText(resAutothermalTarget.innerText, dX + 20, dY + 258);
+          ctx.fillText('Standards: EPA Method 25A DRE & NFPA 86 Industrial Furnace Safety', dX + 20, dY + 278);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== THERMAL OXIDIZER (RTO / TO) SIZING REPORT ===',
+            'Exhaust Gas Flow: ' + gasFlowInput.value + ' ' + flowUnitSel.value + ' @ ' + tinInput.value + ' deg C',
+            'Target VOC Species: ' + vocSpecSel.value + ' (' + vocConcInput.value + ' mg/Nm3)',
+            'Combustion Chamber: ' + combTempInput.value + ' deg C | Volume: ' + chamberVolInput.value + ' m3',
+            'Destruction Efficiency (DRE): ' + resDrePct.innerText + ' (' + resDreStatus.innerText + ')',
+            'Residence Time: ' + resResTime.innerText + ' (' + resPlugFlow.innerText + ')',
+            'NFPA 86 LEL Safety Margin: ' + resLelPct.innerText + ' (' + resLelStatus.innerText + ')',
+            'Auxiliary Natural Gas Fuel: ' + resNatgasFlow.innerText + ' (' + resNatgasMmbtu.innerText + ')',
+            'Annual Operating Cost: ' + resAnnualCost.innerText + ' (' + resFuelSaved.innerText + ')',
+            'Autothermal Assessment: ' + resAutothermalStatus.innerText + ' (' + resAutothermalTarget.innerText + ')',
+            'Stack Exhaust Temperature: ' + resTStack.innerText,
+            'Standards: EPA Clean Air Act Title V & NFPA 86 Thermal Oxidizer Guidelines'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [gasFlowInput, flowUnitSel, tinInput, vocSpecSel, vocConcInput, combTempInput, chamberVolInput, oxidizerTypeSel, gasCostInput, hoursInput, casingLossInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (275 calculators in /calc/)');
 }
 
