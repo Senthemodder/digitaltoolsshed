@@ -163318,6 +163318,1925 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
 
-  console.log('  ✓ Built Trade & Construction Suite (247 calculators in /calc/)');
+  // --- TOOL BY1: COMBINED-CYCLE GAS TURBINE HRSG PINCH & APPROACH POINT CALCULATOR ---
+  (() => {
+    const slug = 'hrsg-heat-recovery-steam-generator-pinch-approach-calculator';
+    const title = 'HRSG Pinch & Approach Point Sizing Calculator | Gas Turbine Heat Recovery';
+    const desc = 'Size combined-cycle Heat Recovery Steam Generators (HRSG). Calculate evaporator pinch point, economizer approach point, steam generation rate, gas temperature profile, and heat recovery thermal efficiency.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'HRSG Pinch & Approach Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What is the pinch point temperature difference in an HRSG?',
+        a: 'The pinch point temperature difference (ΔT_pinch) is the temperature difference between the gas leaving the evaporator and the saturation temperature of water/steam inside the evaporator drum (ΔT_pinch = T_gas,evap_out - T_sat). In modern unfired combined-cycle gas turbine HRSGs, typical values range between 8°C and 15°C (15°F to 27°F). Selecting a smaller pinch point increases steam production and plant thermodynamic efficiency but exponentially escalates evaporator heat transfer surface area and equipment capital expenditure.'
+      },
+      {
+        q: 'What is the economizer approach temperature difference and why is it critical?',
+        a: 'The approach temperature difference (ΔT_approach) is the margin between the saturation temperature in the steam drum and the subcooled feedwater temperature entering the drum from the economizer (ΔT_approach = T_sat - T_water,eco_out). It is typically sized between 5°C and 12°C (9°F to 22°F) to prevent premature boiling or two-phase steam generation inside the economizer tubes during low-load turndown or rapid gas turbine load ramping, which causes flow instability, steam hammer, and severe thermal fatigue.'
+      },
+      {
+        q: 'How does gas turbine exhaust temperature and mass flow dictate HP steam output?',
+        a: 'Gas turbine exhaust mass flow and temperature establish the thermodynamic heat source boundary. The high-pressure (HP) evaporator steam generation rate is determined by energy balance between the gas inlet and the pinch point: m_steam = [m_gas × Cp_gas × (T_gas,in - (T_sat + ΔT_pinch))] / [(h_steam,out - h_water,eco_out)]. Higher gas mass flow rates or duct burner supplemental firing elevate gas enthalpy, directly multiplying high-pressure steam generation capacity.'
+      },
+      {
+        q: 'What is the consequence of low HRSG stack temperature?',
+        a: 'While lowering stack temperature extracts maximum enthalpy from the gas turbine exhaust, cooling flue gas below its acid dew point (typically 110°C to 135°C for sulfur-bearing fuels or natural gas with trace H2S) causes condensation of sulfuric/sulfurous acid. This precipitates catastrophic dew-point corrosion on cold-end economizer tubes and casing liners unless costly corrosion-resistant metallurgy (e.g., Corten steel or high-nickel alloys) is deployed.'
+      },
+      {
+        q: 'How does duct firing (supplemental firing) alter the pinch point?',
+        a: 'Duct burner supplemental firing injects fuel into the gas turbine exhaust upstream of the superheater/evaporator, raising the gas temperature from standard exhaust levels (540°C–620°C) up to 750°C–900°C. This greatly expands the gas-to-steam temperature driving force, relaxing physical pinch point constraints and dramatically boosting steam production for peaking power generation or industrial process cogeneration.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size combined-cycle Heat Recovery Steam Generators (HRSG) with thermodynamic rigor. Compute evaporator pinch point, economizer approach temperature, live gas cooling curves, steam generation rates, and overall energy recovery efficiency with interactive Temperature-Enthalpy (T-Q) profile rendering.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Gas Turbine Exhaust & Boiler Parameters</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Gas Turbine Exhaust Mass Flow (m_gas)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="hrsg_mgas" value="450" min="10" max="2500" step="5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="hrsg_mgas_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="kg_s" selected>kg/s</option>' +
+                '<option value="t_h">ton/h</option>' +
+                '<option value="lb_s">lb/s</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Gas Turbine Exhaust Temp (T_gas,in)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="hrsg_tgin" value="580" min="200" max="1100" step="5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="hrsg_tgin_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="c" selected>°C</option>' +
+                '<option value="f">°F</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Steam Drum Operating Pressure (P_drum)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="hrsg_pdrum" value="90" min="5" max="220" step="1" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="hrsg_pdrum_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="bar" selected>bar(a)</option>' +
+                '<option value="mpa">MPa(a)</option>' +
+                '<option value="psi">psia</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Superheater Steam Outlet Temp (T_sh)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="hrsg_tsh" value="540" min="150" max="650" step="5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="hrsg_tsh_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="c" selected>°C</option>' +
+                '<option value="f">°F</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Economizer Feedwater Inlet Temp (T_feed)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="hrsg_tfeed" value="115" min="40" max="250" step="5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="hrsg_tfeed_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="c" selected>°C</option>' +
+                '<option value="f">°F</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Evaporator Pinch (ΔT_pinch, °C)</label>' +
+              '<input type="number" id="hrsg_dt_pinch" value="10" min="3" max="40" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Eco Approach (ΔT_approach, °C)</label>' +
+              '<input type="number" id="hrsg_dt_approach" value="8" min="2" max="30" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Flue Gas Mean Cp (kJ/kg·K)</label>' +
+              '<input type="number" id="hrsg_cpgas" value="1.12" min="1.0" max="1.3" step="0.01" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Heat Loss Margin (%)</label>' +
+              '<input type="number" id="hrsg_loss" value="1.5" min="0" max="8" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">HRSG Thermodynamic Performance</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Steam Generation Rate</span>' +
+                '<span id="res_hrsg_msteam" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_hrsg_msteam_sec" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Steam Saturation Temp (T_sat)</span>' +
+                '<span id="res_hrsg_tsat" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_hrsg_hvap" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Gas Temp at Pinch (T_g,pinch)</span>' +
+                '<span id="res_hrsg_tgpinch" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_hrsg_eco_in" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">HRSG Stack Exit Temp</span>' +
+                '<span id="res_hrsg_tstack" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_hrsg_dewpoint_status" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Total Heat Recovered:</span>' +
+                '<span id="res_hrsg_qtotal" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">HRSG Recovery Efficiency:</span>' +
+                '<span id="res_hrsg_eta" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Heat Distribution (SH / Evap / Eco):</span>' +
+                '<span id="res_hrsg_split" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_hrsg" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Temperature vs. Heat Transferred (T-Q) Diagram</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Real-time thermodynamic temperature profiles showing exhaust gas cooling curve alongside economizer heating, isothermal drum evaporation, and superheater warming lines with pinch & approach points.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="hrsg_tq_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in HRSG Design</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Steaming in Economizer Tubes (Under-sizing Approach Margin)</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Selecting an approach temperature difference below 5°C risks premature vapor generation inside economizer tubes during gas turbine load transients or cold ambient air operation. Two-phase flow causes devastating steam hammer, tube chattering, flow distribution maldistribution, and severe tube-to-header weld cracking.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Cold-End Acid Dew-Point Condensation & Low Stack Temperature</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Excessively maximizing heat recovery to drive stack gas temperature below 105°C–120°C triggers sulfuric acid and moisture condensation if sulfur is present in fuel or trace mercaptans in pipeline gas. Cold-end finned tubes will perforate from corrosion in less than 18 months unless feedwater preheating loops maintain metal temperatures above the dew point.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. The Pinch Point Diminishing Returns Trap (Surface Area Explosion)</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Attempting to lower the pinch point below 8°C produces diminishing steam gains while evaporator tube surface area scales asymptotically as 1/ΔT_pinch. Below 6°C, the added capital cost of titanium or high-alloy finned tubing, structural framing, and gas-side pressure drop penalty far outweighs the marginal turbine kilowatt-hours generated.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Ignoring Flue Gas Specific Heat (Cp) Temperature Dependence</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Using ambient air Cp (1.005 kJ/kg·K) instead of combustion exhaust gas Cp at elevated temperatures (1.10–1.18 kJ/kg·K depending on humidity and gas turbine fuel/air ratio) introduces a 10% to 15% error in steam generation sizing. Exhaust gas contains substantial H2O (7–11 vol%) and CO2 (3–5 vol%), raising heat capacity significantly above dry air.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Gas-Side Backpressure Penalties on Gas Turbine Output</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Adding excessively dense finned tube banks (e.g. 6–7 fins/inch) to squeeze out extra heat increases gas-side backpressure on the gas turbine. Every 1.0 kPa (4 inches water gauge) of HRSG gas backpressure drops gas turbine electrical power output by approximately 0.3% to 0.5% and worsens heat rate, negating the minor heat recovery bonus.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Thermodynamic Derivations & Governing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'The sizing of a Heat Recovery Steam Generator is bounded by the second law of thermodynamics. The heat transferred across any section must maintain a positive temperature driving force everywhere along the flow path.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Evaporator Pinch Temperature Condition:<br>' +
+          '&nbsp;&nbsp;T_gas,pinch = T_sat(P_drum) + ΔT_pinch<br><br>' +
+          '2. Economizer Water Exit Temperature Condition:<br>' +
+          '&nbsp;&nbsp;T_water,eco_out = T_sat(P_drum) - ΔT_approach<br><br>' +
+          '3. High-Pressure Evaporator + Superheater Heat Balance:<br>' +
+          '&nbsp;&nbsp;Q_sh_evap = m_gas · Cp_gas · (T_gas,in - T_gas,pinch) · (1 - f_loss)<br>' +
+          '&nbsp;&nbsp;m_steam = Q_sh_evap / [ (h_steam(P_drum, T_sh) - h_water(T_water,eco_out)) ]<br><br>' +
+          '4. Economizer Energy Balance:<br>' +
+          '&nbsp;&nbsp;Q_eco = m_steam · [ h_water(T_water,eco_out) - h_water(T_feed) ]<br>' +
+          '&nbsp;&nbsp;T_gas,stack = T_gas,pinch - [ Q_eco / (m_gas · Cp_gas · (1 - f_loss)) ]<br><br>' +
+          '5. Overall HRSG Heat Recovery Efficiency:<br>' +
+          '&nbsp;&nbsp;η_HRSG = (T_gas,in - T_gas,stack) / (T_gas,in - T_ambient)' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'mgas: document.getElementById("hrsg_mgas"),' +
+          'mgas_unit: document.getElementById("hrsg_mgas_unit"),' +
+          'tgin: document.getElementById("hrsg_tgin"),' +
+          'tgin_unit: document.getElementById("hrsg_tgin_unit"),' +
+          'pdrum: document.getElementById("hrsg_pdrum"),' +
+          'pdrum_unit: document.getElementById("hrsg_pdrum_unit"),' +
+          'tsh: document.getElementById("hrsg_tsh"),' +
+          'tsh_unit: document.getElementById("hrsg_tsh_unit"),' +
+          'tfeed: document.getElementById("hrsg_tfeed"),' +
+          'tfeed_unit: document.getElementById("hrsg_tfeed_unit"),' +
+          'dt_pinch: document.getElementById("hrsg_dt_pinch"),' +
+          'dt_approach: document.getElementById("hrsg_dt_approach"),' +
+          'cpgas: document.getElementById("hrsg_cpgas"),' +
+          'loss: document.getElementById("hrsg_loss"),' +
+          'res_msteam: document.getElementById("res_hrsg_msteam"),' +
+          'res_msteam_sec: document.getElementById("res_hrsg_msteam_sec"),' +
+          'res_tsat: document.getElementById("res_hrsg_tsat"),' +
+          'res_hvap: document.getElementById("res_hrsg_hvap"),' +
+          'res_tgpinch: document.getElementById("res_hrsg_tgpinch"),' +
+          'res_eco_in: document.getElementById("res_hrsg_eco_in"),' +
+          'res_tstack: document.getElementById("res_hrsg_tstack"),' +
+          'res_dewpoint_status: document.getElementById("res_hrsg_dewpoint_status"),' +
+          'res_qtotal: document.getElementById("res_hrsg_qtotal"),' +
+          'res_eta: document.getElementById("res_hrsg_eta"),' +
+          'res_split: document.getElementById("res_hrsg_split"),' +
+          'btn_copy: document.getElementById("btn_copy_hrsg"),' +
+          'canvas: document.getElementById("hrsg_tq_canvas")' +
+        '};' +
+
+        'function getSatTemp(pBar) {' +
+          'if (pBar <= 0.01) return 10;' +
+          'return (3816.44 / (18.3036 - Math.log(pBar * 750.06))) - 227.02;' +
+        '}' +
+
+        'function getSatEnthalpy(pBar) {' +
+          'const ts = getSatTemp(pBar);' +
+          'const hf = 4.186 * ts;' +
+          'const hfg = Math.max(1200, 2501 - 2.36 * ts);' +
+          'return { ts: ts, hf: hf, hg: hf + hfg, hfg: hfg };' +
+        '}' +
+
+        'function getSuperheatEnthalpy(ts, tsh, hg) {' +
+          'const dtSh = Math.max(0, tsh - ts);' +
+          'return hg + 2.35 * dtSh;' +
+        '}' +
+
+        'function calc() {' +
+          'let mgas = parseFloat(els.mgas.value) || 0;' +
+          'if (els.mgas_unit.value === "t_h") mgas = mgas / 3.6;' +
+          'else if (els.mgas_unit.value === "lb_s") mgas = mgas * 0.453592;' +
+
+          'let tgin = parseFloat(els.tgin.value) || 0;' +
+          'if (els.tgin_unit.value === "f") tgin = (tgin - 32) * 5 / 9;' +
+
+          'let pdrum = parseFloat(els.pdrum.value) || 1;' +
+          'if (els.pdrum_unit.value === "mpa") pdrum = pdrum * 10;' +
+          'else if (els.pdrum_unit.value === "psi") pdrum = pdrum * 0.0689476;' +
+
+          'let tsh = parseFloat(els.tsh.value) || 0;' +
+          'if (els.tsh_unit.value === "f") tsh = (tsh - 32) * 5 / 9;' +
+
+          'let tfeed = parseFloat(els.tfeed.value) || 0;' +
+          'if (els.tfeed_unit.value === "f") tfeed = (tfeed - 32) * 5 / 9;' +
+
+          'const dtPinch = parseFloat(els.dt_pinch.value) || 10;' +
+          'const dtApproach = parseFloat(els.dt_approach.value) || 8;' +
+          'const cpgas = parseFloat(els.cpgas.value) || 1.12;' +
+          'const fLoss = (parseFloat(els.loss.value) || 0) / 100;' +
+
+          'const sat = getSatEnthalpy(pdrum);' +
+          'const tsat = sat.ts;' +
+          'if (tsh < tsat) tsh = tsat + 5;' +
+
+          'const tgPinch = tsat + dtPinch;' +
+          'const twEcoOut = Math.max(tfeed, tsat - dtApproach);' +
+
+          'const hSteamOut = getSuperheatEnthalpy(tsat, tsh, sat.hg);' +
+          'const hWaterEcoOut = 4.19 * twEcoOut;' +
+          'const hFeed = 4.19 * tfeed;' +
+
+          'const deltaH_evap_sh = hSteamOut - hWaterEcoOut;' +
+          'const qAvailableEvapSh = mgas * cpgas * (tgin - tgPinch) * (1 - fLoss);' +
+
+          'let mSteam = 0;' +
+          'if (deltaH_evap_sh > 0 && qAvailableEvapSh > 0) {' +
+            'mSteam = qAvailableEvapSh / deltaH_evap_sh;' +
+          '}' +
+
+          'const qEco = mSteam * (hWaterEcoOut - hFeed);' +
+          'const tgEcoOut = tgPinch - (qEco / (mgas * cpgas * (1 - fLoss)));' +
+          'const tStack = tgEcoOut;' +
+
+          'const qTotal = mSteam * (hSteamOut - hFeed);' +
+          'const tAmbient = 25;' +
+          'const etaHRSG = Math.max(0, Math.min(100, ((tgin - tStack) / (tgin - tAmbient)) * 100));' +
+
+          'const qSH = mSteam * (hSteamOut - sat.hg);' +
+          'const qEvap = mSteam * sat.hfg;' +
+          'const qEcoKw = qEco;' +
+
+          'const mSteamTonH = mSteam * 3.6;' +
+          'els.res_msteam.textContent = mSteamTonH.toFixed(1) + " t/h";' +
+          'els.res_msteam_sec.textContent = mSteam.toFixed(2) + " kg/s (" + (mSteam * 2.20462).toFixed(1) + " lb/s)";' +
+          'els.res_tsat.textContent = tsat.toFixed(1) + " °C (" + (tsat * 1.8 + 32).toFixed(1) + " °F)";' +
+          'els.res_hvap.textContent = "h_fg = " + sat.hfg.toFixed(0) + " kJ/kg";' +
+          'els.res_tgpinch.textContent = tgPinch.toFixed(1) + " °C";' +
+          'els.res_eco_in.textContent = "Eco Out Water: " + twEcoOut.toFixed(1) + " °C";' +
+          'els.res_tstack.textContent = tStack.toFixed(1) + " °C (" + (tStack * 1.8 + 32).toFixed(1) + " °F)";' +
+
+          'if (tStack < 110) {' +
+            'els.res_dewpoint_status.innerHTML = "<span style=\"color:#ef4444;font-weight:600;\">⚠️ Critical Dew Point Risk!</span>";' +
+          '} else if (tStack < 130) {' +
+            'els.res_dewpoint_status.innerHTML = "<span style=\"color:#f59e0b;font-weight:600;\">Caution: Acid condensation zone</span>";' +
+          '} else {' +
+            'els.res_dewpoint_status.innerHTML = "<span style=\"color:#10b981;font-weight:600;\">Safe stack temperature</span>";' +
+          '}' +
+
+          'els.res_qtotal.textContent = (qTotal / 1000).toFixed(1) + " MW_th (" + (qTotal * 3412.142 / 1000000).toFixed(1) + " MMBtu/h)";' +
+          'els.res_eta.textContent = etaHRSG.toFixed(1) + "%";' +
+          'if (qTotal > 0) {' +
+            'els.res_split.textContent = ((qSH / qTotal) * 100).toFixed(0) + "% / " + ((qEvap / qTotal) * 100).toFixed(0) + "% / " + ((qEcoKw / qTotal) * 100).toFixed(0) + "%";' +
+          '}' +
+
+          'drawTQ(tgin, tgPinch, tStack, tsh, tsat, twEcoOut, tfeed, qTotal, qSH, qEvap, qEcoKw);' +
+        '}' +
+
+        'function drawTQ(tgin, tgPinch, tStack, tsh, tsat, twEcoOut, tfeed, qTotal, qSH, qEvap, qEco) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const pad = { top: 30, right: 40, bottom: 40, left: 60 };' +
+          'const pw = w - pad.left - pad.right;' +
+          'const ph = h - pad.top - pad.bottom;' +
+
+          'const tMax = Math.ceil(Math.max(tgin, tsh) * 1.1 / 100) * 100;' +
+          'const tMin = 0;' +
+
+          'function getX(q) { return pad.left + (q / Math.max(1, qTotal)) * pw; }' +
+          'function getY(t) { return pad.top + ph - ((t - tMin) / (tMax - tMin)) * ph; }' +
+
+          'ctx.strokeStyle = "#1e293b";' +
+          'ctx.lineWidth = 1;' +
+          'ctx.beginPath();' +
+          'for (let t = 100; t <= tMax; t += 100) {' +
+            'const y = getY(t);' +
+            'ctx.moveTo(pad.left, y);' +
+            'ctx.lineTo(w - pad.right, y);' +
+          '}' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#64748b";' +
+          'ctx.font = "10px sans-serif";' +
+          'ctx.textAlign = "right";' +
+          'for (let t = 100; t <= tMax; t += 100) {' +
+            'ctx.fillText(t + "°C", pad.left - 8, getY(t) + 3);' +
+          '}' +
+
+          'const qEcoEnd = qEco;' +
+          'const qEvapEnd = qEco + qEvap;' +
+          'const qSHEnd = qTotal;' +
+
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(getX(0), getY(tfeed));' +
+          'ctx.lineTo(getX(qEcoEnd), getY(twEcoOut));' +
+          'ctx.lineTo(getX(qEvapEnd), getY(tsat));' +
+          'ctx.lineTo(getX(qSHEnd), getY(tsh));' +
+          'ctx.stroke();' +
+
+          'ctx.strokeStyle = "#f43f5e";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(getX(0), getY(tStack));' +
+          'ctx.lineTo(getX(qEcoEnd), getY(tgPinch));' +
+          'ctx.lineTo(getX(qTotal), getY(tgin));' +
+          'ctx.stroke();' +
+
+          'const xPinch = getX(qEcoEnd);' +
+          'const yGasPinch = getY(tgPinch);' +
+          'const yWaterPinch = getY(tsat);' +
+          'ctx.strokeStyle = "#f59e0b";' +
+          'ctx.setLineDash([4, 4]);' +
+          'ctx.lineWidth = 1.5;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(xPinch, yGasPinch);' +
+          'ctx.lineTo(xPinch, yWaterPinch);' +
+          'ctx.stroke();' +
+          'ctx.setLineDash([]);' +
+
+          'ctx.fillStyle = "#f59e0b";' +
+          'ctx.beginPath();' +
+          'ctx.arc(xPinch, yGasPinch, 4, 0, Math.PI * 2);' +
+          'ctx.arc(xPinch, yWaterPinch, 4, 0, Math.PI * 2);' +
+          'ctx.fill();' +
+
+          'ctx.font = "11px sans-serif";' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("ΔT_pinch", xPinch + 6, (yGasPinch + yWaterPinch) / 2);' +
+
+          'ctx.fillStyle = "#f43f5e";' +
+          'ctx.fillText("Flue Gas Line (T_gas)", pad.left + 10, getY(tgin) - 8);' +
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.fillText("Water / Steam Line", pad.left + 10, getY(tfeed) - 8);' +
+
+          'ctx.fillStyle = "#94a3b8";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("Economizer", (pad.left + getX(qEcoEnd)) / 2, h - pad.bottom + 20);' +
+          'ctx.fillText("Evaporator", (getX(qEcoEnd) + getX(qEvapEnd)) / 2, h - pad.bottom + 20);' +
+          'ctx.fillText("Superheater", (getX(qEvapEnd) + getX(qSHEnd)) / 2, h - pad.bottom + 20);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== HRSG PINCH & APPROACH DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Steam Generation Rate: " + els.res_msteam.textContent + " (" + els.res_msteam_sec.textContent + ")\n" +' +
+            '"Drum Saturation Temp: " + els.res_tsat.textContent + "\n" +' +
+            '"Evap Pinch Gas Temp: " + els.res_tgpinch.textContent + "\n" +' +
+            '"HRSG Stack Temp: " + els.res_tstack.textContent + "\n" +' +
+            '"Total Thermal Recovery: " + els.res_qtotal.textContent + "\n" +' +
+            '"HRSG Recovery Efficiency: " + els.res_eta.textContent + "\n" +' +
+            '"Heat Duty Split: " + els.res_split.textContent + "\n" +' +
+            '"Input Gas Flow: " + els.mgas.value + " " + els.mgas_unit.value + " @ " + els.tgin.value + " " + els.tgin_unit.value + "\n" +' +
+            '"Drum Pressure: " + els.pdrum.value + " " + els.pdrum_unit.value + "\n" +' +
+            '"Pinch Margin: " + els.dt_pinch.value + " °C | Approach Margin: " + els.dt_approach.value + " °C\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.mgas, els.mgas_unit, els.tgin, els.tgin_unit, els.pdrum, els.pdrum_unit, els.tsh, els.tsh_unit, els.tfeed, els.tfeed_unit, els.dt_pinch, els.dt_approach, els.cpgas, els.loss];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL BY2: CIRCULATING FLUIDIZED BED (CFB) BOILER SIZING CALCULATOR ---
+  (() => {
+    const slug = 'circulating-fluidized-bed-cfb-combustor-boiler-sizing-calculator';
+    const title = 'CFB Boiler & Combustor Sizing Calculator | Circulating Fluidized Bed Hydrodynamics';
+    const desc = 'Size industrial and utility Circulating Fluidized Bed (CFB) boilers. Calculate minimum fluidization velocity (U_mf), superficial gas velocity, solid circulation flux (Gs), riser voidage profile, and bed pressure drop.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'CFB Boiler Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What distinguishes a Circulating Fluidized Bed (CFB) from a Bubbling Fluidized Bed (BFB)?',
+        a: 'A Bubbling Bed operates at lower superficial velocities (1.5 to 2.5 m/s) where particles remain primarily within a well-defined dense bed layer. A Circulating Fluidized Bed operates at much higher velocities (4.5 to 7.0 m/s), well above the terminal settling velocity of the bed material. Solid particles are vigorously entrained up the entire height of the riser furnace, captured by high-efficiency cyclones, and continuously recycled back to the bottom through a non-mechanical loop-seal valve.'
+      },
+      {
+        q: 'What is the minimum fluidization velocity (U_mf) and how is it calculated?',
+        a: 'The minimum fluidization velocity is the threshold superficial gas velocity at which upward aerodynamic drag on bed particles exactly equals their submerged gravitational weight. It is calculated using the Wen-Yu or Ergun correlation based on the Archimedes number (Ar = d_p^3 × rho_g × (rho_s - rho_g) × g / mu_g^2) and particle sphericity. In CFB boilers, operational gas velocity is typically 15 to 40 times U_mf.'
+      },
+      {
+        q: 'Why is bed temperature typically maintained between 800°C and 900°C?',
+        a: 'CFB combustion is optimized at 830°C to 880°C (1525°F–1615°F) for two essential reasons: (1) it is the thermodynamic sweet spot for limestone (CaCO3) in-situ desulfurization via calcination and sulfation to CaSO4, and (2) it is low enough to virtually eliminate thermal NOx formation from atmospheric nitrogen (thermal NOx remains below 100–150 mg/Nm3 without catalytic reduction).'
+      },
+      {
+        q: 'What causes refractory erosion at the lower waterwall interface in a CFB?',
+        a: 'In a fast-fluidized riser, solids follow a core-annular flow pattern: upward dilute transport in the center core with a dense annular cluster of particles falling downward along the perimeter waterwalls. As this high-velocity downward curtain of abrasive sand and ash hits the abrupt step change between the refractory-lined lower furnace and bare membrane tubes, localized eddy turbulence causes severe tube metal thinning if refractory kickout angles are improperly designed.'
+      },
+      {
+        q: 'How is solid circulation flux (Gs) controlled in operation?',
+        a: 'Solid circulation flux (Gs, typically 10 to 60 kg/m²·s) is governed by the inventory of solids in the riser, the cyclone separation efficiency, and aeration air injected into the downcomer loop-seal (J-valve or seal pot). Adjusting aeration rate regulates the return flow of cooled solids into the combustion zone, directly controlling bed temperature and heat transfer coefficients across the evaporator membrane walls.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size Circulating Fluidized Bed (CFB) boilers and gas-solid hydrodynamics with multi-phase engineering precision. Compute minimum fluidization velocity, solid circulation flux (Gs), fast-fluidization voidage profiles, riser cross-sectional dimensions, and loop-seal pressure balances.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Combustion & Riser Flow Conditions</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Flue Gas Volumetric Flow Rate (Actual m³/s)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="cfb_vgas" value="180" min="5" max="2000" step="5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="cfb_vgas_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="m3_s" selected>m³/s</option>' +
+                '<option value="nm3_h">Nm³/h</option>' +
+                '<option value="acfm">ACFM</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Bed Combustion Temperature (T_bed)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="cfb_tbed" value="850" min="650" max="1050" step="5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="cfb_tbed_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="c" selected>°C</option>' +
+                '<option value="f">°F</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Superficial Gas Velocity (U_g)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="cfb_ug" value="5.5" min="2.0" max="10.0" step="0.1" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<span style="padding:8px 12px;background:var(--card-bg, #1e293b);border:1px solid var(--border-color, #475569);border-radius:6px;color:var(--text-muted, #94a3b8);font-size:0.85rem;">m/s</span>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Bed Material Mean Particle Size (d_50)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="cfb_dp" value="250" min="50" max="1200" step="10" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<span style="padding:8px 12px;background:var(--card-bg, #1e293b);border:1px solid var(--border-color, #475569);border-radius:6px;color:var(--text-muted, #94a3b8);font-size:0.85rem;">μm</span>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Solid Density (kg/m³)</label>' +
+              '<input type="number" id="cfb_rhos" value="2600" min="1200" max="4500" step="50" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Riser Height (H, m)</label>' +
+              '<input type="number" id="cfb_hriser" value="32" min="10" max="60" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Target Solid Flux (G_s)</label>' +
+              '<input type="number" id="cfb_gs" value="25" min="2" max="100" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Cyclone Separation η (%)</label>' +
+              '<input type="number" id="cfb_etacyc" value="99.6" min="95" max="99.99" step="0.05" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">CFB Sizing & Hydrodynamic Outputs</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Riser Cross Section Area</span>' +
+                '<span id="res_cfb_area" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_cfb_dim" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Min Fluidization (U_mf)</span>' +
+                '<span id="res_cfb_umf" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_cfb_fluid_ratio" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Terminal Velocity (U_t)</span>' +
+                '<span id="res_cfb_ut" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_cfb_regime" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Bed Static Pressure Drop</span>' +
+                '<span id="res_cfb_deltap" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_cfb_deltap_mbar" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Solid Inventory in Riser:</span>' +
+                '<span id="res_cfb_inventory" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Circulation Solids Flow:</span>' +
+                '<span id="res_cfb_circ_rate" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Mean Suspension Density:</span>' +
+                '<span id="res_cfb_susp_density" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_cfb" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Interactive CFB Boiler Loop Hydrodynamics Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Live multi-phase loop schematic displaying riser core-annulus solids profile, cyclone gas-solid separation, downcomer return standpipe, and non-mechanical seal pot with active particle circulation.</p>' +
+        '<div style="width:100%;height:340px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="cfb_loop_canvas" width="800" height="340" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in CFB Boiler Design</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Bed Agglomeration from Low-Melting Alkali Eutectics</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Firing high-alkali fuels (e.g. agricultural biomass, straw, or lignite containing potassium and sodium) causes volatile alkalis to react with quartz bed sand, forming sticky alkali-silicate eutectics with melting points below 750°C. Particles glaze and fuse into massive unfluidized clinkers, inducing catastrophic bed defluidization within hours.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Waterwall Refractory Interface Severe Tube Erosion</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Solid particles descend along perimeter walls at 2–4 m/s in an annular boundary layer. Where the lower refractory lining terminates and transitions to bare membrane evaporator tubes, flow disruption causes severe vortex eddies. Without engineered refractory shelf bevels, erosion shields, or weld overlays, tubes can fail by wear perforation in under 6 months.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Loop-Seal Loss of Seal & Cyclone Gas Blow-Through</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">The downcomer standpipe must maintain a head of fluidized solid particles exceeding the pressure differential between the cyclone dipleg and the positive-pressure furnace return port. If standpipe solid level drops below critical sealing height, flue gas blows backwards up the dipleg, entirely destroying cyclone separation efficiency and dumping bed inventory downstream into the economizer.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Unbalanced Primary-to-Secondary Air Ratio</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Distributing too much air to the bottom grid (primary air > 65%) causes premature combustion in the lower refractory zone, driving temperatures beyond 950°C and generating excessive NOx while risking ash sintering. Conversely, starved primary air (< 40%) fails to maintain minimum fluidization, resulting in sluggish bed turnover and severe bottom nozzle overheating.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Particle Attrition Leading to Bed Material Depletion</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">High-speed nozzle grid jets cause mechanical fracture and abrasive attrition of limestone and soft ash particles, converting d_50 from 250 μm down to < 40 μm. Particles smaller than cyclone cut point escape the recycle loop permanently, causing rapid loss of bed differential pressure and collapsing evaporator heat transfer coefficients.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Hydrodynamic Derivations & Governing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'Circulating fluidized beds operate within the fast fluidization regime between terminal particle velocity and pneumatic transport velocity, characterized by intense gas-solid slip and high solid circulation fluxes.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Archimedes Number for High-Temperature Flue Gas:<br>' +
+          '&nbsp;&nbsp;Ar = [ d_p³ · ρ_g · (ρ_s - ρ_g) · g ] / μ_g²<br><br>' +
+          '2. Wen-Yu Minimum Fluidization Reynolds Number (Re_mf):<br>' +
+          '&nbsp;&nbsp;Re_mf = √[ 33.7² + 0.0408 · Ar ] - 33.7<br>' +
+          '&nbsp;&nbsp;U_mf = (Re_mf · μ_g) / (d_p · ρ_g)<br><br>' +
+          '3. Single Particle Terminal Settling Velocity (U_t):<br>' +
+          '&nbsp;&nbsp;U_t ≈ √[ 4 · g · (ρ_s - ρ_g) · d_p / (3 · ρ_g · C_D) ]<br><br>' +
+          '4. Riser Cross-Sectional Area:<br>' +
+          '&nbsp;&nbsp;A_riser = V_gas / U_g<br><br>' +
+          '5. Fast Fluidization Bed Pressure Drop & Static Inventory:<br>' +
+          '&nbsp;&nbsp;ΔP_bed = (1 - ε_mean) · ρ_s · g · H_riser<br>' +
+          '&nbsp;&nbsp;M_bed = A_riser · (1 - ε_mean) · ρ_s · H_riser / 1000 [tons]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'vgas: document.getElementById("cfb_vgas"),' +
+          'vgas_unit: document.getElementById("cfb_vgas_unit"),' +
+          'tbed: document.getElementById("cfb_tbed"),' +
+          'tbed_unit: document.getElementById("cfb_tbed_unit"),' +
+          'ug: document.getElementById("cfb_ug"),' +
+          'dp: document.getElementById("cfb_dp"),' +
+          'rhos: document.getElementById("cfb_rhos"),' +
+          'hriser: document.getElementById("cfb_hriser"),' +
+          'gs: document.getElementById("cfb_gs"),' +
+          'etacyc: document.getElementById("cfb_etacyc"),' +
+          'res_area: document.getElementById("res_cfb_area"),' +
+          'res_dim: document.getElementById("res_cfb_dim"),' +
+          'res_umf: document.getElementById("res_cfb_umf"),' +
+          'res_fluid_ratio: document.getElementById("res_cfb_fluid_ratio"),' +
+          'res_ut: document.getElementById("res_cfb_ut"),' +
+          'res_regime: document.getElementById("res_cfb_regime"),' +
+          'res_deltap: document.getElementById("res_cfb_deltap"),' +
+          'res_deltap_mbar: document.getElementById("res_cfb_deltap_mbar"),' +
+          'res_inventory: document.getElementById("res_cfb_inventory"),' +
+          'res_circ_rate: document.getElementById("res_cfb_circ_rate"),' +
+          'res_susp_density: document.getElementById("res_cfb_susp_density"),' +
+          'btn_copy: document.getElementById("btn_copy_cfb"),' +
+          'canvas: document.getElementById("cfb_loop_canvas")' +
+        '};' +
+
+        'let animFrameId = null;' +
+        'let particles = [];' +
+        'for (let i = 0; i < 60; i++) {' +
+          'particles.push({' +
+            'stage: Math.random(),' +
+            'speed: 0.005 + Math.random() * 0.005,' +
+            'offset: (Math.random() - 0.5) * 16' +
+          '});' +
+        '}' +
+
+        'function calc() {' +
+          'let vgas = parseFloat(els.vgas.value) || 0;' +
+          'if (els.vgas_unit.value === "nm3_h") {' +
+            'const tbedC = (els.tbed_unit.value === "f") ? (parseFloat(els.tbed.value) - 32) * 5 / 9 : parseFloat(els.tbed.value);' +
+            'vgas = (vgas / 3600) * ((tbedC + 273.15) / 273.15);' +
+          '} else if (els.vgas_unit.value === "acfm") {' +
+            'vgas = vgas * 0.000471947;' +
+          '}' +
+
+          'let tbed = parseFloat(els.tbed.value) || 850;' +
+          'if (els.tbed_unit.value === "f") tbed = (tbed - 32) * 5 / 9;' +
+
+          'const ug = parseFloat(els.ug.value) || 5.5;' +
+          'const dp_um = parseFloat(els.dp.value) || 250;' +
+          'const dp_m = dp_um * 1e-6;' +
+          'const rhos = parseFloat(els.rhos.value) || 2600;' +
+          'const hRiser = parseFloat(els.hriser.value) || 32;' +
+          'const gs = parseFloat(els.gs.value) || 25;' +
+
+          'const tK = tbed + 273.15;' +
+          'const pAtm = 101325;' +
+          'const rAir = 287.05;' +
+          'const rhog = pAtm / (rAir * tK);' +
+          'const mug = (1.458e-6 * Math.pow(tK, 1.5)) / (tK + 110.4);' +
+          'const g = 9.80665;' +
+
+          'const ar = (Math.pow(dp_m, 3) * rhog * (rhos - rhog) * g) / (mug * mug);' +
+          'const reMf = Math.sqrt(33.7 * 33.7 + 0.0408 * ar) - 33.7;' +
+          'const umf = (reMf * mug) / (dp_m * rhog);' +
+
+          'let cd = 0.44;' +
+          'let ut = Math.sqrt((4 * g * (rhos - rhog) * dp_m) / (3 * rhog * cd));' +
+          'for (let it = 0; it < 5; it++) {' +
+            'const reP = (rhog * ut * dp_m) / mug;' +
+            'if (reP < 0.2) cd = 24 / reP;' +
+            'else if (reP < 1000) cd = (24 / reP) * (1 + 0.15 * Math.pow(reP, 0.687));' +
+            'else cd = 0.44;' +
+            'ut = Math.sqrt((4 * g * (rhos - rhog) * dp_m) / (3 * rhog * cd));' +
+          '}' +
+
+          'const aRiser = (ug > 0) ? vgas / ug : 0;' +
+          'const side = Math.sqrt(aRiser);' +
+
+          'const meanVoidage = Math.min(0.995, Math.max(0.85, 0.99 - (gs / (rhos * ug * 1.8))));' +
+          'const meanSolidFrac = 1 - meanVoidage;' +
+          'const meanSuspDensity = meanSolidFrac * rhos;' +
+
+          'const deltaP_pa = meanSolidFrac * rhos * g * hRiser;' +
+          'const deltaP_kpa = deltaP_pa / 1000;' +
+          'const deltaP_mbar = deltaP_kpa * 10;' +
+
+          'const inventoryTons = (aRiser * meanSolidFrac * rhos * hRiser) / 1000;' +
+          'const solidCircRateTonH = (gs * aRiser * 3600) / 1000;' +
+
+          'els.res_area.textContent = aRiser.toFixed(1) + " m²";' +
+          'els.res_dim.textContent = "Equiv: " + side.toFixed(2) + "m × " + side.toFixed(2) + "m (" + (aRiser * 10.7639).toFixed(0) + " sq ft)";' +
+          'els.res_umf.textContent = umf.toFixed(3) + " m/s";' +
+          'els.res_fluid_ratio.textContent = "U_g / U_mf = " + (umf > 0 ? (ug / umf).toFixed(1) : "--") + "x";' +
+          'els.res_ut.textContent = ut.toFixed(2) + " m/s";' +
+
+          'let regime = "Fast Fluidization";' +
+          'if (ug < ut) regime = "Bubbling/Turbulent";' +
+          'else if (ug > ut * 4) regime = "Dilute Transport";' +
+          'els.res_regime.textContent = "Regime: " + regime;' +
+
+          'els.res_deltap.textContent = deltaP_kpa.toFixed(1) + " kPa";' +
+          'els.res_deltap_mbar.textContent = deltaP_mbar.toFixed(0) + " mbar (" + (deltaP_kpa * 4.01463).toFixed(1) + " in. wg)";' +
+          'els.res_inventory.textContent = inventoryTons.toFixed(1) + " tons bed material";' +
+          'els.res_circ_rate.textContent = solidCircRateTonH.toFixed(0) + " t/h (" + gs.toFixed(1) + " kg/m²·s)";' +
+          'els.res_susp_density.textContent = meanSuspDensity.toFixed(1) + " kg/m³ (ε = " + meanVoidage.toFixed(3) + ")";' +
+        '}' +
+
+        'function startLoopAnim() {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+
+          'function render() {' +
+            'ctx.clearRect(0, 0, w, h);' +
+
+            'const rx = 140;' +
+            'const ry = 40;' +
+            'const rw = 120;' +
+            'const rh = 240;' +
+
+            'const grad = ctx.createLinearGradient(0, ry + rh, 0, ry);' +
+            'grad.addColorStop(0, "rgba(239, 68, 68, 0.8)");' +
+            'grad.addColorStop(0.2, "rgba(245, 158, 11, 0.5)");' +
+            'grad.addColorStop(0.6, "rgba(245, 158, 11, 0.25)");' +
+            'grad.addColorStop(1, "rgba(56, 189, 248, 0.15)");' +
+
+            'ctx.fillStyle = grad;' +
+            'ctx.fillRect(rx, ry, rw, rh);' +
+
+            'ctx.strokeStyle = "#475569";' +
+            'ctx.lineWidth = 3;' +
+            'ctx.strokeRect(rx, ry, rw, rh);' +
+
+            'ctx.fillStyle = "#334155";' +
+            'ctx.fillRect(rx + rw, ry + 15, 80, 30);' +
+            'ctx.strokeRect(rx + rw, ry + 15, 80, 30);' +
+
+            'const cx = 370;' +
+            'const cy = 40;' +
+            'const cw = 70;' +
+            'const ch = 90;' +
+
+            'ctx.fillStyle = "#1e293b";' +
+            'ctx.beginPath();' +
+            'ctx.rect(cx, cy, cw, ch);' +
+            'ctx.fill();' +
+            'ctx.stroke();' +
+
+            'ctx.beginPath();' +
+            'ctx.moveTo(cx, cy + ch);' +
+            'ctx.lineTo(cx + 25, cy + ch + 50);' +
+            'ctx.lineTo(cx + 45, cy + ch + 50);' +
+            'ctx.lineTo(cx + cw, cy + ch);' +
+            'ctx.closePath();' +
+            'ctx.fill();' +
+            'ctx.stroke();' +
+
+            'const dx = cx + 25;' +
+            'const dy = cy + ch + 50;' +
+            'const dw = 20;' +
+            'const dh = 70;' +
+            'ctx.fillRect(dx, dy, dw, dh);' +
+            'ctx.strokeRect(dx, dy, dw, dh);' +
+
+            'ctx.fillRect(rx + rw - 10, dy + dh - 10, (dx - (rx + rw)) + 30, 30);' +
+            'ctx.strokeRect(rx + rw - 10, dy + dh - 10, (dx - (rx + rw)) + 30, 30);' +
+
+            'ctx.fillStyle = "#0284c7";' +
+            'ctx.fillRect(cx + 20, 10, 30, 30);' +
+            'ctx.strokeRect(cx + 20, 10, 30, 30);' +
+
+            'ctx.fillStyle = "#334155";' +
+            'ctx.fillRect(500, 40, 130, 200);' +
+            'ctx.strokeRect(500, 40, 130, 200);' +
+
+            'ctx.strokeStyle = "#64748b";' +
+            'ctx.lineWidth = 2;' +
+            'for (let yb = 70; yb <= 210; yb += 35) {' +
+              'ctx.beginPath();' +
+              'ctx.moveTo(515, yb);' +
+              'ctx.lineTo(615, yb);' +
+              'ctx.stroke();' +
+            '}' +
+
+            'ctx.fillStyle = "#f59e0b";' +
+            'particles.forEach(p => {' +
+              'p.stage += p.speed;' +
+              'if (p.stage > 1) p.stage -= 1;' +
+              'let px = 0, py = 0;' +
+
+              'if (p.stage < 0.4) {' +
+                'const f = p.stage / 0.4;' +
+                'px = rx + rw / 2 + p.offset;' +
+                'py = (ry + rh) - f * rh;' +
+              '} else if (p.stage < 0.55) {' +
+                'const f = (p.stage - 0.4) / 0.15;' +
+                'px = (rx + rw) + f * (cx + cw / 2 - (rx + rw));' +
+                'py = ry + 30;' +
+              '} else if (p.stage < 0.8) {' +
+                'const f = (p.stage - 0.55) / 0.25;' +
+                'px = cx + cw / 2 + p.offset * 0.4;' +
+                'py = (cy + 30) + f * (dy + dh - (cy + 30));' +
+              '} else {' +
+                'const f = (p.stage - 0.8) / 0.2;' +
+                'px = (dx + dw / 2) - f * ((dx + dw / 2) - rx);' +
+                'py = dy + dh + 5;' +
+              '}' +
+
+              'ctx.beginPath();' +
+              'ctx.arc(px, py, 2.5, 0, Math.PI * 2);' +
+              'ctx.fill();' +
+            '});' +
+
+            'ctx.fillStyle = "#f8fafc";' +
+            'ctx.font = "bold 11px sans-serif";' +
+            'ctx.textAlign = "center";' +
+            'ctx.fillText("CFB RISER", rx + rw / 2, ry + 30);' +
+            'ctx.fillText("CYCLONE", cx + cw / 2, cy + 30);' +
+            'ctx.fillText("LOOP SEAL", (dx + rx + rw) / 2, dy + dh + 10);' +
+            'ctx.fillText("BACKPASS (SH/ECO)", 565, 60);' +
+
+            'ctx.fillStyle = "#94a3b8";' +
+            'ctx.font = "10px sans-serif";' +
+            'ctx.fillText("Air Plenum", rx + rw / 2, ry + rh + 20);' +
+            'ctx.fillText("Clean Gas Out", cx + 35, 10);' +
+
+            'animFrameId = requestAnimationFrame(render);' +
+          '}' +
+
+          'render();' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== CFB BOILER & HYDRODYNAMICS DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Riser Cross-Section Area: " + els.res_area.textContent + " (" + els.res_dim.textContent + ")\n" +' +
+            '"Minimum Fluidization (U_mf): " + els.res_umf.textContent + " (" + els.res_fluid_ratio.textContent + ")\n" +' +
+            '"Terminal Settling Velocity (U_t): " + els.res_ut.textContent + "\n" +' +
+            '"Hydrodynamic Regime: " + els.res_regime.textContent + "\n" +' +
+            '"Bed Static Pressure Drop: " + els.res_deltap.textContent + " (" + els.res_deltap_mbar.textContent + ")\n" +' +
+            '"Solid Bed Inventory: " + els.res_inventory.textContent + "\n" +' +
+            '"Solid Circulation Rate: " + els.res_circ_rate.textContent + "\n" +' +
+            '"Mean Suspension Density: " + els.res_susp_density.textContent + "\n" +' +
+            '"Operating Gas Velocity: " + els.ug.value + " m/s | Bed Temp: " + els.tbed.value + " " + els.tbed_unit.value + "\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.vgas, els.vgas_unit, els.tbed, els.tbed_unit, els.ug, els.dp, els.rhos, els.hriser, els.gs, els.etacyc];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+        'startLoopAnim();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL BY3: MECHANICAL VAPOR RECOMPRESSION (MVR) EVAPORATOR SIZING CALCULATOR ---
+  (() => {
+    const slug = 'mvr-evaporator-mechanical-vapor-recompression-calculator';
+    const title = 'MVR Evaporator & Compressor Sizing Calculator | Mechanical Vapor Recompression';
+    const desc = 'Size industrial Mechanical Vapor Recompression (MVR) falling film evaporators and vapor turbocompressors. Calculate saturation temperature lift, isentropic compression work, shaft power, thermal COP, and specific energy consumption (SEC).';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'MVR Evaporator Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'How does Mechanical Vapor Recompression (MVR) achieve high energy efficiency?',
+        a: 'Instead of discarding secondary water vapor to a condenser (as in conventional single- or multi-effect evaporators), an MVR system compresses the vapor using an electrically driven centrifugal compressor or high-pressure fan. Compressing the vapor increases its saturation pressure and temperature by 6°C to 15°C. This allows the vapor to be recycled directly back into the heating side of the same evaporator calandria as heating steam, recovering virtually 100% of the latent heat of vaporization (over 2,250 kJ/kg) with only electrical compression power input.'
+      },
+      {
+        q: 'What is the difference between saturation temperature lift and effective temperature difference?',
+        a: 'The compressor saturation temperature lift (ΔT_lift) is the temperature increase imparted by mechanical compression: ΔT_lift = T_sat(P_discharge) - T_sat(P_suction). However, concentrated process liquors exhibit Boiling Point Elevation (BPE). The actual effective thermal driving force across the heat exchanger tubes is reduced: ΔT_eff = ΔT_lift - BPE. If BPE increases during evaporation, ΔT_eff diminishes, requiring higher compressor pressure ratios to maintain heat flux.'
+      },
+      {
+        q: 'What is typical Specific Energy Consumption (SEC) for an MVR evaporator?',
+        a: 'Modern falling film MVR evaporators operating on low-to-moderate BPE streams (such as dairy whey, wastewater brine concentration, or starch liquors) typically consume 8 to 25 kWh of electrical energy per metric ton of water evaporated. In contrast, conventional single-effect evaporators require ~700 kWh equivalent thermal steam energy per ton, and triple-effect evaporators require ~230 kWh/ton.'
+      },
+      {
+        q: 'Why are mist eliminators critical upstream of the MVR compressor?',
+        a: 'MVR centrifugal turbocompressors operate at impeller tip speeds between 250 and 450 m/s. Even microscopic liquid entrainment droplets entering the high-speed impeller cause severe blade cavitation, erosion pitting, dynamic rotor imbalance, and catastrophic high-vibration trips. High-efficiency chevron-vane or structured mesh mist eliminators with washing nozzles are mandatory upstream of the compressor suction nozzle.'
+      },
+      {
+        q: 'How does Non-Condensable Gas (NCG) accumulation affect MVR calandrias?',
+        a: 'Gases dissolved in the feed liquor (such as air, CO2, or organic volatiles) liberate during boiling and accumulate on the condensing steam side of the heat exchanger tubes. Because non-condensables cannot condense, they form an insulating boundary layer. A presence of only 1% to 2% non-condensable gas can degrade the overall heat transfer coefficient (U) by 30% to 50%, choking evaporation capacity unless continuous venting is maintained.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size industrial Mechanical Vapor Recompression (MVR) falling film evaporators and vapor turbocompressors. Compute saturation temperature lift, isentropic compression enthalpy rise, shaft electrical power, thermal COP, falling film heat transfer area, and energy cost economics.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Evaporation & Compressor Input Parameters</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Evaporation Rate (Water Vapor Mass Flow)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="mvr_mevap" value="15" min="0.1" max="200" step="0.5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="mvr_mevap_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="t_h" selected>ton/h</option>' +
+                '<option value="kg_h">kg/h</option>' +
+                '<option value="lb_h">lb/h</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Evaporator Boiling Temperature (T_evap)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="mvr_tevap" value="80" min="40" max="115" step="1" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="mvr_tevap_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="c" selected>°C</option>' +
+                '<option value="f">°F</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Compressor Temp Lift (ΔT_lift, K)</label>' +
+              '<input type="number" id="mvr_dt_lift" value="9" min="3" max="25" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Boiling Point Elev. (BPE, K)</label>' +
+              '<input type="number" id="mvr_bpe" value="2.5" min="0" max="15" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Isentropic Efficiency (η_isen, %)</label>' +
+              '<input type="number" id="mvr_eta_isen" value="78" min="60" max="88" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Motor/Drive η (η_mech, %)</label>' +
+              '<input type="number" id="mvr_eta_mech" value="94" min="80" max="98" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Overall Heat Transfer Coeff. (U, W/m²·K)</label>' +
+            '<input type="number" id="mvr_u" value="1800" min="400" max="3500" step="50" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Electricity Cost ($/kWh)</label>' +
+              '<input type="number" id="mvr_cost_elec" value="0.09" min="0.01" max="0.50" step="0.01" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Annual Operating Hours</label>' +
+              '<input type="number" id="mvr_hours" value="8000" min="1000" max="8760" step="100" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">MVR Compressor & Thermal Performance</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Compressor Shaft Power</span>' +
+                '<span id="res_mvr_power" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_mvr_hp" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Specific Energy (SEC)</span>' +
+                '<span id="res_mvr_sec" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_mvr_cop" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Net Driving ΔT (ΔT_eff)</span>' +
+                '<span id="res_mvr_dteff" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_mvr_pressures" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">HEX Calandria Area</span>' +
+                '<span id="res_mvr_area" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_mvr_area_ft" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Annual Electricity Cost:</span>' +
+                '<span id="res_mvr_annual_cost" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Boiler Live Steam Equiv. Cost:</span>' +
+                '<span id="res_mvr_steam_cost" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Estimated Annual OPEX Savings:</span>' +
+                '<span id="res_mvr_savings" style="font-weight:600;color:#10b981;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_mvr" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Interactive MVR System Flow & Heat Recovery Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Closed-loop schematic illustrating secondary vapor disengagement, centrifugal turbocompressor pressure boosting, steam recirculation into calandria shell, and falling film evaporation.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="mvr_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in MVR Evaporators</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. High-Speed Impeller Erosion from Droplet Carryover</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">MVR centrifugal compressors operate at supersonic blade tip speeds exceeding 300 to 450 m/s. If vapor disengagement is undersized or mist eliminator pads experience liquid re-entrainment, microscopic brine/water droplets strike impeller leading edges with ballistic impact energy, gouging titanium blades, destroying dynamic balance, and wrecking bearings within weeks.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Boiling Point Elevation (BPE) Creep Pinches Thermal Driving Force</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">As liquor concentrates toward target total dissolved solids (TDS), boiling point elevation (BPE) increases. If an MVR compressor is sized for 8°C lift and process BPE escalates from 2°C to 7°C, the net effective driving force (ΔT_eff) collapses from 6°C down to 1°C. Evaporation capacity plummets by 83% unless the compressor can execute a higher pressure ratio without surging.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Falling Film Tube Dry-out & Below Minimum Wetting Rate</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Falling film calandrias require a continuous liquid film down the inner tube circumference. If recirculation liquor flow falls below the minimum wetting rate (typically Γ_min = 0.08 to 0.15 kg/m·s perimeter), the liquid film tears into rivulets. Dry patches instantly bake organic solids or crystallize scale onto bare tube metal, causing irreversible thermal fouling and tube overheating.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Non-Condensable Gas (NCG) Blanketing on Calandria Shell</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Deaeration failure or minor flange vacuum leaks introduce non-condensable air into the vapor stream. Because MVR recycles 100% of vapor back to the calandria shell, non-condensables cannot escape. Even 0.5% to 1.5% air by volume creates a stagnant gas film on condensing surfaces, cutting overall heat transfer coefficient (U) by up to 50%.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Compressor Aerodynamic Surge on Low Turndown</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Centrifugal compressors possess a hard aerodynamic surge boundary. If feed rate is reduced below 60%–70% of nominal rating without an automated anti-surge bypass valve or variable-speed drive (VFD), high discharge backpressure forces reverse gas flow pulses. Surge causes violent pressure oscillations, rotor axial thrust reversals, and catastrophic mechanical destruction.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Thermodynamic Derivations & Governing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'Mechanical Vapor Recompression replaces boiler steam with mechanical shaft work by elevating low-grade vapor to high-grade condensing steam.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Net Effective Temperature Difference (ΔT_eff):<br>' +
+          '&nbsp;&nbsp;ΔT_eff = ΔT_lift - BPE<br><br>' +
+          '2. Vapor Saturation Pressures (Antoine Equation):<br>' +
+          '&nbsp;&nbsp;P_suct = P_sat(T_evap),&nbsp;&nbsp;P_disch = P_sat(T_evap + ΔT_lift)<br>' +
+          '&nbsp;&nbsp;Pressure Ratio (r_p) = P_disch / P_suct<br><br>' +
+          '3. Isentropic Compression Specific Work (Δh_s):<br>' +
+          '&nbsp;&nbsp;Δh_s = [ γ / (γ - 1) ] · R_vapor · T_suct,K · [ (r_p)^((γ-1)/γ) - 1 ]&nbsp;&nbsp;(γ ≈ 1.33)<br><br>' +
+          '4. Compressor Electrical Shaft Power:<br>' +
+          '&nbsp;&nbsp;P_shaft = [ m_evap · Δh_s ] / [ η_isen · η_mech ]<br><br>' +
+          '5. Specific Energy Consumption & Thermal COP:<br>' +
+          '&nbsp;&nbsp;SEC = P_shaft (kW) / m_evap (ton/h)&nbsp;&nbsp;[kWh/ton evaporated water]<br>' +
+          '&nbsp;&nbsp;COP_thermal = Q_latent / P_shaft = [ m_evap · Δh_vap ] / P_shaft<br><br>' +
+          '6. Falling Film Heat Exchanger Area:<br>' +
+          '&nbsp;&nbsp;A_HEX = (m_evap · Δh_vap) / (U · ΔT_eff)' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'mevap: document.getElementById("mvr_mevap"),' +
+          'mevap_unit: document.getElementById("mvr_mevap_unit"),' +
+          'tevap: document.getElementById("mvr_tevap"),' +
+          'tevap_unit: document.getElementById("mvr_tevap_unit"),' +
+          'dt_lift: document.getElementById("mvr_dt_lift"),' +
+          'bpe: document.getElementById("mvr_bpe"),' +
+          'eta_isen: document.getElementById("mvr_eta_isen"),' +
+          'eta_mech: document.getElementById("mvr_eta_mech"),' +
+          'u: document.getElementById("mvr_u"),' +
+          'cost_elec: document.getElementById("mvr_cost_elec"),' +
+          'hours: document.getElementById("mvr_hours"),' +
+          'res_power: document.getElementById("res_mvr_power"),' +
+          'res_hp: document.getElementById("res_mvr_hp"),' +
+          'res_sec: document.getElementById("res_mvr_sec"),' +
+          'res_cop: document.getElementById("res_mvr_cop"),' +
+          'res_dteff: document.getElementById("res_mvr_dteff"),' +
+          'res_pressures: document.getElementById("res_mvr_pressures"),' +
+          'res_area: document.getElementById("res_mvr_area"),' +
+          'res_area_ft: document.getElementById("res_mvr_area_ft"),' +
+          'res_annual_cost: document.getElementById("res_mvr_annual_cost"),' +
+          'res_steam_cost: document.getElementById("res_mvr_steam_cost"),' +
+          'res_savings: document.getElementById("res_mvr_savings"),' +
+          'btn_copy: document.getElementById("btn_copy_mvr"),' +
+          'canvas: document.getElementById("mvr_canvas")' +
+        '};' +
+
+        'function pSatBar(tC) {' +
+          'return Math.exp(18.3036 - 3816.44 / (tC + 227.02)) / 750.06;' +
+        '}' +
+
+        'function calc() {' +
+          'let mevap_th = parseFloat(els.mevap.value) || 0;' +
+          'if (els.mevap_unit.value === "kg_h") mevap_th = mevap_th / 1000;' +
+          'else if (els.mevap_unit.value === "lb_h") mevap_th = mevap_th * 0.000453592;' +
+
+          'let tevap = parseFloat(els.tevap.value) || 80;' +
+          'if (els.tevap_unit.value === "f") tevap = (tevap - 32) * 5 / 9;' +
+
+          'const dtLift = parseFloat(els.dt_lift.value) || 9;' +
+          'const bpe = parseFloat(els.bpe.value) || 2.5;' +
+          'const etaIsen = (parseFloat(els.eta_isen.value) || 78) / 100;' +
+          'const etaMech = (parseFloat(els.eta_mech.value) || 94) / 100;' +
+          'const uCoeff = parseFloat(els.u.value) || 1800;' +
+          'const costElec = parseFloat(els.cost_elec.value) || 0.09;' +
+          'const opHours = parseFloat(els.hours.value) || 8000;' +
+
+          'const dtEff = Math.max(0.2, dtLift - bpe);' +
+          'const tDischarge = tevap + dtLift;' +
+
+          'const pSuct = pSatBar(tevap);' +
+          'const pDisch = pSatBar(tDischarge);' +
+          'const rp = (pSuct > 0) ? pDisch / pSuct : 1;' +
+
+          'const mevap_kgs = (mevap_th * 1000) / 3600;' +
+          'const tK = tevap + 273.15;' +
+          'const gamma = 1.324;' +
+          'const rSteam = 461.5;' +
+
+          'const isenFactor = Math.pow(rp, (gamma - 1) / gamma) - 1;' +
+          'const dh_s_j = (gamma / (gamma - 1)) * rSteam * tK * isenFactor;' +
+          'const dh_s_kj = dh_s_j / 1000;' +
+
+          'const pCompKw = (mevap_kgs * dh_s_kj) / (etaIsen * etaMech);' +
+          'const sec = (mevap_th > 0) ? pCompKw / mevap_th : 0;' +
+
+          'const hfg_kj = Math.max(2200, 2501 - 2.36 * tevap);' +
+          'const qThermalKw = mevap_kgs * hfg_kj;' +
+          'const cop = (pCompKw > 0) ? qThermalKw / pCompKw : 0;' +
+
+          'const qThermalW = qThermalKw * 1000;' +
+          'const aHex = (uCoeff > 0 && dtEff > 0) ? qThermalW / (uCoeff * dtEff) : 0;' +
+
+          'const annualElecCost = pCompKw * opHours * costElec;' +
+          'const steamPricePerTon = 28;' +
+          'const annualSteamCost = mevap_th * opHours * steamPricePerTon;' +
+          'const annualSavings = Math.max(0, annualSteamCost - annualElecCost);' +
+
+          'els.res_power.textContent = pCompKw.toFixed(1) + " kW";' +
+          'els.res_hp.textContent = (pCompKw * 1.34102).toFixed(0) + " HP electrical";' +
+          'els.res_sec.textContent = sec.toFixed(1) + " kWh/ton";' +
+          'els.res_cop.textContent = "Thermal COP: " + cop.toFixed(1) + "x";' +
+          'els.res_dteff.textContent = dtEff.toFixed(1) + " K (" + (dtEff * 1.8).toFixed(1) + " °F)";' +
+          'els.res_pressures.textContent = pSuct.toFixed(2) + " → " + pDisch.toFixed(2) + " bar(a) (rp=" + rp.toFixed(2) + ")";' +
+          'els.res_area.textContent = aHex.toFixed(1) + " m²";' +
+          'els.res_area_ft.textContent = (aHex * 10.7639).toFixed(0) + " sq ft tube area";' +
+
+          'els.res_annual_cost.textContent = "$" + Math.round(annualElecCost).toLocaleString() + "/yr";' +
+          'els.res_steam_cost.textContent = "$" + Math.round(annualSteamCost).toLocaleString() + "/yr (direct steam)";' +
+          'els.res_savings.textContent = "+$" + Math.round(annualSavings).toLocaleString() + "/year saved!";' +
+
+          'drawMVR(pSuct, pDisch, tevap, tDischarge, dtEff);' +
+        '}' +
+
+        'function drawMVR(p1, p2, t1, t2, dtEff) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const ex = 120;' +
+          'const ey = 40;' +
+          'const ew = 150;' +
+          'const eh = 240;' +
+
+          'ctx.fillStyle = "#1e293b";' +
+          'ctx.strokeStyle = "#475569";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.strokeRect(ex, ey, ew, eh);' +
+          'ctx.fillRect(ex, ey, ew, eh);' +
+
+          'ctx.fillStyle = "#334155";' +
+          'ctx.fillRect(ex + 25, ey + 40, ew - 50, eh - 80);' +
+          'ctx.strokeStyle = "#64748b";' +
+          'ctx.lineWidth = 1;' +
+          'for (let tx = ex + 35; tx < ex + ew - 30; tx += 15) {' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(tx, ey + 40);' +
+            'ctx.lineTo(tx, ey + eh - 40);' +
+            'ctx.stroke();' +
+          '}' +
+
+          'const cx = 450;' +
+          'const cy = 60;' +
+          'const cr = 45;' +
+
+          'ctx.fillStyle = "#0284c7";' +
+          'ctx.beginPath();' +
+          'ctx.arc(cx, cy, cr, 0, Math.PI * 2);' +
+          'ctx.fill();' +
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.stroke();' +
+
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.lineWidth = 6;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(ex + ew / 2, ey);' +
+          'ctx.lineTo(ex + ew / 2, cy);' +
+          'ctx.lineTo(cx - cr, cy);' +
+          'ctx.stroke();' +
+
+          'ctx.strokeStyle = "#f43f5e";' +
+          'ctx.lineWidth = 6;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(cx, cy + cr);' +
+          'ctx.lineTo(cx, ey + 100);' +
+          'ctx.lineTo(ex + ew, ey + 100);' +
+          'ctx.stroke();' +
+
+          'ctx.strokeStyle = "#10b981";' +
+          'ctx.lineWidth = 4;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(ex + ew, ey + eh - 50);' +
+          'ctx.lineTo(ex + ew + 100, ey + eh - 50);' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 12px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("FALLING FILM CALANDRIA", ex + ew / 2, ey + 25);' +
+          'ctx.fillText("MVR COMPRESSOR", cx, cy - 6);' +
+          'ctx.font = "11px sans-serif";' +
+          'ctx.fillText("ΔT_lift = " + (t2 - t1).toFixed(1) + " K", cx, cy + 12);' +
+
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.fillText("Suction Vapor: " + p1.toFixed(2) + " bar (" + t1.toFixed(1) + "°C)", 320, cy - 12);' +
+
+          'ctx.fillStyle = "#f43f5e";' +
+          'ctx.fillText("Discharge Steam: " + p2.toFixed(2) + " bar (" + t2.toFixed(1) + "°C)", 440, ey + 90);' +
+
+          'ctx.fillStyle = "#10b981";' +
+          'ctx.fillText("Condensate Distillate Out", ex + ew + 120, ey + eh - 55);' +
+
+          'ctx.fillStyle = "#94a3b8";' +
+          'ctx.font = "11px sans-serif";' +
+          'ctx.fillText("Concentrated Liquor Drain", ex + ew / 2, ey + eh + 20);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== MVR EVAPORATOR & COMPRESSOR DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Compressor Shaft Power: " + els.res_power.textContent + " (" + els.res_hp.textContent + ")\n" +' +
+            '"Specific Energy Consumption: " + els.res_sec.textContent + "\n" +' +
+            '"Thermal COP: " + els.res_cop.textContent + "\n" +' +
+            '"Net Driving Temp (ΔT_eff): " + els.res_dteff.textContent + "\n" +' +
+            '"Suction / Discharge Pressures: " + els.res_pressures.textContent + "\n" +' +
+            '"Required Calandria Area: " + els.res_area.textContent + "\n" +' +
+            '"Annual Electricity OPEX: " + els.res_annual_cost.textContent + "\n" +' +
+            '"Annual OPEX Savings vs Steam: " + els.res_savings.textContent + "\n" +' +
+            '"Capacity: " + els.mevap.value + " " + els.mevap_unit.value + " @ " + els.tevap.value + " " + els.tevap_unit.value + "\n" +' +
+            '"Compressor Temp Lift: " + els.dt_lift.value + " K | BPE: " + els.bpe.value + " K\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.mevap, els.mevap_unit, els.tevap, els.tevap_unit, els.dt_lift, els.bpe, els.eta_isen, els.eta_mech, els.u, els.cost_elec, els.hours];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL BY4: INDUSTRIAL COUNTERFLOW COOLING TOWER SIZING & MERKEL NUMBER CALCULATOR ---
+  (() => {
+    const slug = 'cooling-tower-merkel-number-sizing-calculator';
+    const title = 'Cooling Tower Sizing & Merkel Number Calculator | Counterflow Evaporative Cooling';
+    const desc = 'Size industrial counterflow induced-draft cooling towers. Calculate Merkel Number (KaV/L) via 4-point Chebyshev quadrature, cooling range, approach to wet bulb, L/G ratio, evaporation losses, and makeup water balance.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'Cooling Tower Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What is the Merkel Number (KaV/L) and what does it represent?',
+        a: 'The Merkel Number (KaV/L) is a dimensionless transfer characteristic that quantifies the thermodynamic thermal capability of an evaporative cooling tower fill. In the Merkel theory (first formulated by Friedrich Merkel in 1925), "K" is the mass transfer coefficient (kg/m²·s), "a" is the specific contact area of the fill (m²/m³), "V" is the active fill volume (m³), and "L" is the circulating water mass flow rate (kg/s). Higher KaV/L values indicate greater heat and mass transfer capability.'
+      },
+      {
+        q: 'How is the Merkel integral evaluated using 4-point Chebyshev quadrature?',
+        a: 'The Merkel integral is defined as KaV/L = ∫ [c_pw / (h_w - h_a)] dT_w evaluated from cold water return temperature to hot water inlet temperature. Because saturated air enthalpy (h_w) varies non-linearly with water temperature, exact analytical integration is impossible. The Cooling Technology Institute (CTI) standard specifies 4-point Chebyshev numerical quadrature, evaluating driving enthalpy differences (h_w - h_a) at exactly 0.1026, 0.4074, 0.5926, and 0.8974 of the cooling range.'
+      },
+      {
+        q: 'What is the physical significance of Cooling Range and Approach?',
+        a: 'Cooling Range is the temperature drop of water passing through the tower (Range = T_hot - T_cold), which is purely dictated by the industrial heat load and water circulation rate. Approach is the temperature difference between the cold water exiting the tower basin and the entering ambient wet bulb temperature (Approach = T_cold - T_wb). Approach is a direct measure of tower thermal sizing; approaching within 2°C–3°C of the wet bulb temperature requires exponentially larger fill volumes and fan power.'
+      },
+      {
+        q: 'How are cooling tower water losses (evaporation, drift, blowdown) calculated?',
+        a: 'Water loss consists of three components: (1) Evaporation loss (E ≈ 0.00153 × Range(°C) × Circulation Flow), dissipating heat via latent vaporization (~2,400 kJ/kg); (2) Drift loss (D ≈ 0.002% to 0.005% of flow), representing microscopic droplets mechanically entrained in exhaust air; and (3) Blowdown (B = E / (Cycles of Concentration - 1)), bled off to prevent dissolved minerals from exceeding saturation solubility and scaling the heat transfer surfaces.'
+      },
+      {
+        q: 'Why can a cooling tower never cool water below the ambient wet bulb temperature?',
+        a: 'The ambient wet bulb temperature represents the absolute thermodynamic lower limit of evaporative cooling at 100% relative humidity. As water evaporates into air, it humidifies the air toward saturation. If water temperature reached the wet bulb temperature, the air-water vapor pressure difference (the driving force) would reach zero, halting all further heat and mass transfer.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size industrial counterflow induced-draft cooling towers using the official CTI Merkel integral method. Calculate Merkel Number (KaV/L) via 4-point Chebyshev numerical integration, cooling range, approach to wet bulb, L/G ratio, evaporation losses, and total makeup water requirements.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Thermal & Psychrometric Inputs</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Hot Water Inlet Temp (T_hot)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="ct_thot" value="42" min="15" max="80" step="0.5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="ct_temp_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="c" selected>°C</option>' +
+                '<option value="f">°F</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Cold Water Return (T_cold)</label>' +
+              '<input type="number" id="ct_tcold" value="32" min="10" max="60" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Ambient Wet Bulb (T_wb)</label>' +
+              '<input type="number" id="ct_twb" value="26" min="0" max="45" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Circulating Water Flow Rate (L)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="ct_flow" value="1500" min="10" max="100000" step="50" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="ct_flow_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="m3_h" selected>m³/h</option>' +
+                '<option value="gpm">gpm</option>' +
+                '<option value="kg_s">kg/s</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Liquid-to-Gas Ratio (L/G)</label>' +
+              '<input type="number" id="ct_lg" value="1.25" min="0.5" max="3.0" step="0.05" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Cycles of Concentration (COC)</label>' +
+              '<input type="number" id="ct_coc" value="4.5" min="1.5" max="12.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Drift Loss Rate (%)</label>' +
+              '<input type="number" id="ct_drift_rate" value="0.005" min="0.0005" max="0.1" step="0.001" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Barometric Pressure (kPa)</label>' +
+              '<input type="number" id="ct_patm" value="101.325" min="80" max="110" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Cooling Tower Thermal Performance</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Merkel Number (KaV/L)</span>' +
+                '<span id="res_ct_kavl" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_ct_difficulty" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Cooling Thermal Duty</span>' +
+                '<span id="res_ct_qduty" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_ct_tons" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Range & Approach</span>' +
+                '<span id="res_ct_range_app" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_ct_range_f" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Airflow Required (G)</span>' +
+                '<span id="res_ct_airflow" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_ct_acfm" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Evaporation Water Loss:</span>' +
+                '<span id="res_ct_evap_loss" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Blowdown + Drift Rate:</span>' +
+                '<span id="res_ct_blowdown" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Total Makeup Water Demand:</span>' +
+                '<span id="res_ct_makeup" style="font-weight:600;color:#38bdf8;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_ct" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Psychrometric Merkel Driving Force Enthalpy Diagram</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Saturated moist air enthalpy curve h_w(T) plotted against operating air enthalpy line h_a(T), highlighting the 4 Chebyshev quadrature evaluation points.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="ct_merkel_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in Cooling Tower Design</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. The Approach Asymptotic Wall (Designing Below 3°C Approach)</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Attempting to design a cooling tower with an approach temperature below 2.5°C to 3.0°C (4.5°F–5.5°F) triggers an exponential explosion in required fill volume and fan power. Because the saturated air-water enthalpy driving force (h_w - h_a) approaches zero, the Merkel integral diverges toward infinity. Capital costs double for less than 1°C of water temperature reduction.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Warm Plume Recirculation & Intake Interference</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Prevailing crosswinds or cramped building courtyard positioning can draw hot, moisture-saturated exhaust air plume directly back down into the fresh air intake louvers. Recirculation raises the effective local wet bulb temperature entering the tower by 1.5°C to 3.5°C above ambient meteorological readings, crippling chiller efficiency and causing high condensing pressure trips.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Calcium Carbonate Scaling from Excessive Concentration Cycles</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Restricting blowdown to achieve overly aggressive cycles of concentration (COC > 6 to 8) without acid dosing or scale inhibitors causes calcium carbonate (CaCO3) and silica to exceed saturation limits. Scale rapidly blankets cellular PVC film fill flutes, choking air passages, creating massive air pressure drop, and permanently destroying heat exchange capacity.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Legionella Biofilm Colonization & Ineffective Drift Elimination</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Cooling tower basin temperatures (25°C to 40°C) are ideal breeding grounds for Legionella pneumophila bacteria embedded within warm biofilms. If drift eliminators crack, dislodge, or degrade above 0.005% drift loss, pathogen-laden aerosol droplets are discharged into surrounding urban air, creating severe public health liabilities under ASHRAE Standard 188.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Winter Louver Ice Damming & Fan Blade Reverse Loading</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">In sub-freezing climates, operating cooling towers at low heat loads causes splashing water droplets to freeze into massive icicles on air intake louvers and structural supports. The resulting ice dams starve the fan of air, induce blade aerodynamic flutter and motor overload, and can collapse tower structural fiberglass under excessive ice weight.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Psychrometric Derivations & Merkel Integral Formulation</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'The Merkel equation combines simultaneous sensible heat and latent mass transfer between descending water droplets and ascending moist air into an enthalpy potential driving force.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Cooling Range and Approach:<br>' +
+          '&nbsp;&nbsp;Range = T_hot - T_cold,&nbsp;&nbsp;Approach = T_cold - T_wb<br><br>' +
+          '2. Merkel Integral Transfer Characteristic:<br>' +
+          '&nbsp;&nbsp;KaV / L = ∫ [ c_pw / (h_w - h_a) ] dT_w&nbsp;&nbsp;(from T_cold to T_hot)<br><br>' +
+          '3. 4-Point Chebyshev Quadrature Implementation (CTI ATC-105):<br>' +
+          '&nbsp;&nbsp;T₁ = T_cold + 0.1026 · Range,&nbsp;&nbsp;T₂ = T_cold + 0.4074 · Range<br>' +
+          '&nbsp;&nbsp;T₃ = T_cold + 0.5926 · Range,&nbsp;&nbsp;T₄ = T_cold + 0.8974 · Range<br>' +
+          '&nbsp;&nbsp;KaV / L = [ c_pw · Range / 4 ] · [ 1/(Δh₁) + 1/(Δh₂) + 1/(Δh₃) + 1/(Δh₄) ]<br><br>' +
+          '4. Operating Air Line Enthalpy Gradient:<br>' +
+          '&nbsp;&nbsp;h_a(T) = h_a,in + (L / G) · c_pw · (T - T_cold)<br><br>' +
+          '5. Water Balance Losses:<br>' +
+          '&nbsp;&nbsp;Evaporation (E) ≈ 0.00153 · Range(°C) · L<br>' +
+          '&nbsp;&nbsp;Blowdown (B) = E / (COC - 1)<br>' +
+          '&nbsp;&nbsp;Total Makeup (M) = E + Drift + B' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'thot: document.getElementById("ct_thot"),' +
+          'temp_unit: document.getElementById("ct_temp_unit"),' +
+          'tcold: document.getElementById("ct_tcold"),' +
+          'twb: document.getElementById("ct_twb"),' +
+          'flow: document.getElementById("ct_flow"),' +
+          'flow_unit: document.getElementById("ct_flow_unit"),' +
+          'lg: document.getElementById("ct_lg"),' +
+          'coc: document.getElementById("ct_coc"),' +
+          'drift_rate: document.getElementById("ct_drift_rate"),' +
+          'patm: document.getElementById("ct_patm"),' +
+          'res_kavl: document.getElementById("res_ct_kavl"),' +
+          'res_difficulty: document.getElementById("res_ct_difficulty"),' +
+          'res_qduty: document.getElementById("res_ct_qduty"),' +
+          'res_tons: document.getElementById("res_ct_tons"),' +
+          'res_range_app: document.getElementById("res_ct_range_app"),' +
+          'res_range_f: document.getElementById("res_ct_range_f"),' +
+          'res_airflow: document.getElementById("res_ct_airflow"),' +
+          'res_acfm: document.getElementById("res_ct_acfm"),' +
+          'res_evap_loss: document.getElementById("res_ct_evap_loss"),' +
+          'res_blowdown: document.getElementById("res_ct_blowdown"),' +
+          'res_makeup: document.getElementById("res_ct_makeup"),' +
+          'btn_copy: document.getElementById("btn_copy_ct"),' +
+          'canvas: document.getElementById("ct_merkel_canvas")' +
+        '};' +
+
+        'function satVaporPress(tC) {' +
+          'return 0.61078 * Math.exp((17.27 * tC) / (tC + 237.3));' +
+        '}' +
+
+        'function satMoistAirEnthalpy(tC, pAtmKpa) {' +
+          'const pSat = satVaporPress(tC);' +
+          'const pDry = Math.max(0.1, pAtmKpa - pSat);' +
+          'const w = 0.62198 * (pSat / pDry);' +
+          'return 1.006 * tC + w * (2501 + 1.86 * tC);' +
+        '}' +
+
+        'function calc() {' +
+          'let thot = parseFloat(els.thot.value) || 42;' +
+          'let tcold = parseFloat(els.tcold.value) || 32;' +
+          'let twb = parseFloat(els.twb.value) || 26;' +
+
+          'if (els.temp_unit.value === "f") {' +
+            'thot = (thot - 32) * 5 / 9;' +
+            'tcold = (tcold - 32) * 5 / 9;' +
+            'twb = (twb - 32) * 5 / 9;' +
+          '}' +
+
+          'if (thot <= tcold) thot = tcold + 1;' +
+          'if (tcold <= twb) tcold = twb + 0.5;' +
+
+          'let flow_m3h = parseFloat(els.flow.value) || 1500;' +
+          'if (els.flow_unit.value === "gpm") flow_m3h = flow_m3h * 0.227125;' +
+          'else if (els.flow_unit.value === "kg_s") flow_m3h = flow_m3h * 3.6;' +
+
+          'const lg = parseFloat(els.lg.value) || 1.25;' +
+          'const coc = Math.max(1.1, parseFloat(els.coc.value) || 4.5);' +
+          'const driftPct = (parseFloat(els.drift_rate.value) || 0.005) / 100;' +
+          'const pAtm = parseFloat(els.patm.value) || 101.325;' +
+
+          'const range = thot - tcold;' +
+          'const approach = tcold - twb;' +
+          'const cpw = 4.186;' +
+
+          'const L_kgs = (flow_m3h * 1000) / 3600;' +
+          'const G_kgs = (lg > 0) ? L_kgs / lg : 0;' +
+
+          'const qThermalKw = L_kgs * cpw * range;' +
+          'const qThermalMw = qThermalKw / 1000;' +
+          'const tonsRefrig = qThermalKw / 3.51685;' +
+
+          'const ha_in = satMoistAirEnthalpy(twb, pAtm);' +
+
+          'const chebFractions = [0.1026, 0.4074, 0.5926, 0.8974];' +
+          'let chebSum = 0;'
+          + 'const chebPoints = [];' +
+
+          'for (let i = 0; i < 4; i++) {' +
+            'const tw_i = tcold + chebFractions[i] * range;' +
+            'const hw_i = satMoistAirEnthalpy(tw_i, pAtm);' +
+            'const ha_i = ha_in + lg * cpw * (tw_i - tcold);' +
+            'const dh_i = Math.max(0.5, hw_i - ha_i);' +
+            'chebSum += (1 / dh_i);' +
+            'chebPoints.push({ tw: tw_i, hw: hw_i, ha: ha_i, dh: dh_i });' +
+          '}' +
+
+          'const kavl = (cpw * range / 4) * chebSum;' +
+
+          'const evapLoss_m3h = 0.00153 * range * flow_m3h;' +
+          'const driftLoss_m3h = flow_m3h * driftPct;' +
+          'const blowdown_m3h = evapLoss_m3h / (coc - 1);' +
+          'const makeup_m3h = evapLoss_m3h + driftLoss_m3h + blowdown_m3h;' +
+
+          'const airDensity = 1.18;' +
+          'const airM3s = G_kgs / airDensity;' +
+          'const acfm = airM3s * 2118.88;' +
+
+          'els.res_kavl.textContent = kavl.toFixed(2);' +
+          'let diffText = "Normal Duty";' +
+          'if (kavl > 2.5) diffText = "High Duty / Close Approach";' +
+          'else if (kavl < 1.0) diffText = "Light Duty / Easy Tower";' +
+          'els.res_difficulty.textContent = diffText + " (CTI Rating)";' +
+
+          'els.res_qduty.textContent = qThermalMw.toFixed(1) + " MW_th";' +
+          'els.res_tons.textContent = Math.round(tonsRefrig).toLocaleString() + " TR (" + (qThermalMw * 3.412142).toFixed(1) + " MMBtu/h)";' +
+
+          'els.res_range_app.textContent = range.toFixed(1) + "°C / " + approach.toFixed(1) + "°C";' +
+          'els.res_range_f.textContent = "Range: " + (range * 1.8).toFixed(1) + "°F | App: " + (approach * 1.8).toFixed(1) + "°F";' +
+
+          'els.res_airflow.textContent = G_kgs.toFixed(0) + " kg/s air";' +
+          'els.res_acfm.textContent = Math.round(acfm).toLocaleString() + " ACFM (" + airM3s.toFixed(0) + " m³/s)";' +
+
+          'els.res_evap_loss.textContent = evapLoss_m3h.toFixed(1) + " m³/h (" + (evapLoss_m3h * 4.40287).toFixed(1) + " gpm)";' +
+          'els.res_blowdown.textContent = blowdown_m3h.toFixed(1) + " + " + driftLoss_m3h.toFixed(2) + " m³/h (at " + coc.toFixed(1) + " COC)";' +
+          'els.res_makeup.textContent = makeup_m3h.toFixed(1) + " m³/h (" + (makeup_m3h * 4.40287).toFixed(1) + " gpm makeup)";' +
+
+          'drawMerkel(tcold, thot, twb, range, approach, ha_in, lg, cpw, pAtm, chebPoints);' +
+        '}' +
+
+        'function drawMerkel(tcold, thot, twb, range, approach, ha_in, lg, cpw, pAtm, points) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const pad = { top: 30, right: 30, bottom: 40, left: 60 };' +
+          'const pw = w - pad.left - pad.right;' +
+          'const ph = h - pad.top - pad.bottom;' +
+
+          'const tMin = Math.floor(Math.min(twb, tcold) - 2);' +
+          'const tMax = Math.ceil(thot + 3);' +
+
+          'const hwMax = satMoistAirEnthalpy(tMax, pAtm);' +
+          'const hMin = Math.floor(ha_in * 0.9);' +
+          'const hMax = Math.ceil(hwMax * 1.1);' +
+
+          'function getX(t) { return pad.left + ((t - tMin) / (tMax - tMin)) * pw; }' +
+          'function getY(hv) { return pad.top + ph - ((hv - hMin) / (hMax - hMin)) * ph; }' +
+
+          'ctx.strokeStyle = "#1e293b";' +
+          'ctx.lineWidth = 1;' +
+          'ctx.beginPath();' +
+          'for (let t = Math.ceil(tMin / 5) * 5; t <= tMax; t += 5) {' +
+            'const x = getX(t);' +
+            'ctx.moveTo(x, pad.top);' +
+            'ctx.lineTo(x, h - pad.bottom);' +
+          '}' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#64748b";' +
+          'ctx.font = "10px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'for (let t = Math.ceil(tMin / 5) * 5; t <= tMax; t += 5) {' +
+            'ctx.fillText(t + "°C", getX(t), h - pad.bottom + 15);' +
+          '}' +
+
+          'ctx.strokeStyle = "#f43f5e";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.beginPath();' +
+          'for (let t = tMin; t <= tMax; t += 0.5) {' +
+            'const hw = satMoistAirEnthalpy(t, pAtm);' +
+            'if (t === tMin) ctx.moveTo(getX(t), getY(hw));' +
+            'else ctx.lineTo(getX(t), getY(hw));' +
+          '}' +
+          'ctx.stroke();' +
+
+          'const ha_out = ha_in + lg * cpw * range;' +
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(getX(tcold), getY(ha_in));' +
+          'ctx.lineTo(getX(thot), getY(ha_out));' +
+          'ctx.stroke();' +
+
+          'ctx.strokeStyle = "#f59e0b";' +
+          'ctx.lineWidth = 1.5;' +
+          'ctx.setLineDash([3, 3]);' +
+          'points.forEach(pt => {' +
+            'const x = getX(pt.tw);' +
+            'const y1 = getY(pt.hw);' +
+            'const y2 = getY(pt.ha);' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(x, y1);' +
+            'ctx.lineTo(x, y2);' +
+            'ctx.stroke();' +
+
+            'ctx.fillStyle = "#f59e0b";' +
+            'ctx.beginPath();' +
+            'ctx.arc(x, y1, 3, 0, Math.PI * 2);' +
+            'ctx.arc(x, y2, 3, 0, Math.PI * 2);' +
+            'ctx.fill();' +
+          '});' +
+          'ctx.setLineDash([]);' +
+
+          'ctx.fillStyle = "#f43f5e";' +
+          'ctx.font = "bold 11px sans-serif";' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("Saturation Enthalpy Curve (h_w)", pad.left + 15, pad.top + 15);' +
+
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.fillText("Operating Air Line (h_a)", pad.left + 15, pad.top + 32);' +
+
+          'ctx.fillStyle = "#f59e0b";' +
+          'ctx.fillText("4-Point Chebyshev Δh Intervals", pad.left + 15, pad.top + 49);' +
+
+          'ctx.fillStyle = "#10b981";' +
+          'const xCold = getX(tcold);' +
+          'const xHot = getX(thot);' +
+          'ctx.fillRect(xCold - 1, pad.top, 2, ph);' +
+          'ctx.fillRect(xHot - 1, pad.top, 2, ph);' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("T_cold", xCold, pad.top - 8);' +
+          'ctx.fillText("T_hot", xHot, pad.top - 8);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== COOLING TOWER & MERKEL SIZING DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Merkel Number (KaV/L): " + els.res_kavl.textContent + " (" + els.res_difficulty.textContent + ")\n" +' +
+            '"Cooling Thermal Duty: " + els.res_qduty.textContent + " (" + els.res_tons.textContent + ")\n" +' +
+            '"Range & Approach: " + els.res_range_app.textContent + "\n" +' +
+            '"Required Airflow: " + els.res_airflow.textContent + " (" + els.res_acfm.textContent + ")\n" +' +
+            '"Evaporative Water Loss: " + els.res_evap_loss.textContent + "\n" +' +
+            '"Blowdown & Drift: " + els.res_blowdown.textContent + "\n" +' +
+            '"Total Makeup Demand: " + els.res_makeup.textContent + "\n" +' +
+            '"Operating Points: T_hot=" + els.thot.value + " " + els.temp_unit.value + ", T_cold=" + els.tcold.value + " " + els.temp_unit.value + ", T_wb=" + els.twb.value + " " + els.temp_unit.value + "\n" +' +
+            '"Liquid/Gas Ratio (L/G): " + els.lg.value + " | COC: " + els.coc.value + "\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.thot, els.temp_unit, els.tcold, els.twb, els.flow, els.flow_unit, els.lg, els.coc, els.drift_rate, els.patm];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (251 calculators in /calc/)');
 }
 
