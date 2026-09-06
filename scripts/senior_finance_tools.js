@@ -2948,23 +2948,23 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         <div style="margin: 2rem 0;">
           <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Vehicle Depreciation Traps & Financial Pitfalls</h3>
           <div style="display: grid; gap: 1rem;">
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
               <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">💥 1. The "Drive-Off Lot" Immediate 10%–15% Titling Cliff</h4>
               <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">The instant a new car's wheels cross the dealership curb, its legal title converts from Manufacturer Statement of Origin (MSO) to used. It instantly sheds retail dealer margins, doc fees, destination charges, and state sales tax—an unrecoverable sunk loss of 10% to 15% before you even reach your first stoplight.</p>
             </div>
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
               <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📉 2. The 72 to 84-Month "Negative Equity" Trap (GAP Exposure)</h4>
               <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Extended auto loans (6 to 7 years) amortize principal far slower than vehicles shed market value. Buyers remain dangerously underwater for 48+ months. If the vehicle is totaled or stolen, collision insurance pays actual cash value (ACV), leaving thousands in unpaid loan debt unless expensive GAP coverage is maintained.</p>
             </div>
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
               <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔋 3. EV Battery Degradation & Federal Subsidy Haircuts ($7,500 Distortion)</h4>
               <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Electric vehicles face accelerated secondary market depreciation. First, secondary buyers price in the original owner's $7,500 federal EV tax credit as an immediate baseline price reduction. Second, rapid generational advances in range and fears over out-of-warranty battery replacement ($12,000–$20,000) depress 3-year resale values by up to 52%.</p>
             </div>
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
               <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔧 4. Out-of-Warranty Luxury Depreciation Cliff (Years 4–5)</h4>
               <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">German luxury sedans and premium SUVs (BMW, Mercedes-Benz, Audi, Land Rover) plunge off a secondary valuation cliff the month the 4-year/50,000-mile factory bumper-to-bumper warranty expires. Secondary buyers severely discount these vehicles due to exorbitant specialized labor rates and air suspension/electronic failure liabilities.</p>
             </div>
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
               <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🛣️ 5. The Algorithmic Odometer Milestones (36k, 60k & 100k Manheim Drops)</h4>
               <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Depreciation is not smooth. Dealer wholesale pricing algorithms (Black Book, MMR/Manheim) enforce sharp programmatic step-downs at major psychological odometer barriers: 36,000 miles (standard warranty expiration), 60,000 miles (powertrain expiration), and 100,000 miles (prime retail financing cutoff), causing discrete valuation cliffs.</p>
             </div>
@@ -3423,6 +3423,40 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     </div>
   </div>
 
+  
+    <!-- 5 Fatal Hourly-to-Salary Traps & Pitfalls -->
+    <div style="margin: 2.5rem 0 2rem 0;">
+      <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem; color: var(--fg); display: flex; align-items: center; gap: 0.5rem;">
+        <span>⚠️</span> <span>5 Fatal Traps in Hourly vs. Salary Compensation</span>
+      </h2>
+
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <strong style="color: #ef4444;">1. The Uncompensated Overtime Trap for Exempt Workers</strong>
+        Salaried employees classified as FLSA Exempt receive zero overtime pay regardless of hours worked. Working 50 hours per week on an $80,000 salary reduces the true hourly rate from $38.46/hr to $30.77/hr—an uncompensated 20% pay cut. Always compute effective hourly earnings before accepting an exempt salary.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <strong style="color: #f59e0b;">2. Overlooking Unpaid Time Off (PTO) in Hourly Roles</strong>
+        Multiplying an hourly wage by 2,080 hours assumes 52 weeks of continuous paid labor. If an hourly position offers no paid vacation or paid sick holidays, taking just 3 unpaid weeks off per year slashes gross annual compensation by nearly 6%, or thousands of dollars in lost income.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <strong style="color: #10b981;">3. The 1099 Self-Employment Tax Double Whammy</strong>
+        Transitioning from a W-2 salary to a 1099 independent contractor role at the exact same hourly equivalent is a massive pay cut. As a 1099 contractor, you must pay both halves of FICA (15.3% Self-Employment Tax) plus purchase your own healthcare. Contractors must bill 25% to 40% more per hour just to break even.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <strong style="color: #3b82f6;">4. The 30% Fringe Benefits &amp; Health Insurance Gap</strong>
+        According to the Bureau of Labor Statistics (BLS), employer-paid healthcare premiums, 401(k) matching, and dental coverage represent 29% to 32% of total compensation. A salaried job with full health coverage and 5% match at $75,000 often beats an hourly rate of $42/hr ($87,360) that provides zero benefits.
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">5. Variable Bonus &amp; Commission Mirage</strong>
+        Factoring annual bonuses or commissions into your baseline salary calculations ignores compensation volatility. Discretionary bonuses are subject to company performance, withheld at flat supplemental wage rates (22% federal), and can be cancelled without notice during downturns.
+      </div>
+    </div>
+  
+
   <!-- SCRIPT ENGINE -->
   <script>
     (function() {
@@ -3762,7 +3796,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       <span>⚠️</span> <span>5 Fatal Traps &amp; Gotchas in Sales Tax Calculations</span>
     </h2>
 
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #ef4444;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+    <div class="trap-card" style="border-left: 4px solid #ef4444;">
       <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
         <span>🚨</span> <strong>1. The &quot;Back-Out Subtraction&quot; Mathematical Fallacy</strong>
       </h3>
@@ -3771,7 +3805,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       </p>
     </div>
 
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+    <div class="trap-card" style="border-left: 4px solid #f59e0b;">
       <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
         <span>🗺️</span> <strong>2. Origin-Based vs. Destination-Based Sourcing (Wayfair Economic Nexus)</strong>
       </h3>
@@ -3780,7 +3814,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       </p>
     </div>
 
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #10b981;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+    <div class="trap-card" style="border-left: 4px solid #10b981;">
       <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
         <span>📦</span> <strong>3. The Shipping, Handling &amp; Freight Tax Trap</strong>
       </h3>
@@ -3789,7 +3823,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       </p>
     </div>
 
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+    <div class="trap-card" style="border-left: 4px solid #3b82f6;">
       <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
         <span>🏔️</span> <strong>4. The &quot;NOMAD&quot; State Illusion (Alaska &amp; Montana Local Surtaxes)</strong>
       </h3>
@@ -3798,7 +3832,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       </p>
     </div>
 
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #8b5cf6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
       <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
         <span>🚗</span> <strong>5. Vehicle &amp; Equipment Trade-In Value Credits</strong>
       </h3>
@@ -4276,7 +4310,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             <span>⚠️</span> <span>5 Fatal Simple Interest Traps &amp; Financing Pitfalls</span>
           </h3>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>🚨</span> <strong>The Add-On Interest Auto Loan Deception</strong>
             </h4>
@@ -4285,7 +4319,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>📉</span> <strong>The &quot;Rule of 78s&quot; Early Payoff Penalty</strong>
             </h4>
@@ -4294,7 +4328,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>🏦</span> <strong>The Banker&apos;s Rule (360-Day Commercial Year) Surcharge</strong>
             </h4>
@@ -4303,7 +4337,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>🔢</span> <strong>Simple Interest Rate vs Effective Annual Rate (EAR)</strong>
             </h4>
@@ -4312,7 +4346,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>⏳</span> <strong>Multi-Decade Opportunity Cost vs Compound Growth</strong>
             </h4>
