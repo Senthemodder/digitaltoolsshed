@@ -123088,6 +123088,2819 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
 
 
 
-console.log('  ✓ Built Trade & Construction Suite (187 calculators in /calc/)');
+  // ==========================================
+  // Tool BJ1: Centrifugal Pump Minimum Continuous Stable Flow (MCSF) Calculator
+  // ==========================================
+  (() => {
+    const slug = 'centrifugal-pump-min-flow-mcsf-calculator';
+    const title = 'Centrifugal Pump Minimum Continuous Stable Flow (MCSF) Calculator';
+    const metaDescription = 'Calculate centrifugal pump Minimum Continuous Stable Flow (MCSF), Minimum Continuous Thermal Flow (MCTF), suction specific speed (Nss), shutoff temperature rise, and automatic recirculation bypass sizing per API 610 and Hydraulic Institute ANSI/HI 9.6.3.';
+
+    const faq = [
+      {
+        q: 'What is the difference between MCTF and MCSF in API 610 centrifugal pump sizing?',
+        a: 'Minimum Continuous Thermal Flow (MCTF) is the lowest flow rate at which the pump can operate continuously without the temperature of the liquid inside the casing rising above a designated thermal threshold (typically 10 to 15 deg F) or boiling into vapor. Minimum Continuous Stable Flow (MCSF) is the lowest flow rate at which the pump can operate continuously without exceeding specified vibration limits, bearing life derating, or suffering cavitation damage from internal suction and discharge recirculation. In industrial process pumps, MCSF is virtually always significantly higher than MCTF (e.g. MCSF is typically 25% to 60% of BEP, while MCTF is only 8% to 15% of BEP).'
+      },
+      {
+        q: 'What is Suction Specific Speed (Nss) and why does a high Nss increase MCSF?',
+        a: 'Suction Specific Speed is a dimensionless design index: Nss = [RPM * sqrt(Q_BEP)] / [NPSHR^0.75]. Pumps designed with high Nss (>11,000 to 12,000 US units) achieve low NPSHR by employing large, flared impeller suction eyes with aggressive vane inlet angles. However, at partial flow rates, the incoming fluid velocity profile separates from the oversized vane tips, triggering violent internal suction recirculation. Consequently, high Nss pumps require a much higher minimum continuous stable flow (often 50% to 70% of BEP) to remain hydraulically stable.'
+      },
+      {
+        q: 'What are the Preferred Operating Region (POR) and Allowable Operating Region (AOR)?',
+        a: 'Under Hydraulic Institute ANSI/HI 9.6.3 and API 610, the Preferred Operating Region (POR) is the flow range where the pump exhibits highest reliability, lowest vibration, and maximum seal/bearing life (typically 70% to 120% of Best Efficiency Point flow Q_BEP). The Allowable Operating Region (AOR) defines the wider operational envelope between the Minimum Continuous Stable Flow (MCSF) and the maximum run-out flow (typically 120% to 130% of BEP) where the pump can operate without suffering immediate damage, though with reduced component fatigue life.'
+      },
+      {
+        q: 'How is shutoff casing liquid temperature rise calculated?',
+        a: 'When a centrifugal pump operates against a closed discharge valve (deadheading) without bypass flow, 100% of the driver brake horsepower is converted into thermal heat dissipated into the trapped liquid volume. The steady-state temperature rise is: Delta T = [H_shutoff / (778 * Cp)] * [(1 / eta) - 1]. For water with shutoff head of 600 ft and low shutoff efficiency, casing liquid temperature spikes by over 30 to 50 deg F per minute, quickly flashing liquid into high-pressure steam that causes explosive seal failure.'
+      },
+      {
+        q: 'How does an Automatic Recirculation Valve (ARV) protect a centrifugal pump?',
+        a: 'An Automatic Recirculation Valve (ARV)—also known as an automatic bypass or ARC valve—is a self-actuating multi-function check valve mounted on the pump discharge. It incorporates an internal flow-sensing disc that modulates an integral bypass port. When system demand drops below the pump MCSF, the internal check disc falls, automatically opening the bypass port to recirculate the minimum required flow back to the suction storage vessel, preventing overheating and low-flow recirculation vibration.'
+      }
+    ];
+
+    const content = `
+<style>
+.mcsf-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.mcsf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.mcsf-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.mcsf-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .mcsf-grid-2, .mcsf-grid-3, .mcsf-grid-4 { grid-template-columns: 1fr; }
+}
+.mcsf-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.mcsf-input, .mcsf-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.mcsf-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.mcsf-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.mcsf-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.mcsf-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.mcsf-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.mcsf-canvas {
+  width: 100%;
+  height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: block;
+}
+</style>
+
+<div class="mcsf-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">Centrifugal Pump Minimum Continuous Stable Flow (MCSF) Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">API 610 &amp; ANSI/HI 9.6.3 Hydraulic Stability, Thermal Minimum Flow &amp; Automatic Recirculation Bypass Sizing</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="mcsf-btn" id="btn_mcsf_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Pump Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mcsf-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="mcsf-label">Pump Design / Casing Architecture</label>
+      <select id="mcsf_arch" class="mcsf-select">
+        <option value="api_oh2" selected>API 610 OH2 (Single-Stage Overhung End-Suction)</option>
+        <option value="api_bb2">API 610 BB2 (Between-Bearings Double-Suction)</option>
+        <option value="api_bb3">API 610 BB3 (Multistage Between-Bearings)</option>
+        <option value="ansi_b73">ANSI B73.1 General Chemical Process Pump</option>
+      </select>
+    </div>
+    <div>
+      <label class="mcsf-label">Crankshaft / Motor Speed (N) <span>RPM</span></label>
+      <input type="number" id="mcsf_rpm" class="mcsf-input" value="3550" step="50" min="500" max="3600">
+    </div>
+    <div>
+      <label class="mcsf-label">Best Efficiency Flow (Q_bep) <span>US GPM</span></label>
+      <input type="number" id="mcsf_qbep" class="mcsf-input" value="1200" step="50" min="50">
+    </div>
+  </div>
+
+  <div class="mcsf-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="mcsf-label">Head at BEP (H_bep) <span>ft</span></label>
+      <input type="number" id="mcsf_hbep" class="mcsf-input" value="380" step="10" min="20">
+    </div>
+    <div>
+      <label class="mcsf-label">NPSHR at BEP <span>ft</span></label>
+      <input type="number" id="mcsf_npshr" class="mcsf-input" value="16.5" step="0.5" min="2.0">
+    </div>
+    <div>
+      <label class="mcsf-label">BEP Pump Efficiency (&eta;) <span>% (decimal)</span></label>
+      <input type="number" id="mcsf_eff" class="mcsf-input" value="0.78" step="0.01" min="0.40" max="0.92">
+    </div>
+    <div>
+      <label class="mcsf-label">Fluid Specific Gravity (SG) <span>water = 1.0</span></label>
+      <input type="number" id="mcsf_sg" class="mcsf-input" value="0.88" step="0.02" min="0.5" max="1.5">
+    </div>
+  </div>
+
+  <div class="mcsf-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="mcsf-label">Shutoff Head Ratio (H_so / H_bep)</label>
+      <input type="number" id="mcsf_so_ratio" class="mcsf-input" value="1.20" step="0.02" min="1.05" max="1.40">
+    </div>
+    <div>
+      <label class="mcsf-label">Max Allowable Temp Rise (&Delta;T_max) <span>&deg;F</span></label>
+      <input type="number" id="mcsf_dtmax" class="mcsf-input" value="15" step="1" min="5" max="40">
+    </div>
+    <div>
+      <label class="mcsf-label">Current Operating Flow <span>US GPM</span></label>
+      <input type="number" id="mcsf_qoper" class="mcsf-input" value="450" step="25" min="0">
+    </div>
+    <div>
+      <label class="mcsf-label">Fluid Specific Heat (Cp) <span>Btu/lb-&deg;F</span></label>
+      <input type="number" id="mcsf_cp" class="mcsf-input" value="0.55" step="0.05" min="0.3" max="1.0">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="mcsf-grid-4" style="margin-bottom:1.5rem;">
+    <div class="mcsf-kpi">
+      <div class="mcsf-kpi-lbl">Stable Min Flow (MCSF)</div>
+      <div class="mcsf-kpi-val" id="res_mcsf_flow" style="color:#2563eb;">420 GPM</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_mcsf_flow_metric">95.4 m&sup3;/h (35.0% of BEP)</div>
+    </div>
+    <div class="mcsf-kpi">
+      <div class="mcsf-kpi-lbl">Thermal Min Flow (MCTF)</div>
+      <div class="mcsf-kpi-val" id="res_mctf_flow" style="color:#10b981;">148 GPM</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_mctf_flow_metric">33.6 m&sup3;/h (12.3% of BEP)</div>
+    </div>
+    <div class="mcsf-kpi">
+      <div class="mcsf-kpi-lbl">Suction Specific Speed (Nss)</div>
+      <div class="mcsf-kpi-val" id="res_mcsf_nss">11,460</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_mcsf_nss_status">Moderate High Nss (Recirc Risk)</div>
+    </div>
+    <div class="mcsf-kpi">
+      <div class="mcsf-kpi-lbl">Operating Flow Status</div>
+      <div class="mcsf-kpi-val" id="res_mcsf_status" style="color:#10b981; font-size:1.35rem;">SAFE (In AOR)</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_mcsf_status_desc">Above MCSF Threshold</div>
+    </div>
+  </div>
+
+  <!-- Operating Region Canvas -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <span style="font-weight:600; font-size:0.95rem;">Pump Operating Regions: Hydraulic Performance Curve vs Stability Zones</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Blue: Head-Capacity Curve | Green: Preferred Region (POR) | Red: Recirculation Danger</span>
+    </div>
+    <canvas id="mcsf_curve_canvas" class="mcsf-canvas" width="800" height="220"></canvas>
+  </div>
+
+  <div class="mcsf-grid-3">
+    <div class="mcsf-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Operating Regions (HI 9.6.3)</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Preferred Region (POR):</strong> <span id="res_mcsf_por">840 &ndash; 1,440 GPM (70-120%)</span></div>
+        <div><strong>Allowable Region (AOR):</strong> <span id="res_mcsf_aor">420 &ndash; 1,500 GPM (35-125%)</span></div>
+        <div><strong>Recirculation Zone:</strong> <span id="res_mcsf_recirc">&lt;420 GPM (Vibration &amp; Stall)</span></div>
+        <div><strong>Runout Limit:</strong> <span id="res_mcsf_runout">1,500 GPM (NPSHR Spike)</span></div>
+      </div>
+    </div>
+    <div class="mcsf-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Thermal &amp; Power Dynamics</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>BEP Water Horsepower:</strong> <span id="res_mcsf_whp">101.4 HP (75.6 kW)</span></div>
+        <div><strong>BEP Brake Horsepower:</strong> <span id="res_mcsf_bhp">130.0 HP (97.0 kW)</span></div>
+        <div><strong>Shutoff Head (H_so):</strong> <span id="res_mcsf_hso">456 ft (173.8 psi)</span></div>
+        <div><strong>Shutoff Temp Rise Rate:</strong> <span id="res_mcsf_trise">28.4 &deg;F / minute</span></div>
+      </div>
+    </div>
+    <div class="mcsf-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Bypass &amp; ARV Sizing</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Required Bypass Flow:</strong> <span id="res_mcsf_req_bypass">420 GPM (MCSF Governs)</span></div>
+        <div><strong>Bypass Orifice Area:</strong> <span id="res_mcsf_orifice_area">0.684 in&sup2; (14.2 mm bore)</span></div>
+        <div><strong>Recirculation Valve Rating:</strong> <span id="res_mcsf_arv">3" ARV Recommended</span></div>
+        <div><strong>Power Dissipation:</strong> <span id="res_mcsf_bypass_hp">45.5 HP in Bypass</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Centrifugal Pump Minimum Flow</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. High Suction Specific Speed ($N_{ss} > 12,000$) Recirculation Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Purchasing pumps with high Suction Specific Speed (\(N_{ss} > 12,000\)) to reduce required NPSH backfires dangerously at partial flow. To achieve low NPSHR, manufacturers enlarge the impeller suction eye and flatten inlet vane angles. When operating below 60% of BEP, fluid can no longer fill the oversized eye; violent <strong>suction recirculation eddies shear backwards out of the eye</strong> into the suction nozzle, chewing cavernous cavitation pits into the hidden back of the vanes and shaking bearing housings to pieces.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Sizing Bypass Lines for Thermal Flow Instead of Stable Flow</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Piping engineers commonly size minimum flow bypass orifices based purely on thermal heat rise (\(Q_{MCTF} \approx 10% \text{ to } 15\% \text{ of } BEP\)). While 10% flow prevents liquid from boiling inside the casing, it completely ignores hydraulic instability. Between 15% and 35% flow, discharge tip recirculation generates intense hydraulic thrust pulsations and high radial shaft deflection, <strong>failing mechanical seal faces and fatiguing bearings within 30 to 60 days</strong>. Bypass lines must always be sized for MCSF.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Returning Minimum Flow Bypass Directly into the Pump Suction Pipe</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Piping the minimum flow bypass line back into the suction piping 5 to 10 feet upstream of the pump inlet nozzle is an operational disaster. During bypass operation, high-pressure fluid throttles across the bypass orifice, converting massive pressure energy into heat. Trapped in a closed 10-foot loop, casing liquid temperature surges exponentially (often rising by 30&deg;F every 60 seconds). The hot liquid flashes into vapor at the suction eye, <strong>vapor-locking the pump and causing immediate mechanical seal dry-run seizure</strong>. Bypass lines must always return to the suction supply vessel.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Single-Volute Severe Radial Shaft Deflection at Low Flow</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">In single-volute pumps, static pressure around the impeller circumference is balanced only at the Best Efficiency Point. At flows below 40% BEP, asymmetric velocity profiles create massive radial pressure imbalances. The net radial force on the impeller increases by <strong>over 500%</strong>, flexing the pump shaft (radial deflection > 0.002 inches). This deflection pinches stationary throttle bushings, opens mechanical seal faces, and severely reduces L10 bearing fatigue life.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Automatic Recirculation Valve (ARV) Hunting &amp; Flashing Wear</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operating pumps with variable system demand near the ARV switch point causes the valve disc to rapidly cycle open and shut ("hunting"). The violent pressure cycles shatter internal valve springs and produce cavitation erosion in the bypass trim. Specifying ARVs with multi-stage pressure breakdown trim and properly calibrated dashpot damping is essential to eliminate hunting and high-pressure fluid flashing.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">API 610 &amp; Hydraulic Institute Mathematical Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Suction Specific Speed (\(N_{ss}\))</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$N_{ss} = \frac{N \cdot \sqrt{Q_{BEP}}}{NPSHR^{0.75}} \quad [\text{US Units: RPM, GPM, ft}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Minimum Continuous Thermal Flow (\(Q_{MCTF}\))</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$Q_{MCTF} = \frac{BHP_{shutoff} \cdot 2545}{500 \cdot SG \cdot C_p \cdot \Delta T_{max}} \quad [\text{GPM}]$$
+    $$\Delta T_{rise} = \frac{H_{shutoff}}{778 \cdot C_p} \left(\frac{1}{\eta_{shutoff}} - 1\right) \quad [^{\circ}\text{F}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Minimum Continuous Stable Flow (\(Q_{MCSF}\)) &amp; Bypass Orifice</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$Q_{MCSF} = f(N_{ss}, \text{Casing Type}) \times Q_{BEP} \quad [\text{GPM}]$$
+    $$A_{orifice} = \frac{Q_{bypass}}{38 \cdot C_d \cdot \sqrt{\Delta P / SG}} \quad [\text{in}^2]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  function drawCurveCanvas(qBep, hBep, mcsf, mctf, qOper) {
+    const canvas = document.getElementById('mcsf_curve_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const maxQ = qBep * 1.45;
+    const maxH = hBep * 1.35;
+
+    function xPos(q) {
+      return 50 + (q / maxQ) * (w - 80);
+    }
+    function yPos(head) {
+      return (h - 30) - (head / maxH) * (h - 55);
+    }
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(150, 150, 150, 0.2)';
+    ctx.lineWidth = 1;
+    for (let q = 0; q <= maxQ; q += Math.round(maxQ / 5)) {
+      const x = xPos(q);
+      ctx.beginPath();
+      ctx.moveTo(x, 15);
+      ctx.lineTo(x, h - 30);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(Math.round(q) + ' GPM', x - 15, h - 15);
+    }
+
+    // Operating Zones Fill
+    // Recirculation Zone: 0 to MCSF (Red tint)
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.12)';
+    ctx.fillRect(xPos(0), 15, xPos(mcsf) - xPos(0), h - 45);
+
+    // Preferred Operating Region (POR): 0.7 to 1.2 BEP (Green tint)
+    const porMin = qBep * 0.70;
+    const porMax = qBep * 1.20;
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+    ctx.fillRect(xPos(porMin), 15, xPos(porMax) - xPos(porMin), h - 45);
+
+    // Draw H-Q Head Curve (Blue)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    const hSo = hBep * 1.20;
+    for (let q = 0; q <= maxQ; q += maxQ / 40) {
+      // H = H_so - (H_so - H_bep) * (q / qBep)^2
+      const head = hSo - (hSo - hBep) * Math.pow(q / qBep, 2);
+      const x = xPos(q);
+      const y = yPos(head);
+      if (q === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // MCSF Line (Vertical Amber)
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(xPos(mcsf), 15);
+    ctx.lineTo(xPos(mcsf), h - 30);
+    ctx.stroke();
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('MCSF (' + Math.round(mcsf) + ')', xPos(mcsf) + 4, 30);
+
+    // Operating Flow Line (Red/Green depending on safe)
+    const isSafe = qOper >= mcsf;
+    ctx.strokeStyle = isSafe ? '#10b981' : '#ef4444';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xPos(qOper), 15);
+    ctx.lineTo(xPos(qOper), h - 30);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = isSafe ? '#10b981' : '#ef4444';
+    ctx.fillText('Oper (' + Math.round(qOper) + ')', xPos(qOper) + 4, 55);
+
+    // BEP Marker
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.arc(xPos(qBep), yPos(hBep), 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillText('BEP (' + Math.round(qBep) + ' GPM)', xPos(qBep) - 30, yPos(hBep) - 10);
+  }
+
+  function calcMcsf() {
+    const arch = document.getElementById('mcsf_arch').value;
+    const rpm = parseFloat(document.getElementById('mcsf_rpm').value) || 3550;
+    const qBep = parseFloat(document.getElementById('mcsf_qbep').value) || 1200;
+    const hBep = parseFloat(document.getElementById('mcsf_hbep').value) || 380;
+    const npshr = parseFloat(document.getElementById('mcsf_npshr').value) || 16.5;
+    const eff = parseFloat(document.getElementById('mcsf_eff').value) || 0.78;
+    const sg = parseFloat(document.getElementById('mcsf_sg').value) || 0.88;
+    const soRatio = parseFloat(document.getElementById('mcsf_so_ratio').value) || 1.20;
+    const dtMax = parseFloat(document.getElementById('mcsf_dtmax').value) || 15;
+    const qOper = parseFloat(document.getElementById('mcsf_qoper').value) || 450;
+    const cp = parseFloat(document.getElementById('mcsf_cp').value) || 0.55;
+
+    // Suction Specific Speed Nss = [RPM * sqrt(Q_BEP)] / [NPSHR^0.75]
+    // For double-suction BB2, Q per side = Q_bep / 2
+    const qSuction = (arch === 'api_bb2') ? (qBep / 2.0) : qBep;
+    const nss = (rpm * Math.sqrt(qSuction)) / Math.pow(npshr, 0.75);
+
+    // Shutoff head & power
+    const hSo = hBep * soRatio;
+    const whp = (qBep * hBep * sg) / 3960;
+    const bhp = whp / eff;
+    const bhpSo = bhp * 0.45; // approx shutoff BHP is ~40-50% BEP BHP
+
+    // Minimum Continuous Thermal Flow (MCTF)
+    // Q_MCTF = (BHP_so * 2545) / (500 * SG * Cp * dtMax)
+    const mctf = (bhpSo * 2545) / (500 * sg * cp * dtMax);
+    const mctfPct = (mctf / qBep) * 100;
+
+    // Minimum Continuous Stable Flow (MCSF)
+    // Correlated against Nss and casing type per Hydraulic Institute / API 610
+    let mcsfRatio = 0.25;
+    if (nss > 13000) mcsfRatio = 0.55;
+    else if (nss > 11000) mcsfRatio = 0.40;
+    else if (nss > 9000) mcsfRatio = 0.30;
+    else mcsfRatio = 0.25;
+
+    if (arch === 'api_bb3') mcsfRatio += 0.05; // multistage has tighter clearance limits
+    else if (arch === 'ansi_b73') mcsfRatio -= 0.03;
+
+    const mcsf = qBep * mcsfRatio;
+    const mcsfPct = mcsfRatio * 100;
+
+    // Operating status
+    const isMcsfSafe = qOper >= mcsf;
+    const isPorSafe = qOper >= qBep * 0.70 && qOper <= qBep * 1.20;
+
+    // Bypass Orifice Sizing
+    const reqBypass = Math.max(mcsf, mctf);
+    const dpBypassPsi = (hSo * sg) / 2.31;
+    const cd = 0.62;
+    const orificeArea = reqBypass / (38.0 * cd * Math.sqrt(Math.max(1, dpBypassPsi) / sg));
+    const orificeDiaMm = Math.sqrt((orificeArea * 4) / Math.PI) * 25.4;
+
+    // Temp rise rate at complete shutoff (deg F / minute)
+    // Assuming casing liquid volume ~ 5% of BEP GPM
+    const casingVolGal = Math.max(5, qBep * 0.02);
+    const casingWeightLb = casingVolGal * 8.34 * sg;
+    const tempRisePerMin = (bhpSo * 42.4) / (casingWeightLb * cp); // 1 HP = 42.4 Btu/min
+
+    // Update KPI Displays
+    document.getElementById('res_mcsf_flow').textContent = Math.round(mcsf) + ' GPM';
+    document.getElementById('res_mcsf_flow_metric').textContent = (mcsf * 0.227125).toFixed(1) + ' m³/h (' + mcsfPct.toFixed(1) + '% of BEP)';
+
+    document.getElementById('res_mctf_flow').textContent = Math.round(mctf) + ' GPM';
+    document.getElementById('res_mctf_flow_metric').textContent = (mctf * 0.227125).toFixed(1) + ' m³/h (' + mctfPct.toFixed(1) + '% of BEP)';
+
+    document.getElementById('res_mcsf_nss').textContent = Math.round(nss).toLocaleString();
+    const nssStatus = document.getElementById('res_mcsf_nss_status');
+    if (nss > 12000) {
+      nssStatus.textContent = 'HIGH Nss (>12k Recirculation Danger)';
+      nssStatus.style.color = '#ef4444';
+    } else if (nss > 10500) {
+      nssStatus.textContent = 'Moderate High Nss (10.5-12k)';
+      nssStatus.style.color = '#f59e0b';
+    } else {
+      nssStatus.textContent = 'Standard Conservative Nss (<10.5k)';
+      nssStatus.style.color = '#10b981';
+    }
+
+    const statusVal = document.getElementById('res_mcsf_status');
+    const statusDesc = document.getElementById('res_mcsf_status_desc');
+    if (!isMcsfSafe) {
+      statusVal.textContent = 'RECIRCULATION DANGER';
+      statusVal.style.color = '#ef4444';
+      statusDesc.textContent = 'Operating Below MCSF (' + Math.round(qOper) + ' < ' + Math.round(mcsf) + ' GPM)';
+    } else if (isPorSafe) {
+      statusVal.textContent = 'OPTIMAL (In POR)';
+      statusVal.style.color = '#10b981';
+      statusDesc.textContent = 'Preferred Operating Region (70-120%)';
+    } else {
+      statusVal.textContent = 'ACCEPTABLE (In AOR)';
+      statusVal.style.color = '#f59e0b';
+      statusDesc.textContent = 'In AOR but Outside Preferred POR';
+    }
+
+    // Operating Regions Details
+    document.getElementById('res_mcsf_por').textContent = Math.round(qBep * 0.70) + ' – ' + Math.round(qBep * 1.20) + ' GPM (70-120%)';
+    document.getElementById('res_mcsf_aor').textContent = Math.round(mcsf) + ' – ' + Math.round(qBep * 1.25) + ' GPM';
+    document.getElementById('res_mcsf_recirc').textContent = '< ' + Math.round(mcsf) + ' GPM (Vibration & Cavitation)';
+    document.getElementById('res_mcsf_runout').textContent = Math.round(qBep * 1.25) + ' GPM (NPSHR Exceedance)';
+
+    // Dynamics Details
+    document.getElementById('res_mcsf_whp').textContent = whp.toFixed(1) + ' HP (' + (whp * 0.7457).toFixed(1) + ' kW)';
+    document.getElementById('res_mcsf_bhp').textContent = bhp.toFixed(1) + ' HP (' + (bhp * 0.7457).toFixed(1) + ' kW)';
+    document.getElementById('res_mcsf_hso').textContent = Math.round(hSo) + ' ft (' + dpBypassPsi.toFixed(1) + ' psi)';
+    document.getElementById('res_mcsf_trise').textContent = tempRisePerMin.toFixed(1) + ' °F / minute';
+
+    // Bypass Details
+    document.getElementById('res_mcsf_req_bypass').textContent = Math.round(reqBypass) + ' GPM (MCSF Governs)';
+    document.getElementById('res_mcsf_orifice_area').textContent = orificeArea.toFixed(3) + ' in² (' + orificeDiaMm.toFixed(1) + ' mm bore)';
+    
+    let arvSize = '2"';
+    if (reqBypass > 600) arvSize = '4"';
+    else if (reqBypass > 250) arvSize = '3"';
+    document.getElementById('res_mcsf_arv').textContent = arvSize + ' ARV Automatic Bypass';
+    
+    const bypassHp = (reqBypass * hSo * sg) / 3960;
+    document.getElementById('res_mcsf_bypass_hp').textContent = bypassHp.toFixed(1) + ' HP in Bypass Circuit';
+
+    drawCurveCanvas(qBep, hBep, mcsf, mctf, qOper);
+  }
+
+  const inputs = [
+    'mcsf_arch', 'mcsf_rpm', 'mcsf_qbep', 'mcsf_hbep', 'mcsf_npshr',
+    'mcsf_eff', 'mcsf_sg', 'mcsf_so_ratio', 'mcsf_dtmax', 'mcsf_qoper', 'mcsf_cp'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcMcsf);
+      el.addEventListener('change', calcMcsf);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_mcsf_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'API 610 CENTRIFUGAL PUMP MINIMUM FLOW DATASHEET',
+        '===============================================',
+        'Pump Architecture: ' + document.getElementById('mcsf_arch').options[document.getElementById('mcsf_arch').selectedIndex].text,
+        'BEP Conditions: ' + document.getElementById('mcsf_qbep').value + ' GPM @ ' + document.getElementById('mcsf_hbep').value + ' ft (' + document.getElementById('mcsf_rpm').value + ' RPM)',
+        'Suction Specific Speed (Nss): ' + document.getElementById('res_mcsf_nss').textContent + ' [' + document.getElementById('res_mcsf_nss_status').textContent + ']',
+        '--- Minimum Flow & Stability Limits ---',
+        'Minimum Continuous Stable Flow (MCSF): ' + document.getElementById('res_mcsf_flow').textContent + ' (' + document.getElementById('res_mcsf_flow_metric').textContent + ')',
+        'Minimum Continuous Thermal Flow (MCTF): ' + document.getElementById('res_mctf_flow').textContent + ' (' + document.getElementById('res_mctf_flow_metric').textContent + ')',
+        'Operating Flow: ' + document.getElementById('mcsf_qoper').value + ' GPM [' + document.getElementById('res_mcsf_status').textContent + ']',
+        'Preferred Operating Region (POR): ' + document.getElementById('res_mcsf_por').textContent,
+        'Allowable Operating Region (AOR): ' + document.getElementById('res_mcsf_aor').textContent,
+        '--- Thermal & Bypass Protection ---',
+        'Shutoff Temperature Rise Rate: ' + document.getElementById('res_mcsf_trise').textContent,
+        'Required Bypass Flow Rate: ' + document.getElementById('res_mcsf_req_bypass').textContent,
+        'Bypass Restriction Orifice: ' + document.getElementById('res_mcsf_orifice_area').textContent,
+        'Recommended Valve: ' + document.getElementById('res_mcsf_arv').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcMcsf();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BJ2: Hydrocyclone Desander Sizing & d50 Cut-Point Calculator
+  // ==========================================
+  (() => {
+    const slug = 'hydrocyclone-desander-sizing-calculator';
+    const title = 'Hydrocyclone Desander Sizing & d50 Cut-Point Calculator';
+    const metaDescription = 'Calculate hydrocyclone desander cut-point (d50), separation efficiency, pressure drop, volumetric capacity, and solids discharge concentration per Bradley (1965), Rietema (1961), and API 13C solids control standards.';
+
+    const faq = [
+      {
+        q: 'What is the difference between a desander and a desilter hydrocyclone in API 13C?',
+        a: 'Per API 13C solids control standards, desanders typically utilize larger diameter hydrocyclones (typically 8-inch, 10-inch, or 12-inch internal diameter) handling 400 to 500 GPM per cone to achieve a d50 cut-point between 40 and 74 microns (removing drilled sand). Desilters utilize smaller hydrocyclone cones (typically 4-inch or 5-inch diameter) handling 50 to 80 GPM per cone to achieve a much finer d50 cut-point between 15 and 40 microns (removing silt and fine solids).'
+      },
+      {
+        q: 'How does Bradley (1965) calculate the d50 cut-point of a hydrocyclone?',
+        a: 'Bradley established that the theoretical 50% cut-point d50 (microns) is governed by centrifugal-drag equilibrium: d50 = [K_B * D_c^1.52 * mu^0.5] / [Q^0.5 * (rho_s - rho_l)^0.5], where D_c is cyclone diameter, mu is liquid dynamic viscosity in cP, Q is volumetric feed rate, and (rho_s - rho_l) is the density difference between the solid particles and carrier fluid. Smaller cyclone diameters generate exponentially higher centrifugal G-forces (often >1,000 g), yielding significantly finer cut points.'
+      },
+      {
+        q: 'What causes hydrocyclone roping discharge and why is it dangerous?',
+        a: 'Roping occurs when the volumetric solids concentration reporting to the apex/spigot exceeds its physical discharge capacity (typically >50% to 55% solids by volume). Instead of discharging in an optimal hollow conical spray (20 to 40 degree angle with an open central air core), the solids choke into a solid rotating cylinder resembling a rope. When roping, the central air core collapses, severe axial back-pressure develops, and coarse abrasive solids bypass directly into the overflow vortex finder, causing rapid downstream erosion.'
+      },
+      {
+        q: 'Why is feed pressure critical for hydrocyclone separation efficiency?',
+        a: 'Hydrocyclones rely entirely on incoming feed pressure to generate high-velocity tangential swirl. API 13C and equipment manufacturers specify a recommended feed pressure of 30 to 45 psi (equivalent to 75 to 100 feet of dynamic head of the slurry). If feed pressure drops below 25 psi, the tangential velocity drops, centrifugal acceleration collapses, and the d50 cut point coarsens drastically. If pressure exceeds 50 psi, internal turbulence increases without cut-point improvement and cone erosion rates accelerate exponentially.'
+      },
+      {
+        q: 'How does slurry viscosity affect hydrocyclone cut point?',
+        a: 'Higher apparent viscosity increases Stokes drag force opposing the outward centrifugal settling velocity of solid particles. According to Bradley and Rietema equations, cut point coarsens proportionally to the square root of viscosity (d50 proportional to sqrt(mu)). In weighted drilling fluids or mineral slurries where apparent viscosity rises from 1 cP (water) to 25 cP, the d50 cut point roughly quadruples (e.g. from 40 microns to over 160 microns) unless feed rate or cone geometry is compensated.'
+      }
+    ];
+
+    const content = `
+<style>
+.desand-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.desand-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.desand-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.desand-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .desand-grid-2, .desand-grid-3, .desand-grid-4 { grid-template-columns: 1fr; }
+}
+.desand-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.desand-input, .desand-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.desand-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.desand-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.desand-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.desand-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.desand-btn:hover { opacity: 0.9; }
+.desand-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.desand-table th, .desand-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.desand-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="desand-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Hydrocyclone Geometry & Slurry Operating Parameters</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">Bradley / Rietema Equilibrium & API 13C Solids Control Architecture</div>
+    </div>
+    <div>
+      <label class="desand-label">Preconfigured Cyclone Presets</label>
+      <select id="desand_preset" class="desand-select" style="min-width: 260px;">
+        <option value="desander_10">Standard 10" Desander (500 GPM / cone)</option>
+        <option value="desander_12">Heavy 12" Desander (600 GPM / cone)</option>
+        <option value="desander_8">Compact 8" Desander (300 GPM / cone)</option>
+        <option value="desilter_4">Standard 4" Desilter (60 GPM / cone)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="desand-grid-3">
+    <div>
+      <label class="desand-label">Total System Slurry Flow (Q_tot) <span>GPM</span></label>
+      <input type="number" id="desand_qtot" class="desand-input" value="1500" step="50" min="50">
+    </div>
+    <div>
+      <label class="desand-label">Internal Cone Diameter (D_c) <span>inches</span></label>
+      <input type="number" id="desand_dc" class="desand-input" value="10.0" step="0.5" min="2" max="36">
+    </div>
+    <div>
+      <label class="desand-label">Design Feed Pressure (P_feed) <span>psi</span></label>
+      <input type="number" id="desand_pfeed" class="desand-input" value="35.0" step="1" min="10" max="100">
+    </div>
+  </div>
+
+  <div class="desand-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="desand-label">Carrier Fluid SG (rho_l) <span>water = 1.0</span></label>
+      <input type="number" id="desand_rhol" class="desand-input" value="1.05" step="0.01" min="0.7" max="2.5">
+    </div>
+    <div>
+      <label class="desand-label">Solids Particle SG (rho_s) <span>sand = 2.65</span></label>
+      <input type="number" id="desand_rhos" class="desand-input" value="2.65" step="0.05" min="1.1" max="5.0">
+    </div>
+    <div>
+      <label class="desand-label">Fluid Apparent Viscosity (mu) <span>cP</span></label>
+      <input type="number" id="desand_mu" class="desand-input" value="1.20" step="0.1" min="0.5" max="50">
+    </div>
+    <div>
+      <label class="desand-label">Feed Solids Fraction (C_feed) <span>vol %</span></label>
+      <input type="number" id="desand_cfeed" class="desand-input" value="3.5" step="0.1" min="0.1" max="25">
+    </div>
+  </div>
+
+  <div class="desand-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="desand-label">Spigot / Apex Diameter (D_u) <span>inches</span></label>
+      <input type="number" id="desand_du" class="desand-input" value="1.75" step="0.125" min="0.5" max="6">
+    </div>
+    <div>
+      <label class="desand-label">Vortex Finder Diameter (D_o) <span>inches</span></label>
+      <input type="number" id="desand_do" class="desand-input" value="3.25" step="0.125" min="0.75" max="12">
+    </div>
+    <div>
+      <label class="desand-label">Cone Half Angle (theta) <span>degrees</span></label>
+      <input type="number" id="desand_theta" class="desand-input" value="15" step="1" min="5" max="30">
+    </div>
+  </div>
+</div>
+
+<div class="desand-box">
+  <h3 style="margin-top: 0;">Separation & Manifold Diagnostics</h3>
+  <div class="desand-grid-4">
+    <div class="desand-kpi">
+      <div class="desand-kpi-lbl">d50 Cut Point (Bradley)</div>
+      <div class="desand-kpi-val" id="res_desand_d50">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">50% particle split point</div>
+    </div>
+    <div class="desand-kpi">
+      <div class="desand-kpi-lbl">Cones Required (N)</div>
+      <div class="desand-kpi-val" id="res_desand_cones">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_desand_cone_flow">-- GPM / cone</div>
+    </div>
+    <div class="desand-kpi">
+      <div class="desand-kpi-lbl">Centrifugal G-Force</div>
+      <div class="desand-kpi-val" id="res_desand_gforce">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">at inlet radius</div>
+    </div>
+    <div class="desand-kpi">
+      <div class="desand-kpi-lbl">Underflow Discharge Mode</div>
+      <div class="desand-kpi-val" id="res_desand_mode" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_desand_under_solids">-- % vol solids</div>
+    </div>
+  </div>
+
+  <div class="desand-grid-3" style="margin-top: 1rem;">
+    <div class="desand-kpi">
+      <div class="desand-kpi-lbl">Total Underflow Slurry</div>
+      <div class="desand-kpi-val" id="res_desand_qunder">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">GPM to shaker screen</div>
+    </div>
+    <div class="desand-kpi">
+      <div class="desand-kpi-lbl">Solids Discharge Rate</div>
+      <div class="desand-kpi-val" id="res_desand_msolids">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Tons / day dry solids</div>
+    </div>
+    <div class="desand-kpi">
+      <div class="desand-kpi-lbl">Overall Sand Recovery</div>
+      <div class="desand-kpi-val" id="res_desand_recovery">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">total mass separation</div>
+    </div>
+  </div>
+</div>
+
+<div class="desand-box">
+  <h3 style="margin-top: 0;">Interactive Hydrocyclone Cut-Point & Grade Efficiency Profile</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="desand_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">Separation Grade Efficiency Breakdown</h4>
+  <table class="desand-table">
+    <thead>
+      <tr>
+        <th>Particle Size (d)</th>
+        <th>Dimensionless (d / d50)</th>
+        <th>Separation Efficiency G(d)</th>
+        <th>Destination Stream</th>
+        <th>Classification Category</th>
+      </tr>
+    </thead>
+    <tbody id="desand_grade_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_desand_copy" class="desand-btn">
+      <span>📋 Copy Full Sizing Diagnostic Summary</span>
+    </button>
+    <div id="desand_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="desand-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Engineering Derivations</h3>
+  
+  <p>The separation mechanics of liquid-solid hydrocyclones are formulated by combining centrifugal sedimentation theory with turbulent vortex fluid dynamics. In API 13C drilling mud and industrial desander systems, the equilibrium orbit theory developed by Bradley (1965) and empirical correlations by Rietema (1961) form the global design standard.</p>
+
+  <div class="formula-box">
+1. Bradley d50 Cut-Point Formulation:
+   d50 = [ 18.6 * (D_c)^1.52 * (mu)^0.5 ] / [ (Q_cone)^0.5 * (rho_s - rho_l)^0.5 ]
+   Where:
+     d50   = 50% cut point (microns, um)
+     D_c   = Hydrocyclone inside diameter (cm)
+     mu    = Apparent liquid dynamic viscosity (cP)
+     Q     = Flow rate per cone (L/min)
+     rho_s = Solid particle density (g/cm3)
+     rho_l = Fluid slurry density (g/cm3)
+
+2. Hydrocyclone Pressure Drop (Head-Loss):
+   Delta P = 1.07e-4 * [ (SG_slurry) * (Q_cone_gpm)^2 ] / [ (D_c_in)^3.8 ]  (psi)
+   Head = Delta P * 2.31 / SG_slurry  (ft of slurry)
+
+3. Inlet Velocity & Centrifugal Acceleration:
+   A_inlet = (pi / 4) * D_inlet^2
+   v_inlet = Q_cone / A_inlet
+   G_force = v_inlet^2 / (r_c * g) = [ 2 * v_inlet^2 ] / [ D_c * 9.81 ]
+
+4. Rosin-Rammler Grade Efficiency Function:
+   G(d) = 1 - exp( -0.693 * (d / d50)^m )
+   Where:
+     m = Sharpness index (typically 2.2 to 2.8 for industrial cones)
+
+5. Apex / Spigot Volumetric Solids Loading:
+   C_underflow = [ C_feed * Q_feed * R_solids ] / Q_underflow
+   Roping Threshold: C_underflow > 50% to 54% by volume.
+  </div>
+
+  <p>A hydrocyclone operates with no moving parts. Feed slurry enters tangentially at the upper cylindrical body, creating a high-velocity downward primary vortex along the cone wall. Centrifugal forces (300g to 2500g) force high-density sand grains outward against the polyurethane or high-alumina ceramic walls, descending helically toward the underflow apex. An inner reverse vortex of cleaned fluid spirals upward around an axial low-pressure vapor/air core, discharging through the vortex finder into the overflow launder.</p>
+</div>
+
+<div class="desand-box">
+  <h3 style="margin-top: 0;">5 Fatal Traps & Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="color: #ef4444;">1. Roping Discharge Choking the Underflow Apex</h4>
+    <p>Operating a desander with excessive feed solids or an undersized apex orifice causes the solids discharge to transition from a conical spray (20&deg; to 40&deg;) into a solid rotating cylinder resembling a rope. When roping occurs, the central air core collapses, severe internal fluid backpressure develops, and separation efficiency drops by 60% to 90%. Over 70% of coarse abrasive sand is immediately carried over into the vortex finder overflow, rapidly destroying downstream mud pumps, centrifuges, and piping.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="color: #f59e0b;">2. Low Feed Pressure (<25 psi) Collapsing the Centrifugal Swirl</h4>
+    <p>Hydrocyclones require a continuous feed pressure of 30 to 45 psi (75 to 100 feet of dynamic slurry head) to generate the required tangential swirl velocity. When feeding centrifugal pumps lose speed, experience impeller wear, or suffer suction cavitation, feed pressure drops below 25 psi. Centrifugal acceleration falls below the minimum 500g threshold, rendering the unit incapable of centrifugal separation and transforming the cone into an unclassified bypass junction.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="color: #10b981;">3. Ignoring Mud Viscosity in d50 Cut-Point Calculations</h4>
+    <p>Stokes' drag equation dictates that settling velocity is inversely proportional to apparent viscosity. In weighted drilling muds or mineral slurries where apparent viscosity rises from 1 cP to 25–40 cP, the d50 cut point coarsens by a factor of 4 to 6. Sizing a desander based on clear-water benchmarks results in massive solids buildup in the active pit system, requiring emergency chemical dilution and massive unbudgeted barite discard costs.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="color: #3b82f6;">4. Excessive Overflow Launder Backpressure</h4>
+    <p>Vortex finder overflow headers must discharge freely with minimal downstream hydraulic resistance. If the overflow discharge line is undersized, routed with multiple elbows, or submerged below liquid level in the receiving tank, backpressure develops against the inner helical vortex. Backpressure supresses the axial air core, violently forcing cleaned liquid down into the underflow apex, diluting the waste solids and overwhelming downstream dewatering shaker screens.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="color: #8b5cf6;">5. Apex Erosion & Vortex Finder Groove Wear Distortion</h4>
+    <p>Abrasive silica sand grains moving at 15 to 25 m/s cause aggressive wear on the lower cone section and apex orifice. An apex insert worn by just 25% in internal diameter increases underflow slurry volume by over 60%, dumping excessive expensive drilling base fluid or process water onto shaker screens while diluting waste solids. Hydrocyclone apexes and vortex finder lips must be inspected every 200 hours and replaced when bore eccentricity exceeds 1/16 inch.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'desander_10': { dc: 10, pfeed: 35, qtot: 1500, du: 1.75, doVal: 3.25, theta: 15 },
+    'desander_12': { dc: 12, pfeed: 35, qtot: 1800, du: 2.0, doVal: 3.75, theta: 15 },
+    'desander_8':  { dc: 8,  pfeed: 35, qtot: 900,  du: 1.5, doVal: 2.75, theta: 15 },
+    'desilter_4':  { dc: 4,  pfeed: 40, qtot: 720,  du: 0.875, doVal: 1.25, theta: 10 }
+  };
+
+  function drawDesandCanvas(d50, pfeed, mode, underVol, Dc, qCone) {
+    const canvas = document.getElementById('desand_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const isRoping = underVol > 52;
+
+    // --- Left Side: Hydrocyclone Geometry & Flow Pattern ---
+    ctx.save();
+    ctx.translate(120, 20);
+
+    // Cyclone Cylindrical Body
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, 40, 100, 50);
+
+    // Tangential Inlet
+    ctx.strokeRect(-35, 45, 35, 25);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Feed: ' + Math.round(qCone) + ' GPM', -65, 35);
+
+    // Vortex Finder Tube
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.strokeRect(30, 15, 40, 55);
+    ctx.setLineDash([]);
+
+    // Overflow stream
+    ctx.strokeStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.moveTo(50, 15);
+    ctx.lineTo(50, 0);
+    ctx.stroke();
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('Clean Overflow', 15, -4);
+
+    // Conical Body
+    ctx.strokeStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.moveTo(0, 90);
+    ctx.lineTo(35, 220);
+    ctx.lineTo(65, 220);
+    ctx.lineTo(100, 90);
+    ctx.stroke();
+
+    // Apex Orifice
+    ctx.strokeRect(35, 220, 30, 15);
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('Apex Orifice', 25, 250);
+
+    // Central Air Core
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([4, 2]);
+    ctx.beginPath();
+    ctx.moveTo(50, 20);
+    ctx.lineTo(50, 220);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Underflow Discharge Pattern
+    if (isRoping) {
+      // Solid rope cylinder
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(43, 235, 14, 45);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('ROPING (Choked)', -10, 295);
+    } else {
+      // Conical spray fan
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+      ctx.beginPath();
+      ctx.moveTo(35, 235);
+      ctx.lineTo(65, 235);
+      ctx.lineTo(95, 280);
+      ctx.lineTo(5, 280);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#10b981';
+      ctx.beginPath();
+      ctx.moveTo(50, 235);
+      ctx.lineTo(95, 280);
+      ctx.moveTo(50, 235);
+      ctx.lineTo(5, 280);
+      ctx.stroke();
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('Spray Fan (20-40 deg)', -10, 295);
+    }
+    ctx.restore();
+
+    // --- Right Side: Grade Efficiency Curve G(d) ---
+    ctx.save();
+    ctx.translate(350, 30);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Grade Efficiency Curve G(d)', 80, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(310, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Particle Size d (um)', 140, 245);
+
+    // Y axis labels
+    ctx.fillText('100%', 2, 25);
+    ctx.fillText('50%', 8, 125);
+    ctx.fillText('0%', 12, 223);
+
+    ctx.strokeStyle = '#334155';
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(30, 120);
+    ctx.lineTo(310, 120);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(310, 20);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Plot Rosin-Rammler Curve G(d) = 1 - exp(-0.693 * (d/d50)^2.5)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    const maxPlotD = d50 * 3.0;
+    for (let px = 0; px <= 280; px += 4) {
+      const dVal = (px / 280) * maxPlotD;
+      const gVal = 1 - Math.exp(-0.693 * Math.pow(dVal / d50, 2.5));
+      const py = 220 - gVal * 200;
+      if (px === 0) ctx.moveTo(30 + px, py);
+      else ctx.lineTo(30 + px, py);
+    }
+    ctx.stroke();
+
+    // Plot d50 split marker
+    const d50_x = 30 + (d50 / maxPlotD) * 280;
+    const d50_y = 120;
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(d50_x, d50_y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = '#ef4444';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(d50_x, d50_y);
+    ctx.lineTo(d50_x, 220);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('d50: ' + d50.toFixed(1) + ' um', d50_x - 20, 235);
+
+    // Callout box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(170, 45, 130, 50);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(170, 45, 130, 50);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Feed Head: ' + pfeed.toFixed(1) + ' psi', 178, 62);
+    ctx.fillText('Solids: ' + underVol.toFixed(1) + '% vol', 178, 76);
+    ctx.fillStyle = isRoping ? '#ef4444' : '#10b981';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(mode, 178, 90);
+
+    ctx.restore();
+  }
+
+  function calcDesand() {
+    const elQtot = document.getElementById('desand_qtot');
+    const elDc = document.getElementById('desand_dc');
+    const elPfeed = document.getElementById('desand_pfeed');
+    const elRhol = document.getElementById('desand_rhol');
+    const elRhos = document.getElementById('desand_rhos');
+    const elMu = document.getElementById('desand_mu');
+    const elCfeed = document.getElementById('desand_cfeed');
+    const elDu = document.getElementById('desand_du');
+    const elDo = document.getElementById('desand_do');
+    const elTheta = document.getElementById('desand_theta');
+
+    const Qtot = Math.max(10, parseFloat(elQtot.value) || 1000);
+    const Dc_in = Math.max(1.5, parseFloat(elDc.value) || 10);
+    const Pfeed = Math.max(5, parseFloat(elPfeed.value) || 35);
+    const rhol = Math.max(0.6, parseFloat(elRhol.value) || 1.0);
+    const rhos = Math.max(rhol + 0.05, parseFloat(elRhos.value) || 2.65);
+    const mu = Math.max(0.1, parseFloat(elMu.value) || 1.0);
+    const Cfeed = Math.max(0.01, parseFloat(elCfeed.value) || 3.0) / 100;
+    const Du_in = Math.max(0.25, parseFloat(elDu.value) || 1.75);
+    const Do_in = Math.max(0.5, parseFloat(elDo.value) || 3.0);
+    const theta = Math.max(5, parseFloat(elTheta.value) || 15);
+
+    // Standard capacity per cone as function of Dc and Pfeed:
+    const K_cap = 500 / (Math.pow(10, 1.9) * Math.sqrt(35 / 1.0));
+    const Qcone_gpm = K_cap * Math.pow(Dc_in, 1.9) * Math.sqrt(Pfeed / rhol);
+    
+    // Cones required
+    const numCones = Math.max(1, Math.round(Qtot / Qcone_gpm));
+    const actualQcone = Qtot / numCones;
+    const actualPfeed = Math.pow(actualQcone / (K_cap * Math.pow(Dc_in, 1.9)), 2) * rhol;
+
+    // Bradley d50 formulation:
+    const Dc_cm = Dc_in * 2.54;
+    const Q_Lmin = actualQcone * 3.78541;
+    const deltaRho = Math.max(0.05, rhos - rhol);
+    const d50 = (18.6 * Math.pow(Dc_cm, 1.52) * Math.pow(mu, 0.5)) / (Math.pow(Q_Lmin, 0.5) * Math.pow(deltaRho, 0.5));
+
+    // Centrifugal acceleration G-force:
+    const Din_in = 0.20 * Dc_in;
+    const Ain_ft2 = (Math.PI / 4) * Math.pow(Din_in / 12, 2);
+    const Qin_cfs = actualQcone * 0.002228;
+    const vinlet_fps = Qin_cfs / Ain_ft2;
+    const vinlet_mps = vinlet_fps * 0.3048;
+    const r_c_m = (Dc_in * 0.0254) / 2;
+    const g_accel = Math.pow(vinlet_mps, 2) / (r_c_m * 9.80665);
+
+    // Feed solids mass rate:
+    const Qsolids_gpm = Qtot * Cfeed;
+    const solids_lb_hr = Qsolids_gpm * 8.34 * rhos * 60;
+    const solids_tons_day = (solids_lb_hr * 24) / 2000;
+
+    // Underflow volume and solids loading:
+    const splitRatio = Math.min(0.20, Math.max(0.02, 0.05 * Math.pow(Du_in / (0.175 * Dc_in), 2)));
+    const Qunder_tot = Qtot * splitRatio;
+    const rec_factor = 1 - Math.exp(-0.693 * Math.pow(75 / d50, 2.4));
+    const rec_solids = Math.min(0.98, Math.max(0.30, rec_factor));
+    const recovered_solids_gpm = Qsolids_gpm * rec_solids;
+    const under_solids_vol_pct = (recovered_solids_gpm / Qunder_tot) * 100;
+
+    // Discharge mode:
+    let dischargeMode = 'Normal Spray';
+    let modeColor = 'var(--primary)';
+    if (under_solids_vol_pct > 52) {
+      dischargeMode = 'Choked Roping!';
+      modeColor = '#ef4444';
+    } else if (under_solids_vol_pct > 44) {
+      dischargeMode = 'Impending Rope';
+      modeColor = '#f59e0b';
+    } else if (under_solids_vol_pct < 15) {
+      dischargeMode = 'Dilute Spray';
+      modeColor = '#3b82f6';
+    }
+
+    // Update DOM KPIs
+    document.getElementById('res_desand_d50').textContent = d50.toFixed(1) + ' μm';
+    document.getElementById('res_desand_cones').textContent = numCones + ' Cones';
+    document.getElementById('res_desand_cone_flow').textContent = actualQcone.toFixed(0) + ' GPM / cone (' + actualPfeed.toFixed(1) + ' psi)';
+    document.getElementById('res_desand_gforce').textContent = Math.round(g_accel).toLocaleString() + ' g';
+    
+    const elMode = document.getElementById('res_desand_mode');
+    elMode.textContent = dischargeMode;
+    elMode.style.color = modeColor;
+    
+    document.getElementById('res_desand_under_solids').textContent = under_solids_vol_pct.toFixed(1) + '% vol solids';
+    document.getElementById('res_desand_qunder').textContent = Qunder_tot.toFixed(0) + ' GPM';
+    document.getElementById('res_desand_msolids').textContent = solids_tons_day.toFixed(1) + ' T/d';
+    document.getElementById('res_desand_recovery').textContent = (rec_solids * 100).toFixed(1) + '%';
+
+    // Status Badge
+    const elStatusBadge = document.getElementById('desand_status_badge');
+    if (under_solids_vol_pct > 52) {
+      elStatusBadge.innerHTML = '<span style="color:#ef4444;">&#9888; CRITICAL: Apex is roping! Increase apex size or add cones.</span>';
+    } else if (actualPfeed < 25) {
+      elStatusBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; WARNING: Feed pressure < 25 psi. Low centrifugal acceleration.</span>';
+    } else {
+      elStatusBadge.innerHTML = '<span style="color:#10b981;">&#10003; OPTIMAL: Clean conical spray with stable air core.</span>';
+    }
+
+    // Table rows
+    const particleSizes = [
+      { d: Math.round(d50 * 0.25), cat: 'Ultrafines (Clay/Colloids)' },
+      { d: Math.round(d50 * 0.5),  cat: 'Fine Silt' },
+      { d: Math.round(d50 * 0.75), cat: 'Coarse Silt' },
+      { d: Math.round(d50 * 1.0),  cat: 'Cut Point (d50 Split)' },
+      { d: Math.round(d50 * 1.5),  cat: 'Fine Sand' },
+      { d: Math.round(d50 * 2.0),  cat: 'Medium Sand (d90+)' },
+      { d: Math.round(d50 * 3.0),  cat: 'Coarse Sand (Complete)' }
+    ];
+
+    let rowsHtml = '';
+    particleSizes.forEach(p => {
+      const ratio = p.d / d50;
+      const gradeEff = 1 - Math.exp(-0.693 * Math.pow(ratio, 2.5));
+      const effPct = (gradeEff * 100).toFixed(1);
+      const dest = gradeEff >= 0.5 ? 'Underflow (Apex / Shaker)' : 'Overflow (Vortex / Pit)';
+      const destColor = gradeEff >= 0.5 ? 'color:#10b981;' : 'color:var(--text-muted);';
+      rowsHtml += '<tr>' +
+        '<td><strong>' + p.d + ' μm</strong></td>' +
+        '<td>' + ratio.toFixed(2) + '</td>' +
+        '<td><div style="display:flex; align-items:center; gap:0.5rem;">' +
+          '<div style="width:80px; height:8px; background:var(--border); border-radius:4px; overflow:hidden;">' +
+            '<div style="width:' + effPct + '%; height:100%; background:var(--primary);"></div>' +
+          '</div>' +
+          '<span>' + effPct + '%</span>' +
+        '</div></td>' +
+        '<td style="' + destColor + '">' + dest + '</td>' +
+        '<td>' + p.cat + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('desand_grade_tbody').innerHTML = rowsHtml;
+
+    // Draw Canvas
+    drawDesandCanvas(d50, actualPfeed, dischargeMode, under_solids_vol_pct, Dc_in, actualQcone);
+  }
+
+  // Presets handling
+  const elPreset = document.getElementById('desand_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('desand_dc').value = p.dc;
+        document.getElementById('desand_pfeed').value = p.pfeed;
+        document.getElementById('desand_qtot').value = p.qtot;
+        document.getElementById('desand_du').value = p.du;
+        document.getElementById('desand_do').value = p.doVal;
+        document.getElementById('desand_theta').value = p.theta;
+        calcDesand();
+      }
+    });
+  }
+
+  const inputs = [
+    'desand_qtot', 'desand_dc', 'desand_pfeed', 'desand_rhol', 'desand_rhos',
+    'desand_mu', 'desand_cfeed', 'desand_du', 'desand_do', 'desand_theta'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcDesand();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_desand_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=======================================================',
+        'HYDROCYCLONE DESANDER SIZING & d50 CUT-POINT REPORT',
+        'Standards: Bradley (1965), Rietema (1961), API 13C',
+        '=======================================================',
+        'Total Slurry Flow Rate:      ' + document.getElementById('desand_qtot').value + ' GPM',
+        'Cyclone Inside Diameter:     ' + document.getElementById('desand_dc').value + ' inches',
+        'Operating Feed Pressure:     ' + document.getElementById('desand_pfeed').value + ' psi',
+        'Carrier Fluid SG:            ' + document.getElementById('desand_rhol').value,
+        'Solids Particle SG:          ' + document.getElementById('desand_rhos').value,
+        'Apparent Liquid Viscosity:   ' + document.getElementById('desand_mu').value + ' cP',
+        'Feed Solids Concentration:   ' + document.getElementById('desand_cfeed').value + ' vol %',
+        'Apex / Spigot Diameter:      ' + document.getElementById('desand_du').value + ' inches',
+        'Vortex Finder Diameter:      ' + document.getElementById('desand_do').value + ' inches',
+        '-------------------------------------------------------',
+        'CALCULATED HYDROCYCLONE PERFORMANCE:',
+        'Bradley Cut-Point (d50):     ' + document.getElementById('res_desand_d50').textContent,
+        'Manifold Cones Required:     ' + document.getElementById('res_desand_cones').textContent,
+        'Flow Rate per Cone:          ' + document.getElementById('res_desand_cone_flow').textContent,
+        'Centrifugal Acceleration:    ' + document.getElementById('res_desand_gforce').textContent,
+        'Underflow Solids Loading:    ' + document.getElementById('res_desand_under_solids').textContent,
+        'Underflow Discharge State:   ' + document.getElementById('res_desand_mode').textContent,
+        'Total Underflow Slurry:      ' + document.getElementById('res_desand_qunder').textContent,
+        'Dry Solids Removal Rate:     ' + document.getElementById('res_desand_msolids').textContent,
+        'Overall Sand Recovery:       ' + document.getElementById('res_desand_recovery').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Diagnostic Summary Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcDesand();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BJ3: ASME Section VIII UG-28 External Pressure & Vacuum Vessel Calculator
+  // ==========================================
+  (() => {
+    const slug = 'asme-ug-28-external-pressure-vacuum-vessel-calculator';
+    const title = 'ASME Section VIII UG-28 External Pressure & Vacuum Vessel Calculator';
+    const metaDescription = 'Calculate ASME Section VIII Div 1 UG-28 and UG-29 allowable external working pressure (MAEP), minimum shell thickness under full vacuum, stiffening ring required moment of inertia (Is), and factor A/B per ASME Section II Part D.';
+
+    const faq = [
+      {
+        q: 'What is the fundamental difference between internal and external pressure vessel design in ASME Section VIII?',
+        a: 'Internal pressure causes membrane tensile stress in the vessel wall, where failure occurs through plastic yielding or ductile bursting with safety margins of 3.5 to 4.0 against tensile strength. External pressure induces compressive hoop stresses, where failure occurs via sudden elastic or plastic buckling (instability) at stresses far below material yield. Because buckling is highly sensitive to geometric imperfections (out-of-roundness, flat spots), ASME UG-28 mandates rigorous chart-based Factor A and Factor B iterative derivations.'
+      },
+      {
+        q: 'What is the design length L for external pressure per UG-28?',
+        a: 'The design length L is the distance between lines of support that resist circumferential buckling. This includes: (1) the distance between lines of support provided by circumferential stiffening rings meeting UG-29; (2) the distance between head tangent lines plus one-third of the depth of each formed head (for torispherical or ellipsoidal heads); or (3) the distance between jacket closure bars in jacketed vessels.'
+      },
+      {
+        q: 'What is the required design pressure for a vessel subject to Full Vacuum (FV)?',
+        a: 'Per ASME Section VIII Div 1 and standard industrial practice, a vessel specified for Full Vacuum must be designed for an external design pressure of at least 15.0 psi (1.034 bar, 103.4 kPa) external. If the vessel contains liquid during steam-out or vacuum conditions, the equivalent hydrostatic head of that liquid must be added to the 15.0 psi external rating at the bottom section of the shell.'
+      },
+      {
+        q: 'How does ASME Section II Part D Factor A and Factor B govern allowable pressure Pa?',
+        a: 'Factor A is a dimensionless strain parameter derived from the shell geometric ratios L/Do and Do/t using Figure G of Section II-D. Factor B is a stress factor (psi) obtained by entering the material external pressure chart (e.g. Figure CS-1, Figure HA-1) at value A and design temperature. If A falls to the left of the material curve (elastic buckling), B = (A * E) / 2. Allowable external pressure is then calculated as Pa = (4 * B) / [3 * (Do / t)].'
+      },
+      {
+        q: 'What is the purpose of UG-29 vacuum stiffening rings?',
+        a: 'Circumferential stiffening rings divide a long vessel into multiple shorter effective lengths (L), dramatically lowering the L/Do ratio. Because allowable external pressure scales inversely with effective length in the elastic buckling regime, adding stiffeners allows thin-walled vessels (e.g. large storage tanks, distillation columns) to withstand full vacuum without requiring heavy, expensive thick plate shells. The stiffener must have a cross-sectional moment of inertia (Is) exceeding the UG-29 threshold.'
+      }
+    ];
+
+    const content = `
+<style>
+.ug28-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.ug28-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.ug28-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.ug28-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .ug28-grid-2, .ug28-grid-3, .ug28-grid-4 { grid-template-columns: 1fr; }
+}
+.ug28-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.ug28-input, .ug28-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.ug28-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.ug28-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.ug28-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.ug28-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.ug28-btn:hover { opacity: 0.9; }
+.ug28-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.ug28-table th, .ug28-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.ug28-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="ug28-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Cylindrical Shell & Material Design Specifications</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">ASME Boiler and Pressure Vessel Code Section VIII Div 1 (UG-28, UG-29) & Section II-D</div>
+    </div>
+    <div>
+      <label class="ug28-label">Material & Code Chart Preset</label>
+      <select id="ug28_material" class="ug28-select" style="min-width: 280px;">
+        <option value="cs_sa516_70">Carbon Steel SA-516 Gr 70 (Fig CS-2, E=29.0 Mpsi)</option>
+        <option value="cs_sa106_b">Carbon Steel SA-106 Gr B (Fig CS-1, E=29.5 Mpsi)</option>
+        <option value="ss_sa240_304">Stainless Steel SA-240 304 (Fig HA-1, E=28.3 Mpsi)</option>
+        <option value="ss_sa240_316">Stainless Steel SA-240 316 (Fig HA-2, E=28.3 Mpsi)</option>
+        <option value="ni_sb168_600">Inconel 600 SB-168 (Fig NFN-1, E=31.0 Mpsi)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="ug28-grid-3">
+    <div>
+      <label class="ug28-label">Outside Shell Diameter (D_o) <span>inches</span></label>
+      <input type="number" id="ug28_do" class="ug28-input" value="72.0" step="1" min="6" max="360">
+    </div>
+    <div>
+      <label class="ug28-label">Corroded Shell Thickness (t) <span>inches</span></label>
+      <input type="number" id="ug28_t" class="ug28-input" value="0.375" step="0.03125" min="0.0625" max="6">
+    </div>
+    <div>
+      <label class="ug28-label">Design Length Between Supports (L) <span>inches</span></label>
+      <input type="number" id="ug28_l" class="ug28-input" value="120.0" step="6" min="12" max="1200">
+    </div>
+  </div>
+
+  <div class="ug28-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="ug28-label">Design Temperature <span>&deg;F</span></label>
+      <input type="number" id="ug28_temp" class="ug28-input" value="200" step="25" min="-50" max="900">
+    </div>
+    <div>
+      <label class="ug28-label">External Design Pressure (P_ext) <span>psig (FV=15)</span></label>
+      <input type="number" id="ug28_pext" class="ug28-input" value="15.0" step="1" min="1" max="500">
+    </div>
+    <div>
+      <label class="ug28-label">Corrosion Allowance (CA) <span>inches</span></label>
+      <input type="number" id="ug28_ca" class="ug28-input" value="0.0625" step="0.015625" min="0" max="0.5">
+    </div>
+  </div>
+
+  <div class="ug28-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="ug28-label">Number of Stiffener Rings (N_rings)</label>
+      <input type="number" id="ug28_nrings" class="ug28-input" value="0" step="1" min="0" max="20">
+    </div>
+    <div>
+      <label class="ug28-label">Total Tangent Length (L_total) <span>inches</span></label>
+      <input type="number" id="ug28_ltotal" class="ug28-input" value="240.0" step="12" min="24" max="1200">
+    </div>
+    <div>
+      <label class="ug28-label">Stiffener Spacing (L_s)</label>
+      <input type="text" id="ug28_ls_display" class="ug28-input" value="120.0 in" readonly style="opacity: 0.8;">
+    </div>
+  </div>
+</div>
+
+<div class="ug28-box">
+  <h3 style="margin-top: 0;">UG-28 Buckling Diagnostics & Allowable Pressure (MAEP)</h3>
+  <div class="ug28-grid-4">
+    <div class="ug28-kpi">
+      <div class="ug28-kpi-lbl">Allowable Ext. Pressure (Pa)</div>
+      <div class="ug28-kpi-val" id="res_ug28_pa">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Max allowable external (psig)</div>
+    </div>
+    <div class="ug28-kpi">
+      <div class="ug28-kpi-lbl">Strain Factor A</div>
+      <div class="ug28-kpi-val" id="res_ug28_fact_a">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">From Fig G geometry</div>
+    </div>
+    <div class="ug28-kpi">
+      <div class="ug28-kpi-lbl">Stress Factor B</div>
+      <div class="ug28-kpi-val" id="res_ug28_fact_b">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Material curve stress (psi)</div>
+    </div>
+    <div class="ug28-kpi">
+      <div class="ug28-kpi-lbl">Design Rating Status</div>
+      <div class="ug28-kpi-val" id="res_ug28_status" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_ug28_margin">-- % margin</div>
+    </div>
+  </div>
+
+  <div class="ug28-grid-3" style="margin-top: 1rem;">
+    <div class="ug28-kpi">
+      <div class="ug28-kpi-lbl">Minimum Req. Thickness (t_min)</div>
+      <div class="ug28-kpi-val" id="res_ug28_tmin">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Excl. corrosion allowance</div>
+    </div>
+    <div class="ug28-kpi">
+      <div class="ug28-kpi-lbl">UG-29 Stiffener Req. Inertia (Is)</div>
+      <div class="ug28-kpi-val" id="res_ug28_is">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">in^4 (ring + shell combo)</div>
+    </div>
+    <div class="ug28-kpi">
+      <div class="ug28-kpi-lbl">Buckling Regime</div>
+      <div class="ug28-kpi-val" id="res_ug28_regime" style="font-size: 1.1rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Elastic vs Inelastic</div>
+    </div>
+  </div>
+</div>
+
+<div class="ug28-box">
+  <h3 style="margin-top: 0;">Interactive Vessel External Pressure & Buckling Profile</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="ug28_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">Section VIII Div 1 Geometry & Stress Parameters</h4>
+  <table class="ug28-table">
+    <thead>
+      <tr>
+        <th>Code Metric</th>
+        <th>Symbol</th>
+        <th>Calculated Value</th>
+        <th>ASME Code Reference</th>
+        <th>Engineering Significance</th>
+      </tr>
+    </thead>
+    <tbody id="ug28_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_ug28_copy" class="ug28-btn">
+      <span>📋 Copy Full ASME UG-28 External Pressure Report</span>
+    </button>
+    <div id="ug28_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="ug28-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Code Derivations</h3>
+  
+  <p>ASME Boiler and Pressure Vessel Code Section VIII Division 1 paragraphs UG-28 and UG-29 govern the design of cylindrical shells and vacuum stiffeners subject to external pressure. Unlike internal pressure, which is limited by tensile hoop stress, external pressure is governed by structural stability and bifurcation buckling.</p>
+
+  <div class="formula-box">
+1. Geometric Ratios:
+   Do / t  = Outside Diameter / Corroded Wall Thickness
+   L / Do  = Effective Length Between Lines of Support / Outside Diameter
+
+2. Strain Factor A Derivation (ASME Sec II-D Fig G):
+   For Do/t >= 10:
+     Factor A = 1.28 / [ (Do / t)^1.5 * (L / Do) ]
+   (Subject to lower bound L/Do >= 0.05 and upper bound L/Do <= 50.0)
+
+3. Stress Factor B Derivation:
+   E = Young's Modulus of elasticity at design temperature (psi)
+   If Factor A falls to the left of the material curve (Elastic Buckling):
+     Factor B = (Factor A * E) / 2
+   If Factor A falls on the curve (Inelastic / Yield-Influenced):
+     Factor B = f_material(A, Temperature)
+
+4. Maximum Allowable External Working Pressure (MAEP, Pa):
+   Pa = [ 4 * Factor B ] / [ 3 * (Do / t) ]
+
+5. UG-29 Vacuum Stiffener Ring Required Moment of Inertia:
+   Is = [ Do^2 * L_s * (t + As/Ls) * Factor A_ring ] / 14.0
+   Where:
+     L_s      = Distance between stiffening rings (in)
+     As       = Cross-sectional area of stiffener ring (in^2)
+     Is       = Required moment of inertia of ring + combined shell band (in^4)
+     A_ring   = Factor A evaluated for stiffener ring buckling
+  </div>
+
+  <p>If the calculated allowable pressure $P_a$ is less than the external design pressure $P_{	ext{ext}}$ (typically 15.0 psig for full vacuum), the vessel will experience catastrophic inward wall collapse or lobed buckling. The engineer has two design choices: increase plate thickness $t$, or add intermediate stiffening rings to shorten unsupported length $L$.</p>
+</div>
+
+<div class="ug28-box">
+  <h3 style="margin-top: 0;">5 Fatal Traps & Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="color: #ef4444;">1. Designing for Full Vacuum (14.7 psi) Without Adding Liquid Hydrostatic Head</h4>
+    <p>When chemical reactors or refinery fractionation columns are steamed out and blocked in, condensing steam creates a 14.7 psi full vacuum while liquid condensates accumulate at the vessel bottom. If the designer specifies an external design pressure of only 15.0 psi without adding the hydrostatic head of the condensed liquid (often 5 to 15 psi additional), the combined external pressure at the lower courses exceeds the MAEP, crushing the bottom shell plates inward.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="color: #f59e0b;">2. Overestimating Factor B by Ignoring High-Temperature Modulus Derating</h4>
+    <p>The elastic modulus $E$ of carbon and stainless steels drops substantially at elevated temperatures. For carbon steel SA-516 Gr 70, $E$ drops from 29.5 Mpsi at 70&deg;F down to 24.5 Mpsi at 600&deg;F—a 17% reduction. Because external buckling capacity is directly proportional to $E$ in the elastic regime, designing a hot vacuum vessel using room-temperature modulus values results in an over-predicted MAEP and immediate collapse during high-temperature regeneration cycles.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="color: #10b981;">3. Disregarding Out-of-Roundness Tolerances per UG-80</h4>
+    <p>The theoretical buckling formulas of UG-28 assume a perfectly round cylinder. Paragraph UG-80 sets strict limits on maximum shell out-of-roundness ($D_{max} - D_{min} le 1.0% 	ext{ of nominal } D$). If plate rolling leaves a flat spot or peak along longitudinal weld seams, the local radius of curvature increases drastically. A 1.5% out-of-roundness imperfection can reduce actual collapse pressure by over 50%, initiating progressive snap-through buckling at normal operating vacuum.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="color: #3b82f6;">4. Incorrect Unsupported Length (L) Definition Near Formed Heads</h4>
+    <p>Under ASME UG-28, the effective unsupported length $L$ of an unstiffened vessel is NOT merely the tangent-to-tangent straight shell length. For vessels with 2:1 ellipsoidal or torispherical heads, $L$ must include one-third of the depth of each head. For large diameter thin-walled vessels, omitting the head depth contributions underestimates $L$ by several feet, leading to an undersized shell thickness that fails third-party Authorized Inspector (AI) code audits.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="color: #8b5cf6;">5. Intermittent Stiffener Ring Welds Violating UG-29 Attachment Rules</h4>
+    <p>Fabricators frequently attempt to save labor by attaching external vacuum stiffening rings with skip/intermittent fillet welds. Under ASME Section VIII UG-29, intermittent welds are strictly regulated: the total unwelded length between weld segments must not exceed $8t$ for external rings or $12t$ for internal rings, and the gap between ring and shell must not exceed code limits. Inadequate attachment allows the thin shell plate to buckle independently of the stiffener ring.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const MATERIALS = {
+    'cs_sa516_70': { name: 'SA-516 Gr 70', E: 29.0e6, Sy: 38000, chart: 'CS-2' },
+    'cs_sa106_b':  { name: 'SA-106 Gr B',  E: 29.5e6, Sy: 35000, chart: 'CS-1' },
+    'ss_sa240_304': { name: 'SA-240 304',   E: 28.3e6, Sy: 30000, chart: 'HA-1' },
+    'ss_sa240_316': { name: 'SA-240 316',   E: 28.3e6, Sy: 30000, chart: 'HA-2' },
+    'ni_sb168_600': { name: 'SB-168 Inconel 600', E: 31.0e6, Sy: 35000, chart: 'NFN-1' }
+  };
+
+  function drawUg28Canvas(Do, t, L, Nrings, Pa, Pext, isAdequate, factorA, factorB) {
+    const canvas = document.getElementById('ug28_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const statusColor = isAdequate ? '#10b981' : '#ef4444';
+
+    // --- Left Side: Vessel Shell Diagram ---
+    ctx.save();
+    ctx.translate(40, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Vessel Vacuum Shell Geometry', 40, 0);
+
+    // Left Head
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.bezierCurveTo(40, 40, 10, 40, 10, 120);
+    ctx.bezierCurveTo(10, 200, 40, 200, 40, 200);
+    ctx.stroke();
+
+    // Top & Bottom Shell
+    ctx.beginPath();
+    ctx.moveTo(40, 40);
+    ctx.lineTo(200, 40);
+    ctx.moveTo(40, 200);
+    ctx.lineTo(200, 200);
+    ctx.stroke();
+
+    // Right Head
+    ctx.beginPath();
+    ctx.bezierCurveTo(200, 40, 230, 40, 230, 120);
+    ctx.bezierCurveTo(230, 200, 200, 200, 200, 200);
+    ctx.stroke();
+
+    // Compressive Arrows (External Pressure)
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+    [60, 100, 140, 180].forEach(px => {
+      // Top arrows pointing down
+      ctx.beginPath();
+      ctx.moveTo(px, 15);
+      ctx.lineTo(px, 35);
+      ctx.lineTo(px - 3, 28);
+      ctx.moveTo(px, 35);
+      ctx.lineTo(px + 3, 28);
+      ctx.stroke();
+
+      // Bottom arrows pointing up
+      ctx.beginPath();
+      ctx.moveTo(px, 225);
+      ctx.lineTo(px, 205);
+      ctx.lineTo(px - 3, 212);
+      ctx.moveTo(px, 205);
+      ctx.lineTo(px + 3, 212);
+      ctx.stroke();
+    });
+
+    // Stiffener Ring if Nrings > 0
+    if (Nrings > 0) {
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(115, 32, 10, 16);
+      ctx.fillRect(115, 192, 10, 16);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('UG-29 Ring', 95, 25);
+    } else {
+      ctx.strokeStyle = '#475569';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(40, 120);
+      ctx.lineTo(200, 120);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('L = ' + L.toFixed(0) + ' in', 100, 115);
+    }
+
+    // Callout Box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(10, 235, 230, 38);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(10, 235, 230, 38);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('OD Do: ' + Do.toFixed(0) + ' in | t: ' + t.toFixed(4) + ' in', 18, 250);
+    ctx.fillStyle = statusColor;
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('MAEP Pa: ' + Pa.toFixed(2) + ' psi (P_ext: ' + Pext.toFixed(1) + ' psi)', 18, 265);
+    ctx.restore();
+
+    // --- Right Side: Factor A vs Factor B Chart ---
+    ctx.save();
+    ctx.translate(340, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('ASME Sec II-D External Pressure Curve', 40, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(320, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Strain Factor A (Log Scale)', 120, 245);
+
+    // Grid ticks
+    ctx.fillText('10^-5', 40, 233);
+    ctx.fillText('10^-4', 120, 233);
+    ctx.fillText('10^-3', 200, 233);
+    ctx.fillText('10^-2', 280, 233);
+
+    ctx.fillText('20k', 6, 85);
+    ctx.fillText('10k', 6, 150);
+    ctx.fillText('2k', 12, 210);
+
+    ctx.strokeStyle = '#334155';
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(30, 80);
+    ctx.lineTo(320, 80);
+    ctx.moveTo(30, 145);
+    ctx.lineTo(320, 145);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Material Curve (Elastic straight slope to yield plateau)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(35, 215);
+    ctx.lineTo(135, 125);
+    ctx.bezierCurveTo(180, 85, 240, 75, 310, 65);
+    ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Material Curve B(A)', 210, 55);
+
+    // Operating point
+    const pt_x = 145;
+    const pt_y = 120;
+    ctx.fillStyle = statusColor;
+    ctx.beginPath();
+    ctx.arc(pt_x, pt_y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = statusColor;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(pt_x, pt_y);
+    ctx.lineTo(pt_x, 220);
+    ctx.moveTo(30, pt_y);
+    ctx.lineTo(pt_x, pt_y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = statusColor;
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Design Point (A=' + factorA.toExponential(2) + ')', pt_x - 30, pt_y - 10);
+
+    ctx.restore();
+  }
+
+  function calcUg28() {
+    const matKey = document.getElementById('ug28_material').value;
+    const mat = MATERIALS[matKey] || MATERIALS['cs_sa516_70'];
+    const Do = Math.max(4, parseFloat(document.getElementById('ug28_do').value) || 72);
+    const t_nom = Math.max(0.05, parseFloat(document.getElementById('ug28_t').value) || 0.375);
+    const ca = Math.max(0, parseFloat(document.getElementById('ug28_ca').value) || 0);
+    const t_corroded = Math.max(0.02, t_nom - ca);
+    const Pext = Math.max(0.5, parseFloat(document.getElementById('ug28_pext').value) || 15.0);
+    const Temp = Math.max(-50, parseFloat(document.getElementById('ug28_temp').value) || 200);
+    const Nrings = Math.max(0, parseInt(document.getElementById('ug28_nrings').value) || 0);
+    const Ltotal = Math.max(12, parseFloat(document.getElementById('ug28_ltotal').value) || 240);
+
+    let L_eff = Ltotal;
+    if (Nrings > 0) {
+      L_eff = Ltotal / (Nrings + 1);
+      document.getElementById('ug28_l').value = L_eff.toFixed(1);
+    } else {
+      L_eff = Math.max(6, parseFloat(document.getElementById('ug28_l').value) || 120);
+    }
+    document.getElementById('ug28_ls_display').value = L_eff.toFixed(1) + ' in (' + (L_eff / 12).toFixed(1) + ' ft)';
+
+    const Do_over_t = Do / t_corroded;
+    const L_over_Do = L_eff / Do;
+
+    let tempDerate = 1.0;
+    if (Temp > 70) {
+      tempDerate = Math.max(0.70, 1.0 - ((Temp - 70) / 1000) * 0.25);
+    }
+    const E_actual = mat.E * tempDerate;
+
+    const clamped_L_over_Do = Math.min(50.0, Math.max(0.05, L_over_Do));
+    let factorA = 1.28 / (Math.pow(Do_over_t, 1.5) * clamped_L_over_Do);
+    if (factorA > 0.1) factorA = 0.1;
+
+    const A_yield = (2 * mat.Sy) / E_actual;
+    let factorB = 0;
+    let regime = 'Elastic Buckling';
+
+    if (factorA <= A_yield) {
+      factorB = (factorA * E_actual) / 2;
+      regime = 'Elastic Instability (B=(A*E)/2)';
+    } else {
+      const excess = factorA - A_yield;
+      factorB = mat.Sy * (1 - 0.5 * Math.exp(-excess / (2 * A_yield)));
+      regime = 'Inelastic / Plastic Transition';
+    }
+
+    const Pa = (4 * factorB) / (3 * Do_over_t);
+    const marginPct = ((Pa - Pext) / Pext) * 100;
+    const isAdequate = Pa >= Pext;
+
+    const term = (0.8533 * E_actual) / (Pext * clamped_L_over_Do);
+    const req_Do_over_t = Math.pow(term, 1 / 2.5);
+    const t_min_corroded = Do / req_Do_over_t;
+    const t_min_nominal = t_min_corroded + ca;
+
+    const As_est = 0.15 * t_corroded * L_eff;
+    const factorA_ring = 1.1 * factorA;
+    const Is_req = (Math.pow(Do, 2) * L_eff * (t_corroded + As_est / L_eff) * factorA_ring) / 14.0;
+
+    // Update DOM KPIs
+    document.getElementById('res_ug28_pa').textContent = Pa.toFixed(2) + ' psi';
+    document.getElementById('res_ug28_fact_a').textContent = factorA.toExponential(3);
+    document.getElementById('res_ug28_fact_b').textContent = Math.round(factorB).toLocaleString() + ' psi';
+
+    const elStatus = document.getElementById('res_ug28_status');
+    const elMargin = document.getElementById('res_ug28_margin');
+    if (isAdequate) {
+      elStatus.textContent = 'PASS (Code Compliant)';
+      elStatus.style.color = '#10b981';
+      elMargin.textContent = '+' + marginPct.toFixed(1) + '% above ' + Pext + ' psi';
+    } else {
+      elStatus.textContent = 'FAIL (Buckling Hazard)';
+      elStatus.style.color = '#ef4444';
+      elMargin.textContent = marginPct.toFixed(1) + '% below ' + Pext + ' psi';
+    }
+
+    document.getElementById('res_ug28_tmin').textContent = t_min_nominal.toFixed(4) + ' in';
+    document.getElementById('res_ug28_is').textContent = Is_req.toFixed(2) + ' in⁴';
+    document.getElementById('res_ug28_regime').textContent = regime.split(' ')[0];
+
+    // Status Badge
+    const elBadge = document.getElementById('ug28_status_badge');
+    if (!isAdequate) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; CODE VIOLATION: Pa (' + Pa.toFixed(1) + ' psi) < Pext (' + Pext + ' psi). Vessel will buckle!</span>';
+    } else if (marginPct < 15) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; CAUTION: Marginal safety buffer (' + marginPct.toFixed(1) + '%). Recommend thickening or adding stiffener.</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; COMPLIANT: Full ASME Section VIII UG-28 criteria satisfied.</span>';
+    }
+
+    // Populate Table
+    const tableData = [
+      { met: 'Outside Diameter / Corroded Thickness', sym: 'Do / t', val: Do_over_t.toFixed(1), ref: 'UG-28(c)(2)', sig: 'Slenderness parameter governing shell hoop buckling' },
+      { met: 'Effective Unsupported Length / Diameter', sym: 'L / Do', val: L_over_Do.toFixed(3), ref: 'UG-28(c)(2)', sig: 'Aspect ratio between heads or vacuum stiffener rings' },
+      { met: 'Elastic Modulus at Temperature', sym: 'E(T)', val: (E_actual / 1e6).toFixed(2) + ' Mpsi', ref: 'Sec II-D Subpart 2', sig: 'Derated for ' + Temp + ' deg F operating condition' },
+      { met: 'ASME Section II-D Strain Factor', sym: 'Factor A', val: factorA.toExponential(4), ref: 'Fig G (Geometric)', sig: 'Dimensionless strain parameter in external chart' },
+      { met: 'ASME Section II-D Stress Factor', sym: 'Factor B', val: Math.round(factorB).toLocaleString() + ' psi', ref: 'Fig ' + mat.chart, sig: 'Allowable compressive buckling stress' },
+      { met: 'Max Allowable External Pressure', sym: 'Pa (MAEP)', val: Pa.toFixed(2) + ' psig', ref: 'UG-28 Step 6', sig: 'Maximum external working pressure rating' },
+      { met: 'UG-29 Stiffener Min Required Inertia', sym: 'Is', val: Is_req.toFixed(2) + ' in⁴', ref: 'UG-29(a)', sig: 'Minimum moment of inertia of ring + participating shell band' }
+    ];
+
+    let trows = '';
+    tableData.forEach(r => {
+      trows += '<tr>' +
+        '<td><strong>' + r.met + '</strong></td>' +
+        '<td style="font-family:var(--mono);">' + r.sym + '</td>' +
+        '<td style="font-family:var(--mono); font-weight:bold;">' + r.val + '</td>' +
+        '<td>' + r.ref + '</td>' +
+        '<td style="font-size:0.8rem; color:var(--text-muted);">' + r.sig + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('ug28_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawUg28Canvas(Do, t_corroded, L_eff, Nrings, Pa, Pext, isAdequate, factorA, factorB);
+  }
+
+  const inputs = [
+    'ug28_material', 'ug28_do', 'ug28_t', 'ug28_l', 'ug28_temp',
+    'ug28_pext', 'ug28_ca', 'ug28_nrings', 'ug28_ltotal'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcUg28);
+      el.addEventListener('change', calcUg28);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_ug28_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const matSelect = document.getElementById('ug28_material');
+      const txt = [
+        '=======================================================',
+        'ASME SECTION VIII DIV 1 UG-28 EXTERNAL PRESSURE REPORT',
+        'Standards: ASME BPVC Section VIII-1 (UG-28, UG-29), Sec II-D',
+        '=======================================================',
+        'Material Specification:      ' + matSelect.options[matSelect.selectedIndex].text,
+        'Outside Shell Diameter (Do): ' + document.getElementById('ug28_do').value + ' inches',
+        'Nominal Wall Thickness:      ' + document.getElementById('ug28_t').value + ' inches',
+        'Corrosion Allowance (CA):    ' + document.getElementById('ug28_ca').value + ' inches',
+        'Design Length (L):           ' + document.getElementById('ug28_l').value + ' inches',
+        'Design Temperature:          ' + document.getElementById('ug28_temp').value + ' deg F',
+        'External Design Pressure:    ' + document.getElementById('ug28_pext').value + ' psi',
+        'Number of Stiffener Rings:   ' + document.getElementById('ug28_nrings').value,
+        '-------------------------------------------------------',
+        'CALCULATED BUCKLING & MAEP PARAMETERS:',
+        'ASME Strain Factor A:        ' + document.getElementById('res_ug28_fact_a').textContent,
+        'ASME Stress Factor B:        ' + document.getElementById('res_ug28_fact_b').textContent,
+        'Allowable Ext Pressure (Pa): ' + document.getElementById('res_ug28_pa').textContent,
+        'Compliance Status:           ' + document.getElementById('res_ug28_status').textContent + ' (' + document.getElementById('res_ug28_margin').textContent + ')',
+        'Minimum Required Thickness:  ' + document.getElementById('res_ug28_tmin').textContent,
+        'UG-29 Stiffener Req Inertia: ' + document.getElementById('res_ug28_is').textContent,
+        'Buckling Mechanics Regime:   ' + document.getElementById('res_ug28_regime').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ ASME Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcUg28();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BJ4: Gas Turbine Compressor Water Washing Frequency & Degradation Calculator
+  // ==========================================
+  (() => {
+    const slug = 'gas-turbine-compressor-wash-calculator';
+    const title = 'Gas Turbine Compressor Water Washing Frequency & Degradation Calculator';
+    const metaDescription = 'Calculate gas turbine axial compressor fouling degradation, online vs offline water wash scheduling, recoverable heat rate and megawatt capacity loss, and NPV economic wash optimization per ASME PTC 22 and ISO 2314.';
+
+    const faq = [
+      {
+        q: 'What is the difference between online and offline (crank) gas turbine compressor water washing?',
+        a: 'Online water washing is performed while the gas turbine is operating at baseload or partial load (typically 60% to 100% power) by injecting high-pressure atomized demineralized water into the compressor inlet bellmouth. It cleans primarily the inlet guide vanes (IGVs) and first 2 to 3 stages to arrest the rate of fouling accumulation. Offline (crank) washing is performed while the unit is shut down and cooled below 150 deg F, rotating on starter motor/turning gear at 20% to 25% speed. Offline washing cleans all compressor stages with hot detergent soak and water rinse, recovering 85% to 95% of lost performance.'
+      },
+      {
+        q: 'How does compressor fouling affect gas turbine power output and heat rate?',
+        a: 'The axial compressor absorbs roughly 55% to 60% of total expander shaft power to compress ambient air to combustor pressure. When airborne contaminants (dust, pollen, oil mist, salt) foul blade airfoils, compressor aerodynamic efficiency drops and mass flow decreases. Per ASME PTC 22, a 1% decrease in compressor efficiency typically results in a 1.5% to 2.0% loss in net gas turbine power output and a 0.8% to 1.2% increase in heat rate (fuel consumption per kWh).'
+      },
+      {
+        q: 'What water purity specifications are required for gas turbine water washing?',
+        a: 'Water must meet strict OEM specifications (e.g. GE GEK 107122 or Siemens specs) requiring high-purity demineralized water with total dissolved solids (TDS) < 5 ppm, conductivity < 5 uS/cm, and total alkali metals (Sodium Na + Potassium K) < 25 ppb (parts per billion). If unpurified tap water is used, sodium and potassium combine with fuel sulfur at combustor temperatures to form molten sodium sulfate (Na2SO4) eutectic slag that rapidly destroys cobalt and nickel superalloy turbine blades via Type I hot corrosion.'
+      },
+      {
+        q: 'How is the optimal economic offline wash interval calculated?',
+        a: 'The optimal wash interval balances the financial penalty of running a degraded turbine (accumulated fuel waste and lost spark spread generation revenue) against the cost of performing an offline wash (outage lost generation profit, start/stop equivalent operating hours (EOH) penalty on major overhauls, demin water and chemical costs). Mathematically, the optimal interval (t_opt) occurs at the minimum of total cost per operating hour: t_opt = sqrt([2 * C_wash] / k_degrade), where k_degrade is the hourly accumulation rate of fuel penalty and lost capacity.'
+      },
+      {
+        q: 'Why must online compressor washing never be conducted below 40 deg F (4.4 deg C)?',
+        a: 'As ambient air accelerates into the gas turbine inlet bellmouth and across the inlet guide vanes (accelerating from static to Mach 0.4–0.5), static air temperature drops by 8 to 12 deg F due to the compressible Venturi effect. If ambient temperature is below 40 deg F, injected wash water droplets will freeze instantly onto the IGVs and inlet silencers. Large ice sheets then break off and enter the spinning rotor at 10,000+ RPM, causing catastrophic foreign object damage (FOD) blade shearing.'
+      }
+    ];
+
+    const content = `
+<style>
+.wash-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.wash-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.wash-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.wash-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .wash-grid-2, .wash-grid-3, .wash-grid-4 { grid-template-columns: 1fr; }
+}
+.wash-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.wash-input, .wash-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.wash-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.wash-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.wash-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.wash-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.wash-btn:hover { opacity: 0.9; }
+.wash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.wash-table th, .wash-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.wash-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="wash-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Gas Turbine Baseline & Degradation Operating Parameters</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">ASME PTC 22 & ISO 2314 Compressor Washing & Spark Spread Optimization</div>
+    </div>
+    <div>
+      <label class="wash-label">Turbine Frame Preset</label>
+      <select id="wash_preset" class="wash-select" style="min-width: 280px;">
+        <option value="ge_7f">GE 7F.05 Heavy Duty (240 MW, HR 9,150 Btu/kWh)</option>
+        <option value="ge_9f">GE 9F.04 (280 MW, HR 9,200 Btu/kWh)</option>
+        <option value="siemens_sgt6_5000">Siemens SGT6-5000F (260 MW, HR 9,180 Btu/kWh)</option>
+        <option value="lm6000">GE LM6000 Aeroderivative (50 MW, HR 8,500 Btu/kWh)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="wash-grid-3">
+    <div>
+      <label class="wash-label">Rated ISO Base Power (P_base) <span>MW</span></label>
+      <input type="number" id="wash_pbase" class="wash-input" value="240" step="5" min="5" max="600">
+    </div>
+    <div>
+      <label class="wash-label">Clean Baseline Heat Rate (HR_0) <span>Btu/kWh (LHV)</span></label>
+      <input type="number" id="wash_hr0" class="wash-input" value="9150" step="50" min="6000" max="15000">
+    </div>
+    <div>
+      <label class="wash-label">Operating Hours Since Last Wash <span>hours</span></label>
+      <input type="number" id="wash_hours" class="wash-input" value="1200" step="50" min="10" max="8760">
+    </div>
+  </div>
+
+  <div class="wash-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="wash-label">Fuel Gas Price (C_fuel) <span>$/MMBtu</span></label>
+      <input type="number" id="wash_cfuel" class="wash-input" value="3.50" step="0.25" min="1.0" max="25.0">
+    </div>
+    <div>
+      <label class="wash-label">Electricity Power Price (P_elec) <span>$/MWh</span></label>
+      <input type="number" id="wash_pelec" class="wash-input" value="65.00" step="2.5" min="15.0" max="300.0">
+    </div>
+    <div>
+      <label class="wash-label">Compressor Degradation Rate <span>% power loss / 1000h</span></label>
+      <input type="number" id="wash_degrate" class="wash-input" value="2.5" step="0.1" min="0.5" max="8.0">
+    </div>
+    <div>
+      <label class="wash-label">Recoverable Fouling Fraction <span>%</span></label>
+      <input type="number" id="wash_recfrac" class="wash-input" value="80" step="5" min="40" max="95">
+    </div>
+  </div>
+
+  <div class="wash-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="wash-label">Offline Outage Duration <span>hours (cool + wash)</span></label>
+      <input type="number" id="wash_outage" class="wash-input" value="10" step="1" min="4" max="24">
+    </div>
+    <div>
+      <label class="wash-label">Direct Wash Costs (Demin/Chem/Labor) <span>$</span></label>
+      <input type="number" id="wash_cdirect" class="wash-input" value="3500" step="250" min="500" max="25000">
+    </div>
+    <div>
+      <label class="wash-label">EOH Thermal Start Cycle Penalty <span>$ / start</span></label>
+      <input type="number" id="wash_ceoh" class="wash-input" value="4500" step="500" min="0" max="20000">
+    </div>
+  </div>
+</div>
+
+<div class="wash-box">
+  <h3 style="margin-top: 0;">Degradation Diagnostics & Optimal Wash Schedule</h3>
+  <div class="wash-grid-4">
+    <div class="wash-kpi">
+      <div class="wash-kpi-lbl">Current Lost Generation</div>
+      <div class="wash-kpi-val" id="res_wash_plost">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_wash_pct_lost">-- % capacity drop</div>
+    </div>
+    <div class="wash-kpi">
+      <div class="wash-kpi-lbl">Current Degraded Heat Rate</div>
+      <div class="wash-kpi-val" id="res_wash_hrcur">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_wash_hrpenalty">+-- Btu/kWh penalty</div>
+    </div>
+    <div class="wash-kpi">
+      <div class="wash-kpi-lbl">Hourly Financial Loss Rate</div>
+      <div class="wash-kpi-val" id="res_wash_hourly_loss">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Fuel waste + lost margin / hr</div>
+    </div>
+    <div class="wash-kpi">
+      <div class="wash-kpi-lbl">Optimal Wash Interval</div>
+      <div class="wash-kpi-val" id="res_wash_opt_hours" style="color: #10b981;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_wash_opt_days">-- operating days</div>
+    </div>
+  </div>
+
+  <div class="wash-grid-3" style="margin-top: 1rem;">
+    <div class="wash-kpi">
+      <div class="wash-kpi-lbl">Total Cost of Offline Wash</div>
+      <div class="wash-kpi-val" id="res_wash_cwash_tot">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Outage + EOH + direct costs</div>
+    </div>
+    <div class="wash-kpi">
+      <div class="wash-kpi-lbl">Cumulative Degradation Loss</div>
+      <div class="wash-kpi-val" id="res_wash_cum_loss">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Since last water wash</div>
+    </div>
+    <div class="wash-kpi">
+      <div class="wash-kpi-lbl">Net Annual Profit from Washing</div>
+      <div class="wash-kpi-val" id="res_wash_net_benefit">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">vs unwashed continuous run</div>
+    </div>
+  </div>
+</div>
+
+<div class="wash-box">
+  <h3 style="margin-top: 0;">Interactive Compressor Fouling & Economic Wash Optimization Curve</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="wash_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">Water Wash Operational Strategy Comparison</h4>
+  <table class="wash-table">
+    <thead>
+      <tr>
+        <th>Washing Methodology</th>
+        <th>Turbine Status</th>
+        <th>Performance Recovery</th>
+        <th>Applicable Contaminants</th>
+        <th>Execution Constraints</th>
+      </tr>
+    </thead>
+    <tbody id="wash_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_wash_copy" class="wash-btn">
+      <span>📋 Copy Full Compressor Wash Optimization Report</span>
+    </button>
+    <div id="wash_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="wash-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Economic Derivations</h3>
+  
+  <p>Gas turbine compressor washing economics are governed by the thermodynamics of axial compression combined with electrical market spark spread dynamics. Because the axial compressor consumes over half the turbine power, minor aerodynamic boundary layer degradation multiplies across 14 to 18 compressor stages.</p>
+
+  <div class="formula-box">
+1. Power Degradation Profile:
+   P_lost(t) = P_base * [ (Rate_deg / 1000) * t ] * (Rec_frac / 100)
+   Where:
+     P_base   = ISO rated clean turbine capacity (MW)
+     Rate_deg = Degradation rate (% capacity loss per 1000 operating hours)
+     Rec_frac = Recoverable fouling fraction (typically 75% to 85%)
+
+2. Heat Rate Degradation (Fuel Heat Consumption Penalty):
+   Delta HR(t) = HR_0 * [ 0.55 * (P_lost(t) / P_base) ]
+   HR(t)       = HR_0 + Delta HR(t)  (Btu / kWh)
+
+3. Fuel Cost Penalty & Lost Spark Spread Margin:
+   Fuel_waste_rate($/hr) = P_base * 1000 * Delta HR(t) * [ C_fuel / 1e6 ]
+   Spark_Spread($/MWh)   = P_elec - [ (HR_0 / 1e6) * C_fuel * 1000 ]
+   Lost_Capacity($/hr)   = P_lost(t) * Spark_Spread
+   Total_Hourly_Loss(t)  = Fuel_waste_rate($/hr) + Lost_Capacity($/hr)
+
+4. Total Single Offline Wash Investment Cost (C_wash):
+   C_outage = Outage_hours * P_base * Spark_Spread
+   C_wash   = C_outage + C_eoh_start + C_direct
+
+5. Economically Optimal Offline Wash Interval (t_opt):
+   C_avg(t) = [ C_wash + 0.5 * k_loss * t^2 ] / t
+   Setting d(C_avg) / dt = 0:
+   t_opt = sqrt[ (2 * C_wash) / k_loss ]
+   Where:
+     k_loss = Total_Hourly_Loss(t) / t  ($ / hr^2)
+  </div>
+
+  <p>If washing is performed too frequently, excessive shutdown generation losses and thermal cycle EOH penalties overwhelm the fuel savings. Conversely, if washing is delayed too long, cumulative fuel waste and lost electrical generation revenue drain hundreds of thousands of dollars in operating profit.</p>
+</div>
+
+<div class="wash-box">
+  <h3 style="margin-top: 0;">5 Fatal Traps & Engineering Pitfalls</h3>
+
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h4 style="color: #ef4444;">1. Washing a Hot Compressor (Thermal Shock & Blade Tip Rubbing)</h4>
+    <p>Initiating offline water washing before the compressor casing and wheel space temperatures drop below 150&deg;F (65&deg;C) causes severe thermal shock. Injected water rapidly contracts the thin rotor blade tips faster than the thick outer compressor casing. The resulting differential thermal contraction causes catastrophic titanium and stainless blade tip rubbing, galling against honeycomb abradable shroud seals, and casing distortion that seizes the rotor.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="color: #f59e0b;">2. Sub-Freezing Ambient Washing Forming Lethal Bellmouth Ice</h4>
+    <p>Performing online water wash when ambient dry-bulb temperature is below 40&deg;F (4.4&deg;C) is fatal. As air accelerates into the inlet bellmouth from static to Mach 0.45, static temperature drops by 8&deg;F to 12&deg;F due to adiabatic expansion. Injected water droplets instantly freeze into solid ice sheets on inlet guide vanes. Within seconds, large ice sheets break loose, entering the 3,600/3,000 RPM rotor and destroying Stage 1 blades via foreign object damage (FOD).</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h4 style="color: #10b981;">3. Non-Demineralized Water Triggering Hot Gas Path Corrosion</h4>
+    <p>Compressor wash water must strictly adhere to OEM specs (<5 ppm TDS, <25 ppb Sodium Na + Potassium K). Using tap or softened water injects alkali salts that pass directly through the compressor into the 2,100&deg;F combustor. Sodium combines with trace fuel sulfur to produce molten sodium sulfate ($Na_2SO_4$) slag that aggressively attacks thermal barrier coatings (TBC) and superalloy single-crystal turbine blades via catastrophic Type I hot corrosion.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h4 style="color: #3b82f6;">4. Coarse Water Droplet Size (>100 um) Leading-Edge Erosion</h4>
+    <p>Online wash nozzle manifolds must produce atomized mist with Sauter mean droplet diameter between 25 and 50 microns. If wash nozzles clog or atomizing air pressure drops, droplet diameters swell above 100 to 150 microns. At relative velocities exceeding 350 m/s at the rotor tip, oversized droplets cause severe liquid droplet impingement erosion, pitting and thinning the sharp aerodynamic leading edges of costly titanium compressor blades.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h4 style="color: #8b5cf6;">5. Blocked Casing Bottom Drains Causing Combustor Flameout & Hammer</h4>
+    <p>During offline crank washing, hundreds of gallons of oily wash effluent and dissolved surfactant wash down to the bottom casing drains. If technicians fail to verify that all casing drain valves are locked open and clear of sludge, wash liquid pools in the compressor discharge casing and combustor plenum. On subsequent high-speed startup, the trapped water slugs into the fuel nozzles, causing immediate combustor blowout, thermal flameout trips, and severe exhaust duct implosion.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'ge_7f':            { pbase: 240, hr0: 9150, degrate: 2.5, outage: 10, cdirect: 3500, ceoh: 4500 },
+    'ge_9f':            { pbase: 280, hr0: 9200, degrate: 2.8, outage: 12, cdirect: 4200, ceoh: 5500 },
+    'siemens_sgt6_5000': { pbase: 260, hr0: 9180, degrate: 2.6, outage: 10, cdirect: 3800, ceoh: 4800 },
+    'lm6000':           { pbase: 50,  hr0: 8500, degrate: 3.2, outage: 6,  cdirect: 2000, ceoh: 2500 }
+  };
+
+  function drawWashCanvas(curHours, optHours, Cwash, k_loss, Plost, hourlyLoss) {
+    const canvas = document.getElementById('wash_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // --- Left Side: Degradation Sawtooth Curve ---
+    ctx.save();
+    ctx.translate(40, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Compressor Degradation Sawtooth', 30, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(280, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Operating Hours', 120, 245);
+
+    // Y Ticks
+    ctx.fillText('100%', 2, 35);
+    ctx.fillText('95%', 8, 125);
+    ctx.fillText('90%', 8, 215);
+
+    ctx.strokeStyle = '#334155';
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(30, 30);
+    ctx.lineTo(280, 30);
+    ctx.moveTo(30, 120);
+    ctx.lineTo(280, 120);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Sawtooth path
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(30, 30);
+    ctx.lineTo(135, 125);
+    ctx.stroke();
+
+    // Recovery vertical line
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(135, 125);
+    ctx.lineTo(135, 45);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Second cycle
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(135, 45);
+    ctx.lineTo(240, 140);
+    ctx.stroke();
+
+    // Current point
+    const progress = Math.min(1.0, curHours / Math.max(1, optHours));
+    const cur_x = 30 + progress * 105;
+    const cur_y = 30 + progress * 95;
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(cur_x, cur_y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Now (' + curHours + 'h)', cur_x - 10, cur_y - 8);
+
+    // Callout box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(35, 155, 135, 40);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(35, 155, 135, 40);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Lost: -' + Plost.toFixed(1) + ' MW', 43, 172);
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Loss: $' + Math.round(hourlyLoss) + '/hr', 43, 187);
+
+    ctx.restore();
+
+    // --- Right Side: Cost U-Curve vs Interval ---
+    ctx.save();
+    ctx.translate(350, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Economic Wash Optimization U-Curve', 30, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(310, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Wash Interval (Hours)', 130, 245);
+
+    // U-curve
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(45, 60);
+    ctx.bezierCurveTo(90, 180, 140, 190, 170, 190);
+    ctx.bezierCurveTo(200, 190, 250, 175, 300, 100);
+    ctx.stroke();
+
+    // Optimal line
+    const opt_x = 170;
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 2]);
+    ctx.beginPath();
+    ctx.moveTo(opt_x, 30);
+    ctx.lineTo(opt_x, 220);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(opt_x, 190, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Optimal: ' + optHours + ' h', opt_x - 30, 25);
+
+    // Callout
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(60, 60, 140, 40);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(60, 60, 140, 40);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Single Wash Outlay:', 68, 76);
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('$' + Math.round(Cwash).toLocaleString(), 68, 92);
+
+    ctx.restore();
+  }
+
+  function calcWash() {
+    const Pbase = Math.max(1, parseFloat(document.getElementById('wash_pbase').value) || 240);
+    const HR0 = Math.max(4000, parseFloat(document.getElementById('wash_hr0').value) || 9150);
+    const hours = Math.max(1, parseFloat(document.getElementById('wash_hours').value) || 1200);
+    const Cfuel = Math.max(0.5, parseFloat(document.getElementById('wash_cfuel').value) || 3.5);
+    const Pelec = Math.max(5, parseFloat(document.getElementById('wash_pelec').value) || 65.0);
+    const degRate = Math.max(0.1, parseFloat(document.getElementById('wash_degrate').value) || 2.5) / 1000;
+    const recFrac = Math.max(0.1, parseFloat(document.getElementById('wash_recfrac').value) || 80) / 100;
+    const outageHrs = Math.max(1, parseFloat(document.getElementById('wash_outage').value) || 10);
+    const Cdirect = Math.max(0, parseFloat(document.getElementById('wash_cdirect').value) || 3500);
+    const Ceoh = Math.max(0, parseFloat(document.getElementById('wash_ceoh').value) || 4500);
+
+    const fuelCostPerMWh = (HR0 / 1e6) * Cfuel * 1000;
+    const sparkSpread = Math.max(5, Pelec - fuelCostPerMWh);
+
+    const pctLossCurrent = Math.min(0.20, (degRate * hours) * recFrac);
+    const Plost_MW = Pbase * pctLossCurrent;
+    const Pcur_MW = Pbase - Plost_MW;
+
+    const hrPenaltyCurrent = HR0 * (pctLossCurrent * 0.55);
+    const HRcur = HR0 + hrPenaltyCurrent;
+
+    const extraFuelPerHour = Pcur_MW * 1000 * hrPenaltyCurrent * (Cfuel / 1e6);
+    const lostRevPerHour = Plost_MW * sparkSpread;
+    const totalHourlyLoss = extraFuelPerHour + lostRevPerHour;
+
+    const k_loss = totalHourlyLoss / hours;
+
+    const Coutage = outageHrs * Pbase * sparkSpread;
+    const CwashTotal = Coutage + Ceoh + Cdirect;
+
+    const t_opt = Math.max(100, Math.round(Math.sqrt((2 * CwashTotal) / Math.max(0.001, k_loss))));
+    const t_opt_days = (t_opt / 24).toFixed(1);
+
+    const cumLoss = 0.5 * k_loss * Math.pow(hours, 2);
+
+    const annualHours = 8000;
+    const unwashedAnnualLoss = 0.5 * k_loss * Math.pow(annualHours, 2);
+    const numWashes = annualHours / t_opt;
+    const washedAnnualLoss = numWashes * (CwashTotal + 0.5 * k_loss * Math.pow(t_opt, 2));
+    const netAnnualBenefit = Math.max(0, unwashedAnnualLoss - washedAnnualLoss);
+
+    // Update KPIs
+    document.getElementById('res_wash_plost').textContent = Plost_MW.toFixed(1) + ' MW';
+    document.getElementById('res_wash_pct_lost').textContent = (pctLossCurrent * 100).toFixed(2) + '% capacity drop';
+    document.getElementById('res_wash_hrcur').textContent = Math.round(HRcur).toLocaleString() + ' Btu/kWh';
+    document.getElementById('res_wash_hrpenalty').textContent = '+' + Math.round(hrPenaltyCurrent) + ' Btu/kWh penalty';
+    document.getElementById('res_wash_hourly_loss').textContent = '$' + Math.round(totalHourlyLoss).toLocaleString() + ' / hr';
+    document.getElementById('res_wash_opt_hours').textContent = t_opt.toLocaleString() + ' hrs';
+    document.getElementById('res_wash_opt_days').textContent = t_opt_days + ' operating days';
+    document.getElementById('res_wash_cwash_tot').textContent = '$' + Math.round(CwashTotal).toLocaleString();
+    document.getElementById('res_wash_cum_loss').textContent = '$' + Math.round(cumLoss).toLocaleString();
+    document.getElementById('res_wash_net_benefit').textContent = '+$' + Math.round(netAnnualBenefit).toLocaleString() + ' / yr';
+
+    // Status badge
+    const elBadge = document.getElementById('wash_status_badge');
+    if (hours > t_opt * 1.25) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; OVERDUE: Operating hours (' + hours + ' h) exceed optimal interval (' + t_opt + ' h). Fuel waste is severe!</span>';
+    } else if (hours >= t_opt * 0.9) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; SCHEDULE WASH: Currently at optimal wash threshold. Plan offline outage now.</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; OPTIMAL: Operating within economic window (' + (t_opt - hours) + ' h until optimal wash).</span>';
+    }
+
+    // Populate Table
+    const tableData = [
+      {
+        tech: 'Online Water Wash',
+        status: 'Fired at Baseload (60-100% MW)',
+        rec: '25% - 40% Recoverable',
+        contam: 'Light airborne dust, pollen, dry particulates on IGV / Stages 1-3',
+        con: 'Demin water only (<5 ppm TDS). Prohibited if ambient temp < 40 deg F (icing risk).'
+      },
+      {
+        tech: 'Offline (Crank) Wash',
+        status: 'Shutdown, Cooled, Crank Speed (20%)',
+        rec: '85% - 95% Recoverable',
+        contam: 'Lube oil mist, heavy industrial soot, sticky hydrocarbons, sea salts across all stages',
+        con: 'Requires 6-12 hr outage, wheel temp < 150 deg F, full open drain valves, surfactant soak.'
+      },
+      {
+        tech: 'Major Overhaul / HGPI',
+        status: 'Turbine Disassembled',
+        rec: '100% Non-Recoverable',
+        contam: 'Erosion grooves, blade coating oxidation, seal tip rubs, blade surface pitting',
+        con: 'Performed every 24,000 to 32,000 EOH. Reblading and precision aero re-coating.'
+      }
+    ];
+
+    let trows = '';
+    tableData.forEach(r => {
+      trows += '<tr>' +
+        '<td><strong>' + r.tech + '</strong></td>' +
+        '<td>' + r.status + '</td>' +
+        '<td><span style="color:var(--primary); font-weight:600;">' + r.rec + '</span></td>' +
+        '<td>' + r.contam + '</td>' +
+        '<td style="font-size:0.8rem; color:var(--text-muted);">' + r.con + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('wash_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawWashCanvas(hours, t_opt, CwashTotal, k_loss, Plost_MW, totalHourlyLoss);
+  }
+
+  const elPreset = document.getElementById('wash_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('wash_pbase').value = p.pbase;
+        document.getElementById('wash_hr0').value = p.hr0;
+        document.getElementById('wash_degrate').value = p.degrate;
+        document.getElementById('wash_outage').value = p.outage;
+        document.getElementById('wash_cdirect').value = p.cdirect;
+        document.getElementById('wash_ceoh').value = p.ceoh;
+        calcWash();
+      }
+    });
+  }
+
+  const inputs = [
+    'wash_pbase', 'wash_hr0', 'wash_hours', 'wash_cfuel', 'wash_pelec',
+    'wash_degrate', 'wash_recfrac', 'wash_outage', 'wash_cdirect', 'wash_ceoh'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcWash();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_wash_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=======================================================',
+        'GAS TURBINE COMPRESSOR WASHING OPTIMIZATION REPORT',
+        'Standards: ASME PTC 22, ISO 2314, OEM Guidelines',
+        '=======================================================',
+        'Turbine Rating (ISO Base):    ' + document.getElementById('wash_pbase').value + ' MW',
+        'Baseline Clean Heat Rate:     ' + document.getElementById('wash_hr0').value + ' Btu/kWh',
+        'Current Operating Hours:      ' + document.getElementById('wash_hours').value + ' hrs',
+        'Fuel Gas Price:               $' + document.getElementById('wash_cfuel').value + ' / MMBtu',
+        'Electricity Power Price:      $' + document.getElementById('wash_pelec').value + ' / MWh',
+        'Degradation Rate:             ' + document.getElementById('wash_degrate').value + ' % / 1000h',
+        'Recoverable Fouling:          ' + document.getElementById('wash_recfrac').value + ' %',
+        'Offline Outage Duration:      ' + document.getElementById('wash_outage').value + ' hrs',
+        'Total Single Wash Investment: ' + document.getElementById('res_wash_cwash_tot').textContent,
+        '-------------------------------------------------------',
+        'CALCULATED PERFORMANCE & ECONOMIC METRICS:',
+        'Current Lost Generation:      ' + document.getElementById('res_wash_plost').textContent + ' (' + document.getElementById('res_wash_pct_lost').textContent + ')',
+        'Degraded Heat Rate:           ' + document.getElementById('res_wash_hrcur').textContent + ' (' + document.getElementById('res_wash_hrpenalty').textContent + ')',
+        'Current Hourly Financial Loss:' + document.getElementById('res_wash_hourly_loss').textContent,
+        'Cumulative Loss Since Wash:   ' + document.getElementById('res_wash_cum_loss').textContent,
+        'Optimal Offline Wash Interval:' + document.getElementById('res_wash_opt_hours').textContent + ' (' + document.getElementById('res_wash_opt_days').textContent + ')',
+        'Net Annual Washing Benefit:   ' + document.getElementById('res_wash_net_benefit').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Wash Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcWash();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+console.log('  ✓ Built Trade & Construction Suite (191 calculators in /calc/)');
 }
 
