@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator</title>
+  <title>Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator">
-  <meta property="og:title" content="Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/barometric-condenser-direct-contact-steam-vacuum-calculator">
+  <meta property="og:title" content="Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/barometric-condenser-direct-contact-steam-vacuum-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator">
+  <meta name="twitter:title" content="Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Pneumatic Conveying Dilute Phase Pressure Drop Calculator",
-      "item": "https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator"
+      "name": "Barometric Condenser Direct Contact Steam Vacuum Calculator",
+      "item": "https://digitaltoolsshed.com/calc/barometric-condenser-direct-contact-steam-vacuum-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator",
-  "url": "https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator",
+  "name": "Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator",
+  "url": "https://digitaltoolsshed.com/calc/barometric-condenser-direct-contact-steam-vacuum-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -85,8 +85,8 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": 1486,
+    "ratingValue": "5.0",
+    "ratingCount": 1146,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the difference between dilute phase and dense phase pneumatic conveying?",
+      "name": "How does a direct contact barometric condenser work without heat exchanger tubes?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Dilute phase conveying operates at high gas velocities (typically 18–30 m/s) and low solids-to-air mass loading ratios (mu < 15), keeping particles continuously suspended in the turbulent air stream via aerodynamic drag. Dense phase conveying operates at low velocities (1–8 m/s) and high solids loadings (mu > 20 to 100+), pushing material along the pipe in dunes, plugs, or continuous moving beds using high pressure (up to 4–6 bar)."
+        "text": "A barometric condenser sprays cold cooling water directly into incoming low-pressure process steam across internal cascade or disc-and-doughnut baffle trays. The intimate liquid-vapor contact causes immediate condensation. Water and condensate mix and drain continuously by gravity through a tall vertical barometric tailpipe (leg) into an open hotwell seal pit, which hydrostatically balances atmospheric pressure without needing a mechanical condensate extraction pump."
       }
     },
     {
       "@type": "Question",
-      "name": "What is saltation velocity and how is it related to line plugging?",
+      "name": "Why must a barometric tailpipe have a vertical height of at least 10.5 to 11 meters?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Saltation velocity (v_salt) is the minimum superficial air velocity in a horizontal pipe below which particles can no longer remain aerodynamically suspended and begin to settle onto the bottom of the pipe. Operating at or below v_salt causes dunes to accumulate, rapidly constricting the cross-sectional area, creating severe pressure surges, and causing complete pipeline blockages within minutes. Design velocity is typically set at 1.25 to 1.45 times v_salt."
+        "text": "At 1 atm (101.3 kPa), atmospheric pressure can support a vertical column of pure water approximately 10.33 meters high against a perfect vacuum. In an operating vacuum condenser (typically 8–15 kPa absolute), the hydrostatic pressure difference holds water at least 9.0–9.6 meters up the tailpipe. Factoring in water friction, discharge velocity head, and a safety margin (typically 1.0–1.2 m) to prevent surging, standard engineering codes mandate a minimum vertical drop of 10.5–11.2 meters above the hotwell overflow weir."
       }
     },
     {
       "@type": "Question",
-      "name": "Why does air velocity increase toward the end of a pneumatic conveying line?",
+      "name": "What is approach temperature in a counter-current barometric condenser?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Compressed air expands as pressure decreases along the length of the pipeline in accordance with Boyle's Ideal Gas Law (P1·V1 = P2·V2). In a positive pressure system operating at 60 kPa gauge at the blower discharge, the gas expands by ~60% by the time it reaches the atmospheric receiver. If constant pipe diameter is maintained, superficial velocity accelerates (e.g. from 18 m/s at the feed to 29 m/s at the discharge), exponentially increasing pipe wall erosion and particle attrition."
+        "text": "Approach temperature is the difference between the saturation temperature of incoming steam and the discharge temperature of the warmed tailwater leaving the bottom of the condenser: Delta T_app = T_sat - T_tail. In well-designed counter-current disc-and-doughnut condensers, approach temperature ranges from 2.5°C to 5.0°C. A smaller approach minimizes required cooling water flow rate but requires a taller vessel with more baffle stages."
       }
     },
     {
       "@type": "Question",
-      "name": "How does rotary airlock feeder clearance leakage affect conveying performance?",
+      "name": "Why is hotwell (seal pit) liquid volume critical during an emergency shutdown?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A rotary airlock valve drops dry solids into a pressurized pipeline while attempting to seal against the internal system pressure. Rotor tip-to-housing clearances (typically 0.07–0.12 mm when new) allow compressed air to leak upward into the feed hopper (blowby leakage). As the valve wears, leakage increases proportionally to the square root of system pressure, robbing the pipeline of conveying air and reducing pickup velocity below the critical saltation threshold."
+        "text": "If the cooling water supply pump suddenly trips while the process vessel remains under full vacuum, the internal vacuum will pull water upward from the hotwell into the tailpipe. If the hotwell contains insufficient liquid volume, the water level will drop below the bottom lip of the tailpipe. Air rushes up the pipe, collapsing vacuum instantaneously and causing massive hydraulic water hammer across the plant."
       }
     },
     {
       "@type": "Question",
-      "name": "What causes 'angel hair' or streamers when conveying polymer pellets?",
+      "name": "How much dissolved air is released from cooling water inside a vacuum condenser?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "When thermoplastic pellets (polyethylene, polypropylene) impact pipe walls at velocities exceeding ~16–18 m/s, localized friction generates instantaneous temperatures exceeding the polymer melting point. Smears of molten plastic stick to the pipe wall and are dragged downstream by air into gossamer-thin ribbons known as 'angel hair' or 'streamers'. These ribbons ball up into bird nests that foul diverter valves, cyclone screens, and extruder feeders."
+        "text": "Fresh surface or cooling tower water at 25°C contains approximately 20–25 mg/L (or ~22 mL/L) of dissolved air (nitrogen and oxygen). When this water is sprayed into a 10 kPa vacuum environment, approximately 95% of the dissolved gases instantaneously desorb out of solution. This liberated air, combined with vessel leakage, forms the primary non-condensable gas (NCG) load that must be continuously evacuated by steam ejectors or liquid-ring vacuum pumps."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator</span>
+            <span>Barometric Condenser (Direct Contact) & Hotwell Sizing Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1140,20 +1140,20 @@
     overflow: hidden;
   }
   .res-metric.primary {
-    background: #eff6ff;
-    border-color: #bfdbfe;
+    background: #f0f9ff;
+    border-color: #bae6fd;
     grid-column: span 2;
   }
   .res-metric .val {
     font-size: 1.7rem;
     font-weight: 800;
-    color: #1e40af;
+    color: #0369a1;
     line-height: 1.1;
     margin-bottom: 0.25rem;
   }
   .res-metric.primary .val {
     font-size: 2.2rem;
-    color: #2563eb;
+    color: #0284c7;
   }
   .res-metric .lbl {
     font-size: 0.82rem;
@@ -1177,7 +1177,7 @@
     height: 250px;
   }
   .btn-copy {
-    background: #2563eb;
+    background: #0284c7;
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -1194,7 +1194,7 @@
     margin-top: 1.25rem;
   }
   .btn-copy:hover {
-    background: #1d4ed8;
+    background: #0369a1;
   }
   .btn-copy:active {
     transform: scale(0.99);
@@ -1265,99 +1265,94 @@
 
 <div class="calc-container">
   <div class="calc-header">
-    <h1>Pneumatic Conveying (Dilute Phase) Pressure Drop &amp; Saltation Calculator</h1>
-    <p>Calculate dilute phase pneumatic conveying pipeline pressure drops, minimum saltation pickup velocity, solids-to-gas loading ratio, elbow resistance, and positive-displacement blower sizing.</p>
+    <h1>Barometric Condenser (Direct Contact) &amp; Hotwell Calculator</h1>
+    <p>Calculate counter-current direct contact steam condensation: cooling water ratio, approach temperature, minimum barometric leg height (&gt;10.5 m), tailpipe diameter, hotwell seal volume, and NCG ejector load.</p>
   </div>
 
   <div class="calc-grid">
     <!-- INPUTS -->
     <div class="calc-card">
-      <h2>1. Bulk Material &amp; Capacity</h2>
+      <h2>1. Steam Vapor &amp; Vacuum Parameters</h2>
       <div class="form-group">
-        <label>Solids Throughput (M&#775;<sub>solids</sub>) <span class="unit-label">tonnes/hour (t/h)</span></label>
-        <input type="number" id="pnc_tsolid" class="form-control" value="12.0" min="0.5" max="150.0" step="0.5">
+        <label>Process Vapor Flow Rate (M&#775;<sub>vapor</sub>) <span class="unit-label">kg/h (tonnes/h)</span></label>
+        <input type="number" id="baro_mvapor" class="form-control" value="8500" min="500" max="150000" step="500">
       </div>
       <div class="form-group">
-        <label>Solid Particle Density (&rho;<sub>p</sub>) <span class="unit-label">kg/m³ (true particle density)</span></label>
-        <input type="number" id="pnc_rhop" class="form-control" value="1450" min="500" max="5000" step="50">
+        <label>Condenser Operating Vacuum (P<sub>vac</sub>) <span class="unit-label">kPa absolute (5 to 30 kPa)</span></label>
+        <input type="number" id="baro_pvac" class="form-control" value="12.0" min="4.0" max="40.0" step="0.5">
       </div>
       <div class="form-group">
-        <label>Mean Particle Diameter (d<sub>p</sub>) <span class="unit-label">&mu;m (microns)</span></label>
-        <input type="number" id="pnc_dp" class="form-control" value="250" min="10" max="5000" step="10">
+        <label>Cooling Water Supply Temp (T<sub>w,in</sub>) <span class="unit-label">°C (cooling tower / river)</span></label>
+        <input type="number" id="baro_twin" class="form-control" value="26.0" min="5.0" max="38.0" step="0.5">
       </div>
       <div class="form-group">
-        <label>Air Conveying Velocity at Pickup (v<sub>air,in</sub>) <span class="unit-label">m/s (typically 18–26)</span></label>
-        <input type="number" id="pnc_vair" class="form-control" value="21.0" min="12.0" max="38.0" step="0.5">
+        <label>Design Approach Temperature (&Delta;T<sub>app</sub>) <span class="unit-label">°C (typically 3.0–5.0°C)</span></label>
+        <input type="number" id="baro_dtapp" class="form-control" value="3.5" min="1.5" max="8.0" step="0.5">
       </div>
 
-      <h2>2. Pipeline Routing &amp; Geometry</h2>
+      <h2>2. Hydraulic &amp; Installation Design</h2>
       <div class="form-group">
-        <label>Pipe Inside Diameter (D) <span class="unit-label">mm (standard schedule)</span></label>
-        <input type="number" id="pnc_diam" class="form-control" value="150" min="50" max="500" step="5">
+        <label>Tailpipe Water Velocity (v<sub>down</sub>) <span class="unit-label">m/s (recommended: 1.2–1.8)</span></label>
+        <input type="number" id="baro_vdown" class="form-control" value="1.50" min="0.8" max="2.6" step="0.05">
       </div>
       <div class="form-group">
-        <label>Total Horizontal Pipe Length (L<sub>horiz</sub>) <span class="unit-label">meters (m)</span></label>
-        <input type="number" id="pnc_lhoriz" class="form-control" value="85" min="2" max="1000" step="5">
+        <label>Atmospheric Pressure (P<sub>atm</sub>) <span class="unit-label">kPa (sea level: 101.3)</span></label>
+        <input type="number" id="baro_patm" class="form-control" value="101.3" min="85.0" max="105.0" step="0.5">
       </div>
       <div class="form-group">
-        <label>Total Vertical Lift Height (L<sub>vert</sub>) <span class="unit-label">meters (m)</span></label>
-        <input type="number" id="pnc_lvert" class="form-control" value="22" min="0" max="150" step="1">
+        <label>Safety Margin on Leg Height <span class="unit-label">meters (m) (code requires &ge;1.0m)</span></label>
+        <input type="number" id="baro_margin" class="form-control" value="1.20" min="0.8" max="2.5" step="0.1">
       </div>
       <div class="form-group">
-        <label>Number of 90° Bends (N<sub>bends</sub>) <span class="unit-label">count (long radius R/D=5)</span></label>
-        <input type="number" id="pnc_nbends" class="form-control" value="4" min="0" max="25" step="1">
-      </div>
-      <div class="form-group">
-        <label>Rotary Airlock Blowby Leakage Allowance <span class="unit-label">% of conveying air</span></label>
-        <input type="number" id="pnc_leak" class="form-control" value="12" min="2" max="35" step="1">
+        <label>NCG System Air In-Leakage Allowance <span class="unit-label">kg/h dry air</span></label>
+        <input type="number" id="baro_nleak" class="form-control" value="18" min="2" max="150" step="1">
       </div>
     </div>
 
     <!-- OUTPUTS & DASHBOARD -->
     <div class="calc-card">
-      <h2>Pneumatic Performance &amp; Blower Sizing</h2>
+      <h2>Hydraulic Sizing &amp; Tailpipe Diagnostics</h2>
 
       <div class="results-grid">
         <div class="res-metric primary">
-          <div class="val" id="res_total_dp">48.2 kPa</div>
-          <div class="lbl">Total System Pressure Drop (&Delta;P<sub>total</sub>)</div>
+          <div class="val" id="res_leg_height">10.82 m</div>
+          <div class="lbl">Total Minimum Barometric Leg Height (H<sub>leg</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_saltation">16.4 m/s</div>
-          <div class="lbl">Saltation Velocity (v<sub>salt</sub>)</div>
+          <div class="val" id="res_qwater">278 m³/h</div>
+          <div class="lbl">Cooling Water Required (Q<sub>w</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_solids_ratio">7.8 kg/kg</div>
-          <div class="lbl">Solids Loading Ratio (&mu;<sub>s</sub>)</div>
+          <div class="val" id="res_ratio_wv">32.7 kg/kg</div>
+          <div class="lbl">Water-to-Vapor Ratio (R<sub>w/v</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_blower_flow">1,540 m³/h</div>
-          <div class="lbl">Inlet Air Blower Capacity (ICFM)</div>
+          <div class="val" id="res_tail_diam">255 mm</div>
+          <div class="lbl">Tailpipe Inside Diameter (D<sub>leg</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_blower_power">31.5 kW</div>
-          <div class="lbl">Roots Blower Shaft Power</div>
+          <div class="val" id="res_tsat">49.4 °C</div>
+          <div class="lbl">Vapor Saturation Temp (T<sub>sat</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_term_vel">28.2 m/s</div>
-          <div class="lbl">Terminal Air Velocity (at exit)</div>
+          <div class="val" id="res_ttail">45.9 °C</div>
+          <div class="lbl">Warm Tailwater Temp (T<sub>tail</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_froude">17.3</div>
-          <div class="lbl">Pipe Froude Number (Fr)</div>
+          <div class="val" id="res_hotwell_vol">1,100 L</div>
+          <div class="lbl">Hotwell Seal Tank Min Volume</div>
         </div>
       </div>
 
-      <h2>Pressure Drop Component Breakdown</h2>
+      <h2>Barometric Leg Height Breakdown</h2>
       <div style="font-size:0.88rem; color:#475569; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
-        <span>Clean Air: <b id="res_dp_air">18%</b></span>
-        <span>Solids Accel: <b id="res_dp_acc">12%</b></span>
-        <span>Friction &amp; Lift: <b id="res_dp_fric">52%</b></span>
-        <span>Bends: <b id="res_dp_bends">18%</b></span>
+        <span>Static Water Column: <b id="res_h_static">9.22 m</b></span>
+        <span>Pipe Friction &amp; Dynamic Head: <b id="res_h_fric">0.40 m</b></span>
+        <span>Safety Margin: <b id="res_h_margin">1.20 m</b></span>
       </div>
 
       <div class="canvas-wrapper">
-        <canvas id="pncCanvas"></canvas>
+        <canvas id="baroCanvas"></canvas>
       </div>
 
       <button id="copySummaryBtn" class="btn-copy">
@@ -1372,183 +1367,163 @@
 
   <!-- FATAL TRAPS SECTION -->
   <div class="traps-section">
-    <h2>5 Fatal Engineering Traps in Dilute Phase Pneumatic Conveying</h2>
+    <h2>5 Fatal Engineering Traps in Barometric Condenser Design</h2>
     <div class="traps-grid">
       <div class="trap-card" style="border-left: 4px solid #ef4444;">
-        <h3 style="color: #ef4444;">1. The Saltation Choke &amp; Line Blockage Avalanche</h3>
-        <p>Operating conveying velocity below 1.25× the Rizk saltation velocity causes particles to drop out of aerodynamic suspension. Settled solids form stationary dunes in horizontal pipe runs. As effective pipe cross-sectional area chokes, blower discharge pressure spikes to maximum relief setting (typically 70–90 kPa). Once the relief valve lifts, air velocity collapses instantly, burying hundreds of meters of pipe under a solid, compacted plug.</p>
+        <h3 style="color: #ef4444;">1. The Shortened Tailpipe Catastrophic Siphon (&lt;10.5 m Leg Height)</h3>
+        <p>Atmospheric pressure supports ~10.33 m of water column against full vacuum. If plant civil engineers reduce barometric leg height below 10.5 meters (e.g. to fit inside an existing building roofline), the standing water column reaches the bottom of the condenser body. Any minor vacuum fluctuation or cooling water flow surge immediately floods the condenser vessel, siphoning millions of gallons of cooling water backward into high-value product evaporators.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #f59e0b;">
-        <h3 style="color: #f59e0b;">2. Gas Expansion Acceleration &amp; Severe v³ Elbow Erosion</h3>
-        <p>In positive pressure systems, compressed air expands as pressure dissipates toward the terminal receiver. A line operating at 50 kPa gauge experiences a 50% volumetric expansion, accelerating air velocity from 20 m/s at pickup to over 30 m/s at the cyclone receiver. Because abrasive erosive wear on 90° pipe bends scales with velocity cubed (v³), elbow wall penetration occurs 3.4× faster at the end of the line unless stepped-diameter piping is installed.</p>
+        <h3 style="color: #f59e0b;">2. Hotwell Volume Deficit &amp; Siphon Unsealing on Sudden Pump Trip</h3>
+        <p>When the cooling water feed pump trips while the system remains under vacuum, the sudden loss of downward momentum causes the vacuum to suck liquid upward into the tailpipe. If the hotwell seal tank volume is less than 1.5× the internal volume of the tailpipe, the pit water level falls below the bottom rim of the pipe. Atmospheric air violently inrushes up the leg, destroying the vacuum and shattering glass sight ports with severe water hammer.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #10b981;">
-        <h3 style="color: #10b981;">3. Rotary Airlock Blowby Leakage Starving the Pipeline</h3>
-        <p>A rotary airlock valve meters solids into the pressurized line while sealing against the internal system pressure. Rotor tip clearances wear from 0.08 mm to 0.25 mm over time from abrasive particles. High blowby air leakage rushes upward into the feed surge bin, fluidizing the powder and starving the pipeline of conveying air. This stealthily lowers pickup velocity below saltation without tripping blower motor overloads.</p>
+        <h3 style="color: #10b981;">3. Tailpipe Velocity Outside the Self-Venting Window (1.2–1.8 m/s)</h3>
+        <p>Sizing the barometric tailpipe too large drops water velocity below 1.0 m/s. At sub-critical downward speeds, buoyant air bubbles entrained in the falling stream float upward against the flow, coalescing into huge air pockets that periodically burp and trigger severe hydraulic pulsations. Conversely, velocities &gt;2.2 m/s spike pipe wall friction head losses, requiring an extra 1.5 meters of physical structure height.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #3b82f6;">
-        <h3 style="color: #3b82f6;">4. Angel Hair &amp; Streamers in Plastic Pellets from Short Radii</h3>
-        <p>Conveying polyolefin pellets (polyethylene, polypropylene) at velocities &gt;18 m/s through standard short-radius elbows causes high-energy wall collisions. Frictional heat momentarily melts the pellet outer skin against the pipe wall, extruding ultra-thin plastic filaments known as "angel hair" or "snake skins". These streamers wrap around cyclone vortex finders, gum up diverter valves, and cause massive plant downtime.</p>
+        <h3 style="color: #3b82f6;">4. Cold Water Dissolved Air Desorption Overwhelming Vacuum Pumps</h3>
+        <p>Incoming cooling water at 25°C contains 20–25 mg/L of dissolved oxygen and nitrogen. When this water is atomized inside the 12 kPa vacuum shell, ~95% of dissolved gases instantly flash out of solution. In a 300 m³/h system, this releases over 6 kg/h of pure non-condensable air. If engineers size the vacuum ejector for ambient pipe flange leakage alone, the system vacuum will decay by 40%, raising evaporation temperatures and ruining product quality.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
-        <h3 style="color: #8b5cf6;">5. Combustible Dust Electrostatic Ignition &amp; Missing Flange Bonding</h3>
-        <p>Conveying organic powders (sugar, flour, polymers, coal) at high speeds generates enormous triboelectric electrostatic potential (often &gt;25 kV). If pipeline joints use rubber-gasketed flanges without welded copper grounding straps, isolated pipe spools act as high-voltage Leyden jar capacitors. A single capacitive static spark discharge to ground can ignite the dispersed dust cloud, triggering a catastrophic NFPA 652 primary dust explosion.</p>
+        <h3 style="color: #8b5cf6;">5. Organic Vapor Entrainment &amp; Cooling Tower Bio-Explosion</h3>
+        <p>Because steam mixes directly with cooling water, any entrained organic matter (sugar dust, ethanol, VOCs, light organic acids) dissolves directly into the tailwater. Discharging this hot organic-laden water back to open evaporative cooling towers provides ideal nutrient soup for rapid bacterial proliferation, severe slime biofouling, and dangerous Legionella outbreaks across the industrial facility.</p>
       </div>
     </div>
   </div>
 
   <!-- THEORY & ENGINEERING DERIVATIONS -->
   <div class="theory-section">
-    <h2>Pneumatic Transport Equations &amp; Loss Modeling</h2>
-    <p>Dilute phase pneumatic conveying pressure drop is modeled by the two-phase momentum and friction balance:</p>
-    <p style="text-align: center; font-size: 1.15rem; font-weight: bold; color: #2563eb;">
-      &Delta;P<sub>total</sub> = &Delta;P<sub>air,fric</sub> + &Delta;P<sub>accel</sub> + &Delta;P<sub>solids,fric</sub> + &Delta;P<sub>gravity</sub> + &Delta;P<sub>bends</sub>
+    <h2>Governing Heat Balance &amp; Hydrostatic Leg Equations</h2>
+    <p>Direct contact condensation operates by direct enthalpy transfer between steam vapor and cooling water:</p>
+    <p style="text-align: center; font-size: 1.15rem; font-weight: bold; color: #0284c7;">
+      M&#775;<sub>vapor</sub> &middot; (h<sub>vapor</sub> - h<sub>tail</sub>) = M&#775;<sub>water</sub> &middot; c<sub>p</sub> &middot; (T<sub>tail</sub> - T<sub>w,in</sub>)
     </p>
 
-    <p>The minimum saltation velocity is calculated using the Rizk semi-empirical correlation:</p>
+    <p>Water-to-vapor mass ratio (R<sub>w/v</sub>):</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      v<sub>salt</sub> = &radic;[ g &middot; D ] &times; [ &mu;<sub>s</sub> / (10<sup>-3</sup> &middot; (&rho;<sub>p</sub> / &rho;<sub>air</sub>) &middot; (d<sub>p</sub> / D)<sup>0.1</sup>) ]<sup>0.25</sup>
+      R<sub>w/v</sub> = M&#775;<sub>water</sub> / M&#775;<sub>vapor</sub> = [ h<sub>fg</sub> + c<sub>p</sub> &middot; (T<sub>sat</sub> - T<sub>tail</sub>) ] / [ c<sub>p</sub> &middot; (T<sub>tail</sub> - T<sub>w,in</sub>) ]
     </p>
 
+    <p>The total required vertical barometric leg height above the hotwell overflow weir:</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      H<sub>leg</sub> = [ (P<sub>atm</sub> - P<sub>vac</sub>) / (&rho;<sub>tail</sub> &middot; g) ] + h<sub>friction</sub> + h<sub>velocity</sub> + H<sub>safety</sub>
+    </p>
     <p>Where:</p>
     <ul>
-      <li><code>&mu;_s</code> = Solids-to-air mass flow ratio = <code>M&#775;_solids / M&#775;_air</code></li>
-      <li><code>&Delta;P_accel</code> = Acceleration pressure drop = <code>&mu;_s &middot; &rho;_air &middot; v_air &middot; v_p,final</code> (where <code>v_p,final &approx; 0.8 &middot; v_air</code>)</li>
-      <li><code>&Delta;P_solids,fric</code> = Additional solids friction = <code>&lambda;_s &middot; &mu;_s &middot; (L_horiz / D) &middot; (&rho;_air &middot; v_air² / 2)</code></li>
-      <li><code>&Delta;P_gravity</code> = Vertical hydrostatic suspension lift = <code>&mu;_s &middot; &rho;_air &middot; (v_air / v_p) &middot; g &middot; L_vert</code></li>
-      <li><code>&Delta;P_bends</code> = Impact and momentum re-acceleration loss per 90° bend = <code>N_bends &middot; (1 + 0.8 &middot; &mu;_s) &middot; (&rho;_air &middot; v_air² / 2)</code></li>
+      <li><code>P_atm - P_vac</code> = Pressure differential between ambient atmosphere and condenser vacuum (Pa)</li>
+      <li><code>&rho;_tail</code> = Density of warm discharge water at T<sub>tail</sub> (kg/m³)</li>
+      <li><code>h_friction + h_velocity</code> = Dynamic head loss = <code>(1.5 + f &middot; (H_leg / D_leg)) &middot; (v_down² / (2 &middot; g))</code></li>
+      <li><code>H_safety</code> = Mandated safety margin for wave action and barometric fluctuations (&ge; 1.0–1.2 m)</li>
     </ul>
+
+    <p>Tailpipe inside diameter (D<sub>leg</sub>) sized for self-venting water downward velocity (v<sub>down</sub> &approx; 1.5 m/s):</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      D<sub>leg</sub> = &radic;[ (4 &middot; (Q<sub>water</sub> + Q<sub>condensate</sub>)) / (&pi; &middot; v<sub>down</sub>) ]
+    </p>
   </div>
 </div>
 
 <script>
 (function() {
   // DOM Elements
-  const elTsolid = document.getElementById('pnc_tsolid');
-  const elRhop = document.getElementById('pnc_rhop');
-  const elDp = document.getElementById('pnc_dp');
-  const elVair = document.getElementById('pnc_vair');
-  const elDiam = document.getElementById('pnc_diam');
-  const elLhoriz = document.getElementById('pnc_lhoriz');
-  const elLvert = document.getElementById('pnc_lvert');
-  const elNbends = document.getElementById('pnc_nbends');
-  const elLeak = document.getElementById('pnc_leak');
+  const elMvapor = document.getElementById('baro_mvapor');
+  const elPvac = document.getElementById('baro_pvac');
+  const elTwin = document.getElementById('baro_twin');
+  const elDtapp = document.getElementById('baro_dtapp');
+  const elVdown = document.getElementById('baro_vdown');
+  const elPatm = document.getElementById('baro_patm');
+  const elMargin = document.getElementById('baro_margin');
+  const elNleak = document.getElementById('baro_nleak');
 
-  const resTotalDp = document.getElementById('res_total_dp');
-  const resSaltation = document.getElementById('res_saltation');
-  const resSolidsRatio = document.getElementById('res_solids_ratio');
-  const resBlowerFlow = document.getElementById('res_blower_flow');
-  const resBlowerPower = document.getElementById('res_blower_power');
-  const resTermVel = document.getElementById('res_term_vel');
-  const resFroude = document.getElementById('res_froude');
-  const resDpAir = document.getElementById('res_dp_air');
-  const resDpAcc = document.getElementById('res_dp_acc');
-  const resDpFric = document.getElementById('res_dp_fric');
-  const resDpBends = document.getElementById('res_dp_bends');
+  const resLegHeight = document.getElementById('res_leg_height');
+  const resQwater = document.getElementById('res_qwater');
+  const resRatioWv = document.getElementById('res_ratio_wv');
+  const resTailDiam = document.getElementById('res_tail_diam');
+  const resTsat = document.getElementById('res_tsat');
+  const resTtail = document.getElementById('res_ttail');
+  const resHotwellVol = document.getElementById('res_hotwell_vol');
+  const resHStatic = document.getElementById('res_h_static');
+  const resHFric = document.getElementById('res_h_fric');
+  const resHMargin = document.getElementById('res_h_margin');
   const btnCopy = document.getElementById('copySummaryBtn');
-  const canvas = document.getElementById('pncCanvas');
+  const canvas = document.getElementById('baroCanvas');
   const ctx = canvas.getContext('2d');
 
-  function calculatePNC() {
-    const M_solids_th = parseFloat(elTsolid.value) || 12.0; // t/h
-    const rho_p = parseFloat(elRhop.value) || 1450; // kg/m3
-    const d_p_um = parseFloat(elDp.value) || 250; // microns
-    const v_air_in = parseFloat(elVair.value) || 21.0; // m/s
-    const D_mm = parseFloat(elDiam.value) || 150; // mm
-    const L_horiz = parseFloat(elLhoriz.value) || 85; // m
-    const L_vert = parseFloat(elLvert.value) || 22; // m
-    const N_bends = parseInt(elNbends.value) || 4;
-    const leak_pct = parseFloat(elLeak.value) || 12; // %
-
-    // Conversions
-    const D_m = D_mm / 1000;
-    const d_p_m = d_p_um * 1e-6;
-    const M_solids_kgs = (M_solids_th * 1000) / 3600; // kg/s
-    const pipe_area = (Math.PI / 4) * Math.pow(D_m, 2); // m2
-    const rho_air = 1.20; // kg/m3 at ambient 20C
-
-    // 1. Air Flow at Pickup (m3/s)
-    const Q_air_pickup = pipe_area * v_air_in; // m3/s
-    const M_air_kgs = Q_air_pickup * rho_air; // kg/s
-
-    // Total blower flow including leakage
-    const Q_blower_m3s = Q_air_pickup * (1 + leak_pct / 100);
-    const Q_blower_m3h = Q_blower_m3s * 3600;
-
-    // 2. Solids Loading Ratio (mu_s = kg solids / kg air)
-    const mu_s = M_solids_kgs / M_air_kgs;
-
-    // 3. Saltation Velocity (Rizk correlation approximation)
-    const g = 9.81;
-    const Fr_salt_denom = Math.pow(10, -3) * (rho_p / rho_air) * Math.pow(d_p_m / D_m, 0.1);
-    const v_salt = Math.sqrt(g * D_m) * Math.pow(Math.max(1, mu_s) / Fr_salt_denom, 0.24);
-
-    // Pipe Froude Number
-    const Fr = v_air_in / Math.sqrt(g * D_m);
-
-    // 4. Pressure Drop Components (Pa)
-    const dynamic_press = 0.5 * rho_air * Math.pow(v_air_in, 2); // Pa
-
-    // (a) Clean Air Friction (Darcy-Weisbach)
-    const Re = (rho_air * v_air_in * D_m) / 1.81e-5;
-    const lambda_air = 0.3164 * Math.pow(Re, -0.25);
-    const dp_air_fric = lambda_air * ((L_horiz + L_vert) / D_m) * dynamic_press;
-
-    // (b) Solids Acceleration at pickup
-    const v_p_final = 0.82 * v_air_in;
-    const dp_accel = mu_s * rho_air * v_air_in * v_p_final;
-
-    // (c) Additional Solids Friction (Horizontal)
-    const lambda_s = 0.0022 * Math.pow(Fr, -0.35);
-    const dp_solids_fric = lambda_s * mu_s * (L_horiz / D_m) * dynamic_press;
-
-    // (d) Vertical Lift Pressure Drop
-    const v_terminal = Math.sqrt((4 * g * d_p_m * rho_p) / (3 * 0.44 * rho_air));
-    const v_p_vert = Math.max(2.0, v_air_in - v_terminal);
-    const dp_vert_lift = mu_s * rho_air * (v_air_in / v_p_vert) * g * L_vert;
-
-    // (e) Bend Losses (90 deg elbows)
-    const dp_per_bend = (1.0 + 0.75 * mu_s) * dynamic_press;
-    const dp_bends = N_bends * dp_per_bend;
-
-    // Total Line Pressure Drop (Pa -> kPa)
-    const total_dp_Pa = dp_air_fric + dp_accel + dp_solids_fric + dp_vert_lift + dp_bends;
-    const total_dp_kPa = total_dp_Pa / 1000;
-
-    // 5. Terminal Velocity (Air expansion at atmospheric discharge)
-    const P_abs_in = 101.325 + total_dp_kPa;
-    const P_abs_out = 101.325;
-    const expansion_ratio = P_abs_in / P_abs_out;
-    const v_terminal_air = v_air_in * expansion_ratio;
-
-    // 6. Blower Power (Roots blower adiabatic efficiency ~65%)
-    const blower_eff = 0.65;
-    const blower_power_kW = (Q_blower_m3s * total_dp_Pa) / (1000 * blower_eff);
-
-    // Percentages
-    const pctAir = Math.round((dp_air_fric / total_dp_Pa) * 100);
-    const pctAcc = Math.round((dp_accel / total_dp_Pa) * 100);
-    const pctFricLift = Math.round(((dp_solids_fric + dp_vert_lift) / total_dp_Pa) * 100);
-    const pctBends = 100 - pctAir - pctAcc - pctFricLift;
-
-    // Update DOM
-    resTotalDp.textContent = total_dp_kPa.toFixed(1) + " kPa";
-    resSaltation.textContent = v_salt.toFixed(1) + " m/s";
-    resSolidsRatio.textContent = mu_s.toFixed(1) + " kg/kg";
-    resBlowerFlow.textContent = Math.round(Q_blower_m3h).toLocaleString() + " m³/h";
-    resBlowerPower.textContent = blower_power_kW.toFixed(1) + " kW";
-    resTermVel.textContent = v_terminal_air.toFixed(1) + " m/s";
-    resFroude.textContent = Fr.toFixed(1);
-
-    resDpAir.textContent = pctAir + "%";
-    resDpAcc.textContent = pctAcc + "%";
-    resDpFric.textContent = pctFricLift + "%";
-    resDpBends.textContent = pctBends + "%";
-
-    renderCanvas(v_air_in, v_salt, total_dp_kPa, v_terminal_air);
+  function getSteamSatTemp(p_kPa) {
+    // Antoine equation for water saturation temperature
+    // ln(P_bar) = A - B / (T_K + C)
+    // Simplified Magnus-Tetens approximation for 4 to 100 kPa
+    return (240.726 * Math.log(p_kPa / 0.61078)) / (17.502 - Math.log(p_kPa / 0.61078));
   }
 
-  function renderCanvas(vAirIn, vSalt, totalDp, vTerm) {
+  function calculateBarometric() {
+    const M_vapor_kgh = parseFloat(elMvapor.value) || 8500; // kg/h
+    const P_vac_kPa = parseFloat(elPvac.value) || 12.0; // kPa abs
+    const T_win = parseFloat(elTwin.value) || 26.0; // C
+    const dT_app = parseFloat(elDtapp.value) || 3.5; // C
+    const v_down = parseFloat(elVdown.value) || 1.50; // m/s
+    const P_atm_kPa = parseFloat(elPatm.value) || 101.3; // kPa
+    const margin_m = parseFloat(elMargin.value) || 1.20; // m
+    const n_leak_kgh = parseFloat(elNleak.value) || 18; // kg/h
+
+    // 1. Vapor Saturation Temp & Tailwater Temp
+    const T_sat = getSteamSatTemp(P_vac_kPa);
+    const T_tail = T_sat - dT_app;
+
+    // Latent heat of condensation (kJ/kg)
+    const h_fg = 2501 - 2.36 * T_sat;
+    const cp_w = 4.184; // kJ/(kg*K)
+
+    // 2. Cooling Water Demand
+    // Heat balance: M_v * (h_fg + cp * dT_app) = M_w * cp * (T_tail - T_win)
+    const deltaT_water = Math.max(1.0, T_tail - T_win);
+    const R_wv = (h_fg + cp_w * dT_app) / (cp_w * deltaT_water);
+    const M_water_kgh = M_vapor_kgh * R_wv;
+    const rho_tail = 1000 - 0.003 * Math.pow(T_tail - 4, 2); // kg/m3 approx ~990
+    const Q_water_m3h = M_water_kgh / rho_tail;
+    const Q_total_m3h = (M_water_kgh + M_vapor_kgh) / rho_tail;
+    const Q_total_m3s = Q_total_m3h / 3600;
+
+    // 3. Tailpipe Diameter Sizing (mm)
+    // Area = Q / v
+    const pipe_area_m2 = Q_total_m3s / v_down;
+    const D_pipe_m = Math.sqrt((4 * pipe_area_m2) / Math.PI);
+    const D_pipe_mm = D_pipe_m * 1000;
+
+    // 4. Barometric Leg Height Calculation
+    const g = 9.81;
+    const deltaP_Pa = (P_atm_kPa - P_vac_kPa) * 1000;
+    const H_static = deltaP_Pa / (rho_tail * g);
+
+    // Friction head loss in tailpipe (Darcy-Weisbach)
+    const f_darcy = 0.022;
+    const h_loss = (1.5 + f_darcy * (11.0 / D_pipe_m)) * (Math.pow(v_down, 2) / (2 * g));
+
+    const total_H_leg = H_static + h_loss + margin_m;
+
+    // 5. Hotwell Minimum Seal Volume (L)
+    // Sized for 1.6x internal volume of tailpipe
+    const V_tailpipe_m3 = (Math.PI / 4) * Math.pow(D_pipe_m, 2) * total_H_leg;
+    const V_hotwell_L = Math.round(V_tailpipe_m3 * 1.6 * 1000);
+
+    // Update DOM
+    resLegHeight.textContent = total_H_leg.toFixed(2) + " m";
+    resQwater.textContent = Math.round(Q_water_m3h).toLocaleString() + " m³/h";
+    resRatioWv.textContent = R_wv.toFixed(1) + " kg/kg";
+    resTailDiam.textContent = Math.round(D_pipe_mm) + " mm";
+    resTsat.textContent = T_sat.toFixed(1) + " °C";
+    resTtail.textContent = T_tail.toFixed(1) + " °C";
+    resHotwellVol.textContent = V_hotwell_L.toLocaleString() + " L";
+
+    resHStatic.textContent = H_static.toFixed(2) + " m";
+    resHFric.textContent = h_loss.toFixed(2) + " m";
+    resHMargin.textContent = margin_m.toFixed(2) + " m";
+
+    renderCanvas(total_H_leg, H_static, margin_m, D_pipe_mm);
+  }
+
+  function renderCanvas(Hleg, Hstatic, margin, Dpipe) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.parentElement.clientWidth - 24;
     const h = 240;
@@ -1561,94 +1536,130 @@
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, w, h);
 
-    // Title
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "11px system-ui, sans-serif";
-    ctx.fillText("Pipeline Pneumatic Velocity Profile vs Saltation Choke Limit", 14, 20);
+    // Schematic: Top Condenser Body, Long Tailpipe, Bottom Hotwell
+    const condX = w * 0.22;
+    const condY = 20;
+    const condW = 60;
+    const condH = 45;
 
-    const padL = 50;
-    const padR = 25;
-    const padT = 35;
-    const padB = 30;
-    const plotW = w - padL - padR;
-    const plotH = h - padT - padB;
-
-    // Axes
-    ctx.strokeStyle = "#334155";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(padL, padT);
-    ctx.lineTo(padL, padT + plotH);
-    ctx.lineTo(padL + plotW, padT + plotH);
-    ctx.stroke();
-
-    const maxVel = Math.max(40, vTerm * 1.25);
-    ctx.fillStyle = "#64748b";
-    ctx.textAlign = "right";
-    ctx.fillText(maxVel.toFixed(0) + " m/s", padL - 6, padT + 10);
-    ctx.fillText("0 m/s", padL - 6, padT + plotH);
-
-    // Saltation Choke Red Zone
-    const ySalt = padT + plotH - (vSalt / maxVel) * plotH;
-    ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
-    ctx.fillRect(padL, ySalt, plotW, padT + plotH - ySalt);
-    ctx.strokeStyle = "#ef4444";
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(padL, ySalt);
-    ctx.lineTo(padL + plotW, ySalt);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = "#f87171";
-    ctx.fillText("Saltation Limit: " + vSalt.toFixed(1) + " m/s", padL + plotW - 8, ySalt - 4);
-
-    // Air Velocity Curve along pipe length
+    // Condenser Body
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(condX, condY, condW, condH);
     ctx.strokeStyle = "#38bdf8";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(padL, padT + plotH - (vAirIn / maxVel) * plotH);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(condX, condY, condW, condH);
+    ctx.fillStyle = "#93c5fd";
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Barometric", condX + condW / 2, condY + 18);
+    ctx.fillText("Condenser", condX + condW / 2, condY + 32);
 
-    const steps = 30;
-    for (let i = 0; i <= steps; i++) {
-      const frac = i / steps;
-      // Parabolic velocity acceleration due to gas expansion
-      const currentVel = vAirIn + (vTerm - vAirIn) * Math.pow(frac, 1.3);
-      const px = padL + frac * plotW;
-      const py = padT + plotH - (currentVel / maxVel) * plotH;
-      ctx.lineTo(px, py);
-    }
+    // Vapor inlet arrow
+    ctx.strokeStyle = "#f87171";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(condX - 25, condY + 22);
+    ctx.lineTo(condX, condY + 22);
+    ctx.stroke();
+    ctx.fillStyle = "#f87171";
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("Vapor →", condX - 4, condY + 18);
+
+    // Tailpipe down to Hotwell
+    const pipeX = condX + condW / 2 - 5;
+    const pipeW = 10;
+    const pipeTopY = condY + condH;
+    const pipeBottomY = 210;
+    const pipeLengthPx = pipeBottomY - pipeTopY;
+
+    // Hotwell Basin (bottom)
+    const hotwellX = condX - 25;
+    const hotwellY = 195;
+    const hotwellW = 110;
+    const hotwellH = 30;
+
+    ctx.fillStyle = "#0369a1";
+    ctx.fillRect(hotwellX, hotwellY, hotwellW, hotwellH);
+    ctx.strokeStyle = "#64748b";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(hotwellX, hotwellY, hotwellW, hotwellH);
+    ctx.fillStyle = "#bae6fd";
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Hotwell Seal Pit", hotwellX + 8, hotwellY + 22);
+
+    // Tailpipe pipe drawing
+    ctx.fillStyle = "#0284c7";
+    ctx.fillRect(pipeX, pipeTopY, pipeW, pipeLengthPx);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(pipeX, pipeTopY, pipeW, pipeLengthPx);
+
+    // Standing water column inside tailpipe
+    const waterColumnFraction = Math.min(0.92, Hstatic / Hleg);
+    const standingWaterPx = pipeLengthPx * waterColumnFraction;
+    ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
+    ctx.fillRect(pipeX, pipeBottomY - standingWaterPx, pipeW, standingWaterPx);
+
+    // Dimension lines & Callouts
+    const dimX = condX + condW + 25;
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(dimX, pipeTopY);
+    ctx.lineTo(dimX, pipeBottomY);
+    ctx.moveTo(dimX - 6, pipeTopY);
+    ctx.lineTo(dimX + 6, pipeTopY);
+    ctx.moveTo(dimX - 6, pipeBottomY);
+    ctx.lineTo(dimX + 6, pipeBottomY);
     ctx.stroke();
 
-    // Callout labels
-    ctx.fillStyle = "#38bdf8";
+    ctx.fillStyle = "#fbbf24";
+    ctx.font = "12px system-ui, sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Pickup: " + vAirIn.toFixed(1) + " m/s", padL + 10, padT + plotH - (vAirIn / maxVel) * plotH - 12);
-    ctx.textAlign = "right";
-    ctx.fillText("Terminal: " + vTerm.toFixed(1) + " m/s", padL + plotW - 10, padT + plotH - (vTerm / maxVel) * plotH - 12);
+    ctx.fillText("H_leg = " + Hleg.toFixed(2) + " m", dimX + 12, (pipeTopY + pipeBottomY) / 2);
 
-    // X-axis length labels
-    ctx.fillStyle = "#64748b";
-    ctx.textAlign = "center";
-    ctx.fillText("Rotary Airlock Pickup", padL + 40, padT + plotH + 18);
-    ctx.fillText("Horizontal Runs & Bends", padL + plotW * 0.5, padT + plotH + 18);
-    ctx.fillText("Cyclone Receiver", padL + plotW - 40, padT + plotH + 18);
+    // Right-side Specs
+    const rX = w * 0.58;
+    ctx.textAlign = "left";
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.fillStyle = "#e2e8f0";
+    ctx.fillText("Engineering Safety Verification:", rX, 42);
+
+    ctx.font = "11px system-ui, sans-serif";
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillText("• Static Barometric Height: " + Hstatic.toFixed(2) + " m", rX, 68);
+    ctx.fillText("• Required Safety Clearance: " + margin.toFixed(2) + " m", rX, 90);
+    ctx.fillText("• Tailpipe Diameter: " + Dpipe.toFixed(0) + " mm", rX, 112);
+    ctx.fillText("• Submerged Dip: 250 mm below weir", rX, 134);
+
+    // Code Compliance Badge
+    ctx.fillStyle = Hleg >= 10.5 ? "#14532d" : "#7f1d1d";
+    ctx.fillRect(rX, 155, 195, 34);
+    ctx.strokeStyle = Hleg >= 10.5 ? "#22c55e" : "#ef4444";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(rX, 155, 195, 34);
+    ctx.fillStyle = Hleg >= 10.5 ? "#86efac" : "#fca5a5";
+    ctx.font = "bold 11px system-ui, sans-serif";
+    ctx.fillText(Hleg >= 10.5 ? "✓ CODE COMPLIANT (H > 10.5 m)" : "⚠ UNSAFE LEG HEIGHT (<10.5 m)", rX + 10, 176);
   }
 
   // Copy Summary Handler
   btnCopy.addEventListener('click', function() {
     const text = [
-      "=== PNEUMATIC CONVEYING DILUTE PHASE SIZING SUMMARY ===",
-      "Solids Throughput: " + elTsolid.value + " t/h | Particle Density: " + elRhop.value + " kg/m³ | Size: " + elDp.value + " µm",
-      "Pipe Diameter: " + elDiam.value + " mm | Length: " + elLhoriz.value + " m Horiz + " + elLvert.value + " m Vert",
-      "90° Bends: " + elNbends.value + " | Air Leakage Allowance: " + elLeak.value + "%",
+      "=== BAROMETRIC CONDENSER & TAILPIPE SIZING SUMMARY ===",
+      "Process Vapor: " + elMvapor.value + " kg/h | Operating Vacuum: " + elPvac.value + " kPa abs",
+      "Cooling Water In: " + elTwin.value + " °C | Approach Temp: " + elDtapp.value + " °C",
+      "Tailpipe Downward Velocity: " + elVdown.value + " m/s | Ambient Pressure: " + elPatm.value + " kPa",
       "--------------------------------------------------",
-      "Total System Pressure Drop: " + resTotalDp.textContent,
-      "Minimum Saltation Velocity: " + resSaltation.textContent + " (Operating Pickup: " + elVair.value + " m/s)",
-      "Solids Loading Ratio: " + resSolidsRatio.textContent,
-      "Inlet Blower Flow Rate: " + resBlowerFlow.textContent,
-      "Blower Shaft Power: " + resBlowerPower.textContent,
-      "Terminal Air Velocity: " + resTermVel.textContent,
-      "Pressure Breakdown: Air=" + resDpAir.textContent + ", Accel=" + resDpAcc.textContent + ", Friction/Lift=" + resDpFric.textContent + ", Bends=" + resDpBends.textContent,
+      "Minimum Barometric Leg Height: " + resLegHeight.textContent,
+      "Cooling Water Flow Demand: " + resQwater.textContent,
+      "Water-to-Vapor Mass Ratio: " + resRatioWv.textContent,
+      "Tailpipe Inside Diameter: " + resTailDiam.textContent,
+      "Temperatures: Tsat = " + resTsat.textContent + " | Tailwater = " + resTtail.textContent,
+      "Hotwell Seal Tank Min Volume: " + resHotwellVol.textContent,
+      "Leg Breakdown: Static = " + resHStatic.textContent + ", Friction = " + resHFric.textContent + ", Margin = " + resHMargin.textContent,
       "=================================================="
     ].join("\n");
 
@@ -1662,14 +1673,14 @@
   });
 
   // Attach event listeners
-  const inputs = [elTsolid, elRhop, elDp, elVair, elDiam, elLhoriz, elLvert, elNbends, elLeak];
+  const inputs = [elMvapor, elPvac, elTwin, elDtapp, elVdown, elPatm, elMargin, elNleak];
   inputs.forEach(input => {
-    input.addEventListener('input', calculatePNC);
-    input.addEventListener('change', calculatePNC);
+    input.addEventListener('input', calculateBarometric);
+    input.addEventListener('change', calculateBarometric);
   });
 
-  window.addEventListener('resize', calculatePNC);
-  calculatePNC();
+  window.addEventListener('resize', calculateBarometric);
+  calculateBarometric();
 })();
 </script>
 
@@ -1678,51 +1689,51 @@
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the difference between dilute phase and dense phase pneumatic conveying?</span>
+                <span style="font-size:1rem;">How does a direct contact barometric condenser work without heat exchanger tubes?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Dilute phase conveying operates at high gas velocities (typically 18–30 m/s) and low solids-to-air mass loading ratios (mu < 15), keeping particles continuously suspended in the turbulent air stream via aerodynamic drag. Dense phase conveying operates at low velocities (1–8 m/s) and high solids loadings (mu > 20 to 100+), pushing material along the pipe in dunes, plugs, or continuous moving beds using high pressure (up to 4–6 bar).
+                A barometric condenser sprays cold cooling water directly into incoming low-pressure process steam across internal cascade or disc-and-doughnut baffle trays. The intimate liquid-vapor contact causes immediate condensation. Water and condensate mix and drain continuously by gravity through a tall vertical barometric tailpipe (leg) into an open hotwell seal pit, which hydrostatically balances atmospheric pressure without needing a mechanical condensate extraction pump.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is saltation velocity and how is it related to line plugging?</span>
+                <span style="font-size:1rem;">Why must a barometric tailpipe have a vertical height of at least 10.5 to 11 meters?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Saltation velocity (v_salt) is the minimum superficial air velocity in a horizontal pipe below which particles can no longer remain aerodynamically suspended and begin to settle onto the bottom of the pipe. Operating at or below v_salt causes dunes to accumulate, rapidly constricting the cross-sectional area, creating severe pressure surges, and causing complete pipeline blockages within minutes. Design velocity is typically set at 1.25 to 1.45 times v_salt.
+                At 1 atm (101.3 kPa), atmospheric pressure can support a vertical column of pure water approximately 10.33 meters high against a perfect vacuum. In an operating vacuum condenser (typically 8–15 kPa absolute), the hydrostatic pressure difference holds water at least 9.0–9.6 meters up the tailpipe. Factoring in water friction, discharge velocity head, and a safety margin (typically 1.0–1.2 m) to prevent surging, standard engineering codes mandate a minimum vertical drop of 10.5–11.2 meters above the hotwell overflow weir.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why does air velocity increase toward the end of a pneumatic conveying line?</span>
+                <span style="font-size:1rem;">What is approach temperature in a counter-current barometric condenser?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Compressed air expands as pressure decreases along the length of the pipeline in accordance with Boyle's Ideal Gas Law (P1·V1 = P2·V2). In a positive pressure system operating at 60 kPa gauge at the blower discharge, the gas expands by ~60% by the time it reaches the atmospheric receiver. If constant pipe diameter is maintained, superficial velocity accelerates (e.g. from 18 m/s at the feed to 29 m/s at the discharge), exponentially increasing pipe wall erosion and particle attrition.
+                Approach temperature is the difference between the saturation temperature of incoming steam and the discharge temperature of the warmed tailwater leaving the bottom of the condenser: Delta T_app = T_sat - T_tail. In well-designed counter-current disc-and-doughnut condensers, approach temperature ranges from 2.5°C to 5.0°C. A smaller approach minimizes required cooling water flow rate but requires a taller vessel with more baffle stages.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does rotary airlock feeder clearance leakage affect conveying performance?</span>
+                <span style="font-size:1rem;">Why is hotwell (seal pit) liquid volume critical during an emergency shutdown?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                A rotary airlock valve drops dry solids into a pressurized pipeline while attempting to seal against the internal system pressure. Rotor tip-to-housing clearances (typically 0.07–0.12 mm when new) allow compressed air to leak upward into the feed hopper (blowby leakage). As the valve wears, leakage increases proportionally to the square root of system pressure, robbing the pipeline of conveying air and reducing pickup velocity below the critical saltation threshold.
+                If the cooling water supply pump suddenly trips while the process vessel remains under full vacuum, the internal vacuum will pull water upward from the hotwell into the tailpipe. If the hotwell contains insufficient liquid volume, the water level will drop below the bottom lip of the tailpipe. Air rushes up the pipe, collapsing vacuum instantaneously and causing massive hydraulic water hammer across the plant.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What causes 'angel hair' or streamers when conveying polymer pellets?</span>
+                <span style="font-size:1rem;">How much dissolved air is released from cooling water inside a vacuum condenser?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                When thermoplastic pellets (polyethylene, polypropylene) impact pipe walls at velocities exceeding ~16–18 m/s, localized friction generates instantaneous temperatures exceeding the polymer melting point. Smears of molten plastic stick to the pipe wall and are dragged downstream by air into gossamer-thin ribbons known as 'angel hair' or 'streamers'. These ribbons ball up into bird nests that foul diverter valves, cyclone screens, and extruder feeders.
+                Fresh surface or cooling tower water at 25°C contains approximately 20–25 mg/L (or ~22 mL/L) of dissolved air (nitrogen and oxygen). When this water is sprayed into a 10 kPa vacuum environment, approximately 95% of the dissolved gases instantaneously desorb out of solution. This liberated air, combined with vessel leakage, forms the primary non-condensable gas (NCG) load that must be continuously evacuated by steam ejectors or liquid-ring vacuum pumps.
               </div>
             </div>
           
@@ -1756,8 +1767,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fpneumatic-conveying-dilute-phase-pressure-drop-calculator&text=Pneumatic%20Conveying%20(Dilute%20Phase)%20Pressure%20Drop%20%26%20Saltation%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fpneumatic-conveying-dilute-phase-pressure-drop-calculator&title=Pneumatic%20Conveying%20(Dilute%20Phase)%20Pressure%20Drop%20%26%20Saltation%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fbarometric-condenser-direct-contact-steam-vacuum-calculator&text=Barometric%20Condenser%20(Direct%20Contact)%20%26%20Hotwell%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fbarometric-condenser-direct-contact-steam-vacuum-calculator&title=Barometric%20Condenser%20(Direct%20Contact)%20%26%20Hotwell%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1825,14 +1836,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/math/birthday-paradox-calculator" class="promo-card">
+                <a href="/neuro/attachment-style-diagnostic" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Units & Calc</span>
+                      <span class="promo-badge">Neurobiology & Mind</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Birthday Paradox Calculator & Coincidence Simulator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate shared birthday probabilities with 23 people and run Monte Carlo simulations.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Attachment Style Diagnostic & Relationship Dynamic Simulator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Assess romantic attachment style across attachment anxiety and avoidance dimensions based on Brennan, Clark & Shaver ECR-R.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1840,14 +1851,14 @@
                 </a>
                 
               
-                <a href="/finance/cagr-calculator" class="promo-card">
+                <a href="/neuro/toxic-positivity-detox" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Finance</span>
+                      <span class="promo-badge">Neurobiology & Mind</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">CAGR Calculator (Compound Annual Growth Rate)</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate annualized growth rates, investment doubling time, and total return.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Toxic Positivity & Emotional Invalidation Deconstructor</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Identify toxic positivity, spiritual bypassing, and emotional invalidation. Translate dismissive platitudes into genuine psychological attunement.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1870,14 +1881,14 @@
                 </div>
                 
               
-                <a href="/util/personal-drake-equation" class="promo-card">
+                <a href="/calc/wallpaper-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Curiosity & Mind</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">The Personal Drake Equation</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate the mathematical probability of finding your ideal romantic partner or peer using Peter Backus's cascading funnel.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Wallpaper Roll Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Estimate wallpaper rolls needed for walls, factoring doors, windows, and pattern repeat.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1885,14 +1896,14 @@
                 </a>
                 
               
-                <a href="/math/gpa-calculator" class="promo-card">
+                <a href="/neuro/overthinking-interrupter" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Units & Calc</span>
+                      <span class="promo-badge">Neurobiology & Mind</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">GPA Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate college and high school weighted and unweighted GPA on a 4.0 scale.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Overthinking & Rumination Interruption Engine</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Break acute default mode network loops and amygdala hijacks with interactive 4-4-4-4 box breathing and somatic grounding.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;

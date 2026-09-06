@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator</title>
+  <title>Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator">
-  <meta property="og:title" content="Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/pressure-swing-adsorption-psa-nitrogen-generator-calculator">
+  <meta property="og:title" content="Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/pressure-swing-adsorption-psa-nitrogen-generator-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator">
+  <meta name="twitter:title" content="Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Pneumatic Conveying Dilute Phase Pressure Drop Calculator",
-      "item": "https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator"
+      "name": "Pressure Swing Adsorption Psa Nitrogen Generator Calculator",
+      "item": "https://digitaltoolsshed.com/calc/pressure-swing-adsorption-psa-nitrogen-generator-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator",
-  "url": "https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator",
+  "name": "Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator",
+  "url": "https://digitaltoolsshed.com/calc/pressure-swing-adsorption-psa-nitrogen-generator-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -86,7 +86,7 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1486,
+    "ratingCount": 922,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the difference between dilute phase and dense phase pneumatic conveying?",
+      "name": "How does Carbon Molecular Sieve (CMS) selectively separate oxygen from nitrogen in a PSA system?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Dilute phase conveying operates at high gas velocities (typically 18–30 m/s) and low solids-to-air mass loading ratios (mu < 15), keeping particles continuously suspended in the turbulent air stream via aerodynamic drag. Dense phase conveying operates at low velocities (1–8 m/s) and high solids loadings (mu > 20 to 100+), pushing material along the pipe in dunes, plugs, or continuous moving beds using high pressure (up to 4–6 bar)."
+        "text": "CMS separates gases through kinetic diffusion selectivity rather than equilibrium adsorption capacity. Oxygen molecules have a kinetic diameter of 3.46 Å, compared to 3.64 Å for nitrogen. Because oxygen is marginally smaller, it diffuses into the microporous carbon structure approximately 30 times faster than nitrogen. When pressurized air (7–9 bar) enters a CMS bed, oxygen is preferentially adsorbed within 60–90 seconds, allowing high-purity nitrogen gas to exit the top of the vessel."
       }
     },
     {
       "@type": "Question",
-      "name": "What is saltation velocity and how is it related to line plugging?",
+      "name": "How does nitrogen purity grade (95% vs 99.999%) affect feed air demand and operating cost?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Saltation velocity (v_salt) is the minimum superficial air velocity in a horizontal pipe below which particles can no longer remain aerodynamically suspended and begin to settle onto the bottom of the pipe. Operating at or below v_salt causes dunes to accumulate, rapidly constricting the cross-sectional area, creating severe pressure surges, and causing complete pipeline blockages within minutes. Design velocity is typically set at 1.25 to 1.45 times v_salt."
+        "text": "As purity requirements increase, the air-to-nitrogen ratio (R_air/N2) escalates exponentially. Producing 95% purity N2 (5% residual O2, typical for inerting or fire suppression) requires only ~2.1 Nm3 of feed air per Nm3 of N2. Producing ultra-high purity 99.999% N2 (10 ppm residual O2, for laser cutting or semiconductor blanketing) requires ~8.5–9.2 Nm3 of feed air per Nm3 of N2. The air compressor power and carbon molecular sieve bed volume quadruple for the exact same nitrogen output."
       }
     },
     {
       "@type": "Question",
-      "name": "Why does air velocity increase toward the end of a pneumatic conveying line?",
+      "name": "What occurs during the bed pressure equalization step in a twin-column PSA cycle?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Compressed air expands as pressure decreases along the length of the pipeline in accordance with Boyle's Ideal Gas Law (P1·V1 = P2·V2). In a positive pressure system operating at 60 kPa gauge at the blower discharge, the gas expands by ~60% by the time it reaches the atmospheric receiver. If constant pipe diameter is maintained, superficial velocity accelerates (e.g. from 18 m/s at the feed to 29 m/s at the discharge), exponentially increasing pipe wall erosion and particle attrition."
+        "text": "At the end of an adsorption half-cycle, Bed A is pressurized with dry, nitrogen-enriched gas (typically 7–8 bar), while Bed B has just finished atmospheric regeneration and purge (0 bar). The pressure equalization valves open between the two column headers for 2–5 seconds. High-pressure gas from Bed A flows into Bed B until both reach an intermediate pressure (~3.5–4.0 bar). This conserves valuable compressed air energy, pre-purges Bed B, and cuts plant electrical power consumption by up to 25%."
       }
     },
     {
       "@type": "Question",
-      "name": "How does rotary airlock feeder clearance leakage affect conveying performance?",
+      "name": "Why is oil mist and liquid water aerosol fatal to Carbon Molecular Sieve (CMS)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A rotary airlock valve drops dry solids into a pressurized pipeline while attempting to seal against the internal system pressure. Rotor tip-to-housing clearances (typically 0.07–0.12 mm when new) allow compressed air to leak upward into the feed hopper (blowby leakage). As the valve wears, leakage increases proportionally to the square root of system pressure, robbing the pipeline of conveying air and reducing pickup velocity below the critical saltation threshold."
+        "text": "CMS micropores have critical pore opening diameters between 3.5 and 4.2 Å. Oil aerosols from lubricated screw compressors or condensate droplets from inadequate air drying permanently blind these sub-nanometer pores (pore glazing). Unlike water, which can be partially desorbed with dry purge, heavy hydrocarbons cannot be regenerated. Oil contamination irreversibly degrades CMS oxygen adsorption kinetics, permanently destroying purity within weeks."
       }
     },
     {
       "@type": "Question",
-      "name": "What causes 'angel hair' or streamers when conveying polymer pellets?",
+      "name": "Why do PSA nitrogen systems require an air buffer tank and a nitrogen process receiver?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "When thermoplastic pellets (polyethylene, polypropylene) impact pipe walls at velocities exceeding ~16–18 m/s, localized friction generates instantaneous temperatures exceeding the polymer melting point. Smears of molten plastic stick to the pipe wall and are dragged downstream by air into gossamer-thin ribbons known as 'angel hair' or 'streamers'. These ribbons ball up into bird nests that foul diverter valves, cyclone screens, and extruder feeders."
+        "text": "PSA columns cycle every 60–120 seconds, alternating between rapid depressurization and sudden re-pressurization. An air buffer tank upstream of the generator absorbs cyclical flow spikes, preventing the feed compressor from cycling between load/unload or suffering pressure collapse. Downstream, a dedicated nitrogen receiver smooths out cyclic pressure pulses from bed switching and supplies product gas for internal column purge during regeneration."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Pneumatic Conveying (Dilute Phase) Pressure Drop & Saltation Calculator</span>
+            <span>Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1140,20 +1140,20 @@
     overflow: hidden;
   }
   .res-metric.primary {
-    background: #eff6ff;
-    border-color: #bfdbfe;
+    background: #f0f9ff;
+    border-color: #bae6fd;
     grid-column: span 2;
   }
   .res-metric .val {
     font-size: 1.7rem;
     font-weight: 800;
-    color: #1e40af;
+    color: #0369a1;
     line-height: 1.1;
     margin-bottom: 0.25rem;
   }
   .res-metric.primary .val {
     font-size: 2.2rem;
-    color: #2563eb;
+    color: #0284c7;
   }
   .res-metric .lbl {
     font-size: 0.82rem;
@@ -1177,7 +1177,7 @@
     height: 250px;
   }
   .btn-copy {
-    background: #2563eb;
+    background: #0284c7;
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -1194,7 +1194,7 @@
     margin-top: 1.25rem;
   }
   .btn-copy:hover {
-    background: #1d4ed8;
+    background: #0369a1;
   }
   .btn-copy:active {
     transform: scale(0.99);
@@ -1265,99 +1265,102 @@
 
 <div class="calc-container">
   <div class="calc-header">
-    <h1>Pneumatic Conveying (Dilute Phase) Pressure Drop &amp; Saltation Calculator</h1>
-    <p>Calculate dilute phase pneumatic conveying pipeline pressure drops, minimum saltation pickup velocity, solids-to-gas loading ratio, elbow resistance, and positive-displacement blower sizing.</p>
+    <h1>Pressure Swing Adsorption (PSA) Nitrogen Generator Calculator</h1>
+    <p>Model carbon molecular sieve (CMS) kinetic O₂/N₂ separation: feed compressed air demand, air-to-N₂ ratio, dual-bed sizing, cycle sequence timing, buffer receiver volumes, and compressor specific power.</p>
   </div>
 
   <div class="calc-grid">
     <!-- INPUTS -->
     <div class="calc-card">
-      <h2>1. Bulk Material &amp; Capacity</h2>
+      <h2>1. Nitrogen Production Requirements</h2>
       <div class="form-group">
-        <label>Solids Throughput (M&#775;<sub>solids</sub>) <span class="unit-label">tonnes/hour (t/h)</span></label>
-        <input type="number" id="pnc_tsolid" class="form-control" value="12.0" min="0.5" max="150.0" step="0.5">
+        <label>Product Nitrogen Flow (Q<sub>N2</sub>) <span class="unit-label">Nm³/h</span></label>
+        <input type="number" id="psa_qn2" class="form-control" value="80" min="2" max="2500" step="5">
       </div>
       <div class="form-group">
-        <label>Solid Particle Density (&rho;<sub>p</sub>) <span class="unit-label">kg/m³ (true particle density)</span></label>
-        <input type="number" id="pnc_rhop" class="form-control" value="1450" min="500" max="5000" step="50">
+        <label>Nitrogen Gas Purity Grade <span class="unit-label">% N₂</span></label>
+        <select id="psa_purity" class="form-control">
+          <option value="95.0">95.0% N₂ (50,000 ppm O₂ - Inerting/Sparging)</option>
+          <option value="98.0">98.0% N₂ (20,000 ppm O₂ - Food Packaging)</option>
+          <option value="99.0">99.0% N₂ (10,000 ppm O₂ - Chemical Blanketing)</option>
+          <option value="99.5" selected>99.5% N₂ (5,000 ppm O₂ - Heat Treatment)</option>
+          <option value="99.9">99.9% N₂ (1,000 ppm O₂ - Pharmaceutical)</option>
+          <option value="99.99">99.99% N₂ (100 ppm O₂ - Electronics / Selective Soldering)</option>
+          <option value="99.999">99.999% N₂ (10 ppm O₂ - Laser Cutting / High Purity)</option>
+        </select>
       </div>
       <div class="form-group">
-        <label>Mean Particle Diameter (d<sub>p</sub>) <span class="unit-label">&mu;m (microns)</span></label>
-        <input type="number" id="pnc_dp" class="form-control" value="250" min="10" max="5000" step="10">
+        <label>Feed Air Pressure (P<sub>feed</sub>) <span class="unit-label">bar(g) (typically 7.0–9.0)</span></label>
+        <input type="number" id="psa_pfeed" class="form-control" value="7.5" min="5.5" max="13.0" step="0.5">
       </div>
       <div class="form-group">
-        <label>Air Conveying Velocity at Pickup (v<sub>air,in</sub>) <span class="unit-label">m/s (typically 18–26)</span></label>
-        <input type="number" id="pnc_vair" class="form-control" value="21.0" min="12.0" max="38.0" step="0.5">
+        <label>Ambient Air Temperature (T<sub>amb</sub>) <span class="unit-label">°C (ideal: 20–25°C)</span></label>
+        <input type="number" id="psa_temp" class="form-control" value="25" min="5" max="45" step="1">
       </div>
 
-      <h2>2. Pipeline Routing &amp; Geometry</h2>
+      <h2>2. Adsorption Cycle &amp; Vessel Geometry</h2>
       <div class="form-group">
-        <label>Pipe Inside Diameter (D) <span class="unit-label">mm (standard schedule)</span></label>
-        <input type="number" id="pnc_diam" class="form-control" value="150" min="50" max="500" step="5">
+        <label>Half-Cycle Adsorption Time (t<sub>ads</sub>) <span class="unit-label">seconds (typical 60–90s)</span></label>
+        <input type="number" id="psa_tads" class="form-control" value="65" min="30" max="180" step="5">
       </div>
       <div class="form-group">
-        <label>Total Horizontal Pipe Length (L<sub>horiz</sub>) <span class="unit-label">meters (m)</span></label>
-        <input type="number" id="pnc_lhoriz" class="form-control" value="85" min="2" max="1000" step="5">
+        <label>Equalization Step Time (t<sub>eq</sub>) <span class="unit-label">seconds (typical 2–5s)</span></label>
+        <input type="number" id="psa_teq" class="form-control" value="3.5" min="1" max="10" step="0.5">
       </div>
       <div class="form-group">
-        <label>Total Vertical Lift Height (L<sub>vert</sub>) <span class="unit-label">meters (m)</span></label>
-        <input type="number" id="pnc_lvert" class="form-control" value="22" min="0" max="150" step="1">
+        <label>CMS Bulk Density (&rho;<sub>CMS</sub>) <span class="unit-label">kg/m³</span></label>
+        <input type="number" id="psa_rhocms" class="form-control" value="660" min="550" max="750" step="10">
       </div>
       <div class="form-group">
-        <label>Number of 90° Bends (N<sub>bends</sub>) <span class="unit-label">count (long radius R/D=5)</span></label>
-        <input type="number" id="pnc_nbends" class="form-control" value="4" min="0" max="25" step="1">
-      </div>
-      <div class="form-group">
-        <label>Rotary Airlock Blowby Leakage Allowance <span class="unit-label">% of conveying air</span></label>
-        <input type="number" id="pnc_leak" class="form-control" value="12" min="2" max="35" step="1">
+        <label>Vessel Aspect Ratio (Height / Diameter) <span class="unit-label">L/D ratio</span></label>
+        <input type="number" id="psa_aspect" class="form-control" value="3.5" min="2.0" max="5.5" step="0.1">
       </div>
     </div>
 
     <!-- OUTPUTS & DASHBOARD -->
     <div class="calc-card">
-      <h2>Pneumatic Performance &amp; Blower Sizing</h2>
+      <h2>Generator Performance &amp; Air Sizing</h2>
 
       <div class="results-grid">
         <div class="res-metric primary">
-          <div class="val" id="res_total_dp">48.2 kPa</div>
-          <div class="lbl">Total System Pressure Drop (&Delta;P<sub>total</sub>)</div>
+          <div class="val" id="res_qair">256 Nm³/h</div>
+          <div class="lbl">Feed Compressed Air Required (Q<sub>air</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_saltation">16.4 m/s</div>
-          <div class="lbl">Saltation Velocity (v<sub>salt</sub>)</div>
+          <div class="val" id="res_air_ratio">3.20 Nm³/Nm³</div>
+          <div class="lbl">Air-to-Nitrogen Ratio (R<sub>air/N2</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_solids_ratio">7.8 kg/kg</div>
-          <div class="lbl">Solids Loading Ratio (&mu;<sub>s</sub>)</div>
+          <div class="val" id="res_compressor_power">28.5 kW</div>
+          <div class="lbl">Air Compressor Shaft Power</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_blower_flow">1,540 m³/h</div>
-          <div class="lbl">Inlet Air Blower Capacity (ICFM)</div>
+          <div class="val" id="res_spec_energy">0.36 kWh/Nm³</div>
+          <div class="lbl">Specific Energy Consumption</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_blower_power">31.5 kW</div>
-          <div class="lbl">Roots Blower Shaft Power</div>
+          <div class="val" id="res_cms_weight">1,150 kg</div>
+          <div class="lbl">Total CMS Carbon Sieve (2 beds)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_term_vel">28.2 m/s</div>
-          <div class="lbl">Terminal Air Velocity (at exit)</div>
+          <div class="val" id="res_vessel_dim">0.68 m &times; 2.38 m</div>
+          <div class="lbl">Column Dimensions (D<sub>bed</sub> &times; L<sub>bed</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_froude">17.3</div>
-          <div class="lbl">Pipe Froude Number (Fr)</div>
+          <div class="val" id="res_tank_air">1,500 L</div>
+          <div class="lbl">Air Receiver Tank Size (V<sub>air</sub>)</div>
         </div>
       </div>
 
-      <h2>Pressure Drop Component Breakdown</h2>
+      <h2>Dual-Bed PSA Cycle State Engine</h2>
       <div style="font-size:0.88rem; color:#475569; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
-        <span>Clean Air: <b id="res_dp_air">18%</b></span>
-        <span>Solids Accel: <b id="res_dp_acc">12%</b></span>
-        <span>Friction &amp; Lift: <b id="res_dp_fric">52%</b></span>
-        <span>Bends: <b id="res_dp_bends">18%</b></span>
+        <span>Bed A: <b id="res_state_a" style="color:#0284c7;">ADSORPTION (7.5 bar)</b></span>
+        <span>Bed B: <b id="res_state_b" style="color:#10b981;">DESORPTION (0.0 bar)</b></span>
+        <span>Equalization: <b id="res_pct_rec">3.8 bar</b></span>
       </div>
 
       <div class="canvas-wrapper">
-        <canvas id="pncCanvas"></canvas>
+        <canvas id="psaCanvas"></canvas>
       </div>
 
       <button id="copySummaryBtn" class="btn-copy">
@@ -1372,183 +1375,157 @@
 
   <!-- FATAL TRAPS SECTION -->
   <div class="traps-section">
-    <h2>5 Fatal Engineering Traps in Dilute Phase Pneumatic Conveying</h2>
+    <h2>5 Fatal Engineering Traps in PSA Nitrogen System Design</h2>
     <div class="traps-grid">
       <div class="trap-card" style="border-left: 4px solid #ef4444;">
-        <h3 style="color: #ef4444;">1. The Saltation Choke &amp; Line Blockage Avalanche</h3>
-        <p>Operating conveying velocity below 1.25× the Rizk saltation velocity causes particles to drop out of aerodynamic suspension. Settled solids form stationary dunes in horizontal pipe runs. As effective pipe cross-sectional area chokes, blower discharge pressure spikes to maximum relief setting (typically 70–90 kPa). Once the relief valve lifts, air velocity collapses instantly, burying hundreds of meters of pipe under a solid, compacted plug.</p>
+        <h3 style="color: #ef4444;">1. Oil Aerosol Poisoning &amp; Irreversible CMS Pore Glazing</h3>
+        <p>Carbon Molecular Sieve (CMS) separates gases via sub-nanometer pores (3.8–4.3 Å). If lubricated air compressors have oil carryover exceeding 0.003 mg/m³ (due to failed coalescing filter elements or saturated carbon beds), heavy hydrocarbons permanently glaze the external and internal micropore mouths. Unlike moisture, which can be partially desorbed with dry purge, hydrocarbon glazing is 100% irreversible, permanently killing nitrogen purity within 30 days.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #f59e0b;">
-        <h3 style="color: #f59e0b;">2. Gas Expansion Acceleration &amp; Severe v³ Elbow Erosion</h3>
-        <p>In positive pressure systems, compressed air expands as pressure dissipates toward the terminal receiver. A line operating at 50 kPa gauge experiences a 50% volumetric expansion, accelerating air velocity from 20 m/s at pickup to over 30 m/s at the cyclone receiver. Because abrasive erosive wear on 90° pipe bends scales with velocity cubed (v³), elbow wall penetration occurs 3.4× faster at the end of the line unless stepped-diameter piping is installed.</p>
+        <h3 style="color: #f59e0b;">2. The Super-Purge Recovery Death Spiral at 99.999% Purity</h3>
+        <p>Demanding 99.999% N₂ (10 ppm residual O₂) instead of 99.5% quadruples the required air-to-nitrogen ratio from ~3.2 to over 8.8. To reach 10 ppm O₂, the regenerating bed requires an aggressive counter-current purge with high-purity product nitrogen. If operators set the purge orifice slightly too open, the generator consumes up to 45% of its own product gas for internal washing, collapsing net discharge flow and tripping low-pressure shutdowns.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #10b981;">
-        <h3 style="color: #10b981;">3. Rotary Airlock Blowby Leakage Starving the Pipeline</h3>
-        <p>A rotary airlock valve meters solids into the pressurized line while sealing against the internal system pressure. Rotor tip clearances wear from 0.08 mm to 0.25 mm over time from abrasive particles. High blowby air leakage rushes upward into the feed surge bin, fluidizing the powder and starving the pipeline of conveying air. This stealthily lowers pickup velocity below saltation without tripping blower motor overloads.</p>
+        <h3 style="color: #10b981;">3. Bed Fluidization &amp; Carbon Pellet Dust Pulverization</h3>
+        <p>During the rapid 2–4 second pressure equalization step, gas transfers between columns at extreme velocities. If the system lacks top pneumatic cylinder spring-compaction or throttle orifices, upward superficial gas velocity exceeds the minimum fluidization velocity of the 1.5–2.0 mm extruded CMS pellets. The pellets churn, grind against each other, and pulverize into black carbon dust that destroys pilot solenoid valves and silencers.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #3b82f6;">
-        <h3 style="color: #3b82f6;">4. Angel Hair &amp; Streamers in Plastic Pellets from Short Radii</h3>
-        <p>Conveying polyolefin pellets (polyethylene, polypropylene) at velocities &gt;18 m/s through standard short-radius elbows causes high-energy wall collisions. Frictional heat momentarily melts the pellet outer skin against the pipe wall, extruding ultra-thin plastic filaments known as "angel hair" or "snake skins". These streamers wrap around cyclone vortex finders, gum up diverter valves, and cause massive plant downtime.</p>
+        <h3 style="color: #3b82f6;">4. Warm Saturated Air Dew Point (+3°C Refrigerant Trap)</h3>
+        <p>Using a standard +3°C pressure dew point (PDP) refrigerated air dryer instead of a -40°C desiccant dryer severely degrades CMS performance at elevated temperatures. Water vapor molecules compete aggressively with oxygen for active adsorption sites. Above 35°C ambient, liquid condensation forms micro-droplets on the pellet surface, slashing oxygen adsorption kinetics and forcing the system to bleed nitrogen purity.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
-        <h3 style="color: #8b5cf6;">5. Combustible Dust Electrostatic Ignition &amp; Missing Flange Bonding</h3>
-        <p>Conveying organic powders (sugar, flour, polymers, coal) at high speeds generates enormous triboelectric electrostatic potential (often &gt;25 kV). If pipeline joints use rubber-gasketed flanges without welded copper grounding straps, isolated pipe spools act as high-voltage Leyden jar capacitors. A single capacitive static spark discharge to ground can ignite the dispersed dust cloud, triggering a catastrophic NFPA 652 primary dust explosion.</p>
+        <h3 style="color: #8b5cf6;">5. Missing Air Buffer Receiver &amp; Compressor Rapid Unload Short-Cycling</h3>
+        <p>When a PSA generator switches beds, feed air demand instantaneously drops from 100% to 0% during equalization, then surges to 160% as the fresh bed repressurizes. Operating without a dedicated air receiver tank sized for at least 1.5–2.0× the half-cycle displacement causes the upstream screw compressor to cycle between load and unload every 60 seconds, overheating drive motors and burning out inlet control valves.</p>
       </div>
     </div>
   </div>
 
   <!-- THEORY & ENGINEERING DERIVATIONS -->
   <div class="theory-section">
-    <h2>Pneumatic Transport Equations &amp; Loss Modeling</h2>
-    <p>Dilute phase pneumatic conveying pressure drop is modeled by the two-phase momentum and friction balance:</p>
-    <p style="text-align: center; font-size: 1.15rem; font-weight: bold; color: #2563eb;">
-      &Delta;P<sub>total</sub> = &Delta;P<sub>air,fric</sub> + &Delta;P<sub>accel</sub> + &Delta;P<sub>solids,fric</sub> + &Delta;P<sub>gravity</sub> + &Delta;P<sub>bends</sub>
+    <h2>Governing Adsorption Kinetics &amp; Mass Balance</h2>
+    <p>Carbon Molecular Sieve (CMS) separates O₂ from N₂ through steric kinetic sieving. The transient oxygen penetration is governed by Fickian diffusion into spherical carbon pellets:</p>
+    <p style="text-align: center; font-size: 1.15rem; font-weight: bold; color: #0284c7;">
+      &part;q / &part;t = (D<sub>e</sub> / r²) &middot; &part; / &part;r [ r² &middot; (&part;q / &part;r) ]
     </p>
-
-    <p>The minimum saltation velocity is calculated using the Rizk semi-empirical correlation:</p>
+    <p>Where effective diffusivity D<sub>e</sub> for O₂ is ~30× higher than N₂. The overall Air-to-Nitrogen consumption ratio (R<sub>air/N2</sub>) is empirically parameterized by product purity:</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      v<sub>salt</sub> = &radic;[ g &middot; D ] &times; [ &mu;<sub>s</sub> / (10<sup>-3</sup> &middot; (&rho;<sub>p</sub> / &rho;<sub>air</sub>) &middot; (d<sub>p</sub> / D)<sup>0.1</sup>) ]<sup>0.25</sup>
+      R<sub>air/N2</sub> &approx; 1.85 + 0.35 &middot; [-ln(1 - Purity / 100)]<sup>1.35</sup> &middot; [ 1 + 0.015 &middot; (T<sub>amb</sub> - 20) ] &middot; (7.5 / P<sub>feed</sub>)<sup>0.4</sup>
     </p>
 
-    <p>Where:</p>
-    <ul>
-      <li><code>&mu;_s</code> = Solids-to-air mass flow ratio = <code>M&#775;_solids / M&#775;_air</code></li>
-      <li><code>&Delta;P_accel</code> = Acceleration pressure drop = <code>&mu;_s &middot; &rho;_air &middot; v_air &middot; v_p,final</code> (where <code>v_p,final &approx; 0.8 &middot; v_air</code>)</li>
-      <li><code>&Delta;P_solids,fric</code> = Additional solids friction = <code>&lambda;_s &middot; &mu;_s &middot; (L_horiz / D) &middot; (&rho;_air &middot; v_air² / 2)</code></li>
-      <li><code>&Delta;P_gravity</code> = Vertical hydrostatic suspension lift = <code>&mu;_s &middot; &rho;_air &middot; (v_air / v_p) &middot; g &middot; L_vert</code></li>
-      <li><code>&Delta;P_bends</code> = Impact and momentum re-acceleration loss per 90° bend = <code>N_bends &middot; (1 + 0.8 &middot; &mu;_s) &middot; (&rho;_air &middot; v_air² / 2)</code></li>
-    </ul>
+    <p>Total feed air volume flow rate required from the screw air compressor:</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      Q<sub>air</sub> = Q<sub>N2</sub> &times; R<sub>air/N2</sub> &nbsp; (Nm³/h)
+    </p>
+
+    <p>Air compressor shaft power (kW) using standard isothermal/polytropic compression efficiency (&eta; &approx; 68%):</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      P<sub>comp</sub> = [ Q<sub>air</sub> / 3600 ] &times; [ P<sub>amb</sub> / &eta; ] &times; [ &gamma; / (&gamma; - 1) ] &times; [ (P<sub>feed</sub> / P<sub>amb</sub>)<sup>(&gamma;-1)/&gamma;</sup> - 1 ]
+    </p>
+
+    <p>CMS adsorbent mass requirement for dual-bed systems (adsorption capacity specific factor k<sub>CMS</sub>):</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      M<sub>CMS</sub> = Q<sub>N2</sub> &times; [ 12.0 + 3.2 &middot; (-ln(1 - Purity / 100)) ] &nbsp; (kg CMS total)
+    </p>
   </div>
 </div>
 
 <script>
 (function() {
   // DOM Elements
-  const elTsolid = document.getElementById('pnc_tsolid');
-  const elRhop = document.getElementById('pnc_rhop');
-  const elDp = document.getElementById('pnc_dp');
-  const elVair = document.getElementById('pnc_vair');
-  const elDiam = document.getElementById('pnc_diam');
-  const elLhoriz = document.getElementById('pnc_lhoriz');
-  const elLvert = document.getElementById('pnc_lvert');
-  const elNbends = document.getElementById('pnc_nbends');
-  const elLeak = document.getElementById('pnc_leak');
+  const elQn2 = document.getElementById('psa_qn2');
+  const elPurity = document.getElementById('psa_purity');
+  const elPfeed = document.getElementById('psa_pfeed');
+  const elTemp = document.getElementById('psa_temp');
+  const elTads = document.getElementById('psa_tads');
+  const elTeq = document.getElementById('psa_teq');
+  const elRhoCms = document.getElementById('psa_rhocms');
+  const elAspect = document.getElementById('psa_aspect');
 
-  const resTotalDp = document.getElementById('res_total_dp');
-  const resSaltation = document.getElementById('res_saltation');
-  const resSolidsRatio = document.getElementById('res_solids_ratio');
-  const resBlowerFlow = document.getElementById('res_blower_flow');
-  const resBlowerPower = document.getElementById('res_blower_power');
-  const resTermVel = document.getElementById('res_term_vel');
-  const resFroude = document.getElementById('res_froude');
-  const resDpAir = document.getElementById('res_dp_air');
-  const resDpAcc = document.getElementById('res_dp_acc');
-  const resDpFric = document.getElementById('res_dp_fric');
-  const resDpBends = document.getElementById('res_dp_bends');
+  const resQair = document.getElementById('res_qair');
+  const resAirRatio = document.getElementById('res_air_ratio');
+  const resCompressorPower = document.getElementById('res_compressor_power');
+  const resSpecEnergy = document.getElementById('res_spec_energy');
+  const resCmsWeight = document.getElementById('res_cms_weight');
+  const resVesselDim = document.getElementById('res_vessel_dim');
+  const resTankAir = document.getElementById('res_tank_air');
+  const resStateA = document.getElementById('res_state_a');
+  const resStateB = document.getElementById('res_state_b');
+  const resPctRec = document.getElementById('res_pct_rec');
   const btnCopy = document.getElementById('copySummaryBtn');
-  const canvas = document.getElementById('pncCanvas');
+  const canvas = document.getElementById('psaCanvas');
   const ctx = canvas.getContext('2d');
 
-  function calculatePNC() {
-    const M_solids_th = parseFloat(elTsolid.value) || 12.0; // t/h
-    const rho_p = parseFloat(elRhop.value) || 1450; // kg/m3
-    const d_p_um = parseFloat(elDp.value) || 250; // microns
-    const v_air_in = parseFloat(elVair.value) || 21.0; // m/s
-    const D_mm = parseFloat(elDiam.value) || 150; // mm
-    const L_horiz = parseFloat(elLhoriz.value) || 85; // m
-    const L_vert = parseFloat(elLvert.value) || 22; // m
-    const N_bends = parseInt(elNbends.value) || 4;
-    const leak_pct = parseFloat(elLeak.value) || 12; // %
+  function calculatePSA() {
+    const Qn2 = parseFloat(elQn2.value) || 80; // Nm3/h
+    const purity = parseFloat(elPurity.value) || 99.5; // %
+    const pFeed = parseFloat(elPfeed.value) || 7.5; // bar(g)
+    const tempC = parseFloat(elTemp.value) || 25; // deg C
+    const tAds = parseFloat(elTads.value) || 65; // s
+    const tEq = parseFloat(elTeq.value) || 3.5; // s
+    const rhoCms = parseFloat(elRhoCms.value) || 660; // kg/m3
+    const aspect = parseFloat(elAspect.value) || 3.5; // L/D
 
-    // Conversions
-    const D_m = D_mm / 1000;
-    const d_p_m = d_p_um * 1e-6;
-    const M_solids_kgs = (M_solids_th * 1000) / 3600; // kg/s
-    const pipe_area = (Math.PI / 4) * Math.pow(D_m, 2); // m2
-    const rho_air = 1.20; // kg/m3 at ambient 20C
+    // 1. Oxygen fraction remaining
+    const o2_fraction = Math.max(0.00001, (100 - purity) / 100);
+    const negLnO2 = -Math.log(o2_fraction); // e.g. for 99.5% -> -ln(0.005) = 5.298
 
-    // 1. Air Flow at Pickup (m3/s)
-    const Q_air_pickup = pipe_area * v_air_in; // m3/s
-    const M_air_kgs = Q_air_pickup * rho_air; // kg/s
+    // 2. Air to N2 Ratio (empirical CMS performance curve)
+    // Baseline at 7.5 barg and 20 C
+    const p_factor = Math.pow(7.5 / Math.max(4.0, pFeed), 0.38);
+    const temp_factor = 1.0 + 0.014 * (tempC - 20);
+    const R_air_n2 = (1.80 + 0.32 * Math.pow(negLnO2, 1.28)) * p_factor * temp_factor;
 
-    // Total blower flow including leakage
-    const Q_blower_m3s = Q_air_pickup * (1 + leak_pct / 100);
-    const Q_blower_m3h = Q_blower_m3s * 3600;
+    // 3. Feed Air Demand (Nm3/h)
+    const Qair = Qn2 * R_air_n2;
 
-    // 2. Solids Loading Ratio (mu_s = kg solids / kg air)
-    const mu_s = M_solids_kgs / M_air_kgs;
+    // 4. Air Compressor Power (kW)
+    // Standard polytropic compression calculation for air (gamma = 1.4, eta = 0.68)
+    const Pamb_Pa = 101325;
+    const Pdisch_Pa = (pFeed + 1.013) * 1e5;
+    const pressRatio = Pdisch_Pa / Pamb_Pa;
+    const gamma = 1.4;
+    const eta = 0.68;
+    const Qair_m3s = Qair / 3600; // standard m3/s
+    const compPower_kW = (Qair_m3s * Pamb_Pa / eta) * (gamma / (gamma - 1)) * (Math.pow(pressRatio, (gamma - 1) / gamma) - 1) / 1000;
 
-    // 3. Saltation Velocity (Rizk correlation approximation)
-    const g = 9.81;
-    const Fr_salt_denom = Math.pow(10, -3) * (rho_p / rho_air) * Math.pow(d_p_m / D_m, 0.1);
-    const v_salt = Math.sqrt(g * D_m) * Math.pow(Math.max(1, mu_s) / Fr_salt_denom, 0.24);
+    // Specific energy consumption (kWh / Nm3 N2)
+    const specEnergy = compPower_kW / Qn2;
 
-    // Pipe Froude Number
-    const Fr = v_air_in / Math.sqrt(g * D_m);
+    // 5. CMS Sorbent Mass (Total in 2 vessels)
+    // Specific CMS loading factor
+    const k_cms = 10.5 + 2.8 * negLnO2;
+    const totalCmsKg = Qn2 * k_cms;
+    const cmsPerBedKg = totalCmsKg / 2;
 
-    // 4. Pressure Drop Components (Pa)
-    const dynamic_press = 0.5 * rho_air * Math.pow(v_air_in, 2); // Pa
+    // 6. Vessel Sizing (each bed)
+    const bedVolume_m3 = (cmsPerBedKg / rhoCms) * 1.15; // 15% allowance for bed retention screens / plenum
+    // V = (pi / 4) * D^2 * L, with L = aspect * D -> V = (pi / 4) * aspect * D^3
+    const bedDiam_m = Math.pow((4 * bedVolume_m3) / (Math.PI * aspect), 1 / 3);
+    const bedHeight_m = bedDiam_m * aspect;
 
-    // (a) Clean Air Friction (Darcy-Weisbach)
-    const Re = (rho_air * v_air_in * D_m) / 1.81e-5;
-    const lambda_air = 0.3164 * Math.pow(Re, -0.25);
-    const dp_air_fric = lambda_air * ((L_horiz + L_vert) / D_m) * dynamic_press;
+    // 7. Air Buffer Tank Size
+    // Sized for ~1.8x single bed repressurization volume
+    const tankAir_L = Math.round(bedVolume_m3 * pFeed * 1000 * 0.7);
 
-    // (b) Solids Acceleration at pickup
-    const v_p_final = 0.82 * v_air_in;
-    const dp_accel = mu_s * rho_air * v_air_in * v_p_final;
-
-    // (c) Additional Solids Friction (Horizontal)
-    const lambda_s = 0.0022 * Math.pow(Fr, -0.35);
-    const dp_solids_fric = lambda_s * mu_s * (L_horiz / D_m) * dynamic_press;
-
-    // (d) Vertical Lift Pressure Drop
-    const v_terminal = Math.sqrt((4 * g * d_p_m * rho_p) / (3 * 0.44 * rho_air));
-    const v_p_vert = Math.max(2.0, v_air_in - v_terminal);
-    const dp_vert_lift = mu_s * rho_air * (v_air_in / v_p_vert) * g * L_vert;
-
-    // (e) Bend Losses (90 deg elbows)
-    const dp_per_bend = (1.0 + 0.75 * mu_s) * dynamic_press;
-    const dp_bends = N_bends * dp_per_bend;
-
-    // Total Line Pressure Drop (Pa -> kPa)
-    const total_dp_Pa = dp_air_fric + dp_accel + dp_solids_fric + dp_vert_lift + dp_bends;
-    const total_dp_kPa = total_dp_Pa / 1000;
-
-    // 5. Terminal Velocity (Air expansion at atmospheric discharge)
-    const P_abs_in = 101.325 + total_dp_kPa;
-    const P_abs_out = 101.325;
-    const expansion_ratio = P_abs_in / P_abs_out;
-    const v_terminal_air = v_air_in * expansion_ratio;
-
-    // 6. Blower Power (Roots blower adiabatic efficiency ~65%)
-    const blower_eff = 0.65;
-    const blower_power_kW = (Q_blower_m3s * total_dp_Pa) / (1000 * blower_eff);
-
-    // Percentages
-    const pctAir = Math.round((dp_air_fric / total_dp_Pa) * 100);
-    const pctAcc = Math.round((dp_accel / total_dp_Pa) * 100);
-    const pctFricLift = Math.round(((dp_solids_fric + dp_vert_lift) / total_dp_Pa) * 100);
-    const pctBends = 100 - pctAir - pctAcc - pctFricLift;
+    // Intermediate equalization pressure
+    const Peq_bar = (pFeed * 0.50).toFixed(1);
 
     // Update DOM
-    resTotalDp.textContent = total_dp_kPa.toFixed(1) + " kPa";
-    resSaltation.textContent = v_salt.toFixed(1) + " m/s";
-    resSolidsRatio.textContent = mu_s.toFixed(1) + " kg/kg";
-    resBlowerFlow.textContent = Math.round(Q_blower_m3h).toLocaleString() + " m³/h";
-    resBlowerPower.textContent = blower_power_kW.toFixed(1) + " kW";
-    resTermVel.textContent = v_terminal_air.toFixed(1) + " m/s";
-    resFroude.textContent = Fr.toFixed(1);
+    resQair.textContent = Math.round(Qair).toLocaleString() + " Nm³/h";
+    resAirRatio.textContent = R_air_n2.toFixed(2) + " Nm³/Nm³";
+    resCompressorPower.textContent = compPower_kW.toFixed(1) + " kW";
+    resSpecEnergy.textContent = specEnergy.toFixed(2) + " kWh/Nm³";
+    resCmsWeight.textContent = Math.round(totalCmsKg).toLocaleString() + " kg";
+    resVesselDim.textContent = bedDiam_m.toFixed(2) + " m × " + bedHeight_m.toFixed(2) + " m";
+    resTankAir.textContent = Math.round(tankAir_L).toLocaleString() + " L";
+    resStateA.textContent = "ADSORPTION (" + pFeed.toFixed(1) + " bar)";
+    resStateB.textContent = "REGENERATION (0.0 bar)";
+    resPctRec.textContent = Peq_bar + " bar";
 
-    resDpAir.textContent = pctAir + "%";
-    resDpAcc.textContent = pctAcc + "%";
-    resDpFric.textContent = pctFricLift + "%";
-    resDpBends.textContent = pctBends + "%";
-
-    renderCanvas(v_air_in, v_salt, total_dp_kPa, v_terminal_air);
+    renderCanvas(pFeed, parseFloat(Peq_bar));
   }
 
-  function renderCanvas(vAirIn, vSalt, totalDp, vTerm) {
+  function renderCanvas(pFeed, pEq) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.parentElement.clientWidth - 24;
     const h = 240;
@@ -1561,94 +1538,123 @@
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, w, h);
 
-    // Title
+    // Layout: Two Columns (Bed A, Bed B)
+    const colW = 55;
+    const colH = 130;
+    const colA_X = w * 0.22;
+    const colB_X = w * 0.44;
+    const colY = 55;
+
+    // Bed A (Pressurized - Blue)
+    ctx.fillStyle = "#0369a1";
+    ctx.fillRect(colA_X, colY, colW, colH);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(colA_X, colY, colW, colH);
+    // Dotted CMS fill
+    ctx.fillStyle = "#bae6fd";
+    ctx.font = "11px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("BED A", colA_X + colW / 2, colY + 25);
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.fillText(pFeed.toFixed(1) + " bar", colA_X + colW / 2, colY + 45);
+    ctx.fillText("Producing N₂", colA_X + colW / 2, colY + colH - 20);
+
+    // Bed B (Depressurized / Purge - Slate/Green)
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(colB_X, colY, colW, colH);
+    ctx.strokeStyle = "#475569";
+    ctx.strokeRect(colB_X, colY, colW, colH);
     ctx.fillStyle = "#94a3b8";
     ctx.font = "11px system-ui, sans-serif";
-    ctx.fillText("Pipeline Pneumatic Velocity Profile vs Saltation Choke Limit", 14, 20);
+    ctx.fillText("BED B", colB_X + colW / 2, colY + 25);
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.fillText("0.0 bar", colB_X + colW / 2, colY + 45);
+    ctx.fillText("Regenerating", colB_X + colW / 2, colY + colH - 20);
 
-    const padL = 50;
-    const padR = 25;
-    const padT = 35;
-    const padB = 30;
-    const plotW = w - padL - padR;
-    const plotH = h - padT - padB;
-
-    // Axes
-    ctx.strokeStyle = "#334155";
-    ctx.lineWidth = 1;
+    // Equalization Header Line across top
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([4, 3]);
     ctx.beginPath();
-    ctx.moveTo(padL, padT);
-    ctx.lineTo(padL, padT + plotH);
-    ctx.lineTo(padL + plotW, padT + plotH);
-    ctx.stroke();
-
-    const maxVel = Math.max(40, vTerm * 1.25);
-    ctx.fillStyle = "#64748b";
-    ctx.textAlign = "right";
-    ctx.fillText(maxVel.toFixed(0) + " m/s", padL - 6, padT + 10);
-    ctx.fillText("0 m/s", padL - 6, padT + plotH);
-
-    // Saltation Choke Red Zone
-    const ySalt = padT + plotH - (vSalt / maxVel) * plotH;
-    ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
-    ctx.fillRect(padL, ySalt, plotW, padT + plotH - ySalt);
-    ctx.strokeStyle = "#ef4444";
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(padL, ySalt);
-    ctx.lineTo(padL + plotW, ySalt);
+    ctx.moveTo(colA_X + colW / 2, colY);
+    ctx.lineTo(colA_X + colW / 2, colY - 20);
+    ctx.lineTo(colB_X + colW / 2, colY - 20);
+    ctx.lineTo(colB_X + colW / 2, colY);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = "#f87171";
-    ctx.fillText("Saltation Limit: " + vSalt.toFixed(1) + " m/s", padL + plotW - 8, ySalt - 4);
+    ctx.fillStyle = "#fbbf24";
+    ctx.fillText("Equalization: " + pEq.toFixed(1) + " bar", (colA_X + colB_X + colW) / 2, colY - 26);
 
-    // Air Velocity Curve along pipe length
-    ctx.strokeStyle = "#38bdf8";
-    ctx.lineWidth = 2.5;
+    // Bottom Feed Manifold
+    ctx.strokeStyle = "#0284c7";
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(padL, padT + plotH - (vAirIn / maxVel) * plotH);
-
-    const steps = 30;
-    for (let i = 0; i <= steps; i++) {
-      const frac = i / steps;
-      // Parabolic velocity acceleration due to gas expansion
-      const currentVel = vAirIn + (vTerm - vAirIn) * Math.pow(frac, 1.3);
-      const px = padL + frac * plotW;
-      const py = padT + plotH - (currentVel / maxVel) * plotH;
-      ctx.lineTo(px, py);
-    }
+    ctx.moveTo(colA_X - 35, colY + colH + 18);
+    ctx.lineTo(colA_X + colW / 2, colY + colH + 18);
+    ctx.lineTo(colA_X + colW / 2, colY + colH);
     ctx.stroke();
-
-    // Callout labels
     ctx.fillStyle = "#38bdf8";
-    ctx.textAlign = "left";
-    ctx.fillText("Pickup: " + vAirIn.toFixed(1) + " m/s", padL + 10, padT + plotH - (vAirIn / maxVel) * plotH - 12);
     ctx.textAlign = "right";
-    ctx.fillText("Terminal: " + vTerm.toFixed(1) + " m/s", padL + plotW - 10, padT + plotH - (vTerm / maxVel) * plotH - 12);
+    ctx.fillText("Feed Air →", colA_X - 10, colY + colH + 15);
 
-    // X-axis length labels
+    // Exhaust Silencer arrow
+    ctx.strokeStyle = "#ef4444";
+    ctx.beginPath();
+    ctx.moveTo(colB_X + colW / 2, colY + colH);
+    ctx.lineTo(colB_X + colW / 2, colY + colH + 20);
+    ctx.lineTo(colB_X + colW + 25, colY + colH + 20);
+    ctx.stroke();
+    ctx.fillStyle = "#f87171";
+    ctx.textAlign = "left";
+    ctx.fillText("O₂ Waste Exhaust", colB_X + colW + 10, colY + colH + 16);
+
+    // Right-side Status Dashboard
+    const rX = w * 0.65;
+    ctx.textAlign = "left";
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.fillStyle = "#e2e8f0";
+    ctx.fillText("Cycle Step Sequencing:", rX, 45);
+
+    ctx.font = "11px system-ui, sans-serif";
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillText("1. Adsorption & N₂ Delivery (60-90s)", rX, 70);
+    ctx.fillStyle = "#fbbf24";
+    ctx.fillText("2. Pressure Equalization (2-5s)", rX, 92);
+    ctx.fillStyle = "#f87171";
+    ctx.fillText("3. Counter-Current Blowdown (15s)", rX, 114);
+    ctx.fillStyle = "#a7f3d0";
+    ctx.fillText("4. Low-Pressure N₂ Purge (35s)", rX, 136);
+    ctx.fillStyle = "#93c5fd";
+    ctx.fillText("5. Feed Repressurization (10s)", rX, 158);
+
+    // CMS Carbon Sieve Callout Box
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(rX, 175, 185, 42);
+    ctx.strokeStyle = "#0284c7";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rX, 175, 185, 42);
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillText("Carbon Molecular Sieve (CMS)", rX + 8, 192);
     ctx.fillStyle = "#64748b";
-    ctx.textAlign = "center";
-    ctx.fillText("Rotary Airlock Pickup", padL + 40, padT + plotH + 18);
-    ctx.fillText("Horizontal Runs & Bends", padL + plotW * 0.5, padT + plotH + 18);
-    ctx.fillText("Cyclone Receiver", padL + plotW - 40, padT + plotH + 18);
+    ctx.fillText("Kinetic pore diameter: 4.0 Å", rX + 8, 206);
   }
 
   // Copy Summary Handler
   btnCopy.addEventListener('click', function() {
     const text = [
-      "=== PNEUMATIC CONVEYING DILUTE PHASE SIZING SUMMARY ===",
-      "Solids Throughput: " + elTsolid.value + " t/h | Particle Density: " + elRhop.value + " kg/m³ | Size: " + elDp.value + " µm",
-      "Pipe Diameter: " + elDiam.value + " mm | Length: " + elLhoriz.value + " m Horiz + " + elLvert.value + " m Vert",
-      "90° Bends: " + elNbends.value + " | Air Leakage Allowance: " + elLeak.value + "%",
+      "=== PSA NITROGEN GENERATOR SIZING SUMMARY ===",
+      "Nitrogen Output: " + elQn2.value + " Nm³/h @ " + elPurity.options[elPurity.selectedIndex].text,
+      "Feed Air Pressure: " + elPfeed.value + " bar(g) | Ambient Temp: " + elTemp.value + " °C",
+      "Cycle Timing: " + elTads.value + "s Adsorption / " + elTeq.value + "s Equalization",
       "--------------------------------------------------",
-      "Total System Pressure Drop: " + resTotalDp.textContent,
-      "Minimum Saltation Velocity: " + resSaltation.textContent + " (Operating Pickup: " + elVair.value + " m/s)",
-      "Solids Loading Ratio: " + resSolidsRatio.textContent,
-      "Inlet Blower Flow Rate: " + resBlowerFlow.textContent,
-      "Blower Shaft Power: " + resBlowerPower.textContent,
-      "Terminal Air Velocity: " + resTermVel.textContent,
-      "Pressure Breakdown: Air=" + resDpAir.textContent + ", Accel=" + resDpAcc.textContent + ", Friction/Lift=" + resDpFric.textContent + ", Bends=" + resDpBends.textContent,
+      "Required Feed Air Flow: " + resQair.textContent,
+      "Air-to-Nitrogen Ratio: " + resAirRatio.textContent,
+      "Air Compressor Shaft Power: " + resCompressorPower.textContent + " (" + resSpecEnergy.textContent + ")",
+      "CMS Adsorbent Mass: " + resCmsWeight.textContent + " total (2 columns)",
+      "Vessel Dimensions (each bed): " + resVesselDim.textContent,
+      "Air Receiver Buffer Tank: " + resTankAir.textContent,
+      "Equalization Pressure: " + resPctRec.textContent,
       "=================================================="
     ].join("\n");
 
@@ -1662,14 +1668,14 @@
   });
 
   // Attach event listeners
-  const inputs = [elTsolid, elRhop, elDp, elVair, elDiam, elLhoriz, elLvert, elNbends, elLeak];
+  const inputs = [elQn2, elPurity, elPfeed, elTemp, elTads, elTeq, elRhoCms, elAspect];
   inputs.forEach(input => {
-    input.addEventListener('input', calculatePNC);
-    input.addEventListener('change', calculatePNC);
+    input.addEventListener('input', calculatePSA);
+    input.addEventListener('change', calculatePSA);
   });
 
-  window.addEventListener('resize', calculatePNC);
-  calculatePNC();
+  window.addEventListener('resize', calculatePSA);
+  calculatePSA();
 })();
 </script>
 
@@ -1678,51 +1684,51 @@
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the difference between dilute phase and dense phase pneumatic conveying?</span>
+                <span style="font-size:1rem;">How does Carbon Molecular Sieve (CMS) selectively separate oxygen from nitrogen in a PSA system?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Dilute phase conveying operates at high gas velocities (typically 18–30 m/s) and low solids-to-air mass loading ratios (mu < 15), keeping particles continuously suspended in the turbulent air stream via aerodynamic drag. Dense phase conveying operates at low velocities (1–8 m/s) and high solids loadings (mu > 20 to 100+), pushing material along the pipe in dunes, plugs, or continuous moving beds using high pressure (up to 4–6 bar).
+                CMS separates gases through kinetic diffusion selectivity rather than equilibrium adsorption capacity. Oxygen molecules have a kinetic diameter of 3.46 Å, compared to 3.64 Å for nitrogen. Because oxygen is marginally smaller, it diffuses into the microporous carbon structure approximately 30 times faster than nitrogen. When pressurized air (7–9 bar) enters a CMS bed, oxygen is preferentially adsorbed within 60–90 seconds, allowing high-purity nitrogen gas to exit the top of the vessel.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is saltation velocity and how is it related to line plugging?</span>
+                <span style="font-size:1rem;">How does nitrogen purity grade (95% vs 99.999%) affect feed air demand and operating cost?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Saltation velocity (v_salt) is the minimum superficial air velocity in a horizontal pipe below which particles can no longer remain aerodynamically suspended and begin to settle onto the bottom of the pipe. Operating at or below v_salt causes dunes to accumulate, rapidly constricting the cross-sectional area, creating severe pressure surges, and causing complete pipeline blockages within minutes. Design velocity is typically set at 1.25 to 1.45 times v_salt.
+                As purity requirements increase, the air-to-nitrogen ratio (R_air/N2) escalates exponentially. Producing 95% purity N2 (5% residual O2, typical for inerting or fire suppression) requires only ~2.1 Nm3 of feed air per Nm3 of N2. Producing ultra-high purity 99.999% N2 (10 ppm residual O2, for laser cutting or semiconductor blanketing) requires ~8.5–9.2 Nm3 of feed air per Nm3 of N2. The air compressor power and carbon molecular sieve bed volume quadruple for the exact same nitrogen output.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why does air velocity increase toward the end of a pneumatic conveying line?</span>
+                <span style="font-size:1rem;">What occurs during the bed pressure equalization step in a twin-column PSA cycle?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Compressed air expands as pressure decreases along the length of the pipeline in accordance with Boyle's Ideal Gas Law (P1·V1 = P2·V2). In a positive pressure system operating at 60 kPa gauge at the blower discharge, the gas expands by ~60% by the time it reaches the atmospheric receiver. If constant pipe diameter is maintained, superficial velocity accelerates (e.g. from 18 m/s at the feed to 29 m/s at the discharge), exponentially increasing pipe wall erosion and particle attrition.
+                At the end of an adsorption half-cycle, Bed A is pressurized with dry, nitrogen-enriched gas (typically 7–8 bar), while Bed B has just finished atmospheric regeneration and purge (0 bar). The pressure equalization valves open between the two column headers for 2–5 seconds. High-pressure gas from Bed A flows into Bed B until both reach an intermediate pressure (~3.5–4.0 bar). This conserves valuable compressed air energy, pre-purges Bed B, and cuts plant electrical power consumption by up to 25%.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does rotary airlock feeder clearance leakage affect conveying performance?</span>
+                <span style="font-size:1rem;">Why is oil mist and liquid water aerosol fatal to Carbon Molecular Sieve (CMS)?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                A rotary airlock valve drops dry solids into a pressurized pipeline while attempting to seal against the internal system pressure. Rotor tip-to-housing clearances (typically 0.07–0.12 mm when new) allow compressed air to leak upward into the feed hopper (blowby leakage). As the valve wears, leakage increases proportionally to the square root of system pressure, robbing the pipeline of conveying air and reducing pickup velocity below the critical saltation threshold.
+                CMS micropores have critical pore opening diameters between 3.5 and 4.2 Å. Oil aerosols from lubricated screw compressors or condensate droplets from inadequate air drying permanently blind these sub-nanometer pores (pore glazing). Unlike water, which can be partially desorbed with dry purge, heavy hydrocarbons cannot be regenerated. Oil contamination irreversibly degrades CMS oxygen adsorption kinetics, permanently destroying purity within weeks.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What causes 'angel hair' or streamers when conveying polymer pellets?</span>
+                <span style="font-size:1rem;">Why do PSA nitrogen systems require an air buffer tank and a nitrogen process receiver?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                When thermoplastic pellets (polyethylene, polypropylene) impact pipe walls at velocities exceeding ~16–18 m/s, localized friction generates instantaneous temperatures exceeding the polymer melting point. Smears of molten plastic stick to the pipe wall and are dragged downstream by air into gossamer-thin ribbons known as 'angel hair' or 'streamers'. These ribbons ball up into bird nests that foul diverter valves, cyclone screens, and extruder feeders.
+                PSA columns cycle every 60–120 seconds, alternating between rapid depressurization and sudden re-pressurization. An air buffer tank upstream of the generator absorbs cyclical flow spikes, preventing the feed compressor from cycling between load/unload or suffering pressure collapse. Downstream, a dedicated nitrogen receiver smooths out cyclic pressure pulses from bed switching and supplies product gas for internal column purge during regeneration.
               </div>
             </div>
           
@@ -1756,8 +1762,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fpneumatic-conveying-dilute-phase-pressure-drop-calculator&text=Pneumatic%20Conveying%20(Dilute%20Phase)%20Pressure%20Drop%20%26%20Saltation%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fpneumatic-conveying-dilute-phase-pressure-drop-calculator&title=Pneumatic%20Conveying%20(Dilute%20Phase)%20Pressure%20Drop%20%26%20Saltation%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fpressure-swing-adsorption-psa-nitrogen-generator-calculator&text=Pressure%20Swing%20Adsorption%20(PSA)%20Nitrogen%20Generator%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fpressure-swing-adsorption-psa-nitrogen-generator-calculator&title=Pressure%20Swing%20Adsorption%20(PSA)%20Nitrogen%20Generator%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1825,14 +1831,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/math/birthday-paradox-calculator" class="promo-card">
+                <a href="/dev/diff-checker" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Units & Calc</span>
+                      <span class="promo-badge">Developer</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Birthday Paradox Calculator & Coincidence Simulator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate shared birthday probabilities with 23 people and run Monte Carlo simulations.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Online Text & Code Diff Checker</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Compare two text files or code snippets side-by-side with instant additions and deletions.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1840,14 +1846,14 @@
                 </a>
                 
               
-                <a href="/finance/cagr-calculator" class="promo-card">
+                <a href="/util/fermi-paradox-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Finance</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">CAGR Calculator (Compound Annual Growth Rate)</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate annualized growth rates, investment doubling time, and total return.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Drake Equation & Fermi Paradox Alien Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate communicating alien civilizations in the Milky Way and distance to nearest life.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1870,14 +1876,14 @@
                 </div>
                 
               
-                <a href="/util/personal-drake-equation" class="promo-card">
+                <a href="/trade/conduit-fill-capacity-nec" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Curiosity & Mind</span>
+                      <span class="promo-badge">Trade Math</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">The Personal Drake Equation</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate the mathematical probability of finding your ideal romantic partner or peer using Peter Backus's cascading funnel.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Conduit Fill Percentage Calculator (NEC Table 1)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Check EMT, PVC, and RMC conduit fill percentages against 40% NEC safety limits.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1885,14 +1891,14 @@
                 </a>
                 
               
-                <a href="/math/gpa-calculator" class="promo-card">
+                <a href="/util/infinite-monkey-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Units & Calc</span>
+                      <span class="promo-badge">Productivity</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">GPA Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate college and high school weighted and unweighted GPA on a 4.0 scale.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Infinite Monkey Theorem Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate the probability and years required for random typing to produce any text.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
