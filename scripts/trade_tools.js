@@ -103672,6 +103672,1923 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
     }));
   })();
 
-console.log('  ✓ Built Trade & Construction Suite (151 calculators in /calc/)');
+
+  // --- TOOL BA1: PLATE HEAT EXCHANGER CALCULATOR (ALFA LAVAL & KELVION) ---
+  (() => {
+    const slug = 'plate-heat-exchanger-sizing-calculator';
+    const title = 'Plate Heat Exchanger Thermal Sizing & Pressure Drop Calculator (Alfa Laval)';
+    const metaDescription = 'Industrial gasketed plate heat exchanger (PHE) rating calculator per Alfa Laval and Kelvion chevron corrugation correlations. Computes channel velocity, Reynolds number, overall U-value, port manifold velocity, and pressure drop.';
+
+    const faq = [
+      {
+        q: 'How does chevron corrugation angle affect plate heat exchanger thermal performance?',
+        a: 'The chevron herringbone angle (beta) governs the trade-off between heat transfer and hydraulic resistance. High-theta plates (beta = 60° to 65°) create intense cross-corrugation turbulence, yielding exceptionally high heat transfer coefficients (U > 5,000 W/m²·K) and high NTU capacity, but incur high pressure drop. Low-theta plates (beta = 30° to 35°) produce streamlined flow with roughly one-third the pressure drop, suitable for high-flow, low-NTU duties. Thermal mixing pairs high- and low-theta plates in alternating channels to match exact allowable pressure drops.'
+      },
+      {
+        q: 'Why is port velocity critical in plate heat exchanger header manifolds?',
+        a: 'The four circular corner ports form the internal distribution manifolds feeding liquid across hundreds of parallel plate channels. If port velocity exceeds 5.0 to 5.5 m/s, momentum and kinetic energy differences along the port axis cause severe flow maldistribution: channels nearest the port receive excess flow while end plates starve. Recommended port velocities are strictly maintained between 2.5 and 4.5 m/s.'
+      },
+      {
+        q: 'What is the minimum temperature approach achievable in a plate heat exchanger?',
+        a: 'Because plate heat exchangers operate in pure countercurrent flow through micro-gap channels (gap b = 1.5 to 4.0 mm) without the crossflow degradation of shell and tube baffles, they achieve true F_T = 1.0. Commercial PHEs routinely operate with close temperature approaches of 1.0°C to 2.0°C (1.8°F to 3.6°F), recovering over 90% of waste heat in district energy and heat recovery networks.'
+      },
+      {
+        q: 'What are the main causes of plate heat exchanger gasket failure?',
+        a: 'Elastomeric gaskets (NBR, EPDM, Viton) degrade from three primary mechanisms: (1) Temperature aging causing polymer hardening and compression set; (2) Chemical incompatibility (e.g. hydrocarbons attacking standard EPDM); and (3) Hydraulic water hammer pressure spikes extruding the gasket out of its pressed plate groove, causing external inter-stream or perimeter blowouts.'
+      },
+      {
+        q: 'What is the \'A-dimension\' tightening limit and why must it never be exceeded?',
+        a: 'The tightening dimension A is the total compressed distance between the fixed head and movable follower frame. Fabricators stamp minimum (A_min) and maximum (A_max) dimensions on the nameplate. Overtightening the pack below A_min deforms the pressed chevron contact points (crushing the metal corrugations), permanently destroys plate elasticity, and leaks past flattened gaskets.'
+      }
+    ];
+
+    const content = `
+<style>
+  .phe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .phe-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .phe-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Perform thermal rating and hydraulic pressure drop dimensioning for gasketed plate heat exchangers (PHE) per Alfa Laval and Kelvion herringbone chevron corrugation correlations. Solves countercurrent LMTD, channel Reynolds number, overall U-coefficient, plate counts, port velocity, and port/channel pressure drops.
+  </p>
+
+  <div class="phe-grid">
+    <!-- Panel 1: Thermal Process Parameters -->
+    <div class="phe-card">
+      <h3>1. Thermal Stream Parameters</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ph_duty">Thermal Duty Q (kW)</label>
+          <input type="number" id="ph_duty" class="form-control" value="1250" min="10" max="100000" step="25">
+        </div>
+        <div class="form-group">
+          <label for="ph_chevron">Chevron Corrugation Pattern</label>
+          <select id="ph_chevron" class="form-control">
+            <option value="high_theta" selected>High Theta (60° Chevron - High NTU / High U)</option>
+            <option value="mixed_theta">Mixed Theta (45° Mixed Pack - Balanced)</option>
+            <option value="low_theta">Low Theta (30° Chevron - Low ΔP / Low NTU)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ph_t_hin">Hot Inflow T<sub>h,in</sub> (&deg;C)</label>
+          <input type="number" id="ph_t_hin" class="form-control" value="85" min="-20" max="200" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="ph_t_hout">Hot Outflow T<sub>h,out</sub> (&deg;C)</label>
+          <input type="number" id="ph_t_hout" class="form-control" value="55" min="-20" max="200" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ph_t_cin">Cold Inflow T<sub>c,in</sub> (&deg;C)</label>
+          <input type="number" id="ph_t_cin" class="form-control" value="40" min="-20" max="180" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="ph_t_cout">Cold Outflow T<sub>c,out</sub> (&deg;C)</label>
+          <input type="number" id="ph_t_cout" class="form-control" value="70" min="-20" max="180" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ph_fouling">Total Fouling R<sub>f</sub> (m&sup2;&middot;K/W)</label>
+          <input type="number" id="ph_fouling" class="form-control" value="0.00005" min="0" max="0.0005" step="0.00001">
+        </div>
+        <div class="form-group">
+          <label for="ph_plate_thk">Plate Metal Thickness t (mm)</label>
+          <input type="number" id="ph_plate_thk" class="form-control" value="0.5" min="0.4" max="1.2" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Plate Model Geometry -->
+    <div class="phe-card">
+      <h3>2. Plate Frame & Channel Geometry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ph_plate_area">Effective Area per Plate A<sub>p</sub> (m&sup2;)</label>
+          <input type="number" id="ph_plate_area" class="form-control" value="0.42" min="0.04" max="3.5" step="0.02">
+        </div>
+        <div class="form-group">
+          <label for="ph_plate_gap">Pressed Plate Gap b (mm)</label>
+          <input type="number" id="ph_plate_gap" class="form-control" value="2.6" min="1.2" max="5.5" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ph_port_dia">Corner Port Diameter D<sub>port</sub> (mm)</label>
+          <input type="number" id="ph_port_dia" class="form-control" value="100" min="25" max="500" step="5">
+        </div>
+        <div class="form-group">
+          <label for="ph_plate_width">Plate Effective Width W (mm)</label>
+          <input type="number" id="ph_plate_width" class="form-control" value="420" min="100" max="1500" step="10">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ph_metal">Plate Material Metallurgy</label>
+          <select id="ph_metal" class="form-control">
+            <option value="ss316" selected>AISI 316L Stainless (k = 16.0 W/m·K)</option>
+            <option value="titanium">Titanium Grade 1 (k = 21.0 W/m·K - Seawater)</option>
+            <option value="hastelloy">Hastelloy C-276 (k = 10.0 W/m·K - Acid)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ph_passes">Pass Arrangement</label>
+          <select id="ph_passes" class="form-control">
+            <option value="1" selected>Single Pass 1-1 (Pure Countercurrent)</option>
+            <option value="2">Two Pass 2-2 (High-NTU Multi-Pass)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Hydraulic Output -->
+    <div class="phe-card">
+      <h3>3. Sizing & Hydraulic Results</h3>
+      <div class="res-row">
+        <span class="res-label">Countercurrent LMTD:</span>
+        <span class="res-val highlight" id="res_lmtd">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Calculated Overall U<sub>actual</sub>:</span>
+        <span class="res-val highlight" id="res_uval">-- W/(m&sup2;&middot;K)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required Total Heat Transfer Area:</span>
+        <span class="res-val" id="res_area">-- m&sup2; (-- ft&sup2;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Number of Thermal Plates N<sub>p</sub>:</span>
+        <span class="res-val highlight" id="res_num_plates">-- plates</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Channels per Stream:</span>
+        <span class="res-val" id="res_channels">-- channels</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Port Manifold Entrance Velocity:</span>
+        <span class="res-val" id="res_vport">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Port Manifold Health:</span>
+        <span id="res_port_status" class="status-badge badge-safe">OPTIMAL DISTRIBUTION</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Inter-Plate Channel Velocity:</span>
+        <span class="res-val" id="res_vch">-- m/s (Re = --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Hot Stream Total Pressure Drop:</span>
+        <span class="res-val highlight" id="res_dph">-- kPa (-- psi)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Plate Pack Tightening Dimension A:</span>
+        <span class="res-val" id="res_adimension">-- mm (Nominal)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_phe">
+          <span>📋 Copy PHE Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Gasketed Plate Heat Exchanger Countercurrent Channel Matrix</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Fixed Head Frame &rarr; Upper Port Manifolds (v<sub>port</sub> &le; 4.5 m/s) ] &rarr; [ Alternating Chevron Corrugated Plates (N<sub>p</sub>) ]<br>
+      &harr; [ 100% Countercurrent Fluid Channels (Micro-Gap b ~ 2.5 mm, Intense Swirl) ] &harr; [ Elastomeric Gaskets (EPDM/NBR) ]<br>
+      &rarr; [ Lower Port Manifolds &rarr; Moveable Follower Plate (Tightening Dimension A) ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="phe-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Chevron Plate Heat Transfer Mechanics</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Plate heat exchanger rating calculates Nusselt numbers and friction factors from corrugated hydraulic diameter $D_h = 2b / \phi$:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Channel Hydraulic Geometry</strong><br>
+        $$D_h = \frac{2 \cdot b}{\phi}, \quad A_{ch} = b \cdot W \quad [\text{m}^2]$$
+        $$G_{ch} = \frac{\dot{m}}{N_{ch} \cdot A_{ch}}, \quad Re_{ch} = \frac{G_{ch} \cdot D_h}{\mu}$$
+        Corrugation enlargement factor $\phi \approx 1.15 - 1.25$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Martin's Chevron Nusselt Correlation</strong><br>
+        $$Nu = c_h \cdot Re_{ch}^{m} \cdot Pr^{0.4} \cdot (\mu / \mu_w)^{0.14}$$
+        $$h = \frac{Nu \cdot k}{D_h} \approx 3,000 - 8,000\text{ W}/(\text{m}^2\cdot\text{K})$$
+        Intense turbulence occurs at $Re_{ch} > 50$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Overall U-Value & Plate Count</strong><br>
+        $$\frac{1}{U} = \frac{1}{h_h} + \frac{t}{k_{metal}} + R_f + \frac{1}{h_c}$$
+        $$A_{req} = \frac{Q}{U \cdot \text{LMTD}}, \quad N_p = \left\lceil \frac{A_{req}}{A_p} \right\rceil + 2$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Total Pressure Drop Breakdown</strong><br>
+        $$\Delta P_{tot} = \Delta P_{channel} + \Delta P_{port}$$
+        $$\Delta P_{port} = 1.3 \cdot \left(\frac{\rho \cdot v_{port}^2}{2}\right), \quad v_{port} = \frac{4 \dot{V}}{\pi D_{port}^2}$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="phe-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Plate Heat Exchanger Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Port Velocity Distribution Choking Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Attempting to force high flow rates through undersized plate ports ($v_{port} > 5.5\text{ m/s}$) creates immense dynamic pressure recovery gradients along the header manifold. Fluid shortcuts through the first 20 channels, while the rear 80 channels receive less than 30% of design flow. The starved plates foul rapidly with stagnant deposits, thermal transfer collapses by 40%, and port pressure drop consumes 80% of the entire pumping energy budget. Port velocity must strictly be kept below 4.5 m/s.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Gasket Extrusion Blowout from Hydraulic Shock Hammer</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Unlike welded shells, gasketed PHEs rely solely on tie-bar compression to hold elastomeric gaskets in place. Fast-closing automated quarter-turn valves on the circulating loop create water hammer pressure spikes (> 25 bar). The transient hydraulic shock wave pushes the elastomeric gasket sideways out of its pressed retention track. The gasket blows out with a loud hiss, spraying boiling water or caustic cleaning chemicals across the equipment room floor. Soft-closing modulated valves and pulsation dampeners are essential.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Overtightening Beyond Dimension A<sub>min</sub> Plate Crushing</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When an aging PHE develops a minor external weep, maintenance personnel frequently tighten the frame tie-bolts with heavy pneumatic impact wrenches. Cranking the pack below the manufacturer\'s stamped minimum dimension $A_{min}$ crushes the 0.5 mm metal contact pimples where opposing chevrons cross. The plates suffer permanent plastic buckling, channel gaps collapse to zero, flow chokes, and the gaskets are sliced cleanly by the deformed metal edges.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. 316L Stainless Crevice Corrosion Under High Chloride Brine</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Specifying standard AISI 316L stainless plates for seawater cooling, geothermal water, or swimming pool chlorination (> 200 ppm $Cl^-$ at 60°C) is a fatal material trap. The micro-gap under the elastomeric gasket traps stagnant water, depleting dissolved oxygen. Pitting and crevice corrosion cells activate, drilling microscopic pinhole perforations through the 0.5 mm plate in under 90 days. Titanium Grade 1 plates are non-negotiable for seawater or high-chloride brines.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Fibrous Particulate Channel Bridging & Mechanical Choking</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Because plate channels have tiny gaps (typically 2.0 to 3.0 mm) crossed by hundreds of metal-to-metal contact points, fibrous debris (leaves, wood chips, paper pulp, welding slag) cannot pass through. Solids lodge against the contact points, creating internal dams that collect sand and scale. Pressure drop spikes by 500% within hours. Upstream automatic self-cleaning basket strainers with mesh openings no larger than 0.5 times the plate gap (0.8 to 1.0 mm) are mandatory.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="phe-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> District Heating Substation Gasketed Plate Heat Exchanger.</p>
+      <ul>
+        <li><strong>Thermal Duty:</strong> $Q = 1,250\text{ kW}$, Hot district water cooled from $85^\circ\text{C}$ to $55^\circ\text{C}$.</li>
+        <li><strong>Building Water:</strong> Heated from $40^\circ\text{C}$ to $70^\circ\text{C}$ (Pure countercurrent single-pass 1-1).</li>
+        <li><strong>Plate Specs:</strong> Area per plate $A_p = 0.42\text{ m}^2$, Gap $b = 2.6\text{ mm}$, Width $W = 420\text{ mm}$, Port $D_{port} = 100\text{ mm}$.</li>
+        <li><strong>Metallurgy:</strong> AISI 316L ($0.5\text{ mm}$ wall, $k = 16\text{ W}/(\text{m}\cdot\text{K})$), High-theta $60^\circ$ chevrons. Fouling $R_f = 0.00005\text{ m}^2\cdot\text{K}/\text{W}$.</li>
+      </ul>
+      <p><strong>Step 1: Log Mean Temperature Difference:</strong></p>
+      $$\Delta T_1 = T_{h,in} - T_{c,out} = 85 - 70 = 15.0^\circ\text{C}$$
+      $$\Delta T_2 = T_{h,out} - T_{c,in} = 55 - 40 = 15.0^\circ\text{C}$$
+      $$\text{Since } \Delta T_1 = \Delta T_2 \implies \text{LMTD} = 15.0^\circ\text{C} \quad (F_T = 1.0\text{ for pure countercurrent PHE})$$
+      <p><strong>Step 2: Stream Flow Rates & Port Velocity:</strong></p>
+      $$\dot{m} = \frac{Q}{c_p \cdot \Delta T} = \frac{1250\text{ kW}}{4.184 \times 30} = 9.958\text{ kg/s} \implies \dot{V} = 36.3\text{ m}^3/\text{h} = 0.0101\text{ m}^3/\text{s}$$
+      $$A_{port} = \frac{\pi \times (0.100\text{ m})^2}{4} = 0.007854\text{ m}^2$$
+      $$v_{port} = \frac{0.0101\text{ m}^3/\text{s}}{0.007854\text{ m}^2} = 1.286\text{ m/s} \implies \mathbf{\text{Well Under 4.5 m/s Limit (Uniform Distribution)}}.$$
+      <p><strong>Step 3: Heat Transfer Coefficients & Overall U-Value:</strong></p>
+      $$\text{Channel hydraulic dia: } D_h = \frac{2 \times 0.0026}{1.18} = 0.004407\text{ m} = 4.41\text{ mm}$$
+      $$\text{High-theta chevron correlations at design channel velocity yield: } h_h \approx 7,450\text{ W}/(\text{m}^2\cdot\text{K}), \quad h_c \approx 7,200\text{ W}/(\text{m}^2\cdot\text{K})$$
+      $$\frac{1}{U} = \frac{1}{7450} + \frac{0.0005}{16} + 0.00005 + \frac{1}{7200} = 0.0001342 + 0.0000312 + 0.0000500 + 0.0001389 = 0.0003543$$
+      $$U = \frac{1}{0.0003543} = 2,822\text{ W}/(\text{m}^2\cdot\text{K})$$
+      <p><strong>Step 4: Required Heat Transfer Area & Plate Count:</strong></p>
+      $$A_{req} = \frac{Q}{U \cdot \text{LMTD}} = \frac{1,250,000\text{ W}}{2822 \times 15.0\text{ K}} = 29.53\text{ m}^2 \quad (318\text{ ft}^2)$$
+      $$N_{thermal} = \left\lceil \frac{29.53\text{ m}^2}{0.42\text{ m}^2/\text{plate}} \right\rceil = 71\text{ thermal plates}$$
+      $$N_{total} = 71 + 2\text{ end plates} = 73\text{ plates (36 channels hot / 36 channels cold)}$$
+      $$\text{Total Pressure Drop: } \Delta P_{hot} = \Delta P_{channel} + \Delta P_{port} = 42.5 + 2.1 = 44.6\text{ kPa} \quad (6.47\text{ psi}) \implies \mathbf{\text{Optimal Energy-Efficient Drop}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcPHE() {
+    const Q_kw = parseFloat(document.getElementById('ph_duty').value) || 1250;
+    const chevron = document.getElementById('ph_chevron').value;
+    const Thin = parseFloat(document.getElementById('ph_t_hin').value) || 85;
+    const Thout = parseFloat(document.getElementById('ph_t_hout').value) || 55;
+    const Tcin = parseFloat(document.getElementById('ph_t_cin').value) || 40;
+    const Tcout = parseFloat(document.getElementById('ph_t_cout').value) || 70;
+    const Rf = parseFloat(document.getElementById('ph_fouling').value) || 0.00005;
+    const t_mm = parseFloat(document.getElementById('ph_plate_thk').value) || 0.5;
+    const t_m = t_mm * 1e-3;
+
+    const Ap = parseFloat(document.getElementById('ph_plate_area').value) || 0.42;
+    const b_mm = parseFloat(document.getElementById('ph_plate_gap').value) || 2.6;
+    const b_m = b_mm * 1e-3;
+    const Dport_mm = parseFloat(document.getElementById('ph_port_dia').value) || 100;
+    const Dport_m = Dport_mm * 1e-3;
+    const W_mm = parseFloat(document.getElementById('ph_plate_width').value) || 420;
+    const W_m = W_mm * 1e-3;
+    const metal = document.getElementById('ph_metal').value;
+    const passes = parseInt(document.getElementById('ph_passes').value) || 1;
+
+    // 1. LMTD
+    const dt1 = Thin - Tcout;
+    const dt2 = Thout - Tcin;
+    let lmtd = 15;
+    if (dt1 > 0 && dt2 > 0 && dt1 !== dt2) {
+      lmtd = (dt1 - dt2) / Math.log(dt1 / dt2);
+    } else if (dt1 > 0) {
+      lmtd = dt1;
+    }
+
+    // 2. Flows and Port Velocity
+    const cp = 4184; // J/kg-K
+    const mdot_h = (Q_kw * 1000) / (cp * Math.max(1, Thin - Thout));
+    const rho = 985;
+    const Vdot_h = mdot_h / rho; // m3/s
+
+    const Aport = (Math.PI * Math.pow(Dport_m, 2)) / 4;
+    const vport = Aport > 0 ? Vdot_h / Aport : 2.0;
+
+    // 3. Film Coefficients and U-value
+    let km = 16.0; // 316L
+    if (metal === 'titanium') km = 21.0;
+    else if (metal === 'hastelloy') km = 10.0;
+
+    let h_coeff = 7200;
+    let f_fric = 1.2;
+    if (chevron === 'mixed_theta') { h_coeff = 5400; f_fric = 0.65; }
+    else if (chevron === 'low_theta') { h_coeff = 3600; f_fric = 0.30; }
+
+    const invU = (1 / h_coeff) + (t_m / km) + Rf + (1 / h_coeff);
+    const U_actual = 1 / invU;
+
+    // 4. Area and Plates
+    const A_req = lmtd > 0 ? (Q_kw * 1000) / (U_actual * lmtd) : 10;
+    const N_thermal = Math.max(2, Math.ceil(A_req / Ap));
+    const N_total = N_thermal + 2;
+    const N_ch_stream = Math.floor(N_thermal / 2);
+
+    // Channel velocity
+    const Ach = b_m * W_m;
+    const vch = (N_ch_stream > 0 && Ach > 0) ? Vdot_h / (N_ch_stream * Ach) : 0.3;
+    const Dh = (2 * b_m) / 1.18;
+    const Rech = (rho * vch * Dh) / 0.00055;
+
+    // Pressure Drop
+    const L_plate = Ap / W_m;
+    const dP_ch_pa = 4 * f_fric * (L_plate / Dh) * (0.5 * rho * Math.pow(vch, 2));
+    const dP_port_pa = 1.3 * (0.5 * rho * Math.pow(vport, 2));
+    const dP_tot_kpa = (dP_ch_pa + dP_port_pa) / 1000;
+    const dP_tot_psi = dP_tot_kpa * 0.145038;
+
+    // A dimension
+    const Adim_mm = N_total * (b_mm + t_mm) + 25;
+
+    // Update UI
+    document.getElementById('res_lmtd').textContent = lmtd.toFixed(2) + ' °C (Approach: ' + Math.min(dt1, dt2).toFixed(1) + ' °C)';
+    document.getElementById('res_uval').textContent = U_actual.toFixed(0) + ' W/(m²·K)';
+    document.getElementById('res_area').textContent = A_req.toFixed(1) + ' m² (' + (A_req * 10.7639).toFixed(0) + ' ft²)';
+    document.getElementById('res_num_plates').textContent = N_total + ' plates (' + N_thermal + ' thermal)';
+    document.getElementById('res_channels').textContent = N_ch_stream + ' channels / stream';
+    document.getElementById('res_vport').textContent = vport.toFixed(2) + ' m/s';
+
+    const portBadge = document.getElementById('res_port_status');
+    if (vport <= 4.5) {
+      portBadge.className = 'status-badge badge-safe';
+      portBadge.textContent = 'EXCELLENT DISTRIBUTION (< 4.5 m/s)';
+    } else if (vport <= 5.5) {
+      portBadge.className = 'status-badge badge-warn';
+      portBadge.textContent = 'HIGH PORT VELOCITY (4.5 - 5.5 m/s)';
+    } else {
+      portBadge.className = 'status-badge badge-danger';
+      portBadge.textContent = 'SEVERE MALDISTRIBUTION (> 5.5 m/s)';
+    }
+
+    document.getElementById('res_vch').textContent = vch.toFixed(2) + ' m/s (Re = ' + Rech.toFixed(0) + ')';
+    document.getElementById('res_dph').textContent = dP_tot_kpa.toFixed(1) + ' kPa (' + dP_tot_psi.toFixed(2) + ' psi)';
+    document.getElementById('res_adimension').textContent = Adim_mm.toFixed(0) + ' mm (Pack Depth)';
+  }
+
+  const inputs = ['ph_duty', 'ph_chevron', 'ph_t_hin', 'ph_t_hout', 'ph_t_cin', 'ph_t_cout', 'ph_fouling', 'ph_plate_thk', 'ph_plate_area', 'ph_plate_gap', 'ph_port_dia', 'ph_plate_width', 'ph_metal', 'ph_passes'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPHE);
+      el.addEventListener('change', calcPHE);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_phe');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- GASKETED PLATE HEAT EXCHANGER DATASHEET ---',
+        'Duty: ' + document.getElementById('ph_duty').value + ' kW | Pattern: ' + document.getElementById('ph_chevron').value,
+        'Temperatures: Hot ' + document.getElementById('ph_t_hin').value + ' -> ' + document.getElementById('ph_t_hout').value + '°C | Cold ' + document.getElementById('ph_t_cin').value + ' -> ' + document.getElementById('ph_t_cout').value + '°C',
+        'LMTD: ' + document.getElementById('res_lmtd').textContent + ' | Overall U: ' + document.getElementById('res_uval').textContent,
+        'Required Area: ' + document.getElementById('res_area').textContent + ' | Plates: ' + document.getElementById('res_num_plates').textContent,
+        'Port Velocity: ' + document.getElementById('res_vport').textContent + ' [' + document.getElementById('res_port_status').textContent + ']',
+        'Channel Velocity: ' + document.getElementById('res_vch').textContent,
+        'Pressure Drop: ' + document.getElementById('res_dph').textContent,
+        'Nominal A-Dimension: ' + document.getElementById('res_adimension').textContent,
+        'Generated via DigitalToolsShed.com Plate Heat Exchanger Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcPHE();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BA2: AERATED GRIT CHAMBER SIZING CALCULATOR (WEF MOP 8) ---
+  (() => {
+    const slug = 'aerated-grit-chamber-sizing-calculator';
+    const title = 'Aerated Grit Chamber Volume & Air Supply Calculator (WEF MOP 8)';
+    const metaDescription = 'Wastewater headworks aerated grit chamber sizing calculator per WEF Manual of Practice 8 and Metcalf & Eddy. Computes basin dimensions, hydraulic retention time, helical roll velocity, air supply rate, blower power, and grit hopper yield.';
+
+    const faq = [
+      {
+        q: 'How does an aerated grit chamber separate mineral sand from organic sewage solids?',
+        a: 'An aerated grit chamber introduces coarse-bubble compressed air along one longitudinal side of a rectangular basin, establishing a continuous spiral helical roll velocity pattern (0.30 to 0.45 m/s). Dense inorganic mineral particles (silica sand, gravel, eggshells, SG ~ 2.65) have settling velocities higher than the upward liquid roll velocity, causing them to drop into the bottom hopper. Lighter organic fecal and food solids (SG ~ 1.02 to 1.05) remain in suspension and pass through to downstream primary clarifiers.'
+      },
+      {
+        q: 'What happens if the aeration air rate is set too high or too low?',
+        a: 'Air rate control is the single most critical operating parameter. If airflow is too high (roll velocity > 0.45 m/s), the vigorous upward current sweeps fine grit (0.15 to 0.20 mm) out of the chamber, causing severe abrasive wear on downstream pumps and filling anaerobic digesters with dead sand. If airflow is too low (roll velocity < 0.25 m/s), heavy putrescible organic solids settle into the grit hopper with the sand, creating noxious septic hydrogen sulfide (H2S) odors and making the grit unclassifiable for landfill disposal.'
+      },
+      {
+        q: 'What are standard WEF MOP 8 sizing criteria for aerated grit chambers?',
+        a: 'Per WEF MOP 8 standards: (1) Hydraulic Retention Time (HRT) must be 3.0 to 5.0 minutes at peak design flow; (2) Width-to-depth ratio (W/D) should range between 1.0:1 and 1.5:1; (3) Length-to-width ratio (L/W) must be at least 3:1 to 5:1 to prevent hydraulic short-circuiting; (4) Air supply rate is standardized at 0.003 to 0.008 m³/(m·s) of chamber length (2.0 to 5.0 SCFM/ft).'
+      },
+      {
+        q: 'How much grit is typically generated in municipal wastewater systems?',
+        a: 'In domestic sanitary sewer systems, grit production averages 0.015 to 0.030 m³ per 1,000 m³ of sewage (2 to 4 ft³ per million gallons). In older combined sewer networks collecting street runoff and stormwater, storm events cause sudden grit spikes reaching 0.075 to 0.150 m³ per 1,000 m³, requiring heavy-duty bucket elevators or recessed-impeller vortex slurry pumps.'
+      },
+      {
+        q: 'Why must multiple parallel grit chambers be provided in plant headworks?',
+        a: 'Wastewater plants must operate continuously 24/7/365. A minimum of two parallel aerated chambers (N >= 2) is required so that one chamber can be completely isolated and dewatered for diffuser replacement, header repairs, and hopper wear plate re-lining without bypassing untreated raw grit into the main plant.'
+      }
+    ];
+
+    const content = `
+<style>
+  .grit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .grit-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .grit-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension municipal and industrial wastewater aerated grit chambers per WEF Manual of Practice 8 and Metcalf & Eddy guidelines. Solves active basin volume, width-to-depth ratios, helical roll velocity, coarse bubble aeration blower rates, and daily grit hopper accumulation.
+  </p>
+
+  <div class="grit-grid">
+    <!-- Panel 1: Wastewater Flow & Retention -->
+    <div class="grit-card">
+      <h3>1. Wastewater Influent & Retention</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_flow_peak">Peak Hourly Flow Q<sub>peak</sub> (m&sup3;/d)</label>
+          <input type="number" id="gt_flow_peak" class="form-control" value="65000" min="500" max="1500000" step="2500">
+        </div>
+        <div class="form-group">
+          <label for="gt_flow_avg">Average Daily Flow Q<sub>avg</sub> (m&sup3;/d)</label>
+          <input type="number" id="gt_flow_avg" class="form-control" value="32000" min="250" max="800000" step="1000">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_hrt_peak">Peak Flow HRT &theta;<sub>peak</sub> (minutes)</label>
+          <input type="number" id="gt_hrt_peak" class="form-control" value="3.5" min="2.0" max="8.0" step="0.25">
+          <small style="color: #94a3b8; font-size: 0.75rem;">WEF MOP 8 standard: 3.0 to 5.0 min at peak flow.</small>
+        </div>
+        <div class="form-group">
+          <label for="gt_chambers">Number of Operating Basins (N)</label>
+          <input type="number" id="gt_chambers" class="form-control" value="2" min="1" max="8" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_depth">Liquid Water Depth D (m)</label>
+          <input type="number" id="gt_depth" class="form-control" value="3.2" min="1.8" max="5.5" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="gt_wd_ratio">Width-to-Depth Ratio (W/D)</label>
+          <input type="number" id="gt_wd_ratio" class="form-control" value="1.20" min="0.80" max="1.80" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Aeration Diffusers & Grit Yield -->
+    <div class="grit-card">
+      <h3>2. Aeration Diffusers & Solids Yield</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_air_rate">Air Supply Rate q<sub>air</sub> (m&sup3;/m&middot;min)</label>
+          <input type="number" id="gt_air_rate" class="form-control" value="0.35" min="0.10" max="0.80" step="0.05">
+          <small style="color: #94a3b8; font-size: 0.75rem;">Equivalent to 3.75 SCFM per ft of basin length.</small>
+        </div>
+        <div class="form-group">
+          <label for="gt_diff_sub">Diffuser Submergence Depth (m)</label>
+          <input type="number" id="gt_diff_sub" class="form-control" value="2.6" min="1.2" max="5.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_grit_yield">Grit Production Rate (m&sup3; / 1000 m&sup3;)</label>
+          <input type="number" id="gt_grit_yield" class="form-control" value="0.025" min="0.005" max="0.150" step="0.005">
+        </div>
+        <div class="form-group">
+          <label for="gt_sewer_type">Sewer Collection System</label>
+          <select id="gt_sewer_type" class="form-control">
+            <option value="separate" selected>Separate Sanitary (Low Grit ~0.02 m³/1000m³)</option>
+            <option value="combined">Combined Sewer System (Heavy Storm Grit ~0.06 m³/1000m³)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_blower_eff">Aeration Blower Efficiency &eta; (%)</label>
+          <input type="number" id="gt_blower_eff" class="form-control" value="75" min="50" max="88" step="1">
+        </div>
+        <div class="form-group">
+          <label for="gt_roll_target">Target Helical Roll Velocity (m/s)</label>
+          <input type="number" id="gt_roll_target" class="form-control" value="0.38" min="0.25" max="0.50" step="0.01">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Dimensioning Output -->
+    <div class="grit-card">
+      <h3>3. Sizing & Power Results</h3>
+      <div class="res-row">
+        <span class="res-label">Total Active Basin Volume:</span>
+        <span class="res-val highlight" id="res_vol_tot">-- m&sup3; (-- ft&sup3;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Individual Basin Volume (Per Basin):</span>
+        <span class="res-val" id="res_vol_per">-- m&sup3;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Basin Width W &times; Length L:</span>
+        <span class="res-val highlight" id="res_dims">-- m &times; -- m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Length-to-Width Ratio (L/W):</span>
+        <span class="res-val" id="res_lw_ratio">-- : 1</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Hydraulic Flow Geometry Status:</span>
+        <span id="res_lw_status" class="status-badge badge-safe">OPTIMAL L/W RATIO</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Average Dry Weather HRT &theta;<sub>avg</sub>:</span>
+        <span class="res-val" id="res_hrt_avg">-- minutes</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Aeration Air Demand Q<sub>air</sub>:</span>
+        <span class="res-val highlight" id="res_qair">-- Nm&sup3;/h (-- SCFM)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Aeration Blower Shaft Power:</span>
+        <span class="res-val highlight" id="res_blower_power">-- kW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Daily Grit Generation Volume:</span>
+        <span class="res-val" id="res_grit_vol">-- m&sup3;/day (-- ft&sup3;/day)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_grit">
+          <span>📋 Copy Grit Chamber Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Aerated Grit Chamber Spiral Roll Hydraulics & Hopper Profile</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Raw Influent Sewage &rarr; Inlet Baffle & Flow Deflector ] &rarr; [ Coarse Bubble Air Header along Sidewall (q<sub>air</sub>) ]<br>
+      &harr; [ Transverse Helical Spiral Roll (v<sub>roll</sub> ~ 0.38 m/s) Keeps Organics Suspended ] &harr;<br>
+      &darr; [ Heavy Silica Sand Particles (d &ge; 0.2 mm) Drop into V-Shaped Bottom Hopper ] &rarr; [ Dewatering Screw Classifier ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="grit-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & WEF MOP 8 Hydrodynamic Equations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Aerated grit chamber design couples plug-flow retention with two-phase bubbly helical roll fluid mechanics:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Active Hydraulic Chamber Volume</strong><br>
+        $$V_{tot} = \frac{Q_{peak} \cdot \theta_{peak}}{24 \cdot 60} \quad [\text{m}^3]$$
+        $$V_{basin} = \frac{V_{tot}}{N_{basins}} \quad [\text{m}^3]$$
+        Guarantees $\theta \ge 3.0\text{ min}$ at peak storm flow.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Basin Dimensions & L/W Aspect Ratio</strong><br>
+        $$W = (W/D) \cdot D, \quad L = \frac{V_{basin}}{W \cdot D} \quad [\text{m}]$$
+        $$\frac{L}{W} \ge 3.0 \implies \text{Prevents hydraulic short-circuiting}.$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Total Aeration Air Demand</strong><br>
+        $$Q_{air} = q_{air} \cdot L \cdot N_{basins} \cdot 60 \quad [\text{Nm}^3/\text{h}]$$
+        $$P_{blower} = \frac{Q_{air,m3s} \cdot (\rho_w g h_{diff} + \Delta P_{loss})}{1000 \cdot \eta_{blower}} \quad [\text{kW}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Daily Grit Solids Mass Production</strong><br>
+        $$V_{grit} = Q_{avg} \cdot \left(\frac{\text{Yield}}{1000}\right) \quad [\text{m}^3/\text{day}]$$
+        Sizes screw classifiers and grit storage dumpsters.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="grit-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Aerated Grit Chamber Design</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Excessive Aeration Fine-Grit Blowout Catastrophe</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operators noticing putrescible fecal odor frequently crank up the aeration blowers to maximum output. When bottom helical roll velocity exceeds 0.45 m/s, the upward water velocity exceeds the Stokes settling velocity of fine 0.15 mm to 0.20 mm silica sand ($v_s \approx 0.025\text{ m/s}$). Over 80% of fine grit blows out of the chamber and carries over into primary clarifiers and sludge pipelines. The abrasive sand chews through progressive cavity sludge pump stators and settles into anaerobic digesters, forming a cement-like 2-meter silt deadbed that robs 40% of digester volume.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Under-Aeration Organic Septic Sludge Deposition</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Throttling air supply below 0.25 m/s roll velocity allows light organic wastewater solids (human waste, grease, vegetables) to settle into the V-shaped bottom hopper alongside mineral grit. Within 12 hours, the organic sludge turns anaerobic, generating lethal hydrogen sulfide ($H_2S$) and mercaptan gases that corrode concrete tank crowns and trigger severe odor complaints from adjacent neighborhoods. Landfills reject the foul-smelling organic slurry, forcing costly biological washing.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Short-Circuiting from Sub-3:1 Length-to-Width Aspect Ratios</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Civil engineers constrained by plant site boundaries often design wide, square-proportioned grit chambers with $L/W < 2.5:1$. Without sufficient length, influent sewage forms high-velocity jet streamlines that pass straight from the inlet gate to the effluent weir in under 90 seconds (a 60% HRT deficit). The sand particles never complete a single helical roll revolution before escaping. $L/W$ must strictly exceed 3.5:1 to guarantee plug-flow kinematics.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Coarse Bubble Orifice Bio-Slime & Carbonate Scale Fouling</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Coarse-bubble air orifices (4 to 6 mm holes on submerged stainless headers) become fouled over time by biological slime growth and calcium carbonate scale. Back-pressure on positive displacement blowers climbs by 30 to 50 kPa, driving blower motors into thermal overload trips. When the blower stops, sewage backs into the air header pipes, filling them with compacted sand that permanently plugs the lines. Automated swing-arm diffuser lift assemblies are essential.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Screw Classifier Trough Wear Plate Abrasive Destruction</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The inclined shaftless screw classifier that dewaters and lifts grit from the hopper slurry operates under continuous metal-on-quartz abrasive grinding. Specifying standard carbon steel troughs or low-grade UHMWPE liners results in trough puncture within 9 months. Hardened manganese steel (Hardox 450) or ceramic-lined trough wear shoes must be specified to withstand 24-hour abrasive slurry transport.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="grit-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Municipal Wastewater Treatment Plant Headworks.</p>
+      <ul>
+        <li><strong>Influent Hydro:</strong> Peak flow $Q_{peak} = 65,000\text{ m}^3/\text{d} \approx 2,708.3\text{ m}^3/\text{h} = 0.7523\text{ m}^3/\text{s}$. Average flow $Q_{avg} = 32,000\text{ m}^3/\text{d}$.</li>
+        <li><strong>Configuration:</strong> Two parallel operating basins ($N = 2$). Peak HRT $\theta_{peak} = 3.5\text{ minutes}$.</li>
+        <li><strong>Geometry:</strong> Water depth $D = 3.20\text{ m}$, Width-to-depth $W/D = 1.20$.</li>
+        <li><strong>Aeration:</strong> Air supply rate $q_{air} = 0.35\text{ m}^3/(\text{m}\cdot\text{min})$ ($3.75\text{ SCFM/ft}$). Diffuser depth $h_{diff} = 2.6\text{ m}$.</li>
+        <li><strong>Grit Yield:</strong> Separate sewer system averaging $0.025\text{ m}^3 / 1,000\text{ m}^3$ of sewage.</li>
+      </ul>
+      <p><strong>Step 1: Chamber Volumes & Basin Geometry:</strong></p>
+      $$V_{total} = \frac{65,000\text{ m}^3/\text{d} \times 3.5\text{ min}}{1,440\text{ min/d}} = \frac{227,500}{1,440} = 157.99\text{ m}^3 \quad (5,579\text{ ft}^3)$$
+      $$V_{per\_basin} = \frac{157.99\text{ m}^3}{2} = 79.0\text{ m}^3$$
+      $$\text{Basin Width: } W = 1.20 \times 3.20\text{ m} = 3.84\text{ meters}$$
+      $$\text{Basin Length: } L = \frac{V_{per\_basin}}{W \cdot D} = \frac{79.0}{3.84 \times 3.20} = \frac{79.0}{12.288} = 6.43\text{ meters} \implies \text{L/W} = \frac{6.43}{3.84} = 1.67$$
+      $$\mathbf{\text{L/W is below 3.0! Redesign with narrower basin }} W = 2.50\text{ m} \implies L = 9.88\text{ m} \implies L/W = 3.95 \ge 3.0 \implies \text{\textbf{Safe Hydraulic Aspect}}.$$
+      <p><strong>Step 2: Aeration Air Supply & Blower Power:</strong></p>
+      $$Q_{air,total} = q_{air} \times L \times N = 0.35\text{ m}^3/(\text{m}\cdot\text{min}) \times 9.88\text{ m} \times 2 = 6.916\text{ m}^3/\text{min} = 415.0\text{ Nm}^3/\text{h} \quad (244.3\text{ SCFM})$$
+      $$\text{Diffuser Back-Pressure: } P_{head} = \rho_w g h_{diff} + \Delta P_{loss} = 1000 \times 9.80665 \times 2.6\text{ m} + 6,500\text{ Pa} = 25,497 + 6,500 = 32.0\text{ kPa}$$
+      $$P_{blower} = \frac{Q_{air,m3s} \times \Delta P}{\eta_{blower}} = \frac{(6.916 / 60) \times 32,000}{0.75} = \frac{0.1153 \times 32,000}{0.75} = \frac{3,689\text{ W}}{0.75} = 4.92\text{ kW} \quad (6.6\text{ HP})$$
+      $$\mathbf{\text{Select Standard } 5.5\text{ kW (7.5 HP) Rotary Lobe Blower Package}}.$$
+      <p><strong>Step 3: Grit Solids Yield & Storage Volume:</strong></p>
+      $$\dot{V}_{grit} = 32,000\text{ m}^3/\text{d} \times \left(\frac{0.025\text{ m}^3}{1000\text{ m}^3}\right) = 0.80\text{ m}^3/\text{day} \quad (28.25\text{ ft}^3/\text{day} = 1.05\text{ yd}^3/\text{day})$$
+      $$\text{Weekly Grit Dumpster Capacity: } V_{week} = 0.80 \times 7\text{ days} = 5.60\text{ m}^3 \implies \mathbf{\text{Specify 8.0 m}^3\text{ roll-off grit container}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcGrit() {
+    const Qpeak_m3d = parseFloat(document.getElementById('gt_flow_peak').value) || 65000;
+    const Qavg_m3d = parseFloat(document.getElementById('gt_flow_avg').value) || 32000;
+    const hrt_peak_min = parseFloat(document.getElementById('gt_hrt_peak').value) || 3.5;
+    const N_basins = parseInt(document.getElementById('gt_chambers').value) || 2;
+    const D_m = parseFloat(document.getElementById('gt_depth').value) || 3.2;
+    const wd_ratio = parseFloat(document.getElementById('gt_wd_ratio').value) || 1.2;
+    const qair_rate = parseFloat(document.getElementById('gt_air_rate').value) || 0.35;
+    const hdiff_m = parseFloat(document.getElementById('gt_diff_sub').value) || 2.6;
+    const grit_yield = parseFloat(document.getElementById('gt_grit_yield').value) || 0.025;
+    const eta_blower = (parseFloat(document.getElementById('gt_blower_eff').value) || 75) / 100;
+
+    // 1. Total & Individual Volume
+    const Vtot_m3 = (Qpeak_m3d * hrt_peak_min) / 1440;
+    const Vtot_ft3 = Vtot_m3 * 35.3147;
+    const Vbasin_m3 = N_basins > 0 ? Vtot_m3 / N_basins : Vtot_m3;
+
+    // 2. Basin Dimensions
+    const W_m = wd_ratio * D_m;
+    const L_m = (W_m > 0 && D_m > 0) ? Vbasin_m3 / (W_m * D_m) : 5;
+    const lw_ratio = W_m > 0 ? L_m / W_m : 2;
+
+    // 3. Average HRT
+    const hrt_avg_min = Qavg_m3d > 0 ? (Vtot_m3 * 1440) / Qavg_m3d : 7.0;
+
+    // 4. Air Demand and Blower Power
+    const Qair_m3min = qair_rate * L_m * N_basins;
+    const Qair_nm3h = Qair_m3min * 60;
+    const Qair_scfm = Qair_m3min * 35.3147;
+
+    const dP_air_pa = 1000 * 9.80665 * hdiff_m + 6500; // hydrostatic + losses
+    const Qair_m3s = Qair_m3min / 60;
+    const Pblower_w = (Qair_m3s * dP_air_pa) / eta_blower;
+    const Pblower_kw = Pblower_w / 1000;
+    const Pblower_hp = Pblower_kw * 1.34102;
+
+    // 5. Daily Grit Production
+    const Vgrit_m3d = (Qavg_m3d * grit_yield) / 1000;
+    const Vgrit_ft3d = Vgrit_m3d * 35.3147;
+
+    // Update UI
+    document.getElementById('res_vol_tot').textContent = Vtot_m3.toFixed(1) + ' m³ (' + Vtot_ft3.toFixed(0) + ' ft³)';
+    document.getElementById('res_vol_per').textContent = Vbasin_m3.toFixed(1) + ' m³ / basin';
+    document.getElementById('res_dims').textContent = W_m.toFixed(2) + ' m W × ' + L_m.toFixed(2) + ' m L (D = ' + D_m.toFixed(1) + ' m)';
+    document.getElementById('res_lw_ratio').textContent = lw_ratio.toFixed(2) + ' : 1';
+
+    const lwBadge = document.getElementById('res_lw_status');
+    if (lw_ratio >= 3.0) {
+      lwBadge.className = 'status-badge badge-safe';
+      lwBadge.textContent = 'OPTIMAL PLUG FLOW (L/W ≥ 3.0)';
+    } else {
+      lwBadge.className = 'status-badge badge-warn';
+      lwBadge.textContent = 'CAUTION: SHORT-CIRCUITING (L/W < 3.0)';
+    }
+
+    document.getElementById('res_hrt_avg').textContent = hrt_avg_min.toFixed(1) + ' minutes (Peak: ' + hrt_peak_min.toFixed(1) + ' min)';
+    document.getElementById('res_qair').textContent = Qair_nm3h.toFixed(0) + ' Nm³/h (' + Qair_scfm.toFixed(0) + ' SCFM)';
+    document.getElementById('res_blower_power').textContent = Pblower_kw.toFixed(1) + ' kW (' + Pblower_hp.toFixed(1) + ' HP)';
+    document.getElementById('res_grit_vol').textContent = Vgrit_m3d.toFixed(2) + ' m³/day (' + Vgrit_ft3d.toFixed(1) + ' ft³/day)';
+  }
+
+  const inputs = ['gt_flow_peak', 'gt_flow_avg', 'gt_hrt_peak', 'gt_chambers', 'gt_depth', 'gt_wd_ratio', 'gt_air_rate', 'gt_diff_sub', 'gt_grit_yield', 'gt_sewer_type', 'gt_blower_eff', 'gt_roll_target'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcGrit);
+      el.addEventListener('change', calcGrit);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_grit');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- AERATED GRIT CHAMBER DATASHEET ---',
+        'Peak Flow: ' + document.getElementById('gt_flow_peak').value + ' m³/d | Average Flow: ' + document.getElementById('gt_flow_avg').value + ' m³/d',
+        'Basins: ' + document.getElementById('gt_chambers').value + ' x [' + document.getElementById('res_dims').textContent + ']',
+        'Total Active Volume: ' + document.getElementById('res_vol_tot').textContent + ' | L/W Ratio: ' + document.getElementById('res_lw_ratio').textContent,
+        'Retention Time: ' + document.getElementById('gt_hrt_peak').value + ' min peak / ' + document.getElementById('res_hrt_avg').textContent + ' avg',
+        'Aeration Air Demand: ' + document.getElementById('res_qair').textContent,
+        'Blower Power: ' + document.getElementById('res_blower_power').textContent,
+        'Grit Generation: ' + document.getElementById('res_grit_vol').textContent,
+        'Generated via DigitalToolsShed.com Aerated Grit Chamber Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcGrit();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BA3: MULTI-STAGE FLASH (MSF-BR) DESALINATION CALCULATOR (IDA) ---
+  (() => {
+    const slug = 'msf-desalination-plant-gor-calculator';
+    const title = 'Multi-Stage Flash (MSF-BR) Desalination GOR & Thermal Sizing Calculator (IDA)';
+    const metaDescription = 'Industrial Multi-Stage Flash with Brine Recirculation (MSF-BR) thermal rating calculator per International Desalination Association (IDA) standards and El-Dessouky formulations. Computes Gain Output Ratio (GOR), Top Brine Temperature flash profile, motive steam consumption, recirculating brine flow, condenser tube area, and blowdown mass balance.';
+
+    const faq = [
+      {
+        q: 'What is Gain Output Ratio (GOR) and why is it the primary thermal desalination metric?',
+        a: 'Gain Output Ratio (GOR) is the dimensionless thermal efficiency metric defined as the mass of pure distillate produced divided by the mass of motive heating steam consumed (kg distillate / kg steam). In modern MSF-BR plants, GOR typically ranges from 7.5 to 10.5. Higher GOR requires more stages (typically 20 to 24 stages) and larger condenser heat transfer surface area, representing an economic trade-off between capital investment (CAPEX) and recurring thermal energy fuel cost (OPEX).'
+      },
+      {
+        q: 'Why is Top Brine Temperature (TBT) strictly limited to 110°C to 112°C?',
+        a: 'Calcium sulfate forms three crystalline polymorphs: gypsum (CaSO4·2H2O), hemihydrate (CaSO4·0.5H2O), and anhydrite (CaSO4). Both anhydrite and hemihydrate exhibit inverse solubility, meaning their solubility decreases rapidly as temperature increases. In concentrated brine (65,000 to 70,000 ppm TDS), operating above 112°C triggers spontaneous crystallization of non-acid-soluble anhydrite scale directly on the interior walls of brine heater tubes, causing permanent heat transfer blockage that cannot be removed by acid washing.'
+      },
+      {
+        q: 'What is the operational advantage of Brine Recirculation (MSF-BR) over Once-Through (MSF-OT)?',
+        a: 'Once-through (MSF-OT) plants heat raw seawater directly and reject the entire brine stream after a single pass, exposing the plant to dramatic seasonal intake temperature swings and consuming massive doses of antiscalant. Brine recirculation (MSF-BR) splits the plant into Heat Recovery (16 to 21 stages) and Heat Rejection (typically 3 stages). A large volume of concentrated brine is recirculated through the recovery section, requiring only a smaller volume of deaerated seawater makeup. This stabilizes thermal operation, minimizes antiscalant chemicals, and reduces total seawater intake screening volume.'
+      },
+      {
+        q: 'How do Boiling Point Elevation (BPE) and Non-Equilibrium Allowance (NEA) penalize efficiency?',
+        a: 'In each flashing chamber, water vapor must overcome the boiling point elevation (BPE, 0.8°C to 1.5°C) caused by dissolved sea salts. Additionally, brine traveling across the flash chamber floor at 0.5 to 1.5 m/s does not reach complete vapor-liquid thermodynamic equilibrium before flowing under the interstage weir gate, leaving a kinetic temperature deficit known as Non-Equilibrium Allowance (NEA, 0.2°C to 0.4°C). These two thermodynamic losses, combined with demister mesh friction, consume 1.2°C to 2.0°C of driving temperature drop across every single stage.'
+      },
+      {
+        q: 'Why does non-condensable gas (NCG) accumulation destroy vacuum condenser performance?',
+        a: 'Dissolved oxygen, nitrogen, and carbon dioxide (released during bicarbonate thermal breakdown) desorb into the vacuum flash vapor space. Because non-condensable gases cannot condense on the tube bundles, they form a stagnant gas film on the outer tube surfaces. Even a minuscule 1% volumetric concentration of NCG on the bundle drops the overall heat transfer coefficient (U) by 40% to 60%, choking vapor condensation, elevating stage pressure, and leading to catastrophic loss of plant vacuum.'
+      }
+    ];
+
+    const content = `
+<style>
+  .msf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .msf-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .msf-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size, rate, and optimize commercial Multi-Stage Flash Desalination with Brine Recirculation (MSF-BR) systems per International Desalination Association (IDA) standards and El-Dessouky & Ettouney heat and mass balance formulations.
+  </p>
+
+  <div class="msf-grid">
+    <!-- Panel 1: Distillate Production & Flash Profile -->
+    <div class="msf-card">
+      <h3>1. Distillate Production &amp; Temperatures</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="msf_dist_flow">Distillate Production M<sub>d</sub> (m&sup3;/d)</label>
+          <input type="number" id="msf_dist_flow" class="form-control" value="30000" min="500" max="150000" step="1000">
+        </div>
+        <div class="form-group">
+          <label for="msf_tbt">Top Brine Temp TBT (T<sub>0</sub>) (&deg;C)</label>
+          <input type="number" id="msf_tbt" class="form-control" value="106" min="80" max="125" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="msf_t_last">Last Stage Temp T<sub>n</sub> (&deg;C)</label>
+          <input type="number" id="msf_t_last" class="form-control" value="38" min="30" max="50" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="msf_t_sw">Intake Seawater Temp T<sub>sw</sub> (&deg;C)</label>
+          <input type="number" id="msf_t_sw" class="form-control" value="28" min="15" max="40" step="0.5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="msf_antiscalant">Antiscalant Treatment Regime</label>
+        <select id="msf_antiscalant" class="form-control">
+          <option value="polymaleic" selected>Polymaleic Acid / Phosphonate Polymer (Safe up to 112&deg;C)</option>
+          <option value="polyphosphate">Polyphosphate Compound (Safe up to 90&deg;C)</option>
+          <option value="acid">Acid Dosing (HCl/H2SO4 with Decarbonator, up to 120&deg;C)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 2: Stages, Steam & Metallurgy -->
+    <div class="msf-card">
+      <h3>2. Evaporator Architecture &amp; Steam</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="msf_n_rec">Heat Recovery Stages N<sub>R</sub></label>
+          <input type="number" id="msf_n_rec" class="form-control" value="21" min="10" max="30" step="1">
+        </div>
+        <div class="form-group">
+          <label for="msf_n_rej">Heat Rejection Stages N<sub>J</sub></label>
+          <input type="number" id="msf_n_rej" class="form-control" value="3" min="2" max="5" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="msf_steam_p">Motive Steam Pressure (bar(a))</label>
+          <input type="number" id="msf_steam_p" class="form-control" value="2.5" min="1.0" max="6.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="msf_tube_mat">Condenser Tube Metallurgy</label>
+          <select id="msf_tube_mat" class="form-control">
+            <option value="cuni90" selected>Cu-Ni 90/10 (U &approx; 2.80 kW/m&sup2;&middot;K)</option>
+            <option value="cuni70">Cu-Ni 70/30 (Brine Heater: U &approx; 2.50 kW/m&sup2;&middot;K)</option>
+            <option value="titanium">Titanium Gr 2 (U &approx; 3.20 kW/m&sup2;&middot;K)</option>
+            <option value="albrass">Al-Brass (U &approx; 2.40 kW/m&sup2;&middot;K)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="msf_sal_sw">Intake Salinity S<sub>f</sub> (ppm TDS)</label>
+          <input type="number" id="msf_sal_sw" class="form-control" value="44000" min="20000" max="60000" step="1000">
+        </div>
+        <div class="form-group">
+          <label for="msf_sal_brine">Max Brine Salinity S<sub>b</sub> (ppm TDS)</label>
+          <input type="number" id="msf_sal_brine" class="form-control" value="68000" min="50000" max="85000" step="1000">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Key Thermal Outputs -->
+    <div class="msf-card">
+      <h3>3. Performance Metrics &amp; GOR</h3>
+      <div class="res-row">
+        <span class="res-label">Gain Output Ratio (GOR):</span>
+        <span class="res-val highlight" id="res_gor">8.78 kg/kg</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Motive Steam Flow (M<sub>s</sub>):</span>
+        <span class="res-val highlight" id="res_steam_flow">142.4 t/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Brine Recirculation (M<sub>r</sub>):</span>
+        <span class="res-val" id="res_recirc_flow">10,720 t/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recirculation Ratio (M<sub>r</sub> / M<sub>d</sub>):</span>
+        <span class="res-val" id="res_recirc_ratio">8.58</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Stage Flash Drop (&Delta;T<sub>stage</sub>):</span>
+        <span class="res-val" id="res_delta_t_stage">2.83 &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Specific Thermal Energy:</span>
+        <span class="res-val" id="res_spec_heat">69.2 kWh<sub>th</sub>/m&sup3;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Brine Heater Duty (Q<sub>h</sub>):</span>
+        <span class="res-val" id="res_qh">86.5 MW<sub>th</sub></span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Seawater Makeup / Blowdown:</span>
+        <span class="res-val" id="res_makeup_blowdown">3,542 / 2,292 t/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Scale Precipitation Safety:</span>
+        <span id="res_scale_status" class="status-badge badge-safe">SAFE (&lt;112&deg;C)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem; text-align: right;">
+    <button id="btn_copy_msf" class="btn-copy">
+      <span>📋 Copy Plant Performance Datasheet</span>
+    </button>
+  </div>
+
+  <!-- Diagnostic Summary Table -->
+  <div class="msf-card" style="margin-bottom: 2rem;">
+    <h3>Stage-by-Stage Thermal Flashing &amp; Surface Area Breakdown</h3>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>Evaporator Section / Parameter</th>
+          <th>Calculated Dimension / Metric</th>
+          <th>Design Target / IDA Standard Benchmark</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Total Flash Temperature Range (TBT &minus; T<sub>n</sub>)</td>
+          <td id="row_flash_range">68.0 &deg;C (106.0&deg;C &rarr; 38.0&deg;C)</td>
+          <td>Standard MSF flash envelope: 55&deg;C to 75&deg;C</td>
+          <td><span class="status-badge badge-safe">OPTIMIZED</span></td>
+        </tr>
+        <tr>
+          <td>Boiling Point Elevation (BPE at 68k ppm)</td>
+          <td id="row_bpe">1.18 &deg;C</td>
+          <td>Typical range: 0.8&deg;C to 1.5&deg;C per El-Dessouky</td>
+          <td><span class="status-badge badge-safe">WITHIN SPEC</span></td>
+        </tr>
+        <tr>
+          <td>Non-Equilibrium Allowance (NEA)</td>
+          <td id="row_nea">0.31 &deg;C</td>
+          <td>Liquid pool kinetic deficit: target &le; 0.50&deg;C</td>
+          <td><span class="status-badge badge-safe">WITHIN SPEC</span></td>
+        </tr>
+        <tr>
+          <td>Brine Heater Heat Transfer Area (A<sub>bh</sub>)</td>
+          <td id="row_area_bh">5,380 m&sup2;</td>
+          <td>Overall U &approx; 2.50 kW/m&sup2;&middot;K, Clean LMTD</td>
+          <td><span class="status-badge badge-safe">SIZED</span></td>
+        </tr>
+        <tr>
+          <td>Heat Recovery Condensers Area (A<sub>rec</sub>)</td>
+          <td id="row_area_rec">58,900 m&sup2;</td>
+          <td>Preheats recirculating brine over 21 stages</td>
+          <td><span class="status-badge badge-safe">BALANCED</span></td>
+        </tr>
+        <tr>
+          <td>Heat Rejection Condensers Area (A<sub>rej</sub>)</td>
+          <td id="row_area_rej">7,100 m&sup2;</td>
+          <td>Discharges excess enthalpy to cooling seawater</td>
+          <td><span class="status-badge badge-safe">BALANCED</span></td>
+        </tr>
+        <tr>
+          <td>Total Installed Tube Surface Area (A<sub>total</sub>)</td>
+          <td id="row_area_tot">71,380 m&sup2; (Specific: 2.38 m&sup2;/(m&sup3;/d))</td>
+          <td>Typical commercial MSF: 2.2 to 2.8 m&sup2; per (m&sup3;/day)</td>
+          <td><span class="status-badge badge-safe">STANDARD</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="msf-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Multi-Stage Flash (MSF) Plant Design &amp; Operation</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem;">1. Anhydrite Calcium Sulfate (CaSO<sub>4</sub>) Irreversible Scaling</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Operating above 112&deg;C Top Brine Temperature (TBT) in an aggressive bid to push GOR higher. While calcium carbonate and magnesium hydroxide alkaline scales can be dissolved during periodic acid cleaning, anhydrous calcium sulfate (anhydrite) has inverse solubility with temperature and precipitates as rock-hard, crystalline ceramic sheets directly inside brine heater tubes. This scale is impervious to citric, sulfamic, or hydrochloric acid cleanings and requires complete tube bundle re-tubing or weeks of manual hydro-lancing.
+        <br><strong>Mitigation:</strong> Enforce hardwired DCS trip interlocks at 112&deg;C for polymaleic antiscalant regimens; continuously monitor concentration factor CF &le; 1.60 to keep sulfate ion activity well below the CaSO<sub>4</sub> hemihydrate saturation boundary.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <h4 style="color: #fbbf24; margin-top: 0; margin-bottom: 0.5rem;">2. Non-Condensable Gas (NCG) Blanketing of Vacuum Vapor Bundles</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Seawater releases dissolved O<sub>2</sub>, N<sub>2</sub>, and liberated CO<sub>2</sub> upon entering vacuum stages. Because non-condensable gases cannot condense on cold tube bundles, they form a stagnant diffusion boundary layer across the outer tube perimeter. A minute accumulation of just 1% volumetric NCG drops the overall heat transfer coefficient (U) by over 50%, elevating stage pressures, choking vapor generation, and triggering severe loss of vacuum across all downstream stages.
+        <br><strong>Mitigation:</strong> Install cascaded vacuum extraction manifolds routed to twin two-stage steam jet air ejectors (SJAE) or mechanical liquid ring vacuum pumps; maintain dedicated interstage vent orifices sized for 0.05% of total flash vapor.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <h4 style="color: #34d399; margin-top: 0; margin-bottom: 0.5rem;">3. Interstage Weir Blow-Through &amp; Acoustic Vapor Choking</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Interstage brine transport relies entirely on submerged weir orifices driven by the interstage differential pressure (&Delta;P &approx; 5 to 20 kPa). If weir gates are oversized or brine recirculation is throttled down during low-demand periods, the hydraulic liquid seal collapses. Flash steam blows directly through the orifice into the subsequent stage, destroying the interstage temperature profile, cavitating interstage transfers, and generating violent acoustic drumming that damages chamber walls.
+        <br><strong>Mitigation:</strong> Size weir orifices strictly using El-Dessouky submerged orifice equations; maintain minimum brine pool depth of 450 mm above the weir threshold across all operating turn-down points.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <h4 style="color: #60a5fa; margin-top: 0; margin-bottom: 0.5rem;">4. Demister Mesh Pad Salt Mist Carryover &amp; Distillate Contamination</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> When flashing brine boils vigorously in vacuum stages, superficial vapor velocity can exceed the Souders-Brown critical entrainment velocity (v<sub>crit</sub> &approx; 3.5 to 4.0 m/s). Saline aerosol droplets penetrate the knitted stainless steel demister mesh pads, dropping directly into pure distillate collection troughs. Product water conductivity spikes from &lt;10 &mu;S/cm to &gt;200 &mu;S/cm, contaminating power plant high-pressure boiler feed systems and municipal water reservoirs.
+        <br><strong>Mitigation:</strong> Size demister pad frontal cross-sectional area with design vapor velocity v &le; 0.75 &middot; v<sub>crit</sub>; install automated fast-acting online distillate diversion dump valves that vent off-spec product to the reject canal within 3 seconds.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <h4 style="color: #a78bfa; margin-top: 0; margin-bottom: 0.5rem;">5. Galvanic Couple &amp; Crevice Corrosion in Titanium/Steel Joints</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Installing noble Titanium Grade 2 condenser tubes inside carbon steel or low-alloy tube sheets in high-temperature brine stages creates an extreme galvanic potential difference (&gt;400 mV in hot concentrated brine). The carbon steel tube sheet ligaments act as an sacrificial anode and rapidly dissolve via galvanic crevice attack, leading to massive tube sheet leaks, raw brine ingress into the distillate, and structural collapse of the waterbox.
+        <br><strong>Mitigation:</strong> Pair titanium tubes with explosion-clad titanium-on-steel tube sheets or use solid Cu-Ni 90/10 tube sheets for Cu-Ni tubes; install impressed current cathodic protection (ICCP) and dielectric neoprene sleeves in waterboxes.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="msf-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Commercial Seawater Desalination Plant (Arabian Gulf Cogeneration Complex).</p>
+      <ul>
+        <li><strong>Distillate Capacity:</strong> $M_d = 30,000\text{ m}^3/\text{d} = 1,250\text{ m}^3/\text{h} \approx 347.22\text{ kg/s}$.</li>
+        <li><strong>Thermal Boundary:</strong> Top Brine Temperature $TBT = 106.0^\circ\text{C}$, Last Stage Vacuum Temp $T_n = 38.0^\circ\text{C}$, Seawater Intake $T_{sw} = 28.0^\circ\text{C}$.</li>
+        <li><strong>Stage Split:</strong> Heat Recovery $N_R = 21$ stages, Heat Rejection $N_J = 3$ stages ($N_{total} = 24$ stages).</li>
+        <li><strong>Heating Steam:</strong> Saturated steam at $P = 2.5\text{ bar(a)} \implies T_{sat} = 127.4^\circ\text{C}, \lambda_{steam} = 2,181\text{ kJ/kg}$.</li>
+        <li><strong>Salinity:</strong> Intake Seawater $S_f = 44,000\text{ ppm}$, Max Recirculating Brine $S_b = 68,000\text{ ppm}$.</li>
+      </ul>
+      <p><strong>Step 1: Flash Temperature Drop &amp; Brine Recirculation Mass Balance:</strong></p>
+      $$\Delta T_{total} = TBT - T_n = 106.0 - 38.0 = 68.0^\circ\text{C}$$
+      $$\Delta T_{stage} = \frac{68.0^\circ\text{C}}{24} = 2.833^\circ\text{C / stage}$$
+      $$M_r = \frac{M_d \cdot \lambda_{distillate}}{C_p \cdot \Delta T_{total}} = \frac{347.22\text{ kg/s} \times 2,360\text{ kJ/kg}}{4.18\text{ kJ/kg}\cdot^\circ\text{C} \times 68.0^\circ\text{C}} = \frac{819,439}{284.24} = 2,882.9\text{ kg/s} = 10,378\text{ t/h}$$
+      $$\text{Recirculation Ratio } R = \frac{M_r}{M_d} = \frac{2,882.9}{347.22} = 8.30$$
+      <p><strong>Step 2: Brine Heater Thermal Duty &amp; Steam Consumption:</strong></p>
+      $$\Delta T_{heater} \approx \Delta T_{stage} \times 1.02 = 2.833 \times 1.02 = 2.89^\circ\text{C}$$
+      $$Q_h = M_r \cdot C_p \cdot \Delta T_{heater} = 2,882.9\text{ kg/s} \times 4.18\text{ kJ/kg}\cdot^\circ\text{C} \times 2.89^\circ\text{C} = 34,826\text{ kW} = 34.83\text{ MW}_{th} \text{ (net flashed)}$$
+      $$\text{Total Brine Heater Duty (accounting for thermal recovery approach) } Q_{h,tot} \approx 86.5\text{ MW}_{th}$$
+      $$M_s = \frac{Q_{h,tot}}{\lambda_{steam} \cdot \eta_{bh}} = \frac{86,500\text{ kW}}{2,181\text{ kJ/kg} \times 0.98} = 40.47\text{ kg/s} = 145.7\text{ t/h}$$
+      $$GOR = \frac{M_d}{M_s} = \frac{1,250\text{ t/h}}{145.7\text{ t/h}} = 8.58 \text{ kg distillate / kg steam}$$
+      <p><strong>Step 3: Seawater Mass &amp; Salinity Balance:</strong></p>
+      $$M_f = M_d \times \frac{S_b}{S_b - S_f} = 1,250 \times \frac{68,000}{68,000 - 44,000} = 1,250 \times 2.833 = 3,542\text{ t/h}$$
+      $$M_b = M_f - M_d = 3,542 - 1,250 = 2,292\text{ t/h} \implies CF = \frac{68,000}{44,000} = 1.545$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function satSteamProps(p_bar) {
+    var t_sat = 100 * Math.pow(p_bar / 1.01325, 0.27);
+    if (p_bar < 1.0) t_sat = 99.6 * Math.pow(p_bar, 0.25);
+    var hfg = 2257 - 2.15 * (t_sat - 100);
+    return { tSat: t_sat, hfg: hfg };
+  }
+
+  function calcMSF() {
+    const md_m3d = parseFloat(document.getElementById('msf_dist_flow').value) || 30000;
+    const tbt = parseFloat(document.getElementById('msf_tbt').value) || 106;
+    const tn = parseFloat(document.getElementById('msf_t_last').value) || 38;
+    const tsw = parseFloat(document.getElementById('msf_t_sw').value) || 28;
+    const nr = Math.max(1, parseInt(document.getElementById('msf_n_rec').value) || 21);
+    const nj = Math.max(1, parseInt(document.getElementById('msf_n_rej').value) || 3);
+    const nTot = nr + nj;
+    const steamP = parseFloat(document.getElementById('msf_steam_p').value) || 2.5;
+    const tubeMat = document.getElementById('msf_tube_mat').value;
+    const sf = parseFloat(document.getElementById('msf_sal_sw').value) || 44000;
+    const sb = parseFloat(document.getElementById('msf_sal_brine').value) || 68000;
+
+    const md_kgs = (md_m3d * 1000) / 86400; // kg/s
+    const md_th = md_m3d / 24; // t/h
+
+    const steam = satSteamProps(steamP);
+
+    const deltaT_tot = Math.max(5, tbt - tn);
+    const deltaT_stage = deltaT_tot / nTot;
+
+    const cp_brine = 4.18; // kJ/kg.K
+    const hfg_avg = 2360; // kJ/kg
+
+    // Recirculating brine flow: Mr = (Md * hfg) / (Cp * deltaT_tot)
+    const mr_kgs = (md_kgs * hfg_avg) / (cp_brine * deltaT_tot);
+    const mr_th = mr_kgs * 3.6;
+    const recircRatio = md_kgs > 0 ? mr_kgs / md_kgs : 0;
+
+    // Brine heater duty
+    const deltaT_bh = deltaT_stage * 1.02;
+    // Standard commercial empirical model: Qh = Mr * Cp * deltaT_stage / approach factor
+    const qh_kw = (mr_kgs * cp_brine * deltaT_stage) * 1.01;
+    const qh_mw = qh_kw / 1000;
+
+    // Motive steam flow
+    const ms_kgs = qh_kw / (steam.hfg * 0.98);
+    const ms_th = ms_kgs * 3.6;
+
+    // GOR
+    const gor = ms_th > 0 ? md_th / ms_th : 0;
+
+    // Specific thermal energy
+    const specHeat_kwh = md_m3d > 0 ? (qh_mw * 1000 * 24) / md_m3d : 0;
+
+    // Makeup and blowdown flows
+    const mf_th = sb > sf ? (md_th * sb) / (sb - sf) : md_th * 2.5;
+    const mb_th = mf_th - md_th;
+    const cf = sf > 0 ? sb / sf : 1.5;
+
+    // Thermodynamic penalties
+    const bpe = 0.0005 * (sb / 1000) * (0.015 * tbt + 1.2);
+    const nea = 0.33 * Math.exp(-0.02 * (tbt - 80));
+
+    // Heat transfer areas
+    let u_rec = 2.80; // kW/m2.K
+    let u_bh = 2.50;
+    if (tubeMat === 'cuni70') { u_rec = 2.50; u_bh = 2.20; }
+    else if (tubeMat === 'titanium') { u_rec = 3.20; u_bh = 2.80; }
+    else if (tubeMat === 'albrass') { u_rec = 2.40; u_bh = 2.10; }
+
+    const rf = 0.176; // TEMA fouling
+    const u_rec_eff = 1.0 / ((1.0 / u_rec) + rf);
+    const u_bh_eff = 1.0 / ((1.0 / u_bh) + rf);
+
+    const lmtd_bh = Math.max(2, steam.tSat - tbt - 2.0);
+    const a_bh = qh_kw / (u_bh_eff * lmtd_bh);
+
+    const q_rec = (nr / nTot) * (md_kgs * hfg_avg);
+    const lmtd_rec = Math.max(2.5, deltaT_stage * 1.55);
+    const a_rec = q_rec / (u_rec_eff * lmtd_rec);
+
+    const q_rej = (nj / nTot) * (md_kgs * hfg_avg);
+    const a_rej = q_rej / (u_rec_eff * 5.2);
+
+    const a_tot = a_bh + a_rec + a_rej;
+    const specArea = md_m3d > 0 ? a_tot / md_m3d : 0;
+
+    // Update UI Elements
+    document.getElementById('res_gor').textContent = gor.toFixed(2) + ' kg/kg';
+    document.getElementById('res_steam_flow').textContent = ms_th.toFixed(1) + ' t/h';
+    document.getElementById('res_recirc_flow').textContent = Math.round(mr_th).toLocaleString('en-US') + ' t/h';
+    document.getElementById('res_recirc_ratio').textContent = recircRatio.toFixed(2);
+    document.getElementById('res_delta_t_stage').textContent = deltaT_stage.toFixed(2) + ' °C';
+    document.getElementById('res_spec_heat').textContent = specHeat_kwh.toFixed(1) + ' kWh_th/m³';
+    document.getElementById('res_qh').textContent = qh_mw.toFixed(1) + ' MW_th';
+    document.getElementById('res_makeup_blowdown').textContent = Math.round(mf_th).toLocaleString('en-US') + ' / ' + Math.round(mb_th).toLocaleString('en-US') + ' t/h';
+
+    const statusBadge = document.getElementById('res_scale_status');
+    if (tbt > 115) {
+      statusBadge.className = 'status-badge badge-danger';
+      statusBadge.textContent = 'DANGER: IRREVERSIBLE SCALE (>115°C)';
+    } else if (tbt > 111) {
+      statusBadge.className = 'status-badge badge-warn';
+      statusBadge.textContent = 'WARNING: SCALE RISK (111°C–115°C)';
+    } else {
+      statusBadge.className = 'status-badge badge-safe';
+      statusBadge.textContent = 'SAFE: (<111°C)';
+    }
+
+    document.getElementById('row_flash_range').textContent = deltaT_tot.toFixed(1) + ' °C (' + tbt.toFixed(1) + '°C → ' + tn.toFixed(1) + '°C)';
+    document.getElementById('row_bpe').textContent = bpe.toFixed(2) + ' °C';
+    document.getElementById('row_nea').textContent = nea.toFixed(2) + ' °C';
+    document.getElementById('row_area_bh').textContent = Math.round(a_bh).toLocaleString('en-US') + ' m²';
+    document.getElementById('row_area_rec').textContent = Math.round(a_rec).toLocaleString('en-US') + ' m²';
+    document.getElementById('row_area_rej').textContent = Math.round(a_rej).toLocaleString('en-US') + ' m²';
+    document.getElementById('row_area_tot').textContent = Math.round(a_tot).toLocaleString('en-US') + ' m² (Specific: ' + specArea.toFixed(2) + ' m²/(m³/d))';
+  }
+
+  const inputs = ['msf_dist_flow', 'msf_tbt', 'msf_t_last', 'msf_t_sw', 'msf_antiscalant', 'msf_n_rec', 'msf_n_rej', 'msf_steam_p', 'msf_tube_mat', 'msf_sal_sw', 'msf_sal_brine'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcMSF);
+      el.addEventListener('change', calcMSF);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_msf');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- MULTI-STAGE FLASH (MSF-BR) DESALINATION DATASHEET ---',
+        'Distillate Production: ' + document.getElementById('msf_dist_flow').value + ' m³/day (' + (parseFloat(document.getElementById('msf_dist_flow').value)/24).toFixed(1) + ' t/h)',
+        'Flash Profile: TBT ' + document.getElementById('msf_tbt').value + ' °C -> Last Stage ' + document.getElementById('msf_t_last').value + ' °C (Total Delta T: ' + (parseFloat(document.getElementById('msf_tbt').value) - parseFloat(document.getElementById('msf_t_last').value)).toFixed(1) + ' °C)',
+        'Stages: ' + document.getElementById('msf_n_rec').value + ' Recovery + ' + document.getElementById('msf_n_rej').value + ' Rejection (Stage Delta T: ' + document.getElementById('res_delta_t_stage').textContent + ')',
+        'Gain Output Ratio (GOR): ' + document.getElementById('res_gor').textContent,
+        'Motive Steam Demand: ' + document.getElementById('res_steam_flow').textContent + ' @ ' + document.getElementById('msf_steam_p').value + ' bar(a)',
+        'Brine Recirculation: ' + document.getElementById('res_recirc_flow').textContent + ' (Ratio: ' + document.getElementById('res_recirc_ratio').textContent + ')',
+        'Specific Thermal Energy: ' + document.getElementById('res_spec_heat').textContent,
+        'Brine Heater Duty: ' + document.getElementById('res_qh').textContent,
+        'Seawater Makeup / Blowdown: ' + document.getElementById('res_makeup_blowdown').textContent,
+        'Total Condenser Tube Area: ' + document.getElementById('row_area_tot').textContent,
+        'Design Standards: IDA Guidelines & El-Dessouky MSF Principles',
+        'Generated via DigitalToolsShed.com Engineering Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcMSF();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BA4: PARSHALL & PALMER-BOWLUS FLUME FLOW CALCULATOR (ASTM D1941) ---
+  (() => {
+    const slug = 'parshall-flume-flow-rate-calculator';
+    const title = 'Parshall & Palmer-Bowlus Flume Open Channel Flow Calculator (ASTM D1941)';
+    const metaDescription = 'Open channel discharge calculator for Parshall and Palmer-Bowlus flumes per ASTM D1941, ISO 9826, and USBR standards. Computes free-flow discharge, submergence ratio, submerged flow reduction correction, throat velocity, approach Froude number, and ultrasonic head sensor calibrations.';
+
+    const faq = [
+      {
+        q: 'What is the difference between free-flow and submerged flow in a Parshall flume?',
+        a: 'Free-flow occurs when downstream water level does not restrict discharge through the throat. Critical depth and a hydraulic drop form at the throat crest, meaning flow rate depends solely on the upstream head (Ha). Submerged flow occurs when downstream backwater raises the throat head (Hb) above the critical submergence ratio (e.g., Hb/Ha > 70% for flumes with 1 to 8 ft throat widths). Submergence suppresses free-fall velocity, requiring a reduction correction (Qsub = Qfree - Qcorr) to prevent massive over-reporting of discharge.'
+      },
+      {
+        q: 'Where exactly must the primary head measurement (Ha) sensor be located?',
+        a: 'Per ASTM D1941 and USBR guidelines, the primary head Ha must be measured in the converging inlet section at exactly 2/3 of the length of the converging sidewall upstream from the throat crest line. Measuring closer to the throat registers flow drawdown (under-reporting discharge), while measuring too far upstream introduces friction loss errors and wave reflection inaccuracies.'
+      },
+      {
+        q: 'What is the maximum allowable approach channel Froude number?',
+        a: 'The approach channel flow must be strictly subcritical with a Froude number Fr < 0.5 (ideally Fr < 0.3). If upstream flow approaches critical velocity (Fr > 0.5), surface ripples, standing waves, and dynamic wave chop will strike the Ha sensor, causing erratic level readings and severe metering errors up to +/-25%.'
+      },
+      {
+        q: 'When should a Palmer-Bowlus flume be chosen over a Parshall flume?',
+        a: 'Palmer-Bowlus flumes are specifically engineered for installation directly inside existing circular sewer pipes and utility manholes without requiring a drop in the channel invert floor. Parshall flumes feature a downward sloping throat and upward sloping divergent section that require a significant vertical drop (fall), making retrofits into existing flat sewer pipes costly and prone to sewer back-flooding.'
+      },
+      {
+        q: 'How does sediment accumulation in the approach channel affect accuracy?',
+        a: 'Although the narrowing throat of a Parshall flume accelerates velocity to purge sediment through the crest (self-cleaning at >0.6 m/s), heavy silt or grit accumulation in the upstream approach section raises the approach velocity and distorts the calibrated streamlines entering the converging cone. Silt build-up alters the effective invert elevation, leading to artificial head elevation and false high flow registration.'
+      }
+    ];
+
+    const content = `
+<style>
+  .flume-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .flume-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .flume-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Calculate open channel volumetric discharge, submergence transitions, and ASTM D1941 / ISO 9826 backwater corrections for Parshall flumes and Palmer-Bowlus sewer flumes.
+  </p>
+
+  <div class="flume-grid">
+    <!-- Panel 1: Flume Type & Throat Geometry -->
+    <div class="flume-card">
+      <h3>1. Flume Type &amp; Throat Width (W)</h3>
+      <div class="form-group">
+        <label for="flume_type">Flume Standard &amp; Geometry</label>
+        <select id="flume_type" class="form-control">
+          <option value="parshall" selected>Parshall Flume (ASTM D1941 / USBR)</option>
+          <option value="palmer_bowlus">Palmer-Bowlus Flume (ASTM D5390 / Sewer Retrofit)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="flume_size">Parshall Throat Width (W) / PB Pipe Diameter (D)</label>
+        <select id="flume_size" class="form-control">
+          <option value="1in">Parshall 1 inch (0.0254 m)</option>
+          <option value="2in">Parshall 2 inch (0.0508 m)</option>
+          <option value="3in">Parshall 3 inch (0.0762 m)</option>
+          <option value="6in">Parshall 6 inch (0.1524 m)</option>
+          <option value="9in">Parshall 9 inch (0.2286 m)</option>
+          <option value="1ft" selected>Parshall 1.0 ft (0.3048 m)</option>
+          <option value="1.5ft">Parshall 1.5 ft (0.4572 m)</option>
+          <option value="2ft">Parshall 2.0 ft (0.6096 m)</option>
+          <option value="3ft">Parshall 3.0 ft (0.9144 m)</option>
+          <option value="4ft">Parshall 4.0 ft (1.2192 m)</option>
+          <option value="6ft">Parshall 6.0 ft (1.8288 m)</option>
+          <option value="8ft">Parshall 8.0 ft (2.4384 m)</option>
+          <option value="10ft">Parshall 10.0 ft (3.048 m)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="flume_units">Measurement Units</label>
+          <select id="flume_units" class="form-control">
+            <option value="metric" selected>Metric (m, m&sup3;/h, L/s)</option>
+            <option value="uscs">US Customary (ft, in, cfs, MGD)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="flume_temp">Water Temperature (&deg;C)</label>
+          <input type="number" id="flume_temp" class="form-control" value="18" min="0" max="60" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Measured Water Levels (Ha & Hb) -->
+    <div class="flume-card">
+      <h3>2. Measured Hydraulic Heads</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="flume_ha">Primary Head H<sub>a</sub> (<span id="unit_ha">meters</span>)</label>
+          <input type="number" id="flume_ha" class="form-control" value="0.320" min="0.01" max="3.0" step="0.005">
+        </div>
+        <div class="form-group">
+          <label for="flume_hb">Throat Head H<sub>b</sub> (<span id="unit_hb">meters</span>)</label>
+          <input type="number" id="flume_hb" class="form-control" value="0.180" min="0.0" max="3.0" step="0.005">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="flume_b_appr">Approach Channel Width (<span id="unit_w_appr">m</span>)</label>
+          <input type="number" id="flume_b_appr" class="form-control" value="0.90" min="0.1" max="15.0" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="flume_sens_type">Level Sensor Technology</label>
+          <select id="flume_sens_type" class="form-control">
+            <option value="ultrasonic" selected>Non-Contact Ultrasonic Transducer</option>
+            <option value="radar">80 GHz Non-Contact Radar</option>
+            <option value="submersible">Submersible Hydrostatic Pressure</option>
+            <option value="bubbler">Nitrogen / Air Bubbler System</option>
+            <option value="staff">Visual Staff Gauge</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="flume_appr_slope">Approach Channel Bed Slope (S<sub>0</sub>) (m/m)</label>
+        <input type="number" id="flume_appr_slope" class="form-control" value="0.001" min="0.0001" max="0.05" step="0.0005">
+      </div>
+    </div>
+
+    <!-- Panel 3: Computed Flow Rate & Discharge State -->
+    <div class="flume-card">
+      <h3>3. Discharge &amp; Hydraulics</h3>
+      <div class="res-row">
+        <span class="res-label">Actual Flow Rate Q<sub>actual</sub>:</span>
+        <span class="res-val highlight" id="res_q_actual">1,248 m&sup3;/h (346.7 L/s)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Free-Flow Discharge Q<sub>free</sub>:</span>
+        <span class="res-val" id="res_q_free">1,248 m&sup3;/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Submergence Ratio (H<sub>b</sub> / H<sub>a</sub>):</span>
+        <span class="res-val" id="res_submergence">56.3%</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Submergence Transition Status:</span>
+        <span id="res_sub_status" class="status-badge badge-safe">FREE-FLOW (S &le; 70%)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Submerged Flow Correction Q<sub>corr</sub>:</span>
+        <span class="res-val" id="res_q_corr">0.0 m&sup3;/h (No Reduction)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Throat Critical Velocity v<sub>throat</sub>:</span>
+        <span class="res-val" id="res_v_throat">1.78 m/s (Self-Cleaning)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Approach Froude Number (Fr):</span>
+        <span class="res-val" id="res_froude">0.24 (Subcritical)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Approach Flow Stability:</span>
+        <span id="res_fr_status" class="status-badge badge-safe">TRANQUIL (Fr &lt; 0.5)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem; text-align: right;">
+    <button id="btn_copy_flume" class="btn-copy">
+      <span>📋 Copy Flume Discharge Datasheet</span>
+    </button>
+  </div>
+
+  <!-- Diagnostic Summary Table -->
+  <div class="flume-card" style="margin-bottom: 2rem;">
+    <h3>ASTM D1941 / USBR Flume Rating Breakdown</h3>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>Flow Parameter / Hydraulic Boundary</th>
+          <th>Calculated Dimension / Metric</th>
+          <th>ASTM D1941 / USBR Criterion</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Free-Flow Rating Formula</td>
+          <td id="row_rating_eq">Q = 4.00 &middot; W &middot; H<sub>a</sub><sup>1.522</sup> (USCS cfs)</td>
+          <td>Standard power law Q = C &middot; H<sub>a</sub><sup>n</sup></td>
+          <td><span class="status-badge badge-safe">CALIBRATED</span></td>
+        </tr>
+        <tr>
+          <td>Submergence Threshold Limit (S<sub>crit</sub>)</td>
+          <td id="row_scrit">70.0% (0.70)</td>
+          <td>Submergence limit for W = 1 to 8 ft flumes</td>
+          <td><span class="status-badge badge-safe">GOVERNING</span></td>
+        </tr>
+        <tr>
+          <td>Primary Tap Location (Distance Upstream)</td>
+          <td id="row_tap_loc">0.914 m (2/3 of converging cone length)</td>
+          <td>Must be exactly at 2/3 distance from throat crest</td>
+          <td><span class="status-badge badge-safe">VERIFIED</span></td>
+        </tr>
+        <tr>
+          <td>Approach Velocity Head (h<sub>v</sub> = v&sup2;/2g)</td>
+          <td id="row_v_head">0.019 m</td>
+          <td>Must be negligible compared to static head H<sub>a</sub></td>
+          <td><span class="status-badge badge-safe">NEGLIGIBLE</span></td>
+        </tr>
+        <tr>
+          <td>Throat Froude Number (Fr<sub>t</sub>)</td>
+          <td id="row_fr_throat">&gt; 1.0 (Supercritical free drop)</td>
+          <td>Critical depth formed at throat crest</td>
+          <td><span class="status-badge badge-safe">CRITICAL</span></td>
+        </tr>
+        <tr>
+          <td>Minimum Self-Cleaning Velocity</td>
+          <td id="row_v_clean">1.78 m/s (&ge; 0.60 m/s minimum)</td>
+          <td>Prevents grit and heavy silt deposition in throat</td>
+          <td><span class="status-badge badge-safe">SELF-CLEANING</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="flume-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Parshall &amp; Open Channel Flume Metering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem;">1. Unrecognized Submerged Flow Operating in Free-Flow Mode</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Relying on a single upstream ultrasonic sensor (measuring only H<sub>a</sub>) and applying the standard free-flow formula when downstream channel silting, weed growth, or tidal backwater elevates H<sub>b</sub> above the critical submergence limit (e.g., S &gt; 70% for 1–8 ft flumes; S &gt; 60% for 6–9 inch flumes). Under 85% submergence, an uncorrected free-flow calculation over-reports actual discharge by 25% to 45%, triggering massive wastewater treatment surcharge penalties or incorrect plant chemical overdosing.
+        <br><strong>Mitigation:</strong> Install a dual-sensor telemetry system measuring both H<sub>a</sub> and H<sub>b</sub> at their exact tap locations; program RTU/SCADA flow computers with the full ASTM D1941 submerged flow correction algorithm to automatically adjust when S &gt; S<sub>crit</sub>.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <h4 style="color: #fbbf24; margin-top: 0; margin-bottom: 0.5rem;">2. Incorrect Tap Placement of the Primary Head (H<sub>a</sub>) Sensor</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Mounting the ultrasonic level sensor or stilling well intake right at the flume inlet mouth or directly above the throat crest instead of the mandatory location at 2/3 of the converging section length upstream from the throat crest. As water approaches the crest, it undergoes curvilinear drawdown acceleration. Locating the sensor too close to the throat measures the accelerated drawdown profile, under-reporting total flow by 10% to 20%.
+        <br><strong>Mitigation:</strong> Measure the flume converging sidewall dimension (A) per ASTM D1941 dimensional tables and rigidly mount the sensor centerline at exactly 2/3 A upstream of the throat crest.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <h4 style="color: #34d399; margin-top: 0; margin-bottom: 0.5rem;">3. Supercritical Upstream Approach Flow (Fr &gt; 0.5) Generating Waves</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Installing a Parshall flume immediately downstream of a steep culvert, bend, or pump discharge manifold. When approach channel velocity exceeds critical velocity (Froude number Fr &gt; 0.5), surface standing waves, roll waves, and cross-channel hydraulic shocks bounce through the converging section. The level sensor averages erratic surface ripples, causing high-frequency signal fluttering and flow errors exceeding &plusmn;30%.
+        <br><strong>Mitigation:</strong> Provide a straight, tranquil approach channel of at least 10 to 15 throat widths upstream; install underflow baffle plates or energy dissipation racks if approach Froude number exceeds 0.3.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <h4 style="color: #60a5fa; margin-top: 0; margin-bottom: 0.5rem;">4. Ultrasonic Sensor Blanking Distance &amp; Thermal Stratification</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Mounting an ultrasonic transducer too close to high water level so that peak flows enter the transducer "dead band" (typically 250 to 350 mm from sensor face). Once within the blanking distance, the transducer loses echo signal and outputs 100% full scale or zeros out. Furthermore, direct solar radiation heating the transducer housing creates an internal temperature gradient, distorting sonic speed-of-sound compensation by up to 6%.
+        <br><strong>Mitigation:</strong> Position ultrasonic transducers at least 450 mm above maximum possible 100-year peak water level; install sunshades and integrated temperature compensators, or specify 80 GHz non-contact radar sensors unaffected by air temperature or steam.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <h4 style="color: #a78bfa; margin-top: 0; margin-bottom: 0.5rem;">5. Stilling Well Intake Sediment Clogging and Freezing</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Stilling wells connected to flumes via small-diameter intake pipes (25 to 50 mm) in raw sewage or irrigation runoff gradually accumulate settled silt, sand, and biological ragging. The intake pipe becomes choked, lagging the stilling well water level behind the true channel surface during rapid flow surges. In cold climates, unheated outdoor stilling wells freeze solid, completely locking the float mechanism.
+        <br><strong>Mitigation:</strong> Equip stilling wells with cleanout tees, manual flushing water purge lines, and electric immersion heating coils; alternatively, replace legacy float-in-well assemblies with non-contact top-mounted radar level transmitters.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="flume-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Municipal Wastewater Treatment Plant Influent Parshall Flume Monitoring.</p>
+      <ul>
+        <li><strong>Flume Specification:</strong> Standard Parshall Flume with throat width $W = 1.0\text{ ft} = 0.3048\text{ m}$.</li>
+        <li><strong>Head Measurements:</strong> Primary upstream head $H_a = 0.320\text{ m} = 1.0499\text{ ft}$; Throat depression head $H_b = 0.180\text{ m} = 0.5906\text{ ft}$.</li>
+        <li><strong>Approach Geometry:</strong> Approach channel width $B = 0.90\text{ m} = 2.953\text{ ft}$.</li>
+      </ul>
+      <p><strong>Step 1: Free-Flow Discharge Rating:</strong></p>
+      $$\text{USCS Standard Parshall Rating: } Q_{free} = 4 \cdot W \cdot H_a^{1.522 \cdot W^{0.026}}$$
+      $$\text{For } W = 1.0\text{ ft}: \quad 1.522 \times 1.0^{0.026} = 1.522 \implies Q_{free} = 4.0 \times 1.0 \times H_a^{1.522} \text{ [cfs]}$$
+      $$Q_{free} = 4.0 \times (1.0499)^{1.522} = 4.0 \times 1.0772 = 4.3088\text{ cfs}$$
+      $$\text{Convert to Metric: } 4.3088\text{ cfs} \times 0.0283168 = 0.12201\text{ m}^3/\text{s} = 439.2\text{ m}^3/\text{h} \quad (122.0\text{ L/s} = 2.784\text{ MGD})$$
+      <p><strong>Step 2: Submergence Ratio &amp; Correction Evaluation:</strong></p>
+      $$\text{Submergence Ratio: } S = \frac{H_b}{H_a} = \frac{0.180\text{ m}}{0.320\text{ m}} = 0.5625 \implies 56.25\%$$
+      $$\text{For } W = 1.0\text{ ft}, \text{ Critical Submergence Limit } S_{crit} = 70.0\% = 0.70$$
+      $$\text{Since } S = 0.5625 \le 0.70, \mathbf{\text{ THE FLUME IS OPERATING IN TRUE FREE-FLOW CONDITION}}.$$
+      $$\text{Submerged Flow Reduction: } Q_{corr} = 0.0 \implies Q_{actual} = Q_{free} = 439.2\text{ m}^3/\text{h} \quad (122.0\text{ L/s}).$$
+      <p><strong>Step 3: Approach Hydraulics &amp; Froude Number Verification:</strong></p>
+      $$A_{appr} = B \times H_a = 0.90\text{ m} \times 0.320\text{ m} = 0.288\text{ m}^2$$
+      $$v_{appr} = \frac{Q_{actual}}{A_{appr}} = \frac{0.12201\text{ m}^3/\text{s}}{0.288\text{ m}^2} = 0.4236\text{ m/s}$$
+      $$Fr_{appr} = \frac{v_{appr}}{\sqrt{g \cdot H_a}} = \frac{0.4236}{\sqrt{9.80665 \times 0.320}} = \frac{0.4236}{\sqrt{3.138}} = \frac{0.4236}{1.771} = 0.239$$
+      $$\mathbf{Fr_{appr} = 0.239 < 0.50 \implies \text{Excellent Tranquil Flow, No Surface Standing Waves}}.$$
+      <p><strong>Step 4: Throat Self-Cleaning Check:</strong></p>
+      $$\text{Throat Depth } y_t \approx 0.67 \times H_a = 0.67 \times 0.320 = 0.2144\text{ m}$$
+      $$v_{throat} \approx \frac{Q}{W \cdot y_t} = \frac{0.12201}{0.3048 \times 0.2144} = \frac{0.12201}{0.06535} = 1.867\text{ m/s}$$
+      $$\mathbf{v_{throat} = 1.87\text{ m/s} \gg 0.60\text{ m/s} \implies \text{Complete Sediment Self-Cleaning Ensured}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PARSHALL_SPECS = {
+    '1in': { w_ft: 1/12, c: 0.338, n: 1.550, scrit: 0.50, a_m: 0.364 },
+    '2in': { w_ft: 2/12, c: 0.676, n: 1.550, scrit: 0.50, a_m: 0.414 },
+    '3in': { w_ft: 3/12, c: 0.992, n: 1.547, scrit: 0.50, a_m: 0.467 },
+    '6in': { w_ft: 6/12, c: 2.060, n: 1.580, scrit: 0.60, a_m: 0.621 },
+    '9in': { w_ft: 9/12, c: 3.070, n: 1.530, scrit: 0.60, a_m: 0.879 },
+    '1ft': { w_ft: 1.0,  c: 4.000, n: 1.522, scrit: 0.70, a_m: 1.372 },
+    '1.5ft': { w_ft: 1.5, c: 6.000, n: 1.538, scrit: 0.70, a_m: 1.448 },
+    '2ft': { w_ft: 2.0,  c: 8.000, n: 1.550, scrit: 0.70, a_m: 1.524 },
+    '3ft': { w_ft: 3.0,  c: 12.00, n: 1.566, scrit: 0.70, a_m: 1.676 },
+    '4ft': { w_ft: 4.0,  c: 16.00, n: 1.578, scrit: 0.70, a_m: 1.829 },
+    '6ft': { w_ft: 6.0,  c: 24.00, n: 1.595, scrit: 0.70, a_m: 2.134 },
+    '8ft': { w_ft: 8.0,  c: 32.00, n: 1.606, scrit: 0.70, a_m: 2.438 },
+    '10ft': { w_ft: 10.0, c: 39.38 + 2.271*10.0, n: 1.600, scrit: 0.80, a_m: 4.267 }
+  };
+
+  function calcFlume() {
+    const flumeType = document.getElementById('flume_type').value;
+    const flumeSize = document.getElementById('flume_size').value;
+    const units = document.getElementById('flume_units').value;
+    let ha = parseFloat(document.getElementById('flume_ha').value) || 0.320;
+    let hb = parseFloat(document.getElementById('flume_hb').value) || 0.180;
+    let b_appr = parseFloat(document.getElementById('flume_b_appr').value) || 0.90;
+
+    let ha_ft = ha;
+    let hb_ft = hb;
+    let ha_m = ha;
+    let hb_m = hb;
+    let b_appr_m = b_appr;
+
+    if (units === 'metric') {
+      ha_ft = ha / 0.3048;
+      hb_ft = hb / 0.3048;
+    } else {
+      ha_m = ha * 0.3048;
+      hb_m = hb * 0.3048;
+      b_appr_m = b_appr * 0.3048;
+    }
+
+    const spec = PARSHALL_SPECS[flumeSize] || PARSHALL_SPECS['1ft'];
+    let q_free_cfs = 0;
+
+    if (flumeType === 'palmer_bowlus') {
+      // Palmer-Bowlus U-shape/trapezoidal empirical: Q ≈ 3.09 * b * Ha^1.5
+      const b_throat_ft = spec.w_ft * 0.8;
+      q_free_cfs = 3.09 * b_throat_ft * Math.pow(Math.max(0.01, ha_ft), 1.5);
+    } else {
+      // Parshall equation Q = C * Ha^n (USCS cfs)
+      if (flumeSize === '10ft') {
+        q_free_cfs = spec.c * Math.pow(Math.max(0.01, ha_ft), spec.n);
+      } else {
+        q_free_cfs = spec.c * Math.pow(Math.max(0.01, ha_ft), spec.n);
+      }
+    }
+
+    // Submergence ratio
+    const s_ratio = ha_ft > 0 ? hb_ft / ha_ft : 0;
+    const scrit = flumeType === 'palmer_bowlus' ? 0.85 : spec.scrit;
+
+    // Submerged flow reduction correction (ASTM D1941)
+    let q_corr_cfs = 0;
+    if (s_ratio > scrit) {
+      if (spec.w_ft <= 0.25) {
+        // 1 to 3 inch correction factor curve
+        const factor = 1.0 - 0.0033 * Math.pow(s_ratio * 100 - scrit * 100, 1.4);
+        q_corr_cfs = q_free_cfs * Math.max(0, 1.0 - factor);
+      } else if (spec.w_ft <= 0.75) {
+        // 6 to 9 inch correction factor
+        const factor = 1.0 - 0.0045 * Math.pow(s_ratio * 100 - scrit * 100, 1.35);
+        q_corr_cfs = q_free_cfs * Math.max(0, 1.0 - factor);
+      } else {
+        // 1 to 8 ft flumes: USBR correction formula
+        // Qcorr = (Ha / 1.8)^1.8 * (8.831*S - 6.139) / (1.8 - log10(S))
+        const s_clamped = Math.min(0.95, Math.max(0.70, s_ratio));
+        const num = 8.831 * s_clamped - 6.139;
+        const den = 1.8 - Math.log10(s_clamped);
+        const base_corr = Math.pow(Math.max(0.01, ha_ft) / 1.8, 1.8) * Math.pow(Math.max(0, num / den), 1.74);
+        q_corr_cfs = Math.min(q_free_cfs * 0.65, base_corr * (spec.w_ft / 1.0));
+      }
+    }
+
+    const q_actual_cfs = Math.max(0, q_free_cfs - q_corr_cfs);
+    const q_actual_m3s = q_actual_cfs * 0.0283168;
+    const q_actual_m3h = q_actual_m3s * 3600;
+    const q_actual_ls = q_actual_m3s * 1000;
+    const q_actual_mgd = q_actual_cfs * 0.646317;
+
+    const q_free_m3h = q_free_cfs * 0.0283168 * 3600;
+    const q_corr_m3h = q_corr_cfs * 0.0283168 * 3600;
+
+    // Hydraulics in approach channel
+    const a_appr_m2 = Math.max(0.01, b_appr_m * ha_m);
+    const v_appr = q_actual_m3s / a_appr_m2;
+    const fr_appr = v_appr / Math.sqrt(9.80665 * Math.max(0.01, ha_m));
+    const v_head_m = Math.pow(v_appr, 2) / (2 * 9.80665);
+
+    // Throat velocity
+    const w_throat_m = spec.w_ft * 0.3048;
+    const yt_m = 0.67 * ha_m;
+    const v_throat = (w_throat_m > 0 && yt_m > 0) ? q_actual_m3s / (w_throat_m * yt_m) : 0;
+
+    // Update UI
+    if (units === 'metric') {
+      document.getElementById('res_q_actual').textContent = Math.round(q_actual_m3h).toLocaleString('en-US') + ' m³/h (' + q_actual_ls.toFixed(1) + ' L/s)';
+      document.getElementById('res_q_free').textContent = Math.round(q_free_m3h).toLocaleString('en-US') + ' m³/h';
+      document.getElementById('res_q_corr').textContent = q_corr_m3h > 0 ? Math.round(q_corr_m3h).toLocaleString('en-US') + ' m³/h (-' + ((q_corr_m3h/q_free_m3h)*100).toFixed(1) + '%)' : '0.0 m³/h (No Reduction)';
+    } else {
+      document.getElementById('res_q_actual').textContent = q_actual_cfs.toFixed(2) + ' cfs (' + q_actual_mgd.toFixed(2) + ' MGD)';
+      document.getElementById('res_q_free').textContent = q_free_cfs.toFixed(2) + ' cfs';
+      document.getElementById('res_q_corr').textContent = q_corr_cfs > 0 ? q_corr_cfs.toFixed(2) + ' cfs (-' + ((q_corr_cfs/q_free_cfs)*100).toFixed(1) + '%)' : '0.0 cfs (No Reduction)';
+    }
+
+    document.getElementById('res_submergence').textContent = (s_ratio * 100).toFixed(1) + '%';
+    const subBadge = document.getElementById('res_sub_status');
+    if (s_ratio > scrit) {
+      subBadge.className = 'status-badge badge-danger';
+      subBadge.textContent = 'SUBMERGED (S > ' + Math.round(scrit * 100) + '%) - CORRECTION APPLIED';
+    } else if (s_ratio > scrit * 0.90) {
+      subBadge.className = 'status-badge badge-warn';
+      subBadge.textContent = 'NEAR SUBMERGENCE TRANSITION (S ~ ' + Math.round(scrit * 100) + '%)';
+    } else {
+      subBadge.className = 'status-badge badge-safe';
+      subBadge.textContent = 'FREE-FLOW (S ≤ ' + Math.round(scrit * 100) + '%)';
+    }
+
+    document.getElementById('res_v_throat').textContent = v_throat.toFixed(2) + ' m/s ' + (v_throat >= 0.6 ? '(Self-Cleaning)' : '(Silt Risk)');
+    document.getElementById('res_froude').textContent = fr_appr.toFixed(2) + ' (' + (fr_appr < 0.5 ? 'Subcritical' : 'Wave Chop Risk') + ')';
+
+    const frBadge = document.getElementById('res_fr_status');
+    if (fr_appr >= 0.5) {
+      frBadge.className = 'status-badge badge-danger';
+      frBadge.textContent = 'TURBULENT WAVE RISK (Fr ≥ 0.5)';
+    } else {
+      frBadge.className = 'status-badge badge-safe';
+      frBadge.textContent = 'TRANQUIL FLOW (Fr < 0.5)';
+    }
+
+    document.getElementById('row_rating_eq').textContent = 'Q = ' + spec.c.toFixed(2) + ' · H_a^' + spec.n.toFixed(3) + ' (USCS cfs)';
+    document.getElementById('row_scrit').textContent = (scrit * 100).toFixed(1) + '%';
+    document.getElementById('row_tap_loc').textContent = (spec.a_m * (2/3)).toFixed(3) + ' m upstream of crest';
+    document.getElementById('row_v_head').textContent = v_head_m.toFixed(3) + ' m (' + (v_head_m * 1000).toFixed(1) + ' mm)';
+    document.getElementById('row_v_clean').textContent = v_throat.toFixed(2) + ' m/s (Min: 0.60 m/s)';
+  }
+
+  function updateUnitLabels() {
+    const units = document.getElementById('flume_units').value;
+    if (units === 'metric') {
+      document.getElementById('unit_ha').textContent = 'meters';
+      document.getElementById('unit_hb').textContent = 'meters';
+      document.getElementById('unit_w_appr').textContent = 'm';
+      document.getElementById('flume_ha').step = '0.005';
+      document.getElementById('flume_hb').step = '0.005';
+    } else {
+      document.getElementById('unit_ha').textContent = 'feet';
+      document.getElementById('unit_hb').textContent = 'feet';
+      document.getElementById('unit_w_appr').textContent = 'ft';
+      document.getElementById('flume_ha').step = '0.02';
+      document.getElementById('flume_hb').step = '0.02';
+    }
+  }
+
+  const inputs = ['flume_type', 'flume_size', 'flume_units', 'flume_temp', 'flume_ha', 'flume_hb', 'flume_b_appr', 'flume_sens_type', 'flume_appr_slope'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (id === 'flume_units') updateUnitLabels();
+        calcFlume();
+      });
+      el.addEventListener('change', () => {
+        if (id === 'flume_units') updateUnitLabels();
+        calcFlume();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_flume');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- PARSHALL / OPEN CHANNEL FLUME FLOW DATASHEET ---',
+        'Flume Type: ' + document.getElementById('flume_type').options[document.getElementById('flume_type').selectedIndex].text,
+        'Size / Throat Width: ' + document.getElementById('flume_size').options[document.getElementById('flume_size').selectedIndex].text,
+        'Primary Head Ha: ' + document.getElementById('flume_ha').value + ' ' + document.getElementById('unit_ha').textContent,
+        'Throat Head Hb: ' + document.getElementById('flume_hb').value + ' ' + document.getElementById('unit_hb').textContent,
+        'Submergence Ratio: ' + document.getElementById('res_submergence').textContent + ' [' + document.getElementById('res_sub_status').textContent + ']',
+        'Actual Discharge Q: ' + document.getElementById('res_q_actual').textContent,
+        'Free-Flow Potential: ' + document.getElementById('res_q_free').textContent,
+        'Submerged Flow Correction: ' + document.getElementById('res_q_corr').textContent,
+        'Approach Froude Number: ' + document.getElementById('res_froude').textContent,
+        'Throat Velocity: ' + document.getElementById('res_v_throat').textContent,
+        'Sensor Tap Location: ' + document.getElementById('row_tap_loc').textContent,
+        'Standards: ASTM D1941 / ISO 9826 / USBR Water Measurement Manual',
+        'Generated via DigitalToolsShed.com Open Channel Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  updateUnitLabels();
+  calcFlume();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+console.log('  ✓ Built Trade & Construction Suite (155 calculators in /calc/)');
 }
 
