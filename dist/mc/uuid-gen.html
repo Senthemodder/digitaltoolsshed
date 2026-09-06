@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed</title>
-  <meta name="description" content="Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="description" content="Generate random RFC 4122 v4 UUID pairs for Minecraft Bedrock behavior pack and resource pack manifest.json headers and modules — 100% free, instant & private.">
   <link rel="canonical" href="https://digitaltoolsshed.com/mc/uuid-gen">
   <meta property="og:title" content="Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed">
-  <meta property="og:description" content="Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta property="og:description" content="Generate random RFC 4122 v4 UUID pairs for Minecraft Bedrock behavior pack and resource pack manifest.json headers and modules — 100% free, instant & private.">
   <meta property="og:url" content="https://digitaltoolsshed.com/mc/uuid-gen">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed">
-  <meta name="twitter:description" content="Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="twitter:description" content="Generate random RFC 4122 v4 UUID pairs for Minecraft Bedrock behavior pack and resource pack manifest.json headers and modules — 100% free, instant & private.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files.",
+  "description": "Generate random RFC 4122 v4 UUID pairs for Minecraft Bedrock behavior pack and resource pack manifest.json headers and modules.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -136,7 +136,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Minecraft UUID Generator for Bedrock Add-Ons",
-  "description": "Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files.",
+  "description": "Generate random RFC 4122 v4 UUID pairs for Minecraft Bedrock behavior pack and resource pack manifest.json headers and modules.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1025,30 +1025,184 @@
           
 
           
-    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <h1 style="margin-top: 0.5rem;">Minecraft Bedrock UUID Generator</h1>
-      <p>Generate RFC4122 v4 UUID pairs specifically formatted for Minecraft Bedrock behavior packs, resource packs, and manifest.json headers.</p>
-    </div>
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; UUID Generator
+      </nav>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <button class="btn-primary" id="genUuidBtn">Generate New UUIDs</button>
-        <button class="btn-secondary" id="copyAllUuid">Copy Header & Module Pair</button>
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Minecraft Bedrock Add-On Utility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock UUID Generator (RFC 4122 v4)</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Generate cryptographically compliant RFC 4122 version 4 UUID pairs formatted specifically for Minecraft Bedrock Behavior Packs, Resource Packs, and <code>manifest.json</code> headers and modules.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+          <button type="button" class="btn-primary" id="genUuidBtn" onclick="refreshUUIDs()" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer;">
+            🔄 Generate New UUIDs
+          </button>
+          <button type="button" class="btn-secondary" id="copyPairBtn" onclick="copyAllUUIDs()" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.6rem 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; cursor: pointer;">
+            📋 Copy Header & Module Pair
+          </button>
+        </div>
+
+        <div style="font-family: var(--mono); display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="border: 1px solid var(--border); padding: 1.25rem; background: var(--surface-alt); border-radius: 6px; border-left: 4px solid #3b82f6;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Header UUID (Pack Root UUID)</span>
+              <button type="button" id="copyHeaderBtn" onclick="copyHeaderUUID()" class="btn-sm" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+            </div>
+            <div id="headerUuid" style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; word-break: break-all;"></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Used in <code>header.uuid</code> and as dependency target for companion packs</div>
+          </div>
+
+          <div style="border: 1px solid var(--border); padding: 1.25rem; background: var(--surface-alt); border-radius: 6px; border-left: 4px solid #10b981;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Module UUID (Content Payload UUID)</span>
+              <button type="button" id="copyModuleBtn" onclick="copyModuleUUID()" class="btn-sm" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+            </div>
+            <div id="moduleUuid" style="font-size: 1.2rem; font-weight: bold; color: #10b981; word-break: break-all;"></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Used in <code>modules[0].uuid</code> to identify the data or resources module</div>
+          </div>
+        </div>
+
+        <!-- BATCH UUID GENERATOR TABLE -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">Quick Multi-UUID Pool (5 Spare UUIDs):</span>
+            <button type="button" id="copyPoolBtn" onclick="copyPoolUUIDs()" class="btn-sm" style="background: var(--surface); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">Copy Pool</button>
+          </div>
+          <div id="uuidPool" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; word-break: break-all;"></div>
+        </div>
       </div>
 
-      <div style="font-family: var(--mono); display: grid; gap: 1rem;">
-        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface-alt);">
-          <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Header UUID (Pack UUID)</div>
-          <div id="headerUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
+      <!-- MATHEMATICAL RFC 4122 DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">RFC 4122 v4 Entropy Math & Collision Probability</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Binary Structure & Fixed Bitfields</strong>
+            An RFC 4122 UUID contains 128 total bits formatted as 32 hexadecimal characters across five hyphen-delimited segments:
+            $$8	ext{-}	ext{hex} - 4	ext{-}	ext{hex} - 4	ext{-}	ext{hex} - 4	ext{-}	ext{hex} - 12	ext{-}	ext{hex}$$
+            In Version 4, 4 bits are reserved for the version identifier (<code>0100</code> = 4), and 2 bits are reserved for the variant (<code>10</code> = RFC 4122).
+            This leaves exactly <strong>122 bits of cryptographically random entropy</strong>.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Collision Search Space (The Birthday Paradox)</strong>
+            $$	ext{Total Permutations} = 2^{122} approx 5.3169 	imes 10^{36}$$
+            By the Birthday Bound approximation (p approx n^2 / (2 	imes 2^{122})), you would need to generate <strong>2.3 quintillion ((2.3 	imes 10^{18})) UUIDs</strong> to have a one-in-a-billion chance of generating a single collision.
+          </div>
         </div>
-        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface-alt);">
-          <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Module UUID</div>
-          <div id="moduleUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & BEDROCK UUID PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Bedrock Add-On UUID Traps</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. Identical Header & Module UUID Collision</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              A pack's <code>header.uuid</code> and <code>modules[0].uuid</code> MUST be completely different. Copying the header UUID into the module block causes Minecraft Bedrock to reject the manifest as duplicate or invalid, preventing the pack from loading in world settings.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Reusing UUIDs Across Different Add-On Projects</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Minecraft Bedrock tracks installed add-ons by their UUID in the internal LevelDB database, not by directory name. If you copy-paste a manifest template into a new project without generating fresh UUIDs, the game will overwrite your original pack or fail with silent import errors.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Forgetting Dependency Header UUID Binding</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When linking a Behavior Pack to its companion Resource Pack in <code>dependencies</code>, you must specify the Resource Pack's <strong>Header UUID</strong>, NOT its module UUID. Binding the module UUID breaks automatic pack association on multiplayer worlds.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Omitting Semantic Version Bumps on Modified Packs</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When publishing updates to an existing pack, you keep the same UUIDs but MUST increment the version array (e.g. <code>[1, 0, 0]</code> to <code>[1, 0, 1]</code>). Without a version bump, players on dedicated servers will execute stale cached scripts and textures.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Case Sensitivity & Formatting Non-Compliance</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Minecraft Bedrock JSON schemas require standard lowercase, hyphen-separated 8-4-4-4-12 hex format. Adding curly braces <code>{...}</code>, omitting hyphens, or using uppercase characters can cause validation failures on consoles and mobile devices.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Bedrock UUIDs</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why does Minecraft Bedrock require UUIDs?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              UUIDs (Universally Unique Identifiers) provide a collision-free global identifier for every add-on pack. This allows the Bedrock engine to resolve pack versions, dependencies, and caching across multiple platforms and dedicated servers regardless of file naming.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the difference between a header UUID and a module UUID?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The <code>header.uuid</code> identifies the top-level add-on package, while the <code>modules[].uuid</code> identifies the specific content module (e.g. data or resources). A pack can contain multiple modules, each requiring its own distinct module UUID.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can two add-ons share the same UUID?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              No. Sharing UUIDs causes package collisions. Bedrock will either overwrite existing packs or silently reject the duplicate. Always generate unique UUIDs for every new add-on pack.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I link a Behavior Pack to a Resource Pack?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Add a <code>dependencies</code> array into the Behavior Pack's <code>manifest.json</code> containing the Resource Pack's <code>header.uuid</code> and version: <code>{"uuid": "RP-HEADER-UUID", "version": [1, 0, 0]}</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What UUID version does Minecraft Bedrock support?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Minecraft Bedrock officially uses standard RFC 4122 Version 4 random UUIDs. The 13th character is always <code>4</code> and the 17th character is one of <code>8</code>, <code>9</code>, <code>a</code>, or <code>b</code>.
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       function genUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
           var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -1056,17 +1210,67 @@
         });
       }
 
-      function refresh() {
+      function refreshUUIDs() {
         document.getElementById('headerUuid').innerText = genUUID();
         document.getElementById('moduleUuid').innerText = genUUID();
+
+        var poolHtml = '';
+        for (var i = 0; i < 5; i++) {
+          poolHtml += '<div>' + (i + 1) + '. <code>' + genUUID() + '</code></div>';
+        }
+        document.getElementById('uuidPool').innerHTML = poolHtml;
       }
-      document.getElementById('genUuidBtn').addEventListener('click', refresh);
-      document.getElementById('copyAllUuid').addEventListener('click', function() {
-        var text = 'Header UUID: ' + document.getElementById('headerUuid').innerText + '\nModule UUID: ' + document.getElementById('moduleUuid').innerText;
-        navigator.clipboard.writeText(text);
-        alert('Copied UUID pair to clipboard!');
-      });
-      refresh();
+
+      function copyHeaderUUID() {
+        var u = document.getElementById('headerUuid').innerText;
+        navigator.clipboard.writeText(u).then(function() {
+          var btn = document.getElementById('copyHeaderBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      function copyModuleUUID() {
+        var u = document.getElementById('moduleUuid').innerText;
+        navigator.clipboard.writeText(u).then(function() {
+          var btn = document.getElementById('copyModuleBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      function copyAllUUIDs() {
+        var h = document.getElementById('headerUuid').innerText;
+        var m = document.getElementById('moduleUuid').innerText;
+        var text = 'Header UUID: ' + h + '
+Module UUID: ' + m;
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyPairBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Pair Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      function copyPoolUUIDs() {
+        var poolDiv = document.getElementById('uuidPool');
+        var uuids = [];
+        poolDiv.querySelectorAll('code').forEach(function(el) {
+          uuids.push(el.innerText);
+        });
+        navigator.clipboard.writeText(uuids.join('
+')).then(function() {
+          var btn = document.getElementById('copyPoolBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Pool Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', refreshUUIDs);
+      refreshUUIDs();
     </script>
   
 

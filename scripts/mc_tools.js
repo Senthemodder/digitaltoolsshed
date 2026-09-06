@@ -81,7 +81,7 @@ export function buildMinecraftTools() {
         <div id="tabSNBT" style="display: none; background: var(--surface); border: 1px solid var(--border); border-top: none; padding: 1.25rem; border-radius: 0 0 6px 6px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
             <span style="font-size: 0.85rem; color: var(--text-muted);">Minecraft /give and /data compatible syntax:</span>
-            <button onclick="copySNBT()" class="btn-primary" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Copy SNBT</button>
+            <button id="copySnbtBtn" onclick="copySNBT()" class="btn-primary" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Copy SNBT</button>
           </div>
           <textarea id="snbtOutput" style="width: 100%; height: 400px; font-family: var(--mono); font-size: 0.85rem; padding: 0.75rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; resize: vertical;" readonly></textarea>
         </div>
@@ -90,7 +90,7 @@ export function buildMinecraftTools() {
         <div id="tabJSON" style="display: none; background: var(--surface); border: 1px solid var(--border); border-top: none; padding: 1.25rem; border-radius: 0 0 6px 6px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
             <span style="font-size: 0.85rem; color: var(--text-muted);">Standard JSON Representation:</span>
-            <button onclick="navigator.clipboard.writeText(document.getElementById('jsonOutput').value); alert('Copied JSON!');" class="btn-primary" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Copy JSON</button>
+            <button id="copyJsonBtn" onclick="copyNbtJson(this)" class="btn-primary" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Copy JSON</button>
           </div>
           <textarea id="jsonOutput" style="width: 100%; height: 400px; font-family: var(--mono); font-size: 0.85rem; padding: 0.75rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; resize: vertical;" readonly></textarea>
         </div>
@@ -98,7 +98,122 @@ export function buildMinecraftTools() {
     </div>
 
     <!-- PAKO GZIP CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    
+      <!-- STEP-BY-STEP NBT SPECIFICATION & BINARY DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 2rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Minecraft NBT Binary Specification & Tag Architecture</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
+          Named Binary Tag (NBT) is Minecraft's proprietary hierarchical binary serialization format designed by Markus Persson. Every NBT payload consists of structured tags following strict type identifiers:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; font-family: var(--mono); font-size: 0.8rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #a855f7;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">TAG_Compound (Type ID: 10)</strong>
+            Sequential collection of named child tags terminated by a trailing <code>TAG_End (0)</code>. Forms the root of all world, player, and entity files.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">TAG_List (Type ID: 9)</strong>
+            Homogeneous ordered list of unnamed tags. Encoded with a 1-byte element tag type followed by a 4-byte payload length (N).
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">TAG_String (Type ID: 8)</strong>
+            Length-prefixed modified UTF-8 string. Prefixed with a 2-byte unsigned short length header followed by raw character bytes.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">Primitive Numbers (Types 1-6)</strong>
+            Strictly sized primitives: <code>Byte (1B)</code>, <code>Short (2B)</code>, <code>Int (4B)</code>, <code>Long (8B)</code>, <code>Float (4B IEEE 754)</code>, <code>Double (8B IEEE 754)</code>.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & NBT PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical NBT Serialization Traps & Pitfalls</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Endianness Mismatch (Java Big-Endian vs Bedrock Little-Endian)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Minecraft Java Edition serializes all multi-byte numbers in Network Big-Endian format (most significant byte first). Minecraft Bedrock Edition serializes NBT in Little-Endian format (least significant byte first). Opening a Bedrock <code>.mcstructure</code> in a Java-only editor reads 4-byte string lengths backwards, resulting in multi-gigabyte memory allocation crashes.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Bedrock level.dat 8-Byte Uncompressed Header Offset</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Unlike Java <code>level.dat</code> (which starts with standard Gzip magic bytes <code>0x1F 0x8B</code>), Bedrock <code>level.dat</code> begins with an uncompressed 8-byte header: a 4-byte Little-Endian version int (e.g. <code>10</code>) followed by a 4-byte payload size. Attempting to parse the file from byte 0 fails immediately because the root compound is offset by 8 bytes.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Gzip vs Zlib vs Raw Stream Confusion</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              World files use three distinct compression formats. <code>level.dat</code> uses Gzip (magic <code>0x1F 0x8B</code>), Anvil region files (<code>.mca</code>) use raw Zlib deflate (magic <code>0x78 0x9C</code>), and Bedrock structure files (<code>.mcstructure</code>) use uncompressed raw Little-Endian NBT. Passing a Zlib chunk into a Gzip decompressor triggers header CRC checksum failure.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Type Mutation in Numeric Flags (Byte vs Int)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              NBT tags are strongly typed in the game engine. Mutating boolean flags like <code>NoGravity: 1b</code> (TAG_Byte) into <code>NoGravity: 1</code> (TAG_Int) causes the internal entity deserializer to reject the tag, resetting mob physics, despawning armor stands, or erasing custom mob behaviors.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Array Tag vs List Tag Structural Confusion</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              <code>TAG_Byte_Array</code> (7) and <code>TAG_Int_Array</code> (11) store flat contiguous buffers of raw numbers. In contrast, <code>TAG_List</code> (9) stores sequences of generic NBT tags (such as item compounds in inventories). Confusing a list of compounds with an array tag results in total player inventory erasure upon world loading.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Minecraft NBT</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is Minecraft NBT format?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Named Binary Tag (NBT) is a tree data structure format used by Minecraft to store arbitrary game data—including player inventories, level settings, entity properties, and block entity data—with minimal storage footprint.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the difference between Java NBT and Bedrock NBT?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Java Edition encodes multi-byte numbers using Network Big-Endian order, while Bedrock Edition encodes NBT using Little-Endian order. Bedrock <code>level.dat</code> files also feature an uncompressed 8-byte header before the NBT stream.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I open and edit a Bedrock level.dat file?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Simply drag and drop your <code>level.dat</code> into this editor. The editor automatically detects Bedrock's 8-byte header and Little-Endian encoding, decrypts the tag hierarchy, and allows seamless in-browser editing and re-saving.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is SNBT (Stringified NBT)?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              SNBT is a human-readable text representation of NBT data resembling JSON, with type suffixes like <code>1b</code> (byte), <code>1s</code> (short), <code>1L</code> (long), and <code>1.0f</code> (float). It is commonly used in Minecraft commands such as <code>/give</code> and <code>/summon</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can editing NBT files corrupt my Minecraft world save?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. Incorrect tag types, missing required compound tags, or out-of-bounds coordinates can cause worlds to crash on load. Always create a backup copy of your <code>level.dat</code> or world save before modifying NBT tags.
+            </div>
+          </div>
+        </div>
+      </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
     <script>
       var parsedNBT = null;
@@ -314,7 +429,7 @@ export function buildMinecraftTools() {
           }
 
           if (rootType !== TAG.COMPOUND) {
-            alert('Invalid NBT File: Root tag must be TAG_Compound');
+            showNbtStatus('Invalid NBT File: Root tag must be TAG_Compound (ID 10). Found tag ID: ' + rootType, true);
             return;
           }
 
@@ -324,7 +439,7 @@ export function buildMinecraftTools() {
           renderAll();
           document.getElementById('nbtWorkspace').style.display = 'block';
         } catch (err) {
-          alert('Error parsing NBT: ' + err.message);
+          showNbtStatus('Error parsing NBT: ' + err.message, true);
           console.error(err);
         }
       }
@@ -559,8 +674,46 @@ export function buildMinecraftTools() {
       }
 
       function copySNBT() {
-        navigator.clipboard.writeText(document.getElementById('snbtOutput').value);
-        alert('SNBT copied to clipboard!');
+        navigator.clipboard.writeText(document.getElementById('snbtOutput').value).then(function() {
+          var b = document.getElementById('copySnbtBtn');
+          if (b) {
+            var orig = b.textContent;
+            b.textContent = '✓ Copied SNBT!';
+            setTimeout(function() { b.textContent = orig; }, 2000);
+          }
+        });
+      }
+
+      function showNbtStatus(msg, isErr) {
+        var st = document.getElementById('nbtStatus');
+        if (st) {
+          st.textContent = msg;
+          st.style.display = 'block';
+          st.style.color = isErr ? '#ef4444' : '#10b981';
+        }
+      }
+
+      function copyNbtJson(btn) {
+        navigator.clipboard.writeText(document.getElementById('jsonOutput').value).then(function() {
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied JSON!';
+          setTimeout(function() { btn.textContent = orig; }, 2000);
+        });
+      }
+
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
       }
 
       function switchTab(tab) {
@@ -615,35 +768,213 @@ export function buildMinecraftTools() {
     metaDesc: 'Free in-browser Minecraft NBT editor: view and edit level.dat, playerdata, .nbt, .schematic, and .mcstructure files with Gzip support and SNBT export.',
     canonical: `${DOMAIN}/mc/nbt-editor`,
     bodyContent: nbtBody,
-    currentPath: '/mc/nbt-editor'
+    currentPath: '/mc/nbt-editor',
+    faqSchema: [
+      {
+        q: "What is Minecraft NBT format?",
+        a: "Named Binary Tag is Minecraft's hierarchical binary serialization format for storing world, player, and entity data."
+      },
+      {
+        q: "What is the difference between Java NBT and Bedrock NBT?",
+        a: "Java uses Big-Endian byte order while Bedrock uses Little-Endian byte order with an 8-byte uncompressed header on level.dat."
+      },
+      {
+        q: "How do I open and edit a Bedrock level.dat file?",
+        a: "Drag and drop the level.dat file into the editor; it automatically handles Bedrock headers and Little-Endian byte order."
+      },
+      {
+        q: "What is SNBT (Stringified NBT)?",
+        a: "SNBT is a human-readable JSON-like text representation with type suffixes used in Minecraft commands."
+      },
+      {
+        q: "Can editing NBT files corrupt my Minecraft world save?",
+        a: "Yes, invalid types or corrupted tags can cause load crashes; always back up your world save before editing."
+      }
+    ]
   }));
+
+
 
   // ─── 2. UUID GENERATOR ─────────────────────────────────────────────────────
   const uuidBody = `
-    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <h1 style="margin-top: 0.5rem;">Minecraft Bedrock UUID Generator</h1>
-      <p>Generate RFC4122 v4 UUID pairs specifically formatted for Minecraft Bedrock behavior packs, resource packs, and manifest.json headers.</p>
-    </div>
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; UUID Generator
+      </nav>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <button class="btn-primary" id="genUuidBtn">Generate New UUIDs</button>
-        <button class="btn-secondary" id="copyAllUuid">Copy Header & Module Pair</button>
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Minecraft Bedrock Add-On Utility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock UUID Generator (RFC 4122 v4)</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Generate cryptographically compliant RFC 4122 version 4 UUID pairs formatted specifically for Minecraft Bedrock Behavior Packs, Resource Packs, and <code>manifest.json</code> headers and modules.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+          <button type="button" class="btn-primary" id="genUuidBtn" onclick="refreshUUIDs()" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer;">
+            🔄 Generate New UUIDs
+          </button>
+          <button type="button" class="btn-secondary" id="copyPairBtn" onclick="copyAllUUIDs()" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.6rem 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; cursor: pointer;">
+            📋 Copy Header & Module Pair
+          </button>
+        </div>
+
+        <div style="font-family: var(--mono); display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="border: 1px solid var(--border); padding: 1.25rem; background: var(--surface-alt); border-radius: 6px; border-left: 4px solid #3b82f6;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Header UUID (Pack Root UUID)</span>
+              <button type="button" id="copyHeaderBtn" onclick="copyHeaderUUID()" class="btn-sm" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+            </div>
+            <div id="headerUuid" style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; word-break: break-all;"></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Used in <code>header.uuid</code> and as dependency target for companion packs</div>
+          </div>
+
+          <div style="border: 1px solid var(--border); padding: 1.25rem; background: var(--surface-alt); border-radius: 6px; border-left: 4px solid #10b981;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Module UUID (Content Payload UUID)</span>
+              <button type="button" id="copyModuleBtn" onclick="copyModuleUUID()" class="btn-sm" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+            </div>
+            <div id="moduleUuid" style="font-size: 1.2rem; font-weight: bold; color: #10b981; word-break: break-all;"></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Used in <code>modules[0].uuid</code> to identify the data or resources module</div>
+          </div>
+        </div>
+
+        <!-- BATCH UUID GENERATOR TABLE -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">Quick Multi-UUID Pool (5 Spare UUIDs):</span>
+            <button type="button" id="copyPoolBtn" onclick="copyPoolUUIDs()" class="btn-sm" style="background: var(--surface); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">Copy Pool</button>
+          </div>
+          <div id="uuidPool" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; word-break: break-all;"></div>
+        </div>
       </div>
 
-      <div style="font-family: var(--mono); display: grid; gap: 1rem;">
-        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface-alt);">
-          <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Header UUID (Pack UUID)</div>
-          <div id="headerUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
+      <!-- MATHEMATICAL RFC 4122 DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">RFC 4122 v4 Entropy Math & Collision Probability</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Binary Structure & Fixed Bitfields</strong>
+            An RFC 4122 UUID contains 128 total bits formatted as 32 hexadecimal characters across five hyphen-delimited segments:
+            $$8\text{-}\text{hex} - 4\text{-}\text{hex} - 4\text{-}\text{hex} - 4\text{-}\text{hex} - 12\text{-}\text{hex}$$
+            In Version 4, 4 bits are reserved for the version identifier (<code>0100</code> = 4), and 2 bits are reserved for the variant (<code>10</code> = RFC 4122).
+            This leaves exactly <strong>122 bits of cryptographically random entropy</strong>.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Collision Search Space (The Birthday Paradox)</strong>
+            $$\text{Total Permutations} = 2^{122} \approx 5.3169 \times 10^{36}$$
+            By the Birthday Bound approximation (p \approx n^2 / (2 \times 2^{122})), you would need to generate <strong>2.3 quintillion ((2.3 \times 10^{18})) UUIDs</strong> to have a one-in-a-billion chance of generating a single collision.
+          </div>
         </div>
-        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface-alt);">
-          <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Module UUID</div>
-          <div id="moduleUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & BEDROCK UUID PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Bedrock Add-On UUID Traps</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. Identical Header & Module UUID Collision</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              A pack's <code>header.uuid</code> and <code>modules[0].uuid</code> MUST be completely different. Copying the header UUID into the module block causes Minecraft Bedrock to reject the manifest as duplicate or invalid, preventing the pack from loading in world settings.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Reusing UUIDs Across Different Add-On Projects</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Minecraft Bedrock tracks installed add-ons by their UUID in the internal LevelDB database, not by directory name. If you copy-paste a manifest template into a new project without generating fresh UUIDs, the game will overwrite your original pack or fail with silent import errors.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Forgetting Dependency Header UUID Binding</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When linking a Behavior Pack to its companion Resource Pack in <code>dependencies</code>, you must specify the Resource Pack's <strong>Header UUID</strong>, NOT its module UUID. Binding the module UUID breaks automatic pack association on multiplayer worlds.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Omitting Semantic Version Bumps on Modified Packs</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When publishing updates to an existing pack, you keep the same UUIDs but MUST increment the version array (e.g. <code>[1, 0, 0]</code> to <code>[1, 0, 1]</code>). Without a version bump, players on dedicated servers will execute stale cached scripts and textures.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Case Sensitivity & Formatting Non-Compliance</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Minecraft Bedrock JSON schemas require standard lowercase, hyphen-separated 8-4-4-4-12 hex format. Adding curly braces <code>{...}</code>, omitting hyphens, or using uppercase characters can cause validation failures on consoles and mobile devices.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Bedrock UUIDs</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why does Minecraft Bedrock require UUIDs?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              UUIDs (Universally Unique Identifiers) provide a collision-free global identifier for every add-on pack. This allows the Bedrock engine to resolve pack versions, dependencies, and caching across multiple platforms and dedicated servers regardless of file naming.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the difference between a header UUID and a module UUID?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The <code>header.uuid</code> identifies the top-level add-on package, while the <code>modules[].uuid</code> identifies the specific content module (e.g. data or resources). A pack can contain multiple modules, each requiring its own distinct module UUID.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can two add-ons share the same UUID?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              No. Sharing UUIDs causes package collisions. Bedrock will either overwrite existing packs or silently reject the duplicate. Always generate unique UUIDs for every new add-on pack.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I link a Behavior Pack to a Resource Pack?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Add a <code>dependencies</code> array into the Behavior Pack's <code>manifest.json</code> containing the Resource Pack's <code>header.uuid</code> and version: <code>{"uuid": "RP-HEADER-UUID", "version": [1, 0, 0]}</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What UUID version does Minecraft Bedrock support?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Minecraft Bedrock officially uses standard RFC 4122 Version 4 random UUIDs. The 13th character is always <code>4</code> and the 17th character is one of <code>8</code>, <code>9</code>, <code>a</code>, or <code>b</code>.
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       function genUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
           var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -651,58 +982,276 @@ export function buildMinecraftTools() {
         });
       }
 
-      function refresh() {
+      function refreshUUIDs() {
         document.getElementById('headerUuid').innerText = genUUID();
         document.getElementById('moduleUuid').innerText = genUUID();
+
+        var poolHtml = '';
+        for (var i = 0; i < 5; i++) {
+          poolHtml += '<div>' + (i + 1) + '. <code>' + genUUID() + '</code></div>';
+        }
+        document.getElementById('uuidPool').innerHTML = poolHtml;
       }
-      document.getElementById('genUuidBtn').addEventListener('click', refresh);
-      document.getElementById('copyAllUuid').addEventListener('click', function() {
-        var text = 'Header UUID: ' + document.getElementById('headerUuid').innerText + '\\nModule UUID: ' + document.getElementById('moduleUuid').innerText;
-        navigator.clipboard.writeText(text);
-        alert('Copied UUID pair to clipboard!');
-      });
-      refresh();
+
+      function copyHeaderUUID() {
+        var u = document.getElementById('headerUuid').innerText;
+        navigator.clipboard.writeText(u).then(function() {
+          var btn = document.getElementById('copyHeaderBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      function copyModuleUUID() {
+        var u = document.getElementById('moduleUuid').innerText;
+        navigator.clipboard.writeText(u).then(function() {
+          var btn = document.getElementById('copyModuleBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      function copyAllUUIDs() {
+        var h = document.getElementById('headerUuid').innerText;
+        var m = document.getElementById('moduleUuid').innerText;
+        var text = 'Header UUID: ' + h + '\nModule UUID: ' + m;
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyPairBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Pair Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      function copyPoolUUIDs() {
+        var poolDiv = document.getElementById('uuidPool');
+        var uuids = [];
+        poolDiv.querySelectorAll('code').forEach(function(el) {
+          uuids.push(el.innerText);
+        });
+        navigator.clipboard.writeText(uuids.join('\n')).then(function() {
+          var btn = document.getElementById('copyPoolBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Pool Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', refreshUUIDs);
+      refreshUUIDs();
     </script>
   `;
 
   writeFileSync(join(mcDir, 'uuid-gen.html'), renderPage({
     title: 'Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed',
-    metaDesc: 'Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files.',
+    metaDesc: 'Generate random RFC 4122 v4 UUID pairs for Minecraft Bedrock behavior pack and resource pack manifest.json headers and modules.',
     canonical: `${DOMAIN}/mc/uuid-gen`,
     bodyContent: uuidBody,
-    currentPath: '/mc/uuid-gen'
+    currentPath: '/mc/uuid-gen',
+    faqSchema: [
+      {
+        q: "Why does Minecraft Bedrock require UUIDs?",
+        a: "UUIDs provide a globally unique identifier for add-on packs, allowing the game engine to manage versions and dependencies across platforms."
+      },
+      {
+        q: "What is the difference between a header UUID and a module UUID?",
+        a: "The header UUID identifies the top-level package, while module UUIDs identify individual data or resource components."
+      },
+      {
+        q: "Can two add-ons share the same UUID?",
+        a: "No, sharing UUIDs causes collisions where Bedrock overwrites or rejects duplicate packs."
+      },
+      {
+        q: "How do I link a Behavior Pack to a Resource Pack?",
+        a: "Add the Resource Pack's header UUID to the Behavior Pack's dependencies array."
+      },
+      {
+        q: "What UUID version does Minecraft Bedrock support?",
+        a: "Minecraft Bedrock officially supports RFC 4122 Version 4 random UUIDs."
+      }
+    ]
   }));
 
   // ─── 3. MANIFEST GENERATOR ─────────────────────────────────────────────────
   const manifestBody = `
-    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <h1 style="margin-top: 0.5rem;">Bedrock Manifest.json Generator</h1>
-      <p>Quickly generate valid, clean manifest.json files for Minecraft Bedrock Resource Packs and Behavior Packs with automatic UUIDs.</p>
-    </div>
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Manifest Generator
+      </nav>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-        <div>
-          <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Name</label>
-          <input type="text" id="packName" value="My Custom Pack" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" />
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Minecraft Bedrock Add-On Utility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Bedrock manifest.json Generator (Format Version 2)</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Generate valid, production-ready <code>manifest.json</code> definitions for Minecraft Bedrock Behavior Packs, Resource Packs, Script API modules (<code>@minecraft/server</code>), and Skin Packs with automatic UUID pair generation.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Pack Name</label>
+            <input type="text" id="packName" value="My Custom Pack" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" oninput="updateManifest()" />
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Pack Type</label>
+            <select id="packType" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateManifest()">
+              <option value="data">Behavior Pack (data)</option>
+              <option value="resources">Resource Pack (resources)</option>
+              <option value="script">Behavior Pack + Script API (@minecraft/server)</option>
+              <option value="skin_pack">Skin Pack (skin_pack)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Min Engine Version</label>
+            <select id="minEngine" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateManifest()">
+              <option value="1.21.0" selected>1.21.0 (Tricky Trials / Current Stable)</option>
+              <option value="1.20.80">1.20.80</option>
+              <option value="1.20.0">1.20.0 (Trails & Tales)</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Type</label>
-          <select id="packType" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;">
-            <option value="data">Behavior Pack (data)</option>
-            <option value="resources">Resource Pack (resources)</option>
-          </select>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">manifest.json Live Preview:</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn-sm" onclick="regenUUIDsAndManifest()" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.3rem 0.75rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">🔄 New UUIDs</button>
+            <button type="button" class="btn-primary" id="copyManifestBtn" onclick="copyManifestJson()" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Copy JSON</button>
+          </div>
+        </div>
+        <textarea id="manifestOutput" style="width: 100%; height: 320px; padding: 1rem; font-family: var(--mono); font-size: 0.85rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; resize: vertical;" readonly></textarea>
+      </div>
+
+      <!-- STEP-BY-STEP MANIFEST SCHEMA SPECIFICATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Bedrock Manifest Schema Architecture & Specification</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. The <code>header</code> Identity Object</strong>
+            Defines the pack identity: <code>name</code> (display string), <code>description</code>, <code>uuid</code> (global identifier), <code>version</code> (e.g. <code>[1, 0, 0]</code>), and <code>min_engine_version</code>. The engine version instructs Bedrock whether modern component schemas (like block format version 1.21+) are supported.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. The <code>modules</code> Payload Array</strong>
+            Declares the content types packaged inside: <code>data</code> for server-side game rules/entities/blocks, <code>resources</code> for client-side textures/models/sounds, <code>script</code> for JavaScript/TypeScript modules, or <code>skin_pack</code> for custom skins.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #a855f7;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. The <code>dependencies</code> Cross-Pack Binding</strong>
+            Enforces strict package links. Linking a companion Resource Pack requires specifying its <code>header.uuid</code>. Integrating the Bedrock Script API requires declaring module dependencies such as <code>@minecraft/server</code> version <code>2.8.0</code>.
+          </div>
         </div>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">manifest.json output:</span>
-        <button class="btn-primary" id="copyManifest">Copy JSON</button>
+      <!-- 5 FATAL TRAPS & MANIFEST PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Bedrock Manifest.json Pitfalls</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. Suffix Discrepancies in Pack Names ("BP" vs "RP")</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Never add "BP" or "RP" suffixes to your pack name inside <code>header.name</code>. Both Behavior and Resource packs should share the EXACT SAME name (e.g. "Kingdoms of Legend"). Minecraft automatically separates them by type in the UI, and differing names breaks unified pack grouping in world settings.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Format Version Downgrading (<code>format_version: 1</code>)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Legacy templates from 2018 used <code>format_version: 1</code>. Modern Bedrock features—including subpack selection, custom block components, and Script API modules—strictly require <code>format_version: 2</code>. Downgrading format versions silently disables modern engine hooks.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Script API (@minecraft/server) Version Drift</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When importing <code>@minecraft/server</code> in scripts, the version specified in <code>dependencies</code> must match the runtime version supported by your <code>min_engine_version</code>. Mismatched major/minor versions cause world loading to abort with <code>failed to create context</code>.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Duplicate UUID Collisions Across BP and RP</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If you generate a manifest for your Behavior Pack and copy the same file into your Resource Pack, both packs share the same UUID. Minecraft Bedrock will reject the world save with "Duplicate pack detected" and refuse to load custom textures.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Omitting Capabilities for Scripting</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If your add-on uses Script API eval operations or special experimental APIs, you must include <code>"capabilities": ["script_eval"]</code> in the <code>header</code>. Omitting required capabilities triggers security sandbox exceptions in the Bedrock JavaScript V8/Hermes runtime.
+            </p>
+          </div>
+        </div>
       </div>
-      <textarea id="manifestOutput" style="width: 100%; height: 260px; padding: 1rem; font-family: var(--mono); font-size: 0.85rem;" readonly></textarea>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Bedrock manifest.json</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is a manifest.json file in Minecraft Bedrock?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The <code>manifest.json</code> file is the root configuration file located in the base folder of every Minecraft Bedrock add-on. It informs the game engine of the pack's name, UUID, version, content modules, and dependencies.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I add Script API (@minecraft/server) support?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Select "Behavior Pack + Script API" in the generator. This adds a <code>script</code> module with <code>entry: "scripts/main.js"</code> and declares a dependency on <code>@minecraft/server</code> version <code>2.8.0</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is min_engine_version and why is it critical?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              <code>min_engine_version</code> defines the lowest Minecraft client version allowed to run the pack. If a player on version 1.20 attempts to load a pack requiring 1.21, Minecraft displays a warning and disables unsupported features.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why should Behavior and Resource packs share the same name?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Sharing identical names (without -BP or -RP suffixes) provides clean branding in the world settings menu, preventing visual clutter and ensuring players easily identify the paired packs.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can I edit my manifest after creating a world?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. You can edit descriptions, add dependencies, or bump the version number. However, changing the <code>header.uuid</code> will cause Minecraft to treat it as a new pack, breaking existing world associations.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
+      var cachedHeaderUUID = null;
+      var cachedModuleUUID = null;
+
       function genUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
           var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -710,46 +1259,118 @@ export function buildMinecraftTools() {
         });
       }
 
+      function regenUUIDsAndManifest() {
+        cachedHeaderUUID = genUUID();
+        cachedModuleUUID = genUUID();
+        updateManifest();
+      }
+
       function updateManifest() {
-        var name = document.getElementById('packName').value || 'My Pack';
+        if (!cachedHeaderUUID) cachedHeaderUUID = genUUID();
+        if (!cachedModuleUUID) cachedModuleUUID = genUUID();
+
+        var name = document.getElementById('packName').value || 'My Custom Pack';
         var type = document.getElementById('packType').value;
+        var engParts = (document.getElementById('minEngine').value || '1.21.0').split('.').map(function(n) { return parseInt(n, 10); });
+
         var manifest = {
           format_version: 2,
           header: {
             name: name,
-            description: name + " by Digital Tools Shed",
+            description: name + " created with Digital Tools Shed",
+            uuid: cachedHeaderUUID,
+            version: [1, 0, 0],
+            min_engine_version: engParts
+          },
+          modules: []
+        };
+
+        if (type === 'data') {
+          manifest.modules.push({
+            type: "data",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+        } else if (type === 'resources') {
+          manifest.modules.push({
+            type: "resources",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+        } else if (type === 'script') {
+          manifest.modules.push({
+            type: "data",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+          manifest.modules.push({
+            type: "script",
+            language: "javascript",
             uuid: genUUID(),
             version: [1, 0, 0],
-            min_engine_version: [1, 20, 0]
-          },
-          modules: [
+            entry: "scripts/main.js"
+          });
+          manifest.dependencies = [
             {
-              type: type,
-              uuid: genUUID(),
-              version: [1, 0, 0]
+              module_name: "@minecraft/server",
+              version: "2.8.0"
             }
-          ]
-        };
+          ];
+        } else if (type === 'skin_pack') {
+          manifest.modules.push({
+            type: "skin_pack",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+        }
+
         document.getElementById('manifestOutput').value = JSON.stringify(manifest, null, 2);
       }
 
-      document.getElementById('packName').addEventListener('input', updateManifest);
-      document.getElementById('packType').addEventListener('change', updateManifest);
-      document.getElementById('copyManifest').addEventListener('click', function() {
-        navigator.clipboard.writeText(document.getElementById('manifestOutput').value);
-        alert('Copied manifest.json to clipboard!');
-      });
-      updateManifest();
+      function copyManifestJson() {
+        navigator.clipboard.writeText(document.getElementById('manifestOutput').value).then(function() {
+          var btn = document.getElementById('copyManifestBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', regenUUIDsAndManifest);
+      regenUUIDsAndManifest();
     </script>
   `;
 
   writeFileSync(join(mcDir, 'manifest-gen.html'), renderPage({
     title: 'Minecraft Bedrock Manifest Generator | Digital Tools Shed',
-    metaDesc: 'Generate valid manifest.json files for Minecraft Bedrock behavior and resource packs.',
+    metaDesc: 'Generate valid format_version 2 manifest.json files for Minecraft Bedrock behavior packs, resource packs, and Script API modules.',
     canonical: `${DOMAIN}/mc/manifest-gen`,
     bodyContent: manifestBody,
-    currentPath: '/mc/manifest-gen'
+    currentPath: '/mc/manifest-gen',
+    faqSchema: [
+      {
+        q: "What is a manifest.json file in Minecraft Bedrock?",
+        a: "The manifest.json file is the root configuration file defining a pack's name, UUID, version, modules, and dependencies."
+      },
+      {
+        q: "How do I add Script API (@minecraft/server) support?",
+        a: "Select Behavior Pack + Script API to add a script module and declare an @minecraft/server dependency."
+      },
+      {
+        q: "What is min_engine_version and why is it critical?",
+        a: "It defines the minimum game version required to load the pack and its features."
+      },
+      {
+        q: "Why should Behavior and Resource packs share the same name?",
+        a: "Identical naming maintains unified branding and clean presentation in world settings."
+      },
+      {
+        q: "Can I edit my manifest after creating a world?",
+        a: "Yes, you can update descriptions, dependencies, and versions without breaking world saves."
+      }
+    ]
   }));
+
 
   // ─── 4. MINECRAFT HUB PAGE ─────────────────────────────────────────────────
   const mcHubBody = `

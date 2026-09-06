@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minecraft Bedrock Manifest Generator | Digital Tools Shed</title>
-  <meta name="description" content="Generate valid manifest.json files for Minecraft Bedrock behavior and resource packs. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="description" content="Generate valid format_version 2 manifest.json files for Minecraft Bedrock behavior packs, resource packs, and Script API modules — 100% free, instant & private.">
   <link rel="canonical" href="https://digitaltoolsshed.com/mc/manifest-gen">
   <meta property="og:title" content="Minecraft Bedrock Manifest Generator | Digital Tools Shed">
-  <meta property="og:description" content="Generate valid manifest.json files for Minecraft Bedrock behavior and resource packs. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta property="og:description" content="Generate valid format_version 2 manifest.json files for Minecraft Bedrock behavior packs, resource packs, and Script API modules — 100% free, instant & private.">
   <meta property="og:url" content="https://digitaltoolsshed.com/mc/manifest-gen">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Minecraft Bedrock Manifest Generator | Digital Tools Shed">
-  <meta name="twitter:description" content="Generate valid manifest.json files for Minecraft Bedrock behavior and resource packs. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="twitter:description" content="Generate valid format_version 2 manifest.json files for Minecraft Bedrock behavior packs, resource packs, and Script API modules — 100% free, instant & private.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Generate valid manifest.json files for Minecraft Bedrock behavior and resource packs.",
+  "description": "Generate valid format_version 2 manifest.json files for Minecraft Bedrock behavior packs, resource packs, and Script API modules.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -136,7 +136,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Minecraft Bedrock Manifest Generator",
-  "description": "Generate valid manifest.json files for Minecraft Bedrock behavior and resource packs.",
+  "description": "Generate valid format_version 2 manifest.json files for Minecraft Bedrock behavior packs, resource packs, and Script API modules.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1025,34 +1025,182 @@
           
 
           
-    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <h1 style="margin-top: 0.5rem;">Bedrock Manifest.json Generator</h1>
-      <p>Quickly generate valid, clean manifest.json files for Minecraft Bedrock Resource Packs and Behavior Packs with automatic UUIDs.</p>
-    </div>
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Manifest Generator
+      </nav>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-        <div>
-          <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Name</label>
-          <input type="text" id="packName" value="My Custom Pack" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" />
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Minecraft Bedrock Add-On Utility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Bedrock manifest.json Generator (Format Version 2)</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Generate valid, production-ready <code>manifest.json</code> definitions for Minecraft Bedrock Behavior Packs, Resource Packs, Script API modules (<code>@minecraft/server</code>), and Skin Packs with automatic UUID pair generation.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Pack Name</label>
+            <input type="text" id="packName" value="My Custom Pack" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" oninput="updateManifest()" />
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Pack Type</label>
+            <select id="packType" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateManifest()">
+              <option value="data">Behavior Pack (data)</option>
+              <option value="resources">Resource Pack (resources)</option>
+              <option value="script">Behavior Pack + Script API (@minecraft/server)</option>
+              <option value="skin_pack">Skin Pack (skin_pack)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Min Engine Version</label>
+            <select id="minEngine" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono); font-size: 0.95rem;" onchange="updateManifest()">
+              <option value="1.21.0" selected>1.21.0 (Tricky Trials / Current Stable)</option>
+              <option value="1.20.80">1.20.80</option>
+              <option value="1.20.0">1.20.0 (Trails & Tales)</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Type</label>
-          <select id="packType" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;">
-            <option value="data">Behavior Pack (data)</option>
-            <option value="resources">Resource Pack (resources)</option>
-          </select>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">manifest.json Live Preview:</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn-sm" onclick="regenUUIDsAndManifest()" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.3rem 0.75rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">🔄 New UUIDs</button>
+            <button type="button" class="btn-primary" id="copyManifestBtn" onclick="copyManifestJson()" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Copy JSON</button>
+          </div>
+        </div>
+        <textarea id="manifestOutput" style="width: 100%; height: 320px; padding: 1rem; font-family: var(--mono); font-size: 0.85rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; resize: vertical;" readonly></textarea>
+      </div>
+
+      <!-- STEP-BY-STEP MANIFEST SCHEMA SPECIFICATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Bedrock Manifest Schema Architecture & Specification</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. The <code>header</code> Identity Object</strong>
+            Defines the pack identity: <code>name</code> (display string), <code>description</code>, <code>uuid</code> (global identifier), <code>version</code> (e.g. <code>[1, 0, 0]</code>), and <code>min_engine_version</code>. The engine version instructs Bedrock whether modern component schemas (like block format version 1.21+) are supported.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. The <code>modules</code> Payload Array</strong>
+            Declares the content types packaged inside: <code>data</code> for server-side game rules/entities/blocks, <code>resources</code> for client-side textures/models/sounds, <code>script</code> for JavaScript/TypeScript modules, or <code>skin_pack</code> for custom skins.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #a855f7;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. The <code>dependencies</code> Cross-Pack Binding</strong>
+            Enforces strict package links. Linking a companion Resource Pack requires specifying its <code>header.uuid</code>. Integrating the Bedrock Script API requires declaring module dependencies such as <code>@minecraft/server</code> version <code>2.8.0</code>.
+          </div>
         </div>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">manifest.json output:</span>
-        <button class="btn-primary" id="copyManifest">Copy JSON</button>
+      <!-- 5 FATAL TRAPS & MANIFEST PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Bedrock Manifest.json Pitfalls</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. Suffix Discrepancies in Pack Names ("BP" vs "RP")</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Never add "BP" or "RP" suffixes to your pack name inside <code>header.name</code>. Both Behavior and Resource packs should share the EXACT SAME name (e.g. "Kingdoms of Legend"). Minecraft automatically separates them by type in the UI, and differing names breaks unified pack grouping in world settings.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Format Version Downgrading (<code>format_version: 1</code>)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Legacy templates from 2018 used <code>format_version: 1</code>. Modern Bedrock features—including subpack selection, custom block components, and Script API modules—strictly require <code>format_version: 2</code>. Downgrading format versions silently disables modern engine hooks.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Script API (@minecraft/server) Version Drift</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              When importing <code>@minecraft/server</code> in scripts, the version specified in <code>dependencies</code> must match the runtime version supported by your <code>min_engine_version</code>. Mismatched major/minor versions cause world loading to abort with <code>failed to create context</code>.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Duplicate UUID Collisions Across BP and RP</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If you generate a manifest for your Behavior Pack and copy the same file into your Resource Pack, both packs share the same UUID. Minecraft Bedrock will reject the world save with "Duplicate pack detected" and refuse to load custom textures.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Omitting Capabilities for Scripting</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If your add-on uses Script API eval operations or special experimental APIs, you must include <code>"capabilities": ["script_eval"]</code> in the <code>header</code>. Omitting required capabilities triggers security sandbox exceptions in the Bedrock JavaScript V8/Hermes runtime.
+            </p>
+          </div>
+        </div>
       </div>
-      <textarea id="manifestOutput" style="width: 100%; height: 260px; padding: 1rem; font-family: var(--mono); font-size: 0.85rem;" readonly></textarea>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Bedrock manifest.json</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is a manifest.json file in Minecraft Bedrock?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The <code>manifest.json</code> file is the root configuration file located in the base folder of every Minecraft Bedrock add-on. It informs the game engine of the pack's name, UUID, version, content modules, and dependencies.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do I add Script API (@minecraft/server) support?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Select "Behavior Pack + Script API" in the generator. This adds a <code>script</code> module with <code>entry: "scripts/main.js"</code> and declares a dependency on <code>@minecraft/server</code> version <code>2.8.0</code>.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is min_engine_version and why is it critical?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              <code>min_engine_version</code> defines the lowest Minecraft client version allowed to run the pack. If a player on version 1.20 attempts to load a pack requiring 1.21, Minecraft displays a warning and disables unsupported features.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why should Behavior and Resource packs share the same name?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Sharing identical names (without -BP or -RP suffixes) provides clean branding in the world settings menu, preventing visual clutter and ensuring players easily identify the paired packs.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can I edit my manifest after creating a world?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. You can edit descriptions, add dependencies, or bump the version number. However, changing the <code>header.uuid</code> will cause Minecraft to treat it as a new pack, breaking existing world associations.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var ans = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (ans.style.display === 'block') {
+          ans.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          ans.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
+      var cachedHeaderUUID = null;
+      var cachedModuleUUID = null;
+
       function genUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
           var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -1060,36 +1208,85 @@
         });
       }
 
+      function regenUUIDsAndManifest() {
+        cachedHeaderUUID = genUUID();
+        cachedModuleUUID = genUUID();
+        updateManifest();
+      }
+
       function updateManifest() {
-        var name = document.getElementById('packName').value || 'My Pack';
+        if (!cachedHeaderUUID) cachedHeaderUUID = genUUID();
+        if (!cachedModuleUUID) cachedModuleUUID = genUUID();
+
+        var name = document.getElementById('packName').value || 'My Custom Pack';
         var type = document.getElementById('packType').value;
+        var engParts = (document.getElementById('minEngine').value || '1.21.0').split('.').map(function(n) { return parseInt(n, 10); });
+
         var manifest = {
           format_version: 2,
           header: {
             name: name,
-            description: name + " by Digital Tools Shed",
+            description: name + " created with Digital Tools Shed",
+            uuid: cachedHeaderUUID,
+            version: [1, 0, 0],
+            min_engine_version: engParts
+          },
+          modules: []
+        };
+
+        if (type === 'data') {
+          manifest.modules.push({
+            type: "data",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+        } else if (type === 'resources') {
+          manifest.modules.push({
+            type: "resources",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+        } else if (type === 'script') {
+          manifest.modules.push({
+            type: "data",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+          manifest.modules.push({
+            type: "script",
+            language: "javascript",
             uuid: genUUID(),
             version: [1, 0, 0],
-            min_engine_version: [1, 20, 0]
-          },
-          modules: [
+            entry: "scripts/main.js"
+          });
+          manifest.dependencies = [
             {
-              type: type,
-              uuid: genUUID(),
-              version: [1, 0, 0]
+              module_name: "@minecraft/server",
+              version: "2.8.0"
             }
-          ]
-        };
+          ];
+        } else if (type === 'skin_pack') {
+          manifest.modules.push({
+            type: "skin_pack",
+            uuid: cachedModuleUUID,
+            version: [1, 0, 0]
+          });
+        }
+
         document.getElementById('manifestOutput').value = JSON.stringify(manifest, null, 2);
       }
 
-      document.getElementById('packName').addEventListener('input', updateManifest);
-      document.getElementById('packType').addEventListener('change', updateManifest);
-      document.getElementById('copyManifest').addEventListener('click', function() {
-        navigator.clipboard.writeText(document.getElementById('manifestOutput').value);
-        alert('Copied manifest.json to clipboard!');
-      });
-      updateManifest();
+      function copyManifestJson() {
+        navigator.clipboard.writeText(document.getElementById('manifestOutput').value).then(function() {
+          var btn = document.getElementById('copyManifestBtn');
+          var orig = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          setTimeout(function() { btn.innerText = orig; }, 2000);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', regenUUIDsAndManifest);
+      regenUUIDsAndManifest();
     </script>
   
 
