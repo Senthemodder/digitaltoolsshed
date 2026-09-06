@@ -37682,6 +37682,2409 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (39 calculators in /calc/)');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CHILLED WATER DECOUPLING & COMMON PIPE CALCULATOR (ASHRAE 90.1)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const chilledWaterBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Chilled Water Decoupling Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Chilled Water Decoupling &amp; Common Pipe Calculator (ASHRAE)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Analyze primary-secondary chilled water hydronic decoupling per ASHRAE 90.1 and Bell &amp; Gossett standards: calculate decoupler common pipe flow direction, mixing supply temperature degradation, Low Delta-T syndrome risk, and hydraulic separator sizing.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Chiller &amp; Building Loop Flow Balance
+      </h2>
+
+      <!-- Primary Chiller Loop -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="primaryFlowGpm">Primary Chiller Flow (GPM)</label>
+          <input type="number" id="primaryFlowGpm" value="1200" min="50" max="50000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Total flow through operating chillers</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chillerLeavingTemp">Chiller Leaving Temp Tchw (&deg;F)</label>
+          <input type="number" id="chillerLeavingTemp" value="44" min="36" max="55" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard leaving water setpoint (44&deg;F)</span>
+        </div>
+      </div>
+
+      <!-- Secondary Building Loop -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="secondaryFlowGpm">Secondary Load Flow (GPM)</label>
+          <input type="number" id="secondaryFlowGpm" value="1400" min="50" max="50000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Building AHU / coil demand flow</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="returnWaterTemp">Building Return Temp Tret (&deg;F)</label>
+          <input type="number" id="returnWaterTemp" value="56" min="45" max="70" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Return water returning from coils (56&deg;F)</span>
+        </div>
+      </div>
+
+      <!-- Decoupler Pipe Sizing -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="decouplerPipeSize">Common Pipe Nominal Size</label>
+          <select id="decouplerPipeSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="4.026|4">4" Pipe (ID 4.026")</option>
+            <option value="6.065|6">6" Pipe (ID 6.065")</option>
+            <option value="7.981|8" selected>8" Pipe (ID 7.981")</option>
+            <option value="10.020|10">10" Pipe (ID 10.020")</option>
+            <option value="11.938|12">12" Pipe (ID 11.938")</option>
+            <option value="13.124|14">14" Pipe (ID 13.124")</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="decouplerLengthIn">Common Pipe Length (Inches)</label>
+          <input type="number" id="decouplerLengthIn" value="24" min="6" max="120" step="2" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Max 3 to 5 pipe diameters (&le; 0.25 PSI drop)</span>
+        </div>
+      </div>
+
+      <!-- System Plant Tonnage Reference -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="plantDesignTons">Operating Chiller Capacity (Tons)</label>
+        <input type="number" id="plantDesignTons" value="500" min="20" max="10000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Nominal 2.4 GPM/ton = 1,200 GPM @ 10&deg;F &Delta;T</span>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Common Pipe Flow (Qc): <strong id="lblQcHeader" style="color:var(--fg);">200 GPM (Reverse)</strong></div>
+          <div>Common Pipe Velocity: <strong id="lblVcHeader" style="color:var(--fg);">1.28 ft/s</strong></div>
+          <div>Delivered Supply Temp: <strong id="lblDeliveredHeader" style="color:#ef4444;">45.7&deg;F</strong></div>
+          <div>Hydraulic Guideline: <strong style="color:var(--fg);">ASHRAE &amp; Bell &amp; Gossett</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN & DIAGRAM -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- RESULTS HERO CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;" id="lblHeroTitle">Delivered Supply Water Temp</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:var(--mono);color:var(--accent);line-height:1.1;" id="resDeliveredTemp">--</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);margin-top:0.25rem;" id="resTempDegradation">-- degradation above chiller setpoint</div>
+          </div>
+          <div style="text-align:right;">
+            <span id="badgeFlowDirection" style="display:inline-block;padding:0.4rem 0.85rem;border-radius:999px;font-size:0.8rem;font-weight:700;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid #ef4444;">DEFICIT FLOW (REVERSE)</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Decoupler Flow (Q_common)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resCommonFlow">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resFlowDirectionDesc">Bypass from return to supply</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Common Pipe Velocity</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resCommonVelocity">--</div>
+            <div style="font-size:0.75rem;" id="lblVelocityCheck">Max allowed: 1.5 ft/s</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Operating &Delta;T (Building Loop)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resBuildingDeltaT">--</div>
+            <div style="font-size:0.75rem;" id="lblLowDeltaTStatus">Low &Delta;T Syndrome Warning</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Actual Delivered Tonnage</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resDeliveredTons">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resPlantTonsStatus">Q = 500 &times; GPM &times; &Delta;T / 12000</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnCopyReport" style="width:100%;margin-top:1.5rem;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Decoupling Diagnostic Report</span>
+        </button>
+      </div>
+
+      <!-- DYNAMIC SVG DIAGRAM -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>Primary-Secondary Bridge &amp; Hydraulic Decoupler Schematic</span>
+          <span style="font-size:0.75rem;font-family:var(--mono);color:var(--text-muted);" id="svgStatusLabel">Hydronic Model</span>
+        </div>
+        <div id="chwSvgContainer" style="width:100%;display:flex;justify-content:center;background:var(--bg);border-radius:8px;padding:0.5rem;overflow:hidden;">
+          <!-- SVG injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKED DERIVATION BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Step-by-Step Chilled Water Hydraulic Mixing Derivation
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">
+      In primary-secondary hydronic systems, the common pipe (decoupler bridge) provides a zero-pressure-drop neutral bridge separating the constant-flow chiller pumps from the variable-flow building distribution pumps.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;font-size:0.9rem;line-height:1.6;">
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">1. Decoupler Flow Balance (Qc)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          Q_common = Q_primary - Q_secondary
+        </div>
+        By Kirchhoff's hydraulic node law, the difference between primary and secondary flow must pass through the decoupler bridge.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Primary: <span id="mathQp" style="font-weight:600;color:var(--fg);">1,200 GPM</span></li>
+          <li>Secondary: <span id="mathQs" style="font-weight:600;color:var(--fg);">1,400 GPM</span></li>
+          <li>Decoupler: <span id="mathQc" style="font-weight:600;color:var(--fg);">-200 GPM</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">2. Supply Mixing Temperature (T_sup)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          If Qs &gt; Qp: T_sup = [Qp&middot;Tchw + (Qs-Qp)&middot;Tret] / Qs<br>
+          If Qp &ge; Qs: T_sup = Tchw (Pure 44&deg;F)
+        </div>
+        When secondary flow exceeds primary flow, warm return water recirculates through the decoupler, warming supply water.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Chiller Setpoint: <span id="mathTchw" style="font-weight:600;color:var(--fg);">44.0 &deg;F</span></li>
+          <li>Return Water: <span id="mathTret" style="font-weight:600;color:var(--fg);">56.0 &deg;F</span></li>
+          <li>Mixed Delivered: <span id="mathTsup" style="font-weight:600;color:var(--fg);">45.7 &deg;F</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">3. Velocity &amp; Hydraulic Decoupling</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          V_c = (0.4085 &middot; |Qc|) / (d_pipe)^2 &le; 1.5 ft/s<br>
+          Length &le; 3 to 5 pipe diameters
+        </div>
+        Keeping velocity $le 1.5	ext{ ft/s}$ ensures pressure drop across the common pipe remains $< 0.1	ext{ PSI}$ ($< 0.25	ext{ ft head}$).
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Pipe ID: <span id="mathPipeId" style="font-weight:600;color:var(--fg);">7.981" (8" Std)</span></li>
+          <li>Bridge Velocity: <span id="mathVc" style="font-weight:600;color:var(--fg);">1.28 ft/s</span></li>
+          <li>Pressure Drop: <span id="mathDp" style="font-weight:600;color:var(--fg);">&lt; 0.05 PSI</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      5 Fatal Traps in Chilled Water Decoupling Design
+    </h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#ef4444;display:block;margin-bottom:0.35rem;font-size:1.05rem;">1. The Secondary Deficit Trap &amp; Dehumidification Collapse</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When secondary distribution flow exceeds primary production flow ($Q_s &gt; Q_p$), warm return water is pulled backward through the decoupler common pipe into the building supply stream. A 200 GPM deficit on a 1,200 GPM system increases supply water temperature from 44&deg;F to 45.7&deg;F. Because coil dehumidification depends entirely on coil surface temperature falling below the air dew point (typically 52&deg;F to 55&deg;F), warm chilled water destroys latent cooling capacity, turning office buildings into humid greenhouses.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#f59e0b;display:block;margin-bottom:0.35rem;font-size:1.05rem;">2. Low Delta-T Syndrome &amp; Artificial Plant Capacity Bottlenecks</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          If building coils are designed for a 12&deg;F temperature rise (44&deg;F supply to 56&deg;F return) but operate at only 6&deg;F &Delta;T (due to hunting 3-way control valves or oversized coils), the building requires double the design flow (4.8 GPM/ton instead of 2.4 GPM/ton). The primary pumps run out of water capacity, forcing operators to stage on additional chillers that run at only 40% to 50% electrical load—slashing plant COP and wasting tens of thousands in demand charges.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#10b981;display:block;margin-bottom:0.35rem;font-size:1.05rem;">3. Oversizing Common Pipe Length (&gt; 5 Pipe Diameters)</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          The entire hydraulic principle of primary-secondary decoupling requires the common pipe to have <em>zero effective pressure drop</em>. If engineers route the common pipe across 20 feet of mechanical room piping with elbows, check valves, or balancing valves, friction loss develops. This creates parasitic hydraulic coupling: starting a secondary variable-speed pump induces flow distortion and hunting through the primary chiller evaporators, triggering low-flow chiller safety trips. Keep common pipe length under 3 to 5 pipe diameters.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#3b82f6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">4. Installing Check Valves or Strainers in the Common Pipe</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          A classic piping error is installing a check valve or balancing valve in the decoupler common pipe to "prevent reverse flow." Doing so converts the system from a decoupled primary-secondary plant into two pumps piped in rigid series or dead-heading against each other. When secondary demand drops, primary flow is completely blocked, tripping chillers on freeze protection within 15 seconds. The common pipe must remain completely open and bidirectional at all times.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#8b5cf6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">5. Decoupler Velocity Exceeding 1.5 ft/s</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Sizing the common pipe using standard piping friction tables (6 to 8 ft/s) destroys the hydraulic neutral bridge. High fluid velocity generates dynamic velocity head ($V^2 / 2g$) and turbulence at the tees. The pressure difference between the supply tee and return tee rises above 1 to 2 PSI, transmitting secondary pump head directly into the chiller loop. Common pipe velocity must always be sized for $le 1.5	ext{ ft/s}$ at maximum possible flow imbalance.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var inQp = document.getElementById('primaryFlowGpm');
+  var inTchw = document.getElementById('chillerLeavingTemp');
+  var inQs = document.getElementById('secondaryFlowGpm');
+  var inTret = document.getElementById('returnWaterTemp');
+  var selSize = document.getElementById('decouplerPipeSize');
+  var inLen = document.getElementById('decouplerLengthIn');
+  var inTons = document.getElementById('plantDesignTons');
+
+  var lblQcHeader = document.getElementById('lblQcHeader');
+  var lblVcHeader = document.getElementById('lblVcHeader');
+  var lblDeliveredHeader = document.getElementById('lblDeliveredHeader');
+
+  var resDeliveredTemp = document.getElementById('resDeliveredTemp');
+  var resTempDegradation = document.getElementById('resTempDegradation');
+  var badgeFlowDirection = document.getElementById('badgeFlowDirection');
+
+  var resCommonFlow = document.getElementById('resCommonFlow');
+  var resFlowDirectionDesc = document.getElementById('resFlowDirectionDesc');
+  var resCommonVelocity = document.getElementById('resCommonVelocity');
+  var lblVelocityCheck = document.getElementById('lblVelocityCheck');
+  var resBuildingDeltaT = document.getElementById('resBuildingDeltaT');
+  var lblLowDeltaTStatus = document.getElementById('lblLowDeltaTStatus');
+  var resDeliveredTons = document.getElementById('resDeliveredTons');
+  var resPlantTonsStatus = document.getElementById('resPlantTonsStatus');
+
+  var mathQp = document.getElementById('mathQp');
+  var mathQs = document.getElementById('mathQs');
+  var mathQc = document.getElementById('mathQc');
+  var mathTchw = document.getElementById('mathTchw');
+  var mathTret = document.getElementById('mathTret');
+  var mathTsup = document.getElementById('mathTsup');
+  var mathPipeId = document.getElementById('mathPipeId');
+  var mathVc = document.getElementById('mathVc');
+  var mathDp = document.getElementById('mathDp');
+
+  var svgContainer = document.getElementById('chwSvgContainer');
+  var btnCopy = document.getElementById('btnCopyReport');
+  var copyText = document.getElementById('copyBtnText');
+
+  function calculate() {
+    var Qp = Math.max(1, parseFloat(inQp.value) || 1200);
+    var Tchw = parseFloat(inTchw.value) || 44;
+    var Qs = Math.max(1, parseFloat(inQs.value) || 1400);
+    var Tret = parseFloat(inTret.value) || 56;
+    var sizeParts = selSize.value.split('|');
+    var dPipe = parseFloat(sizeParts[0]) || 7.981;
+    var nomSize = sizeParts[1] || '8';
+    var L_in = Math.max(1, parseFloat(inLen.value) || 24);
+    var designTons = parseFloat(inTons.value) || 500;
+
+    // Common pipe flow Qc = Qp - Qs
+    var Qc = Qp - Qs;
+    var absQc = Math.abs(Qc);
+
+    // Common pipe velocity (ft/s)
+    // V = (0.4085 * GPM) / d^2
+    var Vc = (0.4085 * absQc) / Math.pow(dPipe, 2);
+
+    // Supply Temperature delivered to secondary loop
+    var Tsup = Tchw;
+    var isDeficit = (Qs > Qp);
+
+    if (isDeficit) {
+      // Qs > Qp: warm return water blends with chiller supply water
+      Tsup = ((Qp * Tchw) + ((Qs - Qp) * Tret)) / Qs;
+    } else {
+      // Qp >= Qs: pure chiller water delivered to building; excess cold water returns to chiller return
+      Tsup = Tchw;
+    }
+
+    var tempDegradation = Tsup - Tchw;
+    var buildingDeltaT = Math.max(0, Tret - Tsup);
+
+    // Actual delivered tonnage: Tons = 500 * Qs * DeltaT / 12,000 = (Qs * DeltaT) / 24
+    var deliveredTons = (Qs * buildingDeltaT) / 24;
+
+    // Header readouts
+    lblQcHeader.textContent = Math.round(absQc) + ' GPM (' + (isDeficit ? 'Deficit / Reverse' : 'Surplus / Forward') + ')';
+    lblVcHeader.textContent = Vc.toFixed(2) + ' ft/s';
+    lblDeliveredHeader.textContent = Tsup.toFixed(1) + '°F';
+    lblDeliveredHeader.style.color = isDeficit ? '#ef4444' : '#10b981';
+
+    // Hero Update
+    resDeliveredTemp.textContent = Tsup.toFixed(1) + '°F';
+    resDeliveredTemp.style.color = isDeficit ? '#ef4444' : '#10b981';
+    resTempDegradation.textContent = '+' + tempDegradation.toFixed(1) + '°F above ' + Tchw + '°F setpoint';
+
+    if (isDeficit) {
+      badgeFlowDirection.textContent = 'DEFICIT FLOW (REVERSE ' + Math.round(absQc) + ' GPM)';
+      badgeFlowDirection.style.color = '#ef4444';
+      badgeFlowDirection.style.borderColor = '#ef4444';
+      badgeFlowDirection.style.background = 'rgba(239, 68, 68, 0.1)';
+      resFlowDirectionDesc.textContent = 'Warm return water bypasses to supply';
+    } else {
+      badgeFlowDirection.textContent = 'SURPLUS FLOW (FORWARD ' + Math.round(absQc) + ' GPM)';
+      badgeFlowDirection.style.color = '#10b981';
+      badgeFlowDirection.style.borderColor = '#10b981';
+      badgeFlowDirection.style.background = 'rgba(16, 185, 129, 0.1)';
+      resFlowDirectionDesc.textContent = 'Excess cold water bypasses to return';
+    }
+
+    resCommonFlow.textContent = Math.round(absQc) + ' GPM';
+    resCommonVelocity.textContent = Vc.toFixed(2) + ' ft/s';
+
+    if (Vc <= 1.5) {
+      lblVelocityCheck.textContent = 'Adequate Decoupling (≤ 1.5 ft/s)';
+      lblVelocityCheck.style.color = '#10b981';
+    } else {
+      lblVelocityCheck.textContent = 'Excess Velocity (> 1.5 ft/s) - Pipe too small!';
+      lblVelocityCheck.style.color = '#ef4444';
+    }
+
+    resBuildingDeltaT.textContent = buildingDeltaT.toFixed(1) + '°F ΔT';
+    if (buildingDeltaT >= 10.0) {
+      lblLowDeltaTStatus.textContent = 'Healthy Design ΔT (≥ 10°F)';
+      lblLowDeltaTStatus.style.color = '#10b981';
+    } else if (buildingDeltaT >= 7.0) {
+      lblLowDeltaTStatus.textContent = 'Marginal ΔT (7°F - 10°F)';
+      lblLowDeltaTStatus.style.color = '#f59e0b';
+    } else {
+      lblLowDeltaTStatus.textContent = 'Severe Low ΔT Syndrome (< 7°F)';
+      lblLowDeltaTStatus.style.color = '#ef4444';
+    }
+
+    resDeliveredTons.textContent = Math.round(deliveredTons) + ' Tons';
+    resPlantTonsStatus.textContent = Math.round((deliveredTons / designTons) * 100) + '% of ' + designTons + ' Ton Capacity';
+
+    // Math box updates
+    mathQp.textContent = Math.round(Qp) + ' GPM';
+    mathQs.textContent = Math.round(Qs) + ' GPM';
+    mathQc.textContent = (isDeficit ? '-' : '+') + Math.round(absQc) + ' GPM';
+    mathTchw.textContent = Tchw.toFixed(1) + ' °F';
+    mathTret.textContent = Tret.toFixed(1) + ' °F';
+    mathTsup.textContent = Tsup.toFixed(1) + ' °F';
+    mathPipeId.textContent = dPipe.toFixed(3) + '" (' + nomSize + '" Std)';
+    mathVc.textContent = Vc.toFixed(2) + ' ft/s';
+
+    // Pressure drop across common pipe length (Hazen-Williams C=120)
+    // hf = 0.002083 * L_ft * (100/120)^1.852 * (GPM^1.852 / d^4.8655)
+    var L_ft = L_in / 12;
+    var hf_ft = 0.002083 * L_ft * 0.713 * (Math.pow(absQc, 1.852) / Math.pow(dPipe, 4.8655));
+    var dp_psi = hf_ft * 0.4335;
+    mathDp.textContent = dp_psi.toFixed(3) + ' PSI (' + hf_ft.toFixed(2) + ' ft head)';
+
+    updateSvg(Qp, Qs, Qc, isDeficit, Tchw, Tret, Tsup, Vc);
+  }
+
+  function updateSvg(Qp, Qs, Qc, isDeficit, Tchw, Tret, Tsup, Vc) {
+    var svg = '';
+    svg += '<svg width="100%" height="220" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,-apple-system,sans-serif;">';
+    svg += '<defs>';
+    svg += '  <marker id="arrowBlue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#3b82f6"/>';
+    svg += '  </marker>';
+    svg += '  <marker id="arrowOrange" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#f59e0b"/>';
+    svg += '  </marker>';
+    svg += '  <marker id="arrowRed" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#ef4444"/>';
+    svg += '  </marker>';
+    svg += '  <marker id="arrowGreen" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#10b981"/>';
+    svg += '  </marker>';
+    svg += '</defs>';
+
+    // Left Chiller Block
+    svg += '<rect x="25" y="60" width="75" height="100" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>';
+    svg += '<text x="62" y="105" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">CHILLER</text>';
+    svg += '<text x="62" y="122" font-size="9" fill="#94a3b8" text-anchor="middle">Evaporator</text>';
+
+    // Right Building Load Block
+    svg += '<rect x="360" y="60" width="75" height="100" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>';
+    svg += '<text x="397" y="105" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">BUILDING</text>';
+    svg += '<text x="397" y="122" font-size="9" fill="#94a3b8" text-anchor="middle">AHU Coils</text>';
+
+    // Piping Lines
+    // Supply Header at y=75 (Blue)
+    svg += '<line x1="100" y1="75" x2="360" y2="75" stroke="#3b82f6" stroke-width="6"/>';
+    svg += '<line x1="120" y1="75" x2="190" y2="75" stroke="#ffffff" stroke-width="2" marker-end="url(#arrowBlue)"/>';
+    svg += '<line x1="260" y1="75" x2="330" y2="75" stroke="#ffffff" stroke-width="2" marker-end="url(#arrowBlue)"/>';
+
+    // Return Header at y=145 (Orange)
+    svg += '<line x1="100" y1="145" x2="360" y2="145" stroke="#f59e0b" stroke-width="6"/>';
+    svg += '<line x1="330" y1="145" x2="260" y2="145" stroke="#ffffff" stroke-width="2" marker-end="url(#arrowOrange)"/>';
+    svg += '<line x1="190" y1="145" x2="120" y2="145" stroke="#ffffff" stroke-width="2" marker-end="url(#arrowOrange)"/>';
+
+    // Common Pipe (Bridge) at x=225 connecting Supply y=75 to Return y=145
+    var bridgeColor = isDeficit ? '#ef4444' : '#10b981';
+    svg += '<line x1="225" y1="75" x2="225" y2="145" stroke="' + bridgeColor + '" stroke-width="8"/>';
+
+    // Common Pipe Directional Arrow
+    if (isDeficit) {
+      // Reverse flow: from return y=145 UP to supply y=75
+      svg += '<line x1="225" y1="135" x2="225" y2="90" stroke="#ffffff" stroke-width="3" marker-end="url(#arrowRed)"/>';
+      svg += '<text x="238" y="115" font-size="10" font-weight="700" fill="#ef4444">REVERSE</text>';
+      svg += '<text x="238" y="128" font-size="9" fill="#ef4444">' + Math.round(Math.abs(Qc)) + ' GPM</text>';
+    } else {
+      // Forward flow: from supply y=75 DOWN to return y=145
+      svg += '<line x1="225" y1="85" x2="225" y2="130" stroke="#ffffff" stroke-width="3" marker-end="url(#arrowGreen)"/>';
+      svg += '<text x="238" y="115" font-size="10" font-weight="700" fill="#10b981">SURPLUS</text>';
+      svg += '<text x="238" y="128" font-size="9" fill="#10b981">' + Math.round(Math.abs(Qc)) + ' GPM</text>';
+    }
+
+    // Temperatures and Flow Labels
+    // Primary Leaving
+    svg += '<text x="145" y="65" font-size="10" font-weight="700" fill="#3b82f6">' + Tchw.toFixed(0) + '°F (' + Math.round(Qp) + ' GPM)</text>';
+    // Secondary Supply (Delivered)
+    var supColor = isDeficit ? '#ef4444' : '#3b82f6';
+    svg += '<text x="280" y="65" font-size="10" font-weight="700" fill="' + supColor + '">Delivered: ' + Tsup.toFixed(1) + '°F</text>';
+    // Secondary Return
+    svg += '<text x="280" y="165" font-size="10" font-weight="700" fill="#f59e0b">' + Tret.toFixed(0) + '°F (' + Math.round(Qs) + ' GPM)</text>';
+    // Primary Return
+    svg += '<text x="135" y="165" font-size="10" font-weight="700" fill="#f59e0b">Chiller Return</text>';
+
+    // Decoupler Pipe Label
+    svg += '<g transform="translate(145, 185)">';
+    svg += '  <rect width="170" height="26" rx="4" fill="var(--surface)" stroke="var(--border)"/>';
+    svg += '  <text x="85" y="17" font-size="9.5" font-weight="600" fill="var(--fg)" text-anchor="middle">Common Pipe Velocity: ' + Vc.toFixed(2) + ' ft/s</text>';
+    svg += '</g>';
+
+    svg += '</svg>';
+
+    svgContainer.innerHTML = svg;
+  }
+
+  // Copy diagnostic report
+  btnCopy.addEventListener('click', function() {
+    var text = '=== CHILLED WATER DECOUPLING DIAGNOSTIC REPORT (ASHRAE) ===\n' +
+      'Primary Chiller Flow (Qp): ' + inQp.value + ' GPM @ ' + inTchw.value + ' deg F Leaving Setpoint\n' +
+      'Secondary Building Flow (Qs): ' + inQs.value + ' GPM @ ' + inTret.value + ' deg F Return Temp\n' +
+      'Common Pipe: ' + selSize.options[selSize.selectedIndex].text + ' (Length: ' + inLen.value + ' in)\n' +
+      '------------------------------------------------------------\n' +
+      'Decoupler Flow (Qc): ' + resCommonFlow.textContent + ' (' + badgeFlowDirection.textContent + ')\n' +
+      'Common Pipe Velocity: ' + resCommonVelocity.textContent + ' (' + lblVelocityCheck.textContent + ')\n' +
+      'Delivered Supply Water Temp: ' + resDeliveredTemp.textContent + ' (' + resTempDegradation.textContent + ')\n' +
+      'Building Operating Delta T: ' + resBuildingDeltaT.textContent + ' (' + lblLowDeltaTStatus.textContent + ')\n' +
+      'Actual Delivered Plant Capacity: ' + resDeliveredTons.textContent + ' (' + resPlantTonsStatus.textContent + ')\n' +
+      'Hydronic Standards: ASHRAE 90.1 & Bell & Gossett System Guidelines\n' +
+      'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/chilled-water-decoupling-calculator.html)';
+
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = copyText.textContent;
+      copyText.textContent = '✓ Copied Diagnostic Report to Clipboard!';
+      setTimeout(function() {
+        copyText.textContent = orig;
+      }, 2500);
+    }).catch(function() {
+      copyText.textContent = 'Clipboard access denied';
+    });
+  });
+
+  [inQp, inTchw, inQs, inTret, selSize, inLen, inTons].forEach(function(el) {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'chilled-water-decoupling-calculator.html'), renderTradePage({
+    title: "Chilled Water Decoupling & Common Pipe Calculator (ASHRAE) | Digital Tools Shed",
+    metaDesc: "Analyze primary-secondary chilled water hydronic decoupling per ASHRAE 90.1: compute common pipe flow direction, mixing supply temperature degradation, and Low Delta-T syndrome.",
+    canonical: `${DOMAIN}/calc/chilled-water-decoupling-calculator`,
+    bodyContent: chilledWaterBody,
+    currentPath: '/calc/chilled-water-decoupling-calculator',
+    faq: [
+      {
+        "q": "What is the primary function of a chilled water decoupler common pipe?",
+        "a": "The common pipe (decoupler bridge) provides a zero-pressure-drop hydraulic bridge separating constant-flow primary chiller pumps from variable-flow secondary building distribution pumps, ensuring neither pump loop dynamically influences the other."
+      },
+      {
+        "q": "Why does secondary deficit flow cause supply chilled water temperature degradation?",
+        "a": "When secondary pump flow exceeds primary chiller flow (Qs > Qp), Kirchhoff's hydraulic node law forces warm return water from the coils to recirculate backwards through the common pipe into the supply stream, elevating the mixed supply temperature above the chiller setpoint."
+      },
+      {
+        "q": "What is Low Delta-T Syndrome in chilled water plants?",
+        "a": "Low Delta-T syndrome occurs when building coils return water colder than design (e.g. 8°F rise instead of 12°F). The building draws excess flow to meet cooling tonnage, overloading primary pumps and forcing operators to stage additional chillers that run at inefficient partial loads."
+      },
+      {
+        "q": "Why is common pipe length restricted to 3 to 5 pipe diameters?",
+        "a": "To preserve true hydraulic decoupling, pressure drop across the common pipe must be negligible (< 0.1 PSI). Keeping pipe length under 3 to 5 diameters prevents friction loss that would hydraulically couple primary and secondary pumps."
+      },
+      {
+        "q": "What is the maximum recommended velocity in a chilled water common pipe?",
+        "a": "ASHRAE and Bell & Gossett recommend sizing the common pipe for a maximum fluid velocity of 1.5 ft/s (0.45 m/s) at maximum flow imbalance to maintain near-zero pressure drop and prevent turbulence."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CONVEYOR BELT TENSION & DRIVE POWER CALCULATOR (CEMA 7th EDITION)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const conveyorBeltBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Conveyor Belt Power Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Conveyor Belt Tension &amp; Drive Power Calculator (CEMA 7th)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate bulk material conveyor belt tensions and motor horsepower per Conveyor Equipment Manufacturers Association (CEMA 7th Edition): compute effective tension ($T_e$), tight-side tension ($T_1$), slack-side tension ($T_2$), Euler-Eytelwein drive slip limits, belt sag %, and carcass PIW rating.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+        Conveyor Geometry &amp; Capacity
+      </h2>
+
+      <!-- Geometry -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="convLength">Center-to-Center Length L (ft)</label>
+          <input type="number" id="convLength" value="350" min="10" max="10000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Horizontal distance between pulleys</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="convLift">Vertical Lift / Drop H (ft)</label>
+          <input type="number" id="convLift" value="45" min="-500" max="1500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Positive for incline, negative for decline</span>
+        </div>
+      </div>
+
+      <!-- Belt & Speed -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beltWidth">Belt Width W (in)</label>
+          <select id="beltWidth" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="24">24" Belt (Approx 12 lb/ft)</option>
+            <option value="30">30" Belt (Approx 15 lb/ft)</option>
+            <option value="36" selected>36" Belt (Approx 18 lb/ft)</option>
+            <option value="42">42" Belt (Approx 22 lb/ft)</option>
+            <option value="48">48" Belt (Approx 26 lb/ft)</option>
+            <option value="54">54" Belt (Approx 31 lb/ft)</option>
+            <option value="60">60" Belt (Approx 36 lb/ft)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="beltSpeed">Belt Speed V (FPM)</label>
+          <input type="number" id="beltSpeed" value="400" min="50" max="1200" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard bulk range: 300 - 550 FPM</span>
+        </div>
+      </div>
+
+      <!-- Capacity & Material -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flowTph">Material Capacity (TPH)</label>
+          <input type="number" id="flowTph" value="650" min="10" max="20000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Design peak rate in tons per hour</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="materialType">Material Density</label>
+          <select id="materialType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="50">Crushed Coal (50 lb/ft&sup3;)</option>
+            <option value="100" selected>Crushed Stone / Gravel (100 lb/ft&sup3;)</option>
+            <option value="125">Iron Ore Pellet (125 lb/ft&sup3;)</option>
+            <option value="35">Woodchips / Biomass (35 lb/ft&sup3;)</option>
+            <option value="60">Grain / Wheat (60 lb/ft&sup3;)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Drive Pulley & Friction -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pulleyWrap">Drive Wrap Angle</label>
+          <select id="pulleyWrap" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="180">180&deg; (Plain Single Pulley)</option>
+            <option value="210" selected>210&deg; (Snubbed Pulley Drive)</option>
+            <option value="240">240&deg; (High-Wrap Dual Snub)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pulleyLagging">Pulley Lagging &amp; Friction</label>
+          <select id="pulleyLagging" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0.25">Bare Steel (&mu; = 0.25)</option>
+            <option value="0.30">Smooth Rubber (&mu; = 0.30)</option>
+            <option value="0.35" selected>Grooved Rubber Lagging (&mu; = 0.35)</option>
+            <option value="0.40">Ceramic Lagging (&mu; = 0.40)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Idlers & Drive Efficiency -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="idlerSpacing">Carry Idler Spacing (ft)</label>
+          <input type="number" id="idlerSpacing" value="3.5" min="2.0" max="6.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard 3.0 to 4.0 ft for bulk</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="driveEfficiency">Drive Mechanical Eff. (%)</label>
+          <input type="number" id="driveEfficiency" value="92" min="70" max="98" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Gear reducer + motor couplings</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Material Loading: <strong id="lblWmHeader" style="color:var(--fg);">54.2 lb/ft</strong></div>
+          <div>Effective Tension (Te): <strong id="lblTeHeader" style="color:var(--fg);">4,820 lbf</strong></div>
+          <div>Incline Angle (&theta;): <strong id="lblInclineHeader" style="color:var(--fg);">7.4&deg;</strong></div>
+          <div>Standard: <strong style="color:var(--fg);">CEMA 7th Edition</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN & DIAGRAM -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- RESULTS HERO CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Required Motor Power</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:var(--mono);color:var(--accent);line-height:1.1;" id="resMotorHp">-- HP</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);margin-top:0.25rem;" id="resMotorKw">-- kW electrical rating</div>
+          </div>
+          <div style="text-align:right;">
+            <span id="badgeBeltRating" style="display:inline-block;padding:0.4rem 0.85rem;border-radius:999px;font-size:0.8rem;font-weight:700;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid #10b981;">ADEQUATE PIW</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Tight-Side Tension (T1)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resT1">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resPiwVal">-- PIW carcass tension</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Slack-Side Tension (T2)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resT2">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resT2SlipReason">Governed by drive slip</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Belt Sag % Between Idlers</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resBeltSag">--</div>
+            <div style="font-size:0.75rem;" id="lblSagCheck">Safe (&le; 2.0% CEMA limit)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Gravity Take-Up Mass</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resTakeUpWeight">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resTakeUpTons">-- tons counterweight</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnCopyReport" style="width:100%;margin-top:1.5rem;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy CEMA Conveyor Engineering Report</span>
+        </button>
+      </div>
+
+      <!-- DYNAMIC SVG DIAGRAM -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>Conveyor Profile &amp; Tension Distribution Schematic</span>
+          <span style="font-size:0.75rem;font-family:var(--mono);color:var(--text-muted);" id="svgStatusLabel">CEMA 7th Model</span>
+        </div>
+        <div id="convSvgContainer" style="width:100%;display:flex;justify-content:center;background:var(--bg);border-radius:8px;padding:0.5rem;overflow:hidden;">
+          <!-- SVG injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKED DERIVATION BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Step-by-Step CEMA Belt Tension &amp; Power Derivation
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">
+      Conveyor drive horsepower is calculated by analyzing the summation of forces resisting belt travel along the carrying and return strands, including idler rotational resistance, belt and material flexure, gravity lift, and skirtboard seal drag.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;font-size:0.9rem;line-height:1.6;">
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">1. Effective Tension (Te)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          Te = Tx + Ty + Tz + Tm<br>
+          Tz = H &middot; Wm = Lift Force
+        </div>
+        Where $W_m = (33.33 cdot 	ext{TPH}) / V$ is the weight of material per linear foot of belt.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Material $W_m$: <span id="mathWm" style="font-weight:600;color:var(--fg);">54.2 lb/ft</span></li>
+          <li>Belt $W_b$: <span id="mathWb" style="font-weight:600;color:var(--fg);">18.0 lb/ft</span></li>
+          <li>Lift Tension $T_z$: <span id="mathTz" style="font-weight:600;color:var(--fg);">2,439 lbf</span></li>
+          <li>Total $T_e$: <span id="mathTe" style="font-weight:600;color:var(--fg);">4,820 lbf</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">2. Euler Drive Slip &amp; Slack Tension (T2)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          T2_slip = Te / [exp(&mu;&theta;) - 1]<br>
+          T1 = Te + T2
+        </div>
+        Friction between belt and drive pulley must transmit $T_e$ without capstan slippage.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Wrap Factor $C_w$: <span id="mathCw" style="font-weight:600;color:var(--fg);">0.38</span></li>
+          <li>Slack $T_2$: <span id="mathT2" style="font-weight:600;color:var(--fg);">1,830 lbf</span></li>
+          <li>Tight-Side $T_1$: <span id="mathT1" style="font-weight:600;color:var(--fg);">6,650 lbf</span></li>
+          <li>Carcass Tension: <span id="mathPiw" style="font-weight:600;color:var(--fg);">185 PIW</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">3. Motor Drive Power Sizing</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          HP_belt = (Te &middot; V) / 33,000<br>
+          HP_motor = HP_belt / &eta;_drive
+        </div>
+        Motor sizing incorporates electrical motor and gearbox reducer mechanical efficiency ($eta approx 92%$).
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Belt Power: <span id="mathHpBelt" style="font-weight:600;color:var(--fg);">58.4 HP</span></li>
+          <li>Drive Eff: <span id="mathEff" style="font-weight:600;color:var(--fg);">92%</span></li>
+          <li>Required Motor: <span id="mathHpMotor" style="font-weight:600;color:var(--fg);">63.5 HP (75 HP Std)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      5 Fatal Traps in Bulk Conveyor Belt Engineering
+    </h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#ef4444;display:block;margin-bottom:0.35rem;font-size:1.05rem;">1. The 2% Idler Sag Catastrophe</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          CEMA standards mandate that belt sag between carrying idlers must never exceed 2.0% ($Sag le 0.02 S_i$). If slack-side or tail tension drops and sag reaches 3% to 4%, the belt forms deep valleys between idlers. As the belt climbs up each subsequent idler roll, the bulk material shifts and churns, multiplying flexure resistance $T_y$ by 300% to 500%. This dynamic friction spike trips the motor on thermal overload and dumps hundreds of tons of material off the belt edge.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#f59e0b;display:block;margin-bottom:0.35rem;font-size:1.05rem;">2. Drive Pulley Slip Friction &amp; Mine Fires</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When tension $T_2$ is inadequate to satisfy Euler's capstan equation ($T_1 / T_2 > e^{mu 	heta}$), the drive pulley spins faster than the stalled belt. Frictional heat between the spinning steel/rubber pulley lagging and the stationary rubber belt reaches $800^circ	ext{F}$ in under 90 seconds. Belt slip is a primary cause of catastrophic underground mine and grain elevator fires. Always interlock a digital zero-speed switch on the non-driven tail pulley to cut motor power when speed slip exceeds 10%.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#10b981;display:block;margin-bottom:0.35rem;font-size:1.05rem;">3. Across-the-Line Starting Torque Splice Failure</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Standard AC induction motors develop 200% to 250% of rated full-load torque during direct-on-line (DOL) starting. If a conveyor starts fully loaded with material, starting tension spikes to $2.5 	imes T_1$. This massive shock wave exceeds the breaking strength of vulcanized or mechanical belt splices, tearing the belt in half across the belt width. Long overland conveyors must utilize variable frequency drives (VFDs), fluid couplings, or soft starters with minimum 60-second S-curve acceleration ramps.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#3b82f6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">4. Frozen Counterweight Take-Up &amp; Thermal Slack</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Conveyor belts expand and contract with ambient temperature and seasonal moisture. A vertical gravity take-up carriage uses heavy concrete blocks to maintain constant $T_2$ tension. If rock dust or freezing ice jams the take-up carriage guide rails, the counterweight cannot move. On a cold morning when the belt contracts, tension spikes and destroys pulley bearings; when afternoon heat expands the belt, slack accumulates at the drive pulley, triggering immediate slippage.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#8b5cf6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">5. Regenerative Over-Speed Runaway on Downhill Conveyors</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          On declining conveyors where lift $H$ is negative, material gravity ($T_z$) drives the belt rather than resisting it. When gravity force exceeds friction ($|T_z| > T_x + T_y$), the motor becomes an electrical generator, pumping power back into the grid. If a power outage occurs while running loaded, without a failsafe hydraulic disc caliper brake, the conveyor enters runaway acceleration, slinging boulders off the belt at highway speeds until structural disintegration occurs.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var inLen = document.getElementById('convLength');
+  var inLift = document.getElementById('convLift');
+  var selWidth = document.getElementById('beltWidth');
+  var inSpeed = document.getElementById('beltSpeed');
+  var inTph = document.getElementById('flowTph');
+  var selMat = document.getElementById('materialType');
+  var selWrap = document.getElementById('pulleyWrap');
+  var selLag = document.getElementById('pulleyLagging');
+  var inIdler = document.getElementById('idlerSpacing');
+  var inEff = document.getElementById('driveEfficiency');
+
+  var lblWmHeader = document.getElementById('lblWmHeader');
+  var lblTeHeader = document.getElementById('lblTeHeader');
+  var lblInclineHeader = document.getElementById('lblInclineHeader');
+
+  var resMotorHp = document.getElementById('resMotorHp');
+  var resMotorKw = document.getElementById('resMotorKw');
+  var badgeBeltRating = document.getElementById('badgeBeltRating');
+
+  var resT1 = document.getElementById('resT1');
+  var resPiwVal = document.getElementById('resPiwVal');
+  var resT2 = document.getElementById('resT2');
+  var resT2SlipReason = document.getElementById('resT2SlipReason');
+  var resBeltSag = document.getElementById('resBeltSag');
+  var lblSagCheck = document.getElementById('lblSagCheck');
+  var resTakeUpWeight = document.getElementById('resTakeUpWeight');
+  var resTakeUpTons = document.getElementById('resTakeUpTons');
+
+  var mathWm = document.getElementById('mathWm');
+  var mathWb = document.getElementById('mathWb');
+  var mathTz = document.getElementById('mathTz');
+  var mathTe = document.getElementById('mathTe');
+  var mathCw = document.getElementById('mathCw');
+  var mathT2 = document.getElementById('mathT2');
+  var mathT1 = document.getElementById('mathT1');
+  var mathPiw = document.getElementById('mathPiw');
+  var mathHpBelt = document.getElementById('mathHpBelt');
+  var mathEff = document.getElementById('mathEff');
+  var mathHpMotor = document.getElementById('mathHpMotor');
+
+  var svgContainer = document.getElementById('convSvgContainer');
+  var btnCopy = document.getElementById('btnCopyReport');
+  var copyText = document.getElementById('copyBtnText');
+
+  function calculate() {
+    var L = Math.max(10, parseFloat(inLen.value) || 350);
+    var H = parseFloat(inLift.value) || 45;
+    var W = parseFloat(selWidth.value) || 36;
+    var V = Math.max(10, parseFloat(inSpeed.value) || 400);
+    var TPH = Math.max(1, parseFloat(inTph.value) || 650);
+    var wrapDeg = parseFloat(selWrap.value) || 210;
+    var mu = parseFloat(selLag.value) || 0.35;
+    var Si = Math.max(1.5, parseFloat(inIdler.value) || 3.5);
+    var eff = (parseFloat(inEff.value) || 92) / 100;
+
+    // Belt weight per foot (approx standard 3-ply rubber)
+    var Wb = W * 0.50; // approx 18 lb/ft for 36" belt
+
+    // Material weight per foot Wm (lb/ft)
+    // Wm = 33.33 * TPH / V
+    var Wm = (33.333 * TPH) / V;
+    lblWmHeader.textContent = Wm.toFixed(1) + ' lb/ft';
+
+    // Incline angle
+    var inclineRad = Math.asin(Math.max(-0.9, Math.min(0.9, H / L)));
+    var inclineDeg = inclineRad * (180 / Math.PI);
+    lblInclineHeader.textContent = inclineDeg.toFixed(1) + '°';
+
+    // CEMA Friction Factors (standard CEMA C idlers)
+    var Kx = 0.00068 * (Wb + Wm) + (W / 100) * 0.015;
+    var Ky = 0.024;
+
+    // Tension components
+    var Tx = L * Kx;
+    var Ty = L * Ky * (Wb + Wm);
+    var Tz = H * Wm; // lift force
+    var Tm = 350; // skirtboard & accessory resistance
+
+    var Te = Tx + Ty + Tz + Tm;
+    Te = Math.max(100, Te);
+    lblTeHeader.textContent = Math.round(Te).toLocaleString() + ' lbf';
+
+    // Wrap Angle in Radians
+    var thetaRad = (wrapDeg * Math.PI) / 180;
+    var eMuTheta = Math.exp(mu * thetaRad);
+    var Cw = 1 / (eMuTheta - 1);
+
+    // Minimum T2 for drive slip prevention
+    var T2_slip = Te * Cw;
+
+    // Minimum T2 for sag limit (2% max sag)
+    // Sag = (Si * (Wb + Wm)) / (8 * T_min) <= 0.02 => T_min >= Si * (Wb + Wm) / 0.16
+    var T_sag_min = (Si * (Wb + Wm)) / 0.16;
+
+    var T2 = Math.max(T2_slip, T_sag_min);
+    var isSagGoverned = (T_sag_min > T2_slip);
+
+    // Tight-Side Tension T1
+    var T1 = Te + T2;
+
+    // Belt PIW rating (Pounds per Inch of Width)
+    var piw = T1 / W;
+
+    // Belt Sag % actual at tail / slack zone
+    var actualSagPct = ((Si * (Wb + Wm)) / (8 * T2)) * 100;
+
+    // Horsepower
+    var hpBelt = (Te * V) / 33000;
+    var hpMotor = hpBelt / eff;
+    var kwMotor = hpMotor * 0.7457;
+
+    // Gravity Take-Up Counterweight Mass (lb & tons): W_tu = 2 * T2
+    var takeUpWeight = 2 * T2;
+    var takeUpTons = takeUpWeight / 2000;
+
+    // Hero Readouts
+    resMotorHp.textContent = Math.round(hpMotor) + ' HP';
+    resMotorKw.textContent = kwMotor.toFixed(1) + ' kW electrical rating';
+
+    resT1.textContent = Math.round(T1).toLocaleString() + ' lbf';
+    resPiwVal.textContent = Math.round(piw) + ' PIW carcass rating';
+    resT2.textContent = Math.round(T2).toLocaleString() + ' lbf';
+    resT2SlipReason.textContent = isSagGoverned ? 'Governed by 2% Sag Limit' : 'Governed by Drive Capstan Slip';
+
+    resBeltSag.textContent = actualSagPct.toFixed(2) + '%';
+    if (actualSagPct <= 2.0) {
+      lblSagCheck.textContent = 'Safe (≤ 2.0% CEMA limit)';
+      lblSagCheck.style.color = '#10b981';
+    } else {
+      lblSagCheck.textContent = 'Excessive Sag (> 2.0% - Increase Take-Up)';
+      lblSagCheck.style.color = '#ef4444';
+    }
+
+    resTakeUpWeight.textContent = Math.round(takeUpWeight).toLocaleString() + ' lb';
+    resTakeUpTons.textContent = takeUpTons.toFixed(2) + ' tons counterweight';
+
+    if (piw <= 220) {
+      badgeBeltRating.textContent = '220 PIW BELT OK';
+      badgeBeltRating.style.color = '#10b981';
+      badgeBeltRating.style.borderColor = '#10b981';
+      badgeBeltRating.style.background = 'rgba(16, 185, 129, 0.1)';
+    } else if (piw <= 330) {
+      badgeBeltRating.textContent = '330 PIW BELT REQ';
+      badgeBeltRating.style.color = '#f59e0b';
+      badgeBeltRating.style.borderColor = '#f59e0b';
+      badgeBeltRating.style.background = 'rgba(245, 158, 11, 0.1)';
+    } else {
+      badgeBeltRating.textContent = 'HEAVY BELT (>330 PIW)';
+      badgeBeltRating.style.color = '#ef4444';
+      badgeBeltRating.style.borderColor = '#ef4444';
+      badgeBeltRating.style.background = 'rgba(239, 68, 68, 0.1)';
+    }
+
+    // Math box updates
+    mathWm.textContent = Wm.toFixed(1) + ' lb/ft (' + TPH + ' TPH @ ' + V + ' FPM)';
+    mathWb.textContent = Wb.toFixed(1) + ' lb/ft (' + W + '" belt)';
+    mathTz.textContent = Math.round(Tz).toLocaleString() + ' lbf (H=' + H + ' ft)';
+    mathTe.textContent = Math.round(Te).toLocaleString() + ' lbf';
+    mathCw.textContent = Cw.toFixed(2) + ' (μ=' + mu + ', ' + wrapDeg + '° wrap)';
+    mathT2.textContent = Math.round(T2).toLocaleString() + ' lbf';
+    mathT1.textContent = Math.round(T1).toLocaleString() + ' lbf';
+    mathPiw.textContent = Math.round(piw) + ' PIW (T1 / ' + W + '")';
+    mathHpBelt.textContent = hpBelt.toFixed(1) + ' HP';
+    mathEff.textContent = Math.round(eff * 100) + '%';
+    mathHpMotor.textContent = hpMotor.toFixed(1) + ' HP (' + nextStdMotor(hpMotor) + ' HP Std)';
+
+    updateSvg(L, H, W, V, Te, T1, T2, hpMotor);
+  }
+
+  function nextStdMotor(hp) {
+    var stds = [5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300, 400, 500];
+    for (var i = 0; i < stds.length; i++) {
+      if (stds[i] >= hp) return stds[i];
+    }
+    return Math.ceil(hp / 50) * 50;
+  }
+
+  function updateSvg(L, H, W, V, Te, T1, T2, hpMotor) {
+    var svg = '';
+    svg += '<svg width="100%" height="220" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,-apple-system,sans-serif;">';
+    svg += '<defs>';
+    svg += '  <linearGradient id="beltGrad" x1="0%" y1="0%" x2="100%" y2="0%">';
+    svg += '    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.7"/>';
+    svg += '    <stop offset="100%" stop-color="#ef4444" stop-opacity="0.9"/>';
+    svg += '  </linearGradient>';
+    svg += '  <marker id="arrowTension" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">';
+    svg += '    <polygon points="0 0, 6 3, 0 6" fill="#ef4444"/>';
+    svg += '  </marker>';
+    svg += '</defs>';
+
+    // Tail Pulley at x=60, y=140
+    var xTail = 60, yTail = 140;
+    // Head Drive Pulley at x=380. Height reflects lift H
+    var yHead = Math.max(50, Math.min(130, 140 - (H / 100) * 50));
+    var xHead = 380;
+
+    // Ground line
+    svg += '<line x1="20" y1="185" x2="440" y2="185" stroke="#64748b" stroke-width="2"/>';
+
+    // Conveyor Structural Trusses
+    svg += '<line x1="' + xTail + '" y1="' + (yTail + 12) + '" x2="' + xHead + '" y2="' + (yHead + 12) + '" stroke="#475569" stroke-width="4"/>';
+    svg += '<line x1="' + xTail + '" y1="' + (yTail + 12) + '" x2="' + xTail + '" y2="185" stroke="#475569" stroke-width="3"/>';
+    svg += '<line x1="' + xHead + '" y1="' + (yHead + 12) + '" x2="' + xHead + '" y2="185" stroke="#475569" stroke-width="3"/>';
+
+    // Top Carrying Strand (Belt with material)
+    svg += '<line x1="' + xTail + '" y1="' + (yTail - 12) + '" x2="' + xHead + '" y2="' + (yHead - 12) + '" stroke="url(#beltGrad)" stroke-width="6"/>';
+    // Material heap on top strand
+    svg += '<line x1="' + (xTail + 20) + '" y1="' + (yTail - 16) + '" x2="' + (xHead - 10) + '" y2="' + (yHead - 16) + '" stroke="#94a3b8" stroke-width="3" stroke-dasharray="6,2"/>';
+
+    // Bottom Return Strand
+    svg += '<line x1="' + xHead + '" y1="' + (yHead + 12) + '" x2="' + xTail + '" y2="' + (yTail + 12) + '" stroke="#475569" stroke-width="4"/>';
+
+    // Pulleys
+    // Tail Pulley
+    svg += '<circle cx="' + xTail + '" cy="' + yTail + '" r="12" fill="#94a3b8" stroke="#1e293b" stroke-width="2"/>';
+    svg += '<text x="' + xTail + '" y="' + (yTail + 26) + '" font-size="9" fill="var(--text-muted)" text-anchor="middle" font-weight="600">Tail Pulley</text>';
+
+    // Head Drive Pulley
+    svg += '<circle cx="' + xHead + '" cy="' + yHead + '" r="16" fill="#cbd5e1" stroke="#1e293b" stroke-width="2.5"/>';
+    svg += '<circle cx="' + xHead + '" cy="' + yHead + '" r="5" fill="#ef4444"/>';
+    svg += '<text x="' + xHead + '" y="' + (yHead - 24) + '" font-size="10" fill="#ef4444" text-anchor="middle" font-weight="700">DRIVE (T1)</text>';
+    svg += '<text x="' + xHead + '" y="' + (yHead - 12) + '" font-size="9" fill="var(--fg)" text-anchor="middle">' + Math.round(T1).toLocaleString() + ' lbf</text>';
+
+    // Carrying Idlers (4 intermediate idlers)
+    for (var i = 1; i <= 4; i++) {
+      var frac = i / 5;
+      var ix = xTail + frac * (xHead - xTail);
+      var iy = (yTail - 12) + frac * ((yHead - 12) - (yTail - 12));
+      svg += '<circle cx="' + ix + '" cy="' + (iy + 4) + '" r="4" fill="#64748b"/>';
+    }
+
+    // Gravity Take-Up Tower at x=160
+    var xTu = 160;
+    var yTuBase = yTail + 12;
+    svg += '<line x1="' + xTu + '" y1="' + yTuBase + '" x2="' + xTu + '" y2="' + (yTuBase + 30) + '" stroke="#3b82f6" stroke-width="3"/>';
+    svg += '<rect x="' + (xTu - 8) + '" y="' + (yTuBase + 28) + '" width="16" height="12" fill="#3b82f6" rx="2"/>';
+    svg += '<text x="' + (xTu + 12) + '" y="' + (yTuBase + 38) + '" font-size="8.5" fill="#3b82f6" font-weight="600">Take-Up (2&times;T2)</text>';
+
+    // Feed Chute at Tail
+    svg += '<polygon points="' + (xTail + 15) + ',' + (yTail - 35) + ' ' + (xTail + 35) + ',' + (yTail - 35) + ' ' + (xTail + 28) + ',' + (yTail - 18) + ' ' + (xTail + 22) + ',' + (yTail - 18) + '" fill="#64748b"/>';
+    svg += '<text x="' + (xTail + 25) + '" y="' + (yTail - 40) + '" font-size="8" fill="var(--text-muted)" text-anchor="middle">Feed</text>';
+
+    // Discharge Arc at Head
+    svg += '<path d="M ' + (xHead + 14) + ' ' + (yHead - 8) + ' Q ' + (xHead + 35) + ' ' + yHead + ' ' + (xHead + 40) + ' ' + (yHead + 40) + '" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="3,2"/>';
+
+    // Tension Readout Legend
+    svg += '<g transform="translate(240, 130)">';
+    svg += '  <rect width="140" height="48" rx="6" fill="var(--surface)" stroke="var(--border)"/>';
+    svg += '  <text x="10" y="18" font-size="9.5" font-weight="700" fill="var(--fg)">CEMA TENSIONS</text>';
+    svg += '  <text x="10" y="32" font-size="8.5" fill="var(--text-muted)">Te = ' + Math.round(Te).toLocaleString() + ' lbf | T2 = ' + Math.round(T2).toLocaleString() + ' lbf</text>';
+    svg += '  <text x="10" y="43" font-size="8.5" font-weight="600" fill="var(--accent)">Motor: ' + Math.round(hpMotor) + ' HP @ ' + V + ' FPM</text>';
+    svg += '</g>';
+
+    svg += '</svg>';
+
+    svgContainer.innerHTML = svg;
+  }
+
+  // Copy diagnostic report
+  btnCopy.addEventListener('click', function() {
+    var text = '=== CEMA CONVEYOR BELT TENSION & POWER REPORT (7th ED) ===\n' +
+      'Center-to-Center Length: ' + inLen.value + ' ft | Lift: ' + inLift.value + ' ft\n' +
+      'Belt: ' + selWidth.value + ' in @ ' + inSpeed.value + ' FPM | Capacity: ' + inTph.value + ' TPH\n' +
+      'Material Density: ' + selMat.options[selMat.selectedIndex].text + '\n' +
+      'Drive: ' + selWrap.value + ' deg wrap | ' + selLag.options[selLag.selectedIndex].text + '\n' +
+      '------------------------------------------------------------\n' +
+      'Required Motor Power: ' + resMotorHp.textContent + ' (' + resMotorKw.textContent + ')\n' +
+      'Effective Belt Tension (Te): ' + lblTeHeader.textContent + '\n' +
+      'Tight-Side Tension (T1): ' + resT1.textContent + ' (' + resPiwVal.textContent + ')\n' +
+      'Slack-Side Tension (T2): ' + resT2.textContent + ' (' + resT2SlipReason.textContent + ')\n' +
+      'Belt Sag Between Idlers: ' + resBeltSag.textContent + ' (' + lblSagCheck.textContent + ')\n' +
+      'Gravity Take-Up Counterweight: ' + resTakeUpWeight.textContent + ' (' + resTakeUpTons.textContent + ')\n' +
+      'Standard: CEMA Belt Conveyors for Bulk Materials (7th Edition)\n' +
+      'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/conveyor-belt-power-calculator.html)';
+
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = copyText.textContent;
+      copyText.textContent = '✓ Copied Diagnostic Report to Clipboard!';
+      setTimeout(function() {
+        copyText.textContent = orig;
+      }, 2500);
+    }).catch(function() {
+      copyText.textContent = 'Clipboard access denied';
+    });
+  });
+
+  [inLen, inLift, selWidth, inSpeed, inTph, selMat, selWrap, selLag, inIdler, inEff].forEach(function(el) {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'conveyor-belt-power-calculator.html'), renderTradePage({
+    title: "Conveyor Belt Tension & Drive Power Calculator (CEMA 7th) | Digital Tools Shed",
+    metaDesc: "Calculate bulk material conveyor belt tensions and motor horsepower per CEMA 7th Edition: compute effective tension Te, tight-side T1, slack-side T2, and sag %.",
+    canonical: `${DOMAIN}/calc/conveyor-belt-power-calculator`,
+    bodyContent: conveyorBeltBody,
+    currentPath: '/calc/conveyor-belt-power-calculator',
+    faq: [
+      {
+        "q": "What is Effective Tension (Te) in a CEMA belt conveyor?",
+        "a": "Effective tension (Te) is the net circumferential tangential force that the drive pulley must exert on the belt to overcome friction (idler rotation and belt/material flexure), lift bulk material against gravity, and overcome skirtboard/wiper resistances."
+      },
+      {
+        "q": "What is the Euler-Eytelwein capstan equation in conveyor drives?",
+        "a": "The capstan equation defines the maximum tension ratio that can be transmitted without belt slip: T1 / T2 <= exp(mu * theta), where mu is pulley lagging friction factor and theta is wrap angle in radians. Insufficient T2 slack tension triggers dangerous drive slippage."
+      },
+      {
+        "q": "Why is belt sag strictly limited to 2.0% between carrying idlers?",
+        "a": "Excessive sag (> 2.0%) allows the belt to bow deeply between idlers. As moving material is forced up over each consecutive idler roll, severe internal material churning occurs, dramatically increasing power consumption and inducing material spillage."
+      },
+      {
+        "q": "How does pulley lagging improve conveyor drive efficiency?",
+        "a": "Vulcanized herringbone or diamond-grooved rubber lagging increases the friction coefficient from mu = 0.25 (bare steel) to mu = 0.35 - 0.40, while shedding moisture and dirt. Higher friction reduces the required slack-side tension T2 by 30% to 50%, lowering overall belt carcass stress."
+      },
+      {
+        "q": "What is the function of a gravity counterweight take-up?",
+        "a": "A gravity take-up uses a weighted carriage to apply constant slack-side tension (2 * T2), automatically accommodating elastic stretch during starting and thermal expansion/contraction across changing weather conditions without manual adjustment."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TRANSFORMER K-FACTOR & HARMONIC DERATING CALCULATOR (IEEE C57.110)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const transformerKFactorBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Transformer K-Factor Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Transformer K-Factor &amp; Harmonic Derating Calculator (IEEE C57)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate transformer K-factor, total harmonic distortion ($THD_I$), non-linear winding eddy current heating, and standard transformer capacity derating per IEEE C57.110 and UL 1561: size dry-type transformers, 200% neutral conductors, and data center distribution.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Transformer Rating &amp; Non-Linear Profile
+      </h2>
+
+      <!-- Nameplate Rating -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="nameplateKva">Transformer Nameplate (kVA)</label>
+          <select id="nameplateKva" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="15">15 kVA (41.6 A @ 208V)</option>
+            <option value="30">30 kVA (83.3 A @ 208V)</option>
+            <option value="45">45 kVA (124.9 A @ 208V)</option>
+            <option value="75" selected>75 kVA (208.2 A @ 208V)</option>
+            <option value="112.5">112.5 kVA (312.3 A @ 208V)</option>
+            <option value="150">150 kVA (416.4 A @ 208V)</option>
+            <option value="225">225 kVA (624.5 A @ 208V)</option>
+            <option value="300">300 kVA (832.7 A @ 208V)</option>
+            <option value="500">500 kVA (1,387.9 A @ 208V)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="secondaryVolt">Secondary Voltage</label>
+          <select id="secondaryVolt" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="208" selected>208Y / 120V (3-Phase 4-Wire)</option>
+            <option value="480">480Y / 277V (3-Phase 4-Wire)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Load Preset -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="loadPreset">Non-Linear Load Characteristic Preset</label>
+        <select id="loadPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="linear">Linear Resistive / Standard Induction Motors (K = 1.0)</option>
+          <option value="commercial">Commercial Office (PCs, Copiers, Fluorescent Lighting, K ~ 4)</option>
+          <option value="datacenter" selected>Data Center / IT Server Room (SMPS &amp; UPS loads, K ~ 13)</option>
+          <option value="industrial">Heavy Industrial / 6-Pulse VFDs / Welders (K ~ 20)</option>
+          <option value="medical">Medical Imaging / MRI / Solid-State Induction Heating (K ~ 30)</option>
+          <option value="custom">Custom Harmonic Spectrum Breakdown (Enter Below)</option>
+        </select>
+      </div>
+
+      <!-- Fundamental Current & Custom Inputs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="fundamentalCurrent">Fundamental Load Current I1 (A)</label>
+          <input type="number" id="fundamentalCurrent" value="180" min="5" max="5000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">60 Hz fundamental component</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="eddyLossRatio">Design Eddy Loss Ratio Pec-r (%)</label>
+          <input type="number" id="eddyLossRatio" value="10" min="1" max="25" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard dry-type transformer ~ 8% - 12%</span>
+        </div>
+      </div>
+
+      <!-- Harmonic Spectrum Percentages (% of I1) -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:700;margin-bottom:0.75rem;color:var(--fg);">Harmonic Spectrum Currents (% of Fundamental I1)</div>
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:0.75rem;font-size:0.8rem;">
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h3">3rd (180Hz)</label>
+            <input type="number" id="h3" value="45" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h5">5th (300Hz)</label>
+            <input type="number" id="h5" value="35" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h7">7th (420Hz)</label>
+            <input type="number" id="h7" value="20" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h9">9th (540Hz)</label>
+            <input type="number" id="h9" value="12" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h11">11th (660Hz)</label>
+            <input type="number" id="h11" value="8" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h13">13th (780Hz)</label>
+            <input type="number" id="h13" value="5" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h15">15th (900Hz)</label>
+            <input type="number" id="h15" value="3" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.25rem;" for="h17">17th (1020Hz)</label>
+            <input type="number" id="h17" value="2" min="0" max="100" step="1" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);">
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Total RMS Current: <strong id="lblIrmsHeader" style="color:var(--fg);">212.4 A</strong></div>
+          <div>Current THD (THD_I): <strong id="lblThdHeader" style="color:var(--fg);">64.2%</strong></div>
+          <div>Neutral Current (In): <strong id="lblNeutralHeader" style="color:#ef4444;">248.6 A (138%)</strong></div>
+          <div>Standards: <strong style="color:var(--fg);">IEEE C57.110 &amp; UL 1561</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN & DIAGRAM -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- RESULTS HERO CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Calculated Load K-Factor</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:var(--mono);color:var(--accent);line-height:1.1;" id="resKFactor">K-12.8</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);margin-top:0.25rem;" id="resKRecommended">Requires Minimum K-13 Transformer</div>
+          </div>
+          <div style="text-align:right;">
+            <span id="badgeKRating" style="display:inline-block;padding:0.4rem 0.85rem;border-radius:999px;font-size:0.8rem;font-weight:700;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid #f59e0b;">K-13 REQUIRED</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Standard Transformer Derating</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resDeratingPct">--%</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resDeratedKva">Safe Cap: -- kVA</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Eddy Current Loss Multiplier</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resEddyMultiplier">-- &times; Base</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resLossWatts">Winding hotspot rise</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Neutral Conductor Loading</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resNeutralCurrent">-- A</div>
+            <div style="font-size:0.75rem;" id="lblNeutralStatus">Requires 200% Neutral Bus</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Current THD (THD_I)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resThdPct">--%</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">IEEE 519 non-linear distortion</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnCopyReport" style="width:100%;margin-top:1.5rem;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy IEEE K-Factor Diagnostic Report</span>
+        </button>
+      </div>
+
+      <!-- DYNAMIC SVG DIAGRAM -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>Transformer Winding &amp; Harmonic Waveform Profile</span>
+          <span style="font-size:0.75rem;font-family:var(--mono);color:var(--text-muted);" id="svgStatusLabel">IEEE C57.110 Model</span>
+        </div>
+        <div id="transSvgContainer" style="width:100%;display:flex;justify-content:center;background:var(--bg);border-radius:8px;padding:0.5rem;overflow:hidden;">
+          <!-- SVG injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKED DERIVATION BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Step-by-Step IEEE C57.110 Mathematical Derivation
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">
+      Harmonic load currents induce high-frequency stray magnetic fluxes inside transformer windings. Because eddy current losses scale with the square of frequency ($P_{EC} \propto f^2 \propto h^2$), high-order harmonics create severe localized hotspot heating in transformer coils.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;font-size:0.9rem;line-height:1.6;">
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">1. K-Factor Definition Formula</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          K = &Sigma; [ (Ih / Irms)^2 &middot; h^2 ]
+        </div>
+        Where $I_h$ is the RMS current at harmonic order $h$, and $I_{rms} = \sqrt{\sum I_h^2}$.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Fundamental $I_1$: <span id="mathI1" style="font-weight:600;color:var(--fg);">180.0 A</span></li>
+          <li>Total $I_{rms}$: <span id="mathIrms" style="font-weight:600;color:var(--fg);">212.4 A</span></li>
+          <li>K-Factor: <span id="mathKFactor" style="font-weight:600;color:var(--fg);">12.8</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">2. Triplen Harmonics in Neutral</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          In = 3 &middot; &radic;(I3^2 + I9^2 + I15^2 + ...)
+        </div>
+        Zero-sequence triplen harmonics ($h = 3, 9, 15$) are in phase and sum directly in the neutral wire.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>3rd Harmonic: <span id="mathI3" style="font-weight:600;color:var(--fg);">81.0 A (45%)</span></li>
+          <li>9th Harmonic: <span id="mathI9" style="font-weight:600;color:var(--fg);">21.6 A (12%)</span></li>
+          <li>Neutral Current: <span id="mathIn" style="font-weight:600;color:var(--fg);">248.6 A (138% of phase)</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">3. Standard Transformer Derating (DF)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          DF = &radic;[ (1 + Pec-r) / (1 + Fhl &middot; Pec-r) ] &times; 100%
+        </div>
+        A standard K-1 transformer must be derated to prevent winding temperature exceeding insulation limits.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Harmonic Factor $F_{HL}$: <span id="mathFhl" style="font-weight:600;color:var(--fg);">17.8</span></li>
+          <li>Derating Factor: <span id="mathDf" style="font-weight:600;color:var(--fg);">62.4%</span></li>
+          <li>Safe Operating: <span id="mathSafeCap" style="font-weight:600;color:var(--fg);">46.8 kVA (of 75 kVA)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      5 Fatal Traps in Transformer Harmonic Engineering
+    </h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#ef4444;display:block;margin-bottom:0.35rem;font-size:1.05rem;">1. Neutral Conductor Meltdown from Triplen Harmonics ($I_N &gt; 173%$)</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          In linear 3-phase balanced systems, phase currents cancel out in the neutral wire ($I_N = 0$). However, triplen odd harmonics ($h = 3, 9, 15, 21$) are completely in-phase. In high-density IT server environments, triplens add together arithmetically in the neutral conductor, producing neutral currents between 130% and 180% of phase current. A standard 100% rated neutral conductor overheats, melts conduit insulation, and causes electrical fires without ever tripping standard 3-pole phase circuit breakers. Always specify 200% rated double-neutral busbars.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#f59e0b;display:block;margin-bottom:0.35rem;font-size:1.05rem;">2. Winding Eddy Current Hotspot Thermal Runaway</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Standard distribution transformers are engineered assuming 60 Hz sinusoidal current where eddy current losses ($P_{EC}$) are only 5% to 10% of total winding losses. Because eddy losses scale with the square of frequency ($h^2$), a 15th harmonic current generates $15^2 = 225$ times more eddy heating than fundamental 60 Hz current per ampere. These losses concentrate in the top and bottom winding end turns, causing localized insulation degradation, embrittlement, and catastrophic turn-to-turn dielectric breakdown within 2 to 4 years.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#10b981;display:block;margin-bottom:0.35rem;font-size:1.05rem;">3. Assuming K-Factor Eliminates System Harmonics</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          A widespread misconception is that installing a K-13 or K-20 transformer "filters" or "absorbs" harmonics. A K-factor transformer does <strong>not</strong> eliminate harmonics—it simply features heavier dual-conductor winding transposition, lower flux density magnetic steel, and 200% neutral sizing so that it can <em>survive</em> the severe harmonic heating without burning up. The harmonic currents still flow through the building wiring, distorting line voltage and overheating upstream switchgear unless active harmonic filters or phase-shifting transformers are installed.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#3b82f6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">4. Nuisance Upstream Breaker Tripping on Inrush Current</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          To minimize core heating from harmonic fluxes, K-rated transformers are designed with lower magnetic flux density (e.g. 1.2 to 1.4 Tesla instead of 1.7 Tesla). This lower operating flux requires larger iron cores, which drastically increases the initial magnetizing inrush current during energization (up to 15x to 20x full load current for several cycles). If the primary feeder breaker uses standard instantaneous magnetic trip settings, the breaker will nuisance trip every time the transformer is energized after a power outage.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#8b5cf6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">5. Blindly Derating Standard Transformers Without Checking Core Saturation</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When engineers derate a standard K-1 transformer by 40% (running a 75 kVA transformer at 45 kVA of non-linear load), they only protect the copper windings from $I^2 R$ thermal overload. However, non-linear loads with high voltage distortion and DC offsets drive the iron core into magnetic saturation. Core saturation generates stray magnetic flux that links the steel tank casing, cover bolts, and clamps, causing severe localized tank overheating and structural enclosure buzz even when operating well below derated kVA capacity.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var selKva = document.getElementById('nameplateKva');
+  var selVolt = document.getElementById('secondaryVolt');
+  var selPreset = document.getElementById('loadPreset');
+  var inI1 = document.getElementById('fundamentalCurrent');
+  var inPec = document.getElementById('eddyLossRatio');
+
+  var h3 = document.getElementById('h3');
+  var h5 = document.getElementById('h5');
+  var h7 = document.getElementById('h7');
+  var h9 = document.getElementById('h9');
+  var h11 = document.getElementById('h11');
+  var h13 = document.getElementById('h13');
+  var h15 = document.getElementById('h15');
+  var h17 = document.getElementById('h17');
+
+  var lblIrmsHeader = document.getElementById('lblIrmsHeader');
+  var lblThdHeader = document.getElementById('lblThdHeader');
+  var lblNeutralHeader = document.getElementById('lblNeutralHeader');
+
+  var resKFactor = document.getElementById('resKFactor');
+  var resKRecommended = document.getElementById('resKRecommended');
+  var badgeKRating = document.getElementById('badgeKRating');
+
+  var resDeratingPct = document.getElementById('resDeratingPct');
+  var resDeratedKva = document.getElementById('resDeratedKva');
+  var resEddyMultiplier = document.getElementById('resEddyMultiplier');
+  var resLossWatts = document.getElementById('resLossWatts');
+  var resNeutralCurrent = document.getElementById('resNeutralCurrent');
+  var lblNeutralStatus = document.getElementById('lblNeutralStatus');
+  var resThdPct = document.getElementById('resThdPct');
+
+  var mathI1 = document.getElementById('mathI1');
+  var mathIrms = document.getElementById('mathIrms');
+  var mathKFactor = document.getElementById('mathKFactor');
+  var mathI3 = document.getElementById('mathI3');
+  var mathI9 = document.getElementById('mathI9');
+  var mathIn = document.getElementById('mathIn');
+  var mathFhl = document.getElementById('mathFhl');
+  var mathDf = document.getElementById('mathDf');
+  var mathSafeCap = document.getElementById('mathSafeCap');
+
+  var svgContainer = document.getElementById('transSvgContainer');
+  var btnCopy = document.getElementById('btnCopyReport');
+  var copyText = document.getElementById('copyBtnText');
+
+  function onPresetChange() {
+    var preset = selPreset.value;
+    if (preset === 'linear') {
+      h3.value = 0; h5.value = 0; h7.value = 0; h9.value = 0; h11.value = 0; h13.value = 0; h15.value = 0; h17.value = 0;
+    } else if (preset === 'commercial') {
+      h3.value = 25; h5.value = 15; h7.value = 8; h9.value = 4; h11.value = 2; h13.value = 1; h15.value = 0; h17.value = 0;
+    } else if (preset === 'datacenter') {
+      h3.value = 45; h5.value = 35; h7.value = 20; h9.value = 12; h11.value = 8; h13.value = 5; h15.value = 3; h17.value = 2;
+    } else if (preset === 'industrial') {
+      h3.value = 5; h5.value = 55; h7.value = 38; h9.value = 2; h11.value = 16; h13.value = 12; h15.value = 1; h17.value = 7;
+    } else if (preset === 'medical') {
+      h3.value = 60; h5.value = 45; h7.value = 30; h9.value = 20; h11.value = 15; h13.value = 10; h15.value = 8; h17.value = 5;
+    }
+    calculate();
+  }
+
+  function calculate() {
+    var kva = parseFloat(selKva.value) || 75;
+    var volt = parseFloat(selVolt.value) || 208;
+    var I1 = Math.max(1, parseFloat(inI1.value) || 180);
+    var Pec_r = (parseFloat(inPec.value) || 10) / 100;
+
+    var pct3 = parseFloat(h3.value) || 0;
+    var pct5 = parseFloat(h5.value) || 0;
+    var pct7 = parseFloat(h7.value) || 0;
+    var pct9 = parseFloat(h9.value) || 0;
+    var pct11 = parseFloat(h11.value) || 0;
+    var pct13 = parseFloat(h13.value) || 0;
+    var pct15 = parseFloat(h15.value) || 0;
+    var pct17 = parseFloat(h17.value) || 0;
+
+    var harmonics = [
+      { h: 1, pct: 100 },
+      { h: 3, pct: pct3 },
+      { h: 5, pct: pct5 },
+      { h: 7, pct: pct7 },
+      { h: 9, pct: pct9 },
+      { h: 11, pct: pct11 },
+      { h: 13, pct: pct13 },
+      { h: 15, pct: pct15 },
+      { h: 17, pct: pct17 }
+    ];
+
+    var sumIhSq = 0;
+    var sumIhSqH2 = 0;
+    var sumHarmonicsSq = 0;
+
+    for (var i = 0; i < harmonics.length; i++) {
+      var item = harmonics[i];
+      var current = (item.pct / 100) * I1;
+      var currentSq = Math.pow(current, 2);
+      sumIhSq += currentSq;
+      sumIhSqH2 += currentSq * Math.pow(item.h, 2);
+      if (item.h > 1) {
+        sumHarmonicsSq += currentSq;
+      }
+    }
+
+    var Irms = Math.sqrt(sumIhSq);
+    var K = sumIhSqH2 / (sumIhSq || 1);
+    K = Math.max(1.0, K);
+
+    var THD = (Math.sqrt(sumHarmonicsSq) / I1) * 100;
+
+    // Triplen Neutral Current In = 3 * sqrt(I3^2 + I9^2 + I15^2)
+    var I3 = (pct3 / 100) * I1;
+    var I9 = (pct9 / 100) * I1;
+    var I15 = (pct15 / 100) * I1;
+    var Ineutral = 3 * Math.sqrt(Math.pow(I3, 2) + Math.pow(I9, 2) + Math.pow(I15, 2));
+    var neutralPctPhase = (Ineutral / I1) * 100;
+
+    // Harmonic Loss Factor Fhl = sum((Ih/I1)^2 * h^2)
+    var Fhl = sumIhSqH2 / Math.pow(I1, 2);
+
+    // Derating factor for standard transformer per IEEE C57.110
+    // DF = sqrt((1 + Pec_r) / (1 + Fhl * Pec_r))
+    var dfVal = Math.sqrt((1 + Pec_r) / (1 + Fhl * Pec_r));
+    dfVal = Math.min(1.0, Math.max(0.2, dfVal));
+    var dfPct = dfVal * 100;
+    var safeKva = kva * dfVal;
+
+    // Header readouts
+    lblIrmsHeader.textContent = Irms.toFixed(1) + ' A';
+    lblThdHeader.textContent = THD.toFixed(1) + '%';
+    lblNeutralHeader.textContent = Ineutral.toFixed(1) + ' A (' + neutralPctPhase.toFixed(0) + '%)';
+    lblNeutralHeader.style.color = neutralPctPhase > 100 ? '#ef4444' : '#10b981';
+
+    // Hero readouts
+    resKFactor.textContent = 'K-' + K.toFixed(1);
+    var recommendedK = 'K-1';
+    var badgeText = 'K-1 SUFFICIENT';
+    var badgeColor = '#10b981';
+
+    if (K > 20) {
+      recommendedK = 'K-30';
+      badgeText = 'K-30 SPECIALIZED';
+      badgeColor = '#ef4444';
+    } else if (K > 13) {
+      recommendedK = 'K-20';
+      badgeText = 'K-20 REQUIRED';
+      badgeColor = '#ef4444';
+    } else if (K > 4) {
+      recommendedK = 'K-13';
+      badgeText = 'K-13 REQUIRED';
+      badgeColor = '#f59e0b';
+    } else if (K > 1.2) {
+      recommendedK = 'K-4';
+      badgeText = 'K-4 RECOMMENDED';
+      badgeColor = '#3b82f6';
+    }
+
+    resKRecommended.textContent = 'Requires Minimum ' + recommendedK + ' Transformer';
+    badgeKRating.textContent = badgeText;
+    badgeKRating.style.color = badgeColor;
+    badgeKRating.style.borderColor = badgeColor;
+    badgeKRating.style.background = 'rgba(0,0,0,0.05)';
+
+    resDeratingPct.textContent = dfPct.toFixed(1) + '%';
+    resDeratedKva.textContent = 'Safe Cap: ' + safeKva.toFixed(1) + ' kVA';
+
+    resEddyMultiplier.textContent = K.toFixed(1) + '× Base';
+    resLossWatts.textContent = '+' + ((K - 1) * Pec_r * 100).toFixed(0) + '% winding loss rise';
+
+    resNeutralCurrent.textContent = Ineutral.toFixed(1) + ' A';
+    if (neutralPctPhase > 120) {
+      lblNeutralStatus.textContent = 'Requires 200% Neutral Bus (' + neutralPctPhase.toFixed(0) + '%)';
+      lblNeutralStatus.style.color = '#ef4444';
+    } else if (neutralPctPhase > 80) {
+      lblNeutralStatus.textContent = 'Elevated Neutral (' + neutralPctPhase.toFixed(0) + '%)';
+      lblNeutralStatus.style.color = '#f59e0b';
+    } else {
+      lblNeutralStatus.textContent = 'Normal Neutral (< 80%)';
+      lblNeutralStatus.style.color = '#10b981';
+    }
+
+    resThdPct.textContent = THD.toFixed(1) + '%';
+
+    // Math box updates
+    mathI1.textContent = I1.toFixed(1) + ' A (60 Hz)';
+    mathIrms.textContent = Irms.toFixed(1) + ' A';
+    mathKFactor.textContent = K.toFixed(2);
+    mathI3.textContent = I3.toFixed(1) + ' A (' + pct3 + '%)';
+    mathI9.textContent = I9.toFixed(1) + ' A (' + pct9 + '%)';
+    mathIn.textContent = Ineutral.toFixed(1) + ' A (' + neutralPctPhase.toFixed(0) + '% of I1)';
+    mathFhl.textContent = Fhl.toFixed(2);
+    mathDf.textContent = dfPct.toFixed(1) + '% (Pec-r=' + (Pec_r * 100) + '%)';
+    mathSafeCap.textContent = safeKva.toFixed(1) + ' kVA (of ' + kva + ' kVA)';
+
+    updateSvg(K, THD, Ineutral, neutralPctPhase, dfPct);
+  }
+
+  function updateSvg(K, THD, Ineutral, neutralPctPhase, dfPct) {
+    var svg = '';
+    svg += '<svg width="100%" height="220" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,-apple-system,sans-serif;">';
+    svg += '<defs>';
+    svg += '  <linearGradient id="coreHeatGrad" x1="0%" y1="0%" x2="0%" y2="100%">';
+    svg += '    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>';
+    svg += '    <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.5"/>';
+    svg += '    <stop offset="100%" stop-color="#ef4444" stop-opacity="0.8"/>';
+    svg += '  </linearGradient>';
+    svg += '</defs>';
+
+    // Left Transformer Core Cutaway (x=30 to x=180)
+    // Steel laminations E-core frame
+    svg += '<rect x="35" y="30" width="140" height="160" rx="6" fill="#334155" stroke="#1e293b" stroke-width="2"/>';
+    svg += '<rect x="65" y="60" width="80" height="100" fill="var(--bg)"/>';
+
+    // 3 Leg Windings (Primary outer, secondary inner)
+    // Left Leg
+    svg += '<rect x="42" y="50" width="22" height="120" rx="3" fill="#b45309" stroke="#78350f" stroke-width="1"/>';
+    // Center Leg (experiences highest mutual harmonic flux heating)
+    var centerFill = K > 13 ? 'url(#coreHeatGrad)' : (K > 4 ? '#f59e0b' : '#b45309');
+    svg += '<rect x="94" y="50" width="22" height="120" rx="3" fill="' + centerFill + '" stroke="#78350f" stroke-width="1.5"/>';
+    // Right Leg
+    svg += '<rect x="146" y="50" width="22" height="120" rx="3" fill="#b45309" stroke="#78350f" stroke-width="1"/>';
+
+    // Transformer Coils Text
+    svg += '<text x="105" y="115" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle" transform="rotate(-90 105 115)">WINDINGS</text>';
+    svg += '<text x="105" y="202" font-size="9.5" font-weight="700" fill="var(--fg)" text-anchor="middle">3-PHASE CORE</text>';
+
+    // Hotspot Warning Callout
+    if (K > 4) {
+      svg += '<circle cx="105" cy="55" r="7" fill="#ef4444" fill-opacity="0.9"/>';
+      svg += '<text x="105" y="58" font-size="9" fill="#ffffff" font-weight="800" text-anchor="middle">!</text>';
+      svg += '<text x="105" y="42" font-size="8" fill="#ef4444" font-weight="700" text-anchor="middle">HOTSPOT</text>';
+    }
+
+    // Right Side: Distorted Current Waveform (x=210 to x=430)
+    svg += '<rect x="205" y="30" width="230" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>';
+    svg += '<text x="220" y="48" font-size="9" font-weight="700" fill="var(--text-muted)">NON-LINEAR CURRENT WAVEFORM</text>';
+    svg += '<line x1="215" y1="90" x2="425" y2="90" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,2"/>';
+
+    // Pure 60Hz Sine Reference (Light Grey)
+    var pureSine = 'M 215 90';
+    for (var x = 0; x <= 210; x += 5) {
+      var angle = (x / 210) * 2 * Math.PI;
+      var y = 90 - 35 * Math.sin(angle);
+      pureSine += ' L ' + (215 + x) + ' ' + y.toFixed(1);
+    }
+    svg += '<path d="' + pureSine + '" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>';
+
+    // Distorted Waveform with 3rd, 5th, 7th harmonics
+    var distSine = 'M 215 90';
+    var distortionScale = Math.min(1.0, THD / 70);
+    for (var x2 = 0; x2 <= 210; x2 += 3) {
+      var a1 = (x2 / 210) * 2 * Math.PI;
+      var y1 = Math.sin(a1);
+      var y3 = (distortionScale * 0.45) * Math.sin(3 * a1);
+      var y5 = (distortionScale * 0.35) * Math.sin(5 * a1);
+      var y7 = (distortionScale * 0.20) * Math.sin(7 * a1);
+      var yTotal = 90 - 35 * (y1 - y3 + y5 - y7);
+      distSine += ' L ' + (215 + x2) + ' ' + yTotal.toFixed(1);
+    }
+    svg += '<path d="' + distSine + '" fill="none" stroke="#ef4444" stroke-width="2.5"/>';
+
+    // Waveform annotations
+    svg += '<text x="390" y="70" font-size="9" font-weight="700" fill="#ef4444">THD ' + THD.toFixed(0) + '%</text>';
+    svg += '<text x="390" y="115" font-size="8" fill="#94a3b8">Pure 60Hz</text>';
+
+    // Neutral Warning Block Bottom Right
+    svg += '<g transform="translate(205, 160)">';
+    svg += '  <rect width="230" height="36" rx="4" fill="var(--bg)" stroke="var(--border)"/>';
+    svg += '  <text x="12" y="16" font-size="9" font-weight="700" fill="var(--fg)">NEUTRAL CONDUCTOR STATUS</text>';
+    svg += '  <text x="12" y="28" font-size="9.5" font-weight="700" fill="' + (neutralPctPhase > 100 ? '#ef4444' : '#10b981') + '">In = ' + Ineutral.toFixed(1) + ' A (' + neutralPctPhase.toFixed(0) + '% of Phase I1)</text>';
+    svg += '</g>';
+
+    svg += '</svg>';
+
+    svgContainer.innerHTML = svg;
+  }
+
+  // Copy diagnostic report
+  btnCopy.addEventListener('click', function() {
+    var text = '=== IEEE C57.110 TRANSFORMER K-FACTOR & HARMONIC REPORT ===\n' +
+      'Nameplate Capacity: ' + selKva.value + ' kVA @ ' + selVolt.options[selVolt.selectedIndex].text + '\n' +
+      'Load Profile: ' + selPreset.options[selPreset.selectedIndex].text + '\n' +
+      'Fundamental Current (I1): ' + inI1.value + ' A | Total RMS (Irms): ' + lblIrmsHeader.textContent + '\n' +
+      'Current THD: ' + resThdPct.textContent + ' | Design Eddy Loss Pec-r: ' + inPec.value + '%\n' +
+      '------------------------------------------------------------\n' +
+      'Calculated K-Factor: ' + resKFactor.textContent + ' (' + resKRecommended.textContent + ')\n' +
+      'Standard K-1 Transformer Derating: ' + resDeratingPct.textContent + ' (' + resDeratedKva.textContent + ')\n' +
+      'Winding Eddy Loss Multiplier: ' + resEddyMultiplier.textContent + ' (' + resLossWatts.textContent + ')\n' +
+      'Triplen Neutral Current (In): ' + resNeutralCurrent.textContent + ' (' + lblNeutralStatus.textContent + ')\n' +
+      'Standards: IEEE C57.110, UL 1561 & NFPA 70 NEC 450\n' +
+      'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/transformer-k-factor-calculator.html)';
+
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = copyText.textContent;
+      copyText.textContent = '✓ Copied Diagnostic Report to Clipboard!';
+      setTimeout(function() {
+        copyText.textContent = orig;
+      }, 2500);
+    }).catch(function() {
+      copyText.textContent = 'Clipboard access denied';
+    });
+  });
+
+  selPreset.addEventListener('change', onPresetChange);
+  [selKva, selVolt, inI1, inPec, h3, h5, h7, h9, h11, h13, h15, h17].forEach(function(el) {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  onPresetChange();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'transformer-k-factor-calculator.html'), renderTradePage({
+    title: "Transformer K-Factor & Harmonic Derating Calculator (IEEE C57) | Digital Tools Shed",
+    metaDesc: "Calculate transformer K-factor, current THD, winding eddy current losses, and standard transformer capacity derating per IEEE C57.110 and UL 1561.",
+    canonical: `${DOMAIN}/calc/transformer-k-factor-calculator`,
+    bodyContent: transformerKFactorBody,
+    currentPath: '/calc/transformer-k-factor-calculator',
+    faq: [
+      {
+        "q": "What is Transformer K-Factor and why is it important?",
+        "a": "K-factor is a weighting figure based on the harmonic currents of a load that indicates the transformer's ability to withstand localized winding eddy-current heating. Non-linear loads (servers, VFDs) generate high-frequency currents that multiply eddy losses by h^2, burning out standard K-1 transformers."
+      },
+      {
+        "q": "What are standard K-factor ratings according to UL 1561?",
+        "a": "Standard UL 1561 K-factor ratings are K-1 (standard linear motors and resistance heaters), K-4 (commercial office PCs and fluorescent lighting), K-13 (data centers, telecom facilities, and high VFD concentrations), K-20 (heavy industrial 6-pulse drives and welders), and K-30 (critical medical imaging and large UPS installations)."
+      },
+      {
+        "q": "Why do triplen harmonics overload the neutral conductor?",
+        "a": "Zero-sequence triplen harmonics (3rd, 9th, 15th, etc.) are in-phase across all three legs of a 3-phase 4-wire system. Instead of canceling out at the neutral junction, they add together arithmetically, frequently generating neutral currents exceeding 130% to 180% of phase current."
+      },
+      {
+        "q": "How does IEEE C57.110 derate a standard K-1 transformer for harmonic loads?",
+        "a": "IEEE C57.110 applies a derating factor DF = sqrt((1 + Pec-r) / (1 + Fhl * Pec-r)), where Pec-r is design eddy loss ratio and Fhl is the harmonic loss factor. Under severe K-13 or K-20 loads, a standard transformer must be derated by 30% to 50% to prevent winding overheating."
+      },
+      {
+        "q": "Does a K-factor transformer filter or reduce harmonic distortion in the electrical system?",
+        "a": "No. A K-factor transformer does not filter or reduce harmonics. It is simply built with heavier transposed winding conductors, lower flux density core steel, and 200% neutral sizing to survive the severe thermal penalties without failing. Harmonic mitigation requires active filters or phase-shifting transformers."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FLANGE GASKET SEATING & BOLT LOAD CALCULATOR (ASME SECTION VIII DIV 1)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const flangeGasketBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Flange Gasket Seating Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Flange Gasket Seating &amp; Bolt Load Calculator (ASME VIII App 2)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate required gasket seating and operating bolt loads ($W_{m1}$ &amp; $W_{m2}$), effective seating width ($b$), minimum required bolt area ($A_m$), and target stud preload per ASME Boiler &amp; Pressure Vessel Code Section VIII Division 1 Appendix 2 and ASME PCC-1.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+        Flange &amp; Gasket Parameters
+      </h2>
+
+      <!-- Flange Size & Class -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flangeSize">Flange Nominal Size</label>
+          <select id="flangeSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="2">2" Flange (4 Bolts)</option>
+            <option value="3">3" Flange (4 Bolts)</option>
+            <option value="4" selected>4" Flange (8 Bolts)</option>
+            <option value="6">6" Flange (8 Bolts)</option>
+            <option value="8">8" Flange (8 Bolts)</option>
+            <option value="10">10" Flange (12 Bolts)</option>
+            <option value="12">12" Flange (12 Bolts)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flangeClass">ASME Pressure Class</label>
+          <select id="flangeClass" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="150" selected>Class 150 (PN 20)</option>
+            <option value="300">Class 300 (PN 50)</option>
+            <option value="600">Class 600 (PN 100)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Design Pressure & Temp -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="designPressure">Design Pressure P (PSIG)</label>
+          <input type="number" id="designPressure" value="150" min="1" max="2500" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Internal vessel / piping pressure</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="designTemp">Design Temp T (&deg;F)</label>
+          <input type="number" id="designTemp" value="300" min="-50" max="1000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Operating fluid temperature</span>
+        </div>
+      </div>
+
+      <!-- Gasket Type & Factors (Table 2-5.1) -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gasketType">Gasket Material &amp; Construction (ASME Table 2-5.1)</label>
+        <select id="gasketType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="3.0|10000" selected>Spiral-Wound SS with Flexible Graphite (m = 3.00, y = 10,000 PSI)</option>
+          <option value="2.0|1600">Compressed Fiber with Rubber Binder (m = 2.00, y = 1,600 PSI)</option>
+          <option value="0.5|0">Soft Elastomer / EPDM Sheet &le; 75 Shore A (m = 0.50, y = 0 PSI)</option>
+          <option value="3.0|7500">Corrugated Metal with Graphite Facing (m = 3.00, y = 7,500 PSI)</option>
+          <option value="5.5|18000">Kammprofile Grooved Metal with Graphite (m = 5.50, y = 18,000 PSI)</option>
+          <option value="5.5|18000">Ring Joint RTJ Octagonal Soft Iron (m = 5.50, y = 18,000 PSI)</option>
+        </select>
+      </div>
+
+      <!-- Gasket Dimensions -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gasketOd">Gasket Outer Diameter OD (in)</label>
+          <input type="number" id="gasketOd" value="6.188" min="1" max="60" step="0.0625" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard 4" Class 150 OD = 6.188"</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gasketId">Gasket Inner Diameter ID (in)</label>
+          <input type="number" id="gasketId" value="4.500" min="0.5" max="58" step="0.0625" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard 4" ID = 4.500"</span>
+        </div>
+      </div>
+
+      <!-- Bolt Material & Stress -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boltMaterial">Stud Bolt Material</label>
+          <select id="boltMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="25000|25000" selected>ASTM A193 B7 (Sa = 25 ksi, Sb = 25 ksi)</option>
+            <option value="18800|16200">ASTM A193 B8 304 SS (Sa = 18.8 ksi, Sb = 16.2 ksi)</option>
+            <option value="20000|20000">ASTM A320 L7 Low Temp (Sa = 20 ksi, Sb = 20 ksi)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boltDiameter">Stud Bolt Diameter</label>
+          <select id="boltDiameter" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.625|0.226">5/8" - 11 UNC (Root Area 0.226 in&sup2;)</option>
+            <option value="0.750|0.334">7/8" - 9 UNC (Root Area 0.334 in&sup2;)</option>
+            <option value="0.875|0.462" selected>3/4" - 10 UNC (Root Area 0.462 in&sup2;)</option>
+            <option value="1.000|0.606">1" - 8 UNC (Root Area 0.606 in&sup2;)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Effective Width (b): <strong id="lblBHeader" style="color:var(--fg);">0.325 in</strong></div>
+          <div>Gasket Mean Dia (G): <strong id="lblGHeader" style="color:var(--fg);">5.538 in</strong></div>
+          <div>Hydrostatic End Force (H): <strong id="lblHHeader" style="color:var(--fg);">3,612 lbf</strong></div>
+          <div>Standard: <strong style="color:var(--fg);">ASME VIII Div 1 App 2</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN & DIAGRAM -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- RESULTS HERO CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;" id="lblHeroTitle">Governing Design Bolt Load</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:var(--mono);color:var(--accent);line-height:1.1;" id="resGoverningLoad">-- lbf</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);margin-top:0.25rem;" id="resGoverningDesc">Governed by Seating (Wm2)</div>
+          </div>
+          <div style="text-align:right;">
+            <span id="badgeBoltAreaStatus" style="display:inline-block;padding:0.4rem 0.85rem;border-radius:999px;font-size:0.8rem;font-weight:700;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid #10b981;">ADEQUATE BOLT AREA</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Operating Bolt Load (Wm1)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resWm1">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resWm1Breakdown">H (3,612) + Hp (--)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Seating Bolt Load (Wm2)</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resWm2">--</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Wm2 = &pi; &middot; b &middot; G &middot; y</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Required vs Actual Bolt Area</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resBoltArea">-- / -- in&sup2;</div>
+            <div style="font-size:0.75rem;" id="lblBoltAreaMargin">Margin: +--%</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Target Bolt Preload Stress</div>
+            <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);" id="resPreloadStress">-- ksi</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="resTargetTorque">Target: -- ft-lbs (K=0.16)</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnCopyReport" style="width:100%;margin-top:1.5rem;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy ASME Gasket Seating Diagnostic Report</span>
+        </button>
+      </div>
+
+      <!-- DYNAMIC SVG DIAGRAM -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+          <span>ASME Flange Joint &amp; Gasket Compression Cutaway</span>
+          <span style="font-size:0.75rem;font-family:var(--mono);color:var(--text-muted);" id="svgStatusLabel">ASME VIII App 2</span>
+        </div>
+        <div id="flangeSvgContainer" style="width:100%;display:flex;justify-content:center;background:var(--bg);border-radius:8px;padding:0.5rem;overflow:hidden;">
+          <!-- SVG injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKED DERIVATION BREAKDOWN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Step-by-Step ASME Boiler &amp; Pressure Vessel Code Derivation
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">
+      ASME BPVC Section VIII, Division 1, Appendix 2 designs bolted flange joints by verifying two distinct load regimes: operating pressure containment ($W_{m1}$) and initial gasket seating deformation ($W_{m2}$).
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;font-size:0.9rem;line-height:1.6;">
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">1. Effective Seating Width (b)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          b0 = (OD - ID) / 4<br>
+          If b0 &gt; 0.25": b = 0.5 &middot; &radic;b0
+        </div>
+        Because flexible flanges rotate under bolt load, seating stress concentrates along the outer rim of the gasket face.
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Basic $b_0$: <span id="mathB0" style="font-weight:600;color:var(--fg);">0.422"</span></li>
+          <li>Effective $b$: <span id="mathB" style="font-weight:600;color:var(--fg);">0.325"</span></li>
+          <li>Mean Dia $G$: <span id="mathG" style="font-weight:600;color:var(--fg);">5.538"</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">2. Operating Bolt Load (Wm1)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          H = (&pi;/4) &middot; G^2 &middot; P<br>
+          Hp = 2 &middot; b &middot; &pi; &middot; G &middot; m &middot; P<br>
+          Wm1 = H + Hp
+        </div>
+        The bolts must simultaneously contain hydrostatic end thrust ($H$) and maintain residual gasket contact compression ($H_p$).
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>End Thrust $H$: <span id="mathH" style="font-weight:600;color:var(--fg);">3,612 lbf</span></li>
+          <li>Gasket Load $H_p$: <span id="mathHp" style="font-weight:600;color:var(--fg);">5,088 lbf</span></li>
+          <li>Operating $W_{m1}$: <span id="mathWm1" style="font-weight:600;color:var(--fg);">8,700 lbf</span></li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:1.25rem;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--accent);display:block;margin-bottom:0.5rem;">3. Seating Load &amp; Bolt Area (Am)</strong>
+        <div style="font-family:var(--mono);background:var(--surface);padding:0.5rem;border-radius:4px;margin-bottom:0.5rem;font-size:0.85rem;">
+          Wm2 = &pi; &middot; b &middot; G &middot; y<br>
+          Am = max(Wm1/Sb, Wm2/Sa)
+        </div>
+        Before pressurization, bolts must yield the gasket surface into the flange serrated grooves ($y$ stress).
+        <ul style="margin:0.5rem 0 0 1.2rem;padding:0;color:var(--text-muted);">
+          <li>Seating $W_{m2}$: <span id="mathWm2" style="font-weight:600;color:var(--fg);">56,530 lbf</span></li>
+          <li>Required $A_m$: <span id="mathAm" style="font-weight:600;color:var(--fg);">2.261 in&sup2;</span></li>
+          <li>Provided $A_b$: <span id="mathAb" style="font-weight:600;color:var(--fg);">3.696 in&sup2; (8 bolts)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      5 Fatal Traps in Bolted Flange Joint Design
+    </h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#ef4444;display:block;margin-bottom:0.35rem;font-size:1.05rem;">1. The Gasket Over-Torque Crushing Disaster</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          While insufficient torque causes flange leaks, excessive bolt load is equally catastrophic. Spiral-wound gaskets crush when compressive stress exceeds 25,000 to 30,000 PSI, unwinding the V-shaped metal Chevron ribbons and spitting the flexible graphite filler into the pipeline. Once the windings buckle, the joint loses all elastic resilience, causing immediate blowout upon pressurization. Always enforce target torque limits per ASME PCC-1 Table 1M.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#f59e0b;display:block;margin-bottom:0.35rem;font-size:1.05rem;">2. The $b_0 &gt; 0.25"$ Square-Root Trap</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          A classic engineering error in ASME Appendix 2 calculations is using basic width $b_0$ instead of effective width $b = 0.5 sqrt{b_0}$ when $b_0 > 0.25"$. For a gasket with $b_0 = 0.50"$, effective width is only $0.353"$. Using $b_0$ falsely overestimates effective contact area by 40%, generating inaccurate seating loads and miscalculating minimum required bolt area $A_m$, leading to undersized bolting that weeps during hydrotesting.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#10b981;display:block;margin-bottom:0.35rem;font-size:1.05rem;">3. Flange Rotation &amp; Outer Ring Pinching</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When bolts on standard Class 150 or thin-hub slip-on flanges are torqued, the bolt moment bends the flange ring inward (flange rotation). The outer edge of the gasket contact face pinches tightly while the inner bore lifts off, dropping inner seating stress below the $m$-factor threshold. Spiral-wound gaskets without internal solid metal guide rings collapse inward under flange rotation, creating high-turbulence flow restrictions.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#3b82f6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">4. Thermal Creep Relaxation of Non-Metallic Gaskets</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Elastomer, virgin PTFE, and compressed sheet gaskets experience severe viscoelastic stress relaxation under temperature. Within the first 24 hours at 250&deg;F to 400&deg;F, residual bolt preload drops by 25% to 45% due to polymer cold flow. Without a scheduled re-torque after initial thermal cycling (hot torque per ASME PCC-1), internal pressure easily overcomes the diminished $H_p$ sealing load, triggering steam or chemical leaks.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border-radius:0 8px 8px 0;padding:1.25rem;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <strong style="color:#8b5cf6;display:block;margin-bottom:0.35rem;font-size:1.05rem;">5. Elastic Crosstalk &amp; Single-Pass Bolting Failure</strong>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          In multi-bolt flanges, tightening bolt #2 compresses the gasket locally, releasing elastic tension on adjacent bolt #1 by up to 30% to 50% (elastic interaction / crosstalk). Tightening bolts in a single pass or in circular order leaves over half the bolts severely under-tensioned. ASME PCC-1 mandates a strict 4-pass cross-pattern star sequence (Pass 1: 20-30%, Pass 2: 50-70%, Pass 3: 100%, Pass 4: rotational check at 100%).
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var selSize = document.getElementById('flangeSize');
+  var selClass = document.getElementById('flangeClass');
+  var inP = document.getElementById('designPressure');
+  var inT = document.getElementById('designTemp');
+  var selGasket = document.getElementById('gasketType');
+  var inOd = document.getElementById('gasketOd');
+  var inId = document.getElementById('gasketId');
+  var selMat = document.getElementById('boltMaterial');
+  var selDia = document.getElementById('boltDiameter');
+
+  var lblBHeader = document.getElementById('lblBHeader');
+  var lblGHeader = document.getElementById('lblGHeader');
+  var lblHHeader = document.getElementById('lblHHeader');
+
+  var resGoverningLoad = document.getElementById('resGoverningLoad');
+  var resGoverningDesc = document.getElementById('resGoverningDesc');
+  var badgeBoltAreaStatus = document.getElementById('badgeBoltAreaStatus');
+
+  var resWm1 = document.getElementById('resWm1');
+  var resWm1Breakdown = document.getElementById('resWm1Breakdown');
+  var resWm2 = document.getElementById('resWm2');
+  var resBoltArea = document.getElementById('resBoltArea');
+  var lblBoltAreaMargin = document.getElementById('lblBoltAreaMargin');
+  var resPreloadStress = document.getElementById('resPreloadStress');
+  var resTargetTorque = document.getElementById('resTargetTorque');
+
+  var mathB0 = document.getElementById('mathB0');
+  var mathB = document.getElementById('mathB');
+  var mathG = document.getElementById('mathG');
+  var mathH = document.getElementById('mathH');
+  var mathHp = document.getElementById('mathHp');
+  var mathWm1 = document.getElementById('mathWm1');
+  var mathWm2 = document.getElementById('mathWm2');
+  var mathAm = document.getElementById('mathAm');
+  var mathAb = document.getElementById('mathAb');
+
+  var svgContainer = document.getElementById('flangeSvgContainer');
+  var btnCopy = document.getElementById('btnCopyReport');
+  var copyText = document.getElementById('copyBtnText');
+
+  // Standard ASME B16.5 Dimensions Map
+  var flangeDimTable = {
+    '2': {
+      '150': { od: 4.125, id: 2.375, bolts: 4, bDia: '0.625|0.226' },
+      '300': { od: 4.375, id: 2.375, bolts: 8, bDia: '0.625|0.226' },
+      '600': { od: 4.375, id: 2.375, bolts: 8, bDia: '0.625|0.226' }
+    },
+    '3': {
+      '150': { od: 5.375, id: 3.500, bolts: 4, bDia: '0.625|0.226' },
+      '300': { od: 5.875, id: 3.500, bolts: 8, bDia: '0.750|0.334' },
+      '600': { od: 5.875, id: 3.500, bolts: 8, bDia: '0.750|0.334' }
+    },
+    '4': {
+      '150': { od: 6.188, id: 4.500, bolts: 8, bDia: '0.625|0.226' },
+      '300': { od: 7.125, id: 4.500, bolts: 8, bDia: '0.750|0.334' },
+      '600': { od: 7.625, id: 4.500, bolts: 8, bDia: '0.875|0.462' }
+    },
+    '6': {
+      '150': { od: 8.500, id: 6.625, bolts: 8, bDia: '0.750|0.334' },
+      '300': { od: 9.875, id: 6.625, bolts: 12, bDia: '0.750|0.334' },
+      '600': { od: 10.500, id: 6.625, bolts: 12, bDia: '1.000|0.606' }
+    },
+    '8': {
+      '150': { od: 10.625, id: 8.625, bolts: 8, bDia: '0.750|0.334' },
+      '300': { od: 12.125, id: 8.625, bolts: 12, bDia: '0.875|0.462' },
+      '600': { od: 12.625, id: 8.625, bolts: 12, bDia: '1.125|0.763' }
+    },
+    '10': {
+      '150': { od: 12.750, id: 10.750, bolts: 12, bDia: '0.875|0.462' },
+      '300': { od: 14.250, id: 10.750, bolts: 16, bDia: '1.000|0.606' },
+      '600': { od: 15.750, id: 10.750, bolts: 16, bDia: '1.250|0.969' }
+    },
+    '12': {
+      '150': { od: 15.000, id: 12.750, bolts: 12, bDia: '0.875|0.462' },
+      '300': { od: 16.625, id: 12.750, bolts: 16, bDia: '1.125|0.763' },
+      '600': { od: 18.000, id: 12.750, bolts: 20, bDia: '1.250|0.969' }
+    }
+  };
+
+  function onFlangePresetChange() {
+    var size = selSize.value;
+    var cls = selClass.value;
+    if (flangeDimTable[size] && flangeDimTable[size][cls]) {
+      var item = flangeDimTable[size][cls];
+      inOd.value = item.od.toFixed(3);
+      inId.value = item.id.toFixed(3);
+      if (item.bDia) {
+        selDia.value = item.bDia;
+      }
+    }
+    calculate();
+  }
+
+  function calculate() {
+    var size = selSize.value;
+    var cls = selClass.value;
+    var P = Math.max(1, parseFloat(inP.value) || 150);
+    var T = parseFloat(inT.value) || 300;
+
+    var gParts = selGasket.value.split('|');
+    var m = parseFloat(gParts[0]) || 3.0;
+    var y = parseFloat(gParts[1]) || 10000;
+
+    var OD = parseFloat(inOd.value) || 6.188;
+    var ID = parseFloat(inId.value) || 4.500;
+
+    var bMatParts = selMat.value.split('|');
+    var Sa = parseFloat(bMatParts[0]) || 25000;
+    var Sb = parseFloat(bMatParts[1]) || 25000;
+
+    var bDiaParts = selDia.value.split('|');
+    var dNom = parseFloat(bDiaParts[0]) || 0.750;
+    var Aroot = parseFloat(bDiaParts[1]) || 0.334;
+
+    var boltCount = 8;
+    if (flangeDimTable[size] && flangeDimTable[size][cls]) {
+      boltCount = flangeDimTable[size][cls].bolts;
+    }
+
+    // 1. Basic Gasket Width b0
+    var w = (OD - ID) / 2;
+    var b0 = w / 2;
+    mathB0.textContent = b0.toFixed(3) + '" (w = ' + w.toFixed(3) + '")';
+
+    // 2. Effective Gasket Seating Width b & G
+    var b = b0;
+    var G = (OD + ID) / 2;
+    if (b0 > 0.25) {
+      b = 0.5 * Math.sqrt(b0);
+      G = OD - (2 * b);
+    }
+    lblBHeader.textContent = b.toFixed(3) + ' in';
+    lblGHeader.textContent = G.toFixed(3) + ' in';
+    mathB.textContent = b.toFixed(3) + '" (b0 > 0.25" rule applied)';
+    mathG.textContent = G.toFixed(3) + '" (load reaction diameter)';
+
+    // 3. Hydrostatic End Force H
+    var H = (Math.PI / 4) * Math.pow(G, 2) * P;
+    lblHHeader.textContent = Math.round(H).toLocaleString() + ' lbf';
+    mathH.textContent = Math.round(H).toLocaleString() + ' lbf';
+
+    // 4. Joint Contact Compression Load Hp
+    var Hp = 2 * b * Math.PI * G * m * P;
+    mathHp.textContent = Math.round(Hp).toLocaleString() + ' lbf (m=' + m.toFixed(2) + ')';
+
+    // 5. Operating Bolt Load Wm1
+    var Wm1 = H + Hp;
+    resWm1.textContent = Math.round(Wm1).toLocaleString() + ' lbf';
+    resWm1Breakdown.textContent = 'H (' + Math.round(H).toLocaleString() + ') + Hp (' + Math.round(Hp).toLocaleString() + ')';
+    mathWm1.textContent = Math.round(Wm1).toLocaleString() + ' lbf';
+
+    // 6. Seating Bolt Load Wm2
+    var Wm2 = Math.PI * b * G * y;
+    resWm2.textContent = Math.round(Wm2).toLocaleString() + ' lbf';
+    mathWm2.textContent = Math.round(Wm2).toLocaleString() + ' lbf (y=' + y.toLocaleString() + ' PSI)';
+
+    // 7. Governing Load
+    var isSeatingGoverned = (Wm2 > Wm1);
+    var W_gov = Math.max(Wm1, Wm2);
+    resGoverningLoad.textContent = Math.round(W_gov).toLocaleString() + ' lbf';
+    resGoverningDesc.textContent = isSeatingGoverned ? 'Governed by Assembly Seating (Wm2)' : 'Governed by Operating Pressure (Wm1)';
+
+    // 8. Required Bolt Area Am
+    var Am1 = Wm1 / Sb;
+    var Am2 = Wm2 / Sa;
+    var Am = Math.max(Am1, Am2);
+    mathAm.textContent = Am.toFixed(3) + ' in² (Am1=' + Am1.toFixed(3) + ', Am2=' + Am2.toFixed(3) + ')';
+
+    // 9. Provided Bolt Area Ab
+    var Ab = boltCount * Aroot;
+    mathAb.textContent = Ab.toFixed(3) + ' in² (' + boltCount + ' × ' + dNom + '" studs)';
+    resBoltArea.textContent = Am.toFixed(2) + ' / ' + Ab.toFixed(2) + ' in²';
+
+    var areaMarginPct = ((Ab - Am) / Am) * 100;
+    lblBoltAreaMargin.textContent = 'Margin: ' + (areaMarginPct >= 0 ? '+' : '') + areaMarginPct.toFixed(0) + '% (' + boltCount + ' bolts)';
+
+    if (Ab >= Am) {
+      badgeBoltAreaStatus.textContent = 'ADEQUATE BOLT AREA';
+      badgeBoltAreaStatus.style.color = '#10b981';
+      badgeBoltAreaStatus.style.borderColor = '#10b981';
+      badgeBoltAreaStatus.style.background = 'rgba(16, 185, 129, 0.1)';
+      lblBoltAreaMargin.style.color = '#10b981';
+    } else {
+      badgeBoltAreaStatus.textContent = 'UNDER-BOLTED FLANGE';
+      badgeBoltAreaStatus.style.color = '#ef4444';
+      badgeBoltAreaStatus.style.borderColor = '#ef4444';
+      badgeBoltAreaStatus.style.background = 'rgba(239, 68, 68, 0.1)';
+      lblBoltAreaMargin.style.color = '#ef4444';
+    }
+
+    // 10. Target Preload Stress & Torque (ASME PCC-1 recommendation ~ 45 ksi or 50% yield)
+    var targetBoltStress = Math.max(25000, Math.min(50000, W_gov / Ab));
+    resPreloadStress.textContent = (targetBoltStress / 1000).toFixed(1) + ' ksi';
+
+    // Torque T = K * D * F / 12 (with K=0.16 anti-seize)
+    var boltPreloadLbf = targetBoltStress * Aroot;
+    var torqueFtLb = (0.16 * dNom * boltPreloadLbf) / 12;
+    resTargetTorque.textContent = 'Target: ' + Math.round(torqueFtLb) + ' ft-lbs (K=0.16 lubed)';
+
+    updateSvg(size, cls, boltCount, dNom, OD, ID, W_gov, Ab >= Am);
+  }
+
+  function updateSvg(size, cls, boltCount, dNom, OD, ID, W_gov, isAdequate) {
+    var svg = '';
+    svg += '<svg width="100%" height="220" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,-apple-system,sans-serif;">';
+    svg += '<defs>';
+    svg += '  <linearGradient id="gasketGrad" x1="0%" y1="0%" x2="0%" y2="100%">';
+    svg += '    <stop offset="0%" stop-color="#10b981" stop-opacity="0.9"/>';
+    svg += '    <stop offset="50%" stop-color="#059669" stop-opacity="0.95"/>';
+    svg += '    <stop offset="100%" stop-color="#10b981" stop-opacity="0.9"/>';
+    svg += '  </linearGradient>';
+    svg += '</defs>';
+
+    // Top Flange (Raised Face Section) at y=30 to y=95
+    svg += '<rect x="80" y="30" width="300" height="55" rx="4" fill="#475569" stroke="#1e293b" stroke-width="2"/>';
+    // Pipe Bore through center
+    svg += '<rect x="180" y="30" width="100" height="55" fill="var(--bg)"/>';
+
+    // Top Raised Face (x=130 to x=330, y=85 to y=95)
+    svg += '<rect x="130" y="85" width="200" height="10" fill="#64748b" stroke="#1e293b" stroke-width="1"/>';
+    svg += '<rect x="180" y="85" width="100" height="10" fill="var(--bg)"/>';
+
+    // Gasket Compressed Between Faces (y=95 to y=105, height=10px)
+    // Left gasket ring section
+    svg += '<rect x="135" y="95" width="45" height="10" rx="1" fill="url(#gasketGrad)" stroke="#047857" stroke-width="1"/>';
+    // Right gasket ring section
+    svg += '<rect x="280" y="95" width="45" height="10" rx="1" fill="url(#gasketGrad)" stroke="#047857" stroke-width="1"/>';
+    svg += '<text x="157" y="103" font-size="7" fill="#ffffff" font-weight="700" text-anchor="middle">GASKET</text>';
+    svg += '<text x="302" y="103" font-size="7" fill="#ffffff" font-weight="700" text-anchor="middle">GASKET</text>';
+
+    // Bottom Flange (Raised Face Section) at y=105 to y=170
+    // Bottom Raised Face
+    svg += '<rect x="130" y="105" width="200" height="10" fill="#64748b" stroke="#1e293b" stroke-width="1"/>';
+    svg += '<rect x="180" y="105" width="100" height="10" fill="var(--bg)"/>';
+    // Bottom Flange body
+    svg += '<rect x="80" y="115" width="300" height="55" rx="4" fill="#475569" stroke="#1e293b" stroke-width="2"/>';
+    svg += '<rect x="180" y="115" width="100" height="55" fill="var(--bg)"/>';
+
+    // Stud Bolts (Left at x=105, Right at x=355)
+    // Left Stud
+    svg += '<rect x="100" y="15" width="16" height="170" fill="#94a3b8" stroke="#1e293b" stroke-width="1.5"/>';
+    // Left Top Nut
+    svg += '<rect x="96" y="18" width="24" height="16" rx="2" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>';
+    // Left Bottom Nut
+    svg += '<rect x="96" y="166" width="24" height="16" rx="2" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>';
+
+    // Right Stud
+    svg += '<rect x="344" y="15" width="16" height="170" fill="#94a3b8" stroke="#1e293b" stroke-width="1.5"/>';
+    // Right Top Nut
+    svg += '<rect x="340" y="18" width="24" height="16" rx="2" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>';
+    // Right Bottom Nut
+    svg += '<rect x="340" y="166" width="24" height="16" rx="2" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>';
+
+    // Internal Pressure Arrows inside pipe bore
+    svg += '<line x1="230" y1="85" x2="230" y2="45" stroke="#3b82f6" stroke-width="2.5"/>';
+    svg += '<line x1="230" y1="115" x2="230" y2="155" stroke="#3b82f6" stroke-width="2.5"/>';
+    svg += '<text x="230" y="104" font-size="10" font-weight="700" fill="#3b82f6" text-anchor="middle">INTERNAL P</text>';
+
+    // Bolt Load Compression Force Arrows
+    svg += '<line x1="108" y1="8" x2="108" y2="18" stroke="#ef4444" stroke-width="2"/>';
+    svg += '<line x1="108" y1="192" x2="108" y2="182" stroke="#ef4444" stroke-width="2"/>';
+    svg += '<line x1="352" y1="8" x2="352" y2="18" stroke="#ef4444" stroke-width="2"/>';
+    svg += '<line x1="352" y1="192" x2="352" y2="182" stroke="#ef4444" stroke-width="2"/>';
+
+    // Status Banner Bottom Center
+    svg += '<g transform="translate(140, 185)">';
+    svg += '  <rect width="180" height="26" rx="4" fill="var(--surface)" stroke="var(--border)"/>';
+    svg += '  <text x="90" y="17" font-size="9.5" font-weight="700" fill="' + (isAdequate ? '#10b981' : '#ef4444') + '" text-anchor="middle">Total Bolt Load: ' + Math.round(W_gov).toLocaleString() + ' lbf</text>';
+    svg += '</g>';
+
+    svg += '</svg>';
+
+    svgContainer.innerHTML = svg;
+  }
+
+  // Copy diagnostic report
+  btnCopy.addEventListener('click', function() {
+    var text = '=== ASME VIII BOLTED FLANGE GASKET SEATING REPORT ===\n' +
+      'Flue / Pipe Flange: ' + selSize.options[selSize.selectedIndex].text + ' | Class ' + selClass.value + '\n' +
+      'Design Conditions: ' + inP.value + ' PSIG @ ' + inT.value + ' deg F\n' +
+      'Gasket: ' + selGasket.options[selGasket.selectedIndex].text + '\n' +
+      'Gasket Dimensions: OD ' + inOd.value + ' in | ID ' + inId.value + ' in\n' +
+      'Bolting: ' + selMat.options[selMat.selectedIndex].text + ' (' + selDia.options[selDia.selectedIndex].text + ')\n' +
+      '------------------------------------------------------------\n' +
+      'Effective Gasket Width (b): ' + lblBHeader.textContent + ' (Mean Dia G = ' + lblGHeader.textContent + ')\n' +
+      'Hydrostatic End Force (H): ' + lblHHeader.textContent + '\n' +
+      'Operating Bolt Load (Wm1): ' + resWm1.textContent + '\n' +
+      'Assembly Seating Load (Wm2): ' + resWm2.textContent + '\n' +
+      'Governing Design Bolt Load: ' + resGoverningLoad.textContent + ' (' + resGoverningDesc.textContent + ')\n' +
+      'Required vs Actual Bolt Area: ' + resBoltArea.textContent + ' (' + badgeBoltAreaStatus.textContent + ')\n' +
+      'Target Bolt Preload Stress: ' + resPreloadStress.textContent + ' (' + resTargetTorque.textContent + ')\n' +
+      'Code Standard: ASME BPVC Section VIII Division 1 Appendix 2 & PCC-1\n' +
+      'Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/flange-gasket-seating-calculator.html)';
+
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = copyText.textContent;
+      copyText.textContent = '✓ Copied Diagnostic Report to Clipboard!';
+      setTimeout(function() {
+        copyText.textContent = orig;
+      }, 2500);
+    }).catch(function() {
+      copyText.textContent = 'Clipboard access denied';
+    });
+  });
+
+  selSize.addEventListener('change', onFlangePresetChange);
+  selClass.addEventListener('change', onFlangePresetChange);
+  [inP, inT, selGasket, inOd, inId, selMat, selDia].forEach(function(el) {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  onFlangePresetChange();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'flange-gasket-seating-calculator.html'), renderTradePage({
+    title: "Flange Gasket Seating & Bolt Load Calculator (ASME VIII App 2) | Digital Tools Shed",
+    metaDesc: "Calculate gasket seating and operating bolt loads Wm1 and Wm2, effective width b, and minimum required bolt area per ASME Section VIII Division 1 Appendix 2.",
+    canonical: `${DOMAIN}/calc/flange-gasket-seating-calculator`,
+    bodyContent: flangeGasketBody,
+    currentPath: '/calc/flange-gasket-seating-calculator',
+    faq: [
+      {
+        "q": "What is the difference between operating bolt load (Wm1) and gasket seating load (Wm2)?",
+        "a": "Wm1 is the total bolt load required under operating conditions to contain internal hydrostatic end thrust (H) while maintaining residual compressive seating stress (Hp = 2 * b * pi * G * m * P) on the gasket. Wm2 is the assembly load required to yield and deform the gasket into the flange face serrations (Wm2 = pi * b * G * y) under atmospheric conditions without pressure."
+      },
+      {
+        "q": "What do the gasket factors m and y represent in ASME Appendix 2?",
+        "a": "Factor m is the gasket maintenance factor—a dimensionless multiplier indicating the ratio of residual compressive gasket stress to internal fluid pressure required to maintain a tight seal during operation. Factor y is the minimum design seating stress (in PSI) required to plastically deform the gasket surface into the flange micro-grooves during cold assembly."
+      },
+      {
+        "q": "Why is effective gasket seating width b calculated as 0.5 * sqrt(b0) when b0 > 0.25 inches?",
+        "a": "Because real pipe flanges are flexible rings that rotate (cup inward) under bolt tightening moments, compressive seating stress is non-uniform and concentrates heavily along the outer periphery of the raised face. The square-root formula empirically corrects for this rotational stress concentration."
+      },
+      {
+        "q": "What happens if a flange joint is over-torqued beyond gasket yield limits?",
+        "a": "Excessive bolt preload exceeds the compressive crushing strength of the gasket (typically 25,000 to 30,000 PSI for spiral-wound gaskets). The metal Chevron windings buckle and collapse, extruding the graphite filler into the pipeline and permanently destroying the joint's elastic spring-back ability, leading to blowout."
+      },
+      {
+        "q": "Why is a 4-pass cross-pattern star tightening sequence mandatory per ASME PCC-1?",
+        "a": "Due to elastic interaction (crosstalk), tightening any bolt deflects the flange and relieves preload on adjacent bolts by up to 30% to 50%. A multi-pass star pattern gradually and symmetrically seats the gasket, preventing flange tilt, localized pinching, and uneven bolt loads."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (43 calculators in /calc/)');
 }
 
