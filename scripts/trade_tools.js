@@ -150348,6 +150348,2702 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (227 calculators in /calc/)');
+  
+  // ─── TOOL BT1: STEAM JET EJECTOR & VACUUM SYSTEM CALCULATOR ───
+  (() => {
+    const slug = 'steam-jet-ejector-vacuum-system-calculator';
+    const title = 'Steam Jet Ejector & Multi-Stage Vacuum System Sizing Calculator';
+    const metaDescription = 'Calculate motive steam consumption, entrainment ratio (Rm), compression ratio, equivalent dry air (EDA), and inter-condenser duties for multi-stage steam ejector systems using HEI standards.';
+    const faq = [
+      {
+        q: 'How does a Steam Jet Ejector create deep vacuum without moving parts?',
+        a: 'A steam jet ejector operates on Bernoulli\'s principle and supersonic gas dynamics. High-pressure motive steam expands through a convergent-divergent De Laval nozzle, converting enthalpy into kinetic energy and accelerating the steam to supersonic velocities (Mach 2.5 to 3.5). The high-velocity steam jet shoots across the suction chamber, creating an intense low-pressure zone that entrains process vapors and non-condensable gases via turbulent shear friction. The mixed gas stream enters a converging-diverging diffuser, where kinetic energy is converted back into pressure energy, discharging at a higher pressure.'
+      },
+      {
+        q: 'What is Equivalent Dry Air (EDA) and why is it used in HEI standards?',
+        a: 'The Heat Exchange Institute (HEI) established Equivalent Dry Air (EDA) at 70°F (21.1°C) as the universal sizing basis for vacuum systems. Because industrial suction loads contain mixtures of water vapor, air, and organic gases at various temperatures, individual mass flows are converted to 70°F dry air using HEI molecular weight correction factors ($F_{MW} = \\sqrt{28.97 / M_w}$) and temperature correction factors ($F_T$). Sizing with EDA normalizes aerodynamic entrainment capacity across any gas composition.'
+      },
+      {
+        q: 'What determines the number of ejector stages in series?',
+        a: 'The required number of stages is dictated by the overall compression ratio ($CR = P_{discharge} / P_{suction}$). Single-stage ejectors efficiently handle compression ratios up to $6\\text{--}8\\times$ (down to $\\approx 100\\,\\text{mbar}$). Two-stage systems with an inter-condenser handle $CR$ up to $40\\text{--}60\\times$ (down to $15\\text{--}25\\,\\text{mbar}$). Three-stage systems reach $2\\text{--}5\\,\\text{mbar}$, and four-stage systems achieve deep vacuum below $0.5\\,\\text{mbar}$. Adding inter-condensers between stages condenses motive steam, drastically reducing the gas load entering subsequent stages.'
+      },
+      {
+        q: 'What is ejector break pressure and pickup pressure?',
+        a: 'Ejector break pressure ($P_{break}$) is the maximum discharge backpressure an ejector can tolerate before the internal supersonic shock wave collapses and pops out of the diffuser throat into the suction head. When backpressure exceeds $P_{break}$, suction pressure abruptly skyrockets (the ejector breaks). To re-establish stable supersonic flow, the backpressure must be lowered to the slightly lower pickup pressure ($P_{pickup}$).'
+      },
+      {
+        q: 'Why can ice formation occur in deep-vacuum ejector stages?',
+        a: 'Water has a triple point at $6.11\\,\\text{mbar}$ ($4.58\\,\\text{mmHg}$) and $0.01^\\circ\\text{C}$. In first-stage ejectors operating at suction pressures below $4.5\\,\\text{mbar}$, adiabatic expansion of water vapor drops local temperatures below freezing. Ice crystals form and deposit directly onto the cold diffuser throat walls, constricting the cross-sectional area and causing severe vacuum surging unless steam jackets or electrical heating are installed on the diffuser.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-eject { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Steam Jet Ejector & Multi-Stage Vacuum System Sizing Calculator</h1>' +
+      '    <p>Perform industrial sizing of steam jet vacuum ejectors and inter-condenser stages based on Heat Exchange Institute (HEI) standards. Calculate motive steam consumption, entrainment ratio (Rm), compression ratio, Equivalent Dry Air (EDA), and condenser cooling water demand.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Suction Load & Steam Operating Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="eject-preset">Vacuum Service Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="eject-preset">' +
+      '            <option value="distill" selected>Vacuum Distillation Column Overhead (25 mbar, 2-Stage + Condenser)</option>' +
+      '            <option value="turbine">Turbine Surface Condenser Air Hogging / Holding (50 mbar, HEI)</option>' +
+      '            <option value="crystallizer">Vacuum Flash Crystallizer (12 mbar, 3-Stage)</option>' +
+      '            <option value="deodorizer">Edible Oil Deodorizer High Vacuum (2.5 mbar, 3-Stage Booster)</option>' +
+      '            <option value="custom">Custom Ejector System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="eject-psuc">Suction Operating Pressure ($P_s$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="eject-psuc" value="25" min="0.5" max="800" step="0.5">' +
+      '          <select id="eject-psuc-unit" style="max-width: 100px;">' +
+      '            <option value="mbar" selected>mbar(a)</option>' +
+      '            <option value="torr">torr (mmHg)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Absolute pressure at ejector suction nozzle</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="eject-pdis">Discharge Pressure ($P_d$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="eject-pdis" value="1013" min="50" max="2000" step="10">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">mbar(a)</span>' +
+      '        </div>' +
+      '        <div class="hint">Typically atmospheric pressure (1,013 mbar a) at final stage vent</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="eject-air">Non-Condensable Air Load ($\\dot{m}_{air}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="eject-air" value="20" min="0" max="5000" step="1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">kg/h dry air</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="eject-water">Water Vapor Suction Load ($\\dot{m}_{vap}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="eject-water" value="45" min="0" max="10000" step="5">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">kg/h water vapor</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="eject-nstages">Number of Ejector Stages & Motive Steam</label>' +
+      '        <div class="input-row">' +
+      '          <select id="eject-nstages" style="max-width: 140px;">' +
+      '            <option value="1">1 Stage (Direct)</option>' +
+      '            <option value="2" selected>2 Stages (Inter-cond)</option>' +
+      '            <option value="3">3 Stages (Booster)</option>' +
+      '            <option value="4">4 Stages (Deep Vac)</option>' +
+      '          </select>' +
+      '          <input type="number" id="eject-pmot" value="7.0" min="2" max="30" step="0.5" title="Motive Steam (bar g)">' +
+      '          <span style="display:flex;align-items:center;padding:0 4px;font-size:0.82rem;color:#64748b;">bar(g) steam</span>' +
+      '        </div>' +
+      '        <div class="hint">Recommended dry saturated or superheated motive steam</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-eject">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-eject">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="eject-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Vacuum Performance & Steam Consumption</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Motive Steam Demand</div>' +
+      '          <div class="res-val"><span id="out-motive">485</span><span class="res-unit">kg/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Overall Compression Ratio</div>' +
+      '          <div class="res-val"><span id="out-cr">40.5</span><span class="res-unit">× CR</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">HEI Equivalent Dry Air (EDA)</div>' +
+      '          <div class="res-val"><span id="out-eda">56.4</span><span class="res-unit">kg/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Entrainment Ratio ($R_m$)</div>' +
+      '          <div class="res-val"><span id="out-rm">0.134</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Compression per Stage</div>' +
+      '          <div class="res-val"><span id="out-crstage">6.36</span><span class="res-unit">× / stage</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Nozzle Throat Diameter</div>' +
+      '          <div class="res-val"><span id="out-dnozzle">9.8</span><span class="res-unit">mm</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Diffuser Throat Diameter</div>' +
+      '          <div class="res-val"><span id="out-ddiff">42.5</span><span class="res-unit">mm</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Inter-Condenser Heat Duty</div>' +
+      '          <div class="res-val"><span id="out-qcond">285</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Cooling Water Demand (ΔT=7°C)</div>' +
+      '          <div class="res-val"><span id="out-cw">35.0</span><span class="res-unit">m³/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">System Sizing Status</div>' +
+      '          <div id="out-eject-badge" class="badge-eject" style="background:#dcfce7;color:#166534;">Optimal Multi-Stage Design</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="eject-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Supersonic Ejector Systems</h2>' +
+      '    <p>Steam jet vacuum ejectors utilize compressible gas dynamics to transfer momentum from a high-pressure motive steam jet to a low-pressure suction stream.</p>' +
+      '    <h3>1. Motive Steam Isentropic Expansion & Throat Area</h3>' +
+      '    <p>For choked critical flow through the motive De Laval nozzle ($P_{mot} / P_s > 2$), the throat mass flux is given by Fliegner\'s formula for superheated steam ($\\gamma = 1.3$):</p>' +
+      '    <div class="formula-box">' +
+      '      \\dot{m}_{mot} = C_d \\cdot A_t \\cdot P_{mot} \\sqrt{\\frac{\\gamma}{R T_{mot}} \\left( \\frac{2}{\\gamma + 1} \\right)^{\\frac{\\gamma+1}{\\gamma-1}}}\\implies d_{throat} = \\sqrt{\\frac{4 \\cdot A_t}{\\pi}}' +
+      '    </div>' +
+      '    <h3>2. HEI Equivalent Dry Air (EDA) Conversion</h3>' +
+      '    <p>Per Heat Exchange Institute (HEI) standards, process suction loads are normalized to Equivalent Dry Air at 70°F (21.1°C):</p>' +
+      '    <div class="formula-box">' +
+      '      EDA = \\dot{m}_{air} + \\dot{m}_{water} \\cdot F_{MW,water} \\cdot F_{T,water} + \\sum \\dot{m}_i \\cdot F_{MW,i} \\cdot F_{T,i}\\n' +
+      '      F_{MW} = \\sqrt{\\frac{28.97}{M_w}}\\quad (F_{MW,water} = \\sqrt{28.97 / 18.02} \\approx 1.268)' +
+      '    </div>' +
+      '    <h3>3. Multi-Stage Compression Ratio & Steam Sizing</h3>' +
+      '    <p>The overall compression ratio $CR = P_d / P_s$ is split geometrically across $N$ stages: $CR_{stage} = (P_d / P_s)^{1/N}$. The mass entrainment ratio $R_m = \\dot{m}_{EDA} / \\dot{m}_{mot}$ is correlated empirically against $CR_{stage}$ and expansion ratio ($P_{mot} / P_s$).</p>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Steam Ejector Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Wet Motive Steam Droplet Erosion & Supersonic Shock Stall</h4>' +
+      '      <p>Supplying wet motive steam ($< 99.5\\%$ quality) allows liquid water droplets to accelerate to Mach 3. High-velocity droplet impact erodes stainless steel nozzle throats within months, enlarging the throat and cutting exit velocity. Wet steam also causes premature shock wave collapse, triggering sudden loss of vacuum.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Discharge Backpressure Exceeding Break Pressure</h4>' +
+      '      <p>If downstream condenser cooling water warms up or barometric vent piping suffers excessive friction loss, discharge backpressure exceeds the critical break pressure ($P_{break}$). The internal supersonic shock wave pops out of the diffuser throat into the suction head, causing suction pressure to spike by 500% within seconds.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Over-Pressure Motive Steam Choking</h4>' +
+      '      <p>Operating with motive steam pressure $> 20\\%$ above design is just as hazardous as under-pressure. Excessively high steam pressure causes severe nozzle over-expansion; the expanding steam jet plumes outward and physically chokes the suction annular clearance, reducing suction gas capacity by 40%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Inter-Condenser Air-Locking & Water Siphon Surge</h4>' +
+      '      <p>If the barometric drain leg from the inter-condenser lacks sufficient vertical drop height ($< 10.5\\,\\text{m}$) or the seal pot overflows, condensate backs up into the condenser shell. Liquid water slugs are drawn directly into the secondary ejector suction nozzle, shattering the diffuser body.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Sub-Triple Point Ice Freezing in Deep Vacuum ($P_s < 4.5\\,\\text{mbar}$)</h4>' +
+      '      <p>In high-vacuum booster ejectors operating below the triple point of water ($6.1\\,\\text{mbar}$, $0.01^\\circ\\text{C}$), isentropic expansion drops stream temperatures below $-15^\\circ\\text{C}$. Sublimated ice crystals coat the diffuser throat walls, constricting gas flow until steam jackets are energized to melt the ice glaze.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Steam Jet Vacuum Ejector Systems</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    distill: { psuc: 25, psucu: "mbar", pdis: 1013, air: 20, water: 45, nstages: "2", pmot: 7.0 },' +
+      '    turbine: { psuc: 50, psucu: "mbar", pdis: 1013, air: 35, water: 80, nstages: "2", pmot: 8.5 },' +
+      '    crystallizer: { psuc: 12, psucu: "mbar", pdis: 1013, air: 10, water: 65, nstages: "3", pmot: 6.0 },' +
+      '    deodorizer: { psuc: 2.5, psucu: "mbar", pdis: 1013, air: 5, water: 25, nstages: "3", pmot: 9.0 }' +
+      '  };' +
+      '  function calc() {' +
+      '    let psuc = parseFloat(el("eject-psuc").value) || 25;' +
+      '    if (el("eject-psuc-unit").value === "torr") psuc *= 1.33322;' +
+      '    const pdis = parseFloat(el("eject-pdis").value) || 1013;' +
+      '    const m_air = parseFloat(el("eject-air").value) || 20;' +
+      '    const m_water = parseFloat(el("eject-water").value) || 45;' +
+      '    const nstages = parseInt(el("eject-nstages").value) || 2;' +
+      '    const pmot_barg = parseFloat(el("eject-pmot").value) || 7.0;' +
+      '    const pmot_bara = pmot_barg + 1.013;' +
+      '    const cr_tot = pdis / Math.max(0.1, psuc);' +
+      '    const cr_stage = Math.pow(cr_tot, 1 / nstages);' +
+      '    const F_mw_water = 1.268;' +
+      '    const F_t_water = 1.0;' +
+      '    const EDA_water = m_water * 0.81;' +
+      '    const EDA_tot = m_air + EDA_water;' +
+      '    const Rm = Math.max(0.02, Math.min(1.5, 0.55 / Math.pow(cr_stage, 0.75)));' +
+      '    const m_mot_stage1 = EDA_tot / Rm;' +
+      '    const m_mot_tot = m_mot_stage1 * (nstages === 1 ? 1.0 : (nstages === 2 ? 1.7 : 2.4));' +
+      '    const P_pa = pmot_bara * 1e5;' +
+      '    const T_k = 445;' +
+      '    const Cd = 0.96;' +
+      '    const gamma = 1.3;' +
+      '    const R = 461.5;' +
+      '    const fliegner = Cd * P_pa * Math.sqrt((gamma / (R * T_k)) * Math.pow(2 / (gamma + 1), (gamma + 1) / (gamma - 1)));' +
+      '    const A_t = (m_mot_stage1 / 3600) / fliegner;' +
+      '    const d_nozzle_mm = Math.sqrt((4 * A_t) / Math.PI) * 1000;' +
+      '    const d_diff_mm = d_nozzle_mm * Math.sqrt(cr_stage) * 1.8;' +
+      '    const Q_cond_kw = ((m_mot_stage1 + m_water) * 2300) / 3600;' +
+      '    const cw_m3h = (Q_cond_kw * 3600) / (4.184 * 1000 * 7);' +
+      '    el("out-motive").innerText = Math.round(m_mot_tot);' +
+      '    el("out-cr").innerText = cr_tot.toFixed(1);' +
+      '    el("out-eda").innerText = EDA_tot.toFixed(1);' +
+      '    el("out-rm").innerText = Rm.toFixed(3);' +
+      '    el("out-crstage").innerText = cr_stage.toFixed(2);' +
+      '    el("out-dnozzle").innerText = d_nozzle_mm.toFixed(1);' +
+      '    el("out-ddiff").innerText = d_diff_mm.toFixed(1);' +
+      '    el("out-qcond").innerText = Math.round(Q_cond_kw);' +
+      '    el("out-cw").innerText = cw_m3h.toFixed(1);' +
+      '    const badge = el("out-eject-badge");' +
+      '    if (cr_stage <= 8.5) {' +
+      '      badge.innerText = "Optimal Stage Ratio (CR ≤ 8.5)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (cr_stage <= 12) {' +
+      '      badge.innerText = "High CR per Stage (Consider +1 Stage)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "STAGE CR OVERLOAD (CR > 12)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawEjector(d_nozzle_mm, d_diff_mm, nstages, psuc, pdis);' +
+      '  }' +
+      '  function drawEjector(dn, dd, nstages, psuc, pdis) {' +
+      '    const canvas = el("eject-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const eX = 50, eY = 130;' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(eX, eY - 20);' +
+      '    ctx.lineTo(eX + 50, eY - 20);' +
+      '    ctx.lineTo(eX + 110, eY - 45);' +
+      '    ctx.lineTo(eX + 150, eY - 18);' +
+      '    ctx.lineTo(eX + 260, eY - 18);' +
+      '    ctx.lineTo(eX + 380, eY - 40);' +
+      '    ctx.lineTo(eX + 380, eY + 40);' +
+      '    ctx.lineTo(eX + 260, eY + 18);' +
+      '    ctx.lineTo(eX + 150, eY + 18);' +
+      '    ctx.lineTo(eX + 110, eY + 45);' +
+      '    ctx.lineTo(eX + 50, eY + 20);' +
+      '    ctx.lineTo(eX, eY + 20);' +
+      '    ctx.closePath();' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(eX + 20, eY - 12);' +
+      '    ctx.lineTo(eX + 80, eY - 4);' +
+      '    ctx.lineTo(eX + 95, eY - 8);' +
+      '    ctx.lineTo(eX + 95, eY + 8);' +
+      '    ctx.lineTo(eX + 80, eY + 4);' +
+      '    ctx.lineTo(eX + 20, eY + 12);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#ef4444";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(eX - 25, eY);' +
+      '    ctx.lineTo(eX + 15, eY);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Motive Steam", eX - 45, eY - 8);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(eX + 110, eY - 65);' +
+      '    ctx.lineTo(eX + 110, eY - 45);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("Suction Gas (Ps=" + psuc.toFixed(1) + ")", eX + 45, eY - 70);' +
+      '    const jetGrad = ctx.createLinearGradient(eX + 95, 0, eX + 380, 0);' +
+      '    jetGrad.addColorStop(0, "rgba(239, 68, 68, 0.8)");' +
+      '    jetGrad.addColorStop(0.3, "rgba(234, 179, 8, 0.6)");' +
+      '    jetGrad.addColorStop(0.7, "rgba(59, 130, 246, 0.5)");' +
+      '    jetGrad.addColorStop(1, "rgba(148, 163, 184, 0.2)");' +
+      '    ctx.fillStyle = jetGrad;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(eX + 95, eY - 6);' +
+      '    ctx.lineTo(eX + 200, eY - 15);' +
+      '    ctx.lineTo(eX + 375, eY - 35);' +
+      '    ctx.lineTo(eX + 375, eY + 35);' +
+      '    ctx.lineTo(eX + 200, eY + 15);' +
+      '    ctx.lineTo(eX + 95, eY + 6);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillText("Supersonic Nozzle (dt = " + dn.toFixed(1) + " mm)", eX + 30, eY + 70);' +
+      '    ctx.fillText("Diffuser Throat (dd = " + dd.toFixed(1) + " mm)", eX + 180, eY + 50);' +
+      '    ctx.fillText("Discharge -> " + (nstages > 1 ? "Inter-Condenser" : "Atmosphere (Pd=" + pdis + ")"), eX + 240, eY + 70);' +
+      '  }' +
+      '  el("eject-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("eject-psuc").value = p.psuc;' +
+      '      el("eject-psuc-unit").value = p.psucu;' +
+      '      el("eject-pdis").value = p.pdis;' +
+      '      el("eject-air").value = p.air;' +
+      '      el("eject-water").value = p.water;' +
+      '      el("eject-nstages").value = p.nstages;' +
+      '      el("eject-pmot").value = p.pmot;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["eject-psuc","eject-psuc-unit","eject-pdis","eject-air","eject-water","eject-nstages","eject-pmot"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-eject").addEventListener("click", () => {' +
+      '    el("eject-preset").value = "distill";' +
+      '    el("eject-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-eject").addEventListener("click", () => {' +
+      '    const text = ["=== STEAM JET EJECTOR & VACUUM SYSTEM SIZING DIAGNOSTIC ===",' +
+      '      "Total Motive Steam Consumption: " + el("out-motive").innerText + " kg/h",' +
+      '      "Overall Compression Ratio: " + el("out-cr").innerText + "x (Per Stage: " + el("out-crstage").innerText + "x)",' +
+      '      "HEI Equivalent Dry Air (EDA): " + el("out-eda").innerText + " kg/h",' +
+      '      "Mass Entrainment Ratio (Rm): " + el("out-rm").innerText,' +
+      '      "Nozzle Throat Diameter: " + el("out-dnozzle").innerText + " mm",' +
+      '      "Diffuser Throat Diameter: " + el("out-ddiff").innerText + " mm",' +
+      '      "Inter-Condenser Thermal Duty: " + el("out-qcond").innerText + " kW (CW: " + el("out-cw").innerText + " m³/h)",' +
+      '      "Sizing Status: " + el("out-eject-badge").innerText,' +
+      '      "Suction Operating: Ps = " + el("eject-psuc").value + " " + el("eject-psuc-unit").value + ", Pd = " + el("eject-pdis").value + " mbar(a), Stages = " + el("eject-nstages").value + ", Motive Steam = " + el("eject-pmot").value + " bar(g)",' +
+      '      "Suction Load: Air = " + el("eject-air").value + " kg/h, Water Vapor = " + el("eject-water").value + " kg/h",' +
+      '      "Standard Validation: Heat Exchange Institute (HEI) Standards for Steam Jet Vacuum Systems"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("eject-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BT2: DIRECT CONTACT BAROMETRIC CONDENSER CALCULATOR ───
+  (() => {
+    const slug = 'direct-contact-barometric-condenser-calculator';
+    const title = 'Direct Contact Barometric Condenser & Tailpipe Sizing Calculator';
+    const metaDescription = 'Size direct contact barometric condensers and vertical tailpipes using HEI standards. Calculate cooling water demand, vessel diameter, barometric leg height, and hotwell seal volume.';
+    const faq = [
+      {
+        q: 'Why does a barometric condenser require a vertical leg over 10 meters tall?',
+        a: 'Under deep vacuum (e.g., 50 to 100 mbar absolute), internal condenser pressure is far below atmospheric pressure (1013 mbar). Atmospheric pressure acting on the open surface of the discharge hotwell supports a static column of water inside the vertical discharge pipe (tailpipe). For pure water at near full vacuum, this hydrostatic barometric head ($H_{baro} = \\Delta P / (\\rho g)$) equals approximately 9.8 to 10.1 meters. By elevating the condenser vessel 10.5 to 11.5 meters above the hotwell liquid level, cooling water and condensate drain continuously by gravity against atmospheric backpressure without requiring a mechanical extraction pump.'
+      },
+      {
+        q: 'What is the difference between a counter-current disc-and-doughnut and a spray barometric condenser?',
+        a: 'In a counter-current disc-and-doughnut (or tray) condenser, cooling water cascades downward over alternating circular discs and annular doughnut baffles, forming thin cylindrical water curtains. Process vapor enters near the bottom and travels upward through these curtains, condensing efficiently while non-condensable gases pass through the coldest incoming water at the top, achieving subcooling. In a spray-type condenser, pressurized nozzles atomize water into fine droplets; it has lower liquid-side pressure drop and resists fouling from suspended solids, but typically requires a higher terminal approach temperature (4°C to 8°C vs 2°C to 4°C for tray designs).'
+      },
+      {
+        q: 'What is the HEI 1.5x hotwell seal volume rule and why is it critical for plant safety?',
+        a: 'Heat Exchange Institute (HEI) standards dictate that the net liquid volume of the hotwell (seal pot) below the submerged tailpipe tip must be at least 1.5 times (and ideally 2.0 times) the entire internal geometric volume of the tailpipe. If the process suddenly trips, cooling water shuts off, or vacuum fails rapidly, the liquid level in the tailpipe drops into the hotwell. If the hotwell volume is insufficient, the tailpipe tip will uncover, allowing atmospheric air to violently rush up the column, causing catastrophic water hammer, implosion shock waves, and contamination of the upstream vacuum reactor.'
+      },
+      {
+        q: 'How does water temperature determine the maximum achievable vacuum in a barometric condenser?',
+        a: 'A direct contact condenser cannot operate at an absolute pressure below the vapor pressure of water at the tailpipe exit temperature ($T_{out}$). Furthermore, the exit water temperature is governed by the inlet cooling water temperature plus the condensation temperature rise ($T_{out} = T_{in} + \\Delta T_{rise}$). Because a positive approach temperature ($\\Delta T_{app} = T_{sat} - T_{out} \\ge 2.5^\\circ\\text{C}$) is mandatory for heat transfer, summer cooling water at 32°C cannot realistically pull process vacuum below 60–70 mbar without supplemental booster ejectors.'
+      },
+      {
+        q: 'How do dissolved gases in cooling tower water affect vacuum pump sizing?',
+        a: 'Raw cooling water pumped from atmospheric cooling towers is fully saturated with dissolved oxygen and nitrogen (roughly 20 to 25 mg/L or ppm by mass). When this water is sprayed into the high-vacuum chamber of a barometric condenser, Henry\'s Law causes virtually 100% of these dissolved gases to instantly flash out of solution into the vapor phase. This liberated gas load joins process air in-leakage, drastically increasing the load on the secondary air ejector or vacuum pump.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Direct Contact Barometric Condenser & Tailpipe Sizing Calculator</h1>' +
+      '    <p>Perform industrial thermal and hydraulic design of counter-current direct contact barometric condensers and vertical gravity drainage tailpipes based on Heat Exchange Institute (HEI) standards. Compute cooling water demand, vessel diameter, barometric height, hotwell seal volume, and non-condensable gas carryover.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Condenser Operating & Vapor Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-preset">Industrial Vacuum Service Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="baro-preset">' +
+      '            <option value="evap" selected>Multiple-Effect Evaporator Final Effect (120 mbar, 5,000 kg/h steam, 28°C water)</option>' +
+      '            <option value="distill">Chemical Vacuum Distillation Column Overhead (70 mbar, 2,500 kg/h vapor, 25°C water)</option>' +
+      '            <option value="cryst">Vacuum Flash Crystallizer Condenser (45 mbar, 8,000 kg/h steam, 22°C water)</option>' +
+      '            <option value="deaerator">Power Station Auxiliary Vent Condenser (160 mbar, 1,200 kg/h steam, 30°C water)</option>' +
+      '            <option value="custom">Custom Direct Contact System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-type">Condenser Internal Configuration</label>' +
+      '        <div class="input-row">' +
+      '          <select id="baro-type">' +
+      '            <option value="disc_doughnut" selected>Counter-Current Disc & Doughnut Trays (High Efficiency, Approach 2.5–3.5°C)</option>' +
+      '            <option value="spray">Counter-Current Spray Nozzle (Low Fouling, Approach 4.0–6.0°C)</option>' +
+      '            <option value="multijet">Co-Current Multi-Jet Spray (Self-Entraining Air, Approach 5.0–8.0°C)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-steam-flow">Process Steam / Vapor Mass Flow Rate (\(\dot{m}_v\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-steam-flow" value="5000" min="50" max="200000" step="100">' +
+      '          <select id="baro-steam-unit">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="lbh">lb/h</option>' +
+      '            <option value="tph">ton/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Inlet mass flow of condensing water vapor overhead</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-vac-press">Operating Vacuum Pressure (\(P_v\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-vac-press" value="120" min="15" max="800" step="1">' +
+      '          <select id="baro-press-unit">' +
+      '            <option value="mbar" selected>mbar (abs)</option>' +
+      '            <option value="mmhg">mmHg / Torr</option>' +
+      '            <option value="kpa">kPa (abs)</option>' +
+      '            <option value="inhg">inHg (abs)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Absolute pressure inside condenser body (120 mbar ≈ 90 mmHg, T_sat ≈ 49.4°C)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-steam-temp">Vapor Inlet Temperature (\(T_v\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-steam-temp" value="52" min="15" max="200" step="1">' +
+      '          <select id="baro-temp-unit">' +
+      '            <option value="c" selected>°C</option>' +
+      '            <option value="f">°F</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Superheated or saturated vapor temperature (typically 1–5°C superheat)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-nc-flow">Non-Condensable Gas Rate (Air In-Leakage) (\(\dot{m}_{nc}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-nc-flow" value="15" min="0" max="1000" step="1">' +
+      '          <select id="baro-nc-unit">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="lbh">lb/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Process air in-leakage and reaction off-gases</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-water-tin">Cooling Water Inlet Temperature (\(T_{w,in}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-water-tin" value="28" min="5" max="45" step="0.5">' +
+      '          <select id="baro-tin-unit">' +
+      '            <option value="c" selected>°C</option>' +
+      '            <option value="f">°F</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Supply water from cooling tower or plant cold water pond</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-approach">Terminal Approach Temperature (\(\Delta T_{app}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-approach" value="3.0" min="1.5" max="12" step="0.5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">°C</span>' +
+      '        </div>' +
+      '        <div class="hint">\(\Delta T_{app} = T_{sat} - T_{w,out}\). Tray: 2.5–3.5°C; Spray: 4–6°C</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-tailpipe-vel">Tailpipe Design Water Velocity (\(v_p\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-tailpipe-vel" value="1.5" min="0.8" max="2.5" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m/s</span>' +
+      '        </div>' +
+      '        <div class="hint">HEI recommends 1.2 to 1.8 m/s (avoids air entrainment or water hammer)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="baro-patm">Atmospheric Ambient Pressure (\(P_{atm}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="baro-patm" value="1013" min="700" max="1080" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mbar</span>' +
+      '        </div>' +
+      '        <div class="hint">Local atmospheric pressure (1013 mbar at sea level; lower at altitude)</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="baro-calc-btn">Recalculate Sizing</button>' +
+      '        <button type="button" class="btn btn-secondary" id="baro-reset-btn">Reset Defaults</button>' +
+      '      </div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Hydraulic & Thermal Sizing Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Saturation Temperature (\(T_{sat}\))</div>' +
+      '          <div class="res-val"><span id="res-tsat">49.4</span><span class="res-unit">°C</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Tailpipe Exit Water Temp (\(T_{out}\))</div>' +
+      '          <div class="res-val"><span id="res-tout">46.4</span><span class="res-unit">°C</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Cooling Water Demand</div>' +
+      '          <div class="res-val"><span id="res-water-flow">161.4</span><span class="res-unit">m³/h</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-water-kgh">159,800</span> kg/h</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Water-to-Steam Ratio (\(R\))</div>' +
+      '          <div class="res-val"><span id="res-ratio">32.0</span><span class="res-unit">kg/kg</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Condenser Vessel Diameter (\(D_c\))</div>' +
+      '          <div class="res-val"><span id="res-vessel-dia">1,250</span><span class="res-unit">mm</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-vessel-in">49.2</span> inches</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Tailpipe Nominal Diameter (\(D_p\))</div>' +
+      '          <div class="res-val"><span id="res-pipe-dia">200</span><span class="res-unit">mm (8")</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Actual Vel: <span id="res-pipe-vel">1.46</span> m/s</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Barometric Leg Height (\(H_{total}\))</div>' +
+      '          <div class="res-val"><span id="res-total-ht">10.85</span><span class="res-unit">m</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-total-ft">35.6</span> ft (above hotwell)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Hotwell Seal Working Volume</div>' +
+      '          <div class="res-val"><span id="res-hotwell-vol">605</span><span class="res-unit">L</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">HEI 1.5× pipe volume: <span id="res-pipe-vol">403</span> L</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Condenser Thermal Duty (\(Q\))</div>' +
+      '          <div class="res-val"><span id="res-heat-duty">3,435</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Non-Condensable Vapor Load</div>' +
+      '          <div class="res-val"><span id="res-nc-total">22.4</span><span class="res-unit">kg/h</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Subcooled air + sat vapor</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="badge-stat" id="baro-eval-badge" style="background:#dcfce7; color:#15803d;">✓ HEI Sizing Valid: Hydrostatic Barometric Head Stable</span>' +
+      '      </div>' +
+      '      <div class="btn-row" style="margin-top:0;">' +
+      '        <button type="button" class="btn btn-secondary" id="baro-copy-btn">📋 Copy Diagnostic Summary</button>' +
+      '        <span class="copy-toast" id="baro-toast">✓ Diagnostic Summary Copied!</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="baro-canvas" width="480" height="340"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- DERIVATION & TECHNICAL SPECIFICATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Governing Equations (HEI Standards)</h2>' +
+      '    <p>A direct contact barometric condenser achieves high thermal efficiency by injecting cooling water directly into process vapor inside a vertical vessel elevated on a tall drainage leg (tailpipe). Because there is no metallic heat exchange wall, fouling resistance is zero and the cold water mixes intimately with the condensing steam. Gravity discharges the combined effluent into an atmospheric hotwell.</p>' +
+      '    <h3>1. Thermal Energy & Mass Balance</h3>' +
+      '    <p>The cooling water mass flow rate (\(\dot{M}_w\)) is determined from the first law of thermodynamics, equating the enthalpy loss of the condensing process vapor and cooling of non-condensables to the enthalpy gain of the cooling water:</p>' +
+      '    <div class="formula-box">' +
+      '      \dot{M}_w = \frac{\dot{m}_v \cdot [h_{v}(T_v, P) - h_{L}(T_{out})] + \dot{m}_{nc} \cdot C_{p,nc} \cdot (T_v - T_{nc,out})}{C_{p,w} \cdot (T_{out} - T_{in})}' +
+      '    </div>' +
+      '    <p>Where \(h_v\) is vapor enthalpy (latent heat \(\lambda \approx 2380\text{--}2430\,\text{kJ/kg}\) at vacuum), \(h_L\) is condensate enthalpy at discharge temperature \(T_{out}\), and \(C_{p,w} \approx 4.184\,\text{kJ/(kg}\cdot\text{K)}\). The discharge water temperature is dictated by the terminal approach temperature \(\Delta T_{app}\):</p>' +
+      '    <div class="formula-box">' +
+      '      T_{out} = T_{sat}(P) - \Delta T_{app}' +
+      '    </div>' +
+      '    <p>Water-to-steam ratio is expressed as \(R = \dot{M}_w / \dot{m}_v\). For a typical approach of 3°C and cooling water temperature rise \(\Delta T_w = 18^\circ\text{C}\), \(R \approx 2430 / (4.184 \times 18) \approx 32.3\,\text{kg water / kg steam}\).</p>' +
+      '    <h3>2. Barometric Leg (Tailpipe) Hydrostatic Elevation</h3>' +
+      '    <p>The total vertical distance from the maximum liquid level in the hotwell to the bottom head flange of the condenser (\(H_{total}\)) must overcome the atmospheric pressure differential, pipe friction losses, velocity head, and provide a mandatory safety margin:</p>' +
+      '    <div class="formula-box">' +
+      '      H_{total} = H_{baro} + \Delta H_{f} + \frac{v_p^2}{2g} + H_{safety} = \frac{P_{atm} - P_{v}}{\rho_w \cdot g} + \left(f \frac{L_p}{D_p} + \Sigma K\right) \frac{v_p^2}{2g} + \frac{v_p^2}{2g} + H_{safety}' +
+      '    </div>' +
+      '    <p>At sea level (\(P_{atm} = 1013.25\,\text{mbar}\)) and operating vacuum of \(120\,\text{mbar}\), \(\Delta P = 893.25\,\text{mbar} = 89,325\,\text{Pa}\). With warm effluent density \(\rho_w \approx 990\,\text{kg/m}^3\), the static barometric head is \(H_{baro} = 89325 / (990 \times 9.81) = 9.20\,\text{m}\). Adding friction, velocity head, and the HEI minimum safety margin (\(0.75\text{--}1.5\,\text{m}\)) yields a standard installation height of \(10.5\text{--}11.5\,\text{m}\) (34 to 38 feet).</p>' +
+      '    <h3>3. Condenser Vessel Diameter (Souders-Brown De-Entrainment)</h3>' +
+      '    <p>To prevent ascending process vapor from entraining descending water droplets upward into the vacuum pump suction port, the superficial vapor velocity \(u_v\) must remain below the Souders-Brown terminal velocity:</p>' +
+      '    <div class="formula-box">' +
+      '      u_{max} = K_{SB} \cdot \sqrt{\frac{\rho_L - \rho_G}{\rho_G}}, \quad D_c = \sqrt{\frac{4 \cdot \dot{V}_v}{\pi \cdot u_{design}}}' +
+      '    </div>' +
+      '    <p>Where \(K_{SB} \approx 0.055\text{--}0.075\,\text{m/s}\) for disc-and-doughnut baffle systems per HEI guidelines.</p>' +
+      '    <h3>4. Hotwell (Seal Pot) Retention Volume (HEI 1.5× Rule)</h3>' +
+      '    <p>HEI standards specify that the volume of the hotwell below the bottom rim of the tailpipe weir must be at least 1.5 times the total interior volume of the tailpipe:</p>' +
+      '    <div class="formula-box">' +
+      '      V_{pipe} = \frac{\pi}{4} D_p^2 \cdot H_{total}, \quad V_{hotwell} \ge 1.5 \cdot V_{pipe}' +
+      '    </div>' +
+      '    <p>This ensures that during a sudden loss of vacuum or cooling water stoppage, the tailpipe will fill with atmospheric water without draining the hotwell dry and breaking the hydraulic seal.</p>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Barometric Condensers</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. The Siphon Water Hammer & Seal Loss Catastrophe</h4>' +
+      '      <p>Designing a hotwell with inadequate liquid volume (<1.5× tailpipe volume) or insufficient pipe submergence (<150 mm) is disastrous. If cooling water stops abruptly while the vessel remains under vacuum, water is drawn up the tailpipe. If the hotwell empties below the pipe lip, atmospheric air rushes up the column at high velocity, collapsing the water column and causing devastating hydraulic water hammer that ruptures condenser heads and destroys upstream vacuum reactors.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Non-Condensable De-entrainment & Subcooling Starvation</h4>' +
+      '      <p>In counter-current designs, non-condensable gases must exit at the top after passing through the coldest incoming water. If the top baffle tray is bypassed, damaged, or fouled, non-condensables leave at saturated vapor temperature rather than subcooled temperature. Because saturated water vapor pressure doubles every ~10°C, losing subcooling multiplies the water vapor carryover into the vacuum pump by 300% to 500%, overloading ejectors and causing vacuum collapse.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Tailpipe Air Entrainment from Excessive Water Velocity</h4>' +
+      '      <p>Sizing the tailpipe for downward water velocity above 2.0–2.2 m/s causes severe vortexing and air bubble entrainment. Air sucked down the pipe accumulates in pockets that periodically break free and burp upward, triggering intense pressure fluctuations, cyclical vacuum pulsing, and violent vibrations throughout the 11-meter pipe support structure. Maintain design velocity between 1.2 and 1.8 m/s.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Dissolved Gas Desorption Flash Overlooking</h4>' +
+      '      <p>Standard cooling tower water carries 20–25 mg/L of dissolved oxygen and nitrogen. When 160 m³/h of water enters a 120 mbar vacuum chamber, Henry\'s Law drives nearly 4 kg/h of dissolved air out of solution. Engineers who size the vacuum pump solely on equipment air in-leakage without accounting for dissolved gas flashing will find their vacuum pump perpetually undersized by 30% to 50%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Vapor Velocity Entrainment Flooding (Vessel Undersizing)</h4>' +
+      '      <p>Using undersized vessel diameters drives superficial vapor velocity above the Souders-Brown limit (u > 0.08 m/s at vacuum). High-velocity vapor tears droplets off descending water curtains and carries them directly into the vacuum pump suction nozzle, eroding vacuum pump impellers, contaminating lubricant oil, and drowning steam ejector diffusers.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions</h2>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">Why does a barometric condenser require a vertical leg over 10 meters tall? <span>+</span></div>' +
+      '      <div class="faq-a">Under deep vacuum (e.g., 50 to 100 mbar absolute), internal condenser pressure is far below atmospheric pressure (1013 mbar). Atmospheric pressure acting on the open surface of the discharge hotwell supports a static column of water inside the vertical discharge pipe (tailpipe). For pure water at near full vacuum, this hydrostatic barometric head (\(H_{baro} = \Delta P / (\rho g)\)) equals approximately 9.8 to 10.1 meters. By elevating the condenser vessel 10.5 to 11.5 meters above the hotwell liquid level, cooling water and condensate drain continuously by gravity against atmospheric backpressure without requiring a mechanical extraction pump.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the difference between a counter-current disc-and-doughnut and a spray barometric condenser? <span>+</span></div>' +
+      '      <div class="faq-a">In a counter-current disc-and-doughnut (or tray) condenser, cooling water cascades downward over alternating circular discs and annular doughnut baffles, forming thin cylindrical water curtains. Process vapor enters near the bottom and travels upward through these curtains, condensing efficiently while non-condensable gases pass through the coldest incoming water at the top, achieving subcooling. In a spray-type condenser, pressurized nozzles atomize water into fine droplets; it has lower liquid-side pressure drop and resists fouling from suspended solids, but typically requires a higher terminal approach temperature (4°C to 8°C vs 2°C to 4°C for tray designs).</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the HEI 1.5x hotwell seal volume rule and why is it critical for plant safety? <span>+</span></div>' +
+      '      <div class="faq-a">Heat Exchange Institute (HEI) standards dictate that the net liquid volume of the hotwell (seal pot) below the submerged tailpipe tip must be at least 1.5 times (and ideally 2.0 times) the entire internal geometric volume of the tailpipe. If the process suddenly trips, cooling water shuts off, or vacuum fails rapidly, the liquid level in the tailpipe drops into the hotwell. If the hotwell volume is insufficient, the tailpipe tip will uncover, allowing atmospheric air to violently rush up the column, causing catastrophic water hammer, implosion shock waves, and contamination of the upstream vacuum reactor.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does water temperature determine the maximum achievable vacuum in a barometric condenser? <span>+</span></div>' +
+      '      <div class="faq-a">A direct contact condenser cannot operate at an absolute pressure below the vapor pressure of water at the tailpipe exit temperature (\(T_{out}\)). Furthermore, the exit water temperature is governed by the inlet cooling water temperature plus the condensation temperature rise (\(T_{out} = T_{in} + \Delta T_{rise}\)). Because a positive approach temperature (\(\Delta T_{app} = T_{sat} - T_{out} \ge 2.5^\circ\text{C}\)) is mandatory for heat transfer, summer cooling water at 32°C cannot realistically pull process vacuum below 60–70 mbar without supplemental booster ejectors.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How do dissolved gases in cooling tower water affect vacuum pump sizing? <span>+</span></div>' +
+      '      <div class="faq-a">Raw cooling water pumped from atmospheric cooling towers is fully saturated with dissolved oxygen and nitrogen (roughly 20 to 25 mg/L or ppm by mass). When this water is sprayed into the high-vacuum chamber of a barometric condenser, Henry\'s Law causes virtually 100% of these dissolved gases to instantly flash out of solution into the vapor phase. This liberated gas load joins process air in-leakage, drastically increasing the load on the secondary air ejector or vacuum pump.</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const presets = {' +
+      '    evap: { flow: 5000, flowUnit: "kgh", vac: 120, vacUnit: "mbar", temp: 52, tempUnit: "c", nc: 15, ncUnit: "kgh", tin: 28, tinUnit: "c", app: 3.0, vel: 1.5, type: "disc_doughnut" },' +
+      '    distill: { flow: 2500, flowUnit: "kgh", vac: 70, vacUnit: "mbar", temp: 42, tempUnit: "c", nc: 8, ncUnit: "kgh", tin: 25, tinUnit: "c", app: 3.0, vel: 1.4, type: "disc_doughnut" },' +
+      '    cryst: { flow: 8000, flowUnit: "kgh", vac: 45, vacUnit: "mbar", temp: 35, tempUnit: "c", nc: 22, ncUnit: "kgh", tin: 22, tinUnit: "c", app: 3.5, vel: 1.6, type: "disc_doughnut" },' +
+      '    deaerator: { flow: 1200, flowUnit: "kgh", vac: 160, vacUnit: "mbar", temp: 60, tempUnit: "c", nc: 25, ncUnit: "kgh", tin: 30, tinUnit: "c", app: 4.5, vel: 1.3, type: "spray" }' +
+      '  };' +
+      '  const el = id => document.getElementById(id);' +
+      '  const getVal = id => parseFloat(el(id).value) || 0;' +
+      '  const setTxt = (id, txt) => { if(el(id)) el(id).textContent = txt; };' +
+      '  ' +
+      '  function getP_mmHg(p, unit) {' +
+      '    if (unit === "mbar") return p * 0.750062;' +
+      '    if (unit === "kpa") return p * 7.50062;' +
+      '    if (unit === "inhg") return p * 25.4;' +
+      '    return p;' +
+      '  }' +
+      '  function getFlow_kgh(flow, unit) {' +
+      '    if (unit === "lbh") return flow * 0.453592;' +
+      '    if (unit === "tph") return flow * 1000;' +
+      '    return flow;' +
+      '  }' +
+      '  function getTemp_C(temp, unit) {' +
+      '    if (unit === "f") return (temp - 32) * 5 / 9;' +
+      '    return temp;' +
+      '  }' +
+      '  ' +
+      '  function getWaterSatTemp(p_mmHg) {' +
+      '    const p = Math.max(1, p_mmHg);' +
+      '    const A = 18.3036, B = 3816.44, C = -46.13;' +
+      '    const T_K = B / (A - Math.log(p)) - C;' +
+      '    return T_K - 273.15;' +
+      '  }' +
+      '  function getWaterSatPressure_mmHg(T_c) {' +
+      '    const T_k = T_c + 273.15;' +
+      '    const A = 18.3036, B = 3816.44, C = -46.13;' +
+      '    const lnP = A - (B / (T_k + C));' +
+      '    return Math.exp(lnP);' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const rawFlow = getVal("baro-steam-flow");' +
+      '    const flowUnit = el("baro-steam-unit").value;' +
+      '    const mv_kgh = getFlow_kgh(rawFlow, flowUnit);' +
+      '    ' +
+      '    const rawVac = getVal("baro-vac-press");' +
+      '    const vacUnit = el("baro-press-unit").value;' +
+      '    const p_mmHg = getP_mmHg(rawVac, vacUnit);' +
+      '    const p_mbar = p_mmHg / 0.750062;' +
+      '    ' +
+      '    const rawTv = getVal("baro-steam-temp");' +
+      '    const tv_c = getTemp_C(rawTv, el("baro-temp-unit").value);' +
+      '    ' +
+      '    const rawNc = getVal("baro-nc-flow");' +
+      '    const mnc_kgh = getFlow_kgh(rawNc, el("baro-nc-unit").value);' +
+      '    ' +
+      '    const rawTin = getVal("baro-water-tin");' +
+      '    const tin_c = getTemp_C(rawTin, el("baro-tin-unit").value);' +
+      '    ' +
+      '    const dt_app = Math.max(1.0, getVal("baro-approach"));' +
+      '    const v_pipe = Math.max(0.5, getVal("baro-tailpipe-vel"));' +
+      '    const patm_mbar = Math.max(700, getVal("baro-patm"));' +
+      '    const condType = el("baro-type").value;' +
+      '    ' +
+      '    const tsat_c = getWaterSatTemp(p_mmHg);' +
+      '    const tout_c = tsat_c - dt_app;' +
+      '    ' +
+      '    let valid = true;' +
+      '    let badgeTxt = "✓ HEI Sizing Valid: Hydrostatic Barometric Head Stable";' +
+      '    let badgeBg = "#dcfce7", badgeColor = "#15803d";' +
+      '    ' +
+      '    if (tout_c <= tin_c) {' +
+      '      valid = false;' +
+      '      badgeTxt = "⚠ Thermal Pinch: Cooling water inlet temperature exceeds exit temperature limit";' +
+      '      badgeBg = "#fee2e2"; badgeColor = "#b91c1c";' +
+      '    }' +
+      '    ' +
+      '    const deltaTw = Math.max(0.5, tout_c - tin_c);' +
+      '    const h_fg = 2420; // kJ/kg average at vacuum' +
+      '    const cp_w = 4.184; // kJ/kg.K' +
+      '    ' +
+      '    // Enthalpy released by vapor condensing & subcooling to tout' +
+      '    const q_steam_kw = (mv_kgh / 3600) * (h_fg + 1.88 * Math.max(0, tv_c - tsat_c) + cp_w * (tsat_c - tout_c));' +
+      '    const q_nc_kw = (mnc_kgh / 3600) * 1.005 * Math.max(0, tv_c - (tin_c + 2));' +
+      '    const q_total_kw = q_steam_kw + q_nc_kw;' +
+      '    ' +
+      '    // Water mass flow' +
+      '    const mw_kgh = (q_total_kw * 3600) / (cp_w * deltaTw);' +
+      '    const rho_water = 990; // kg/m3 for warm water' +
+      '    const mw_m3h = mw_kgh / rho_water;' +
+      '    const ratio_R = mv_kgh > 0 ? (mw_kgh / mv_kgh) : 0;' +
+      '    ' +
+      '    // Total liquid flow leaving tailpipe' +
+      '    const q_total_liquid_m3s = (mw_kgh + mv_kgh) / (rho_water * 3600);' +
+      '    ' +
+      '    // Tailpipe diameter' +
+      '    const a_pipe = q_total_liquid_m3s / v_pipe;' +
+      '    const d_pipe_m = Math.sqrt((4 * a_pipe) / Math.PI);' +
+      '    const d_pipe_mm = Math.round(d_pipe_m * 1000);' +
+      '    ' +
+      '    // Standard pipe size mapping (approximate schedule)' +
+      '    let nominalPipe = "DN " + d_pipe_mm;' +
+      '    if (d_pipe_mm <= 110) nominalPipe = "100 mm (4\")";' +
+      '    else if (d_pipe_mm <= 165) nominalPipe = "150 mm (6\")";' +
+      '    else if (d_pipe_mm <= 220) nominalPipe = "200 mm (8\")";' +
+      '    else if (d_pipe_mm <= 275) nominalPipe = "250 mm (10\")";' +
+      '    else if (d_pipe_mm <= 330) nominalPipe = "300 mm (12\")";' +
+      '    else if (d_pipe_mm <= 380) nominalPipe = "350 mm (14\")";' +
+      '    else if (d_pipe_mm <= 430) nominalPipe = "400 mm (16\")";' +
+      '    else if (d_pipe_mm <= 530) nominalPipe = "500 mm (20\")";' +
+      '    else nominalPipe = "DN " + d_pipe_mm;' +
+      '    ' +
+      '    // Barometric height calculations' +
+      '    const deltaP_pa = Math.max(0, (patm_mbar - p_mbar) * 100);' +
+      '    const h_baro_m = deltaP_pa / (rho_water * 9.81);' +
+      '    ' +
+      '    // Dynamic losses: friction in tailpipe + entrance/exit (approx 10m length, f=0.02)' +
+      '    const v_actual = q_total_liquid_m3s / (Math.PI * Math.pow(d_pipe_m / 2, 2));' +
+      '    const h_fric_m = (0.02 * (11 / Math.max(0.05, d_pipe_m)) + 1.5) * (Math.pow(v_actual, 2) / (2 * 9.81));' +
+      '    const h_safe_m = 1.0; // 1 meter HEI margin' +
+      '    const h_total_m = h_baro_m + h_fric_m + h_safe_m;' +
+      '    const h_total_ft = h_total_m * 3.28084;' +
+      '    ' +
+      '    // Hotwell volume (HEI 1.5x internal pipe volume)' +
+      '    const pipe_vol_m3 = (Math.PI / 4) * Math.pow(d_pipe_m, 2) * h_total_m;' +
+      '    const pipe_vol_L = pipe_vol_m3 * 1000;' +
+      '    const hotwell_vol_L = pipe_vol_L * 1.5;' +
+      '    ' +
+      '    // Condenser vessel diameter sizing (Souders-Brown)' +
+      '    // Vapor specific volume at vacuum' +
+      '    const p_pa = p_mbar * 100;' +
+      '    const rho_vapor = (p_pa * 18.015) / (8314 * (tsat_c + 273.15));' +
+      '    const k_sb = condType === "spray" ? 0.05 : 0.065;' +
+      '    const u_max = k_sb * Math.sqrt((rho_water - rho_vapor) / rho_vapor);' +
+      '    const u_design = u_max * 0.75; // 75% of flooding limit' +
+      '    const vapor_vol_m3s = (mv_kgh / 3600) / rho_vapor;' +
+      '    const a_vessel = vapor_vol_m3s / Math.max(0.5, u_design);' +
+      '    const d_vessel_m = Math.sqrt((4 * a_vessel) / Math.PI);' +
+      '    const d_vessel_mm = Math.round(d_vessel_m * 1000);' +
+      '    const d_vessel_in = d_vessel_mm / 25.4;' +
+      '    ' +
+      '    // Non-condensable carryover vapor calculation (saturated at subcooled top temp)' +
+      '    const t_top_c = tin_c + 2.0; // gas subcooled to near water inlet' +
+      '    const p_sat_top_mmHg = getWaterSatPressure_mmHg(t_top_c);' +
+      '    const p_sat_top_mbar = p_sat_top_mmHg / 0.750062;' +
+      '    let vapor_carried_kgh = 0;' +
+      '    if (p_mbar > p_sat_top_mbar) {' +
+      '      vapor_carried_kgh = mnc_kgh * (p_sat_top_mbar / (p_mbar - p_sat_top_mbar)) * (18.015 / 28.97);' +
+      '    } else {' +
+      '      vapor_carried_kgh = mnc_kgh * 1.5;' +
+      '    }' +
+      '    const total_nc_load_kgh = mnc_kgh + vapor_carried_kgh;' +
+      '    ' +
+      '    // Set DOM outputs' +
+      '    setTxt("res-tsat", tsat_c.toFixed(1));' +
+      '    setTxt("res-tout", tout_c.toFixed(1));' +
+      '    setTxt("res-water-flow", mw_m3h.toFixed(1));' +
+      '    setTxt("res-water-kgh", Math.round(mw_kgh).toLocaleString());' +
+      '    setTxt("res-ratio", ratio_R.toFixed(1));' +
+      '    setTxt("res-vessel-dia", d_vessel_mm.toLocaleString());' +
+      '    setTxt("res-vessel-in", d_vessel_in.toFixed(1));' +
+      '    setTxt("res-pipe-dia", nominalPipe);' +
+      '    setTxt("res-pipe-vel", v_actual.toFixed(2));' +
+      '    setTxt("res-total-ht", h_total_m.toFixed(2));' +
+      '    setTxt("res-total-ft", h_total_ft.toFixed(1));' +
+      '    setTxt("res-hotwell-vol", Math.round(hotwell_vol_L).toLocaleString());' +
+      '    setTxt("res-pipe-vol", Math.round(pipe_vol_L).toLocaleString());' +
+      '    setTxt("res-heat-duty", Math.round(q_total_kw).toLocaleString());' +
+      '    setTxt("res-nc-total", total_nc_load_kgh.toFixed(1));' +
+      '    ' +
+      '    const badge = el("baro-eval-badge");' +
+      '    if (badge) {' +
+      '      badge.textContent = badgeTxt;' +
+      '      badge.style.background = badgeBg;' +
+      '      badge.style.color = badgeColor;' +
+      '    }' +
+      '    ' +
+      '    drawCanvas(d_vessel_mm, d_pipe_mm, h_total_m, h_baro_m, condType);' +
+      '  }' +
+      '  ' +
+      '  function drawCanvas(diaVessel, diaPipe, hTotal, hBaro, condType) {' +
+      '    const cvs = el("baro-canvas");' +
+      '    if (!cvs) return;' +
+      '    const ctx = cvs.getContext("2d");' +
+      '    const w = cvs.width, h = cvs.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background grid' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ctx.strokeStyle = "#1e293b";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }' +
+      '    for(let y=0; y<h; y+=30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }' +
+      '    ' +
+      '    // Coordinates' +
+      '    const cx = w * 0.42;' +
+      '    const vTop = 35;' +
+      '    const vH = 95;' +
+      '    const vW = Math.min(100, Math.max(50, diaVessel / 18));' +
+      '    ' +
+      '    // Condenser vessel body' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.roundRect(cx - vW/2, vTop, vW, vH, [12, 12, 4, 4]);' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Conical bottom transition' +
+      '    const pW = Math.min(24, Math.max(10, diaPipe / 18));' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - vW/2, vTop + vH);' +
+      '    ctx.lineTo(cx - pW/2, vTop + vH + 20);' +
+      '    ctx.lineTo(cx + pW/2, vTop + vH + 20);' +
+      '    ctx.lineTo(cx + vW/2, vTop + vH);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Tailpipe descending' +
+      '    const pipeTop = vTop + vH + 20;' +
+      '    const hotwellY = h - 60;' +
+      '    const pipeBottom = hotwellY + 35;' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.fillRect(cx - pW/2, pipeTop, pW, pipeBottom - pipeTop);' +
+      '    ctx.strokeRect(cx - pW/2, pipeTop, pW, pipeBottom - pipeTop);' +
+      '    ' +
+      '    // Hotwell tank' +
+      '    const hwW = 120, hwH = 50;' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.strokeRect(cx - hwW/2, hotwellY, hwW, hwH);' +
+      '    ' +
+      '    // Water in hotwell' +
+      '    ctx.fillStyle = "rgba(2, 132, 199, 0.45)";' +
+      '    ctx.fillRect(cx - hwW/2 + 2, hotwellY + 12, hwW - 4, hwH - 14);' +
+      '    ' +
+      '    // Water inside tailpipe (barometric column)' +
+      '    ctx.fillStyle = "rgba(56, 189, 248, 0.65)";' +
+      '    ctx.fillRect(cx - pW/2 + 1, pipeTop, pW - 2, pipeBottom - pipeTop);' +
+      '    ' +
+      '    // Water cascades inside condenser' +
+      '    if (condType === "disc_doughnut") {' +
+      '      ctx.fillStyle = "#0284c7";' +
+      '      // 3 Baffle trays' +
+      '      ctx.fillRect(cx - vW/2 + 4, vTop + 24, vW * 0.7, 4);' +
+      '      ctx.fillRect(cx + vW/2 - vW * 0.7 - 4, vTop + 48, vW * 0.7, 4);' +
+      '      ctx.fillRect(cx - vW/2 + 4, vTop + 72, vW * 0.7, 4);' +
+      '      // Water droplets' +
+      '      ctx.strokeStyle = "#7dd3fc";' +
+      '      ctx.setLineDash([2, 4]);' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(cx + 8, vTop + 28); ctx.lineTo(cx + 8, vTop + 48);' +
+      '      ctx.moveTo(cx - 8, vTop + 52); ctx.lineTo(cx - 8, vTop + 72);' +
+      '      ctx.stroke();' +
+      '      ctx.setLineDash([]);' +
+      '    } else {' +
+      '      // Spray pattern' +
+      '      ctx.strokeStyle = "#38bdf8";' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(cx, vTop + 25, 12, 0, Math.PI);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Water inlet pipe (top)' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - vW/2 - 25, vTop + 16);' +
+      '    ctx.lineTo(cx - vW/2, vTop + 16);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Cooling Water", cx - vW/2 - 80, vTop + 14);' +
+      '    ' +
+      '    // Vapor inlet pipe (lower side)' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.lineWidth = 4;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx + vW/2 + 25, vTop + 85);' +
+      '    ctx.lineTo(cx + vW/2, vTop + 85);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillText("Process Vapor", cx + vW/2 + 30, vTop + 88);' +
+      '    ' +
+      '    // Non-condensables takeoff (top)' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, vTop);' +
+      '    ctx.lineTo(cx, vTop - 18);' +
+      '    ctx.lineTo(cx + 45, vTop - 18);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("To Vacuum Pump (NC Gas)", cx + 10, vTop - 24);' +
+      '    ' +
+      '    // Dimension lines & annotations' +
+      '    ctx.strokeStyle = "#a855f7";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    // Height annotation' +
+      '    const dimX = cx + hwW/2 + 25;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(dimX, pipeTop);' +
+      '    ctx.lineTo(dimX, hotwellY + 12);' +
+      '    ctx.moveTo(dimX - 5, pipeTop); ctx.lineTo(dimX + 5, pipeTop);' +
+      '    ctx.moveTo(dimX - 5, hotwellY + 12); ctx.lineTo(dimX + 5, hotwellY + 12);' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    ctx.fillStyle = "#c084fc";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("H_total: " + hTotal.toFixed(1) + " m", dimX + 8, (pipeTop + hotwellY) / 2);' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("H_baro: " + hBaro.toFixed(1) + " m", dimX + 8, (pipeTop + hotwellY) / 2 + 15);' +
+      '    ' +
+      '    // Vessel diameter annotation' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Dc: " + diaVessel + " mm", cx - vW/2, vTop + vH + 14);' +
+      '    ' +
+      '    // Hotwell label' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillText("Hotwell Seal Pot (HEI 1.5×)", cx - 65, h - 14);' +
+      '  }' +
+      '  ' +
+      '  // Event listeners' +
+      '  const inputs = [' +
+      '    "baro-steam-flow", "baro-steam-unit", "baro-vac-press", "baro-press-unit",' +
+      '    "baro-steam-temp", "baro-temp-unit", "baro-nc-flow", "baro-nc-unit",' +
+      '    "baro-water-tin", "baro-tin-unit", "baro-approach", "baro-tailpipe-vel",' +
+      '    "baro-patm", "baro-type"' +
+      '  ];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const presetEl = el("baro-preset");' +
+      '  if (presetEl) {' +
+      '    presetEl.addEventListener("change", () => {' +
+      '      const p = presets[presetEl.value];' +
+      '      if (p) {' +
+      '        el("baro-steam-flow").value = p.flow;' +
+      '        el("baro-steam-unit").value = p.flowUnit;' +
+      '        el("baro-vac-press").value = p.vac;' +
+      '        el("baro-press-unit").value = p.vacUnit;' +
+      '        el("baro-steam-temp").value = p.temp;' +
+      '        el("baro-temp-unit").value = p.tempUnit;' +
+      '        el("baro-nc-flow").value = p.nc;' +
+      '        el("baro-nc-unit").value = p.ncUnit;' +
+      '        el("baro-water-tin").value = p.tin;' +
+      '        el("baro-tin-unit").value = p.tinUnit;' +
+      '        el("baro-approach").value = p.app;' +
+      '        el("baro-tailpipe-vel").value = p.vel;' +
+      '        el("baro-type").value = p.type;' +
+      '        calc();' +
+      '      }' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const resetBtn = el("baro-reset-btn");' +
+      '  if (resetBtn) {' +
+      '    resetBtn.addEventListener("click", () => {' +
+      '      presetEl.value = "evap";' +
+      '      presetEl.dispatchEvent(new Event("change"));' +
+      '    });' +
+      '  }' +
+      '  const calcBtn = el("baro-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("baro-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== DIRECT CONTACT BAROMETRIC CONDENSER SIZING REPORT (HEI) ===",' +
+      '        "Process Vapor Flow: " + el("baro-steam-flow").value + " " + el("baro-steam-unit").value,' +
+      '        "Vacuum Operating Pressure: " + el("baro-vac-press").value + " " + el("baro-press-unit").value,' +
+      '        "Vapor Saturation Temp (T_sat): " + el("res-tsat").textContent + " °C",' +
+      '        "Effluent Exit Water Temp (T_out): " + el("res-tout").textContent + " °C",' +
+      '        "Cooling Water Demand: " + el("res-water-flow").textContent + " m³/h (" + el("res-water-kgh").textContent + " kg/h)",' +
+      '        "Water-to-Steam Ratio (R): " + el("res-ratio").textContent + " kg/kg",' +
+      '        "Condenser Vessel Diameter: " + el("res-vessel-dia").textContent + " mm (" + el("res-vessel-in").textContent + " in)",' +
+      '        "Tailpipe Nominal Diameter: " + el("res-pipe-dia").textContent,' +
+      '        "Total Barometric Elevation (H_total): " + el("res-total-ht").textContent + " m (" + el("res-total-ft").textContent + " ft)",' +
+      '        "Hotwell Working Volume (HEI 1.5x): " + el("res-hotwell-vol").textContent + " L",' +
+      '        "Thermal Heat Duty: " + el("res-heat-duty").textContent + " kW",' +
+      '        "Non-Condensable + Saturated Vapor Load: " + el("res-nc-total").textContent + " kg/h",' +
+      '        "Status: " + el("baro-eval-badge").textContent,' +
+      '        "Standard: Heat Exchange Institute (HEI) Standards for Direct Contact Barometric Condensers"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("baro-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BT3: CATALYTIC FIXED-BED REACTOR ERGUN PRESSURE DROP CALCULATOR ───
+  (() => {
+    const slug = 'catalytic-fixed-bed-ergun-pressure-drop-calculator';
+    const title = 'Catalytic Fixed-Bed Reactor Ergun Pressure Drop & Pellet Shape Calculator';
+    const metaDescription = 'Calculate pressure drop across catalytic fixed-bed reactors using the compressible Ergun equation. Sizing for spheres, cylindrical extrudates, trilobes, and Raschig rings with fluidization risk analysis.';
+    const faq = [
+      {
+        q: 'What is the Ergun equation and how does it combine laminar and turbulent flow in packed beds?',
+        a: 'The Ergun equation (1952) predicts the frictional pressure gradient ($-\\Delta P / L$) of a fluid traversing a packed bed of solid particles. It unifies the Kozeny-Carman equation for viscous/laminar flow ($Re_p < 10$, proportional to fluid velocity $u_s$) and the Burke-Plummer equation for inertial/turbulent flow ($Re_p > 1000$, proportional to velocity squared $u_s^2$):\\n$$\\frac{\\Delta P}{L} = 150 \\frac{(1 - \\epsilon)^2}{\\epsilon^3} \\frac{\\mu \\cdot u_s}{d_p^2} + 1.75 \\frac{1 - \\epsilon}{\\epsilon^3} \\frac{\\rho \\cdot u_s^2}{d_p}$$\\nWhere $\\epsilon$ is bed void fraction, $\\mu$ is dynamic viscosity, $\\rho$ is fluid density, $u_s$ is superficial velocity, and $d_p$ is equivalent particle diameter.'
+      },
+      {
+        q: 'Why must compressible gas flow equations be used when pressure drop exceeds 10% to 15% of inlet pressure?',
+        a: 'In deep catalytic reactors (such as hydrocrackers, ammonia converters, and Claus beds), pressure drop can exceed 0.5 to 2 bar. As gas flows through the bed and pressure drops, gas density decreases proportionally ($\\rho = P M_w / [Z R T]$). By mass conservation, lower density forces volumetric flow and superficial velocity ($u_s$) to accelerate continuously along the bed axis. Standard incompressible equations evaluated at inlet conditions severely underestimate the true pressure drop (often by 20% to 45%). The integrated differential Ergun equation ($P_{in}^2 - P_{out}^2 = 2 L [A \\mu G + B G^2] Z R T / M_w$) must be solved.'
+      },
+      {
+        q: 'How does catalyst pellet shape (trilobe, quadrilobe, rings vs cylinders) affect pressure drop and surface area?',
+        a: 'Industrial catalysts use shaped extrudates like trilobes and quadrilobes instead of plain cylinders to maximize external geometric surface area per unit volume ($S_v$) while maintaining high bed void fraction ($\\epsilon \\approx 0.45\\text{--}0.52$ vs $0.38\\text{--}0.42$ for solid cylinders). Because pressure drop is inversely proportional to $\\epsilon^3$, increasing void fraction from 0.40 to 0.48 cuts the Ergun pressure drop by nearly 50% while simultaneously reducing intraparticle diffusion resistance.'
+      },
+      {
+        q: 'What is the minimum fluidization velocity ($u_{mf}$) and why is it monitored in downflow fixed beds?',
+        a: 'Minimum fluidization velocity ($u_{mf}$) is the superficial velocity where upward aerodynamic drag equals the buoyant weight of the bed particles ($-\\Delta P / L = [1 - \\epsilon][\\rho_s - \\rho_g]g$). In upflow reactors, exceeding $u_{mf}$ fluidizes the bed. In downflow reactors, operating at fluidization-equivalent drag stresses the bottom catalyst support grid, compresses the bed, and induces particle breakage, attrition fines, and high mechanical pellet crushing loads.'
+      },
+      {
+        q: 'What is the wall effect and when does it distort flow distribution?',
+        a: 'Near the vessel wall, packing particles cannot pack as tightly as in the bulk bed, creating an annulus of high void fraction ($\\epsilon_{wall} \\to 0.55\\text{--}0.65$). If the tube-to-particle diameter ratio is small ($D_{bed} / d_p < 10\\text{--}15$, common in multi-tubular fixed-bed reactors), a substantial fraction of the gas bypasses through the high-permeability wall region. This wall channeling leads to radial temperature gradients, localized hot spots, and lower chemical conversion.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Catalytic Fixed-Bed Reactor Ergun Pressure Drop & Pellet Shape Calculator</h1>' +
+      '    <p>Perform rigorous hydraulic pressure drop calculations for catalytic packed-bed reactors using the compressible Ergun equation. Size beds for spheres, cylindrical extrudates, trilobes, quadrilobes, and Raschig rings, evaluate laminar vs turbulent regime, and check fluidization threshold risks.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Reactor & Catalyst Bed Specifications</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-preset">Industrial Catalytic Reactor Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="ergun-preset">' +
+      '            <option value="hydrotreat" selected>Diesel Hydrotreating Reactor (Trilobe CoMo/Al2O3, 50 bar, 360°C)</option>' +
+      '            <option value="ammonia">Ammonia Synthesis Converter (Promoted Iron Granules, 150 bar, 450°C)</option>' +
+      '            <option value="reformer">Steam Methane Primary Reformer (Spoked Rings Ni/Al2O3, 28 bar, 820°C)</option>' +
+      '            <option value="voc">VOC Catalytic Thermal Incinerator (Ceramic Honeycomb / Spheres, 1.1 bar, 300°C)</option>' +
+      '            <option value="custom">Custom Packed Bed Reactor</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-bed-dia">Reactor Internal Diameter (\(D_{bed}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-bed-dia" value="2.4" min="0.05" max="10" step="0.1">' +
+      '          <select id="ergun-dia-unit">' +
+      '            <option value="m" selected>m</option>' +
+      '            <option value="mm">mm</option>' +
+      '            <option value="in">inches</option>' +
+      '            <option value="ft">ft</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Bed cross-sectional diameter</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-bed-len">Catalyst Bed Height / Depth (\(L\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-bed-len" value="6.5" min="0.1" max="30" step="0.1">' +
+      '          <select id="ergun-len-unit">' +
+      '            <option value="m" selected>m</option>' +
+      '            <option value="ft">ft</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Total active catalyst bed depth (excluding inert support balls)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-shape">Catalyst Pellet Shape & Geometry</label>' +
+      '        <div class="input-row">' +
+      '          <select id="ergun-shape">' +
+      '            <option value="trilobe" selected>Trilobe Extrudate (Hydrotreating: \(\phi_s = 0.72, \epsilon = 0.46\))</option>' +
+      '            <option value="sphere">Spherical Beads / Granules (\(\phi_s = 1.00, \epsilon = 0.39\))</option>' +
+      '            <option value="cylinder">Cylindrical Extrudate Pellet (\(\phi_s = 0.82, \epsilon = 0.41\))</option>' +
+      '            <option value="quadrilobe">Quadrilobe Extrudate (\(\phi_s = 0.68, \epsilon = 0.49\))</option>' +
+      '            <option value="ring">Hollow Raschig Ring / Mini-Wheel (\(\phi_s = 0.55, \epsilon = 0.62\))</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-dp">Equivalent Pellet Diameter (\(d_p\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-dp" value="2.5" min="0.5" max="50" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Equivalent Sauter sphere diameter \(d_p = 6 V_p / S_p\) (typically 1.3–5 mm)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-void">Bed Void Fraction / Porosity (\(\epsilon\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-void" value="0.46" min="0.28" max="0.80" step="0.01">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m³/m³</span>' +
+      '        </div>' +
+      '        <div class="hint">Inter-particle voidage. Higher voidage significantly lowers \(\Delta P\)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-flow-rate">Total Gas Mass Flow Rate (\(\dot{m}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-flow-rate" value="45000" min="10" max="1000000" step="1000">' +
+      '          <select id="ergun-flow-unit">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="lbh">lb/h</option>' +
+      '            <option value="kgs">kg/s</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Total process gas or fluid throughput</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-p-in">Reactor Inlet Pressure (\(P_{in}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-p-in" value="50" min="0.5" max="350" step="0.5">' +
+      '          <select id="ergun-p-unit">' +
+      '            <option value="bar" selected>bar (abs)</option>' +
+      '            <option value="mpa">MPa (abs)</option>' +
+      '            <option value="psi">psi (abs)</option>' +
+      '            <option value="kpa">kPa (abs)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-temp">Inlet Operating Temperature (\(T\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-temp" value="360" min="-20" max="1200" step="5">' +
+      '          <select id="ergun-t-unit">' +
+      '            <option value="c" selected>°C</option>' +
+      '            <option value="f">°F</option>' +
+      '            <option value="k">K</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ergun-mw">Gas Molecular Weight (\(M_w\)) & Viscosity (\(\mu\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ergun-mw" value="8.5" min="2" max="200" step="0.1" title="MW (g/mol)">' +
+      '          <input type="number" id="ergun-visc" value="0.021" min="0.005" max="10" step="0.001" title="Viscosity (cP)">' +
+      '        </div>' +
+      '        <div class="hint">MW (g/mol, e.g. H2-rich gas = 8.5) and dynamic viscosity \(\mu\) (cP = mPa·s)</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="ergun-calc-btn">Compute Pressure Drop</button>' +
+      '        <button type="button" class="btn btn-secondary" id="ergun-reset-btn">Reset Defaults</button>' +
+      '      </div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Hydraulic & Kinetic Performance Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Pressure Drop (\(\Delta P\))</div>' +
+      '          <div class="res-val"><span id="res-dp-bar">0.84</span><span class="res-unit">bar</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-dp-kpa">84.2</span> kPa (<span id="res-dp-psi">12.2</span> psi)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Pressure Gradient (\(\Delta P / L\))</div>' +
+      '          <div class="res-val"><span id="res-dp-grad">12.9</span><span class="res-unit">kPa/m</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-dp-psi-ft">0.57</span> psi/ft</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Reactor Outlet Pressure (\(P_{out}\))</div>' +
+      '          <div class="res-val"><span id="res-p-out">49.16</span><span class="res-unit">bar</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Compressible expansion accounted</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Particle Reynolds Number (\(Re_p\))</div>' +
+      '          <div class="res-val"><span id="res-rep">318</span><span class="res-unit"></span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Regime: <span id="res-regime">Transitional</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Superficial Gas Velocity (\(u_s\))</div>' +
+      '          <div class="res-val"><span id="res-us">0.34</span><span class="res-unit">m/s</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Interst. vel (\(u_i\)): <span id="res-ui">0.74</span> m/s</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Viscous vs Inertial Loss Split</div>' +
+      '          <div class="res-val"><span id="res-split">28% / 72%</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Kozeny (visc) / Burke (inert)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Fluidization Safety Margin</div>' +
+      '          <div class="res-val"><span id="res-umf-ratio">0.22</span><span class="res-unit">\(u_s / u_{mf}\)</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">\(u_{mf}\): <span id="res-umf">1.55</span> m/s (safe)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Catalyst Bed Volume & Mass</div>' +
+      '          <div class="res-val"><span id="res-bed-vol">29.4</span><span class="res-unit">m³</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Mass: <span id="res-cat-mass">23,500</span> kg (bulk)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="badge-stat" id="ergun-eval-badge" style="background:#dcfce7; color:#15803d;">✓ Hydraulic Check: Stable Fixed-Bed Flow Regime</span>' +
+      '      </div>' +
+      '      <div class="btn-row" style="margin-top:0;">' +
+      '        <button type="button" class="btn btn-secondary" id="ergun-copy-btn">📋 Copy Diagnostic Summary</button>' +
+      '        <span class="copy-toast" id="ergun-toast">✓ Diagnostic Summary Copied!</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="ergun-canvas" width="480" height="340"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- DERIVATION & TECHNICAL SPECIFICATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Governing Equations & Mathematical Derivation (Ergun Formulation)</h2>' +
+      '    <p>Pressure drop across packed catalyst beds governs compressor power demand, bed mechanical integrity, and catalyst particle stability. The Ergun formulation balances viscous shear forces on the pore walls and turbulent form drag behind particle wake zones.</p>' +
+      '    <h3>1. The Classical Differential Ergun Equation</h3>' +
+      '    <p>For one-dimensional downflow through a bed of uniform equivalent spherical particles:</p>' +
+      '    <div class="formula-box">' +
+      '      -\frac{dP}{dz} = 150 \frac{(1 - \epsilon)^2}{\epsilon^3} \frac{\mu \cdot u_s}{d_p^2} + 1.75 \frac{1 - \epsilon}{\epsilon^3} \frac{\rho \cdot u_s^2}{d_p}' +
+      '    </div>' +
+      '    <p>Where \(u_s = \frac{4 \dot{m}}{\pi D_{bed}^2 \rho}\) is superficial fluid velocity (based on empty vessel cross-section). Expressing in terms of mass flux \(G = \rho u_s = \text{const}\):</p>' +
+      '    <div class="formula-box">' +
+      '      -\frac{dP}{dz} = \left[ 150 \frac{(1 - \epsilon)^2}{\epsilon^3} \frac{\mu G}{d_p^2} \right] \frac{1}{\rho} + \left[ 1.75 \frac{1 - \epsilon}{\epsilon^3} \frac{G^2}{d_p} \right] \frac{1}{\rho} = \frac{A \mu G + B G^2}{\rho}' +
+      '    </div>' +
+      '    <h3>2. Compressible Gas Flow Integration</h3>' +
+      '    <p>For gases obeying the real gas law \(\rho = \frac{P M_w}{Z R T}\), substituting density into the differential equation gives:</p>' +
+      '    <div class="formula-box">' +
+      '      -P \frac{dP}{dz} = (A \mu G + B G^2) \frac{Z R T}{M_w}' +
+      '    </div>' +
+      '    <p>Integrating from \(z = 0\) (\(P = P_{in}\)) to \(z = L\) (\(P = P_{out}\)) yields the exact analytical solution:</p>' +
+      '    <div class="formula-box">' +
+      '      P_{in}^2 - P_{out}^2 = 2 L \cdot (A \mu G + B G^2) \cdot \frac{Z R T}{M_w} \implies P_{out} = \sqrt{P_{in}^2 - 2 L (A \mu G + B G^2) \frac{Z R T}{M_w}}' +
+      '    </div>' +
+      '    <h3>3. Particle Reynolds Number & Flow Regimes</h3>' +
+      '    <p>The flow regime within the interstitial pores is defined by the modified particle Reynolds number:</p>' +
+      '    <div class="formula-box">' +
+      '      Re_p = \frac{\rho \cdot u_s \cdot d_p}{(1 - \epsilon) \cdot \mu} = \frac{G \cdot d_p}{(1 - \epsilon) \cdot \mu}' +
+      '    </div>' +
+      '    <p>Flow regimes are characterized as: Viscous/Laminar (\(Re_p < 10\), first term > 90%), Transitional (\(10 \le Re_p \le 1000\)), and Inertial/Turbulent (\(Re_p > 1000\), second term > 90%).</p>' +
+      '    <h3>4. Minimum Fluidization Velocity (\(u_{mf}\))</h3>' +
+      '    <p>Per Wen & Yu, fluidization occurs when drag equals the submerged weight of the bed:</p>' +
+      '    <div class="formula-box">' +
+      '      u_{mf} = \frac{\mu}{\rho_g d_p} \left( \sqrt{33.7^2 + 0.0408 \cdot Ar} - 33.7 \right), \quad Ar = \frac{\rho_g (\rho_s - \rho_g) g d_p^3}{\mu^2}' +
+      '    </div>' +
+      '    <p>For stable fixed-bed operation, the ratio \(u_s / u_{mf}\) must remain well below 0.70 to avoid catalyst movement and abrasion.</p>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Catalytic Fixed-Bed Reactors</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. The Incompressible Gas Fallacy in Deep Beds</h4>' +
+      '      <p>Using standard incompressible Ergun equations when \(\Delta P > 0.10 P_{in}\) creates massive errors. As gas flows down the bed and pressure drops, the gas expands and velocity accelerates. Calculating pressure drop using inlet density underestimates true pressure drop by 25% to 45%, leading to undersized recycle gas compressors and unexpected plant derating.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Sphericity & Void Fraction Cubed Sensitivity (\(\epsilon^3\))</h4>' +
+      '      <p>Because the Ergun equation divides by \(\epsilon^3\), a tiny change in void fraction creates an enormous swing in pressure drop. If a dense-loading machine packs catalyst too tightly, reducing bed voidage from 0.42 to 0.36 (a 14% drop), the pressure drop surges by +68%! Always specify shape-corrected sphericity and measure soak bulk density accurately.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Catalyst Attrition & Bottom Screen Blinding</h4>' +
+      '      <p>Operating near minimum fluidization or subject to excessive superficial gas velocity generates friction between adjacent catalyst pellets. Micro-vibrations abrade outer lobes into fine powder (catalyst fines). These fines migrate downbed and pack into the bottom ceramic ball support layer, multiplying pressure drop tenfold within weeks.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Multi-Tubular Wall Effect Channeling (\(D_{tube} / d_p < 10\))</h4>' +
+      '      <p>In multi-tubular reactors (e.g. ethylene oxide or phthalic anhydride), tube diameter is often 25–40 mm with 3–5 mm catalyst pellets. Loose particle packing at the tube wall produces void fraction exceeding 0.60 near the wall. Up to 30% of total gas channels along the tube wall, starving the center core, causing radial thermal gradients and dangerous thermal runaway.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Coking and Crust Formation Void Collapse</h4>' +
+      '      <p>In hydrocarbon hydrotreating and reforming, high-boiling polyaromatics crack onto the catalyst exterior, forming carbon coke. Coke accumulation of just 8–12 wt% reduces interstitial pore clearance, dropping bed voidage from 0.45 to 0.35, doubling reactor pressure drop and forcing early emergency catalyst skimming.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions</h2>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the Ergun equation and how does it combine laminar and turbulent flow in packed beds? <span>+</span></div>' +
+      '      <div class="faq-a">The Ergun equation (1952) predicts the frictional pressure gradient (\(-\Delta P / L\)) of a fluid traversing a packed bed of solid particles. It unifies the Kozeny-Carman equation for viscous/laminar flow (\(Re_p < 10\), proportional to fluid velocity \(u_s\)) and the Burke-Plummer equation for inertial/turbulent flow (\(Re_p > 1000\), proportional to velocity squared \(u_s^2\)):\n$$\frac{\Delta P}{L} = 150 \frac{(1 - \epsilon)^2}{\epsilon^3} \frac{\mu \cdot u_s}{d_p^2} + 1.75 \frac{1 - \epsilon}{\epsilon^3} \frac{\rho \cdot u_s^2}{d_p}$$\nWhere \(\epsilon\) is bed void fraction, \(\mu\) is dynamic viscosity, \(\rho\) is fluid density, \(u_s\) is superficial velocity, and \(d_p\) is equivalent particle diameter.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">Why must compressible gas flow equations be used when pressure drop exceeds 10% to 15% of inlet pressure? <span>+</span></div>' +
+      '      <div class="faq-a">In deep catalytic reactors (such as hydrocrackers, ammonia converters, and Claus beds), pressure drop can exceed 0.5 to 2 bar. As gas flows through the bed and pressure drops, gas density decreases proportionally (\(\rho = P M_w / [Z R T]\)). By mass conservation, lower density forces volumetric flow and superficial velocity (\(u_s\)) to accelerate continuously along the bed axis. Standard incompressible equations evaluated at inlet conditions severely underestimate the true pressure drop (often by 20% to 45%). The integrated differential Ergun equation (\(P_{in}^2 - P_{out}^2 = 2 L [A \mu G + B G^2] Z R T / M_w\)) must be solved.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does catalyst pellet shape (trilobe, quadrilobe, rings vs cylinders) affect pressure drop and surface area? <span>+</span></div>' +
+      '      <div class="faq-a">Industrial catalysts use shaped extrudates like trilobes and quadrilobes instead of plain cylinders to maximize external geometric surface area per unit volume (\(S_v\)) while maintaining high bed void fraction (\(\epsilon \approx 0.45\text{--}0.52\) vs \(0.38\text{--}0.42\) for solid cylinders). Because pressure drop is inversely proportional to \(\epsilon^3\), increasing void fraction from 0.40 to 0.48 cuts the Ergun pressure drop by nearly 50% while simultaneously reducing intraparticle diffusion resistance.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the minimum fluidization velocity (\(u_{mf}\)) and why is it monitored in downflow fixed beds? <span>+</span></div>' +
+      '      <div class="faq-a">Minimum fluidization velocity (\(u_{mf}\)) is the superficial velocity where upward aerodynamic drag equals the buoyant weight of the bed particles (\(-\Delta P / L = [1 - \epsilon][\rho_s - \rho_g]g\)). In upflow reactors, exceeding \(u_{mf}\) fluidizes the bed. In downflow reactors, operating at fluidization-equivalent drag stresses the bottom catalyst support grid, compresses the bed, and induces particle breakage, attrition fines, and high mechanical pellet crushing loads.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is the wall effect and when does it distort flow distribution? <span>+</span></div>' +
+      '      <div class="faq-a">Near the vessel wall, packing particles cannot pack as tightly as in the bulk bed, creating an annulus of high void fraction (\(\epsilon_{wall} \to 0.55\text{--}0.65\)). If the tube-to-particle diameter ratio is small (\(D_{bed} / d_p < 10\text{--}15\), common in multi-tubular fixed-bed reactors), a substantial fraction of the gas bypasses through the high-permeability wall region. This wall channeling leads to radial temperature gradients, localized hot spots, and lower chemical conversion.</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const presets = {' +
+      '    hydrotreat: { dia: 2.4, diaUnit: "m", len: 6.5, lenUnit: "m", shape: "trilobe", dp: 2.5, void: 0.46, flow: 45000, flowUnit: "kgh", pin: 50, pUnit: "bar", temp: 360, tUnit: "c", mw: 8.5, visc: 0.021 },' +
+      '    ammonia: { dia: 2.8, diaUnit: "m", len: 8.0, lenUnit: "m", shape: "cylinder", dp: 4.5, void: 0.40, flow: 120000, flowUnit: "kgh", pin: 150, pUnit: "bar", temp: 450, tUnit: "c", mw: 10.2, visc: 0.027 },' +
+      '    reformer: { dia: 0.12, diaUnit: "m", len: 12.0, lenUnit: "m", shape: "ring", dp: 16.0, void: 0.62, flow: 420, flowUnit: "kgh", pin: 28, pUnit: "bar", temp: 820, tUnit: "c", mw: 16.5, visc: 0.038 },' +
+      '    voc: { dia: 1.5, diaUnit: "m", len: 1.2, lenUnit: "m", shape: "sphere", dp: 5.0, void: 0.39, flow: 8500, flowUnit: "kgh", pin: 1.1, pUnit: "bar", temp: 300, tUnit: "c", mw: 28.8, visc: 0.029 }' +
+      '  };' +
+      '  const el = id => document.getElementById(id);' +
+      '  const getVal = id => parseFloat(el(id).value) || 0;' +
+      '  const setTxt = (id, txt) => { if(el(id)) el(id).textContent = txt; };' +
+      '  ' +
+      '  function getDia_m(val, unit) {' +
+      '    if (unit === "mm") return val / 1000;' +
+      '    if (unit === "in") return val * 0.0254;' +
+      '    if (unit === "ft") return val * 0.3048;' +
+      '    return val;' +
+      '  }' +
+      '  function getLen_m(val, unit) {' +
+      '    if (unit === "ft") return val * 0.3048;' +
+      '    return val;' +
+      '  }' +
+      '  function getFlow_kgs(val, unit) {' +
+      '    if (unit === "kgh") return val / 3600;' +
+      '    if (unit === "lbh") return (val * 0.453592) / 3600;' +
+      '    return val;' +
+      '  }' +
+      '  function getP_pa(val, unit) {' +
+      '    if (unit === "bar") return val * 100000;' +
+      '    if (unit === "mpa") return val * 1000000;' +
+      '    if (unit === "psi") return val * 6894.76;' +
+      '    if (unit === "kpa") return val * 1000;' +
+      '    return val;' +
+      '  }' +
+      '  function getTemp_k(val, unit) {' +
+      '    if (unit === "c") return val + 273.15;' +
+      '    if (unit === "f") return (val - 32) * 5 / 9 + 273.15;' +
+      '    return val;' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const dia_m = Math.max(0.01, getDia_m(getVal("ergun-bed-dia"), el("ergun-dia-unit").value));' +
+      '    const len_m = Math.max(0.05, getLen_m(getVal("ergun-bed-len"), el("ergun-len-unit").value));' +
+      '    const dp_mm = Math.max(0.1, getVal("ergun-dp"));' +
+      '    const dp_m = dp_mm / 1000;' +
+      '    const eps = Math.min(0.9, Math.max(0.25, getVal("ergun-void")));' +
+      '    const m_kgs = Math.max(0.001, getFlow_kgs(getVal("ergun-flow-rate"), el("ergun-flow-unit").value));' +
+      '    const p_in_pa = Math.max(1000, getP_pa(getVal("ergun-p-in"), el("ergun-p-unit").value));' +
+      '    const temp_k = Math.max(100, getTemp_k(getVal("ergun-temp"), el("ergun-t-unit").value));' +
+      '    const mw = Math.max(1, getVal("ergun-mw"));' +
+      '    const visc_cp = Math.max(0.001, getVal("ergun-visc"));' +
+      '    const mu = visc_cp * 0.001; // Pa.s' +
+      '    const shape = el("ergun-shape").value;' +
+      '    ' +
+      '    // Bed Area & Mass Flux' +
+      '    const a_bed = (Math.PI / 4) * Math.pow(dia_m, 2);' +
+      '    const g_flux = m_kgs / a_bed; // kg/(m2.s)' +
+      '    ' +
+      '    // Gas density at inlet (real gas law, approx Z = 0.98)' +
+      '    const R = 8314.46; // J/(kmol.K)' +
+      '    const Z = 0.98;' +
+      '    const rho_in = (p_in_pa * mw) / (Z * R * temp_k);' +
+      '    const us_in = g_flux / rho_in;' +
+      '    const ui_in = us_in / eps;' +
+      '    ' +
+      '    // Ergun constants' +
+      '    // Viscous term: A = 150 * (1-eps)^2 / eps^3 / dp^2' +
+      '    const termA = 150 * Math.pow(1 - eps, 2) / (Math.pow(eps, 3) * Math.pow(dp_m, 2));' +
+      '    // Inertial term: B = 1.75 * (1-eps) / eps^3 / dp' +
+      '    const termB = 1.75 * (1 - eps) / (Math.pow(eps, 3) * dp_m);' +
+      '    ' +
+      '    // Analytical compressible integration:' +
+      '    // Pin^2 - Pout^2 = 2 * L * (termA * mu * G + termB * G^2) * (Z * R * T / mw)' +
+      '    const factorK = (termA * mu * g_flux + termB * Math.pow(g_flux, 2)) * ((Z * R * temp_k) / mw);' +
+      '    const rhs = 2 * len_m * factorK;' +
+      '    ' +
+      '    let p_out_pa = 0;' +
+      '    let deltaP_pa = 0;' +
+      '    let compressibleValid = true;' +
+      '    ' +
+      '    if (Math.pow(p_in_pa, 2) > rhs) {' +
+      '      p_out_pa = Math.sqrt(Math.pow(p_in_pa, 2) - rhs);' +
+      '      deltaP_pa = p_in_pa - p_out_pa;' +
+      '    } else {' +
+      '      // Bed is choked or deltaP exceeds inlet pressure' +
+      '      compressibleValid = false;' +
+      '      p_out_pa = 1000;' +
+      '      deltaP_pa = p_in_pa - 1000;' +
+      '    }' +
+      '    ' +
+      '    const dp_bar = deltaP_pa / 100000;' +
+      '    const dp_kpa = deltaP_pa / 1000;' +
+      '    const dp_psi = deltaP_pa / 6894.76;' +
+      '    const dp_grad_kpa = dp_kpa / len_m;' +
+      '    const dp_grad_psi_ft = dp_psi / (len_m * 3.28084);' +
+      '    const p_out_bar = p_out_pa / 100000;' +
+      '    ' +
+      '    // Reynolds Number' +
+      '    const rep = (g_flux * dp_m) / ((1 - eps) * mu);' +
+      '    let regime = "Transitional";' +
+      '    if (rep < 10) regime = "Laminar / Viscous";' +
+      '    else if (rep > 1000) regime = "Turbulent / Inertial";' +
+      '    ' +
+      '    // Viscous vs Inertial Loss Percentage' +
+      '    const viscLoss = termA * mu * g_flux;' +
+      '    const inertLoss = termB * Math.pow(g_flux, 2);' +
+      '    const totalLoss = viscLoss + inertLoss;' +
+      '    const pctVisc = totalLoss > 0 ? Math.round((viscLoss / totalLoss) * 100) : 50;' +
+      '    const pctInert = 100 - pctVisc;' +
+      '    ' +
+      '    // Fluidization check (Wen & Yu)' +
+      '    const rho_solid = 1800; // typical Al2O3 catalyst skeletal density kg/m3' +
+      '    const Ar = (rho_in * Math.max(1, rho_solid - rho_in) * 9.81 * Math.pow(dp_m, 3)) / Math.pow(mu, 2);' +
+      '    const Re_mf = Math.sqrt(Math.pow(33.7, 2) + 0.0408 * Ar) - 33.7;' +
+      '    const u_mf = (Re_mf * mu) / (rho_in * dp_m);' +
+      '    const umf_ratio = u_mf > 0 ? (us_in / u_mf) : 0;' +
+      '    ' +
+      '    // Bed Volume & Catalyst mass' +
+      '    const v_bed_m3 = a_bed * len_m;' +
+      '    const bulk_density = rho_solid * (1 - eps);' +
+      '    const cat_mass_kg = v_bed_m3 * bulk_density;' +
+      '    ' +
+      '    // Badge Evaluation' +
+      '    let badgeTxt = "✓ Hydraulic Check: Stable Fixed-Bed Flow Regime";' +
+      '    let badgeBg = "#dcfce7", badgeColor = "#15803d";' +
+      '    ' +
+      '    if (!compressibleValid || dp_bar > p_in_pa / 100000 * 0.4) {' +
+      '      badgeTxt = "⚠ Extreme Pressure Drop: Bed exceeds 40% of inlet pressure; risk of bed crushing / choking";' +
+      '      badgeBg = "#fee2e2"; badgeColor = "#b91c1c";' +
+      '    } else if (umf_ratio > 0.7) {' +
+      '      badgeTxt = "⚠ High Aerodynamic Drag: Gas velocity approaches fluidization limit; severe attrition risk";' +
+      '      badgeBg = "#fef3c7"; badgeColor = "#b45309";' +
+      '    }' +
+      '    ' +
+      '    // Populate DOM' +
+      '    setTxt("res-dp-bar", dp_bar.toFixed(2));' +
+      '    setTxt("res-dp-kpa", dp_kpa.toFixed(1));' +
+      '    setTxt("res-dp-psi", dp_psi.toFixed(1));' +
+      '    setTxt("res-dp-grad", dp_grad_kpa.toFixed(1));' +
+      '    setTxt("res-dp-psi-ft", dp_grad_psi_ft.toFixed(2));' +
+      '    setTxt("res-p-out", p_out_bar.toFixed(2));' +
+      '    setTxt("res-rep", Math.round(rep).toLocaleString());' +
+      '    setTxt("res-regime", regime);' +
+      '    setTxt("res-us", us_in.toFixed(2));' +
+      '    setTxt("res-ui", ui_in.toFixed(2));' +
+      '    setTxt("res-split", pctVisc + "% / " + pctInert + "%");' +
+      '    setTxt("res-umf-ratio", umf_ratio.toFixed(2));' +
+      '    setTxt("res-umf", u_mf.toFixed(2));' +
+      '    setTxt("res-bed-vol", v_bed_m3.toFixed(1));' +
+      '    setTxt("res-cat-mass", Math.round(cat_mass_kg).toLocaleString());' +
+      '    ' +
+      '    const badge = el("ergun-eval-badge");' +
+      '    if (badge) {' +
+      '      badge.textContent = badgeTxt;' +
+      '      badge.style.background = badgeBg;' +
+      '      badge.style.color = badgeColor;' +
+      '    }' +
+      '    ' +
+      '    drawCanvas(dia_m, len_m, shape, dp_bar, pctVisc, pctInert);' +
+      '  }' +
+      '  ' +
+      '  function drawCanvas(dia, len, shape, dpBar, pctV, pctI) {' +
+      '    const cvs = el("ergun-canvas");' +
+      '    if (!cvs) return;' +
+      '    const ctx = cvs.getContext("2d");' +
+      '    const w = cvs.width, h = cvs.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background grid' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ctx.strokeStyle = "#1e293b";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }' +
+      '    for(let y=0; y<h; y+=30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }' +
+      '    ' +
+      '    // Coordinates' +
+      '    const cx = w * 0.4;' +
+      '    const rTop = 40;' +
+      '    const rH = 240;' +
+      '    const rW = 120;' +
+      '    ' +
+      '    // Reactor Vessel Shell' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.roundRect(cx - rW/2, rTop, rW, rH, [25, 25, 25, 25]);' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Top distributor / inert balls' +
+      '    const inertTopH = 25;' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.fillRect(cx - rW/2 + 3, rTop + 20, rW - 6, inertTopH);' +
+      '    ' +
+      '    // Active catalyst bed with pressure gradient' +
+      '    const bedTop = rTop + 20 + inertTopH;' +
+      '    const bedH = rH - 85;' +
+      '    const grad = ctx.createLinearGradient(0, bedTop, 0, bedTop + bedH);' +
+      '    grad.addColorStop(0, "rgba(2, 132, 199, 0.7)");   // High P (blue)' +
+      '    grad.addColorStop(0.5, "rgba(16, 185, 129, 0.6)"); // Mid P (green)' +
+      '    grad.addColorStop(1, "rgba(245, 158, 11, 0.7)");  // Dropped P (orange)' +
+      '    ctx.fillStyle = grad;' +
+      '    ctx.fillRect(cx - rW/2 + 3, bedTop, rW - 6, bedH);' +
+      '    ' +
+      '    // Bottom support balls' +
+      '    const inertBotH = 25;' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.fillRect(cx - rW/2 + 3, bedTop + bedH, rW - 6, inertBotH);' +
+      '    ' +
+      '    // Draw individual catalyst pellets representation' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.strokeStyle = "#334155";' +
+      '    ctx.lineWidth = 1;' +
+      '    const rows = 12, cols = 8;' +
+      '    const stepX = (rW - 20) / cols;' +
+      '    const stepY = (bedH - 20) / rows;' +
+      '    ' +
+      '    for(let i=0; i<cols; i++) {' +
+      '      for(let j=0; j<rows; j++) {' +
+      '        const px = cx - rW/2 + 10 + i * stepX + ((j % 2) * stepX * 0.4);' +
+      '        const py = bedTop + 10 + j * stepY;' +
+      '        if (px > cx - rW/2 + 8 && px < cx + rW/2 - 8) {' +
+      '          if (shape === "sphere") {' +
+      '            ctx.beginPath();' +
+      '            ctx.arc(px, py, 3.5, 0, 2*Math.PI);' +
+      '            ctx.fill(); ctx.stroke();' +
+      '          } else if (shape === "trilobe" || shape === "quadrilobe") {' +
+      '            ctx.beginPath();' +
+      '            ctx.arc(px - 2, py, 2, 0, 2*Math.PI);' +
+      '            ctx.arc(px + 2, py, 2, 0, 2*Math.PI);' +
+      '            ctx.arc(px, py - 2.5, 2, 0, 2*Math.PI);' +
+      '            ctx.fill();' +
+      '          } else if (shape === "ring") {' +
+      '            ctx.beginPath();' +
+      '            ctx.arc(px, py, 4, 0, 2*Math.PI);' +
+      '            ctx.stroke();' +
+      '          } else {' +
+      '            ctx.fillRect(px - 3, py - 2, 6, 4);' +
+      '            ctx.strokeRect(px - 3, py - 2, 6, 4);' +
+      '          }' +
+      '        }' +
+      '      }' +
+      '    }' +
+      '    ' +
+      '    // Inlet & Outlet nozzles with flow arrows' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 4;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, rTop - 25); ctx.lineTo(cx, rTop);' +
+      '    ctx.moveTo(cx, rTop + rH); ctx.lineTo(cx, rTop + rH + 25);' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Flow arrows' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 5, rTop - 12); ctx.lineTo(cx + 5, rTop - 12); ctx.lineTo(cx, rTop - 4);' +
+      '    ctx.closePath(); ctx.fill();' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 5, rTop + rH + 12); ctx.lineTo(cx + 5, rTop + rH + 12); ctx.lineTo(cx, rTop + rH + 20);' +
+      '    ctx.closePath(); ctx.fill();' +
+      '    ' +
+      '    // Text callouts' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Gas Inlet (P_in)", cx - 45, rTop - 30);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillText("Outlet (P_out)", cx - 40, rTop + rH + 36);' +
+      '    ' +
+      '    // Annotations on right side' +
+      '    const infoX = cx + rW/2 + 30;' +
+      '    ctx.fillStyle = "#e2e8f0";' +
+      '    ctx.font = "bold 12px sans-serif";' +
+      '    ctx.fillText("PACKED BED METRICS", infoX, rTop + 30);' +
+      '    ' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("Bed Height: " + len.toFixed(1) + " m", infoX, rTop + 55);' +
+      '    ctx.fillText("Bed Dia: " + dia.toFixed(1) + " m", infoX, rTop + 75);' +
+      '    ' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("ΔP: " + dpBar.toFixed(2) + " bar", infoX, rTop + 105);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.fillText("Loss Mechanism:", infoX, rTop + 135);' +
+      '    // Split Bar' +
+      '    ctx.fillStyle = "#0284c7";' +
+      '    ctx.fillRect(infoX, rTop + 145, (pctV / 100) * 120, 10);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillRect(infoX + (pctV / 100) * 120, rTop + 145, (pctI / 100) * 120, 10);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Viscous " + pctV + "% | Inertial " + pctI + "%", infoX, rTop + 170);' +
+      '    ' +
+      '    ctx.fillStyle = "#a855f7";' +
+      '    ctx.fillText("Pellet: " + shape.toUpperCase(), infoX, rTop + 200);' +
+      '  }' +
+      '  ' +
+      '  // Event listeners' +
+      '  const inputs = [' +
+      '    "ergun-bed-dia", "ergun-dia-unit", "ergun-bed-len", "ergun-len-unit",' +
+      '    "ergun-shape", "ergun-dp", "ergun-void", "ergun-flow-rate", "ergun-flow-unit",' +
+      '    "ergun-p-in", "ergun-p-unit", "ergun-temp", "ergun-t-unit", "ergun-mw", "ergun-visc"' +
+      '  ];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const shapeEl = el("ergun-shape");' +
+      '  if (shapeEl) {' +
+      '    shapeEl.addEventListener("change", () => {' +
+      '      const s = shapeEl.value;' +
+      '      if (s === "trilobe") { el("ergun-void").value = 0.46; el("ergun-dp").value = 2.5; }' +
+      '      else if (s === "sphere") { el("ergun-void").value = 0.39; el("ergun-dp").value = 3.2; }' +
+      '      else if (s === "cylinder") { el("ergun-void").value = 0.41; el("ergun-dp").value = 3.0; }' +
+      '      else if (s === "quadrilobe") { el("ergun-void").value = 0.49; el("ergun-dp").value = 2.2; }' +
+      '      else if (s === "ring") { el("ergun-void").value = 0.62; el("ergun-dp").value = 16.0; }' +
+      '      calc();' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const presetEl = el("ergun-preset");' +
+      '  if (presetEl) {' +
+      '    presetEl.addEventListener("change", () => {' +
+      '      const p = presets[presetEl.value];' +
+      '      if (p) {' +
+      '        el("ergun-bed-dia").value = p.dia;' +
+      '        el("ergun-dia-unit").value = p.diaUnit;' +
+      '        el("ergun-bed-len").value = p.len;' +
+      '        el("ergun-len-unit").value = p.lenUnit;' +
+      '        el("ergun-shape").value = p.shape;' +
+      '        el("ergun-dp").value = p.dp;' +
+      '        el("ergun-void").value = p.void;' +
+      '        el("ergun-flow-rate").value = p.flow;' +
+      '        el("ergun-flow-unit").value = p.flowUnit;' +
+      '        el("ergun-p-in").value = p.pin;' +
+      '        el("ergun-p-unit").value = p.pUnit;' +
+      '        el("ergun-temp").value = p.temp;' +
+      '        el("ergun-t-unit").value = p.tUnit;' +
+      '        el("ergun-mw").value = p.mw;' +
+      '        el("ergun-visc").value = p.visc;' +
+      '        calc();' +
+      '      }' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const resetBtn = el("ergun-reset-btn");' +
+      '  if (resetBtn) {' +
+      '    resetBtn.addEventListener("click", () => {' +
+      '      presetEl.value = "hydrotreat";' +
+      '      presetEl.dispatchEvent(new Event("change"));' +
+      '    });' +
+      '  }' +
+      '  const calcBtn = el("ergun-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("ergun-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== CATALYTIC FIXED-BED REACTOR ERGUN PRESSURE DROP REPORT ===",' +
+      '        "Reactor Bed Geometry: Dia = " + el("ergun-bed-dia").value + " " + el("ergun-dia-unit").value + ", Depth = " + el("ergun-bed-len").value + " " + el("ergun-len-unit").value,' +
+      '        "Pellet Shape: " + el("ergun-shape").value + " (dp = " + el("ergun-dp").value + " mm, Voidage = " + el("ergun-void").value + ")",' +
+      '        "Operating Conditions: P_in = " + el("ergun-p-in").value + " " + el("ergun-p-unit").value + ", Temp = " + el("ergun-temp").value + " " + el("ergun-t-unit").value,' +
+      '        "Mass Flow Rate: " + el("ergun-flow-rate").value + " " + el("ergun-flow-unit").value,' +
+      '        "Total Pressure Drop (ΔP): " + el("res-dp-bar").textContent + " bar (" + el("res-dp-kpa").textContent + " kPa, " + el("res-dp-psi").textContent + " psi)",' +
+      '        "Pressure Gradient (ΔP/L): " + el("res-dp-grad").textContent + " kPa/m (" + el("res-dp-psi-ft").textContent + " psi/ft)",' +
+      '        "Reactor Outlet Pressure (P_out): " + el("res-p-out").textContent + " bar",' +
+      '        "Particle Reynolds Number (Re_p): " + el("res-rep").textContent + " (" + el("res-regime").textContent + ")",' +
+      '        "Superficial Gas Velocity (u_s): " + el("res-us").textContent + " m/s (Interstitial: " + el("res-ui").textContent + " m/s)",' +
+      '        "Loss Split: " + el("res-split").textContent + " (Viscous / Inertial)",' +
+      '        "Fluidization Safety Margin: " + el("res-umf-ratio").textContent + " (u_s / u_mf)",' +
+      '        "Catalyst Bed Volume: " + el("res-bed-vol").textContent + " m³ (Mass: " + el("res-cat-mass").textContent + " kg)",' +
+      '        "Status: " + el("ergun-eval-badge").textContent,' +
+      '        "Method: 1-D Integrated Compressible Ergun Formulation with Real Gas Law"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("ergun-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BT4: AGITATED NUTSCHE FILTER-DRYER (ANFD) SIZING CALCULATOR ───
+  (() => {
+    const slug = 'agitated-nutsche-filter-dryer-sizing-calculator';
+    const title = 'Agitated Nutsche Filter-Dryer (ANFD) Filtration & Vacuum Cake Drying Calculator';
+    const metaDescription = 'Size Agitated Nutsche Filter-Dryers (ANFD) for pharmaceutical and fine chemical batch processing. Calculate filtration time (Darcy/Ruth), wash volume, vacuum contact drying rate, and agitator power.';
+    const faq = [
+      {
+        q: 'What is an Agitated Nutsche Filter-Dryer (ANFD) and what are its core advantages?',
+        a: 'An Agitated Nutsche Filter-Dryer (ANFD) is an enclosed, pressure-and-vacuum rated batch processing vessel designed to perform slurry filtration, cake washing, mechanical dewatering, vacuum contact drying, and automatic powder discharge within a single contained unit. In pharmaceutical active pharmaceutical ingredient (API) and high-potency compound manufacturing, ANFDs eliminate operator exposure, avoid product contamination, prevent solvent vapor emissions, and eliminate manual transfer of wet cakes between separate filters and vacuum ovens.'
+      },
+      {
+        q: 'How does the Ruth cake filtration equation determine filtration time in an ANFD?',
+        a: 'Cake filtration in an ANFD obeys Darcy\'s Law integrated at constant pressure drop (the Ruth filtration equation):\\n$$t_{filt} = \\frac{\\mu \\cdot \\alpha \\cdot c}{2 A^2 \\Delta P} V^2 + \\frac{\\mu \\cdot R_m}{A \\Delta P} V$$\\nWhere $\\mu$ is liquid viscosity, $\\alpha$ is specific cake resistance (m/kg), $c$ is dry solid mass per filtrate volume, $A$ is filter plate area, $\\Delta P$ is combined applied gas pressure plus bottom vacuum, $R_m$ is filter medium resistance, and $V$ is accumulated filtrate volume. For thick cakes ($R_c \\gg R_m$), filtration time scales with the square of filtrate volume and inversely with filter area squared.'
+      },
+      {
+        q: 'Why is cake smoothing essential before washing and drying?',
+        a: 'As mother liquor drains below the top of the cake, capillary forces and drying shrinkage cause the solid cake to contract, developing deep fissures and perimeter cracks. If wash solvent is added onto a cracked cake, it channels directly through the fissures into the bottom drain without permeating the cake pores (short-circuiting). The ANFD\'s specialized two-bladed curved agitator rotates in reverse while descending gently onto the cake surface, mechanically smearing and compressing the fissures to restore a uniform, crack-free bed.'
+      },
+      {
+        q: 'How does heated agitator blade contact accelerate vacuum drying kinetics?',
+        a: 'In a static vacuum tray dryer, heat transfer is limited to conduction through the bottom and jacket walls with $U \\approx 15\\text{--}30\\,\\text{W/(m}^2\\cdot\\text{K)}$. An ANFD utilizes internal circulating thermal fluid inside both the vessel jacket, the bottom filter plate, and the hollow agitator shaft and blades. As the agitator rotates and strokes vertically through the bed, it continuously replaces the dried boundary layer with moist cake against the hot surfaces, raising the overall heat transfer coefficient to $U \\approx 80\\text{--}180\\,\\text{W/(m}^2\\cdot\\text{K)}$ and slashing batch drying times by 60% to 80%.'
+      },
+      {
+        q: 'What determines the maximum allowable cake thickness in an ANFD?',
+        a: 'Maximum cake thickness is bounded by filtration hydraulic resistance, agitator mechanical motor torque limits, and heat penetration depth during vacuum drying. While thin cakes filter rapidly, batch cycle economics require processing significant solid mass. Commercial ANFDs operate with cake thicknesses between $100\\,\\text{mm}$ and $300\\,\\text{mm}$ ($4\\text{--}12\\,\\text{inches}$). Cakes thicker than 350 mm exhibit sluggish core drying and risk stalling the agitator hydraulic drive during dense powder phases.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Agitated Nutsche Filter-Dryer (ANFD) Filtration & Vacuum Cake Drying Calculator</h1>' +
+      '    <p>Perform industrial sizing and cycle time optimization for enclosed Agitated Nutsche Filter-Dryers (ANFD). Size vessel filtration area, calculate Ruth constant-pressure filtration time, displacement wash volume, vacuum contact drying rate, and agitator drive motor torque.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Slurry Batch & ANFD Design Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-preset">Pharmaceutical / Chemical Batch Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="anfd-preset">' +
+      '            <option value="pharma" selected>API Active Ingredient Crystallization (2.0 m² Area, 1,200 L Slurry, Ethanol)</option>' +
+      '            <option value="finechem">Fine Chemical Intermediate (4.0 m² Area, 3,500 L Slurry, Acetone Wash)</option>' +
+      '            <option value="agrochemical">Agrochemical Herbicide Salt (6.0 m² Area, 6,000 L Slurry, Water/Methanol)</option>' +
+      '            <option value="pilot">Pilot Plant cGMP Containment ANFD (0.25 m² Area, 100 L Batch)</option>' +
+      '            <option value="custom">Custom ANFD System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-area">Filter Area (\(A\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-area" value="2.0" min="0.1" max="16" step="0.1">' +
+      '          <select id="anfd-area-unit">' +
+      '            <option value="m2" selected>m²</option>' +
+      '            <option value="ft2">ft²</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Bottom sintered metal mesh or woven filter plate area</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-slurry-vol">Slurry Batch Volume (\(V_{slurry}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-slurry-vol" value="1200" min="10" max="50000" step="50">' +
+      '          <select id="anfd-vol-unit">' +
+      '            <option value="l" selected>Liters</option>' +
+      '            <option value="m3">m³</option>' +
+      '            <option value="gal">gal (US)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Charged slurry volume per batch</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-solid-conc">Slurry Solids Concentration (\(w_s\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-solid-conc" value="18" min="1" max="60" step="0.5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wt%</span>' +
+      '        </div>' +
+      '        <div class="hint">Weight percent of suspended crystalline product in slurry</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-alpha">Specific Cake Resistance (\(\alpha\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-alpha" value="2.5" min="0.01" max="500" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">× 10¹¹ m/kg</span>' +
+      '        </div>' +
+      '        <div class="hint">Darcy cake resistance (typically 0.5–10 × 10¹¹ m/kg for crystalline API)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-dp">Filtration Driving Pressure (\(\Delta P\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-dp" value="2.5" min="0.2" max="6.0" step="0.1">' +
+      '          <select id="anfd-dp-unit">' +
+      '            <option value="bar" selected>bar</option>' +
+      '            <option value="psi">psi</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Top N2 pressure + bottom vacuum (e.g. 2.0 bar gauge N2 + 0.5 bar vac)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-visc">Mother Liquor Dynamic Viscosity (\(\mu\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-visc" value="1.2" min="0.2" max="50" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mPa·s (cP)</span>' +
+      '        </div>' +
+      '        <div class="hint">Viscosity of solvent / mother liquor at filtration temperature</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-wash-ratio">Cake Wash Ratio (\(N_w\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-wash-ratio" value="2.0" min="0.5" max="6" step="0.2">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wash / pore vol</span>' +
+      '        </div>' +
+      '        <div class="hint">Multiples of cake pore volume for displacement wash</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-dry-temp">Jacket & Blade Heating Temp (\(T_{j}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-dry-temp" value="65" min="20" max="180" step="1">' +
+      '          <select id="anfd-temp-unit">' +
+      '            <option value="c" selected>°C</option>' +
+      '            <option value="f">°F</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Circulating thermal oil / hot water supply temperature</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="anfd-vac-dry">Drying Vacuum Pressure (\(P_{vac}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="anfd-vac-dry" value="30" min="2" max="500" step="5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mbar (abs)</span>' +
+      '        </div>' +
+      '        <div class="hint">Chamber operating absolute vacuum during drying (lowers solvent boiling point)</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="anfd-calc-btn">Compute ANFD Cycle</button>' +
+      '        <button type="button" class="btn btn-secondary" id="anfd-reset-btn">Reset Defaults</button>' +
+      '      </div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Cycle Times & Equipment Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Vessel Diameter (\(D_{ANFD}\))</div>' +
+      '          <div class="res-val"><span id="res-vessel-dia">1,600</span><span class="res-unit">mm</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-vessel-in">63.0</span> inches</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Wet Cake Thickness (\(H_{cake}\))</div>' +
+      '          <div class="res-val"><span id="res-cake-ht">162</span><span class="res-unit">mm</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;"><span id="res-cake-in">6.4</span> inches (ideal 100–250 mm)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Filtration Time (\(t_{filt}\))</div>' +
+      '          <div class="res-val"><span id="res-t-filt">26.4</span><span class="res-unit">min</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Darcy/Ruth cake filtration</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Displacement Wash Time (\(t_{wash}\))</div>' +
+      '          <div class="res-val"><span id="res-t-wash">11.8</span><span class="res-unit">min</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Wash vol: <span id="res-v-wash">292</span> L</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Vacuum Contact Drying Time</div>' +
+      '          <div class="res-val"><span id="res-t-dry">3.2</span><span class="res-unit">hours</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Solvent removed: <span id="res-m-solv">95</span> kg</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Dry Product Yield per Batch</div>' +
+      '          <div class="res-val"><span id="res-m-dry">226</span><span class="res-unit">kg</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Wet cake mass: <span id="res-m-wet">321</span> kg</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Batch Cycle Time</div>' +
+      '          <div class="res-val"><span id="res-t-cycle">5.1</span><span class="res-unit">hours</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Incl. charge, smoothing, discharge</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Agitator Drive Motor Power</div>' +
+      '          <div class="res-val"><span id="res-p-motor">5.5</span><span class="res-unit">kW</span></div>' +
+      '          <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Torque: <span id="res-torque">3,850</span> N·m (smoothing)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="badge-stat" id="anfd-eval-badge" style="background:#dcfce7; color:#15803d;">✓ ANFD Sizing Valid: Optimal Cake Thickness & Thermal Contact</span>' +
+      '      </div>' +
+      '      <div class="btn-row" style="margin-top:0;">' +
+      '        <button type="button" class="btn btn-secondary" id="anfd-copy-btn">📋 Copy Diagnostic Summary</button>' +
+      '        <span class="copy-toast" id="anfd-toast">✓ Diagnostic Summary Copied!</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="anfd-canvas" width="480" height="340"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- DERIVATION & TECHNICAL SPECIFICATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Mathematical Derivations for ANFDs</h2>' +
+      '    <p>Agitated Nutsche Filter-Dryers unify filtration, displacement washing, mechanical re-smoothing, and vacuum contact drying into a single closed cGMP vessel. Sizing requires coupling Darcy porous media flow with unsteady-state agitated conductive heat transfer.</p>' +
+      '    <h3>1. Constant-Pressure Cake Filtration (Ruth Equation)</h3>' +
+      '    <p>The differential flow rate of mother liquor through the growing filter cake and bottom sintered plate is expressed by Darcy\'s Law:</p>' +
+      '    <div class="formula-box">' +
+      '      \frac{dV}{dt} = \frac{A \cdot \Delta P}{\mu \cdot (R_m + R_c)} = \frac{A \cdot \Delta P}{\mu \cdot \left( R_m + \alpha \cdot \frac{c \cdot V}{A} \right)}' +
+      '    </div>' +
+      '    <p>Where \(c = \frac{\rho_L \cdot w_s}{1 - m \cdot w_s}\) is the mass of dry cake deposited per unit filtrate volume. Integrating for constant \(\Delta P\) yields the total filtration time:</p>' +
+      '    <div class="formula-box">' +
+      '      t_{filt} = \frac{\mu \cdot \alpha \cdot c}{2 A^2 \cdot \Delta P} V^2 + \frac{\mu \cdot R_m}{A \cdot \Delta P} V' +
+      '    </div>' +
+      '    <h3>2. Cake Thickness & Displacement Washing</h3>' +
+      '    <p>The compacted wet cake thickness (\(H_{cake}\)) is governed by dry solid mass, bulk density (\(\rho_{solid}\)), and bed voidage (\(\epsilon_{cake}\)):</p>' +
+      '    <div class="formula-box">' +
+      '      H_{cake} = \frac{M_{dry}}{A \cdot \rho_{solid} \cdot (1 - \epsilon_{cake})}, \quad V_{wash} = N_w \cdot (A \cdot H_{cake} \cdot \epsilon_{cake})' +
+      '    </div>' +
+      '    <p>During displacement wash, fresh solvent permeates the established cake at the final filtration rate:</p>' +
+      '    <div class="formula-box">' +
+      '      t_{wash} = \frac{\mu_w \cdot \left( R_m + \alpha \cdot \frac{M_{dry}}{A} \right)}{A \cdot \Delta P_{wash}} \cdot V_{wash}' +
+      '    </div>' +
+      '    <h3>3. Agitated Vacuum Contact Drying Kinetics</h3>' +
+      '    <p>Heat is transferred by conduction through the heated vessel jacket, heated bottom plate, and hollow heated agitator blades. The continuous turnover of cake eliminates static thermal resistance:</p>' +
+      '    <div class="formula-box">' +
+      '      Q_{dry} = M_{solvent} \cdot \lambda_{evap} + M_{cake} \cdot C_{p,s} \cdot (T_{dry} - T_0)' +
+      '    </div>' +
+      '    <div class="formula-box">' +
+      '      t_{dry} = \frac{Q_{dry}}{U_{agitated} \cdot A_{ht} \cdot \Delta T_{lm}} \cdot \phi_{drying}' +
+      '    </div>' +
+      '    <p>Where \(A_{ht} = A_{jacket,wetted} + A_{bottom} + A_{blades}\), \(U_{agitated} \approx 90\text{--}150\,\text{W/(m}^2\cdot\text{K)}\), and \(\phi_{drying} \approx 1.25\text{--}1.40\) accounts for falling-rate diffusion.</p>' +
+      '    <h3>4. Agitator Drive Power & Mechanical Smoothing</h3>' +
+      '    <p>The mechanical torque required during cake smoothing and reslurry is dictated by the yield stress (\(\tau_y\)) and shear modulus of the wet cake:</p>' +
+      '    <div class="formula-box">' +
+      '      P_{motor} = \frac{2 \pi \cdot N_{agit} \cdot T_{torque}}{60 \cdot \eta_{drive}}, \quad T_{torque} \approx C_{blade} \cdot \tau_{cake} \cdot D_{ANFD}^3' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in ANFD Operations</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Cake Shrinkage Cracking & Washing Bypass</h4>' +
+      '      <p>Draining mother liquor without engaging the smoothing agitator allows capillary tension to split the cake into deep radial fissures. Wash solvent poured onto cracked cake channels directly through the fissures into the bottom filtrate line, bypassing 85% of the crystalline solids. Always run the agitator in reverse at 2–5 RPM with gentle hydraulic down-feed to heal cracks before washing.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Excessive Agitator Descent Rate in Plastic Cake Phase</h4>' +
+      '      <p>During the pasty phase between dewatering and dry powder, wet cake behaves like a dense thixotropic dough. Forcing the heated agitator blade into the cake bed too quickly causes massive mechanical torque spikes, shearing agitator drive keys, stalling hydraulic motors, or bending the central shaft. Implement automated torque-feedback descent control.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Premature Bottom Plate Heating & Sintered Mesh Blinding</h4>' +
+      '      <p>Turning on high-temperature heating fluid to the bottom filter plate before the mother liquor is completely displaced causes boiling and flash crystallization inside the 10–25 micron pores of the sintered multilayer mesh. The resulting encrustation permanently blinds the filter media, requiring aggressive chemical CIP or destructive dismantling.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Vacuum Dust Filter Carryover & Dome Choking</h4>' +
+      '      <p>As the product transitions into a free-flowing dry powder, high-speed agitation combined with maximum vacuum pulls fine powder clouds into the top vapor dome. Without proper pulse-jet nitrogen blowback on the vapor dome dust filter, the filter candles blind instantly, suffocating vacuum and halting drying.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Wall Clearance Stagnation & Localized Thermal Degradation</h4>' +
+      '      <p>In high-potency API synthesis, tight scraper tolerances (3–5 mm) between agitator blade tips and vessel wall are critical. If clearance is excessive, a stagnant crust forms on the hot jacket wall. Over long batch cycles, this stagnant product layer overheats and thermally degrades, contaminating the high-purity batch with discolored degradation impurities.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions</h2>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What is an Agitated Nutsche Filter-Dryer (ANFD) and what are its core advantages? <span>+</span></div>' +
+      '      <div class="faq-a">An Agitated Nutsche Filter-Dryer (ANFD) is an enclosed, pressure-and-vacuum rated batch processing vessel designed to perform slurry filtration, cake washing, mechanical dewatering, vacuum contact drying, and automatic powder discharge within a single contained unit. In pharmaceutical active pharmaceutical ingredient (API) and high-potency compound manufacturing, ANFDs eliminate operator exposure, avoid product contamination, prevent solvent vapor emissions, and eliminate manual transfer of wet cakes between separate filters and vacuum ovens.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does the Ruth cake filtration equation determine filtration time in an ANFD? <span>+</span></div>' +
+      '      <div class="faq-a">Cake filtration in an ANFD obeys Darcy\'s Law integrated at constant pressure drop (the Ruth filtration equation):\n$$t_{filt} = \frac{\mu \cdot \alpha \cdot c}{2 A^2 \Delta P} V^2 + \frac{\mu \cdot R_m}{A \Delta P} V$$\nWhere \(\mu\) is liquid viscosity, \(\alpha\) is specific cake resistance (m/kg), \(c\) is dry solid mass per filtrate volume, \(A\) is filter plate area, \(\Delta P\) is combined applied gas pressure plus bottom vacuum, \(R_m\) is filter medium resistance, and \(V\) is accumulated filtrate volume. For thick cakes (\(R_c \gg R_m\)), filtration time scales with the square of filtrate volume and inversely with filter area squared.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">Why is cake smoothing essential before washing and drying? <span>+</span></div>' +
+      '      <div class="faq-a">As mother liquor drains below the top of the cake, capillary forces and drying shrinkage cause the solid cake to contract, developing deep fissures and perimeter cracks. If wash solvent is added onto a cracked cake, it channels directly through the fissures into the bottom drain without permeating the cake pores (short-circuiting). The ANFD\'s specialized two-bladed curved agitator rotates in reverse while descending gently onto the cake surface, mechanically smearing and compressing the fissures to restore a uniform, crack-free bed.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">How does heated agitator blade contact accelerate vacuum drying kinetics? <span>+</span></div>' +
+      '      <div class="faq-a">In a static vacuum tray dryer, heat transfer is limited to conduction through the bottom and jacket walls with \(U \approx 15\text{--}30\,\text{W/(m}^2\cdot\text{K)}\). An ANFD utilizes internal circulating thermal fluid inside both the vessel jacket, the bottom filter plate, and the hollow agitator shaft and blades. As the agitator rotates and strokes vertically through the bed, it continuously replaces the dried boundary layer with moist cake against the hot surfaces, raising the overall heat transfer coefficient to \(U \approx 80\text{--}180\,\text{W/(m}^2\cdot\text{K)}\) and slashing batch drying times by 60% to 80%.</div>' +
+      '    </div>' +
+      '    <div class="faq-item">' +
+      '      <div class="faq-q">What determines the maximum allowable cake thickness in an ANFD? <span>+</span></div>' +
+      '      <div class="faq-a">Maximum cake thickness is bounded by filtration hydraulic resistance, agitator mechanical motor torque limits, and heat penetration depth during vacuum drying. While thin cakes filter rapidly, batch cycle economics require processing significant solid mass. Commercial ANFDs operate with cake thicknesses between 100 mm and 300 mm (4–12 inches). Cakes thicker than 350 mm exhibit sluggish core drying and risk stalling the agitator hydraulic drive during dense powder phases.</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const presets = {' +
+      '    pharma: { area: 2.0, areaUnit: "m2", vol: 1200, volUnit: "l", conc: 18, alpha: 2.5, dp: 2.5, dpUnit: "bar", visc: 1.2, wash: 2.0, temp: 65, tUnit: "c", vac: 30 },' +
+      '    finechem: { area: 4.0, areaUnit: "m2", vol: 3500, volUnit: "l", conc: 22, alpha: 1.8, dp: 3.0, dpUnit: "bar", visc: 0.8, wash: 2.2, temp: 75, tUnit: "c", vac: 50 },' +
+      '    agrochemical: { area: 6.0, areaUnit: "m2", vol: 6000, volUnit: "l", conc: 25, alpha: 3.2, dp: 2.8, dpUnit: "bar", visc: 1.5, wash: 2.5, temp: 80, tUnit: "c", vac: 40 },' +
+      '    pilot: { area: 0.25, areaUnit: "m2", vol: 100, volUnit: "l", conc: 15, alpha: 2.0, dp: 2.0, dpUnit: "bar", visc: 1.0, wash: 1.8, temp: 60, tUnit: "c", vac: 25 }' +
+      '  };' +
+      '  const el = id => document.getElementById(id);' +
+      '  const getVal = id => parseFloat(el(id).value) || 0;' +
+      '  const setTxt = (id, txt) => { if(el(id)) el(id).textContent = txt; };' +
+      '  ' +
+      '  function getArea_m2(val, unit) {' +
+      '    if (unit === "ft2") return val * 0.092903;' +
+      '    return val;' +
+      '  }' +
+      '  function getVol_m3(val, unit) {' +
+      '    if (unit === "l") return val / 1000;' +
+      '    if (unit === "gal") return val * 0.00378541;' +
+      '    return val;' +
+      '  }' +
+      '  function getP_pa(val, unit) {' +
+      '    if (unit === "bar") return val * 100000;' +
+      '    if (unit === "psi") return val * 6894.76;' +
+      '    return val;' +
+      '  }' +
+      '  function getTemp_c(val, unit) {' +
+      '    if (unit === "f") return (val - 32) * 5 / 9;' +
+      '    return val;' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    const a_m2 = Math.max(0.05, getArea_m2(getVal("anfd-area"), el("anfd-area-unit").value));' +
+      '    const v_slurry_m3 = Math.max(0.01, getVol_m3(getVal("anfd-slurry-vol"), el("anfd-vol-unit").value));' +
+      '    const ws_pct = Math.min(50, Math.max(1, getVal("anfd-solid-conc")));' +
+      '    const ws = ws_pct / 100;' +
+      '    const alpha_base = Math.max(0.01, getVal("anfd-alpha"));' +
+      '    const alpha = alpha_base * 1e11; // m/kg' +
+      '    const dp_pa = Math.max(10000, getP_pa(getVal("anfd-dp"), el("anfd-dp-unit").value));' +
+      '    const visc_cp = Math.max(0.1, getVal("anfd-visc"));' +
+      '    const mu = visc_cp * 0.001; // Pa.s' +
+      '    const nw = Math.max(0.5, getVal("anfd-wash-ratio"));' +
+      '    const tj_c = getTemp_c(getVal("anfd-dry-temp"), el("anfd-temp-unit").value);' +
+      '    const p_vac_mbar = Math.max(2, getVal("anfd-vac-dry"));' +
+      '    ' +
+      '    // Physical Properties' +
+      '    const rho_liquid = 950; // kg/m3' +
+      '    const rho_solid = 1350; // kg/m3' +
+      '    const eps_cake = 0.45; // cake porosity' +
+      '    const rm = 1.0e10; // filter medium resistance m-1' +
+      '    ' +
+      '    // Mass of slurry' +
+      '    const m_slurry_total = v_slurry_m3 * (rho_liquid * (1 - ws) + rho_solid * ws);' +
+      '    const m_dry_kg = m_slurry_total * ws;' +
+      '    ' +
+      '    // Dry cake volume' +
+      '    const v_solid_m3 = m_dry_kg / rho_solid;' +
+      '    const v_cake_m3 = v_solid_m3 / (1 - eps_cake);' +
+      '    const h_cake_m = v_cake_m3 / a_m2;' +
+      '    const h_cake_mm = Math.round(h_cake_m * 1000);' +
+      '    const h_cake_in = h_cake_mm / 25.4;' +
+      '    ' +
+      '    // Liquid trapped in wet cake' +
+      '    const v_pore_m3 = v_cake_m3 * eps_cake;' +
+      '    const m_moisture_wet_kg = v_pore_m3 * rho_liquid;' +
+      '    const m_wet_kg = m_dry_kg + m_moisture_wet_kg;' +
+      '    ' +
+      '    // Filtrate volume collected' +
+      '    const v_filtrate_m3 = Math.max(0.01, v_slurry_m3 - v_cake_m3);' +
+      '    const c_conc = m_dry_kg / v_filtrate_m3; // kg dry / m3 filtrate' +
+      '    ' +
+      '    // Ruth constant pressure filtration equation' +
+      '    // t_filt = (mu * alpha * c / (2 * A^2 * dP)) * V^2 + (mu * Rm / (A * dP)) * V' +
+      '    const term_cake = (mu * alpha * c_conc) / (2 * Math.pow(a_m2, 2) * dp_pa);' +
+      '    const term_medium = (mu * rm) / (a_m2 * dp_pa);' +
+      '    const t_filt_sec = term_cake * Math.pow(v_filtrate_m3, 2) + term_medium * v_filtrate_m3;' +
+      '    const t_filt_min = t_filt_sec / 60;' +
+      '    ' +
+      '    // Displacement washing' +
+      '    const v_wash_m3 = nw * v_pore_m3;' +
+      '    const v_wash_L = v_wash_m3 * 1000;' +
+      '    const rc_final = alpha * (m_dry_kg / a_m2);' +
+      '    // Wash rate dV/dt = A * dP / (mu * (Rm + Rc))' +
+      '    const wash_rate_m3s = (a_m2 * dp_pa) / (mu * (rm + rc_final));' +
+      '    const t_wash_sec = v_wash_m3 / wash_rate_m3s;' +
+      '    const t_wash_min = t_wash_sec / 60;' +
+      '    ' +
+      '    // Agitated vacuum drying kinetics' +
+      '    // Boiling point of solvent under vacuum (approx ethanol/acetone)' +
+      '    const t_boil_c = 25 + Math.log(p_vac_mbar / 10) * 12;' +
+      '    const dt_drive = Math.max(10, tj_c - t_boil_c);' +
+      '    // Effective heat transfer area: bottom plate + wetted jacket + agitator blades' +
+      '    const d_vessel_m = Math.sqrt((4 * a_m2) / Math.PI);' +
+      '    const d_vessel_mm = Math.round(d_vessel_m * 1000);' +
+      '    const d_vessel_in = d_vessel_mm / 25.4;' +
+      '    const a_jacket_wetted = Math.PI * d_vessel_m * (h_cake_m * 1.5);' +
+      '    const a_blades = a_m2 * 0.4;' +
+      '    const a_ht_total = a_m2 + a_jacket_wetted + a_blades;' +
+      '    ' +
+      '    // Agitated heat transfer coeff U ~ 110 W/m2.K' +
+      '    const u_dry = 110;' +
+      '    const lambda_evap_kj = 850; // kJ/kg for organic solvent' +
+      '    const q_evap_kj = m_moisture_wet_kg * lambda_evap_kj;' +
+      '    const q_rate_kw = (u_dry * a_ht_total * dt_drive) / 1000;' +
+      '    const t_dry_sec = (q_evap_kj / q_rate_kw) * 1.35; // 35% falling rate buffer' +
+      '    const t_dry_hr = t_dry_sec / 3600;' +
+      '    ' +
+      '    // Batch total cycle' +
+      '    const t_misc_hr = 1.0; // 60 min for charging, dewatering, smoothing, discharge' +
+      '    const t_cycle_hr = (t_filt_min + t_wash_min) / 60 + t_dry_hr + t_misc_hr;' +
+      '    ' +
+      '    // Agitator motor power & torque' +
+      '    // Power rule of thumb ~ 2.5 kW / m2 for ANFD smoothing' +
+      '    const p_motor_kw = Math.max(1.5, Math.ceil(a_m2 * 2.5 * 10) / 10);' +
+      '    const rpm_smoothing = 8;' +
+      '    const torque_nm = (p_motor_kw * 1000 * 60) / (2 * Math.PI * rpm_smoothing);' +
+      '    ' +
+      '    // Status evaluation' +
+      '    let badgeTxt = "✓ ANFD Sizing Valid: Optimal Cake Thickness & Thermal Contact";' +
+      '    let badgeBg = "#dcfce7", badgeColor = "#15803d";' +
+      '    ' +
+      '    if (h_cake_mm > 300) {' +
+      '      badgeTxt = "⚠ Excessive Cake Thickness (>300 mm): High core thermal resistance; long drying cycle";' +
+      '      badgeBg = "#fee2e2"; badgeColor = "#b91c1c";' +
+      '    } else if (h_cake_mm < 70) {' +
+      '      badgeTxt = "⚠ Thin Cake (<70 mm): Underutilized vessel volume; poor batch throughput";' +
+      '      badgeBg = "#fef3c7"; badgeColor = "#b45309";' +
+      '    }' +
+      '    ' +
+      '    // Update DOM' +
+      '    setTxt("res-vessel-dia", d_vessel_mm.toLocaleString());' +
+      '    setTxt("res-vessel-in", d_vessel_in.toFixed(1));' +
+      '    setTxt("res-cake-ht", h_cake_mm);' +
+      '    setTxt("res-cake-in", h_cake_in.toFixed(1));' +
+      '    setTxt("res-t-filt", t_filt_min.toFixed(1));' +
+      '    setTxt("res-t-wash", t_wash_min.toFixed(1));' +
+      '    setTxt("res-v-wash", Math.round(v_wash_L));' +
+      '    setTxt("res-t-dry", t_dry_hr.toFixed(1));' +
+      '    setTxt("res-m-solv", Math.round(m_moisture_wet_kg));' +
+      '    setTxt("res-m-dry", Math.round(m_dry_kg));' +
+      '    setTxt("res-m-wet", Math.round(m_wet_kg));' +
+      '    setTxt("res-t-cycle", t_cycle_hr.toFixed(1));' +
+      '    setTxt("res-p-motor", p_motor_kw.toFixed(1));' +
+      '    setTxt("res-torque", Math.round(torque_nm).toLocaleString());' +
+      '    ' +
+      '    const badge = el("anfd-eval-badge");' +
+      '    if (badge) {' +
+      '      badge.textContent = badgeTxt;' +
+      '      badge.style.background = badgeBg;' +
+      '      badge.style.color = badgeColor;' +
+      '    }' +
+      '    ' +
+      '    drawCanvas(d_vessel_mm, h_cake_mm, t_filt_min, t_wash_min, t_dry_hr);' +
+      '  }' +
+      '  ' +
+      '  function drawCanvas(diaMm, cakeMm, tFilt, tWash, tDry) {' +
+      '    const cvs = el("anfd-canvas");' +
+      '    if (!cvs) return;' +
+      '    const ctx = cvs.getContext("2d");' +
+      '    const w = cvs.width, h = cvs.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background grid' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ctx.strokeStyle = "#1e293b";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x=0; x<w; x+=30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }' +
+      '    for(let y=0; y<h; y+=30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }' +
+      '    ' +
+      '    // Center & scaling' +
+      '    const cx = w * 0.4;' +
+      '    const vW = 140;' +
+      '    const vH = 190;' +
+      '    const vTop = 60;' +
+      '    ' +
+      '    // Heating Jacket (Orange outer wall)' +
+      '    ctx.fillStyle = "#7c2d12";' +
+      '    ctx.strokeStyle = "#ea580c";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.roundRect(cx - vW/2 - 10, vTop + 25, vW + 20, vH - 35, [4, 4, 12, 12]);' +
+      '    ctx.fill(); ctx.stroke();' +
+      '    ' +
+      '    // ANFD Vessel Body' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.roundRect(cx - vW/2, vTop, vW, vH, [20, 20, 10, 10]);' +
+      '    ctx.fill(); ctx.stroke();' +
+      '    ' +
+      '    // Bottom Filter Plate (Sintered mesh)' +
+      '    const fH = 8;' +
+      '    const fTop = vTop + vH - 25;' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillRect(cx - vW/2 + 4, fTop, vW - 8, fH);' +
+      '    // Mesh grid lines' +
+      '    ctx.strokeStyle = "#0369a1";' +
+      '    ctx.lineWidth = 1;' +
+      '    for(let x = cx - vW/2 + 8; x < cx + vW/2 - 8; x += 8) {' +
+      '      ctx.beginPath(); ctx.moveTo(x, fTop); ctx.lineTo(x, fTop + fH); ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Wet Cake Bed' +
+      '    const cakePixH = Math.min(65, Math.max(15, (cakeMm / 300) * 65));' +
+      '    const cakeTop = fTop - cakePixH;' +
+      '    ctx.fillStyle = "#d97706";' +
+      '    ctx.fillRect(cx - vW/2 + 4, cakeTop, vW - 8, cakePixH);' +
+      '    ' +
+      '    // Central Agitator Shaft & Hydraulic Drive' +
+      '    const shaftW = 14;' +
+      '    ctx.fillStyle = "#64748b";' +
+      '    ctx.fillRect(cx - shaftW/2, vTop - 25, shaftW, cakeTop - vTop + 30);' +
+      '    ' +
+      '    // Hydraulic cylinder on top' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.strokeRect(cx - 16, vTop - 45, 32, 22);' +
+      '    ' +
+      '    // S-profile Agitator Blades' +
+      '    ctx.fillStyle = "#ea580c"; // heated blades' +
+      '    ctx.strokeStyle = "#f97316";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    // Left blade' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - shaftW/2, cakeTop + 5);' +
+      '    ctx.bezierCurveTo(cx - 30, cakeTop - 8, cx - 45, cakeTop + 14, cx - vW/2 + 8, cakeTop + 6);' +
+      '    ctx.lineTo(cx - vW/2 + 8, cakeTop + 12);' +
+      '    ctx.bezierCurveTo(cx - 45, cakeTop + 20, cx - 30, cakeTop - 2, cx - shaftW/2, cakeTop + 11);' +
+      '    ctx.closePath(); ctx.fill(); ctx.stroke();' +
+      '    ' +
+      '    // Right blade' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx + shaftW/2, cakeTop + 5);' +
+      '    ctx.bezierCurveTo(cx + 30, cakeTop + 18, cx + 45, cakeTop - 4, cx + vW/2 - 8, cakeTop + 6);' +
+      '    ctx.lineTo(cx + vW/2 - 8, cakeTop + 12);' +
+      '    ctx.bezierCurveTo(cx + 45, cakeTop + 2, cx + 30, cakeTop + 24, cx + shaftW/2, cakeTop + 11);' +
+      '    ctx.closePath(); ctx.fill(); ctx.stroke();' +
+      '    ' +
+      '    // Side Discharge Valve' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.fillRect(cx + vW/2, fTop - 18, 22, 16);' +
+      '    ctx.strokeRect(cx + vW/2, fTop - 18, 22, 16);' +
+      '    ' +
+      '    // Bottom Filtrate Drain' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 4;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, fTop + fH);' +
+      '    ctx.lineTo(cx, vTop + vH + 20);' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Annotations & Callouts' +
+      '    const infoX = cx + vW/2 + 35;' +
+      '    ctx.fillStyle = "#e2e8f0";' +
+      '    ctx.font = "bold 12px sans-serif";' +
+      '    ctx.fillText("ANFD BATCH CYCLE", infoX, vTop + 20);' +
+      '    ' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillText("1. Filtration: " + tFilt.toFixed(1) + " min", infoX, vTop + 45);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("2. Cake Wash: " + tWash.toFixed(1) + " min", infoX, vTop + 65);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillText("3. Vac Drying: " + tDry.toFixed(1) + " hr", infoX, vTop + 85);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("Cake Height: " + cakeMm + " mm", infoX, vTop + 120);' +
+      '    ctx.fillText("Dia: " + diaMm + " mm", infoX, vTop + 140);' +
+      '    ' +
+      '    ctx.fillStyle = "#ea580c";' +
+      '    ctx.fillText("Heated Agitator + Jacket", infoX, vTop + 175);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Filtrate Drain (Vacuum)", cx - 55, vTop + vH + 34);' +
+      '  }' +
+      '  ' +
+      '  // Event listeners' +
+      '  const inputs = [' +
+      '    "anfd-area", "anfd-area-unit", "anfd-slurry-vol", "anfd-vol-unit",' +
+      '    "anfd-solid-conc", "anfd-alpha", "anfd-dp", "anfd-dp-unit",' +
+      '    "anfd-visc", "anfd-wash-ratio", "anfd-dry-temp", "anfd-temp-unit", "anfd-vac-dry"' +
+      '  ];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const presetEl = el("anfd-preset");' +
+      '  if (presetEl) {' +
+      '    presetEl.addEventListener("change", () => {' +
+      '      const p = presets[presetEl.value];' +
+      '      if (p) {' +
+      '        el("anfd-area").value = p.area;' +
+      '        el("anfd-area-unit").value = p.areaUnit;' +
+      '        el("anfd-slurry-vol").value = p.vol;' +
+      '        el("anfd-vol-unit").value = p.volUnit;' +
+      '        el("anfd-solid-conc").value = p.conc;' +
+      '        el("anfd-alpha").value = p.alpha;' +
+      '        el("anfd-dp").value = p.dp;' +
+      '        el("anfd-dp-unit").value = p.dpUnit;' +
+      '        el("anfd-visc").value = p.visc;' +
+      '        el("anfd-wash-ratio").value = p.wash;' +
+      '        el("anfd-dry-temp").value = p.temp;' +
+      '        el("anfd-temp-unit").value = p.tUnit;' +
+      '        el("anfd-vac-dry").value = p.vac;' +
+      '        calc();' +
+      '      }' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  const resetBtn = el("anfd-reset-btn");' +
+      '  if (resetBtn) {' +
+      '    resetBtn.addEventListener("click", () => {' +
+      '      presetEl.value = "pharma";' +
+      '      presetEl.dispatchEvent(new Event("change"));' +
+      '    });' +
+      '  }' +
+      '  const calcBtn = el("anfd-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("anfd-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== AGITATED NUTSCHE FILTER-DRYER (ANFD) SIZING REPORT ===",' +
+      '        "Filter Area: " + el("anfd-area").value + " " + el("anfd-area-unit").value + " (Vessel Dia: " + el("res-vessel-dia").textContent + " mm)",' +
+      '        "Batch Slurry Volume: " + el("anfd-slurry-vol").value + " " + el("anfd-vol-unit").value + " (Solids Conc: " + el("anfd-solid-conc").value + " wt%)",' +
+      '        "Cake Thickness: " + el("res-cake-ht").textContent + " mm (" + el("res-cake-in").textContent + " in)",' +
+      '        "Constant Pressure Filtration Time: " + el("res-t-filt").textContent + " min (Darcy/Ruth)",' +
+      '        "Displacement Washing Time: " + el("res-t-wash").textContent + " min (Wash Vol: " + el("res-v-wash").textContent + " L)",' +
+      '        "Agitated Vacuum Contact Drying Time: " + el("res-t-dry").textContent + " hours",' +
+      '        "Total Batch Cycle Time: " + el("res-t-cycle").textContent + " hours",' +
+      '        "Batch Dry Product Yield: " + el("res-m-dry").textContent + " kg (Wet Cake: " + el("res-m-wet").textContent + " kg)",' +
+      '        "Agitator Motor Power: " + el("res-p-motor").textContent + " kW (Torque: " + el("res-torque").textContent + " N·m)",' +
+      '        "Status: " + el("anfd-eval-badge").textContent,' +
+      '        "Standard: cGMP Enclosed Agitated Nutsche Filtration & Vacuum Contact Drying Formulation"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("anfd-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (231 calculators in /calc/)');
 }
 
