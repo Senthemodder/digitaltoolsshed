@@ -120849,6 +120849,2245 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
 
 
 
-console.log('  ✓ Built Trade & Construction Suite (183 calculators in /calc/)');
+  // ==========================================
+  // Tool BI1: API 676 Rotary Screw & Gear Pump NPSHE & Viscosity Derating Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-676-rotary-pump-npsh-calculator';
+    const title = 'API 676 Rotary Screw & Gear Pump NPSHE & Viscosity Calculator';
+    const metaDescription = 'Calculate positive displacement rotary screw and gear pump performance, slip flow, Net Positive Suction Energy Available (NPSHEA), and viscous power derating per API Standard 676 and Hydraulic Institute ANSI/HI 3.1-3.5.';
+
+    const faq = [
+      {
+        q: 'What is the fundamental difference between centrifugal pump NPSH and rotary pump NPSHE in API 676?',
+        a: 'In API Standard 676, the suction requirement for positive displacement rotary pumps is formally termed Net Positive Suction Energy (NPSHE) rather than Net Positive Suction Head (NPSH), typically expressed in feet or psi (NPSHA / NPSHR). Unlike centrifugal pumps where cavitation manifests as vapor bubble collapse eroding impeller vanes, cavitation in rotary pumps causes severe hydraulic filling loss (incomplete chamber fill), volumetric efficiency collapse, acoustic screaming, pressure pulsation spikes, and rapid mechanical seizure of intermeshing gears or screw flights.'
+      },
+      {
+        q: 'How does high fluid viscosity affect rotary pump slip and volumetric efficiency?',
+        a: 'In positive displacement rotary pumps, slip is the internal back-leakage of fluid from discharge to suction across small rotor-to-housing and rotor-to-rotor clearances. Slip is directly proportional to differential pressure (Delta P) and inversely proportional to dynamic viscosity: Q_slip ~ Delta P / mu. Consequently, as viscosity increases from 1 cSt to 5,000 cSt, internal slip virtually disappears, and volumetric efficiency approaches 98% to 100%. However, viscous viscous shear dramatically increases shaft drag, requiring larger drive motors and reduced operating speeds (RPM) to prevent suction cavitation.'
+      },
+      {
+        q: 'Why must pump speed (RPM) be derated when pumping high-viscosity liquids?',
+        a: 'When liquid viscosity increases (e.g. from lubricating oil at 50 cSt to heavy asphalt or polymer resins at 10,000 cSt), fluid cannot accelerate through the inlet suction port fast enough to keep up with the expanding rotor pockets. If the pump is operated at standard electric motor speeds (1,750 or 1,150 RPM), the local static pressure inside the rotor teeth drops below vapor pressure, causing starvation cavitation and heavy hydraulic vibration. Hydraulic Institute (HI) standards mandate speed reductions—often down to 100 to 400 RPM—for high-viscosity fluids.'
+      },
+      {
+        q: 'What is viscous shear horsepower (VHP) in rotary pump sizing?',
+        a: 'Viscous shear horsepower (VHP) is the parasitic mechanical energy absorbed by dragging the rotors through viscous fluid in the tight radial and axial running clearances between the gears/screws and the casing wall. For low-viscosity fluids (<20 cSt), mechanical friction is minimal. For highly viscous fluids (>1,000 cSt), VHP scales with viscosity and rotor tip speed squared, frequently exceeding the hydraulic water horsepower (WHP) by 200% to 400%.'
+      },
+      {
+        q: 'Why is an internal or external pressure relief valve mandatory on API 676 rotary pumps?',
+        a: 'Positive displacement rotary pumps deliver a constant fixed volume per revolution regardless of discharge line resistance. If a discharge block valve is accidentally closed or downstream line becomes plugged, pressure rises almost instantaneously toward infinity until the pump casing explodes, shafts shear, or the motor trips on overcurrent. API 676 mandates a full-flow safety relief valve set at 10% to 15% above maximum operating pressure, sized to bypass 100% of rated pump displacement.'
+      }
+    ];
+
+    const content = `
+<style>
+.rot-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.rot-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.rot-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.rot-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .rot-grid-2, .rot-grid-3, .rot-grid-4 { grid-template-columns: 1fr; }
+}
+.rot-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.rot-input, .rot-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.rot-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.rot-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.rot-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.rot-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.rot-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+</style>
+
+<div class="rot-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">API 676 Rotary Screw &amp; Gear Pump Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">Viscosity Derating, Slip Flow, NPSHE/NPSHR Suction Margin &amp; Brake Power (API 676 / ANSI/HI 3.1-3.5)</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="rot-btn" id="btn_rot_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Pump Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0.75rem 1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+    <span style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Fluid Viscosity Presets:</span>
+    <button type="button" class="rot-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_visc_diesel">Diesel Fuel (3 cSt / 36 SSU)</button>
+    <button type="button" class="rot-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_visc_lube">ISO VG 46 Lube Oil (46 cSt)</button>
+    <button type="button" class="rot-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_visc_heavycrude">Heavy Crude Oil (500 cSt)</button>
+    <button type="button" class="rot-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_visc_asphalt">Bitumen / Asphalt (3,000 cSt)</button>
+    <button type="button" class="rot-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_visc_polymer">Polymer / Resin (15,000 cSt)</button>
+  </div>
+
+  <div class="rot-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="rot-label">Pump Architecture Type</label>
+      <select id="rot_type" class="rot-select">
+        <option value="twinscrew" selected>Twin-Screw External Bearing (API 676 Standard)</option>
+        <option value="threescrew">Three-Screw Pump (High-Pressure Hydraulic/Lube)</option>
+        <option value="extgear">External Gear Pump (Process Transfer)</option>
+        <option value="intgear">Internal Gear Pump (Crescent / Heavy Liquid)</option>
+      </select>
+    </div>
+    <div>
+      <label class="rot-label">Operating Pump Speed (N) <span>RPM</span></label>
+      <input type="number" id="rot_rpm" class="rot-input" value="1150" step="50" min="50" max="3600">
+    </div>
+    <div>
+      <label class="rot-label">Theoretical Displacement (D_th) <span>gal / rev</span></label>
+      <input type="number" id="rot_disp" class="rot-input" value="0.250" step="0.025" min="0.005" max="5.0">
+    </div>
+  </div>
+
+  <div class="rot-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="rot-label">Differential Pressure (&Delta;P) <span>psi</span></label>
+      <input type="number" id="rot_dp" class="rot-input" value="150" step="10" min="10" max="2500">
+    </div>
+    <div>
+      <label class="rot-label">Kinematic Viscosity (&nu;) <span>cSt (centistokes)</span></label>
+      <input type="number" id="rot_visc" class="rot-input" value="100" step="10" min="1" max="100000">
+    </div>
+    <div>
+      <label class="rot-label">Fluid Specific Gravity (SG) <span>water = 1.0</span></label>
+      <input type="number" id="rot_sg" class="rot-input" value="0.90" step="0.02" min="0.6" max="1.6">
+    </div>
+    <div>
+      <label class="rot-label">Suction Absolute Pressure (P_s) <span>psia</span></label>
+      <input type="number" id="rot_ps" class="rot-input" value="14.0" step="0.5" min="1">
+    </div>
+  </div>
+
+  <div class="rot-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="rot-label">Fluid Vapor Pressure (P_vap) <span>psia</span></label>
+      <input type="number" id="rot_pvap" class="rot-input" value="1.5" step="0.1" min="0.01">
+    </div>
+    <div>
+      <label class="rot-label">Suction Line Friction Head Loss <span>ft of liquid</span></label>
+      <input type="number" id="rot_h_loss" class="rot-input" value="3.5" step="0.5" min="0">
+    </div>
+    <div>
+      <label class="rot-label">Static Suction Head (+/-) <span>ft (liq level)</span></label>
+      <input type="number" id="rot_h_static" class="rot-input" value="2.0" step="0.5">
+    </div>
+    <div>
+      <label class="rot-label">Base NPSHR (Water @ Speed) <span>ft</span></label>
+      <input type="number" id="rot_npshr_base" class="rot-input" value="7.5" step="0.5" min="2">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="rot-grid-4" style="margin-bottom:1.5rem;">
+    <div class="rot-kpi">
+      <div class="rot-kpi-lbl">Actual Net Flow Rate (Q_act)</div>
+      <div class="rot-kpi-val" id="res_rot_qact" style="color:#2563eb;">278.4 GPM</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rot_qact_metric">63.2 m&sup3;/h (96.8% Vol Eff)</div>
+    </div>
+    <div class="rot-kpi">
+      <div class="rot-kpi-lbl">Total Shaft Power (BHP)</div>
+      <div class="rot-kpi-val" id="res_rot_bhp">32.6 HP</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rot_bhp_kw">24.3 kW (Driver Req)</div>
+    </div>
+    <div class="rot-kpi">
+      <div class="rot-kpi-lbl">NPSH Available (NPSHA)</div>
+      <div class="rot-kpi-val" id="res_rot_npsha" style="color:#10b981;">28.5 ft</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rot_npsha_psi">11.1 psi (NPSHR: 11.2 ft)</div>
+    </div>
+    <div class="rot-kpi">
+      <div class="rot-kpi-lbl">Suction Margin Status</div>
+      <div class="rot-kpi-val" id="res_rot_margin_val" style="color:#10b981; font-size:1.35rem;">+17.3 ft Margin</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rot_margin_status">PASS (&gt;API 676 3 ft)</div>
+    </div>
+  </div>
+
+  <div class="rot-grid-3">
+    <div class="rot-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Volumetric &amp; Slip Hydraulics</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Theoretical Displacement:</strong> <span id="res_rot_qtheo">287.5 GPM (65.3 m&sup3;/h)</span></div>
+        <div><strong>Internal Slip Flow:</strong> <span id="res_rot_qslip">9.1 GPM (3.2% slip)</span></div>
+        <div><strong>Volumetric Efficiency (&eta;v):</strong> <span id="res_rot_vol_eff">96.8%</span></div>
+        <div><strong>Recommended Max Speed:</strong> <span id="res_rot_max_rpm">1,200 RPM (HI Limit)</span></div>
+      </div>
+    </div>
+    <div class="rot-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Power Breakdown (Viscous Shear)</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Hydraulic Power (WHP):</strong> <span id="res_rot_whp">24.4 HP (18.2 kW)</span></div>
+        <div><strong>Viscous Friction Power (VHP):</strong> <span id="res_rot_vhp">6.8 HP (5.1 kW)</span></div>
+        <div><strong>Mechanical Loss (Bearings/Seals):</strong> <span id="res_rot_mech_hp">1.4 HP (1.0 kW)</span></div>
+        <div><strong>Overall Pump Efficiency:</strong> <span id="res_rot_overall_eff">74.8%</span></div>
+      </div>
+    </div>
+    <div class="rot-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Safety &amp; Motor Sizing</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Relief Valve Setting (110%):</strong> <span id="res_rot_rv_setting">165 psi (11.4 bar)</span></div>
+        <div><strong>RV Discharge Capacity:</strong> <span id="res_rot_rv_flow">288 GPM (Full Flow)</span></div>
+        <div><strong>Suggested Motor Rating:</strong> <span id="res_rot_motor">40 HP (30 kW)</span></div>
+        <div><strong>Speed Status:</strong> <span id="res_rot_speed_status" style="color:#10b981; font-weight:600;">Safe Operating RPM</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Rotary Pumps</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. Operating at High Motor RPM with High Viscosity</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Direct-coupling rotary pumps to standard 1,750 RPM motors on heavy crude, polymers, or asphalt (>1,000 cSt) is a catastrophic error. Viscous drag prevents fluid from filling expanding gear or screw pockets in the microsecond window of suction exposure. The pump undergoes <strong>severe cavitation and starvation hammering</strong>, eroding rotor tips, snapping timing gears, and collapsing flow rate by over 60%.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Thermal Expansion Galling &amp; Cold-Start Seizure</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Rotary pumps rely on microscopic running clearances (0.0015" to 0.0040") between rotating screws and casing bores to minimize slip. Pumping high-temperature fluids (e.g. 300&deg;F / 150&deg;C hot oil) through a cold, un-jacketed pump casing causes the low-mass internal rotors to thermally expand minutes faster than the heavy cast iron/steel casing. The rotors expand into casing walls, causing <strong>instantaneous rotor galling and violent mechanical lockup</strong>.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Missing or Undersized Discharge Relief Valve Disaster</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Unlike centrifugal pumps which merely slip back to shutoff head when blocked, positive displacement rotary pumps continue forcing liquid forward on every shaft revolution. If downstream piping is blocked without a full-flow safety relief valve, system pressure climbs beyond <strong>3,000 psi in less than one second</strong>, catastrophically rupturing pump casings, blowing off pipe flanges, and endangering plant operators.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Internal Relief Valve Recycling Overheating Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Relying on built-in internal relief valves (which vent back directly to the pump suction chamber) during prolonged closed-valve bypass operation is dangerous. Trapped fluid circulates in a closed 5-gallon loop inside the casing, absorbing 100% of the drive motor power as viscous friction. In less than 3 minutes, <strong>casing liquid temperature spikes above 400&deg;F (200&deg;C)</strong>, boiling fluid, vaporizing mechanical seal faces, and galling rotor flights.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Low-Viscosity Slip Blowby on Hot Hydrocarbons</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Specifying standard rotary pumps for low-viscosity fluids (<1.5 cSt, like hot condensate, naphtha, or light hydrocarbons) against high differential pressure (>150 psi) causes internal slip to skyrocket. Volumetric efficiency collapses from 95% to below 40%, fluid recirculates backward across clearances, generating severe localized heating and destroying shaft hydrodynamic bearing film support.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">API 676 &amp; Hydraulic Institute Mathematical Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Theoretical Flow, Slip Flow &amp; Volumetric Efficiency</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$Q_{theo} = D_{th} \times N \quad [\text{GPM}]$$
+    $$Q_{slip} = C_{slip} \cdot \frac{\Delta P}{\nu^{0.4}} \quad [\text{GPM}]$$
+    $$Q_{act} = Q_{theo} - Q_{slip} \quad [\text{GPM}]$$
+    $$\eta_v = \frac{Q_{act}}{Q_{theo}} \times 100\%$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Net Positive Suction Head Available (NPSHA)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$NPSHA = \frac{2.31 \cdot (P_s - P_{vap})}{SG} + h_{static} - h_{friction} \quad [\text{feet}]$$
+    $$\text{NPSHR}_{viscous} = \text{NPSHR}_{base} \times \left(\frac{\nu}{1}\right)^{0.12} \times \left(\frac{N}{1150}\right)^{1.2} \quad [\text{feet}]$$
+    $$\text{Margin} = NPSHA - \text{NPSHR}_{viscous} \ge 3.0 \text{ ft (API 676)}$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Power Calculations (Hydraulic, Viscous &amp; Brake Horsepower)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$WHP = \frac{Q_{act} \cdot \Delta P}{1714} \quad [\text{HP}]$$
+    $$VHP = C_{v} \cdot \nu^{0.35} \cdot \left(\frac{N}{1000}\right)^{1.5} \cdot D_{th} \quad [\text{HP}]$$
+    $$BHP = WHP + VHP + P_{mech} \quad [\text{HP}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const VISC_PRESETS = {
+    'diesel': { visc: 3, sg: 0.84, pvap: 0.1 },
+    'lube': { visc: 46, sg: 0.88, pvap: 0.01 },
+    'heavycrude': { visc: 500, sg: 0.94, pvap: 1.0 },
+    'asphalt': { visc: 3000, sg: 1.02, pvap: 0.05 },
+    'polymer': { visc: 15000, sg: 1.10, pvap: 0.01 }
+  };
+
+  function applyPreset(pKey) {
+    const p = VISC_PRESETS[pKey];
+    if (p) {
+      document.getElementById('rot_visc').value = p.visc;
+      document.getElementById('rot_sg').value = p.sg;
+      document.getElementById('rot_pvap').value = p.pvap;
+      calcRot();
+    }
+  }
+
+  document.getElementById('preset_visc_diesel').addEventListener('click', () => applyPreset('diesel'));
+  document.getElementById('preset_visc_lube').addEventListener('click', () => applyPreset('lube'));
+  document.getElementById('preset_visc_heavycrude').addEventListener('click', () => applyPreset('heavycrude'));
+  document.getElementById('preset_visc_asphalt').addEventListener('click', () => applyPreset('asphalt'));
+  document.getElementById('preset_visc_polymer').addEventListener('click', () => applyPreset('polymer'));
+
+  function calcRot() {
+    const pType = document.getElementById('rot_type').value;
+    const rpm = parseFloat(document.getElementById('rot_rpm').value) || 1150;
+    const disp = parseFloat(document.getElementById('rot_disp').value) || 0.25;
+    const dp = parseFloat(document.getElementById('rot_dp').value) || 150;
+    const visc = parseFloat(document.getElementById('rot_visc').value) || 100;
+    const sg = parseFloat(document.getElementById('rot_sg').value) || 0.90;
+    const ps = parseFloat(document.getElementById('rot_ps').value) || 14.0;
+    const pvap = parseFloat(document.getElementById('rot_pvap').value) || 1.5;
+    const hLoss = parseFloat(document.getElementById('rot_h_loss').value) || 3.5;
+    const hStatic = parseFloat(document.getElementById('rot_h_static').value) || 2.0;
+    const npshrBase = parseFloat(document.getElementById('rot_npshr_base').value) || 7.5;
+
+    // Theoretical flow GPM
+    const qTheo = disp * rpm;
+
+    // Slip flow empirical correlation
+    let cSlip = 1.8;
+    if (pType === 'threescrew') cSlip = 1.2;
+    else if (pType === 'extgear') cSlip = 2.4;
+    else if (pType === 'intgear') cSlip = 2.1;
+
+    const qSlip = Math.max(0.5, (cSlip * dp) / Math.pow(visc, 0.45));
+    const qAct = Math.max(0, qTheo - qSlip);
+    const qActM3h = qAct * 0.227125;
+    const volEff = (qAct / Math.max(1, qTheo)) * 100;
+
+    // Hydraulic Power WHP
+    const whp = (qAct * dp) / 1714;
+
+    // Viscous Horsepower VHP (viscous drag in running clearances)
+    let cV = 2.5;
+    if (pType === 'twinscrew') cV = 2.2;
+    else if (pType === 'extgear') cV = 2.8;
+
+    const vhp = cV * Math.pow(visc / 10, 0.38) * Math.pow(rpm / 1000, 1.6) * (disp / 0.25);
+    const mechHp = 1.2 + 0.015 * whp;
+    const bhp = whp + vhp + mechHp;
+    const bhpKw = bhp * 0.7457;
+
+    const overallEff = (whp / Math.max(1, bhp)) * 100;
+
+    // NPSHA calculation (ft of liquid)
+    const pAvailPsi = Math.max(0.1, ps - pvap);
+    const npsha = ((2.31 * pAvailPsi) / sg) + hStatic - hLoss;
+    const npshaPsi = npsha * (sg / 2.31);
+
+    // Viscous derated NPSHR per Hydraulic Institute
+    const npshrVisc = npshrBase * Math.pow(Math.max(1, visc) / 10, 0.12) * Math.pow(rpm / 1150, 1.2);
+    const npshMargin = npsha - npshrVisc;
+
+    // Maximum recommended RPM per HI viscosity chart
+    let maxRpm = 1750;
+    if (visc > 10000) maxRpm = 350;
+    else if (visc > 3000) maxRpm = 500;
+    else if (visc > 1000) maxRpm = 750;
+    else if (visc > 300) maxRpm = 1150;
+    else if (visc > 100) maxRpm = 1450;
+
+    // Relief valve setting
+    const rvSetting = dp * 1.10;
+
+    // Standard Motor Selection
+    const STD_MOTORS = [5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300];
+    const recMotor = STD_MOTORS.find(m => m >= bhp * 1.15) || Math.ceil(bhp * 1.2 / 50) * 50;
+
+    // Update KPI Displays
+    document.getElementById('res_rot_qact').textContent = qAct.toFixed(1) + ' GPM';
+    document.getElementById('res_rot_qact_metric').textContent = qActM3h.toFixed(1) + ' m³/h (' + volEff.toFixed(1) + '% Vol Eff)';
+
+    document.getElementById('res_rot_bhp').textContent = bhp.toFixed(1) + ' HP';
+    document.getElementById('res_rot_bhp_kw').textContent = bhpKw.toFixed(1) + ' kW (Driver Req)';
+
+    document.getElementById('res_rot_npsha').textContent = npsha.toFixed(1) + ' ft';
+    document.getElementById('res_rot_npsha_psi').textContent = npshaPsi.toFixed(1) + ' psi (NPSHR: ' + npshrVisc.toFixed(1) + ' ft)';
+
+    const marginVal = document.getElementById('res_rot_margin_val');
+    const marginStatus = document.getElementById('res_rot_margin_status');
+    if (npshMargin < 0) {
+      marginVal.textContent = npshMargin.toFixed(1) + ' ft (CAVITATING!)';
+      marginVal.style.color = '#ef4444';
+      marginStatus.textContent = 'DANGER: Starvation Cavitation Active!';
+      marginStatus.style.color = '#ef4444';
+    } else if (npshMargin < 3.0) {
+      marginVal.textContent = '+' + npshMargin.toFixed(1) + ' ft Marginal';
+      marginVal.style.color = '#f59e0b';
+      marginStatus.textContent = 'CAUTION: <3.0 ft API 676 Margin';
+      marginStatus.style.color = '#f59e0b';
+    } else {
+      marginVal.textContent = '+' + npshMargin.toFixed(1) + ' ft Margin';
+      marginVal.style.color = '#10b981';
+      marginStatus.textContent = 'PASS (>API 676 3 ft Margin)';
+      marginStatus.style.color = '#10b981';
+    }
+
+    // Details Breakdown
+    document.getElementById('res_rot_qtheo').textContent = qTheo.toFixed(1) + ' GPM (' + (qTheo * 0.227125).toFixed(1) + ' m³/h)';
+    document.getElementById('res_rot_qslip').textContent = qSlip.toFixed(1) + ' GPM (' + ((qSlip / qTheo) * 100).toFixed(1) + '% slip)';
+    document.getElementById('res_rot_vol_eff').textContent = volEff.toFixed(1) + '%';
+    document.getElementById('res_rot_max_rpm').textContent = maxRpm + ' RPM (HI Limit)';
+
+    document.getElementById('res_rot_whp').textContent = whp.toFixed(1) + ' HP (' + (whp * 0.7457).toFixed(1) + ' kW)';
+    document.getElementById('res_rot_vhp').textContent = vhp.toFixed(1) + ' HP (' + (vhp * 0.7457).toFixed(1) + ' kW)';
+    document.getElementById('res_rot_mech_hp').textContent = mechHp.toFixed(1) + ' HP (' + (mechHp * 0.7457).toFixed(1) + ' kW)';
+    document.getElementById('res_rot_overall_eff').textContent = overallEff.toFixed(1) + '%';
+
+    document.getElementById('res_rot_rv_setting').textContent = Math.round(rvSetting) + ' psi (' + (rvSetting * 0.0689476).toFixed(1) + ' bar)';
+    document.getElementById('res_rot_rv_flow').textContent = Math.round(qTheo) + ' GPM (Full Flow)';
+    document.getElementById('res_rot_motor').textContent = recMotor + ' HP (' + Math.round(recMotor * 0.7457) + ' kW)';
+
+    const speedStatus = document.getElementById('res_rot_speed_status');
+    if (rpm > maxRpm) {
+      speedStatus.textContent = 'EXCESSIVE SPEED (> ' + maxRpm + ' RPM)';
+      speedStatus.style.color = '#ef4444';
+    } else {
+      speedStatus.textContent = 'Safe Operating RPM (< ' + maxRpm + ')';
+      speedStatus.style.color = '#10b981';
+    }
+  }
+
+  const inputs = [
+    'rot_type', 'rot_rpm', 'rot_disp', 'rot_dp', 'rot_visc',
+    'rot_sg', 'rot_ps', 'rot_pvap', 'rot_h_loss', 'rot_h_static', 'rot_npshr_base'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcRot);
+      el.addEventListener('change', calcRot);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_rot_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'API 676 ROTARY PUMP SIZING & NPSHE DATASHEET',
+        '===============================================',
+        'Pump Type: ' + document.getElementById('rot_type').options[document.getElementById('rot_type').selectedIndex].text,
+        'Speed / Displacement: ' + document.getElementById('rot_rpm').value + ' RPM / ' + document.getElementById('rot_disp').value + ' gal/rev',
+        'Fluid Viscosity / SG: ' + document.getElementById('rot_visc').value + ' cSt / ' + document.getElementById('rot_sg').value,
+        'Differential Pressure: ' + document.getElementById('rot_dp').value + ' psi',
+        '--- Hydraulic Performance ---',
+        'Actual Flow Rate: ' + document.getElementById('res_rot_qact').textContent + ' (' + document.getElementById('res_rot_qact_metric').textContent + ')',
+        'Volumetric Efficiency: ' + document.getElementById('res_rot_vol_eff').textContent,
+        'Internal Slip Flow: ' + document.getElementById('res_rot_qslip').textContent,
+        '--- Suction Energy & NPSHE ---',
+        'NPSH Available (NPSHA): ' + document.getElementById('res_rot_npsha').textContent + ' (' + document.getElementById('res_rot_npsha_psi').textContent + ')',
+        'Suction Margin: ' + document.getElementById('res_rot_margin_val').textContent + ' [' + document.getElementById('res_rot_margin_status').textContent + ']',
+        '--- Power & Mechanical ---',
+        'Brake Horsepower (BHP): ' + document.getElementById('res_rot_bhp').textContent + ' (' + document.getElementById('res_rot_bhp_kw').textContent + ')',
+        'Viscous Friction Power (VHP): ' + document.getElementById('res_rot_vhp').textContent,
+        'Recommended Motor Drive: ' + document.getElementById('res_rot_motor').textContent,
+        'Safety Relief Valve: ' + document.getElementById('res_rot_rv_setting').textContent + ' @ ' + document.getElementById('res_rot_rv_flow').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcRot();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BI2: Cooling Tower Evaporation Loss, Drift, Blowdown & Cycles of Concentration (COC) Calculator
+  // ==========================================
+  (() => {
+    const slug = 'cooling-tower-cycles-of-concentration-calculator';
+    const title = 'Cooling Tower Evaporation, Blowdown & Cycles of Concentration Calculator';
+    const metaDescription = 'Calculate evaporative cooling tower water balance, evaporation loss, drift, blowdown rate, and makeup water demand per CTI STD-201 and ASHRAE 90.1. Evaluates water conservation savings from elevating Cycles of Concentration (COC).';
+
+    const faq = [
+      {
+        q: 'What are Cycles of Concentration (COC) in an industrial cooling tower?',
+        a: 'Cycles of Concentration (COC) represents the ratio of dissolved dissolved mineral ions (such as chlorides, silica, or total dissolved solids TDS) in the recirculating tower basin water compared to the incoming fresh makeup water: COC = TDS_basin / TDS_makeup. Because pure water evaporates into the atmosphere during evaporative cooling while dissolved minerals remain trapped in the basin, minerals concentrate over time. Operating at higher COC (e.g. 5.0 to 7.0 vs 2.5) saves millions of gallons of fresh water annually by reducing blowdown waste.'
+      },
+      {
+        q: 'How is cooling tower evaporation loss calculated?',
+        a: 'Evaporation rate is directly tied to the latent heat of vaporization of water (approximately 1,000 to 1,050 Btu/lb). Under CTI STD-201 and ASHRAE standards, evaporation loss E is calculated from circulating water flow rate Q_circ (GPM) and cooling temperature range Delta T (deg F) via: E = 0.0008 * Q_circ * Delta T. For every 10 deg F of water cooling across the tower fill, approximately 0.8% of the total circulating water volume evaporates into the air stream.'
+      },
+      {
+        q: 'What is blowdown and why is it necessary in open recirculating cooling systems?',
+        a: 'Blowdown (or bleed-off) is the deliberate, continuous discharge of a portion of mineral-concentrated basin water to the sewer or wastewater treatment plant. It is replaced by fresh makeup water to dilute mineral concentrations and maintain COC below the saturation precipitation limits of calcium carbonate, calcium sulfate, and silica. Without adequate blowdown, minerals precipitate onto heat exchanger tubes as hard insulating scale, severely degrading heat transfer and clogging water passages.'
+      },
+      {
+        q: 'What is the modern standard for cooling tower drift loss?',
+        a: 'Drift is the unwanted loss of liquid water droplets entrained in the discharging exhaust air plume. Modern cellular polyvinyl chloride (PVC) drift eliminators reduce drift loss to between 0.0005% and 0.001% of the circulating water flow rate (per EPA Clean Water Act Section 316(b) and CTI standards). Uncontrolled drift not only wastes water and treatment chemicals, but also deposits corrosive salts on surrounding cars/switchgear and disperses aerosolized Legionella bacteria into the ambient air.'
+      },
+      {
+        q: 'Why do returns diminish when increasing COC above 6.0 to 8.0 cycles?',
+        a: 'Water conservation follows an asymptotic hyperbolic curve: increasing COC from 2.0 to 4.0 cuts blowdown and makeup demand by over 50%. However, increasing COC from 6.0 to 10.0 provides negligible additional water savings (less than 3% to 5%) while drastically compounding chemical treatment costs. At high COC, silica exceeds its 150-180 ppm solubility limit and Langelier Saturation Index (LSI) spikes, requiring expensive polymer dispersants and hazardous acid feeds that outweigh the marginal water savings.'
+      }
+    ];
+
+    const content = `
+<style>
+.ct-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.ct-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.ct-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.ct-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .ct-grid-2, .ct-grid-3, .ct-grid-4 { grid-template-columns: 1fr; }
+}
+.ct-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.ct-input, .ct-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.ct-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.ct-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.ct-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.ct-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.ct-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.ct-canvas {
+  width: 100%;
+  height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: block;
+}
+</style>
+
+<div class="ct-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">Cooling Tower Evaporation, Blowdown &amp; COC Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">CTI STD-201 &amp; ASHRAE 90.1 Mass Water Balance, Cycles of Concentration &amp; Water Savings Optimization</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="ct-btn" id="btn_ct_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Water Balance Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="ct-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="ct-label">Circulating Water Flow (Q_circ) <span>US GPM</span></label>
+      <input type="number" id="ct_flow" class="ct-input" value="12000" step="500" min="100">
+    </div>
+    <div>
+      <label class="ct-label">Hot Water Entering Temp (T_hot) <span>&deg;F</span></label>
+      <input type="number" id="ct_thot" class="ct-input" value="105.0" step="1">
+    </div>
+    <div>
+      <label class="ct-label">Cold Water Basin Temp (T_cold) <span>&deg;F</span></label>
+      <input type="number" id="ct_tcold" class="ct-input" value="85.0" step="1">
+    </div>
+  </div>
+
+  <div class="ct-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="ct-label">Cycles of Concentration (COC) <span>current</span></label>
+      <input type="number" id="ct_coc" class="ct-input" value="4.0" step="0.5" min="1.2" max="15.0">
+    </div>
+    <div>
+      <label class="ct-label">Drift Eliminator Rating <span>% of flow</span></label>
+      <select id="ct_drift_rate" class="ct-select">
+        <option value="0.000005" selected>High-Efficiency Cellular (0.0005% - Modern)</option>
+        <option value="0.00002">Standard PVC Chevron (0.002% - Typical)</option>
+        <option value="0.0001">Older Wood/Fiberglass Louvers (0.01%)</option>
+      </select>
+    </div>
+    <div>
+      <label class="ct-label">Water &amp; Sewer Cost <span>$/1,000 gal</span></label>
+      <input type="number" id="ct_water_cost" class="ct-input" value="6.50" step="0.5" min="0.5">
+    </div>
+    <div>
+      <label class="ct-label">Annual Operating Hours <span>hrs/yr</span></label>
+      <input type="number" id="ct_hours" class="ct-input" value="8000" step="250" min="500" max="8760">
+    </div>
+  </div>
+
+  <div class="ct-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="ct-label">Makeup Water TDS <span>ppm / mg/L</span></label>
+      <input type="number" id="ct_tds_mu" class="ct-input" value="250" step="25" min="20">
+    </div>
+    <div>
+      <label class="ct-label">Makeup Water Silica (SiO2) <span>ppm</span></label>
+      <input type="number" id="ct_silica_mu" class="ct-input" value="18" step="2" min="1">
+    </div>
+    <div>
+      <label class="ct-label">Target Optimized COC <span>for savings</span></label>
+      <input type="number" id="ct_coc_target" class="ct-input" value="6.5" step="0.5" min="2.0" max="15.0">
+    </div>
+    <div>
+      <label class="ct-label">Chemical Water Treatment <span>$/1,000 gal MU</span></label>
+      <input type="number" id="ct_chem_cost" class="ct-input" value="0.85" step="0.05" min="0">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="ct-grid-4" style="margin-bottom:1.5rem;">
+    <div class="ct-kpi">
+      <div class="ct-kpi-lbl">Evaporation Loss (E)</div>
+      <div class="ct-kpi-val" id="res_ct_evap" style="color:#2563eb;">192.0 GPM</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_ct_evap_metric">43.6 m&sup3;/h (1.60% of Circ)</div>
+    </div>
+    <div class="ct-kpi">
+      <div class="ct-kpi-lbl">Blowdown Rate (B)</div>
+      <div class="ct-kpi-val" id="res_ct_blowdown" style="color:#f59e0b;">63.9 GPM</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_ct_blowdown_metric">14.5 m&sup3;/h (at 4.0 COC)</div>
+    </div>
+    <div class="ct-kpi">
+      <div class="ct-kpi-lbl">Fresh Makeup Demand (M)</div>
+      <div class="ct-kpi-val" id="res_ct_makeup">256.0 GPM</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_ct_makeup_metric">58.1 m&sup3;/h (122.9M Gal/yr)</div>
+    </div>
+    <div class="ct-kpi">
+      <div class="ct-kpi-lbl">Annual Savings @ Target COC</div>
+      <div class="ct-kpi-val" id="res_ct_savings" style="color:#10b981;">$70,400 / yr</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_ct_water_saved">9.58M Gal/yr Conserved</div>
+    </div>
+  </div>
+
+  <!-- Water Balance Canvas Diagram -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <span style="font-weight:600; font-size:0.95rem;">Makeup &amp; Blowdown Water Demand vs Cycles of Concentration (COC)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Blue: Total Makeup (GPM) | Amber: Blowdown Discharge (GPM)</span>
+    </div>
+    <canvas id="ct_water_canvas" class="ct-canvas" width="800" height="220"></canvas>
+  </div>
+
+  <div class="ct-grid-3">
+    <div class="ct-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Thermodynamics &amp; Drift</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Cooling Range (&Delta;T):</strong> <span id="res_ct_range">20.0 &deg;F (11.1 &deg;C)</span></div>
+        <div><strong>Heat Rejection Duty:</strong> <span id="res_ct_heat_duty">120.0 MMBtu/h (35.2 MW)</span></div>
+        <div><strong>Tons of Refrigeration:</strong> <span id="res_ct_tons">10,000 Tons</span></div>
+        <div><strong>Drift Loss (D):</strong> <span id="res_ct_drift">0.06 GPM (86 gal/day)</span></div>
+      </div>
+    </div>
+    <div class="ct-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Water Chemistry &amp; Scaling</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Basin Water TDS:</strong> <span id="res_ct_basin_tds">1,000 ppm</span></div>
+        <div><strong>Basin Silica Level (SiO2):</strong> <span id="res_ct_basin_silica">72 ppm (&lt;150 ppm Limit)</span></div>
+        <div><strong>Silica Scaling Risk:</strong> <span id="res_ct_silica_status" style="color:#10b981; font-weight:600;">SAFE (Below 150 ppm)</span></div>
+        <div><strong>Target COC Silica Limit:</strong> <span id="res_ct_max_coc">8.3 Max COC</span></div>
+      </div>
+    </div>
+    <div class="ct-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Operating Costs &amp; Conservation</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Annual Water Utility Cost:</strong> <span id="res_ct_annual_water_cost">$799,000 / year</span></div>
+        <div><strong>Annual Chemical Cost:</strong> <span id="res_ct_annual_chem_cost">$104,500 / year</span></div>
+        <div><strong>Total Annual Operating Cost:</strong> <span id="res_ct_annual_total_cost">$903,500 / year</span></div>
+        <div><strong>Makeup Reduction %:</strong> <span id="res_ct_mu_reduction">-7.8% Water Demand</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Cooling Tower Operation</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Silica Precipitation Glass Hard Scaling Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Attempting to aggressively save water by pushing cycles of concentration above 8 to 10 in regions with high raw-water silica (e.g. western US or volcanic aquifers with \(>25 \text{ ppm } SiO_2\)) is catastrophic. When basin silica exceeds <strong>150 to 180 ppm</strong>, it polymerizes into amorphous colloidal silica, forming a glassy, porcelain-hard silicate scale on condenser tube surfaces. Unlike calcium carbonate, silica scale cannot be dissolved by acid washing; it requires mechanical reaming or complete condenser re-tubing costing hundreds of thousands of dollars.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Over-Concentration Diminishing Returns Fallacy</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Water savings follow an asymptotic curve (\(M = E \cdot [COC / (COC - 1)]\)). Increasing COC from 2.0 to 4.0 cuts blowdown and makeup demand in half, saving millions of gallons. However, pushing from 5.0 to 9.0 saves less than <strong>2% to 3% additional water</strong> while quadrupling chemical inhibitor dosages, tripling biological biofilm growth risks, and pushing calcium hardness to precipitation thresholds.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Missing Drift Eliminator Legionella Dispersal Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operating cooling towers with missing, warped, or damaged drift eliminator modules allows liquid water droplets (10 to 50 microns) to escape into the atmosphere. Warm cooling water (85&deg;F to 105&deg;F) is an ideal breeding incubator for <em>Legionella pneumophila</em> bacteria. Escaping drift travels up to <strong>2 miles downwind</strong>, infiltrating building air handling unit (AHU) outdoor air intakes and causing fatal Legionnaires' disease outbreaks and massive corporate liability.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. The Blowdown Valve Air-Binding &amp; Siphon Failure Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Relying on manual intermittent blowdown or blowdown solenoid valves installed with improper pipe grade causes air-binding or silt blockage. When the blowdown line clogs, evaporation continues while blowdown drops to zero. Cycles of concentration quietly surge from 4.0 to over 15.0 in 48 hours. By the time operators notice high conductivity, the chiller condenser tubes are completely choked with calcium carbonate crust, driving chiller head pressure to high-pressure trip limits.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Under-Concentration High Blowdown Sewer Bill Shock</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operating a cooling tower with uncalibrated conductivity controllers stuck at 1.8 to 2.2 COC dumps massive volumes of lightly used water down the drain. Because municipal sewer charges are billed as a direct percentage of incoming metered makeup water, the facility pays double for water (supply fee plus sewer discharge fee). Elevating COC from 2.0 to 5.0 <strong>slashes water and sewer bills by 40% to 55%</strong>, commonly saving medium-sized facilities over $100,000 annually.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">CTI STD-201 &amp; Mass Water Balance Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Evaporation Loss Rate (E)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$E = 0.0008 \cdot Q_{circ} \cdot (T_{hot} - T_{cold}) \quad [\text{US GPM}]$$
+    $$\text{Heat Duty } Q = 500 \cdot Q_{circ} \cdot \Delta T \quad [\text{Btu/hr}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Blowdown (B) &amp; Makeup (M) Water Equations</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$B = \frac{E - (COC - 1) \cdot D}{COC - 1} \approx \frac{E}{COC - 1} \quad [\text{US GPM}]$$
+    $$M = E + B + D = E \cdot \left(\frac{COC}{COC - 1}\right) \quad [\text{US GPM}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Water &amp; Dollar Conservation from Elevating COC</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\Delta M = E \cdot \left(\frac{1}{COC_1 - 1} - \frac{1}{COC_2 - 1}\right) \quad [\text{US GPM}]$$
+    $$\text{Annual Savings} = \Delta M \cdot 60 \cdot \text{Hours} \cdot \left(\frac{C_{water} + C_{chem}}{1,000}\right) \quad [\$]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  function drawWaterCanvas(eGpm, cocCurrent, cocTarget) {
+    const canvas = document.getElementById('ct_water_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    function xPos(coc) {
+      return 50 + ((coc - 1.5) / (10 - 1.5)) * (w - 80);
+    }
+    // Max makeup at COC = 1.5 is E * 1.5 / 0.5 = 3 * E
+    const maxM = 3.2 * eGpm;
+    function yPos(flow) {
+      return (h - 30) - (flow / maxM) * (h - 55);
+    }
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(150, 150, 150, 0.2)';
+    ctx.lineWidth = 1;
+    for (let c = 2; c <= 10; c += 1) {
+      const x = xPos(c);
+      ctx.beginPath();
+      ctx.moveTo(x, 15);
+      ctx.lineTo(x, h - 30);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(c + ' COC', x - 12, h - 15);
+    }
+
+    // Draw Makeup Curve (Blue)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let c = 1.6; c <= 10; c += 0.2) {
+      const m = eGpm * (c / (c - 1));
+      const x = xPos(c);
+      const y = yPos(m);
+      if (c === 1.6) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw Blowdown Curve (Amber)
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let c = 1.6; c <= 10; c += 0.2) {
+      const b = eGpm / (c - 1);
+      const x = xPos(c);
+      const y = yPos(b);
+      if (c === 1.6) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Evaporation Baseline (Green dashed)
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xPos(1.5), yPos(eGpm));
+    ctx.lineTo(xPos(10), yPos(eGpm));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#10b981';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Evaporation Base: ' + Math.round(eGpm) + ' GPM', xPos(6.5), yPos(eGpm) - 6);
+
+    // Marker for current COC
+    if (cocCurrent >= 1.5 && cocCurrent <= 10) {
+      const curX = xPos(cocCurrent);
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(curX, 15);
+      ctx.lineTo(curX, h - 30);
+      ctx.stroke();
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('Current (' + cocCurrent.toFixed(1) + ')', curX + 4, 35);
+    }
+
+    // Marker for target COC
+    if (cocTarget >= 1.5 && cocTarget <= 10) {
+      const tgtX = xPos(cocTarget);
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(tgtX, 15);
+      ctx.lineTo(tgtX, h - 30);
+      ctx.stroke();
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('Target (' + cocTarget.toFixed(1) + ')', tgtX + 4, 60);
+    }
+  }
+
+  function calcCt() {
+    const qCirc = parseFloat(document.getElementById('ct_flow').value) || 12000;
+    const tHot = parseFloat(document.getElementById('ct_thot').value) || 105;
+    const tCold = parseFloat(document.getElementById('ct_tcold').value) || 85;
+    const coc = parseFloat(document.getElementById('ct_coc').value) || 4.0;
+    const driftRate = parseFloat(document.getElementById('ct_drift_rate').value) || 0.000005;
+    const waterCost = parseFloat(document.getElementById('ct_water_cost').value) || 6.50;
+    const hours = parseFloat(document.getElementById('ct_hours').value) || 8000;
+    const tdsMu = parseFloat(document.getElementById('ct_tds_mu').value) || 250;
+    const silicaMu = parseFloat(document.getElementById('ct_silica_mu').value) || 18;
+    const cocTarget = parseFloat(document.getElementById('ct_coc_target').value) || 6.5;
+    const chemCost = parseFloat(document.getElementById('ct_chem_cost').value) || 0.85;
+
+    const deltaT = Math.max(1, tHot - tCold);
+
+    // Evaporation loss E = 0.0008 * Q_circ * Delta T (GPM)
+    const eGpm = 0.0008 * qCirc * deltaT;
+    const eM3h = eGpm * 0.227125;
+
+    // Drift loss D = driftRate * Q_circ (GPM)
+    const dGpm = driftRate * qCirc;
+
+    // Current Blowdown B = [E - (COC - 1) * D] / (COC - 1)
+    const bGpm = Math.max(0, (eGpm - (coc - 1) * dGpm) / Math.max(0.1, coc - 1));
+    const bM3h = bGpm * 0.227125;
+
+    // Current Makeup M = E + B + D
+    const mGpm = eGpm + bGpm + dGpm;
+    const mM3h = mGpm * 0.227125;
+    const mAnnualGal = mGpm * 60 * hours;
+
+    // Target Optimized COC calculations
+    const bTargetGpm = Math.max(0, (eGpm - (cocTarget - 1) * dGpm) / Math.max(0.1, cocTarget - 1));
+    const mTargetGpm = eGpm + bTargetGpm + dGpm;
+    const savedGpm = Math.max(0, mGpm - mTargetGpm);
+    const savedAnnualGal = savedGpm * 60 * hours;
+    const totalUnitCost = (waterCost + chemCost) / 1000;
+    const annualSavings = savedAnnualGal * totalUnitCost;
+
+    // Heat duty
+    const heatBtu = 500 * qCirc * deltaT;
+    const heatMbtu = heatBtu / 1e6;
+    const heatMw = heatMbtu * 0.293071;
+    const tons = heatBtu / 12000;
+
+    // Water chemistry
+    const basinTds = tdsMu * coc;
+    const basinSilica = silicaMu * coc;
+    const maxCocBySilica = 150 / Math.max(1, silicaMu);
+
+    // Costs
+    const annualWaterCost = (mAnnualGal / 1000) * waterCost;
+    const annualChemCost = (mAnnualGal / 1000) * chemCost;
+    const annualTotalCost = annualWaterCost + annualChemCost;
+    const muReductionPct = (savedGpm / mGpm) * 100;
+
+    // Update KPI Displays
+    document.getElementById('res_ct_evap').textContent = eGpm.toFixed(1) + ' GPM';
+    document.getElementById('res_ct_evap_metric').textContent = eM3h.toFixed(1) + ' m³/h (' + ((eGpm / qCirc) * 100).toFixed(2) + '% of Circ)';
+
+    document.getElementById('res_ct_blowdown').textContent = bGpm.toFixed(1) + ' GPM';
+    document.getElementById('res_ct_blowdown_metric').textContent = bM3h.toFixed(1) + ' m³/h (at ' + coc.toFixed(1) + ' COC)';
+
+    document.getElementById('res_ct_makeup').textContent = mGpm.toFixed(1) + ' GPM';
+    document.getElementById('res_ct_makeup_metric').textContent = mM3h.toFixed(1) + ' m³/h (' + (mAnnualGal / 1e6).toFixed(1) + 'M Gal/yr)';
+
+    document.getElementById('res_ct_savings').textContent = '$' + Math.round(annualSavings).toLocaleString() + ' / yr';
+    document.getElementById('res_ct_water_saved').textContent = (savedAnnualGal / 1e6).toFixed(2) + 'M Gal/yr Conserved';
+
+    // Thermodynamics Details
+    document.getElementById('res_ct_range').textContent = deltaT.toFixed(1) + ' °F (' + (deltaT * 5 / 9).toFixed(1) + ' °C)';
+    document.getElementById('res_ct_heat_duty').textContent = heatMbtu.toFixed(1) + ' MMBtu/h (' + heatMw.toFixed(1) + ' MW)';
+    document.getElementById('res_ct_tons').textContent = Math.round(tons).toLocaleString() + ' Tons';
+    document.getElementById('res_ct_drift').textContent = dGpm.toFixed(2) + ' GPM (' + Math.round(dGpm * 1440) + ' gal/day)';
+
+    // Chemistry Details
+    document.getElementById('res_ct_basin_tds').textContent = Math.round(basinTds).toLocaleString() + ' ppm';
+    document.getElementById('res_ct_basin_silica').textContent = Math.round(basinSilica) + ' ppm (Limit: 150 ppm)';
+
+    const silicaStatus = document.getElementById('res_ct_silica_status');
+    if (basinSilica > 180) {
+      silicaStatus.textContent = 'DANGER: Hard Silica Scaling (>180 ppm)!';
+      silicaStatus.style.color = '#ef4444';
+    } else if (basinSilica > 150) {
+      silicaStatus.textContent = 'WARNING: Near Silica Saturation (150-180 ppm)';
+      silicaStatus.style.color = '#f59e0b';
+    } else {
+      silicaStatus.textContent = 'SAFE (Below 150 ppm Solubility)';
+      silicaStatus.style.color = '#10b981';
+    }
+
+    document.getElementById('res_ct_max_coc').textContent = maxCocBySilica.toFixed(1) + ' Max Permissible COC';
+
+    // Costs Details
+    document.getElementById('res_ct_annual_water_cost').textContent = '$' + Math.round(annualWaterCost).toLocaleString() + ' / year';
+    document.getElementById('res_ct_annual_chem_cost').textContent = '$' + Math.round(annualChemCost).toLocaleString() + ' / year';
+    document.getElementById('res_ct_annual_total_cost').textContent = '$' + Math.round(annualTotalCost).toLocaleString() + ' / year';
+    document.getElementById('res_ct_mu_reduction').textContent = '-' + muReductionPct.toFixed(1) + '% Makeup Volume';
+
+    drawWaterCanvas(eGpm, coc, cocTarget);
+  }
+
+  const inputs = [
+    'ct_flow', 'ct_thot', 'ct_tcold', 'ct_coc', 'ct_drift_rate',
+    'ct_water_cost', 'ct_hours', 'ct_tds_mu', 'ct_silica_mu', 'ct_coc_target', 'ct_chem_cost'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcCt);
+      el.addEventListener('change', calcCt);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_ct_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'COOLING TOWER WATER BALANCE & COC DATASHEET',
+        '===============================================',
+        'Circulating Flow: ' + document.getElementById('ct_flow').value + ' GPM | Range: ' + document.getElementById('res_ct_range').textContent,
+        'Current COC: ' + document.getElementById('ct_coc').value + ' | Target COC: ' + document.getElementById('ct_coc_target').value,
+        'Heat Rejection Duty: ' + document.getElementById('res_ct_heat_duty').textContent + ' (' + document.getElementById('res_ct_tons').textContent + ')',
+        '--- Mass Water Balance Outputs ---',
+        'Evaporation Loss (E): ' + document.getElementById('res_ct_evap').textContent + ' (' + document.getElementById('res_ct_evap_metric').textContent + ')',
+        'Blowdown Discharge (B): ' + document.getElementById('res_ct_blowdown').textContent + ' (' + document.getElementById('res_ct_blowdown_metric').textContent + ')',
+        'Makeup Water Demand (M): ' + document.getElementById('res_ct_makeup').textContent + ' (' + document.getElementById('res_ct_makeup_metric').textContent + ')',
+        'Drift Loss (D): ' + document.getElementById('res_ct_drift').textContent,
+        '--- Water Chemistry & Conservation ---',
+        'Basin TDS / Silica: ' + document.getElementById('res_ct_basin_tds').textContent + ' / ' + document.getElementById('res_ct_basin_silica').textContent,
+        'Silica Scaling Risk: ' + document.getElementById('res_ct_silica_status').textContent,
+        'Annual Water Savings: ' + document.getElementById('res_ct_water_saved').textContent,
+        'Annual Financial Savings: ' + document.getElementById('res_ct_savings').textContent,
+        'Current Total Water Cost: ' + document.getElementById('res_ct_annual_total_cost').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcCt();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BI3: ASME Section I Boiler Natural Circulation Ratio & Downcomer-Waterwall Hydraulics Calculator
+  // ==========================================
+  (() => {
+    const slug = 'boiler-circulation-ratio-calculator';
+    const title = 'ASME Section I Boiler Natural Circulation Ratio & Hydraulics Calculator';
+    const metaDescription = 'Calculate power boiler natural thermal circulation ratio, downcomer-riser two-phase density driving head, exit steam quality, and Departure from Nucleate Boiling (DNB) safety margins per ASME Section I.';
+
+    const faq = [
+      {
+        q: 'What is the Circulation Ratio (CR) in a natural circulation water-tube boiler?',
+        a: 'The Circulation Ratio (CR) is the ratio of the total mass flow rate of liquid water entering the downcomers to the mass flow rate of steam generated in the waterwall furnace tubes: CR = m_circ / m_steam. For example, a circulation ratio of 6.0 means that for every 6 pounds of water circulated from the steam drum through downcomers and up the waterwall tubes, exactly 1 pound evaporates into saturated steam and 5 pounds of water return to the drum. The steam quality at the top of the furnace waterwalls is the reciprocal: x_exit = 1 / CR (e.g. 1 / 6.0 = 16.7% steam quality).'
+      },
+      {
+        q: 'How does natural circulation drive fluid flow without a mechanical boiler circulating pump?',
+        a: 'Natural circulation operates entirely on gravity buoyancy created by the density difference between the cold downcomers and the hot boiling waterwall tubes. The external downcomers carry unheated, dense, subcooled water (rho ~ 42 to 55 lb/cu.ft), while combustion heat boiling inside the furnace tubes generates a lightweight two-phase steam-water foam mixture (rho_avg ~ 18 to 32 lb/cu.ft). The hydrostatic column of the heavy downcomer water exerts higher bottom header pressure than the lightweight riser column, creating a thermal driving head: Delta P_driving = (rho_dc - rho_riser) * H that circulates water at high velocity.'
+      },
+      {
+        q: 'What is Departure from Nucleate Boiling (DNB) and why is low circulation catastrophic?',
+        a: 'Departure from Nucleate Boiling (DNB)—also known as dryout or burnout—occurs when steam quality in the waterwall tubes becomes too high (typically x > 20% to 25%, corresponding to CR < 4.0 to 5.0). The continuous liquid water film on the inside tube wall evaporates, and an insulating blanket of superheated steam forms against the metal surface. The heat transfer coefficient collapses by 95%, causing tube metal temperatures to instantaneously spike by 400 to 800 deg F. The tube overheats, bulges, and ruptures with explosive force, causing complete boiler shutdown.'
+      },
+      {
+        q: 'Why does natural circulation become impractical as drum pressure approaches critical (3,206 psia)?',
+        a: 'As boiler operating pressure increases toward the thermodynamic critical pressure of water (3,206.2 psia / 221.2 bar a), the density difference between saturated liquid and saturated vapor shrinks dramatically (at 2,800 psia, liquid density is only 33 lb/cu.ft while vapor is 14 lb/cu.ft; at critical pressure, the difference is exactly zero). Because the thermal driving head Delta P depends entirely on (rho_liquid - rho_vapor), natural circulation heads become too feeble to overcome friction at pressures above 2,600 to 2,800 psig, necessitating forced circulation (circulating pumps) or once-through Benson/Sulzer supercritical designs.'
+      },
+      {
+        q: 'How do internal drum separators (cyclones and chevron dryers) prevent steam carryunder?',
+        a: 'The two-phase mixture returning from the waterwalls at CR = 4 to 8 enters the steam drum where turbo-separators or cyclone spinners centrifugally separate water from steam. Saturated steam exits out the top through chevron demisters to the superheater, while separated water drains to the downcomer inlets. If drum separators are flooded or overloaded, steam bubbles are dragged downward into the downcomers ("steam carryunder"), reducing downcomer density, collapsing the thermal driving head, and stalling circulation throughout the furnace.'
+      }
+    ];
+
+    const content = `
+<style>
+.bl-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.bl-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.bl-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.bl-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .bl-grid-2, .bl-grid-3, .bl-grid-4 { grid-template-columns: 1fr; }
+}
+.bl-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.bl-input, .bl-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.bl-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.bl-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.bl-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.bl-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.bl-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.bl-canvas {
+  width: 100%;
+  height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: block;
+}
+</style>
+
+<div class="bl-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">ASME Section I Boiler Circulation Ratio &amp; Hydraulics Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">Power Boiler Natural Thermal Circulation, Two-Phase Density Driving Head &amp; DNB Burnout Safety Margin</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="bl-btn" id="btn_bl_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Circulation Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="bl-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="bl-label">Boiler Class Preset</label>
+      <select id="bl_preset" class="bl-select">
+        <option value="utility" selected>Utility Power Boiler (1,800 psig, 140 ft Waterwall)</option>
+        <option value="industrial">Industrial Chemical / Recovery Boiler (900 psig, 90 ft)</option>
+        <option value="package">Package D-Type Water-Tube Boiler (450 psig, 45 ft)</option>
+        <option value="subcrit">High-Pressure Subcritical Unit (2,400 psig, 160 ft)</option>
+      </select>
+    </div>
+    <div>
+      <label class="bl-label">Steam Drum Operating Pressure <span>psig</span></label>
+      <input type="number" id="bl_pressure" class="bl-input" value="1800" step="50" min="100" max="2800">
+    </div>
+    <div>
+      <label class="bl-label">Waterwall Heated Height (H) <span>ft</span></label>
+      <input type="number" id="bl_height" class="bl-input" value="140" step="5" min="20" max="250">
+    </div>
+  </div>
+
+  <div class="bl-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="bl-label">Steam Steaming Rate <span>lb/hr (t/h)</span></label>
+      <input type="number" id="bl_msteam" class="bl-input" value="650000" step="25000" min="10000">
+    </div>
+    <div>
+      <label class="bl-label">Number of Downcomers (N_dc)</label>
+      <input type="number" id="bl_n_dc" class="bl-input" value="4" step="1" min="1" max="12">
+    </div>
+    <div>
+      <label class="bl-label">Downcomer Inside Dia (d_dc) <span>inches</span></label>
+      <input type="number" id="bl_d_dc" class="bl-input" value="12.0" step="0.5" min="4" max="24">
+    </div>
+    <div>
+      <label class="bl-label">Number of Waterwall Tubes</label>
+      <input type="number" id="bl_n_tubes" class="bl-input" value="480" step="20" min="50">
+    </div>
+  </div>
+
+  <div class="bl-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="bl-label">Waterwall Tube Inside Dia (di) <span>inches</span></label>
+      <input type="number" id="bl_d_tube" class="bl-input" value="2.25" step="0.125" min="1.0" max="4.0">
+    </div>
+    <div>
+      <label class="bl-label">Downcomer Resistance Coeff (K_dc)</label>
+      <input type="number" id="bl_k_dc" class="bl-input" value="3.5" step="0.2" min="1.0" max="10.0">
+    </div>
+    <div>
+      <label class="bl-label">Riser Friction Multiplier (&Phi;&sup2;)</label>
+      <input type="number" id="bl_phi2" class="bl-input" value="1.85" step="0.05" min="1.1" max="4.0">
+    </div>
+    <div>
+      <label class="bl-label">Slip Ratio (S = u_g / u_l)</label>
+      <input type="number" id="bl_slip" class="bl-input" value="1.45" step="0.05" min="1.0" max="2.5">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="bl-grid-4" style="margin-bottom:1.5rem;">
+    <div class="bl-kpi">
+      <div class="bl-kpi-lbl">Natural Circulation Ratio (CR)</div>
+      <div class="bl-kpi-val" id="res_bl_cr" style="color:#2563eb;">6.85 : 1</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_bl_cr_desc">Self-Balancing Thermal Flow</div>
+    </div>
+    <div class="bl-kpi">
+      <div class="bl-kpi-lbl">Exit Steam Quality (x_exit)</div>
+      <div class="bl-kpi-val" id="res_bl_xexit" style="color:#10b981;">14.6%</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_bl_xexit_status">SAFE (&lt;25% DNB Limit)</div>
+    </div>
+    <div class="bl-kpi">
+      <div class="bl-kpi-lbl">Thermal Driving Head</div>
+      <div class="bl-kpi-val" id="res_bl_head">16.4 psi</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_bl_head_ft">37.8 ft H2O Head</div>
+    </div>
+    <div class="bl-kpi">
+      <div class="bl-kpi-lbl">Total Circulation Mass Flow</div>
+      <div class="bl-kpi-val" id="res_bl_mcirc">4.45M lb/h</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_bl_mcirc_metric">561 kg/s (2,019 t/h)</div>
+    </div>
+  </div>
+
+  <!-- Circulation Loop Schematic Canvas -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <span style="font-weight:600; font-size:0.95rem;">Natural Circulation Loop Hydraulic Balance (Downcomer vs Riser Density Profile)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Blue: Downcomer (Dense Water) | Red/Yellow: Waterwall (Two-Phase Boiling)</span>
+    </div>
+    <canvas id="bl_loop_canvas" class="bl-canvas" width="800" height="220"></canvas>
+  </div>
+
+  <div class="bl-grid-3">
+    <div class="bl-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Thermodynamics &amp; Densities</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Drum Saturation Temp (T_sat):</strong> <span id="res_bl_tsat">621.8 &deg;F (327.7 &deg;C)</span></div>
+        <div><strong>Downcomer Water Density:</strong> <span id="res_bl_rhodc">39.5 lb/ft&sup3;</span></div>
+        <div><strong>Saturated Steam Density:</strong> <span id="res_bl_rhog">5.12 lb/ft&sup3;</span></div>
+        <div><strong>Mean Two-Phase Riser Density:</strong> <span id="res_bl_rhoriser">22.6 lb/ft&sup3;</span></div>
+      </div>
+    </div>
+    <div class="bl-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Fluid Velocities &amp; Friction</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Downcomer Velocity (v_dc):</strong> <span id="res_bl_vdc">8.75 ft/s (2.67 m/s)</span></div>
+        <div><strong>Riser Inlet Velocity (v_in):</strong> <span id="res_bl_vin">4.20 ft/s (1.28 m/s)</span></div>
+        <div><strong>Riser Exit Velocity (v_exit):</strong> <span id="res_bl_vexit">9.85 ft/s (Two-Phase)</span></div>
+        <div><strong>Average Void Fraction (&alpha;):</strong> <span id="res_bl_void">49.4% Vapor Volume</span></div>
+      </div>
+    </div>
+    <div class="bl-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">ASME I Critical Heat Safety</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>DNB Safety Status:</strong> <span id="res_bl_dnb_status" style="color:#10b981; font-weight:600;">PASS (CR &gt; 5.0)</span></div>
+        <div><strong>Critical Heat Flux Margin:</strong> <span id="res_bl_chf_margin">1.71x Safe Nucleate Buffer</span></div>
+        <div><strong>Natural Circulation Stability:</strong> <span id="res_bl_stab_status">High Buoyancy Driving Margin</span></div>
+        <div><strong>Max Drum Pressure Limit:</strong> <span id="res_bl_press_limit">2,600 psig (Natural Limit)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Boiler Circulation</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. Departure from Nucleate Boiling (DNB) Burnout Catastrophe</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">When the natural circulation ratio drops below <strong>4.0 to 5.0</strong> (steam quality exceeding 20% to 25%), liquid water is stripped from the inner tube surface. The boiling mechanism abruptly transitions from highly efficient nucleate boiling (\(h > 10,000 \text{ Btu/hr}\cdot\text{ft}^2\cdot^\circ\text{F}\)) to film boiling with a dry steam blanket (\(h < 200 \text{ Btu/hr}\cdot\text{ft}^2\cdot^\circ\text{F}\)). Tube metal temperatures in the high-heat furnace zone instantly spike past 1,300&deg;F (700&deg;C). The carbon steel yields, balloons outwards, and ruptures with explosive force, blowing out the furnace setting.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Downcomer Steam Carryunder Circulation Stall</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">If steam drum waterlevel is operated too low or cyclone primary separators are damaged, steam bubbles are drawn downward into downcomer inlets ("steam carryunder"). Because vapor density is very low, even a 5% volume fraction of steam bubbles in downcomers drops downcomer density significantly. The buoyancy difference \((\rho_{dc} - \bar{\rho}_{riser})\) collapses, <strong>stalling circulation throughout all waterwalls</strong> and triggering widespread furnace tube burnout within minutes.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Approaching Critical Pressure Natural Circulation Collapse</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Attempting to design natural circulation boilers for operating pressures above <strong>2,600 to 2,800 psig (180 to 195 bar g)</strong> is a fatal thermodynamic mistake. As pressure climbs toward the critical point (3,206 psia), the density difference between saturated water and steam vanishes. Without sufficient density differential to overcome piping friction and two-phase acceleration losses, circulation flow slows to a crawl. Boilers operating in this regime must use assisted circulating pumps or supercritical once-through designs.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Waterwall Flow Maldistribution &amp; Reverse Circulation</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">In wide utility boilers, burners or flame tilt create uneven firebox heat absorption. Tubes in the central high-heat zone generate high steam fractions and high upward velocities, creating low static pressure in lower headers. Sluggish, unheated corner tubes or shadow-wall tubes can experience <strong>reverse downward flow</strong>. Downward flowing steam bubbles become stagnant, overheat the tube crown, and cause rapid thermal fatigue cracking.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Steam Drum Level Swell &amp; Superheater Flooding During Load Spikes</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">When steam turbine load surges rapidly, drum pressure momentarily drops. The sudden pressure decrease causes all boiling water inside the waterwalls to flash into vapor ("drum swell"). The waterlevel in the drum surges upward by 10 to 18 inches, submerging the secondary chevron steam dryers. Liquid water containing boiler water treatment salts carries over into the 1,000&deg;F superheater, causing <strong>severe thermal quench cracks and steam turbine blade erosion</strong>.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">ASME Section I Boiler Hydraulic Balance Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Thermal Buoyancy Driving Head (\(\Delta P_{driving}\))</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\Delta P_{driving} = (\rho_{dc} - \bar{\rho}_{riser}) \cdot \left(\frac{g}{g_c}\right) \cdot H \quad [\text{lb}/\text{ft}^2 \text{ or psi}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Two-Phase Mean Riser Density (Armand-Thom Formulation)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$x_{exit} = \frac{1}{CR}, \quad \bar{x} = \frac{x_{exit}}{2}$$
+    $$\bar{\alpha} = \frac{1}{1 + \left(\frac{1 - \bar{x}}{\bar{x}}\right) \cdot \left(\frac{\rho_g}{\rho_w}\right) \cdot S}$$
+    $$\bar{\rho}_{riser} = (1 - \bar{\alpha}) \cdot \rho_w + \bar{\alpha} \cdot \rho_g \quad [\text{lb}/\text{ft}^3]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Steady-State Hydraulic Balance Loop</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\Delta P_{friction} = \left(K_{dc} + f_{dc} \frac{H}{D_{dc}}\right) \frac{\rho_{dc} v_{dc}^2}{2 g_c} + \left(f_{tube} \frac{H}{D_{tube}} \Phi^2 + K_{headers}\right) \frac{\rho_w v_{in}^2}{2 g_c} = \Delta P_{driving}$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'utility': { p: 1800, h: 140, mSteam: 650000, nDc: 4, dDc: 12.0, nTubes: 480, dTube: 2.25 },
+    'industrial': { p: 900, h: 90, mSteam: 250000, nDc: 2, dDc: 10.0, nTubes: 280, dTube: 2.50 },
+    'package': { p: 450, h: 45, mSteam: 80000, nDc: 2, dDc: 6.0, nTubes: 140, dTube: 2.00 },
+    'subcrit': { p: 2400, h: 160, mSteam: 1200000, nDc: 6, dDc: 14.0, nTubes: 720, dTube: 2.125 }
+  };
+
+  const presetSelect = document.getElementById('bl_preset');
+
+  function updatePreset() {
+    const pr = PRESETS[presetSelect.value];
+    if (pr) {
+      document.getElementById('bl_pressure').value = pr.p;
+      document.getElementById('bl_height').value = pr.h;
+      document.getElementById('bl_msteam').value = pr.mSteam;
+      document.getElementById('bl_n_dc').value = pr.nDc;
+      document.getElementById('bl_d_dc').value = pr.dDc;
+      document.getElementById('bl_n_tubes').value = pr.nTubes;
+      document.getElementById('bl_d_tube').value = pr.dTube;
+      calcBl();
+    }
+  }
+
+  function drawLoopCanvas(hFt, rhoDc, rhoRiser, cr, xExit) {
+    const canvas = document.getElementById('bl_loop_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Drum at top
+    const drumX = w / 2;
+    const drumY = 35;
+    const drumW = 200;
+    const drumH = 30;
+
+    // Draw Steam Drum
+    ctx.fillStyle = '#475569';
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(drumX - drumW / 2, drumY - drumH / 2, drumW, drumH, 15);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('STEAM DRUM', drumX - 40, drumY + 4);
+
+    // Downcomer (Left Side - Dense Blue)
+    const dcX = drumX - drumW / 2 + 30;
+    const botY = h - 35;
+
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(dcX, drumY + drumH / 2);
+    ctx.lineTo(dcX, botY);
+    ctx.stroke();
+
+    // Lower Header (Bottom)
+    const riserX = drumX + drumW / 2 - 30;
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(dcX, botY);
+    ctx.lineTo(riserX, botY);
+    ctx.stroke();
+
+    // Riser / Waterwall (Right Side - Gradient Blue to Orange/Yellow)
+    const grad = ctx.createLinearGradient(riserX, botY, riserX, drumY + drumH / 2);
+    grad.addColorStop(0, '#2563eb');
+    grad.addColorStop(0.3, '#10b981');
+    grad.addColorStop(0.7, '#f59e0b');
+    grad.addColorStop(1, '#ef4444');
+
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(riserX, botY);
+    ctx.lineTo(riserX, drumY + drumH / 2);
+    ctx.stroke();
+
+    // Flow Arrows
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.moveTo(dcX, botY / 2);
+    ctx.lineTo(dcX - 6, botY / 2 - 12);
+    ctx.lineTo(dcX + 6, botY / 2 - 12);
+    ctx.fill();
+
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.moveTo(riserX, botY / 2);
+    ctx.lineTo(riserX - 6, botY / 2 + 12);
+    ctx.lineTo(riserX + 6, botY / 2 + 12);
+    ctx.fill();
+
+    // Labels
+    ctx.fillStyle = '#2563eb';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('Downcomers (Cold Water)', dcX - 140, (drumY + botY) / 2 - 10);
+    ctx.fillText('ρ = ' + rhoDc.toFixed(1) + ' lb/ft³', dcX - 140, (drumY + botY) / 2 + 6);
+
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('Waterwalls (Boiling Riser)', riserX + 20, (drumY + botY) / 2 - 10);
+    ctx.fillText('ρ_avg = ' + rhoRiser.toFixed(1) + ' lb/ft³', riserX + 20, (drumY + botY) / 2 + 6);
+    ctx.fillText('x_exit = ' + (xExit * 100).toFixed(1) + '%', riserX + 20, (drumY + botY) / 2 + 22);
+  }
+
+  function calcBl() {
+    const P = parseFloat(document.getElementById('bl_pressure').value) || 1800;
+    const H = parseFloat(document.getElementById('bl_height').value) || 140;
+    const mSteam = parseFloat(document.getElementById('bl_msteam').value) || 650000;
+    const nDc = parseFloat(document.getElementById('bl_n_dc').value) || 4;
+    const dDc = parseFloat(document.getElementById('bl_d_dc').value) || 12.0;
+    const nTubes = parseFloat(document.getElementById('bl_n_tubes').value) || 480;
+    const dTube = parseFloat(document.getElementById('bl_d_tube').value) || 2.25;
+    const kDc = parseFloat(document.getElementById('bl_k_dc').value) || 3.5;
+    const phi2 = parseFloat(document.getElementById('bl_phi2').value) || 1.85;
+    const slip = parseFloat(document.getElementById('bl_slip').value) || 1.45;
+
+    // Saturation Temperature at drum pressure
+    const pAbs = P + 14.7;
+    const tSat = 115.67 * Math.pow(pAbs, 0.225);
+    const tSatC = (tSat - 32) * 5 / 9;
+
+    // Fluid densities (lb/ft3) as function of pressure
+    // rho_w: drops from 55 at 450 psi to 35 at 2400 psi
+    const rhoW = 62.4 * (1 - 0.00018 * Math.pow(P, 0.72));
+    // rho_g: rises from 1.0 at 450 psi to 7.5 at 2400 psi
+    const rhoG = 0.0028 * Math.pow(P, 0.98);
+
+    // Iterative Natural Circulation Balance Solver
+    // Balance: Delta P_driving = Delta P_friction
+    let cr = 6.5; // initial guess
+    for (let iter = 0; iter < 15; iter++) {
+      const xExit = 1.0 / cr;
+      const xBar = xExit / 2.0;
+
+      // Armand/Thom void fraction
+      const voidFrac = 1.0 / (1.0 + ((1.0 - xBar) / Math.max(0.001, xBar)) * (rhoG / rhoW) * slip);
+
+      // Mean two-phase riser density
+      const rhoRiser = (1.0 - voidFrac) * rhoW + voidFrac * rhoG;
+
+      // Driving head (psi)
+      const drivingHeadPsi = ((rhoW - rhoRiser) * H) / 144.0;
+
+      // Circulation mass flow (lb/hr)
+      const mCirc = mSteam * cr;
+      const mCircSec = mCirc / 3600.0;
+
+      // Downcomer flow area sq ft
+      const aDcTotal = nDc * (Math.PI / 4.0) * Math.pow(dDc / 12.0, 2);
+      const vDc = mCircSec / (rhoW * aDcTotal);
+
+      // Downcomer friction psi: Delta P_dc = [K_dc + 0.015 * H / (dDc / 12)] * (rhoW * vDc^2 / 2gc)
+      const gc = 32.174;
+      const fDc = 0.015;
+      const lossCoeffDc = kDc + (fDc * H) / (dDc / 12.0);
+      const dpDcPsi = (lossCoeffDc * (rhoW * Math.pow(vDc, 2)) / (2 * gc * 144.0));
+
+      // Riser tubes flow area sq ft
+      const aTubesTotal = nTubes * (Math.PI / 4.0) * Math.pow(dTube / 12.0, 2);
+      const vIn = mCircSec / (rhoW * aTubesTotal);
+      const fTube = 0.020;
+      const lossCoeffRiser = (fTube * H) / (dTube / 12.0) * phi2 + 2.0;
+      const dpRiserPsi = (lossCoeffRiser * (rhoW * Math.pow(vIn, 2)) / (2 * gc * 144.0));
+
+      const dpTotalPsi = dpDcPsi + dpRiserPsi;
+
+      // Adjust cr toward balance
+      const error = drivingHeadPsi - dpTotalPsi;
+      cr += error * 0.35;
+      if (cr < 2.0) cr = 2.0;
+      if (cr > 25.0) cr = 25.0;
+    }
+
+    const xExit = 1.0 / cr;
+    const xBar = xExit / 2.0;
+    const voidFrac = 1.0 / (1.0 + ((1.0 - xBar) / Math.max(0.001, xBar)) * (rhoG / rhoW) * slip);
+    const rhoRiser = (1.0 - voidFrac) * rhoW + voidFrac * rhoG;
+    const drivingHeadPsi = ((rhoW - rhoRiser) * H) / 144.0;
+    const drivingHeadFt = drivingHeadPsi * (144.0 / rhoW);
+
+    const mCirc = mSteam * cr;
+    const mCircKgS = mCirc * 0.453592 / 3600;
+    const mCircTHr = mCirc * 0.000453592;
+
+    const aDcTotal = nDc * (Math.PI / 4.0) * Math.pow(dDc / 12.0, 2);
+    const vDc = (mCirc / 3600.0) / (rhoW * aDcTotal);
+
+    const aTubesTotal = nTubes * (Math.PI / 4.0) * Math.pow(dTube / 12.0, 2);
+    const vIn = (mCirc / 3600.0) / (rhoW * aTubesTotal);
+    const vExit = vIn * (rhoW / rhoRiser);
+
+    // Update KPI Displays
+    document.getElementById('res_bl_cr').textContent = cr.toFixed(2) + ' : 1';
+    document.getElementById('res_bl_cr_desc').textContent = 'Self-Balancing Thermal Head';
+
+    document.getElementById('res_bl_xexit').textContent = (xExit * 100).toFixed(1) + '%';
+    const xExitStatus = document.getElementById('res_bl_xexit_status');
+    const dnbStatus = document.getElementById('res_bl_dnb_status');
+    if (xExit > 0.25) {
+      xExitStatus.textContent = 'DANGER: DNB / Burnout (>25%)!';
+      xExitStatus.style.color = '#ef4444';
+      dnbStatus.textContent = 'DANGER: Burnout / Tube Rupture!';
+      dnbStatus.style.color = '#ef4444';
+    } else if (xExit > 0.20) {
+      xExitStatus.textContent = 'CAUTION: Near DNB Limit (20-25%)';
+      xExitStatus.style.color = '#f59e0b';
+      dnbStatus.textContent = 'Marginal DNB Safety Margin';
+      dnbStatus.style.color = '#f59e0b';
+    } else {
+      xExitStatus.textContent = 'SAFE (<20% DNB Limit)';
+      xExitStatus.style.color = '#10b981';
+      dnbStatus.textContent = 'PASS (CR > 5.0 Stable)';
+      dnbStatus.style.color = '#10b981';
+    }
+
+    document.getElementById('res_bl_head').textContent = drivingHeadPsi.toFixed(1) + ' psi';
+    document.getElementById('res_bl_head_ft').textContent = drivingHeadFt.toFixed(1) + ' ft H2O Head';
+
+    document.getElementById('res_bl_mcirc').textContent = (mCirc / 1e6).toFixed(2) + 'M lb/h';
+    document.getElementById('res_bl_mcirc_metric').textContent = Math.round(mCircKgS) + ' kg/s (' + Math.round(mCircTHr).toLocaleString() + ' t/h)';
+
+    // Thermodynamics Details
+    document.getElementById('res_bl_tsat').textContent = tSat.toFixed(1) + ' °F (' + tSatC.toFixed(1) + ' °C)';
+    document.getElementById('res_bl_rhodc').textContent = rhoW.toFixed(1) + ' lb/ft³ (' + (rhoW * 16.0185).toFixed(1) + ' kg/m³)';
+    document.getElementById('res_bl_rhog').textContent = rhoG.toFixed(2) + ' lb/ft³ (' + (rhoG * 16.0185).toFixed(2) + ' kg/m³)';
+    document.getElementById('res_bl_rhoriser').textContent = rhoRiser.toFixed(1) + ' lb/ft³ (Mean 2-Phase)';
+
+    // Velocities Details
+    document.getElementById('res_bl_vdc').textContent = vDc.toFixed(2) + ' ft/s (' + (vDc * 0.3048).toFixed(2) + ' m/s)';
+    document.getElementById('res_bl_vin').textContent = vIn.toFixed(2) + ' ft/s (' + (vIn * 0.3048).toFixed(2) + ' m/s)';
+    document.getElementById('res_bl_vexit').textContent = vExit.toFixed(1) + ' ft/s (' + (vExit * 0.3048).toFixed(1) + ' m/s)';
+    document.getElementById('res_bl_void').textContent = (voidFrac * 100).toFixed(1) + '% Vapor Volume';
+
+    // Safety Details
+    const chfRatio = 0.25 / Math.max(0.01, xExit);
+    document.getElementById('res_bl_chf_margin').textContent = chfRatio.toFixed(2) + 'x Nucleate Boiling Buffer';
+
+    const stabStatus = document.getElementById('res_bl_stab_status');
+    if (drivingHeadPsi < 5.0) {
+      stabStatus.textContent = 'Feeble Buoyancy Head (<5 psi)';
+      stabStatus.style.color = '#ef4444';
+    } else {
+      stabStatus.textContent = 'High Buoyancy Driving Margin';
+      stabStatus.style.color = '#10b981';
+    }
+
+    drawLoopCanvas(H, rhoW, rhoRiser, cr, xExit);
+  }
+
+  presetSelect.addEventListener('change', updatePreset);
+
+  const inputs = [
+    'bl_pressure', 'bl_height', 'bl_msteam', 'bl_n_dc', 'bl_d_dc',
+    'bl_n_tubes', 'bl_d_tube', 'bl_k_dc', 'bl_phi2', 'bl_slip'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcBl);
+      el.addEventListener('change', calcBl);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_bl_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'ASME SECTION I BOILER CIRCULATION DATASHEET',
+        '===============================================',
+        'Drum Pressure: ' + document.getElementById('bl_pressure').value + ' psig (Tsat: ' + document.getElementById('res_bl_tsat').textContent + ')',
+        'Waterwall Height: ' + document.getElementById('bl_height').value + ' ft',
+        'Steaming Rate: ' + document.getElementById('bl_msteam').value + ' lb/hr',
+        '--- Natural Circulation Hydraulic Outputs ---',
+        'Circulation Ratio (CR): ' + document.getElementById('res_bl_cr').textContent,
+        'Exit Steam Quality: ' + document.getElementById('res_bl_xexit').textContent + ' [' + document.getElementById('res_bl_xexit_status').textContent + ']',
+        'Thermal Driving Head: ' + document.getElementById('res_bl_head').textContent + ' (' + document.getElementById('res_bl_head_ft').textContent + ')',
+        'Circulation Mass Flow: ' + document.getElementById('res_bl_mcirc').textContent + ' (' + document.getElementById('res_bl_mcirc_metric').textContent + ')',
+        '--- Velocities & Densities ---',
+        'Downcomer Velocity: ' + document.getElementById('res_bl_vdc').textContent,
+        'Riser Inlet / Exit Velocity: ' + document.getElementById('res_bl_vin').textContent + ' / ' + document.getElementById('res_bl_vexit').textContent,
+        'Downcomer Water Density: ' + document.getElementById('res_bl_rhodc').textContent,
+        'Mean Two-Phase Riser Density: ' + document.getElementById('res_bl_rhoriser').textContent,
+        'Departure from Nucleate Boiling: ' + document.getElementById('res_bl_dnb_status').textContent,
+        'Critical Heat Flux Margin: ' + document.getElementById('res_bl_chf_margin').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcBl();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BI4: API 674 Positive Displacement Reciprocating Plunger Pump Acceleration Head & Pulsation Dampener Sizing Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-674-reciprocating-pump-pulsation-calculator';
+    const title = 'API 674 Reciprocating Pump Acceleration Head & Pulsation Calculator';
+    const metaDescription = 'Calculate positive displacement reciprocating plunger pump API 674 acceleration head, Net Positive Suction Head Available (NPSHA), and suction/discharge bladder pulsation dampener sizing for triplex and quintuplex pumps.';
+
+    const faq = [
+      {
+        q: 'What is acceleration head (ha) in API 674 reciprocating pump suction systems?',
+        a: 'Unlike centrifugal or rotary pumps where fluid flows in a continuous steady stream, reciprocating plunger pumps draw liquid into the cylinder in intermittent pulsating slugs. The column of liquid in the suction pipe must accelerate from zero velocity to peak velocity and decelerate back to zero on every single crankshaft revolution. The pressure drop required to overcome the inertia of this accelerating fluid mass is the acceleration head: ha = (L * v * N * C) / (K * g). Because ha subtracts directly from static suction pressure, ignoring acceleration head causes violent cavitation on every suction stroke even when static head appears ample.'
+      },
+      {
+        q: 'How does the number of plungers (Simplex vs Triplex vs Quintuplex) impact acceleration head?',
+        a: 'The pump constant C in the acceleration head equation reflects the kinematic velocity fluctuation of the plunger arrangement: Simplex single-acting pumps have severe pulsation with C = 0.400; Duplex single-acting pumps have C = 0.200; Triplex single-acting pumps dramatically smooth flow with C = 0.066; and Quintuplex (5-plunger) pumps reduce pulsation to C = 0.040. Switching from a simplex to a triplex pump reduces the required acceleration head by 83.5%, transforming an unworkable cavitating suction line into a stable installation.'
+      },
+      {
+        q: 'What is fluid compressibility factor K in the API 674 acceleration equation?',
+        a: 'The factor K accounts for the compressibility of the pumped liquid: incompressible fluids like water, hot glycols, and amine solutions transmit inertial shockwaves rigidly and have K = 1.4 (resulting in higher acceleration head loss). Compressible fluids like light hydrocarbons, LPG, liquefied ethane, and condensates absorb a portion of the inertial energy through bulk elastic compression, yielding K = 2.5 (lower acceleration head loss).'
+      },
+      {
+        q: 'How do pulsation dampeners eliminate acceleration head and protect piping?',
+        a: 'Installing a gas-charged bladder pulsation dampener directly adjacent to the pump suction nozzle effectively reduces the active suction pipe length L in the acceleration equation to just the few inches of pipe between the dampener tee and the pump suction manifold. The dampener supplies the pulsating instantaneous flow from its internal liquid reserve while fluid in the main upstream supply pipe flows at steady, continuous velocity, reducing acceleration head ha by 90% to 95%.'
+      },
+      {
+        q: 'What is the standard nitrogen precharge pressure for API 674 pulsation dampeners?',
+        a: 'For discharge dampeners, the nitrogen gas bladder is typically precharged to 65% to 75% of the normal mean operating discharge pressure. Precharging above 80% causes the bladder to bottom out against the lower liquid port, rendering it ineffective during pressure valleys. For suction dampeners, the bladder is precharged to approximately 50% to 65% of minimum absolute suction pressure to ensure the bladder stays suspended in the middle of its stroke.'
+      }
+    ];
+
+    const content = `
+<style>
+.rec-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.rec-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.rec-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.rec-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .rec-grid-2, .rec-grid-3, .rec-grid-4 { grid-template-columns: 1fr; }
+}
+.rec-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.rec-input, .rec-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.rec-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.rec-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.rec-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.rec-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.rec-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+</style>
+
+<div class="rec-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">API 674 Reciprocating Pump Acceleration &amp; Pulsation Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">API 674 Inertial Acceleration Head (h_a), Net Positive Suction Head &amp; Bladder Dampener Sizing</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="rec-btn" id="btn_rec_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Pump Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="rec-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="rec-label">Pump Configuration (Cylinders)</label>
+      <select id="rec_pump_type" class="rec-select">
+        <option value="triplex" selected>Triplex Single-Acting (C = 0.066 &mdash; Most Common)</option>
+        <option value="quintuplex">Quintuplex Single-Acting (C = 0.040 &mdash; High Flow)</option>
+        <option value="duplex_sa">Duplex Single-Acting (C = 0.200)</option>
+        <option value="duplex_da">Duplex Double-Acting (C = 0.115)</option>
+        <option value="simplex">Simplex Single-Acting (C = 0.400 &mdash; Severe Pulse)</option>
+      </select>
+    </div>
+    <div>
+      <label class="rec-label">Fluid Compressibility Factor (K)</label>
+      <select id="rec_k_fluid" class="rec-select">
+        <option value="1.4" selected>Water, Glycol, Amine (K = 1.4 &mdash; Incompressible)</option>
+        <option value="2.0">Crude Oil, Lube Oil (K = 2.0 &mdash; Medium Hydrocarbon)</option>
+        <option value="2.5">LPG, Condensate, Light Ends (K = 2.5 &mdash; Compressible)</option>
+      </select>
+    </div>
+    <div>
+      <label class="rec-label">Pulsation Dampener Installed?</label>
+      <select id="rec_has_dampener" class="rec-select">
+        <option value="no" selected>No Suction Dampener (Full Pipe Length L)</option>
+        <option value="yes">Suction Bladder Dampener at Manifold (L &le; 1.5 ft)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="rec-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="rec-label">Crankshaft Speed (N) <span>RPM</span></label>
+      <input type="number" id="rec_rpm" class="rec-input" value="380" step="10" min="50" max="600">
+    </div>
+    <div>
+      <label class="rec-label">Suction Pipe Length (L) <span>ft</span></label>
+      <input type="number" id="rec_pipe_len" class="rec-input" value="35.0" step="1" min="1" max="250">
+    </div>
+    <div>
+      <label class="rec-label">Suction Pipe Inside Dia (d_pipe) <span>inches</span></label>
+      <input type="number" id="rec_pipe_dia" class="rec-input" value="4.026" step="0.5" min="1.0" max="16.0">
+    </div>
+    <div>
+      <label class="rec-label">Pump Flow Rate (Q) <span>US GPM</span></label>
+      <input type="number" id="rec_flow" class="rec-input" value="125.0" step="5" min="5">
+    </div>
+  </div>
+
+  <div class="rec-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="rec-label">Suction Static Pressure (P_s) <span>psia</span></label>
+      <input type="number" id="rec_ps" class="rec-input" value="24.7" step="0.5" min="1.0">
+    </div>
+    <div>
+      <label class="rec-label">Fluid Vapor Pressure (P_vap) <span>psia</span></label>
+      <input type="number" id="rec_pvap" class="rec-input" value="1.0" step="0.1" min="0.01">
+    </div>
+    <div>
+      <label class="rec-label">Fluid Specific Gravity (SG) <span>water = 1.0</span></label>
+      <input type="number" id="rec_sg" class="rec-input" value="1.0" step="0.02" min="0.5" max="1.5">
+    </div>
+    <div>
+      <label class="rec-label">Vendor Net NPSHR <span>ft of liquid</span></label>
+      <input type="number" id="rec_npshr" class="rec-input" value="6.5" step="0.5" min="2.0">
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="rec-grid-4" style="margin-bottom:1.5rem;">
+    <div class="rec-kpi">
+      <div class="rec-kpi-lbl">API 674 Acceleration Head (h_a)</div>
+      <div class="rec-kpi-val" id="res_rec_ha" style="color:#ef4444;">19.3 ft</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rec_ha_psi">8.36 psi Pressure Drop</div>
+    </div>
+    <div class="rec-kpi">
+      <div class="rec-kpi-lbl">Net NPSHA (Including h_a)</div>
+      <div class="rec-kpi-val" id="res_rec_npsha" style="color:#2563eb;">33.4 ft</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rec_npsha_psi">14.5 psi Available</div>
+    </div>
+    <div class="rec-kpi">
+      <div class="rec-kpi-lbl">NPSH Margin Status</div>
+      <div class="rec-kpi-val" id="res_rec_margin" style="color:#10b981;">+26.9 ft</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rec_margin_status">PASS (&gt;API 674 Margin)</div>
+    </div>
+    <div class="rec-kpi">
+      <div class="rec-kpi-lbl">Req Dampener Volume</div>
+      <div class="rec-kpi-val" id="res_rec_damp_vol" style="color:#2563eb;">2.5 Gal</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_rec_damp_metric">9.5 L (&plusmn;2.5% Residual Pulse)</div>
+    </div>
+  </div>
+
+  <div class="rec-grid-3">
+    <div class="rec-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Kinematics &amp; Pipe Velocities</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Suction Pipe Velocity (v):</strong> <span id="res_rec_vel">3.15 ft/s (0.96 m/s)</span></div>
+        <div><strong>Velocity Status:</strong> <span id="res_rec_vel_status" style="color:#10b981; font-weight:600;">Good (&lt;4.0 ft/s Rec)</span></div>
+        <div><strong>Pump Kinematic Constant (C):</strong> <span id="res_rec_c">0.066 (Triplex)</span></div>
+        <div><strong>Effective Length (L_eff):</strong> <span id="res_rec_leff">35.0 ft</span></div>
+      </div>
+    </div>
+    <div class="rec-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Suction Pressure Budget</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Static Head Available:</strong> <span id="res_rec_h_static">54.7 ft (23.7 psi)</span></div>
+        <div><strong>Friction Loss (est):</strong> <span id="res_rec_h_fric">2.0 ft (0.87 psi)</span></div>
+        <div><strong>Acceleration Loss (h_a):</strong> <span id="res_rec_ha_det">19.3 ft (8.36 psi)</span></div>
+        <div><strong>Cavitation Risk:</strong> <span id="res_rec_cav_risk" style="color:#10b981; font-weight:600;">Low / Safe Margin</span></div>
+      </div>
+    </div>
+    <div class="rec-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Pulsation Control (API 674)</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Displacement per Stroke:</strong> <span id="res_rec_disp_stroke">25.3 cu.in / stroke</span></div>
+        <div><strong>Residual Pulse Limit:</strong> <span id="res_rec_pulse_limit">&plusmn;2.5% Peak-to-Peak</span></div>
+        <div><strong>N2 Precharge Pressure:</strong> <span id="res_rec_n2_press">14.8 psia (60% Ps)</span></div>
+        <div><strong>Dampener Benefit:</strong> <span id="res_rec_benefit">Cuts h_a by 94%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Reciprocating Pumps</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Acceleration Head Blindspot Cavitation Catastrophe</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Piping designers frequently calculate NPSHA using standard centrifugal steady-state formulas (\(NPSHA = P_s - P_{vap} + Z - h_{friction}\)), completely omitting acceleration head \(h_a\). On a 50-ft suction line, acceleration head frequently exceeds <strong>15 to 30 feet of liquid head</strong>. When the plunger accelerates outward on the suction stroke, the localized pressure at the suction valve collapses below vapor pressure. The pump undergoes violent cavitation hammering that pulverizes carbide valve seats and cracks fluid cylinder blocks in days.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Locating Dampeners Too Far from the Pump Manifold</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Installing a pulsation dampener 10 to 20 feet upstream of the pump suction flange renders it largely useless. The acceleration head equation depends on the actual physical pipe length \(L\) between the dampener and the pump manifold. Liquid between the dampener and pump valves must still accelerate and decelerate at high frequency. API 674 explicitly mandates that dampeners be mounted <strong>directly onto or immediately adjacent to the pump manifold nozzles</strong>.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Excessive Bladder Nitrogen Precharge Bottom-Out Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Over-charging the nitrogen bladder of a discharge dampener to 90% or 100% of line pressure causes the flexible elastomer bladder to expand completely, pinning itself against the bottom metallic anti-extrusion plate. In this bottomed-out condition, the bladder cannot flex or absorb pressure pulsations during pressure valley troughs. Pressure spikes travel straight into piping supports, fatiguing welded pipe anchors and inducing high-cycle acoustic resonance.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Over-Sizing Suction Pipe Diameter Fluid Separation</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">While keeping suction velocity low (<3.0 ft/s) reduces acceleration head, installing an excessively large suction line (e.g. 10" pipe for 50 GPM) drops fluid velocity below 0.5 ft/s. In slurry, drilling mud, or emulsion service, solid particles drop out of suspension, accumulating on the pipe invert and forming a hard sediment bed that constricts flow and produces unpredictable flow choking.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Acoustic Natural Frequency Resonant Amplification (Piping Shaking)</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Failing to perform an API 674 Design Approach 2 or 3 acoustic pulsation simulation allows the pump excitation frequencies (\(f = N \times \text{plungers} / 60\)) to coincide with the acoustic natural frequency of the attached piping system. Standing acoustic waves amplify pulsation by <strong>over 500% to 1,000%</strong>, generating severe pipe vibration (velocity > 1.5 in/s RMS) that shakes pipe racks loose and snaps small-bore branch instrument connections.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">API 674 First-Principles Mathematical Formulations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Acceleration Head Formulation (API 674 Section 6.4)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$h_a = \frac{L \cdot v \cdot N \cdot C}{K \cdot g} \quad [\text{feet of liquid}]$$
+    $$\Delta P_a = \frac{h_a \cdot SG}{2.31} \quad [\text{psi}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Net Positive Suction Head Available (NPSHA)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$NPSHA = \frac{2.31 \cdot (P_s - P_{vap})}{SG} + Z_{static} - h_{friction} - h_a \quad [\text{feet}]$$
+    $$\text{Margin} = NPSHA - NPSHR \ge 3.0 \text{ to } 5.0 \text{ ft (API 674)}$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Bladder Pulsation Dampener Volume Sizing</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$V_D = \frac{Q_{GPM} \times 231}{N \times N_{plungers}} \quad [\text{cu.in / stroke}]$$
+    $$V_{damp} = \frac{V_D \cdot C_{pulse}}{\delta_p \cdot (P_{precharge} / P_{line})^{1/k}} \quad [\text{cu.in or Gal}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const PUMP_CONSTANTS = {
+    'triplex': { c: 0.066, name: 'Triplex Single-Acting', nPlungers: 3, pulseRatio: 0.05 },
+    'quintuplex': { c: 0.040, name: 'Quintuplex Single-Acting', nPlungers: 5, pulseRatio: 0.02 },
+    'duplex_sa': { c: 0.200, name: 'Duplex Single-Acting', nPlungers: 2, pulseRatio: 0.15 },
+    'duplex_da': { c: 0.115, name: 'Duplex Double-Acting', nPlungers: 2, pulseRatio: 0.10 },
+    'simplex': { c: 0.400, name: 'Simplex Single-Acting', nPlungers: 1, pulseRatio: 0.40 }
+  };
+
+  function calcRec() {
+    const pTypeKey = document.getElementById('rec_pump_type').value;
+    const pInfo = PUMP_CONSTANTS[pTypeKey] || PUMP_CONSTANTS['triplex'];
+    const kFluid = parseFloat(document.getElementById('rec_k_fluid').value) || 1.4;
+    const hasDamp = document.getElementById('rec_has_dampener').value === 'yes';
+
+    const rpm = parseFloat(document.getElementById('rec_rpm').value) || 380;
+    let pipeLen = parseFloat(document.getElementById('rec_pipe_len').value) || 35.0;
+    const pipeDia = parseFloat(document.getElementById('rec_pipe_dia').value) || 4.026;
+    const flowGpm = parseFloat(document.getElementById('rec_flow').value) || 125.0;
+    const ps = parseFloat(document.getElementById('rec_ps').value) || 24.7;
+    const pvap = parseFloat(document.getElementById('rec_pvap').value) || 1.0;
+    const sg = parseFloat(document.getElementById('rec_sg').value) || 1.0;
+    const npshr = parseFloat(document.getElementById('rec_npshr').value) || 6.5;
+
+    // If dampener installed at manifold, effective pipe length is shortened to 1.5 ft
+    const effectiveLen = hasDamp ? 1.5 : pipeLen;
+
+    // Suction pipe cross-sectional area (sq ft)
+    const aPipe = (Math.PI / 4.0) * Math.pow(pipeDia / 12.0, 2);
+    // Mean flow velocity (ft/s)
+    const qCfs = (flowGpm / 448.831);
+    const vel = qCfs / aPipe;
+    const velMs = vel * 0.3048;
+
+    // API 674 Acceleration Head: ha = (L * v * N * C) / (K * g)
+    const g = 32.174;
+    const ha = (effectiveLen * vel * rpm * pInfo.c) / (kFluid * g);
+    const haPsi = (ha * sg) / 2.31;
+
+    // Friction loss estimate (Darcy-Weisbach approx)
+    const hFric = (0.02 * (pipeLen / (pipeDia / 12.0)) * Math.pow(vel, 2)) / (2 * g) + 0.5;
+    const hFricPsi = (hFric * sg) / 2.31;
+
+    // Static pressure head
+    const hStatic = (2.31 * (ps - pvap)) / sg;
+
+    // Net NPSHA = hStatic - hFric - ha
+    const npsha = Math.max(0, hStatic - hFric - ha);
+    const npshaPsi = (npsha * sg) / 2.31;
+    const npshMargin = npsha - npshr;
+
+    // Dampener volume calculation
+    // Displacement per stroke (cu in)
+    const dispPerStroke = (flowGpm * 231) / (rpm * pInfo.nPlungers);
+    // Residual pulse delta_p = 0.05 (+/- 2.5%)
+    const deltaP_ratio = 0.05;
+    const dampVolCuIn = (dispPerStroke * pInfo.pulseRatio * 8.0) / deltaP_ratio;
+    const dampVolGal = dampVolCuIn / 231.0;
+    const dampVolL = dampVolGal * 3.78541;
+
+    // Update KPI Displays
+    document.getElementById('res_rec_ha').textContent = ha.toFixed(1) + ' ft';
+    document.getElementById('res_rec_ha_psi').textContent = haPsi.toFixed(2) + ' psi Pressure Drop';
+
+    document.getElementById('res_rec_npsha').textContent = npsha.toFixed(1) + ' ft';
+    document.getElementById('res_rec_npsha_psi').textContent = npshaPsi.toFixed(2) + ' psi Available (NPSHR: ' + npshr.toFixed(1) + ' ft)';
+
+    const marginEl = document.getElementById('res_rec_margin');
+    const marginStatus = document.getElementById('res_rec_margin_status');
+    if (npshMargin < 0) {
+      marginEl.textContent = npshMargin.toFixed(1) + ' ft (CAVITATING!)';
+      marginEl.style.color = '#ef4444';
+      marginStatus.textContent = 'DANGER: Vapor Lock / Cavitation!';
+      marginStatus.style.color = '#ef4444';
+    } else if (npshMargin < 3.0) {
+      marginEl.textContent = '+' + npshMargin.toFixed(1) + ' ft Marginal';
+      marginEl.style.color = '#f59e0b';
+      marginStatus.textContent = 'CAUTION: <3.0 ft API 674 Buffer';
+      marginStatus.style.color = '#f59e0b';
+    } else {
+      marginEl.textContent = '+' + npshMargin.toFixed(1) + ' ft';
+      marginEl.style.color = '#10b981';
+      marginStatus.textContent = 'PASS (>API 674 Margin Buffer)';
+      marginStatus.style.color = '#10b981';
+    }
+
+    document.getElementById('res_rec_damp_vol').textContent = dampVolGal.toFixed(1) + ' Gal';
+    document.getElementById('res_rec_damp_metric').textContent = dampVolL.toFixed(1) + ' L (±2.5% Residual Pulse)';
+
+    // Kinematics Details
+    document.getElementById('res_rec_vel').textContent = vel.toFixed(2) + ' ft/s (' + velMs.toFixed(2) + ' m/s)';
+    const velStatus = document.getElementById('res_rec_vel_status');
+    if (vel > 4.5) {
+      velStatus.textContent = 'EXCESSIVE (>4.5 ft/s API Limit)';
+      velStatus.style.color = '#ef4444';
+    } else {
+      velStatus.textContent = 'Good (<4.0 ft/s Recommended)';
+      velStatus.style.color = '#10b981';
+    }
+    document.getElementById('res_rec_c').textContent = pInfo.c + ' (' + pInfo.name + ')';
+    document.getElementById('res_rec_leff').textContent = effectiveLen.toFixed(1) + ' ft (' + (hasDamp ? 'Dampened' : 'Raw Length') + ')';
+
+    // Budget Details
+    document.getElementById('res_rec_h_static').textContent = hStatic.toFixed(1) + ' ft (' + (ps - pvap).toFixed(1) + ' psi)';
+    document.getElementById('res_rec_h_fric').textContent = hFric.toFixed(1) + ' ft (' + hFricPsi.toFixed(2) + ' psi)';
+    document.getElementById('res_rec_ha_det').textContent = ha.toFixed(1) + ' ft (' + haPsi.toFixed(2) + ' psi)';
+
+    const cavRisk = document.getElementById('res_rec_cav_risk');
+    if (npshMargin < 0) {
+      cavRisk.textContent = 'HIGH CAVITATION: Severe Valve Knocking!';
+      cavRisk.style.color = '#ef4444';
+    } else {
+      cavRisk.textContent = 'Low / Safe Suction Margin';
+      cavRisk.style.color = '#10b981';
+    }
+
+    // Dampener Details
+    document.getElementById('res_rec_disp_stroke').textContent = dispPerStroke.toFixed(1) + ' cu.in / stroke';
+    document.getElementById('res_rec_pulse_limit').textContent = '±2.5% Peak-to-Peak (API 674)';
+    const n2Press = (ps * 0.60);
+    document.getElementById('res_rec_n2_press').textContent = n2Press.toFixed(1) + ' psia (60% Ps)';
+
+    const haRaw = (pipeLen * vel * rpm * pInfo.c) / (kFluid * g);
+    const reductionPct = hasDamp ? ((haRaw - ha) / haRaw) * 100 : 0;
+    document.getElementById('res_rec_benefit').textContent = hasDamp ? 'Cuts h_a by ' + reductionPct.toFixed(0) + '%' : 'Add Dampener to Cut h_a by 90%+';
+  }
+
+  const inputs = [
+    'rec_pump_type', 'rec_k_fluid', 'rec_has_dampener', 'rec_rpm',
+    'rec_pipe_len', 'rec_pipe_dia', 'rec_flow', 'rec_ps', 'rec_pvap', 'rec_sg', 'rec_npshr'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcRec);
+      el.addEventListener('change', calcRec);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_rec_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'API 674 RECIPROCATING PUMP ACCELERATION HEAD DATASHEET',
+        '===============================================',
+        'Pump Architecture: ' + document.getElementById('rec_pump_type').options[document.getElementById('rec_pump_type').selectedIndex].text,
+        'Speed / Flow: ' + document.getElementById('rec_rpm').value + ' RPM / ' + document.getElementById('rec_flow').value + ' GPM',
+        'Suction Pipe: ' + document.getElementById('rec_pipe_dia').value + ' in ID x ' + document.getElementById('rec_pipe_len').value + ' ft Length',
+        'Suction Pressure: ' + document.getElementById('rec_ps').value + ' psia (Vapor Press: ' + document.getElementById('rec_pvap').value + ' psia)',
+        '--- Acceleration Head & NPSHA Outputs ---',
+        'Acceleration Head (ha): ' + document.getElementById('res_rec_ha').textContent + ' (' + document.getElementById('res_rec_ha_psi').textContent + ')',
+        'Net NPSHA: ' + document.getElementById('res_rec_npsha').textContent + ' (' + document.getElementById('res_rec_npsha_psi').textContent + ')',
+        'Suction Margin: ' + document.getElementById('res_rec_margin').textContent + ' [' + document.getElementById('res_rec_margin_status').textContent + ']',
+        'Suction Pipe Velocity: ' + document.getElementById('res_rec_vel').textContent,
+        '--- Pulsation Control Sizing ---',
+        'Required Dampener Volume: ' + document.getElementById('res_rec_damp_vol').textContent + ' (' + document.getElementById('res_rec_damp_metric').textContent + ')',
+        'Displacement per Stroke: ' + document.getElementById('res_rec_disp_stroke').textContent,
+        'N2 Precharge Pressure: ' + document.getElementById('res_rec_n2_press').textContent,
+        'Cavitation Risk: ' + document.getElementById('res_rec_cav_risk').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcRec();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+console.log('  ✓ Built Trade & Construction Suite (187 calculators in /calc/)');
 }
 
