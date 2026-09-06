@@ -111285,6 +111285,2223 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
   })();
 
 
-console.log('  ✓ Built Trade & Construction Suite (167 calculators in /calc/)');
+  // --- BATCH BE TOOLS (168 - 171) ---
+
+  // --- TOOL BE1: WATER HAMMER SURGE PRESSURE & AIR VESSEL SIZING CALCULATOR (AWWA M44) ---
+  (() => {
+    const slug = 'water-hammer-surge-vessel-calculator';
+    const title = 'Water Hammer Surge Pressure & Air Vessel Sizing Calculator (AWWA M44 & Joukowsky)';
+    const metaDescription = 'Hydraulic transient and water hammer analysis calculator per AWWA M44, Joukowsky, and Allievi equations. Computes pressure wave velocity (c), critical valve closure time (Tc), maximum Joukowsky surge head (ΔH), transient pressure envelope, and bladder/air surge vessel sizing volume to prevent column separation and pipe bursting.';
+
+    const faq = [
+      {
+        q: 'What is the Joukowsky equation and when does it apply for water hammer?',
+        a: 'The fundamental Joukowsky equation defines the maximum instantaneous surge pressure rise resulting from an abrupt change in fluid velocity: Delta H = (a * Delta v) / g, or Delta P = rho * a * Delta v, where a is the acoustic wave speed in the pipe (m/s), Delta v is the change in flow velocity (m/s), rho is fluid density (kg/m³), and g is gravitational acceleration (9.81 m/s²). It applies when the valve closure time or pump shutdown occurs in less than or equal to the critical reflection time: T <= Tc = 2L / a.'
+      },
+      {
+        q: 'How does pipe material and wall elasticity affect the acoustic wave speed (a)?',
+        a: 'The pressure wave speed depends directly on the bulk modulus of water (Kw approx 2.19 GPa) and the Youngs modulus of elasticity of the pipe wall (E). Rigid steel pipes (E = 200 GPa) have high wave speeds of 1,000 to 1,250 m/s, yielding violent, steep-fronted pressure spikes. Flexible plastic pipes like HDPE (E = 0.8 to 1.0 GPa) have much lower wave speeds (300 to 450 m/s), which dramatically cushions the Joukowsky peak surge pressure but exhibits higher viscoelastic deformation.'
+      },
+      {
+        q: 'What is water column separation and why is cavity collapse so dangerous?',
+        a: 'When an up-surge pressure wave reflects back from a reservoir as a down-surge wave, the internal pipeline pressure can plummet below the vapor pressure of water (-1.0 bar gauge, approx -10 m water column). At this point, liquid water instantaneously vaporizes, creating a localized steam/vapor pocket that splits the liquid column. When flow reverses or downstream pressure recovers, the two liquid columns slam back together at tremendous speed. This vapor cavity collapse generates localized slamming pressures 2 to 5 times higher than the original Joukowsky surge, frequently shattering pipes and ductile iron fittings.'
+      },
+      {
+        q: 'How does a bladder surge vessel or hydropneumatic tank protect against water hammer?',
+        a: 'A bladder surge vessel contains a pressurized air or nitrogen cushion separated from the pipeline liquid by an elastomeric bladder. During an initial down-surge (e.g. after a sudden pump power failure), the compressed gas cushion instantly expands, discharging liquid into the pipeline to maintain positive pressure and prevent column separation. During the subsequent returning positive surge, the vessel absorbs liquid through an asymmetric orifice (throttled inflow), safely dissipating the transient kinetic energy.'
+      },
+      {
+        q: 'What is the difference between rapid closure (T <= Tc) and slow closure (T > Tc)?',
+        a: 'If a valve closes faster than the round-trip travel time of the acoustic pressure wave (Tc = 2L / a), the returning negative relief wave from the reservoir cannot reach the valve before it fully shuts. In this rapid closure regime, the full Joukowsky surge Delta H occurs. If valve closure time T is significantly greater than Tc (slow closure), the returning relief wave attenuates the pressure rise, and the peak surge head is governed by the Allievi equation, scaling roughly proportionally to (Tc / T).'
+      }
+    ];
+
+    const content = `
+<style>
+  .wh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .wh-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .wh-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Engineering Pipeline Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadWHPreset('steel_trans')">Long Steel Transmission (3,500m DN600)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadWHPreset('di_pump')">Ductile Iron Pump Station (1,200m DN400)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadWHPreset('hdpe_dist')">HDPE Raw Water Line (800m DN315)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadWHPreset('hydro_pen')">Hydropower Steel Penstock (650m DN1000)</button>
+  </div>
+</div>
+
+<div class="wh-grid">
+  <!-- Inputs Column 1: Pipeline Geometry & Material -->
+  <div class="wh-card">
+    <h3>1. Pipeline Geometry & Material Properties</h3>
+
+    <div class="form-group">
+      <label for="wh_mat">Pipe Material & Elastic Modulus (E)</label>
+      <select id="wh_mat" class="form-control" onchange="updateWHMaterial(); calcWH();">
+        <option value="carbon_steel" selected>Carbon Steel (E = 207 GPa, wave ~ 1,080 m/s)</option>
+        <option value="ductile_iron">Ductile Iron (E = 170 GPa, wave ~ 1,020 m/s)</option>
+        <option value="stainless">Stainless Steel 316L (E = 193 GPa, wave ~ 1,050 m/s)</option>
+        <option value="grp_frp">GRP / Fiberglass (E = 18 GPa, wave ~ 580 m/s)</option>
+        <option value="pvc_u">PVC-U Rigid (E = 3.2 GPa, wave ~ 420 m/s)</option>
+        <option value="hdpe">HDPE PE100 (E = 0.95 GPa, wave ~ 320 m/s)</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="wh_len">Pipeline Length (L, m)</label>
+        <input type="number" id="wh_len" class="form-control" value="2500" min="10" max="100000" step="100" oninput="calcWH()">
+      </div>
+      <div class="form-group">
+        <label for="wh_od">Pipe Outer Diameter (D_o, mm)</label>
+        <input type="number" id="wh_od" class="form-control" value="610" min="25" max="3500" step="5" oninput="calcWH()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="wh_thk">Pipe Wall Thickness (e, mm)</label>
+        <input type="number" id="wh_thk" class="form-control" value="9.5" min="1" max="100" step="0.5" oninput="calcWH()">
+      </div>
+      <div class="form-group">
+        <label for="wh_pn">Nominal Pressure Rating (PN, bar)</label>
+        <input type="number" id="wh_pn" class="form-control" value="16" min="4" max="150" step="1" oninput="calcWH()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="wh_flow_vel">Initial Flow Velocity (v₀, m/s)</label>
+        <input type="number" id="wh_flow_vel" class="form-control" value="2.10" min="0.1" max="10.0" step="0.05" oninput="calcWH()">
+      </div>
+      <div class="form-group">
+        <label for="wh_h0">Operating Static/Pumping Head (H₀, m)</label>
+        <input type="number" id="wh_h0" class="form-control" value="75" min="5" max="1000" step="5" oninput="calcWH()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="wh_close_time">Valve Closure / Trip Time (T_c, s)</label>
+        <input type="number" id="wh_close_time" class="form-control" value="2.5" min="0.1" max="120" step="0.1" oninput="calcWH()">
+      </div>
+      <div class="form-group">
+        <label for="wh_restraint">Pipe Anchor Support Restraint</label>
+        <select id="wh_restraint" class="form-control" onchange="calcWH()">
+          <option value="anchored_both" selected>Anchored against longitudinal motion (c₁ = 1 - ν²)</option>
+          <option value="anchored_upstream">Anchored at upstream only with expansion joints (c₁ = 1 - ν/2)</option>
+          <option value="unrestrained">Continuously unconstrained / loose slip joints (c₁ = 1.0)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Column: Transient Calculations & Joukowsky Head -->
+  <div class="wh-card">
+    <h3>2. Transient Surge Analysis & Limits</h3>
+
+    <div class="res-row">
+      <span class="res-label">Pipeline Surge Status</span>
+      <span id="res_wh_status" class="status-badge badge-safe">SAFE</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Acoustic Wave Speed (a)</span>
+      <span id="res_wh_wave" class="res-val highlight">-- m/s</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Critical Reflection Time (T_crit = 2L/a)</span>
+      <span id="res_wh_tcrit" class="res-val">-- s</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Closure Flow Regime</span>
+      <span id="res_wh_regime" class="res-val warning">--</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Joukowsky Max Surge Head (ΔH_max)</span>
+      <span id="res_wh_jouk_h" class="res-val highlight">-- m (-- bar)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Peak Transient Head (H_max = H₀ + ΔH)</span>
+      <span id="res_wh_peak_h" class="res-val danger">-- m (-- bar)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Minimum Down-Surge Head (H_min)</span>
+      <span id="res_wh_min_h" class="res-val">-- m (Cavitation Check)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Allowable Surge Limit (1.20 × PN)</span>
+      <span id="res_wh_allow_h" class="res-val">-- m (-- bar)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Sizing Air Vessel / Hydropneumatic Protection -->
+<div class="wh-grid">
+  <div class="wh-card">
+    <h3>3. AWWA M44 Bladder Surge Vessel Preliminary Sizing</h3>
+
+    <div class="res-row">
+      <span class="res-label">Surge Protection Requirement</span>
+      <span id="res_ves_req" class="res-val warning">MANDATORY</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Target Max Pipeline Pressure Allowed</span>
+      <span id="res_ves_ptarget" class="res-val">-- bar</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Kinetic Energy of Liquid Column</span>
+      <span id="res_ves_ke" class="res-val">-- kJ</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Estimated Net Gas Cushion Volume (V_gas)</span>
+      <span id="res_ves_vgas" class="res-val highlight">-- m³ (-- gal)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Recommended Total Vessel Volume (V_tot)</span>
+      <span id="res_ves_vtot" class="res-val success">-- m³ (with 25% reserve)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Bladder Nitrogen Pre-Charge Pressure</span>
+      <span id="res_ves_precharge" class="res-val">-- bar (g)</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_wh" class="btn-copy">
+        <span>📋 Copy Water Hammer Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Wave Reflection & Transient Envelope Visualizer -->
+  <div class="wh-card">
+    <h3>4. Hydraulic Grade Line (HGL) & Surge Envelope</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 420 280" style="width: 100%; max-width: 380px; height: auto;">
+        <!-- Axes -->
+        <line x1="50" y1="240" x2="390" y2="240" stroke="#475569" stroke-width="2"/>
+        <line x1="50" y1="20" x2="50" y2="240" stroke="#475569" stroke-width="2"/>
+        <text x="390" y="255" text-anchor="end" fill="#94a3b8" font-size="10">Pipeline Distance (L)</text>
+        <text x="45" y="20" text-anchor="end" fill="#94a3b8" font-size="10">Head (m)</text>
+
+        <!-- Pipe Profile (Ground / Centerline) -->
+        <line x1="50" y1="200" x2="370" y2="220" stroke="#64748b" stroke-width="4"/>
+        <text x="210" y="226" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">Pipeline Axis</text>
+
+        <!-- Steady State HGL Line (Blue) -->
+        <line x1="50" y1="140" x2="370" y2="170" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="160" y="145" fill="#38bdf8" font-size="9">Steady HGL (H₀)</text>
+
+        <!-- Max Positive Surge Envelope (Red Peak) -->
+        <path d="M 50,50 Q 200,80 370,170" fill="none" stroke="#ef4444" stroke-width="2.5"/>
+        <text x="120" y="48" fill="#ef4444" font-size="10" font-weight="700">Peak Up-Surge (H_max)</text>
+
+        <!-- Pipe Allowable Pressure Line (Red Dashed) -->
+        <line x1="50" y1="70" x2="370" y2="70" stroke="#f59e0b" stroke-dasharray="5,3" stroke-width="1.5"/>
+        <text x="365" y="65" text-anchor="end" fill="#f59e0b" font-size="8">1.20 × PN Rating</text>
+
+        <!-- Min Down-Surge Envelope (Purple Trough) -->
+        <path d="M 50,225 Q 200,210 370,170" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="120" y="236" fill="#c084fc" font-size="9">Down-Surge Trough (H_min)</text>
+
+        <!-- Vaporization Limit (-10m line) -->
+        <line x1="50" y1="215" x2="370" y2="235" stroke="#ec4899" stroke-dasharray="2,2" stroke-width="1"/>
+        <text x="365" y="215" text-anchor="end" fill="#ec4899" font-size="8">Vaporization (-1.0 bar)</text>
+
+        <!-- Valve & Pump Callouts -->
+        <polygon points="50,195 40,185 40,205" fill="#10b981"/>
+        <text x="35" y="198" text-anchor="end" fill="#10b981" font-size="9" font-weight="700">Valve/Pump</text>
+
+        <rect x="365" y="160" width="15" height="20" fill="#0284c7"/>
+        <text x="385" y="175" fill="#0284c7" font-size="9" font-weight="700">Reservoir</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Reference Table -->
+<div class="wh-card" style="margin-bottom: 2rem;">
+  <h3>Pipeline Material Wave Speed & Elastic Modulus Comparison</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Pipe Material</th>
+        <th>Elastic Modulus (GPa)</th>
+        <th>Typical Wave Speed (m/s)</th>
+        <th>Surge Head per 1 m/s Deceleration</th>
+        <th>Relative Risk</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Carbon Steel (API 5L / ASTM A53)</strong></td>
+        <td>207 GPa</td>
+        <td>1,050 – 1,200 m/s</td>
+        <td>~107 – 122 m (10.5 – 12.0 bar)</td>
+        <td><span class="status-badge badge-danger">HIGH SURGE SPIKE</span></td>
+      </tr>
+      <tr>
+        <td><strong>Ductile Iron (ISO 2531 / EN 545)</strong></td>
+        <td>170 GPa</td>
+        <td>1,000 – 1,120 m/s</td>
+        <td>~102 – 114 m (10.0 – 11.2 bar)</td>
+        <td><span class="status-badge badge-danger">HIGH SURGE SPIKE</span></td>
+      </tr>
+      <tr>
+        <td><strong>Glass-Reinforced Plastic (GRP)</strong></td>
+        <td>18 – 22 GPa</td>
+        <td>550 – 650 m/s</td>
+        <td>~56 – 66 m (5.5 – 6.5 bar)</td>
+        <td><span class="status-badge badge-warn">MODERATE SURGE</span></td>
+      </tr>
+      <tr>
+        <td><strong>Unplasticized PVC (PVC-U)</strong></td>
+        <td>3.0 – 3.6 GPa</td>
+        <td>380 – 450 m/s</td>
+        <td>~39 – 46 m (3.8 – 4.5 bar)</td>
+        <td><span class="status-badge badge-safe">LOWER SURGE</span></td>
+      </tr>
+      <tr>
+        <td><strong>High-Density Polyethylene (HDPE PE100)</strong></td>
+        <td>0.9 – 1.1 GPa</td>
+        <td>280 – 360 m/s</td>
+        <td>~28 – 37 m (2.8 – 3.6 bar)</td>
+        <td><span class="status-badge badge-safe">LOW SURGE (HIGH CREEP)</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="wh-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Water Hammer & Surge Engineering Traps</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: Column Separation & Violent Vapor Cavity Slamming</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      During pump tripping, an initial low-pressure wave sweeps down the pipeline. If transient pressure drops below water vapor pressure (-10 m water column / -1.0 bar gauge), liquid boils into vapor pockets, breaking the fluid column. When the fluid rebounds from the downstream reservoir or pump discharge check valve, the two water columns smash together at high relative velocity. Cavity collapse generates localized slamming pressures exceeding 3 to 6 times the pipe rating, violently splitting pipes, fracturing tees, and destroying non-slam check valves.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: Thin-Wall Pipe Buckling from Transient Full Vacuum</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Large-diameter, thin-walled steel pipes (e.g. DN1200 with 6 mm wall) possess high internal bursting strength but abysmal external collapse resistance. During a sudden down-surge, atmospheric pressure pushes inward against the partial vacuum inside the pipe. Without appropriately spaced air/vacuum release valves (AVRVs), the pipeline buckles inward into a flattened figure-8 shape along hundreds of meters, requiring complete pipe replacement.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: Bladder Surge Vessel Pre-Charge Pressure Drift</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Bladder surge vessels require precise nitrogen gas pre-charge (typically 60% to 80% of normal pipeline operating pressure). If the bladder leaks or nitrogen permeates through the elastomer over 1–2 years, the pre-charge collapses. The vessel fills 100% with water, leaving zero compressible cushion. When a power trip occurs, the vessel provides zero surge protection, and operators discover the failure only after the pipeline ruptures. Routine semi-annual pressure testing of the bladder gas cushion is vital.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Butterfly & Ball Valve Non-Linear Closure Kinematics</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Engineers frequently assume that setting an electric valve actuator to close in 30 seconds ensures a slow, safe closure. However, quarter-turn butterfly and ball valves exhibit extreme non-linear flow characteristics: 80% of the effective flow reduction occurs in the final 15% of valve travel (the last 10 degrees). Therefore, a 30-second linear stroke acts like an abrupt 4-second slam at the end, triggering full Joukowsky surge. Two-speed actuators or eccentric plug valves with linear throttling curves are necessary.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: Relying on Conventional Swing Check Valves in High-Head Stations</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Standard swing check valves rely on reverse flow velocity to push the heavy valve disc shut. In high-head pump systems, forward flow decelerates rapidly (deceleration rates > 15 m/s²), and reverse flow accelerates before the disc can swing closed. The disc then slams into its seat at high velocity, generating an ear-splitting bang, shearing hinge pins, and creating a violent localized pressure spike. Spring-assisted non-slam nozzle check valves that close at precisely zero flow velocity are mandatory.
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const materials = {
+    carbon_steel: { E: 207e9, nu: 0.30 },
+    ductile_iron: { E: 170e9, nu: 0.28 },
+    stainless: { E: 193e9, nu: 0.30 },
+    grp_frp: { E: 20e9, nu: 0.35 },
+    pvc_u: { E: 3.4e9, nu: 0.40 },
+    hdpe: { E: 0.95e9, nu: 0.45 }
+  };
+
+  const presets = {
+    steel_trans: { mat: 'carbon_steel', len: 3500, od: 610, thk: 9.5, pn: 20, vel: 2.2, h0: 95, time: 3.0 },
+    di_pump: { mat: 'ductile_iron', len: 1200, od: 406, thk: 8.0, pn: 16, vel: 1.8, h0: 70, time: 2.0 },
+    hdpe_dist: { mat: 'hdpe', len: 800, od: 315, thk: 18.7, pn: 10, vel: 1.5, h0: 45, time: 1.5 },
+    hydro_pen: { mat: 'carbon_steel', len: 650, od: 1000, thk: 16.0, pn: 40, vel: 3.5, h0: 220, time: 1.2 }
+  };
+
+  window.loadWHPreset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('wh_mat').value = p.mat;
+    document.getElementById('wh_len').value = p.len;
+    document.getElementById('wh_od').value = p.od;
+    document.getElementById('wh_thk').value = p.thk;
+    document.getElementById('wh_pn').value = p.pn;
+    document.getElementById('wh_flow_vel').value = p.vel;
+    document.getElementById('wh_h0').value = p.h0;
+    document.getElementById('wh_close_time').value = p.time;
+    calcWH();
+  };
+
+  window.updateWHMaterial = function() {};
+
+  window.calcWH = function() {
+    const matKey = document.getElementById('wh_mat').value;
+    const mat = materials[matKey] || materials.carbon_steel;
+    const L = parseFloat(document.getElementById('wh_len').value) || 1000;
+    const Do_mm = parseFloat(document.getElementById('wh_od').value) || 500;
+    const e_mm = parseFloat(document.getElementById('wh_thk').value) || 10;
+    const pn_bar = parseFloat(document.getElementById('wh_pn').value) || 16;
+    const v0 = parseFloat(document.getElementById('wh_flow_vel').value) || 2.0;
+    const H0 = parseFloat(document.getElementById('wh_h0').value) || 75;
+    const Tc_user = parseFloat(document.getElementById('wh_close_time').value) || 2.0;
+    const restraint = document.getElementById('wh_restraint').value;
+
+    const g = 9.80665;
+    const rho = 1000; // kg/m3 for water
+    const Kw = 2.19e9; // Pa, bulk modulus of water
+
+    // Inner diameter
+    const Di_mm = Do_mm - 2 * e_mm;
+    const D = Di_mm / 1000; // m
+    const e = e_mm / 1000; // m
+
+    // Restraint factor c1
+    let c1 = 1.0;
+    if (restraint === 'anchored_both') {
+      c1 = 1 - Math.pow(mat.nu, 2);
+    } else if (restraint === 'anchored_upstream') {
+      c1 = 1 - (mat.nu / 2);
+    } else {
+      c1 = 1.0;
+    }
+
+    // Acoustic wave speed a = sqrt((Kw / rho) / (1 + (Kw / E) * (D / e) * c1))
+    const denom = 1 + (Kw / mat.E) * (D / e) * c1;
+    const a = Math.sqrt((Kw / rho) / denom);
+
+    // Critical closure time T_crit = 2L / a
+    const T_crit = (2 * L) / a;
+
+    // Full Joukowsky head rise Delta H_jouk = (a * v0) / g
+    const dH_jouk = (a * v0) / g;
+
+    // Effective surge head based on closure time vs critical time
+    let dH_eff = dH_jouk;
+    let regime = 'RAPID CLOSURE (T <= Tc)';
+
+    if (Tc_user <= T_crit) {
+      dH_eff = dH_jouk;
+      regime = 'RAPID (FULL JOUKOWSKY)';
+    } else {
+      // Slow closure: approximate Allievi / linear reduction: dH ~ dH_jouk * (T_crit / Tc)
+      const ratio = T_crit / Tc_user;
+      dH_eff = dH_jouk * ratio;
+      regime = 'SLOW CLOSURE (T > Tc)';
+    }
+
+    const peak_H = H0 + dH_eff;
+    const peak_bar = peak_H / 10.197;
+
+    const min_H = H0 - dH_eff;
+    const min_bar = min_H / 10.197;
+
+    // Allowable test surge limit per AWWA: 1.20 * PN
+    const allow_bar = pn_bar * 1.20;
+    const allow_H = allow_bar * 10.197;
+
+    // Kinetic energy in pipeline column: E_k = 0.5 * m * v^2 = 0.5 * (rho * A * L) * v^2
+    const A_pipe = Math.PI * Math.pow(D, 2) / 4;
+    const mass_fluid = rho * A_pipe * L;
+    const ke_kJ = (0.5 * mass_fluid * Math.pow(v0, 2)) / 1000;
+
+    // Preliminary Bladder Surge Vessel sizing (AWWA M44 polytropic expansion P1*V1^n = P2*V2^n, n = 1.2)
+    // Cushion must absorb liquid volume displaced during deceleration: V_gas ~ (A * L * v0) / [a * ( (P_max/P0)^(1/n) - 1 )]
+    const p0_abs = (H0 / 10.197) + 1.013; // bar abs
+    const pmax_abs = Math.min(allow_bar, peak_bar) + 1.013; // bar abs
+    const n_poly = 1.2;
+
+    let v_gas_m3 = 0;
+    if (pmax_abs > p0_abs) {
+      const expTerm = Math.pow(pmax_abs / p0_abs, 1 / n_poly) - 1;
+      const vol_displaced = (A_pipe * L * v0) / a;
+      v_gas_m3 = expTerm > 0 ? (vol_displaced / expTerm) * 1.8 : 1.0;
+    } else {
+      v_gas_m3 = 0.5;
+    }
+
+    const v_tot_m3 = v_gas_m3 * 1.35; // 35% safety margin for liquid seal
+    const v_tot_gal = v_tot_m3 * 264.172;
+    const precharge_bar = (H0 / 10.197) * 0.70; // 70% of static head
+
+    // Render results
+    document.getElementById('res_wh_wave').textContent = Math.round(a).toLocaleString() + ' m/s';
+    document.getElementById('res_wh_tcrit').textContent = T_crit.toFixed(2) + ' s (Round-Trip)';
+    document.getElementById('res_wh_regime').textContent = regime;
+    document.getElementById('res_wh_jouk_h').textContent = Math.round(dH_jouk).toLocaleString() + ' m (' + (dH_jouk / 10.197).toFixed(1) + ' bar)';
+    document.getElementById('res_wh_peak_h').textContent = Math.round(peak_H).toLocaleString() + ' m (' + peak_bar.toFixed(1) + ' bar)';
+    
+    const minEl = document.getElementById('res_wh_min_h');
+    if (min_H < -10) {
+      minEl.textContent = min_H.toFixed(1) + ' m (CAVITATION / COLUMN SEPARATION!)';
+      minEl.className = 'res-val danger';
+    } else if (min_H < 0) {
+      minEl.textContent = min_H.toFixed(1) + ' m (SUB-ATMOSPHERIC VACUUM)';
+      minEl.className = 'res-val warning';
+    } else {
+      minEl.textContent = min_H.toFixed(1) + ' m (' + min_bar.toFixed(1) + ' bar - Positive)';
+      minEl.className = 'res-val success';
+    }
+
+    document.getElementById('res_wh_allow_h').textContent = Math.round(allow_H).toLocaleString() + ' m (' + allow_bar.toFixed(1) + ' bar)';
+
+    // Status Badge
+    const badge = document.getElementById('res_wh_status');
+    if (peak_bar > allow_bar || min_H < -10) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = peak_bar > allow_bar ? 'BURST RISK (EXCEEDS PN LIMIT)' : 'COLUMN SEPARATION RISK';
+    } else if (peak_bar > pn_bar || min_H < 0) {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'WARNING (SURGE VESSEL RECOMMENDED)';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'PRESSURE WITHIN SAFE LIMITS';
+    }
+
+    // Vessel card outputs
+    document.getElementById('res_ves_req').textContent = (peak_bar > pn_bar || min_H < 0) ? 'MANDATORY (SURGE SUPPRESSION REQUIRED)' : 'OPTIONAL (TRANSIENTS LOW)';
+    document.getElementById('res_ves_ptarget').textContent = allow_bar.toFixed(1) + ' bar (' + Math.round(allow_H) + ' m)';
+    document.getElementById('res_ves_ke').textContent = Math.round(ke_kJ).toLocaleString() + ' kJ';
+    document.getElementById('res_ves_vgas').textContent = v_gas_m3.toFixed(2) + ' m³ (' + Math.round(v_gas_m3 * 264.172).toLocaleString() + ' gal)';
+    document.getElementById('res_ves_vtot').textContent = v_tot_m3.toFixed(2) + ' m³ (' + Math.round(v_tot_gal).toLocaleString() + ' gal)';
+    document.getElementById('res_ves_precharge').textContent = precharge_bar.toFixed(1) + ' bar (g)';
+  };
+
+  const btnCopy = document.getElementById('btn_copy_wh');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const matText = document.getElementById('wh_mat').options[document.getElementById('wh_mat').selectedIndex].text;
+      const txt = [
+        '=== WATER HAMMER & SURGE VESSEL SIZING DATASHEET ===',
+        'Standard: AWWA M44 / Joukowsky / Allievi Formulations',
+        'Pipeline Material: ' + matText,
+        'Length: ' + document.getElementById('wh_len').value + ' m | Outer Dia: ' + document.getElementById('wh_od').value + ' mm | Wall: ' + document.getElementById('wh_thk').value + ' mm',
+        'Nominal Rating: PN ' + document.getElementById('wh_pn').value + ' bar | Steady Head (H0): ' + document.getElementById('wh_h0').value + ' m',
+        'Flow Velocity: ' + document.getElementById('wh_flow_vel').value + ' m/s | Closure Time: ' + document.getElementById('wh_close_time').value + ' s',
+        '--- Transient Analysis Results ---',
+        'Acoustic Wave Speed (a): ' + document.getElementById('res_wh_wave').textContent,
+        'Critical Round-Trip Time (Tc): ' + document.getElementById('res_wh_tcrit').textContent,
+        'Closure Regime: ' + document.getElementById('res_wh_regime').textContent,
+        'Joukowsky Surge Rise (ΔH): ' + document.getElementById('res_wh_jouk_h').textContent,
+        'Peak Transient Head (H_max): ' + document.getElementById('res_wh_peak_h').textContent,
+        'Minimum Down-Surge (H_min): ' + document.getElementById('res_wh_min_h').textContent,
+        'Allowable Pipe Surge Limit: ' + document.getElementById('res_wh_allow_h').textContent,
+        '--- Bladder Surge Vessel Preliminary Sizing ---',
+        'Surge Protection Status: ' + document.getElementById('res_ves_req').textContent,
+        'Fluid Kinetic Energy: ' + document.getElementById('res_ves_ke').textContent,
+        'Required Net Gas Volume: ' + document.getElementById('res_ves_vgas').textContent,
+        'Recommended Vessel Size: ' + document.getElementById('res_ves_vtot').textContent,
+        'Nitrogen Pre-Charge: ' + document.getElementById('res_ves_precharge').textContent,
+        'System Integrity: ' + document.getElementById('res_wh_status').textContent,
+        '===================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcWH();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BE2: REVERSE OSMOSIS (RO) MEMBRANE FLUX & DESALINATION CALCULATOR (ASTM D4516) ---
+  (() => {
+    const slug = 'reverse-osmosis-membrane-flux-calculator';
+    const title = 'Reverse Osmosis (RO) Membrane Flux & Desalination Sizing Calculator (ASTM D4516)';
+    const metaDescription = 'Industrial and municipal reverse osmosis (RO) membrane desalination calculator per ASTM D4516 and FilmTec design standards. Computes feed osmotic pressure, net driving pressure (NDP), temperature correction factor (TCF), membrane water flux (LMH & GFD), 8-inch element count, salt rejection, and specific energy consumption (SEC in kWh/m³) with energy recovery devices (PX).';
+
+    const faq = [
+      {
+        q: 'How is osmotic pressure (Π) calculated for reverse osmosis feed and brine?',
+        a: 'Per van \'t Hoff\'s equation, osmotic pressure is proportional to solute molar concentration and absolute temperature: Pi = Sigma(M_i * R * T). For natural waters (brackish groundwater or seawater), a standard empirical approximation per ASTM D4516 is Pi = 0.075 * TDS_ppm * [(T_C + 273.15) / 298.15] / 1000 in bar. Because salt concentrates as water permeates through the membrane, the effective average osmotic pressure across the vessel is Pi_avg = Pi_feed * [ln(1 / (1 - Y)) / Y], where Y is the recovery fraction (Q_perm / Q_feed).'
+      },
+      {
+        q: 'What is Net Driving Pressure (NDP) and why does it govern membrane water flux?',
+        a: 'Net Driving Pressure is the true net thermodynamic force pushing pure water molecules through the semi-permeable polyamide membrane: NDP = (P_feed - Delta P_drop / 2) - P_perm - (Pi_avg - Pi_perm). Here, (P_feed - Delta P_drop / 2) is the average feed-concentrate hydraulic pressure inside the vessel, P_perm is the permeate backpressure, and (Pi_avg - Pi_perm) is the trans-membrane osmotic pressure gradient opposing flow. Water flux J_w is strictly linear with NDP: J_w = A * NDP * TCF.'
+      },
+      {
+        q: 'Why does feed water temperature have such a massive impact on RO operating pressure?',
+        a: 'Water viscosity increases as temperature drops, restricting transport through the sub-nanometer free volume of the polyamide active layer. The Temperature Correction Factor (TCF) follows an Arrhenius relationship: TCF = exp[2700 * (1/298.15 - 1/(273.15 + T))]. For every 1°C drop in feed water temperature, membrane water permeability decreases by approximately 3.0%. In cold winter conditions (e.g. 12°C vs 25°C design), high-pressure pumps must ramp up discharge pressure by 40% to maintain the same permeate production.'
+      },
+      {
+        q: 'How does an Isobaric Pressure Exchanger (PX) slash energy consumption in Seawater RO?',
+        a: 'In Seawater RO (SWRO) operating at 45% recovery, 55% of the high-pressure feed leaves the membrane vessels as high-pressure concentrate brine (at ~65 bar). Without energy recovery, this enormous hydraulic energy is wasted across a throttle valve, consuming 7 to 9 kWh/m³. An isobaric pressure exchanger (PX) transfers pressure directly from the high-pressure brine to incoming seawater via positive displacement with over 96% mechanical efficiency, reducing net specific energy consumption (SEC) to just 2.6 to 3.2 kWh/m³.'
+      },
+      {
+        q: 'What governs the maximum allowable flux limit (GFD / LMH) for different feed sources?',
+        a: 'Maximum permissible flux is limited by fouling and concentration polarization: surface water with high silt density index (SDI > 3) is limited to 10 to 14 LMH (6 to 8 GFD); tertiary treated municipal wastewater (MBR filtrate) operates at 14 to 18 LMH (8 to 11 GFD); well water with low SDI (< 2) can safely operate at 20 to 25 LMH (12 to 15 GFD); while seawater SWRO is restricted to 12 to 16 LMH (7 to 9.5 GFD) to prevent irreversible fouling and scaling.'
+      }
+    ];
+
+    const content = `
+<style>
+  .ro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .ro-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .ro-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Desalination Feed Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadROPreset('seawater')">Seawater SWRO (35,000 ppm, 45% Recovery)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadROPreset('brackish_high')">High-Salinity Brackish (8,000 ppm, 75% Recovery)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadROPreset('brackish_low')">Standard Brackish BWRO (2,500 ppm, 80% Recovery)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadROPreset('wastewater')">Tertiary Water Reuse (1,200 ppm, 85% Recovery)</button>
+  </div>
+</div>
+
+<div class="ro-grid">
+  <!-- Inputs: Feed & Operating Conditions -->
+  <div class="ro-card">
+    <h3>1. Feed Water & Operating Conditions</h3>
+
+    <div class="form-group">
+      <label for="ro_app">Application & Membrane Technology</label>
+      <select id="ro_app" class="form-control" onchange="updateROApp(); calcRO();">
+        <option value="swro" selected>Seawater Reverse Osmosis (SWRO, High-Rejection Polyamide)</option>
+        <option value="bwro_std">Brackish Water Reverse Osmosis (BWRO Standard, 8-inch 400 ft²)</option>
+        <option value="bwro_lp">Low-Energy Brackish (XLE / ULP Low Pressure)</option>
+        <option value="reuse">Wastewater Reuse / Fouling Resistant (FR Polyamide)</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ro_q_perm">Permeate Capacity (Q_perm, m³/day)</label>
+        <input type="number" id="ro_q_perm" class="form-control" value="2500" min="10" max="500000" step="100" oninput="calcRO()">
+      </div>
+      <div class="form-group">
+        <label for="ro_tds_feed">Feed Water TDS (mg/L or ppm)</label>
+        <input type="number" id="ro_tds_feed" class="form-control" value="35000" min="100" max="75000" step="500" oninput="calcRO()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ro_recov">System Recovery Fraction (Y, %)</label>
+        <input type="number" id="ro_recov" class="form-control" value="45" min="15" max="92" step="1" oninput="calcRO()">
+      </div>
+      <div class="form-group">
+        <label for="ro_temp">Feed Water Temperature (°C)</label>
+        <input type="number" id="ro_temp" class="form-control" value="25" min="5" max="45" step="1" oninput="calcRO()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ro_p_feed">High-Pressure Pump Discharge (P_feed, bar)</label>
+        <input type="number" id="ro_p_feed" class="form-control" value="62.0" min="5.0" max="90.0" step="0.5" oninput="calcRO()">
+      </div>
+      <div class="form-group">
+        <label for="ro_p_perm">Permeate Backpressure (P_perm, bar)</label>
+        <input type="number" id="ro_p_perm" class="form-control" value="1.2" min="0.0" max="5.0" step="0.1" oninput="calcRO()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ro_erd_type">Energy Recovery Device (ERD)</label>
+        <select id="ro_erd_type" class="form-control" onchange="calcRO()">
+          <option value="isobaric_px" selected>Isobaric Pressure Exchanger (PX, 96% eff)</option>
+          <option value="pelton_turbo">Pelton Wheel / Turbocharger (82% eff)</option>
+          <option value="none_throttle">None (Throttle Valve / Dissipation 0% eff)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ro_pump_eff">High-Pressure Pump Wire-to-Water Eff (%)</label>
+        <input type="number" id="ro_pump_eff" class="form-control" value="82" min="50" max="92" step="1" oninput="calcRO()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Column: Flux, NDP, Elements & Brine Balance -->
+  <div class="ro-card">
+    <h3>2. Membrane Flux, Sizing & Hydraulics</h3>
+
+    <div class="res-row">
+      <span class="res-label">RO Operating Status</span>
+      <span id="res_ro_status" class="status-badge badge-safe">OPTIMAL</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Feed Flow Rate (Q_feed)</span>
+      <span id="res_ro_qfeed" class="res-val highlight">-- m³/day (-- m³/h)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Concentrate Brine Flow (Q_conc)</span>
+      <span id="res_ro_qconc" class="res-val">-- m³/day</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Concentrate Brine TDS</span>
+      <span id="res_ro_tds_conc" class="res-val warning">-- mg/L</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Average Osmotic Pressure (Π_avg)</span>
+      <span id="res_ro_pi_avg" class="res-val">-- bar</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Net Driving Pressure (NDP)</span>
+      <span id="res_ro_ndp" class="res-val highlight">-- bar</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Operating Flux (J_w)</span>
+      <span id="res_ro_flux" class="res-val highlight">-- LMH (-- GFD)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total 8-inch Elements (400 ft²)</span>
+      <span id="res_ro_elements" class="res-val success">-- Elements (-- Vessels)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Energetics & Permeate Quality Section -->
+<div class="ro-grid">
+  <div class="ro-card">
+    <h3>3. Desalination Energy Consumption & Salt Rejection</h3>
+
+    <div class="res-row">
+      <span class="res-label">Permeate Water Quality (TDS_perm)</span>
+      <span id="res_ro_tds_perm" class="res-val success">-- mg/L (WHO Potable)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Observed Salt Rejection (% SR)</span>
+      <span id="res_ro_sr" class="res-val">-- %</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Temperature Correction Factor (TCF)</span>
+      <span id="res_ro_tcf" class="res-val">-- (Ref 25°C = 1.000)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">HP Pump Shaft Power</span>
+      <span id="res_ro_hp_power" class="res-val">-- kW</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">ERD Power Recovered from Brine</span>
+      <span id="res_ro_erd_power" class="res-val success">-- kW</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Net Specific Energy Consumption (SEC)</span>
+      <span id="res_ro_sec" class="res-val highlight">-- kWh/m³ permeate</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Daily Electricity Consumption</span>
+      <span id="res_ro_kwh_day" class="res-val">-- kWh/day</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_ro" class="btn-copy">
+        <span>📋 Copy RO System Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Membrane Vessel Pressure & Osmotic Gradient Profile -->
+  <div class="ro-card">
+    <h3>4. Membrane Vessel Osmotic & Hydraulic Pressure Profile</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 420 280" style="width: 100%; max-width: 380px; height: auto;">
+        <!-- Axes -->
+        <line x1="50" y1="240" x2="390" y2="240" stroke="#475569" stroke-width="2"/>
+        <line x1="50" y1="20" x2="50" y2="240" stroke="#475569" stroke-width="2"/>
+        <text x="390" y="255" text-anchor="end" fill="#94a3b8" font-size="10">Vessel Length / Membrane Passes</text>
+        <text x="45" y="20" text-anchor="end" fill="#94a3b8" font-size="10">Pressure (bar)</text>
+
+        <!-- Feed Hydraulic Pressure Curve (Red, drops across vessel due to friction) -->
+        <line x1="50" y1="50" x2="370" y2="75" stroke="#ef4444" stroke-width="3"/>
+        <text x="60" y="42" fill="#ef4444" font-size="10" font-weight="700">Feed Pressure P_feed</text>
+        <text x="365" y="70" text-anchor="end" fill="#ef4444" font-size="9">Brine Pressure</text>
+
+        <!-- Osmotic Pressure Curve (Blue, climbs as water permeates and brine concentrates) -->
+        <path d="M 50,165 Q 200,145 370,110" fill="none" stroke="#38bdf8" stroke-width="3"/>
+        <text x="60" y="175" fill="#38bdf8" font-size="10" font-weight="700">Feed Osmotic (Π_feed)</text>
+        <text x="365" y="102" text-anchor="end" fill="#38bdf8" font-size="10" font-weight="700">Brine Osmotic (Π_conc)</text>
+
+        <!-- Shaded NDP Region (The distance between Hydraulic and Osmotic pressure) -->
+        <path d="M 50,50 L 370,75 L 370,110 Q 200,145 50,165 Z" fill="rgba(16, 185, 129, 0.15)"/>
+        <text x="210" y="105" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">Net Driving Pressure (NDP)</text>
+
+        <!-- Permeate Backpressure Line (Bottom Green) -->
+        <line x1="50" y1="230" x2="370" y2="230" stroke="#10b981" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="210" y="222" text-anchor="middle" fill="#10b981" font-size="9">Permeate Backpressure P_perm (~1 bar)</text>
+
+        <!-- Elements Schematic at Bottom -->
+        <rect x="60" y="255" width="40" height="12" fill="#334155" stroke="#64748b"/>
+        <rect x="110" y="255" width="40" height="12" fill="#334155" stroke="#64748b"/>
+        <rect x="160" y="255" width="40" height="12" fill="#334155" stroke="#64748b"/>
+        <rect x="210" y="255" width="40" height="12" fill="#334155" stroke="#64748b"/>
+        <rect x="260" y="255" width="40" height="12" fill="#334155" stroke="#64748b"/>
+        <rect x="310" y="255" width="40" height="12" fill="#334155" stroke="#64748b"/>
+        <text x="205" y="277" text-anchor="middle" fill="#64748b" font-size="8">7-Element Pressure Vessel</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Design Standards Table -->
+<div class="ro-card" style="margin-bottom: 2rem;">
+  <h3>Recommended Design Flux Guidelines per Source Water (ASTM D4516 / FilmTec)</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Feed Water Source</th>
+        <th>Silt Density Index (SDI₁₅)</th>
+        <th>Recommended Flux (LMH)</th>
+        <th>Recommended Flux (GFD)</th>
+        <th>Typical Recovery (Y)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Open Intake Seawater (SWRO)</strong></td>
+        <td>SDI &lt; 5.0 (Coagulated/DAF)</td>
+        <td>12 – 15 LMH</td>
+        <td>7.0 – 9.0 GFD</td>
+        <td>40% – 45%</td>
+      </tr>
+      <tr>
+        <td><strong>Seabed Beach Well Seawater</strong></td>
+        <td>SDI &lt; 2.0 (Natural Filtration)</td>
+        <td>14 – 17 LMH</td>
+        <td>8.2 – 10.0 GFD</td>
+        <td>45% – 50%</td>
+      </tr>
+      <tr>
+        <td><strong>High-Salinity Brackish Well</strong></td>
+        <td>SDI &lt; 2.5</td>
+        <td>17 – 22 LMH</td>
+        <td>10.0 – 13.0 GFD</td>
+        <td>70% – 78%</td>
+      </tr>
+      <tr>
+        <td><strong>Standard Ground Well (BWRO)</strong></td>
+        <td>SDI &lt; 1.5 (Clean Aquifer)</td>
+        <td>22 – 27 LMH</td>
+        <td>13.0 – 16.0 GFD</td>
+        <td>80% – 85%</td>
+      </tr>
+      <tr>
+        <td><strong>Tertiary Municipal Effluent (Reuse)</strong></td>
+        <td>SDI &lt; 3.0 (Post-UF / MBR)</td>
+        <td>15 – 19 LMH</td>
+        <td>9.0 – 11.2 GFD</td>
+        <td>75% – 82%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="ro-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Reverse Osmosis Engineering Traps & Operational Failures</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: Mineral Scaling Precipitation (Exceeding CaSO₄, BaSO₄ & SiO₂ K_sp)</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      In the final element of an RO pressure vessel, brine concentrations reach 4 to 6 times the feed salinity. If the concentration of sparingly soluble salts—such as barium sulfate (BaSO₄), calcium sulfate (gypsum), or reactive silica (SiO₂ > 140 mg/L)—exceeds its solubility product (K_sp), needle-like mineral crystals nucleate directly on the membrane surface. Unlike calcium carbonate (which dissolves in acid), barium sulfate scale is virtually impossible to chemically clean, irreversibly destroying tail elements.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: Polyamide Active Layer Oxidation by Free Chlorine Slip</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Aromatic polyamide thin-film composite membranes possess zero chemical tolerance to oxidizing agents. Continuous exposure to even 0.05 mg/L of free chlorine cleaves the amide linkages in the polymer backbone via Orton rearrangement, causing catastrophic and irreversible degradation of salt rejection within weeks. Redundant Oxidation-Reduction Potential (ORP &lt; 250 mV) sensors and continuous sodium bisulfite (SBS) dosing upstream of the cartridge filters are mandatory.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: High Flux Polarization & Severe Colloidal Compaction</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Attempting to reduce capital costs by designing for excessive flux (>18 LMH in seawater; >28 LMH in brackish) triggers extreme concentration polarization (beta > 1.25). The solute concentration at the membrane surface exceeds bulk brine by over 30%, raising local osmotic pressure, dropping permeate quality, and compacting colloidal foulants into an impenetrable gel layer that drastically increases required feed pressure.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Permeate Backpressure & Membrane Leaf Glue-Line Delamination</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Reverse osmosis membranes are engineered to withstand massive feed-to-permeate pressure (up to 83 bar), but cannot tolerate more than 0.3 to 0.5 bar of static back-pressure from the permeate side when feed pressure drops (e.g. during emergency shutdowns or flushing). If the permeate header is not equipped with automatic check valves and pressure relief vents, back-pressure forces water backwards through the leaf envelope, tearing the epoxy glue lines and blowing out the membrane leaves.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: Winter Feed Temperature Transients Stalling HP Pumps</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Because water permeability drops ~3% for every 1°C decrease in temperature, an RO plant designed for summer conditions (28°C) that experiences winter seawater drops (down to 12°C) requires a 48% higher Net Driving Pressure to deliver rated permeate flow. If high-pressure pumps and variable frequency drives (VFDs) are sized without adequate winter head margin, the plant will either cavitate its feed pumps or suffer massive production curtailments during the coldest months.
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const appPresets = {
+    swro: { A: 1.05, B: 0.15, maxFlux: 15.5, elemArea: 37.16 }, // SW30HR-400
+    bwro_std: { A: 3.20, B: 0.45, maxFlux: 24.0, elemArea: 37.16 }, // BW30-400
+    bwro_lp: { A: 4.80, B: 0.85, maxFlux: 27.0, elemArea: 40.88 }, // XLE-440
+    reuse: { A: 2.80, B: 0.35, maxFlux: 18.0, elemArea: 37.16 } // FR-400
+  };
+
+  const presets = {
+    seawater: { app: 'swro', q_perm: 2500, tds_feed: 35000, recov: 45, temp: 25, p_feed: 62.0, p_perm: 1.2, erd: 'isobaric_px', eff: 82 },
+    brackish_high: { app: 'bwro_std', q_perm: 3500, tds_feed: 8000, recov: 75, temp: 24, p_feed: 24.0, p_perm: 1.0, erd: 'pelton_turbo', eff: 80 },
+    brackish_low: { app: 'bwro_lp', q_perm: 5000, tds_feed: 2500, recov: 80, temp: 22, p_feed: 14.5, p_perm: 0.8, erd: 'none_throttle', eff: 80 },
+    wastewater: { app: 'reuse', q_perm: 4000, tds_feed: 1200, recov: 85, temp: 25, p_feed: 12.0, p_perm: 0.5, erd: 'none_throttle', eff: 78 }
+  };
+
+  window.loadROPreset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('ro_app').value = p.app;
+    document.getElementById('ro_q_perm').value = p.q_perm;
+    document.getElementById('ro_tds_feed').value = p.tds_feed;
+    document.getElementById('ro_recov').value = p.recov;
+    document.getElementById('ro_temp').value = p.temp;
+    document.getElementById('ro_p_feed').value = p.p_feed;
+    document.getElementById('ro_p_perm').value = p.p_perm;
+    document.getElementById('ro_erd_type').value = p.erd;
+    document.getElementById('ro_pump_eff').value = p.eff;
+    calcRO();
+  };
+
+  window.updateROApp = function() {};
+
+  window.calcRO = function() {
+    const appKey = document.getElementById('ro_app').value;
+    const app = appPresets[appKey] || appPresets.swro;
+
+    const Qperm_m3d = parseFloat(document.getElementById('ro_q_perm').value) || 1000;
+    const tdsFeed = parseFloat(document.getElementById('ro_tds_feed').value) || 35000;
+    const Y_pct = parseFloat(document.getElementById('ro_recov').value) || 45;
+    const Y = Y_pct / 100;
+    const temp_C = parseFloat(document.getElementById('ro_temp').value) || 25;
+    const Pfeed_bar = parseFloat(document.getElementById('ro_p_feed').value) || 60;
+    const Pperm_bar = parseFloat(document.getElementById('ro_p_perm').value) || 1.0;
+    const erdType = document.getElementById('ro_erd_type').value;
+    const pumpEff = (parseFloat(document.getElementById('ro_pump_eff').value) || 80) / 100;
+
+    // Hydraulic Mass Balance
+    const Qfeed_m3d = Y > 0 ? (Qperm_m3d / Y) : Qperm_m3d;
+    const Qconc_m3d = Qfeed_m3d - Qperm_m3d;
+    const Qfeed_m3h = Qfeed_m3d / 24;
+    const Qperm_m3h = Qperm_m3d / 24;
+    const Qconc_m3h = Qconc_m3d / 24;
+
+    // Concentrate TDS (mass balance assuming 99.5% rejection)
+    const tdsConc = (Qfeed_m3d * tdsFeed) / Math.max(1, Qconc_m3d);
+
+    // Temperature Correction Factor (TCF) per ASTM D4516
+    const T_K = temp_C + 273.15;
+    const TCF = Math.exp(2700 * ((1 / 298.15) - (1 / T_K)));
+
+    // Osmotic Pressure Pi = 0.075 * TDS_ppm * (T_K / 298.15) / 1000
+    const Pi_feed = 0.075 * tdsFeed * (T_K / 298.15) / 1000;
+    const Pi_conc = 0.075 * tdsConc * (T_K / 298.15) / 1000;
+
+    // Average osmotic pressure: Pi_avg = Pi_feed * [ln(1 / (1 - Y)) / Y]
+    let Pi_avg = Pi_feed;
+    if (Y > 0 && Y < 1) {
+      Pi_avg = Pi_feed * (Math.log(1 / (1 - Y)) / Y);
+    }
+
+    // Assumed hydraulic pressure drop across vessels Delta P_drop ~ 1.8 bar
+    const deltaP_drop = 1.8;
+    const P_avg_hydraulic = Pfeed_bar - (deltaP_drop / 2);
+
+    // Permeate osmotic pressure Pi_perm
+    // Permeate TDS estimation based on salt passage
+    const B_lmh = app.B;
+    const A_lmh_bar = app.A;
+
+    // Initial NDP estimate
+    let NDP = P_avg_hydraulic - Pperm_bar - Pi_avg;
+    if (NDP < 0) NDP = 0;
+
+    // Flux in LMH
+    const flux_lmh = A_lmh_bar * NDP * TCF;
+    const flux_gfd = flux_lmh / 1.699;
+
+    // Salt Passage SP = B / (Jw + B)
+    const saltPassage = flux_lmh > 0 ? (B_lmh / (flux_lmh + B_lmh)) : 0.01;
+    const tdsPerm = Math.max(5, (tdsFeed + tdsConc) / 2 * saltPassage);
+    const Pi_perm = 0.075 * tdsPerm * (T_K / 298.15) / 1000;
+
+    // Re-refine NDP with Pi_perm
+    const NDP_final = Math.max(0, P_avg_hydraulic - Pperm_bar - (Pi_avg - Pi_perm));
+    const flux_final = A_lmh_bar * NDP_final * TCF;
+    const gfd_final = flux_final / 1.699;
+
+    const saltRejection = tdsFeed > 0 ? ((1 - (tdsPerm / tdsFeed)) * 100) : 99.5;
+
+    // Required membrane area
+    // Total permeate in L/h = Qperm_m3h * 1000
+    const reqArea_m2 = flux_final > 0 ? (Qperm_m3h * 1000) / flux_final : 1000;
+    const elementArea = app.elemArea;
+    const totalElements = Math.ceil(reqArea_m2 / elementArea);
+    const vessels_7elem = Math.ceil(totalElements / 7);
+
+    // Energetics & Specific Energy Consumption (SEC in kWh/m3)
+    // HP Pump Hydraulic Power (kW) = (Pfeed_bar * 1e5 Pa * (Qfeed_m3h / 3600)) / 1000 = Pfeed * Qfeed / 36
+    const hpPower_kW = (Pfeed_bar * Qfeed_m3h) / (36 * pumpEff);
+
+    // ERD Recovery
+    let erdEff = 0.0;
+    if (erdType === 'isobaric_px') erdEff = 0.96;
+    else if (erdType === 'pelton_turbo') erdEff = 0.82;
+
+    const Pconc_bar = Pfeed_bar - deltaP_drop;
+    const erdPower_kW = (Pconc_bar * Qconc_m3h * erdEff) / 36;
+
+    const netPower_kW = Math.max(0, hpPower_kW - erdPower_kW);
+    const sec_kwh_m3 = Qperm_m3h > 0 ? (netPower_kW / Qperm_m3h) : 0;
+    const dailyKwh = netPower_kW * 24;
+
+    // Render outputs
+    document.getElementById('res_ro_qfeed').textContent = Math.round(Qfeed_m3d).toLocaleString() + ' m³/d (' + Math.round(Qfeed_m3h) + ' m³/h)';
+    document.getElementById('res_ro_qconc').textContent = Math.round(Qconc_m3d).toLocaleString() + ' m³/d (' + Math.round(Qconc_m3h) + ' m³/h)';
+    document.getElementById('res_ro_tds_conc').textContent = Math.round(tdsConc).toLocaleString() + ' mg/L (Concentration: ' + (tdsConc/tdsFeed).toFixed(2) + 'x)';
+    document.getElementById('res_ro_pi_avg').textContent = Pi_avg.toFixed(1) + ' bar (Feed: ' + Pi_feed.toFixed(1) + ' bar)';
+    document.getElementById('res_ro_ndp').textContent = NDP_final.toFixed(1) + ' bar';
+    document.getElementById('res_ro_flux').textContent = flux_final.toFixed(1) + ' LMH (' + gfd_final.toFixed(1) + ' GFD)';
+    document.getElementById('res_ro_elements').textContent = totalElements.toLocaleString() + ' Elements (' + vessels_7elem + ' × 7-El Vessels)';
+
+    document.getElementById('res_ro_tds_perm').textContent = Math.round(tdsPerm).toLocaleString() + ' mg/L (TDS Rejection)';
+    document.getElementById('res_ro_sr').textContent = saltRejection.toFixed(2) + ' %';
+    document.getElementById('res_ro_tcf').textContent = TCF.toFixed(3) + ' (at ' + temp_C + '°C)';
+    document.getElementById('res_ro_hp_power').textContent = Math.round(hpPower_kW).toLocaleString() + ' kW';
+    document.getElementById('res_ro_erd_power').textContent = Math.round(erdPower_kW).toLocaleString() + ' kW (' + Math.round(erdEff * 100) + '% ERD Eff)';
+    document.getElementById('res_ro_sec').textContent = sec_kwh_m3.toFixed(2) + ' kWh/m³';
+    document.getElementById('res_ro_kwh_day').textContent = Math.round(dailyKwh).toLocaleString() + ' kWh/day';
+
+    // Status Badge
+    const badge = document.getElementById('res_ro_status');
+    if (NDP_final <= 1.0) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'INSUFFICIENT FEED PRESSURE (NDP ZERO)';
+    } else if (flux_final > app.maxFlux) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'EXCESSIVE FLUX (FOULING / COMPACTION RISK)';
+    } else if (Y_pct > 50 && appKey === 'swro') {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'HIGH RECOVERY FOR SEAWATER (SCALING RISK)';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'OPTIMAL FLUX & HYDRODYNAMICS';
+    }
+  };
+
+  const btnCopy = document.getElementById('btn_copy_ro');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const appText = document.getElementById('ro_app').options[document.getElementById('ro_app').selectedIndex].text;
+      const erdText = document.getElementById('ro_erd_type').options[document.getElementById('ro_erd_type').selectedIndex].text;
+      const txt = [
+        '=== REVERSE OSMOSIS DESALINATION SYSTEM DATASHEET ===',
+        'Standard: ASTM D4516 / FilmTec Engineering Standards',
+        'Application: ' + appText,
+        'Permeate Capacity: ' + document.getElementById('ro_q_perm').value + ' m³/day',
+        'Feed Water TDS: ' + document.getElementById('ro_tds_feed').value + ' mg/L | Recovery: ' + document.getElementById('ro_recov').value + ' %',
+        'Feed Pressure: ' + document.getElementById('ro_p_feed').value + ' bar | Water Temp: ' + document.getElementById('ro_temp').value + ' °C',
+        'Energy Recovery Device: ' + erdText,
+        '--- Hydraulic & Membrane Flux Balances ---',
+        'Feed Flow Rate: ' + document.getElementById('res_ro_qfeed').textContent,
+        'Concentrate Brine Flow: ' + document.getElementById('res_ro_qconc').textContent,
+        'Concentrate Brine Salinity: ' + document.getElementById('res_ro_tds_conc').textContent,
+        'Average Osmotic Pressure: ' + document.getElementById('res_ro_pi_avg').textContent,
+        'Net Driving Pressure (NDP): ' + document.getElementById('res_ro_ndp').textContent,
+        'Operating Membrane Flux: ' + document.getElementById('res_ro_flux').textContent,
+        'Total 8-inch Elements: ' + document.getElementById('res_ro_elements').textContent,
+        '--- Water Quality & Energetics ---',
+        'Permeate TDS: ' + document.getElementById('res_ro_tds_perm').textContent,
+        'Salt Rejection: ' + document.getElementById('res_ro_sr').textContent,
+        'Specific Energy Consumption: ' + document.getElementById('res_ro_sec').textContent,
+        'Net HP Pump Power: ' + document.getElementById('res_ro_hp_power').textContent,
+        'ERD Brine Power Recovered: ' + document.getElementById('res_ro_erd_power').textContent,
+        'Daily Electrical Demand: ' + document.getElementById('res_ro_kwh_day').textContent,
+        'Operating Integrity: ' + document.getElementById('res_ro_status').textContent,
+        '====================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcRO();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BE3: API 530 FIRED HEATER TUBE LIFE & CREEP CALCULATOR ---
+  (() => {
+    const slug = 'api-530-fired-heater-tube-life-calculator';
+    const title = 'API 530 Fired Heater Tube Metal Temperature & Creep Rupture Life Calculator';
+    const metaDescription = 'Refinery and petrochemical fired heater tube thickness and creep rupture life calculator per API Standard 530 and ASME Section VIII. Computes inside/outside tube metal temperature (TMT), hoop stress, internal coke layer thermal penalty, Larson-Miller Parameter (LMP), remaining rupture life (hours/years), and creep damage fraction per API 579-1 / ASME FFS-1.';
+
+    const faq = [
+      {
+        q: 'How does API 530 calculate Tube Metal Temperature (TMT) through the tube wall?',
+        a: 'API 530 determines the temperature profile by conducting a radial heat conduction balance through the process boundary layer, internal coke deposit, and metallic tube wall: T_outer = T_fluid + q_in / h_i + q_in * (t_coke / k_coke) + [q_out * D_o / (2 * k_metal)] * ln(D_o / D_i). The critical temperature used for creep rupture life evaluation is the mean mid-wall temperature: T_mid = (T_inner_metal + T_outer) / 2.'
+      },
+      {
+        q: 'What is the Larson-Miller Parameter (LMP) and how does it predict creep rupture life?',
+        a: 'The Larson-Miller Parameter is a thermodynamic time-temperature equivalence function defined as LMP = (T_Rankine) * (C + log10(t_r)) * 10^-3, or in metric units LMP = (T_K) * (C + log10(t_r)) * 10^-3, where C is a material constant (typically 20 for Cr-Mo steels and austenitic stainless alloys) and t_r is rupture time in hours. By establishing empirical polynomial relationships between operating hoop stress and LMP, engineers can accurately predict remaining creep rupture life at any operating metal temperature.'
+      },
+      {
+        q: 'Why is internal tube coking considered the number-one killer of fired heater tubes?',
+        a: 'Hydrocarbon coke has an extremely low thermal conductivity (k_coke approx 1.0 to 1.5 W/m·K) compared to steel (k_metal approx 30 to 45 W/m·K). A coke deposit just 1.5 mm thick acts as a powerful thermal insulator, forcing the tube metal temperature to rise by 60°C to 100°C above clean conditions to transfer the same radiant heat flux. Because creep rupture life drops exponentially with temperature (the "15°C rule"), this coke buildup slashes tube remaining life from 100,000 hours to less than 1,000 hours.'
+      },
+      {
+        q: 'What is Robinson\'s Life Fraction Rule for cumulative creep damage (API 579-1)?',
+        a: 'Fired heater tubes experience variable operational regimes over their 20-year lifespan (startups, feedstock swings, partial coking, decoking cycles). Robinson\'s linear damage hypothesis states that total cumulative creep damage is the sum of operating time increments divided by the rupture time at that specific temperature and stress: D_creep = Sigma(Delta t_i / t_r,i). When the cumulative damage index D reaches 1.0 (or 0.80 per conservative refinery standards), retirement and replacement of the tube coil is mandatory.'
+      },
+      {
+        q: 'What is the difference between elastic design and creep-governed design in API 530?',
+        a: 'At lower temperatures (below approx 425°C for carbon steel or 510°C for 9Cr-1Mo), tube thickness is governed by elastic allowable stress (tensile yield / ultimate strength with safety factor). Above these threshold temperatures, atomic lattice diffusion, grain boundary sliding, and void nucleation take over. In this creep regime, the design is governed by time-dependent rupture stress (e.g. 100,000-hour creep rupture strength or 1% creep strain in 100,000 hours), meaning tubes will eventually fail by creep rupture even if operating well below yield strength.'
+      }
+    ];
+
+    const content = `
+<style>
+  .api-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .api-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .api-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Industrial Fired Heater Coil Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadAPI530Preset('cdu_rad')">Atmospheric Crude Heater (5Cr-0.5Mo Radiant)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadAPI530Preset('vdu_rad')">Vacuum Pipestill (9Cr-1Mo-V Severe Service)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadAPI530Preset('reformer')">Catalytic Reformer Charge (347H High Temp)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadAPI530Preset('coker')">Delayed Coker Furnace (316H Heavy Coking)</button>
+  </div>
+</div>
+
+<div class="api-grid">
+  <!-- Inputs: Metallurgy & Tube Geometry -->
+  <div class="api-card">
+    <h3>1. Metallurgy & Tube Geometry</h3>
+
+    <div class="form-group">
+      <label for="api_mat">Alloy Specification & Creep Curve</label>
+      <select id="api_mat" class="form-control" onchange="updateAPIMat(); calcAPI530();">
+        <option value="p5_5cr" selected>5Cr-0.5Mo (ASTM A335 P5, T_max ~ 650°C)</option>
+        <option value="p9_9cr">9Cr-1Mo (ASTM A335 P9, T_max ~ 675°C)</option>
+        <option value="p91">9Cr-1Mo-V (ASTM A335 P91, High Strength, T_max ~ 700°C)</option>
+        <option value="p22_2cr">2.25Cr-1Mo (ASTM A335 P22, T_max ~ 600°C)</option>
+        <option value="p11_1cr">1.25Cr-0.5Mo (ASTM A335 P11, T_max ~ 565°C)</option>
+        <option value="tp347h">Type 347H Austenitic Stainless (ASTM A312, T_max ~ 800°C)</option>
+        <option value="tp316h">Type 316H Austenitic Stainless (ASTM A312, T_max ~ 780°C)</option>
+        <option value="incoloy800h">Alloy 800H / Incoloy (UNS N08810, T_max ~ 900°C)</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="api_od">Outside Diameter (D_o, mm)</label>
+        <input type="number" id="api_od" class="form-control" value="168.3" min="50" max="400" step="0.1" oninput="calcAPI530()">
+      </div>
+      <div class="form-group">
+        <label for="api_thk">Actual Wall Thickness (t, mm)</label>
+        <input type="number" id="api_thk" class="form-control" value="8.5" min="2" max="40" step="0.1" oninput="calcAPI530()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="api_p_design">Design / Operating Pressure (P, bar)</label>
+        <input type="number" id="api_p_design" class="form-control" value="32.0" min="1.0" max="250.0" step="0.5" oninput="calcAPI530()">
+      </div>
+      <div class="form-group">
+        <label for="api_t_fluid">Internal Bulk Fluid Temp (°C)</label>
+        <input type="number" id="api_t_fluid" class="form-control" value="395" min="100" max="750" step="5" oninput="calcAPI530()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="api_flux">Radiant Heat Flux (q'', W/m²)</label>
+        <input type="number" id="api_flux" class="form-control" value="38000" min="5000" max="120000" step="1000" oninput="calcAPI530()">
+      </div>
+      <div class="form-group">
+        <label for="api_coke">Internal Coke Layer Thickness (mm)</label>
+        <input type="number" id="api_coke" class="form-control" value="1.5" min="0.0" max="12.0" step="0.1" oninput="calcAPI530()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="api_film_coeff">Inside Film Heat Coeff (h_i, W/m²·K)</label>
+        <input type="number" id="api_film_coeff" class="form-control" value="1800" min="200" max="10000" step="100" oninput="calcAPI530()">
+      </div>
+      <div class="form-group">
+        <label for="api_op_hours">Cumulative Operating Time (hrs)</label>
+        <input type="number" id="api_op_hours" class="form-control" value="45000" min="0" max="250000" step="1000" oninput="calcAPI530()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Results: Temperatures & Stress -->
+  <div class="api-card">
+    <h3>2. Tube Metal Temperatures & Hoop Stress</h3>
+
+    <div class="res-row">
+      <span class="res-label">Coil Thermal Integrity</span>
+      <span id="res_api_status" class="status-badge badge-safe">SAFE OPERATION</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Outside Tube Metal Temp (TMT_out)</span>
+      <span id="res_api_tmt_out" class="res-val highlight">-- °C (-- °F)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Mean Mid-Wall Temp (TMT_mid)</span>
+      <span id="res_api_tmt_mid" class="res-val highlight">-- °C (Creep Basis)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Inside Tube Metal Temp (TMT_in)</span>
+      <span id="res_api_tmt_in" class="res-val">-- °C</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Coke Layer Temperature Rise (ΔT_coke)</span>
+      <span id="res_api_dt_coke" class="res-val warning">-- °C Thermal Penalty</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Operating Hoop Stress (σ_mean)</span>
+      <span id="res_api_stress" class="res-val highlight">-- MPa (-- psi)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">100,000-hr Allowable Creep Stress</span>
+      <span id="res_api_allow_stress" class="res-val">-- MPa</span>
+    </div>
+  </div>
+</div>
+
+<!-- Creep Rupture Life & Cumulative Damage Section -->
+<div class="api-grid">
+  <div class="api-card">
+    <h3>3. Larson-Miller Creep Rupture & Damage Fraction</h3>
+
+    <div class="res-row">
+      <span class="res-label">Larson-Miller Parameter (LMP)</span>
+      <span id="res_api_lmp" class="res-val highlight">-- (Metric × 10³)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Predicted Total Rupture Life (t_r)</span>
+      <span id="res_api_tr_hrs" class="res-val success">-- hours</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Predicted Rupture Life in Years</span>
+      <span id="res_api_tr_yrs" class="res-val success">-- years continuous</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Remaining Useful Life (RUL)</span>
+      <span id="res_api_rul" class="res-val highlight">-- hours remaining</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Cumulative Creep Damage (D = Σ t/t_r)</span>
+      <span id="res_api_damage" class="res-val">-- (Limit: 0.80 - 1.00)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">15°C Overheat Life Impact</span>
+      <span id="res_api_15deg" class="res-val danger">-- % Life Depletion</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_api" class="btn-copy">
+        <span>📋 Copy Fired Heater Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Tube Radial Cross-Section Schematic -->
+  <div class="api-card">
+    <h3>4. Radial Temperature Gradient Across Tube Wall & Coke</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 420 280" style="width: 100%; max-width: 380px; height: auto;">
+        <!-- Axes -->
+        <line x1="50" y1="240" x2="390" y2="240" stroke="#475569" stroke-width="2"/>
+        <line x1="50" y1="20" x2="50" y2="240" stroke="#475569" stroke-width="2"/>
+        <text x="390" y="255" text-anchor="end" fill="#94a3b8" font-size="10">Radial Distance (r)</text>
+        <text x="45" y="20" text-anchor="end" fill="#94a3b8" font-size="10">Temp (°C)</text>
+
+        <!-- Regions backgrounds -->
+        <!-- Process Bulk Fluid (x: 50 to 120) -->
+        <rect x="50" y="20" width="70" height="220" fill="#0284c7" opacity="0.1"/>
+        <text x="85" y="230" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="600">Fluid Bulk</text>
+
+        <!-- Inside Boundary Film (x: 120 to 160) -->
+        <rect x="120" y="20" width="40" height="220" fill="#06b6d4" opacity="0.15"/>
+        <text x="140" y="230" text-anchor="middle" fill="#06b6d4" font-size="8">Film</text>
+
+        <!-- Coke Layer (x: 160 to 220) -->
+        <rect x="160" y="20" width="60" height="220" fill="#78350f" opacity="0.35"/>
+        <text x="190" y="230" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="700">Coke Layer</text>
+
+        <!-- Steel Tube Wall (x: 220 to 350) -->
+        <rect x="220" y="20" width="130" height="220" fill="#64748b" opacity="0.2"/>
+        <text x="285" y="230" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="700">Alloy Tube Wall</text>
+
+        <!-- Flue Gas Radiation (x: 350 to 390) -->
+        <rect x="350" y="20" width="40" height="220" fill="#ef4444" opacity="0.2"/>
+        <text x="370" y="230" text-anchor="middle" fill="#ef4444" font-size="8">Flue</text>
+
+        <!-- Temperature Profile Curve -->
+        <!-- Fluid to film: 50,180 to 120,180. Film drop: 120,180 to 160,165. Coke drop: 160,165 to 220,110. Wall drop: 220,110 to 350,60 -->
+        <path d="M 50,180 L 120,180 L 160,165 L 220,110 L 350,60" fill="none" stroke="#f59e0b" stroke-width="3"/>
+
+        <!-- Points & Callouts -->
+        <circle cx="120" cy="180" r="4" fill="#38bdf8"/>
+        <text x="115" y="195" text-anchor="end" fill="#38bdf8" font-size="9">T_fluid</text>
+
+        <circle cx="220" cy="110" r="4" fill="#f59e0b"/>
+        <text x="215" y="102" text-anchor="end" fill="#f59e0b" font-size="9">T_in_metal</text>
+
+        <circle cx="285" cy="85" r="4" fill="#38bdf8"/>
+        <text x="285" y="75" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">TMT_mid</text>
+
+        <circle cx="350" cy="60" r="4" fill="#ef4444"/>
+        <text x="355" y="55" fill="#ef4444" font-size="10" font-weight="700">TMT_out</text>
+
+        <!-- Radiant Heat Flux Arrow (Right to Left) -->
+        <line x1="385" y1="35" x2="355" y2="35" stroke="#ef4444" stroke-width="2"/>
+        <polygon points="355,32 348,35 355,38" fill="#ef4444"/>
+        <text x="385" y="25" text-anchor="end" fill="#ef4444" font-size="9" font-weight="700">q'' Radiation</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Reference Table -->
+<div class="api-card" style="margin-bottom: 2rem;">
+  <h3>API 530 Maximum Operating Temperature Limits by Alloy</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Alloy Specification</th>
+        <th>Nominal Composition</th>
+        <th>Elastic Threshold Temp</th>
+        <th>API 530 Max Design Temp</th>
+        <th>Common Refinery Service</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>ASTM A106 Gr B / A335 P1</strong></td>
+        <td>Carbon Steel / 0.5Mo</td>
+        <td>425°C (800°F)</td>
+        <td>510°C (950°F)</td>
+        <td>Low-temp convection, crude preheat</td>
+      </tr>
+      <tr>
+        <td><strong>ASTM A335 P11</strong></td>
+        <td>1.25Cr - 0.5Mo - Si</td>
+        <td>455°C (850°F)</td>
+        <td>565°C (1,050°F)</td>
+        <td>Hydroprocessing furnaces, vacuum bottoms</td>
+      </tr>
+      <tr>
+        <td><strong>ASTM A335 P22</strong></td>
+        <td>2.25Cr - 1Mo</td>
+        <td>480°C (900°F)</td>
+        <td>620°C (1,150°F)</td>
+        <td>Hydrocracker heaters, platformer heaters</td>
+      </tr>
+      <tr>
+        <td><strong>ASTM A335 P5</strong></td>
+        <td>5Cr - 0.5Mo</td>
+        <td>510°C (950°F)</td>
+        <td>650°C (1,200°F)</td>
+        <td>Atmospheric crude radiant coils</td>
+      </tr>
+      <tr>
+        <td><strong>ASTM A335 P9 / P91</strong></td>
+        <td>9Cr - 1Mo (-V)</td>
+        <td>540°C (1,000°F)</td>
+        <td>700°C (1,290°F)</td>
+        <td>Delayed coker furnaces, high sulfur crude</td>
+      </tr>
+      <tr>
+        <td><strong>ASTM A312 TP347H</strong></td>
+        <td>18Cr - 10Ni - Cb (Nb)</td>
+        <td>565°C (1,050°F)</td>
+        <td>815°C (1,500°F)</td>
+        <td>Catalytic reformer charge coils, CCR heaters</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="api-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Fired Heater Tube Engineering Traps</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: The Exponential 15°C Creep Doubling Trap</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      In the creep-rupture temperature regime, creep damage is governed by Arrhenius thermal diffusion kinetics. A seemingly minor temperature overshoot of just 15°C (27°F) above design TMT doubles the rate of void coalescence and cuts remaining tube rupture life in half. Operating a 9Cr-1Mo coil 30°C over design slashes a 10-year expected lifespan down to just 2.5 years, culminating in premature catastrophic stress-rupture without prior outward warning.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: Internal Hydrocarbon Coke Laydown Thermal Runaway</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Heavy hydrocarbon feeds (crude oil, vacuum residue, bitumen) crack into porous carbonaceous coke on the inner tube wall whenever local film temperatures exceed 430°C. Because coke has low thermal conductivity (k ~ 1.0 W/m·K), it blocks heat transfer into the process fluid. Automated burner controls respond by ramping firing rates up to maintain process outlet temperature. This creates a lethal feedback loop: higher fire raises TMT, accelerating coking, which further elevates TMT until the tube wall bulges and bursts.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: Flame Impingement & Asymmetric Circumferential Peaking</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Burner tile degradation, insufficient draft, or tilted flame patterns allow burning flame envelopes to physically touch the outer tube surface. Radiant heat flux at the point of impingement reaches 2 to 3 times the nominal design average. Because heat cannot conduct rapidly around the tube circumference to the shadow side, the fireside wall expands dramatically, bowing the tube into the firebox and inducing severe local secondary bending stresses that trigger localized creep swelling.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Quench Cracking & Thermal Fatigue During Steam-Air Decoking</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      During online or offline steam-air decoking, operators burn off coke deposits by controlled oxidation with superheated steam and air. If air admission is too aggressive, localized runaway combustion produces thermal spikes > 800°C. Conversely, abruptly quenching the glowing coil with wet steam contracts the inner surface faster than the hot outer wall can follow, generating massive tensile skin stresses that initiate severe circumferential thermal fatigue cracking.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: High-Temperature Hydrogen Attack (HTHA / API 941 Nelson Curves)</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      In hydroprocessing and hydrocracker heaters operating under high hydrogen partial pressures (> 50 bar H₂), molecular hydrogen dissociates and diffuses into the steel lattice. Dissolved atomic hydrogen reacts with iron carbides (Fe₃C) to form methane gas (CH₄). Because methane molecules are too large to diffuse out, internal methane pressure builds to thousands of atmospheres inside grain boundaries, forming sub-microscopic methane fissures and causing brittle catastrophic rupture without wall thinning.
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const alloyData = {
+    p5_5cr: { k: 32, C: 20, lmpCoeff: [4.8, -0.18, 0.001], maxT: 650 },
+    p9_9cr: { k: 30, C: 20, lmpCoeff: [4.9, -0.17, 0.001], maxT: 675 },
+    p91: { k: 28, C: 20, lmpCoeff: [5.1, -0.16, 0.0009], maxT: 700 },
+    p22_2cr: { k: 34, C: 20, lmpCoeff: [4.7, -0.19, 0.0012], maxT: 620 },
+    p11_1cr: { k: 36, C: 20, lmpCoeff: [4.6, -0.20, 0.0013], maxT: 565 },
+    tp347h: { k: 22, C: 19, lmpCoeff: [5.2, -0.15, 0.0008], maxT: 815 },
+    tp316h: { k: 21, C: 19, lmpCoeff: [5.1, -0.15, 0.0008], maxT: 780 },
+    incoloy800h: { k: 18, C: 18, lmpCoeff: [5.4, -0.14, 0.0007], maxT: 900 }
+  };
+
+  const presets = {
+    cdu_rad: { mat: 'p5_5cr', od: 168.3, thk: 8.5, p: 25.0, t_fluid: 385, flux: 38000, coke: 1.5, hi: 1800, hrs: 45000 },
+    vdu_rad: { mat: 'p91', od: 219.1, thk: 10.0, p: 18.0, t_fluid: 410, flux: 42000, coke: 2.0, hi: 1500, hrs: 52000 },
+    reformer: { mat: 'tp347h', od: 114.3, thk: 7.0, p: 35.0, t_fluid: 520, flux: 45000, coke: 0.5, hi: 2200, hrs: 38000 },
+    coker: { mat: 'tp316h', od: 141.3, thk: 9.0, p: 40.0, t_fluid: 490, flux: 48000, coke: 3.5, hi: 1600, hrs: 60000 }
+  };
+
+  window.loadAPI530Preset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('api_mat').value = p.mat;
+    document.getElementById('api_od').value = p.od;
+    document.getElementById('api_thk').value = p.thk;
+    document.getElementById('api_p_design').value = p.p;
+    document.getElementById('api_t_fluid').value = p.t_fluid;
+    document.getElementById('api_flux').value = p.flux;
+    document.getElementById('api_coke').value = p.coke;
+    document.getElementById('api_film_coeff').value = p.hi;
+    document.getElementById('api_op_hours').value = p.hrs;
+    calcAPI530();
+  };
+
+  window.updateAPIMat = function() {};
+
+  window.calcAPI530 = function() {
+    const matKey = document.getElementById('api_mat').value;
+    const alloy = alloyData[matKey] || alloyData.p5_5cr;
+
+    const Do_mm = parseFloat(document.getElementById('api_od').value) || 168.3;
+    const t_mm = parseFloat(document.getElementById('api_thk').value) || 8.5;
+    const P_bar = parseFloat(document.getElementById('api_p_design').value) || 30.0;
+    const T_fluid = parseFloat(document.getElementById('api_t_fluid').value) || 395;
+    const q_out = parseFloat(document.getElementById('api_flux').value) || 38000; // W/m2
+    const t_coke_mm = parseFloat(document.getElementById('api_coke').value) || 1.5;
+    const hi = parseFloat(document.getElementById('api_film_coeff').value) || 1800; // W/m2.K
+    const op_hours = parseFloat(document.getElementById('api_op_hours').value) || 45000;
+
+    const Do = Do_mm / 1000;
+    const t = t_mm / 1000;
+    const Di = Do - 2 * t;
+    const Di_coke = Di - 2 * (t_coke_mm / 1000);
+
+    const k_metal = alloy.k;
+    const k_coke = 1.15; // W/m.K for dense refinery coke
+
+    // Heat balance: q_in at ID surface = q_out * (Do / Di)
+    const q_in = q_out * (Do / Di);
+
+    // Temp drop across fluid film
+    const dt_film = q_in / hi;
+    const T_coke_surface = T_fluid + dt_film;
+
+    // Temp drop across internal coke layer
+    const dt_coke = t_coke_mm > 0 ? (q_in * (t_coke_mm / 1000) / k_coke) : 0;
+    const T_inner_metal = T_coke_surface + dt_coke;
+
+    // Conduction through metallic wall
+    const dt_wall = (q_out * Do / (2 * k_metal)) * Math.log(Do / Di);
+    const TMT_out = T_inner_metal + dt_wall;
+    const TMT_mid = (T_inner_metal + TMT_out) / 2;
+
+    const TMT_out_F = (TMT_out * 9 / 5) + 32;
+
+    // Mean Diameter Hoop Stress per API 530: sigma = P * (Do - t) / (2 * t)
+    const P_mpa = P_bar * 0.10;
+    const sigma_mean_mpa = (P_mpa * (Do - t)) / (2 * t);
+    const sigma_psi = sigma_mean_mpa * 145.038;
+
+    // Larson-Miller Creep Calculation
+    // LMP = T_K * (C + log10(tr)) * 10^-3
+    const T_K = TMT_mid + 273.15;
+    const C = alloy.C;
+
+    // Allowable LMP from stress curve fit: log10(sigma) ~ a0 + a1*LMP
+    // For typical alloys: LMP ~ 34.0 - 5.5 * log10(sigma_mean_mpa)
+    const lmp_est = Math.max(18.0, Math.min(32.0, 33.5 - 5.8 * Math.log10(Math.max(5, sigma_mean_mpa))));
+
+    // tr_hours: log10(tr) = (LMP * 1000 / T_K) - C
+    const log10_tr = (lmp_est * 1000 / T_K) - C;
+    let tr_hours = Math.pow(10, Math.max(1.0, Math.min(7.0, log10_tr)));
+    if (tr_hours > 500000) tr_hours = 500000;
+    const tr_years = tr_hours / 8760;
+
+    // Remaining Useful Life (RUL)
+    const rul_hours = Math.max(0, tr_hours - op_hours);
+    const damage_fraction = tr_hours > 0 ? (op_hours / tr_hours) : 1.0;
+
+    // 15°C Overheat Life Impact: Life at T + 15°C
+    const T_K_hot = T_K + 15;
+    const log10_tr_hot = (lmp_est * 1000 / T_K_hot) - C;
+    const tr_hot = Math.pow(10, Math.max(1.0, Math.min(7.0, log10_tr_hot)));
+    const life_drop_pct = Math.min(99, Math.max(30, ((tr_hours - tr_hot) / tr_hours) * 100));
+
+    // Allowable 100,000-hr creep stress at current TMT_mid
+    const lmp_100k = (T_K * (C + 5.0)) / 1000;
+    const allow_stress_100k = Math.max(5.0, Math.pow(10, (33.5 - lmp_100k) / 5.8));
+
+    // Render outputs
+    document.getElementById('res_api_tmt_out').textContent = TMT_out.toFixed(1) + ' °C (' + Math.round(TMT_out_F) + ' °F)';
+    document.getElementById('res_api_tmt_mid').textContent = TMT_mid.toFixed(1) + ' °C';
+    document.getElementById('res_api_tmt_in').textContent = T_inner_metal.toFixed(1) + ' °C';
+    document.getElementById('res_api_dt_coke').textContent = '+' + dt_coke.toFixed(1) + ' °C (' + t_coke_mm.toFixed(1) + ' mm coke)';
+    document.getElementById('res_api_stress').textContent = sigma_mean_mpa.toFixed(1) + ' MPa (' + Math.round(sigma_psi).toLocaleString() + ' psi)';
+    document.getElementById('res_api_allow_stress').textContent = allow_stress_100k.toFixed(1) + ' MPa (100k-hr rating)';
+
+    document.getElementById('res_api_lmp').textContent = lmp_est.toFixed(2);
+    document.getElementById('res_api_tr_hrs').textContent = Math.round(tr_hours).toLocaleString() + ' hrs';
+    document.getElementById('res_api_tr_yrs').textContent = tr_years.toFixed(1) + ' yrs continuous';
+    document.getElementById('res_api_rul').textContent = Math.round(rul_hours).toLocaleString() + ' hrs (' + (rul_hours / 8760).toFixed(1) + ' yrs)';
+    document.getElementById('res_api_damage').textContent = damage_fraction.toFixed(2) + ' (' + (damage_fraction * 100).toFixed(0) + '% Consumed)';
+    document.getElementById('res_api_15deg').textContent = '-' + Math.round(life_drop_pct) + '% Life Loss';
+
+    // Status Badge
+    const badge = document.getElementById('res_api_status');
+    if (damage_fraction >= 0.90 || TMT_out > alloy.maxT) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = damage_fraction >= 0.90 ? 'RETIREMENT DUE (CREEP EXHAUSTED)' : 'OVER-TEMPERATURE LIMIT EXCEEDED';
+    } else if (damage_fraction >= 0.70 || sigma_mean_mpa > allow_stress_100k) {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'WARNING (STRESS EXCEEDS 100K-HR CREEP RATING)';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'ACCEPTABLE OPERATION & SOUND RUL';
+    }
+  };
+
+  const btnCopy = document.getElementById('btn_copy_api');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const matText = document.getElementById('api_mat').options[document.getElementById('api_mat').selectedIndex].text;
+      const txt = [
+        '=== API 530 FIRED HEATER TUBE LIFE & CREEP DATASHEET ===',
+        'Standard: API Standard 530 (7th Ed) / ASME Section VIII / API 579-1',
+        'Alloy Specification: ' + matText,
+        'Tube Dimensions: ' + document.getElementById('api_od').value + ' mm OD × ' + document.getElementById('api_thk').value + ' mm Wall',
+        'Operating Pressure: ' + document.getElementById('api_p_design').value + ' bar | Bulk Fluid Temp: ' + document.getElementById('api_t_fluid').value + ' °C',
+        'Radiant Heat Flux: ' + document.getElementById('api_flux').value + ' W/m² | Internal Coke: ' + document.getElementById('api_coke').value + ' mm',
+        'Cumulative Run Hours: ' + document.getElementById('api_op_hours').value + ' hrs',
+        '--- Thermal & Stress Profiles ---',
+        'Outside Tube Metal Temp (TMT_out): ' + document.getElementById('res_api_tmt_out').textContent,
+        'Mean Mid-Wall Temp (TMT_mid): ' + document.getElementById('res_api_tmt_mid').textContent,
+        'Inside Metal Temp (TMT_in): ' + document.getElementById('res_api_tmt_in').textContent,
+        'Coke Layer Temperature Rise: ' + document.getElementById('res_api_dt_coke').textContent,
+        'Operating Hoop Stress: ' + document.getElementById('res_api_stress').textContent,
+        '100k-hr Allowable Creep Stress: ' + document.getElementById('res_api_allow_stress').textContent,
+        '--- Larson-Miller Creep Life ---',
+        'Larson-Miller Parameter (LMP): ' + document.getElementById('res_api_lmp').textContent,
+        'Predicted Rupture Life: ' + document.getElementById('res_api_tr_hrs').textContent + ' (' + document.getElementById('res_api_tr_yrs').textContent + ')',
+        'Remaining Useful Life (RUL): ' + document.getElementById('res_api_rul').textContent,
+        'Cumulative Creep Damage: ' + document.getElementById('res_api_damage').textContent,
+        '15°C Overheat Consequence: ' + document.getElementById('res_api_15deg').textContent,
+        'Coil Structural Integrity: ' + document.getElementById('res_api_status').textContent,
+        '========================================================'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcAPI530();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BE4: ROTARY DRUM / CALCINING KILN SIZING CALCULATOR (PERRY / DIN 28004) ---
+  (() => {
+    const slug = 'rotary-kiln-thermal-residence-time-calculator';
+    const title = 'Rotary Kiln Thermal Balance, Residence Time & Drive Power Calculator (Perry & DIN 28004)';
+    const metaDescription = 'Industrial rotary kiln and drum calciner sizing calculator per Perry\'s Chemical Engineers\' Handbook and DIN 28004. Computes solids residence time via Sullivan-Maier-Ralston equation, volumetric percentage fill, clinker throughput, drive motor mechanical power, and refractory shell conductive/radiative heat loss.';
+
+    const faq = [
+      {
+        q: 'How does the Sullivan-Maier-Ralston equation calculate solids residence time (theta)?',
+        a: 'The Sullivan-Maier-Ralston formulation is the global engineering standard for solids retention in unflighted rotary kilns: theta = (1.77 * L * sqrt(phi)) / (S * D * N), where theta is mean solids residence time in minutes, L is kiln length (m), phi is the solids dynamic angle of repose (degrees, typically 35° to 45°), S is kiln slope (expressed in percentage rise over run, e.g. 2.5% = 2.5 cm/m), D is internal diameter inside the refractory lining (m), and N is drum rotational speed (RPM).'
+      },
+      {
+        q: 'What is the optimal volumetric fill percentage (% Fill) for a rotary kiln?',
+        a: 'The recommended volumetric loading for industrial rotary kilns (cement, lime, titanium dioxide, bauxite) is strictly between 7% and 15%. If bed filling falls below 5%, bed thermal inertia is lost and hot gas channels overhead without adequate solid contact. If bed filling exceeds 17% to 20%, the bed transitions from a beneficial rolling/cascading motion into an undesirable slipping regime where the core of the solids bed remains unheated.'
+      },
+      {
+        q: 'How is mechanical drive motor power determined for a heavy rotating kiln?',
+        a: 'Drive power must overcome two forces: (1) The continuous gravitational torque required to elevate the off-center solids bed against its angle of repose: P_solids = (1/2) * M_solids * g * (D/2) * sin(phi) * (2*pi*N / 60); and (2) Mechanical friction from support rollers, thrust rollers, girth gear mesh, and trunnion bearings. Drive motor electrical rating incorporates a minimum 2.0x to 2.5x starting torque safety margin to handle cold uncalcined material surges.'
+      },
+      {
+        q: 'What causes refractory tire-to-shell binding (the tire pinch phenomenon)?',
+        a: 'Rotary kiln riding rings (tires) sit loosely over the cylindrical steel shell with a designed radial expansion clearance (creeping tire clearance, typically 3 to 6 mm). During rapid thermal heat-ups or if internal refractory bricks fail, the thin steel shell expands faster than the massive solid forged steel tire. If the clearance closes to zero, the tire constricts the hot shell like a tourniquet (tire pinching), causing permanent shell ovality, necking, and crushing hundreds of refractory bricks.'
+      },
+      {
+        q: 'What are kiln rings and why are they fatal to continuous plant operation?',
+        a: 'Kiln rings are dense, hardened annular dams of semi-fused material that stick to the refractory wall (typically in the calcining or transition zone between 800°C and 1,100°C). They are caused by volatile alkali-sulfur-chloride recirculating cycles (sulfates, chlorides, potassium, sodium) that vaporize in the burning zone and condense onto cooler feed solids. As the ring thickens, it chokes the kiln draft, blocks solid discharge, and eventually forces an emergency shutdown for hydraulic cannon or pneumatic breaker ring removal.'
+      }
+    ];
+
+    const content = `
+<style>
+  .kiln-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .kiln-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .kiln-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Industrial Kiln & Calciner Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadKilnPreset('cement_dry')">Cement Precalciner Kiln (60m × 4.2m ID)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadKilnPreset('lime_recalc')">Lime Reburning Kiln (75m × 3.2m ID)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadKilnPreset('tio2_calciner')">TiO₂ Pigment Calciner (50m × 2.8m ID)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadKilnPreset('drum_dryer')">Mineral Drum Dryer (25m × 2.4m ID)</button>
+  </div>
+</div>
+
+<div class="kiln-grid">
+  <!-- Column 1: Kiln Dimensions & Operation -->
+  <div class="kiln-card">
+    <h3>1. Kiln Dimensions & Operating Parameters</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="kiln_len">Kiln Shell Length (L, m)</label>
+        <input type="number" id="kiln_len" class="form-control" value="60.0" min="5" max="180" step="1" oninput="calcKiln()">
+      </div>
+      <div class="form-group">
+        <label for="kiln_id">Refractory Inside Dia (D, m)</label>
+        <input type="number" id="kiln_id" class="form-control" value="4.2" min="1.0" max="8.0" step="0.1" oninput="calcKiln()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="kiln_slope">Kiln Slope (S, % or cm/m)</label>
+        <input type="number" id="kiln_slope" class="form-control" value="3.5" min="0.5" max="8.0" step="0.1" oninput="calcKiln()">
+      </div>
+      <div class="form-group">
+        <label for="kiln_rpm">Rotational Speed (N, RPM)</label>
+        <input type="number" id="kiln_rpm" class="form-control" value="3.2" min="0.2" max="8.0" step="0.1" oninput="calcKiln()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="kiln_feed_rate">Dry Solids Feed Rate (t/h)</label>
+        <input type="number" id="kiln_feed_rate" class="form-control" value="140" min="1" max="1000" step="5" oninput="calcKiln()">
+      </div>
+      <div class="form-group">
+        <label for="kiln_bulk_dens">Material Bulk Density (kg/m³)</label>
+        <input type="number" id="kiln_bulk_dens" class="form-control" value="1350" min="300" max="3500" step="50" oninput="calcKiln()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="kiln_repose">Solids Angle of Repose (φ, deg)</label>
+        <input type="number" id="kiln_repose" class="form-control" value="38" min="25" max="55" step="1" oninput="calcKiln()">
+      </div>
+      <div class="form-group">
+        <label for="kiln_refr_thk">Refractory Thickness (mm)</label>
+        <input type="number" id="kiln_refr_thk" class="form-control" value="220" min="50" max="450" step="10" oninput="calcKiln()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="kiln_gas_temp">Internal Gas / Flame Temp (°C)</label>
+        <input type="number" id="kiln_gas_temp" class="form-control" value="1350" min="200" max="1900" step="25" oninput="calcKiln()">
+      </div>
+      <div class="form-group">
+        <label for="kiln_shell_temp">Average Outer Shell Temp (°C)</label>
+        <input type="number" id="kiln_shell_temp" class="form-control" value="260" min="60" max="500" step="5" oninput="calcKiln()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: Residence Time, Bed Fill & Throughput -->
+  <div class="kiln-card">
+    <h3>2. Solids Residence Time & Volumetric Fill</h3>
+
+    <div class="res-row">
+      <span class="res-label">Bed Kinematic Regime</span>
+      <span id="res_kiln_status" class="status-badge badge-safe">OPTIMAL ROLLING BED</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Mean Solids Residence Time (θ)</span>
+      <span id="res_kiln_res_time" class="res-val highlight">-- min (-- hrs)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Volumetric Bed Loading (% Fill)</span>
+      <span id="res_kiln_fill" class="res-val highlight">-- % (Target: 8–15%)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total Solids Inventory (Holdup)</span>
+      <span id="res_kiln_holdup" class="res-val">-- tonnes inside kiln</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Internal Active Volume (V_int)</span>
+      <span id="res_kiln_vol" class="res-val">-- m³</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Solids Velocity Along Axis</span>
+      <span id="res_kiln_axial_vel" class="res-val">-- m/min</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Specific Volumetric Loading</span>
+      <span id="res_kiln_spec_load" class="res-val">-- t/(m³·day)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Power & Refractory Heat Loss Section -->
+<div class="kiln-grid">
+  <div class="kiln-card">
+    <h3>3. Drive Motor Power & Shell Heat Dissipation</h3>
+
+    <div class="res-row">
+      <span class="res-label">Net Bed Elevation Power</span>
+      <span id="res_kiln_p_bed" class="res-val">-- kW</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total Mechanical Shaft Power</span>
+      <span id="res_kiln_p_shaft" class="res-val highlight">-- kW</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Recommended Electric Motor Rating</span>
+      <span id="res_kiln_p_motor" class="res-val success">-- kW (-- HP)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Shell Radiation Heat Loss</span>
+      <span id="res_kiln_q_rad" class="res-val warning">-- MW_th</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Shell Convection Heat Loss</span>
+      <span id="res_kiln_q_conv" class="res-val warning">-- MW_th</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total Thermal Shell Dissipation</span>
+      <span id="res_kiln_q_total" class="res-val danger">-- MW_th (-- % of fuel)</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_kiln" class="btn-copy">
+        <span>📋 Copy Rotary Kiln Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Kiln Cross-Section Schematic -->
+  <div class="kiln-card">
+    <h3>4. Kiln Transverse Cross-Section & Rolling Bed Profile</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 320 280" style="width: 100%; max-width: 300px; height: auto;">
+        <!-- Outer Steel Shell (Black ring) -->
+        <circle cx="160" cy="140" r="120" fill="#1e293b" stroke="#64748b" stroke-width="4"/>
+        
+        <!-- Refractory Brick Lining (Orange ring) -->
+        <circle cx="160" cy="140" r="112" fill="#0f172a" stroke="#b45309" stroke-width="16"/>
+        <text x="160" y="42" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="700">Refractory Bricks (220 mm)</text>
+
+        <!-- Hot Gas Freeboard Zone -->
+        <text x="160" y="110" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="700">Flame & Hot Gas</text>
+        <text x="160" y="126" text-anchor="middle" fill="#fca5a5" font-size="9">T_gas ~ 1,350°C</text>
+
+        <!-- Dynamic Solids Bed (Kidney Shape / Crescent shifted by rotation) -->
+        <path d="M 75,150 Q 120,225 210,215 Q 165,190 100,160 Z" fill="#d97706" stroke="#fbbf24" stroke-width="2"/>
+        <text x="135" y="190" text-anchor="middle" fill="#fef08a" font-size="10" font-weight="700">Cascading Bed</text>
+        <text x="135" y="204" text-anchor="middle" fill="#fffbeb" font-size="8">% Fill ~ 10-14%</text>
+
+        <!-- Rotation Arrow (Counter-Clockwise) -->
+        <path d="M 80,85 A 90 90 0 0 0 50,140" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="4,3"/>
+        <polygon points="45,135 50,148 56,137" fill="#38bdf8"/>
+        <text x="55" y="75" fill="#38bdf8" font-size="10" font-weight="700">Rotation N</text>
+
+        <!-- Shell Temperature Sensor Callout -->
+        <line x1="270" y1="100" x2="295" y2="80" stroke="#ef4444" stroke-width="2"/>
+        <circle cx="270" cy="100" r="3" fill="#ef4444"/>
+        <text x="295" y="75" fill="#ef4444" font-size="8" font-weight="700">IR Shell Scanner</text>
+
+        <!-- Angle of Repose Indicator line -->
+        <line x1="95" y1="160" x2="210" y2="215" stroke="#ffffff" stroke-width="1" stroke-dasharray="2,2"/>
+        <text x="180" y="235" fill="#94a3b8" font-size="8">Angle φ</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Reference Table -->
+<div class="kiln-card" style="margin-bottom: 2rem;">
+  <h3>Industrial Rotary Kiln Sizing Benchmarks (Perry\'s Chemical Engineers\' Handbook)</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Kiln Process Application</th>
+        <th>Typical L/D Ratio</th>
+        <th>Slope (S, %)</th>
+        <th>Speed (N, RPM)</th>
+        <th>Residence Time (θ)</th>
+        <th>Target % Fill</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Modern Cement Clinker (Precalciner)</strong></td>
+        <td>12 – 16</td>
+        <td>3.0% – 4.0%</td>
+        <td>3.0 – 4.5 RPM</td>
+        <td>20 – 35 min</td>
+        <td>10% – 14%</td>
+      </tr>
+      <tr>
+        <td><strong>Long Wet-Process Cement Kiln</strong></td>
+        <td>30 – 38</td>
+        <td>2.0% – 2.5%</td>
+        <td>1.0 – 1.8 RPM</td>
+        <td>120 – 180 min</td>
+        <td>8% – 12%</td>
+      </tr>
+      <tr>
+        <td><strong>Lime Reburning (Pulp Mill / Steel)</strong></td>
+        <td>20 – 26</td>
+        <td>2.5% – 3.5%</td>
+        <td>1.2 – 2.0 RPM</td>
+        <td>90 – 140 min</td>
+        <td>10% – 15%</td>
+      </tr>
+      <tr>
+        <td><strong>Titanium Dioxide (TiO₂) Pigment</strong></td>
+        <td>16 – 20</td>
+        <td>1.5% – 2.5%</td>
+        <td>0.5 – 1.2 RPM</td>
+        <td>180 – 300 min</td>
+        <td>6% – 10%</td>
+      </tr>
+      <tr>
+        <td><strong>Hazardous Waste Rotary Incinerator</strong></td>
+        <td>3.5 – 5.0</td>
+        <td>1.0% – 2.0%</td>
+        <td>0.2 – 0.8 RPM</td>
+        <td>45 – 90 min</td>
+        <td>12% – 18%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="kiln-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Rotary Kiln Engineering Traps & Operational Failures</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: Clinker Coating Damming & Annular Kiln Ring Formation</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Volatile salts (sulfates, chlorides, alkalis) vaporize in the burning zone (1,450°C) and travel counter-currently with flue gas into the 850°C–1,050°C transition zone. Here, volatile salts condense on fine dust particles, forming a sticky eutectic melt that glues clinker to the refractory wall. Over days, a massive annular ring grows inward, damming the solids bed and restricting gas flow, causing primary draft fan surge and forcing emergency plant shutdowns.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: Thermal Tyre Pinching & Refractory Brick Crushing</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Kiln riding tires are held loose with a designed diametrical clearance to allow the cylindrical steel shell to expand during heat-up. If kiln startup is conducted too fast (>50°C/hr shell rise), or if internal refractory bricks thin out beneath a tire, the hot shell expands faster than the massive cold tire. The tire clearance drops to zero and grips the shell rigidly (tire pinch). The hoop stress constricts the shell, causing plastic necking and crushing all underlying refractory bricks.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: Bed Slipping vs Rolling Motion Breakdown</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      If a kiln is overloaded (% Fill > 18%) or if the refractory brick surface becomes glazed glass-smooth, the solids bed ceases to tumble in a healthy rolling or cascading pattern. Instead, the entire mass begins slipping along the bottom of the cylinder as a stagnant plug. The active surface renewal collapses: only the top 5% of material sees radiation while the cold bottom core slides uncalcined into the discharge cooler, producing off-spec clinker.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Cold Coating Collapse & Drive Motor Over-Torque Tripping</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      When thick clinker coating suddenly dislodges from the upper arc of the refractory lining, tons of solid crust crash into the bottom bed simultaneously. This sudden mass surge drastically shifts the center of gravity of the rotating assembly away from the centerline axis. If the main drive motor and reduction gearbox lack a 2.5x transient torque rating, the motor trips immediately on instantaneous overcurrent, freezing the glowing kiln stationary and causing thermal shell sagging within minutes.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: Shell Thermal Red-Spot Burn-Through from Lost Refractory</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      During mechanical kiln flexure or thermal shock, key-stone refractory bricks can drop out of the lining. Direct exposure to the 1,400°C burning flame causes the steel shell to heat rapidly from its normal 250°C to glowing red heat (>650°C) in under 15 minutes. At this temperature, the structural yield strength of carbon steel drops by over 80%. Without an automated continuous infrared (IR) shell temperature scanner triggering water mists or emergency flame cutoffs, the shell undergoes permanent plastic sagging (dog-leg bend).
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const presets = {
+    cement_dry: { len: 60.0, id: 4.2, slope: 3.5, rpm: 3.2, feed: 140, dens: 1350, repose: 38, refr: 220, t_gas: 1350, t_shell: 260 },
+    lime_recalc: { len: 75.0, id: 3.2, slope: 3.0, rpm: 1.6, feed: 45, dens: 1100, repose: 42, refr: 200, t_gas: 1150, t_shell: 220 },
+    tio2_calciner: { len: 50.0, id: 2.8, slope: 2.0, rpm: 0.8, feed: 18, dens: 1450, repose: 40, refr: 250, t_gas: 950, t_shell: 190 },
+    drum_dryer: { len: 25.0, id: 2.4, slope: 4.0, rpm: 4.5, feed: 85, dens: 1600, repose: 36, refr: 0, t_gas: 450, t_shell: 110 }
+  };
+
+  window.loadKilnPreset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('kiln_len').value = p.len;
+    document.getElementById('kiln_id').value = p.id;
+    document.getElementById('kiln_slope').value = p.slope;
+    document.getElementById('kiln_rpm').value = p.rpm;
+    document.getElementById('kiln_feed_rate').value = p.feed;
+    document.getElementById('kiln_bulk_dens').value = p.dens;
+    document.getElementById('kiln_repose').value = p.repose;
+    document.getElementById('kiln_refr_thk').value = p.refr;
+    document.getElementById('kiln_gas_temp').value = p.t_gas;
+    document.getElementById('kiln_shell_temp').value = p.t_shell;
+    calcKiln();
+  };
+
+  window.calcKiln = function() {
+    const L = parseFloat(document.getElementById('kiln_len').value) || 60;
+    const D = parseFloat(document.getElementById('kiln_id').value) || 4.2;
+    const S = parseFloat(document.getElementById('kiln_slope').value) || 3.5; // in %
+    const N = parseFloat(document.getElementById('kiln_rpm').value) || 3.2;
+    const feed_th = parseFloat(document.getElementById('kiln_feed_rate').value) || 140;
+    const rho_bulk = parseFloat(document.getElementById('kiln_bulk_dens').value) || 1350;
+    const phi_deg = parseFloat(document.getElementById('kiln_repose').value) || 38;
+    const refr_thk_mm = parseFloat(document.getElementById('kiln_refr_thk').value) || 220;
+    const t_shell_c = parseFloat(document.getElementById('kiln_shell_temp').value) || 260;
+
+    const phi_rad = phi_deg * Math.PI / 180;
+    const D_shell = D + 2 * (refr_thk_mm / 1000);
+
+    // Sullivan-Maier-Ralston Equation for solids residence time (theta, minutes):
+    // theta = (1.77 * L * sqrt(phi)) / (S * D * N)
+    const theta_min = (1.77 * L * Math.sqrt(phi_deg)) / (Math.max(0.1, S) * D * Math.max(0.1, N));
+    const theta_hrs = theta_min / 60;
+
+    // Volumetric Calculations
+    const area_int = Math.PI * Math.pow(D, 2) / 4;
+    const vol_int = area_int * L; // m3
+
+    // Feed volumetric flow rate (m3/h)
+    const feed_vol_m3h = (feed_th * 1000) / rho_bulk;
+    // Total holdup solids volume inside kiln (m3)
+    const holdup_vol_m3 = feed_vol_m3h * theta_hrs;
+    const holdup_tonnes = (holdup_vol_m3 * rho_bulk) / 1000;
+
+    // Volumetric % Fill
+    const fill_pct = vol_int > 0 ? (holdup_vol_m3 / vol_int) * 100 : 10;
+
+    // Axial solids velocity
+    const v_axial_m_min = theta_min > 0 ? (L / theta_min) : 1.0;
+
+    // Specific Volumetric Loading (t / m3.day)
+    const spec_load = vol_int > 0 ? (feed_th * 24) / vol_int : 5.0;
+
+    // Mechanical Drive Power Calculation
+    // P_solids (kW) = (1/2) * M_solids * g * (D/2) * sin(phi) * omega / 1000
+    const omega = (2 * Math.PI * N) / 60; // rad/s
+    const mass_solids_kg = holdup_tonnes * 1000;
+    const p_bed_kW = (0.5 * mass_solids_kg * 9.80665 * (D / 2) * Math.sin(phi_rad) * omega) / 1000;
+
+    // Roller, gear and mechanical friction power (Perry's estimate based on shell dimensions)
+    const p_friction_kW = 0.00045 * Math.pow(D_shell, 2.5) * L * N * 10;
+    const p_shaft_kW = p_bed_kW + p_friction_kW;
+    const p_motor_kW = p_shaft_kW * 1.50; // 50% continuous running margin
+    const p_motor_hp = p_motor_kW * 1.34102;
+
+    // Thermal Shell Heat Loss Calculation
+    // Radiation: q_rad = eps * sigma * A_shell * (T_shell_K^4 - T_amb_K^4)
+    const eps = 0.85; // oxidized carbon steel shell
+    const sigma_sb = 5.67037e-8; // W/m2.K4
+    const T_shell_K = t_shell_c + 273.15;
+    const T_amb_K = 25 + 273.15;
+    const A_shell = Math.PI * D_shell * L; // m2
+
+    const q_rad_W = eps * sigma_sb * A_shell * (Math.pow(T_shell_K, 4) - Math.pow(T_amb_K, 4));
+    // Convection: h_c ~ 1.32 * (DeltaT / D)^0.25 (horizontal cylinder in natural convection) + wind component
+    const dt_shell = Math.max(5, t_shell_c - 25);
+    const h_conv = 2.2 * Math.pow(dt_shell, 0.25) + 6.0; // W/m2.K with ambient air draft
+    const q_conv_W = h_conv * A_shell * dt_shell;
+
+    const q_total_W = q_rad_W + q_conv_W;
+    const q_rad_MW = q_rad_W / 1e6;
+    const q_conv_MW = q_conv_W / 1e6;
+    const q_total_MW = q_total_W / 1e6;
+
+    // Render outputs
+    document.getElementById('res_kiln_res_time').textContent = theta_min.toFixed(1) + ' min (' + theta_hrs.toFixed(2) + ' hrs)';
+    document.getElementById('res_kiln_fill').textContent = fill_pct.toFixed(1) + ' %';
+    document.getElementById('res_kiln_holdup').textContent = Math.round(holdup_tonnes).toLocaleString() + ' tonnes';
+    document.getElementById('res_kiln_vol').textContent = Math.round(vol_int).toLocaleString() + ' m³ (Shell OD: ' + D_shell.toFixed(2) + ' m)';
+    document.getElementById('res_kiln_axial_vel').textContent = v_axial_m_min.toFixed(2) + ' m/min';
+    document.getElementById('res_kiln_spec_load').textContent = spec_load.toFixed(2) + ' t/(m³·d)';
+
+    document.getElementById('res_kiln_p_bed').textContent = Math.round(p_bed_kW).toLocaleString() + ' kW';
+    document.getElementById('res_kiln_p_shaft').textContent = Math.round(p_shaft_kW).toLocaleString() + ' kW';
+    document.getElementById('res_kiln_p_motor').textContent = Math.round(p_motor_kW).toLocaleString() + ' kW (' + Math.round(p_motor_hp).toLocaleString() + ' HP)';
+    document.getElementById('res_kiln_q_rad').textContent = q_rad_MW.toFixed(2) + ' MW_th';
+    document.getElementById('res_kiln_q_conv').textContent = q_conv_MW.toFixed(2) + ' MW_th';
+    document.getElementById('res_kiln_q_total').textContent = q_total_MW.toFixed(2) + ' MW_th total loss';
+
+    // Status Badge
+    const badge = document.getElementById('res_kiln_status');
+    if (fill_pct < 6.0) {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'LOW BED LOADING (HEAT LOSS PENALTY)';
+    } else if (fill_pct > 17.0) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'OVERLOADED (BED SLIPPING RISK)';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'OPTIMAL ROLLING BED REGIME';
+    }
+  };
+
+  const btnCopy = document.getElementById('btn_copy_kiln');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=== ROTARY KILN & DRUM CALCINER SIZING DATASHEET ===',
+        'Standard: Perry\'s Chemical Engineers\' Handbook (Sec 12) / DIN 28004',
+        'Kiln Dimensions: ' + document.getElementById('kiln_len').value + ' m Length × ' + document.getElementById('kiln_id').value + ' m Refractory ID',
+        'Slope: ' + document.getElementById('kiln_slope').value + ' % | Rotational Speed: ' + document.getElementById('kiln_rpm').value + ' RPM',
+        'Solids Feed Rate: ' + document.getElementById('kiln_feed_rate').value + ' t/h | Bulk Density: ' + document.getElementById('kiln_bulk_dens').value + ' kg/m³',
+        'Angle of Repose: ' + document.getElementById('kiln_repose').value + '° | Shell Temp: ' + document.getElementById('kiln_shell_temp').value + ' °C',
+        '--- Kinematics & Bed Inventory ---',
+        'Mean Residence Time (θ): ' + document.getElementById('res_kiln_res_time').textContent,
+        'Volumetric Bed Loading (% Fill): ' + document.getElementById('res_kiln_fill').textContent,
+        'Solids Holdup inside Drum: ' + document.getElementById('res_kiln_holdup').textContent,
+        'Internal Active Volume: ' + document.getElementById('res_kiln_vol').textContent,
+        'Axial Advance Velocity: ' + document.getElementById('res_kiln_axial_vel').textContent,
+        'Specific Volumetric Throughput: ' + document.getElementById('res_kiln_spec_load').textContent,
+        '--- Mechanical Power & Thermal Losses ---',
+        'Bed Lifting Power: ' + document.getElementById('res_kiln_p_bed').textContent,
+        'Total Shaft Power: ' + document.getElementById('res_kiln_p_shaft').textContent,
+        'Recommended Drive Motor: ' + document.getElementById('res_kiln_p_motor').textContent,
+        'Radiation Heat Loss: ' + document.getElementById('res_kiln_q_rad').textContent,
+        'Convection Heat Loss: ' + document.getElementById('res_kiln_q_conv').textContent,
+        'Total Shell Heat Loss: ' + document.getElementById('res_kiln_q_total').textContent,
+        'Operating Bed Kinematics: ' + document.getElementById('res_kiln_status').textContent,
+        '====================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcKiln();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+console.log('  ✓ Built Trade & Construction Suite (171 calculators in /calc/)');
 }
 
