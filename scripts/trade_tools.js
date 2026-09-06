@@ -32659,6 +32659,2534 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (31 calculators in /calc/)');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // NATURAL GAS & LP PROPANE PIPE SIZING CALCULATOR (NFPA 54 / IFGC)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const naturalGasPipeBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Natural Gas Pipe Sizing Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Natural Gas &amp; Propane Pipe Sizing Calculator (NFPA 54 / IFGC)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Size fuel gas distribution lines per the National Fuel Gas Code (NFPA 54) and International Fuel Gas Code (IFGC): calculate total connected gas demand (BTU/hr &amp; CFH), apply the Longest Length Method, evaluate Black Iron vs CSST tubing, and verify pressure drop limits.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        Fuel Gas Supply &amp; Piping Parameters
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gasType">Gas Fuel Type</label>
+          <select id="gasType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="natgas" selected>Natural Gas (1,000 BTU/CF - SG: 0.60)</option>
+            <option value="propane">Liquid Propane (LP) (2,500 BTU/CF - SG: 1.50)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="supplyPressure">Supply Pressure System</label>
+          <select id="supplyPressure" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="low_05" selected>Low Pressure (&lt;0.5 PSI / 7" w.c. - 0.5" drop)</option>
+            <option value="med_20">Medium Pressure (2.0 PSI System - 1.0 PSI drop)</option>
+            <option value="high_50">High Pressure (5.0 PSI Commercial - 2.5 PSI drop)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pipeMaterial">Pipe Material</label>
+          <select id="pipeMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="steel_40" selected>Schedule 40 Black Iron / Steel Pipe</option>
+            <option value="csst">CSST (Corrugated Stainless Steel Tubing)</option>
+            <option value="copper">Semi-Rigid Copper Tubing (Type L)</option>
+            <option value="poly">Polyethylene (PE) Underground Plastic</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="longestLengthFt">Longest Length Run (ft)</label>
+          <input type="number" id="longestLengthFt" value="60" min="5" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">From gas meter to furthest appliance</span>
+        </div>
+      </div>
+
+      <!-- APPLIANCE LOAD CALCULATOR -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--fg);margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;">
+          <span>Connected Gas Appliances Load (BTU/hr)</span>
+          <span id="lblTotalBtu" style="font-family:var(--mono);color:var(--primary);">314,000 BTU/h</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;font-size:0.85rem;">
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;">Furnace / Boiler</label>
+            <input type="number" id="appFurnace" value="100000" step="5000" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;">Water Heater (Tankless)</label>
+            <input type="number" id="appWaterHeater" value="199000" step="5000" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;">Gas Range / Cooktop</label>
+            <input type="number" id="appRange" value="65000" step="5000" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;">Clothes Dryer / Fireplace</label>
+            <input type="number" id="appDryer" value="35000" step="5000" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Heating Value: <strong id="lblHeatingVal" style="color:var(--fg);">1,000 BTU/cu ft</strong></div>
+          <div>Specific Gravity: <strong id="lblGasSg" style="color:var(--fg);">0.60 (Air = 1.0)</strong></div>
+          <div>Diversity Sizing: <strong style="color:var(--fg);">100% Full Connected</strong></div>
+          <div>Sizing Protocol: <strong style="color:var(--fg);">NFPA 54 Section 6.2</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Minimum Main Header Pipe Size</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resPipeSize">1-1/4"</span> <span style="font-size:1.25rem;font-weight:500;">NPS</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              Capacity: <span id="resPipeCapacity">535</span> CFH &nbsp;|&nbsp; Demand: <span id="resDemandCfh">399</span> CFH
+            </div>
+          </div>
+          <span id="badgeCapacity" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">NFPA 54 SIZED</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Total Connected Load</span>
+            <span id="resTotalBtu" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">399,000 BTU/h</span>
+            <span id="resTotalMbh" style="font-size:0.75rem;color:var(--text-muted);display:block;">399.0 MBH (Total Connected)</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Required Meter Capacity</span>
+            <span id="resMeterSize" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--primary);">Class 400 CFH</span>
+            <span id="resMeterNote" style="font-size:0.75rem;color:#f59e0b;display:block;font-weight:600;">⚠️ Upgrade Standard 250 Meter</span>
+          </div>
+        </div>
+
+        <!-- RECOMMENDED BRANCH DROPS -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <h3 style="font-size:0.9rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Individual Appliance Branch Sizing (at Furthest Run)</h3>
+          <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:0.5rem;font-size:0.85rem;">
+            <div>Water Heater (199k): <strong id="resBranchWh" style="color:var(--fg);font-family:var(--mono);">1" Pipe</strong></div>
+            <div>Furnace (100k): <strong id="resBranchFurnace" style="color:var(--fg);font-family:var(--mono);">3/4" Pipe</strong></div>
+            <div>Cooktop (65k): <strong id="resBranchRange" style="color:var(--fg);font-family:var(--mono);">1/2" Pipe</strong></div>
+            <div>Dryer / FP (35k): <strong id="resBranchDryer" style="color:var(--fg);font-family:var(--mono);">1/2" Pipe</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">NFPA 54 Compliance Status:</span>
+            <strong id="resStatusText" style="font-family:var(--mono);color:#10b981;">ADEQUATE PIPE CAPACITY</strong>
+          </div>
+          <div id="resStatusAdvice" style="color:var(--text-muted);font-size:0.75rem;">Selected pipe diameter accommodates 100% simultaneous appliance demand within the maximum 0.5 in. w.c. allowable friction drop.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Gas Piping Sizing Schedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE GAS PIPING RISER ISOMETRIC SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Interactive Gas Piping System Riser Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live schematic illustrating utility gas meter, main building shutoff valve, distribution header, appliance drops with sediment dirt legs, and isolation valves per NFPA 54.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="gasSvgContainer" style="width:100%;max-width:720px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: NFPA 54 Gas Pipe Flow &amp; Sizing</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        The sizing of fuel gas piping is governed by the <strong>National Fuel Gas Code (NFPA 54 / ANSI Z223.1)</strong> and the <strong>International Fuel Gas Code (IFGC Section 402)</strong>. Sizing ensures that even during peak winter hours when every appliance fires simultaneously, friction pressure drop does not exceed the manufacturer's appliance regulator minimum inlet threshold (typically 5.0 in. w.c. for natural gas).
+      </p>
+      <p>
+        Gas volume demand in Cubic Feet per Hour (CFH) is calculated by dividing total connected appliance input ratings by the fuel's higher heating value:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        Q<sub>cfh</sub> = Total BTU/hr / Heating Value<sub>BTU/cu ft</sub> &nbsp;&nbsp;&nbsp;&nbsp;[1,000 for Nat Gas, 2,500 for LP Propane]
+      </div>
+      <p>
+        For low-pressure systems (inlet pressure &le; 0.5 PSI or 14 in. w.c. with a maximum allowable pressure drop of 0.5 in. w.c.), code tables and capacity calculations derive from the empirical <strong>Spitzglass low-pressure flow formula</strong>:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        Q = 3,550 &times; &radic;[ (&Delta;h &times; d<sup>5</sup>) / (SG &times; L &times; (1 + 3.6/d + 0.03d)) ] &nbsp;&nbsp;[CFH]
+      </div>
+      <p>Where:</p>
+      <ul style="padding-left:1.5rem;margin-bottom:1rem;">
+        <li><strong>&Delta;h</strong> = Pressure drop in inches water column (0.5 in. w.c. standard).</li>
+        <li><strong>d</strong> = Inside pipe diameter in inches.</li>
+        <li><strong>SG</strong> = Specific gravity of gas relative to air (0.60 for natural gas, 1.50 for propane).</li>
+        <li><strong>L</strong> = Equivalent pipe length in feet (including fitting allowances).</li>
+      </ul>
+      <p>
+        Under the <strong>NFPA 54 Longest Length Method</strong>, the entire piping network is sized using the distance from the utility gas meter to the single furthest appliance. This conservative protocol prevents localized pressure starvation when downstream high-draw appliances (such as a 199,000 BTU/h tankless water heater) fire while an upstream furnace is running.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & GAS PIPING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Gas Pipe Sizing</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: The Tankless Water Heater Undersized Branch Trap</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Replacing an old 40,000 BTU/h tank water heater with a modern 199,000 BTU/h high-efficiency tankless unit using the existing 1/2" gas pipe is the single most common plumbing code failure. A 1/2" black iron pipe 40 ft long can only deliver ~81 CFH (81,000 BTU/h). When the tankless heater fires at full throttle, it pulls the gas line into a vacuum, starving the home's furnace, extinguishing standing pilot lights, and throwing Error Code 11/12 (ignition failure).
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Forgetting Utility Gas Meter Capacity Limits</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Standard residential gas utility meters (such as Sensus / American Meter Class 250) are only rated for <strong>250 CFH (250,000 BTU/hr)</strong>. When homeowners add a tankless water heater (199k), furnace (100k), and gas range (65k), total connected load jumps to 364,000 BTU/hr. Sizing the internal piping perfectly is useless if the utility meter cannot deliver the volume. The gas utility must be called to upgrade the meter to a Class 400 unit.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Omission of Appliance Sediment Traps (Dirt Legs)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          NFPA 54 Section 9.6.7 and IFGC Section 408.4 mandate installing a sediment trap (dirt leg) at the inlet of all automatic gas appliances (water heaters, furnaces, boilers). The trap must be a tee fitting with a capped downward nipple at least 3 inches long. Omitting this allows mill scale, pipe dope shavings, and rust flakes to enter the appliance gas control valve, lodging in the solenoid seat and causing catastrophic gas valve stick-open failures.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: CSST Tubing Sizing &amp; Electrical Bonding Failures</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Corrugated Stainless Steel Tubing (CSST) has internal corrugations that create substantially higher turbulent friction than smooth rigid steel pipe. Sizing CSST requires manufacturer-specific Equivalent Hydraulic Diameter (EHD) tables—using black iron tables on CSST undersizes lines by 20% to 30%. Furthermore, yellow CSST must be electrically bonded with #6 AWG copper to the building grounding electrode to prevent lightning strikes from arcing through and puncturing the thin stainless wall.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Using Natural Gas Sizing Tables for LP Propane</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Liquid Propane gas has a specific gravity of 1.50 (50% heavier than air, compared to natural gas at 0.60, which is lighter than air). Because LP is much denser, it flows slower through an orifice or pipe at the same pressure drop. However, LP delivers 2,500 BTU/cu ft compared to 1,000 BTU/cu ft for natural gas. Always ensure the calculation matches the specific fuel density and appliance manifold pressure rating (typically 11" w.c. for LP vs 3.5" to 5" w.c. for natural gas).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // NFPA 54 Table 6.2(a) Schedule 40 Metallic Pipe Capacity (CFH of 0.60 SG Natural Gas @ 0.5 psi or less, 0.5 in. w.c. drop)
+      // [10ft, 20ft, 30ft, 40ft, 50ft, 60ft, 70ft, 80ft, 90ft, 100ft, 125ft, 150ft, 200ft]
+      const BLACK_IRON_CAPACITIES = {
+        '0.5': [172, 118, 95, 81, 72, 65, 60, 56, 52, 50, 44, 40, 34],
+        '0.75': [360, 247, 199, 170, 151, 137, 126, 117, 110, 104, 93, 84, 72],
+        '1.0': [678, 466, 374, 320, 284, 257, 237, 220, 207, 195, 174, 157, 135],
+        '1.25': [1390, 957, 768, 657, 583, 528, 486, 452, 424, 400, 355, 322, 275],
+        '1.5': [2090, 1430, 1150, 985, 873, 791, 728, 677, 635, 600, 532, 482, 412],
+        '2.0': [4020, 2760, 2220, 1900, 1680, 1520, 1400, 1300, 1220, 1160, 1020, 928, 794]
+      };
+
+      const LENGTH_STEPS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 200];
+
+      const selGas = document.getElementById('gasType');
+      const selPress = document.getElementById('supplyPressure');
+      const selMat = document.getElementById('pipeMaterial');
+      const inLength = document.getElementById('longestLengthFt');
+
+      const inFurnace = document.getElementById('appFurnace');
+      const inWh = document.getElementById('appWaterHeater');
+      const inRange = document.getElementById('appRange');
+      const inDryer = document.getElementById('appDryer');
+
+      function getCapacity(size, len, gasType, mat, press) {
+        const caps = BLACK_IRON_CAPACITIES[size];
+        if (!caps) return 0;
+
+        // Find nearest length index (rounding up per code)
+        let idx = 0;
+        for (let i = 0; i < LENGTH_STEPS.length; i++) {
+          if (len <= LENGTH_STEPS[i]) {
+            idx = i;
+            break;
+          }
+          if (i === LENGTH_STEPS.length - 1) idx = i;
+        }
+
+        let baseCfh = caps[idx];
+
+        // Material adjustment
+        if (mat === 'csst') baseCfh *= 0.75; // CSST has ~25% lower capacity due to corrugations
+        else if (mat === 'copper') baseCfh *= 0.85;
+
+        // Pressure adjustment
+        if (press === 'med_20') baseCfh *= 2.4; // 2 PSI delivers significantly more CFH
+        else if (press === 'high_50') baseCfh *= 4.0;
+
+        // Propane adjustment: LP is denser (SG 1.50 vs 0.60 -> sqrt(0.60/1.50) = 0.632)
+        if (gasType === 'propane') {
+          baseCfh *= 0.632;
+        }
+
+        return Math.round(baseCfh);
+      }
+
+      function calcGas() {
+        const gas = selGas.value;
+        const press = selPress.value;
+        const mat = selMat.value;
+        const len = parseFloat(inLength.value) || 60;
+
+        const fBtu = parseFloat(inFurnace.value) || 0;
+        const whBtu = parseFloat(inWh.value) || 0;
+        const rBtu = parseFloat(inRange.value) || 0;
+        const dBtu = parseFloat(inDryer.value) || 0;
+
+        const totalBtu = fBtu + whBtu + rBtu + dBtu;
+        const btuPerCf = gas === 'propane' ? 2500 : 1000;
+        const gasSg = gas === 'propane' ? 1.50 : 0.60;
+
+        document.getElementById('lblHeatingVal').textContent = btuPerCf.toLocaleString() + ' BTU/cu ft';
+        document.getElementById('lblGasSg').textContent = gasSg.toFixed(2) + ' (' + (gas === 'propane' ? 'Propane' : 'Nat Gas') + ')';
+        document.getElementById('lblTotalBtu').textContent = totalBtu.toLocaleString() + ' BTU/h';
+
+        const demandCfh = Math.ceil(totalBtu / btuPerCf);
+
+        document.getElementById('resTotalBtu').textContent = totalBtu.toLocaleString() + ' BTU/h';
+        document.getElementById('resTotalMbh').textContent = (totalBtu / 1000).toFixed(1) + ' MBH Total Load';
+        document.getElementById('resDemandCfh').textContent = demandCfh + ' CFH';
+
+        // Select Pipe Size for main header
+        const sizes = ['0.5', '0.75', '1.0', '1.25', '1.5', '2.0'];
+        let chosenSize = '2.0+';
+        let chosenCap = 0;
+
+        for (const sz of sizes) {
+          const cap = getCapacity(sz, len, gas, mat, press);
+          if (cap >= demandCfh) {
+            chosenSize = sz;
+            chosenCap = cap;
+            break;
+          }
+        }
+
+        let displaySize = chosenSize + '"';
+        if (chosenSize === '0.5') displaySize = '1/2"';
+        else if (chosenSize === '0.75') displaySize = '3/4"';
+        else if (chosenSize === '1.0') displaySize = '1"';
+        else if (chosenSize === '1.25') displaySize = '1-1/4"';
+        else if (chosenSize === '1.5') displaySize = '1-1/2"';
+        else if (chosenSize === '2.0') displaySize = '2"';
+
+        document.getElementById('resPipeSize').textContent = displaySize;
+        document.getElementById('resPipeCapacity').textContent = chosenCap > 0 ? chosenCap : '> 4000';
+
+        // Branch pipe sizing for individual appliances
+        function sizeBranch(appBtu) {
+          const appCfh = Math.ceil(appBtu / btuPerCf);
+          for (const sz of sizes) {
+            if (getCapacity(sz, len, gas, mat, press) >= appCfh) {
+              if (sz === '0.5') return '1/2" Pipe';
+              if (sz === '0.75') return '3/4" Pipe';
+              if (sz === '1.0') return '1" Pipe';
+              if (sz === '1.25') return '1-1/4" Pipe';
+              return sz + '" Pipe';
+            }
+          }
+          return '1-1/2"+ Pipe';
+        }
+
+        document.getElementById('resBranchWh').textContent = sizeBranch(whBtu);
+        document.getElementById('resBranchFurnace').textContent = sizeBranch(fBtu);
+        document.getElementById('resBranchRange').textContent = sizeBranch(rBtu);
+        document.getElementById('resBranchDryer').textContent = sizeBranch(dBtu);
+
+        // Meter Sizing Recommendation
+        const resMeter = document.getElementById('resMeterSize');
+        const resMeterNote = document.getElementById('resMeterNote');
+
+        if (demandCfh <= 250) {
+          resMeter.textContent = 'Class 250 CFH';
+          resMeterNote.textContent = '✓ Standard Residential Meter OK';
+          resMeterNote.style.color = '#10b981';
+        } else if (demandCfh <= 400) {
+          resMeter.textContent = 'Class 400 CFH';
+          resMeterNote.textContent = '⚠️ Request Utility Meter Upgrade (>250 CFH)';
+          resMeterNote.style.color = '#f59e0b';
+        } else {
+          resMeter.textContent = 'Class 600+ CFH';
+          resMeterNote.textContent = '⚠️ Commercial High-Capacity Meter Required';
+          resMeterNote.style.color = '#ef4444';
+        }
+
+        // Compliance advice
+        const resStat = document.getElementById('resStatusText');
+        const resAdv = document.getElementById('resStatusAdvice');
+        const badge = document.getElementById('badgeCapacity');
+
+        if (chosenCap >= demandCfh) {
+          badge.style.background = '#10b981';
+          badge.textContent = 'NFPA 54 SIZED';
+          resStat.textContent = 'ADEQUATE PIPE CAPACITY';
+          resStat.style.color = '#10b981';
+          resAdv.textContent = 'Selected ' + displaySize + ' pipe accommodates 100% full connected demand (' + demandCfh + ' CFH) within the allowable 0.5 in. w.c. friction drop over ' + len + ' ft.';
+        } else {
+          badge.style.background = '#ef4444';
+          badge.textContent = 'OVERLOADED';
+          resStat.textContent = 'EXCEEDS 2" CAPACITY';
+          resStat.style.color = '#ef4444';
+          resAdv.textContent = 'Total gas demand exceeds standard 2" pipe capacity at low pressure. Consider upgrading to a 2 PSI medium pressure hybrid system.';
+        }
+
+        // Draw Interactive SVG
+        drawGasSvg(displaySize, demandCfh, chosenCap, len, totalBtu);
+      }
+
+      function drawGasSvg(pipeSizeStr, demandCfh, pipeCap, len, totalBtu) {
+        const container = document.getElementById('gasSvgContainer');
+        const w = 720;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Background
+        s += '<rect x="10" y="10" width="700" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // UTILITY GAS METER (Left)
+        s += '<g transform="translate(30, 60)">';
+        // Meter Stand / Gas Riser from Ground
+        s += '<path d="M 20 280 L 20 170" stroke="#f59e0b" stroke-width="6"/>';
+        // Main Gas Shutoff Valve
+        s += '<rect x="12" y="145" width="16" height="25" rx="3" fill="#ef4444"/>';
+        s += '<text x="20" y="140" text-anchor="middle" fill="#ef4444" font-size="8" font-weight="700">SHUTOFF</text>';
+        // Meter Regulator
+        s += '<polygon points="8,125 32,125 20,110" fill="#64748b"/>';
+        // Gas Meter Body (Gray Box with Dials)
+        s += '<rect x="0" y="45" width="75" height="65" rx="6" fill="#334155" stroke="#94a3b8" stroke-width="2"/>';
+        s += '<circle cx="25" cy="72" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="1"/>';
+        s += '<circle cx="50" cy="72" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="1"/>';
+        s += '<text x="37" y="100" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="700">GAS METER</text>';
+        s += '<text x="37" y="32" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="700">UTILITY SUPPLY</text>';
+        s += '</g>';
+
+        // MAIN BUILDING DISTRIBUTION HEADER (Horizontal Black Iron Pipe)
+        const headerY = 105;
+        s += '<line x1="105" y1="' + headerY + '" x2="680" y2="' + headerY + '" stroke="#0f172a" stroke-width="10"/>';
+        s += '<line x1="105" y1="' + headerY + '" x2="680" y2="' + headerY + '" stroke="#475569" stroke-width="8"/>';
+        s += '<text x="380" y="' + (headerY - 14) + '" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">MAIN HEADER: ' + pipeSizeStr + ' BLACK IRON (' + len + ' FT LONGEST RUN)</text>';
+
+        // APPLIANCE DROPS (Furnace, Tankless WH, Range, Dryer)
+        const drops = [
+          { x: 190, name: 'FURNACE', btu: '100k BTU/h', color: '#ef4444' },
+          { x: 340, name: 'TANKLESS WH', btu: '199k BTU/h', color: '#3b82f6' },
+          { x: 490, name: 'GAS RANGE', btu: '65k BTU/h', color: '#10b981' },
+          { x: 620, name: 'CLOTHES DRYER', btu: '35k BTU/h', color: '#f59e0b' }
+        ];
+
+        drops.forEach(function(d) {
+          // Drop pipe down
+          s += '<line x1="' + d.x + '" y1="' + headerY + '" x2="' + d.x + '" y2="240" stroke="#475569" stroke-width="5"/>';
+
+          // Appliance Shutoff Valve
+          s += '<rect x="' + (d.x - 7) + '" y="160" width="14" height="18" rx="2" fill="#ef4444"/>';
+          s += '<text x="' + (d.x + 14) + '" y="173" fill="#94a3b8" font-size="8">VALVE</text>';
+
+          // Appliance Tee Connection
+          s += '<line x1="' + d.x + '" y1="210" x2="' + (d.x + 35) + '" y2="210" stroke="#475569" stroke-width="4"/>';
+
+          // Sediment Trap / Dirt Leg (Vertical downward extension capped)
+          s += '<line x1="' + d.x + '" y1="210" x2="' + d.x + '" y2="250" stroke="#475569" stroke-width="4"/>';
+          s += '<rect x="' + (d.x - 5) + '" y="250" width="10" height="6" rx="1" fill="#64748b"/>';
+          s += '<text x="' + d.x + '" y="268" text-anchor="middle" fill="#94a3b8" font-size="7">DIRT LEG</text>';
+
+          // Appliance Unit Box
+          s += '<rect x="' + (d.x + 35) + '" y="185" width="70" height="55" rx="6" fill="#1e293b" stroke="' + d.color + '" stroke-width="1.5"/>';
+          s += '<text x="' + (d.x + 70) + '" y="210" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">' + d.name + '</text>';
+          s += '<text x="' + (d.x + 70) + '" y="225" text-anchor="middle" fill="' + d.color + '" font-size="8">' + d.btu + '</text>';
+        });
+
+        // Bottom Dashboard Card
+        s += '<rect x="25" y="315" width="670" height="75" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="45" y="342" fill="#94a3b8" font-size="11" font-weight="600">CONNECTED LOAD:</text>';
+        s += '<text x="45" y="368" fill="#f8fafc" font-size="16" font-weight="700" font-family="monospace">' + totalBtu.toLocaleString() + ' BTU/h (' + demandCfh + ' CFH)</text>';
+
+        s += '<text x="290" y="342" fill="#94a3b8" font-size="11" font-weight="600">HEADER SELECTION:</text>';
+        s += '<text x="290" y="368" fill="#38bdf8" font-size="16" font-weight="700" font-family="monospace">' + pipeSizeStr + ' (' + pipeCap + ' CFH Cap)</text>';
+
+        s += '<text x="510" y="342" fill="#94a3b8" font-size="11" font-weight="600">CODE PROTOCOL:</text>';
+        s += '<text x="510" y="368" fill="#10b981" font-size="14" font-weight="700">NFPA 54 / IFGC SIZED</text>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const gas = selGas.options[selGas.selectedIndex].text;
+        const press = selPress.options[selPress.selectedIndex].text;
+        const mat = selMat.options[selMat.selectedIndex].text;
+        const len = inLength.value;
+
+        const totalBtu = document.getElementById('resTotalBtu').textContent;
+        const demand = document.getElementById('resDemandCfh').textContent;
+        const size = document.getElementById('resPipeSize').textContent;
+        const cap = document.getElementById('resPipeCapacity').textContent;
+        const meter = document.getElementById('resMeterSize').textContent;
+        const stat = document.getElementById('resStatusText').textContent;
+
+        const wh = document.getElementById('resBranchWh').textContent;
+        const fur = document.getElementById('resBranchFurnace').textContent;
+        const rng = document.getElementById('resBranchRange').textContent;
+        const dry = document.getElementById('resBranchDryer').textContent;
+
+        const summary = [
+          '=== NATURAL GAS & PROPANE PIPE SIZING REPORT (NFPA 54) ===',
+          'Fuel Specification: ' + gas,
+          'Supply Pressure: ' + press,
+          'Piping Material: ' + mat + ' | Longest Run: ' + len + ' ft',
+          '',
+          '--- DEMAND & MAIN HEADER SELECTION ---',
+          'Total Connected Load: ' + totalBtu + ' (' + demand + ')',
+          'Recommended Main Header Pipe Size: ' + size + ' NPS (Capacity: ' + cap + ' CFH)',
+          'Gas Meter Recommendation: ' + meter,
+          'Code Compliance Status: ' + stat,
+          '',
+          '--- APPLIANCE BRANCH DROPS ---',
+          'Tankless Water Heater: ' + wh,
+          'Central Furnace: ' + fur,
+          'Gas Range / Cooktop: ' + rng,
+          'Dryer / Fireplace: ' + dry,
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/natural-gas-pipe-sizing-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Gas Piping Sizing Schedule';
+          }, 2500);
+        });
+      });
+
+      selGas.addEventListener('change', calcGas);
+      selPress.addEventListener('change', calcGas);
+      selMat.addEventListener('change', calcGas);
+      inLength.addEventListener('input', calcGas);
+      inFurnace.addEventListener('input', calcGas);
+      inWh.addEventListener('input', calcGas);
+      inRange.addEventListener('input', calcGas);
+      inDryer.addEventListener('input', calcGas);
+
+      calcGas();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'natural-gas-pipe-sizing-calculator.html'), renderTradePage({
+    title: "Natural Gas Pipe Sizing Calculator: NFPA 54 & IFGC Longest Length | Digital Tools Shed",
+    metaDesc: "Size gas piping lines per NFPA 54 and IFGC: calculate total connected BTU/hr and CFH, size Black Iron vs CSST lines, and prevent tankless water heater starvation.",
+    canonical: `${DOMAIN}/calc/natural-gas-pipe-sizing-calculator`,
+    bodyContent: naturalGasPipeBody,
+    currentPath: '/calc/natural-gas-pipe-sizing-calculator',
+    faq: [
+      {
+        "q": "What size gas pipe do I need for a 199,000 BTU tankless water heater?",
+        "a": "A 199,000 BTU/hr tankless water heater requires approximately 200 CFH of natural gas. At standard low pressure (0.5 PSI with 0.5 in. w.c. drop), a dedicated 3/4-inch black iron pipe can only travel up to 20 feet. For runs between 30 and 100 feet, you must install a 1-inch pipe to prevent pressure starvation and ignition error codes."
+      },
+      {
+        "q": "What is the NFPA 54 Longest Length Method?",
+        "a": "The Longest Length Method measures the total distance from the gas meter to the single furthest appliance on the system. That entire length is then used to look up pipe sizing for all sections in the NFPA 54 capacity tables, ensuring full volume during simultaneous peak firing."
+      },
+      {
+        "q": "Why is a sediment trap (dirt leg) required on gas appliances?",
+        "a": "NFPA 54 and IFGC mandate a sediment trap at the inlet of automatic gas appliances. It uses gravity to catch pipe dope, metal shavings, and black iron mill scale before they enter and damage the appliance's sensitive automatic gas solenoid valve."
+      },
+      {
+        "q": "How does gas pipe sizing differ between Propane and Natural Gas?",
+        "a": "Liquid Propane (LP) is 50% heavier than air (SG = 1.50) compared to Natural Gas (SG = 0.60), causing it to flow slower through pipes. However, Propane delivers 2,500 BTU per cubic foot compared to 1,000 BTU for natural gas, requiring roughly 40% less volumetric flow (CFH) for the same heat duty."
+      },
+      {
+        "q": "When do I need to upgrade my residential utility gas meter?",
+        "a": "Standard residential utility gas meters are rated for 250 CFH (250,000 BTU/hr). If adding a tankless water heater, pool heater, or large generator pushes your total connected household gas demand above 250,000 BTU/hr, you must contact the gas utility to upgrade to a Class 400 meter."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HYDRONIC EXPANSION TANK SIZING CALCULATOR (ASME SECTION VIII / ASHRAE)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const expansionTankBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Expansion Tank Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Hydronic Diaphragm Expansion Tank Sizing Calculator (ASME / ASHRAE)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Size closed-loop boiler and hydronic heating diaphragm expansion tanks per ASME Section VIII and ASHRAE standards: calculate thermal fluid expansion, acceptance volume, static fill precharge, and prevent boiler relief valve weeping.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        System Volume &amp; Thermal Parameters
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="systemPreset">System Water Volume Estimation Method</label>
+        <select id="systemPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="direct">Direct Gallon Entry</option>
+          <option value="baseboard" selected>Modern Fin-Tube Baseboard (1.5 gal / 10k BTU)</option>
+          <option value="castiron">Cast Iron Radiators / Gravity Conversion (3.5 gal / 10k BTU)</option>
+          <option value="radiant">Radiant In-Floor PEX (2.5 gal / 10k BTU)</option>
+          <option value="fancoils">Commercial Fan Coils / Air Handlers (2.0 gal / 10k BTU)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boilerOutputBtu">Boiler Heating Output (BTU/hr)</label>
+          <input type="number" id="boilerOutputBtu" value="100000" min="10000" max="10000000" step="10000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Net I=B=R or DOE heating rating</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="systemVolumeGal">Total System Fluid Volume (Gal)</label>
+          <input type="number" id="systemVolumeGal" value="45" min="5" max="5000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Boiler + piping + emitter water</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tempInitial">Initial Cold Fill Temp (&deg;F)</label>
+          <input type="number" id="tempInitial" value="50" min="40" max="80" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">City water fill temperature</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tempMax">Max Design Operating Temp (&deg;F)</label>
+          <input type="number" id="tempMax" value="180" min="120" max="240" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">High-limit aquastat setpoint</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="staticHeightFt">Static Elevation Above Tank (ft)</label>
+          <input type="number" id="staticHeightFt" value="18" min="0" max="150" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Height to highest radiator/convector</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="reliefValvePsi">Boiler Relief Valve Setting (PSIG)</label>
+          <select id="reliefValvePsi" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="30" selected>30 PSIG (Standard Residential Boiler)</option>
+            <option value="50">50 PSIG (Commercial Low Pressure)</option>
+            <option value="75">75 PSIG (Multi-Story Hydronic)</option>
+            <option value="125">125 PSIG (High-Rise ASME)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="glycolPct">Glycol Antifreeze Mixture</label>
+          <select id="glycolPct" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0" selected>100% Water (No Glycol)</option>
+            <option value="30">30% Propylene Glycol (+15% Expansion)</option>
+            <option value="50">50% Propylene Glycol (+22% Expansion)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tankType">Tank Construction Style</label>
+          <select id="tankType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="diaphragm" selected>Precharged Diaphragm / Bladder (ASME)</option>
+            <option value="steel">Plain Steel Compression Tank (No Bladder)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Calculated Precharge: <strong id="lblPrecharge" style="color:var(--fg);">12.8 PSIG</strong></div>
+          <div>Max Tank Pressure: <strong id="lblMaxPressure" style="color:var(--fg);">27.0 PSIG (10% Safety)</strong></div>
+          <div>Acceptance Factor: <strong id="lblAcceptFactor" style="color:var(--fg);">0.341</strong></div>
+          <div>Fluid Expansion: <strong id="lblFluidExp" style="color:var(--fg);">3.06%</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Minimum Total Tank Volume</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resTankVolume">4.0</span> <span style="font-size:1.25rem;font-weight:500;">Gallons</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              Recommended Model: <strong id="resTankModel" style="color:var(--fg);">Amtrol Extrol EX-30 (4.4 Gal)</strong>
+            </div>
+          </div>
+          <span id="badgeSize" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">ASME SIZED</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Expanded Water Volume</span>
+            <span id="resExpandedGal" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">1.38 Gallons</span>
+            <span id="resExpandedLiters" style="font-size:0.75rem;color:var(--text-muted);display:block;">5.22 Liters Acceptance Needed</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Mandatory Air Precharge</span>
+            <span id="resPrechargePsi" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--primary);">13.0 PSIG</span>
+            <span style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">Set BEFORE filling boiler with water</span>
+          </div>
+        </div>
+
+        <!-- SIZING BENCHMARK COMPARISON -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <h3 style="font-size:0.9rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Standard Commercial Model Capacities</h3>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.5rem;text-align:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Extrol EX-15</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);margin-top:0.25rem;">2.0 Gal</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Max 1.0 Gal Exp</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Extrol EX-30</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--primary);margin-top:0.25rem;">4.4 Gal</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Max 2.5 Gal Exp</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Extrol EX-60</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);margin-top:0.25rem;">7.6 Gal</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Max 4.0 Gal Exp</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">Boiler Relief Valve Safety Status:</span>
+            <strong id="resStatusText" style="font-family:var(--mono);color:#10b981;">NO RELIEF WEEPING</strong>
+          </div>
+          <div id="resStatusAdvice" style="color:var(--text-muted);font-size:0.75rem;">Selected tank capacity cushions thermal water expansion with a comfortable 3.0 PSI safety margin below the 30 PSIG relief valve limit.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Expansion Tank Sizing Schedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SECTIONAL CUTAWAY EXPANSION TANK SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Interactive Diaphragm Expansion Tank Cutaway Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live cutaway diagram illustrating air precharge cushion, heavy-duty butyl diaphragm deflection under water expansion, Schrader air charge valve, and boiler system connection.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="tankSvgContainer" style="width:100%;max-width:680px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: ASME Section VIII &amp; ASHRAE Formulas</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        Water is virtually incompressible. When heated from 50&deg;F to 180&deg;F in a closed piping loop, water expands by approximately <strong>3.06%</strong> of its initial volume. Without an expansion tank containing a compressible gas volume, this thermal expansion causes system pressure to skyrocket instantaneously past the 30 PSIG boiler relief valve limit.
+      </p>
+      <p>
+        The volumetric thermal expansion of water is derived from fluid specific volumes:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        e = [ (v<sub>2</sub> / v<sub>1</sub>) - 1 ] - 3&alpha;&Delta;T
+      </div>
+      <p>
+        Where \( v_1 \) is the specific volume of water at initial cold fill temp (0.01602 ft&sup3;/lb @ 50&deg;F), \( v_2 \) is specific volume at max operating temp (0.01651 ft&sup3;/lb @ 180&deg;F), and \( 3\alpha\Delta T \) is volumetric metal piping expansion (~0.00085).
+      </p>
+      <p>
+        For a modern precharged diaphragm or bladder expansion tank, Boyle's Law (\( P_1 V_1 = P_2 V_2 \)) governs the air cushion behavior. The required total tank volume (\( V_t \)) is defined by the classical <strong>ASHRAE / ASME equation</strong>:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        V<sub>t</sub> = [ V<sub>s</sub> &times; e ] / [ 1 - (P<sub>1</sub> / P<sub>2</sub>) ] &nbsp;&nbsp;[Gallons]
+      </div>
+      <p>Where:</p>
+      <ul style="padding-left:1.5rem;margin-bottom:1rem;">
+        <li><strong>V<sub>s</sub></strong> = Total system fluid volume (gallons).</li>
+        <li><strong>e</strong> = Net fluid thermal expansion coefficient (adjusted for glycol if applicable).</li>
+        <li><strong>P<sub>1</sub></strong> = Initial cold pre-charge absolute pressure (PSIA), set equal to:
+          \( P_1 = (H_{static} \times 0.433) + 5 \text{ PSI} + 14.7 \text{ PSIA} \).
+        </li>
+        <li><strong>P<sub>2</sub></strong> = Maximum allowable operating absolute pressure (PSIA), typically set to 90% of the relief valve rating to provide a safety margin:
+          \( P_2 = (0.90 \times P_{relief}) + 14.7 \text{ PSIA} \).
+        </li>
+        <li><strong>[ 1 - (P<sub>1</sub> / P<sub>2</sub>) ]</strong> = Tank Acceptance Factor (\( A_f \)), representing the maximum percentage of the tank's internal volume that can be displaced by water.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & EXPANSION TANK PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Expansion Tank Sizing</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: Installing Without Matching Air Precharge to System Static Head</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Residential expansion tanks arrive from the factory precharged to 12 PSIG. If installed in a 3-story house where static head requires 18 PSIG fill pressure, cold system water immediately pushes into the tank before the boiler ever fires, compressing the diaphragm and swallowing 50% of the tank's expansion volume. When the boiler heats up, there is zero acceptance room left, popping the 30 PSI relief valve. Always adjust tank air pressure with a bicycle tire pump <strong>before</strong> connecting water.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Checking Precharge Pressure on a Pressurized System</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Putting a pressure gauge on the tank's Schrader valve while the tank is attached to a pressurized boiler only measures water pressure—not the air precharge. Because the flexible diaphragm is balanced between air and water, the air side matches water pressure exactly. To test or set true tank precharge, the tank must be isolated from the system and water pressure drained to 0 PSIG.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Undersizing on Gravity Conversion or Radiant PEX Retrofits</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Installing a small #30 expansion tank (rated for ~30 gallons) on an old home with 3-inch cast iron gravity pipes or an extensive radiant floor system containing 80 to 120 gallons of water causes chronic overpressure. The massive water volume expands beyond the 2.5-gallon acceptance limit of a #30 tank. The boiler pressure gauge climbs past 30 PSI on every cold start, weeping rusty water from the relief discharge tube.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Installing the Tank on the Circulator Discharge</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          The expansion tank is the hydronic system's Point of No Pressure Change (PONPC). If the circulator pump discharges directly into the expansion tank, the pump head is subtracted from the entire rest of the loop. Upper-floor convector pressure drops below atmospheric, drawing air in through air vents, causing water gurgling, and inducing severe pump cavitation. Always pump <strong>away</strong> from the expansion tank.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: The Waterlogged "Ping Test" Mistake</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Tapping on a steel expansion tank with a screwdriver to hear if it's "hollow" or "full" is notoriously unreliable. Heavy butyl rubber diaphragms eventually fatigue, develop micro-tears, or permeate air over 5 to 10 years, resulting in a completely waterlogged tank. The definitive test is depressing the Schrader valve pin: if liquid water squirts out of the air valve, the diaphragm is ruptured and the tank must be replaced immediately.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Specific volumes of water at temperatures (ft^3/lb)
+      const SPECIFIC_VOLUMES = {
+        40: 0.01602,
+        50: 0.01602,
+        60: 0.01603,
+        70: 0.01605,
+        80: 0.01607,
+        120: 0.01620,
+        140: 0.01629,
+        160: 0.01639,
+        180: 0.01651,
+        200: 0.01663,
+        220: 0.01677,
+        240: 0.01692
+      };
+
+      const selPreset = document.getElementById('systemPreset');
+      const inBtu = document.getElementById('boilerOutputBtu');
+      const inVol = document.getElementById('systemVolumeGal');
+      const inTInit = document.getElementById('tempInitial');
+      const inTMax = document.getElementById('tempMax');
+      const inHeight = document.getElementById('staticHeightFt');
+      const selRelief = document.getElementById('reliefValvePsi');
+      const selGlycol = document.getElementById('glycolPct');
+      const selTankType = document.getElementById('tankType');
+
+      function updateVolumePreset() {
+        const p = selPreset.value;
+        const btu = parseFloat(inBtu.value) || 100000;
+        if (p === 'baseboard') {
+          inVol.value = Math.round((btu / 10000) * 1.5);
+        } else if (p === 'castiron') {
+          inVol.value = Math.round((btu / 10000) * 3.5);
+        } else if (p === 'radiant') {
+          inVol.value = Math.round((btu / 10000) * 2.5);
+        } else if (p === 'fancoils') {
+          inVol.value = Math.round((btu / 10000) * 2.0);
+        }
+      }
+
+      function getSpecVol(temp) {
+        const keys = [40, 50, 60, 70, 80, 120, 140, 160, 180, 200, 220, 240];
+        if (temp <= 40) return 0.01602;
+        if (temp >= 240) return 0.01692;
+        // Simple linear interpolation
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (temp >= keys[i] && temp <= keys[i + 1]) {
+            const frac = (temp - keys[i]) / (keys[i + 1] - keys[i]);
+            return SPECIFIC_VOLUMES[keys[i]] + frac * (SPECIFIC_VOLUMES[keys[i + 1]] - SPECIFIC_VOLUMES[keys[i]]);
+          }
+        }
+        return 0.01651;
+      }
+
+      function calcTank() {
+        const btu = parseFloat(inBtu.value) || 100000;
+        const sysVol = parseFloat(inVol.value) || 45;
+        const t1 = parseFloat(inTInit.value) || 50;
+        const t2 = parseFloat(inTMax.value) || 180;
+        const heightFt = parseFloat(inHeight.value) || 18;
+        const reliefPsi = parseFloat(selRelief.value) || 30;
+        const glycolKey = selGlycol.value;
+        const tankType = selTankType.value;
+
+        // Fluid expansion e
+        const v1 = getSpecVol(t1);
+        const v2 = getSpecVol(t2);
+        // Volumetric expansion of metal pipe ~0.00085
+        let e = (v2 / v1 - 1) - 0.00085;
+        if (e < 0.01) e = 0.01;
+
+        // Glycol multiplier
+        let glycolMult = 1.0;
+        if (glycolKey === '30') glycolMult = 1.15;
+        else if (glycolKey === '50') glycolMult = 1.22;
+
+        e *= glycolMult;
+
+        const expandedGal = sysVol * e;
+        const expandedLiters = expandedGal * 3.78541;
+
+        document.getElementById('lblFluidExp').textContent = (e * 100).toFixed(2) + '%';
+        document.getElementById('resExpandedGal').textContent = expandedGal.toFixed(2) + ' Gallons';
+        document.getElementById('resExpandedLiters').textContent = expandedLiters.toFixed(2) + ' Liters Acceptance Needed';
+
+        // Pressures
+        // Static fill pressure: Pfill = (heightFt * 0.4335) + 5 psi minimum positive top pressure
+        const fillPsig = Math.max(12, (heightFt * 0.4335) + 5);
+        const p1Abs = fillPsig + 14.7;
+
+        // Max tank pressure: 10% safety margin below relief valve
+        const maxPsig = reliefPsi - Math.max(3, reliefPsi * 0.10);
+        const p2Abs = maxPsig + 14.7;
+
+        document.getElementById('lblPrecharge').textContent = fillPsig.toFixed(1) + ' PSIG';
+        document.getElementById('lblMaxPressure').textContent = maxPsig.toFixed(1) + ' PSIG (' + Math.round(reliefPsi * 0.10) + ' PSI Margin)';
+        document.getElementById('resPrechargePsi').textContent = fillPsig.toFixed(1) + ' PSIG';
+
+        // Acceptance factor: Af = 1 - (P1 / P2)
+        const af = Math.max(0.05, 1 - (p1Abs / p2Abs));
+        document.getElementById('lblAcceptFactor').textContent = af.toFixed(3);
+
+        // Required tank volume
+        let reqVolume = 0;
+        if (tankType === 'diaphragm') {
+          // Vt = Vexpanded / Af
+          reqVolume = expandedGal / af;
+        } else {
+          // Plain steel tank without bladder: Vt = Vexpanded / (Pa/P1 - Pa/P2)
+          const pAtm = 14.7;
+          const denom = (pAtm / p1Abs) - (pAtm / p2Abs);
+          reqVolume = expandedGal / (denom > 0 ? denom : 0.1);
+        }
+
+        const roundVol = reqVolume.toFixed(1);
+        document.getElementById('resTankVolume').textContent = roundVol;
+
+        // Model recommendation
+        const resModel = document.getElementById('resTankModel');
+        if (reqVolume <= 2.0) {
+          resModel.textContent = 'Amtrol Extrol EX-15 (2.0 Gal)';
+        } else if (reqVolume <= 4.4) {
+          resModel.textContent = 'Amtrol Extrol EX-30 (4.4 Gal)';
+        } else if (reqVolume <= 7.6) {
+          resModel.textContent = 'Amtrol Extrol EX-60 (7.6 Gal)';
+        } else if (reqVolume <= 11.0) {
+          resModel.textContent = 'Amtrol Extrol EX-90 (11.0 Gal)';
+        } else if (reqVolume <= 23.0) {
+          resModel.textContent = 'Amtrol SX-30V / AX-40 ASME (23 Gal)';
+        } else {
+          resModel.textContent = 'ASME Commercial Bladder (' + Math.ceil(reqVolume * 1.15) + ' Gal Tank)';
+        }
+
+        // Draw Interactive SVG
+        drawTankSvg(reqVolume, expandedGal, fillPsig, maxPsig, reliefPsi, af);
+      }
+
+      function drawTankSvg(tankVol, expVol, p1, p2, pRelief, af) {
+        const container = document.getElementById('tankSvgContainer');
+        const w = 680;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Background
+        s += '<rect x="10" y="10" width="660" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // LEFT: Sectional Cutaway of Diaphragm Tank
+        const tx = 180;
+        const ty = 80;
+        const tw = 170;
+        const th = 260;
+
+        // Outer Tank Shell (Metallic Gray/Bronze)
+        s += '<rect x="' + (tx - tw / 2) + '" y="' + ty + '" width="' + tw + '" height="' + th + '" rx="50" fill="#334155" stroke="#64748b" stroke-width="2"/>';
+
+        // Schrader Air Valve on Top
+        s += '<rect x="' + (tx - 8) + '" y="' + (ty - 24) + '" width="16" height="24" rx="2" fill="#d97706" stroke="#b45309" stroke-width="1.5"/>';
+        s += '<circle cx="' + tx + '" cy="' + (ty - 24) + '" r="5" fill="#f59e0b"/>';
+        s += '<text x="' + tx + '" y="' + (ty - 32) + '" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">SCHRADER VALVE (' + p1.toFixed(1) + ' PSI AIR)</text>';
+
+        // System Water Connection Nipple on Bottom
+        s += '<rect x="' + (tx - 12) + '" y="' + (ty + th) + '" width="24" height="30" rx="2" fill="#475569" stroke="#64748b" stroke-width="1.5"/>';
+        s += '<text x="' + tx + '" y="' + (ty + th + 45) + '" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="700">BOILER CONNECTION (3/4" NPT)</text>';
+
+        // AIR CUSHION CHAMBER (Upper portion inside tank)
+        // Diaphragm flexible curve position based on acceptance factor
+        const waterHeight = Math.min(th * 0.75, Math.max(th * 0.2, th * af));
+        const diaphragmY = ty + th - waterHeight;
+
+        // Upper Air Cushion (Yellow/Orange tint)
+        s += '<path d="M ' + (tx - tw / 2 + 6) + ' ' + (ty + 35) + ' Q ' + tx + ' ' + (ty + 6) + ' ' + (tx + tw / 2 - 6) + ' ' + (ty + 35) + ' L ' + (tx + tw / 2 - 6) + ' ' + diaphragmY + ' Q ' + tx + ' ' + (diaphragmY - 25) + ' ' + (tx - tw / 2 + 6) + ' ' + diaphragmY + ' Z" fill="rgba(245, 158, 11, 0.2)"/>';
+        s += '<text x="' + tx + '" y="' + (ty + 75) + '" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="700">COMPRESSED AIR</text>';
+        s += '<text x="' + tx + '" y="' + (ty + 92) + '" text-anchor="middle" fill="#fde68a" font-size="9">Precharged Cushion: ' + p1.toFixed(1) + ' PSIG</text>';
+
+        // BUTYL RUBBER DIAPHRAGM (Black curved membrane)
+        s += '<path d="M ' + (tx - tw / 2 + 4) + ' ' + diaphragmY + ' Q ' + tx + ' ' + (diaphragmY - 25) + ' ' + (tx + tw / 2 - 4) + ' ' + diaphragmY + '" fill="none" stroke="#0f172a" stroke-width="8"/>';
+        s += '<path d="M ' + (tx - tw / 2 + 4) + ' ' + diaphragmY + ' Q ' + tx + ' ' + (diaphragmY - 25) + ' ' + (tx + tw / 2 - 4) + ' ' + diaphragmY + '" fill="none" stroke="#64748b" stroke-width="4"/>';
+        s += '<text x="' + (tx + tw / 2 + 10) + '" y="' + (diaphragmY - 8) + '" fill="#cbd5e1" font-size="9" font-weight="600">&larr; Flexible Rubber Diaphragm</text>';
+
+        // EXPANDED WATER CHAMBER (Bottom portion inside tank)
+        s += '<path d="M ' + (tx - tw / 2 + 6) + ' ' + diaphragmY + ' Q ' + tx + ' ' + (diaphragmY - 25) + ' ' + (tx + tw / 2 - 6) + ' ' + diaphragmY + ' L ' + (tx + tw / 2 - 6) + ' ' + (ty + th - 35) + ' Q ' + tx + ' ' + (ty + th - 6) + ' ' + (tx - tw / 2 + 6) + ' ' + (ty + th - 35) + ' Z" fill="rgba(56, 189, 248, 0.35)"/>';
+        s += '<text x="' + tx + '" y="' + (ty + th - 45) + '" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="700">EXPANDED WATER</text>';
+        s += '<text x="' + tx + '" y="' + (ty + th - 30) + '" text-anchor="middle" fill="#e0f2fe" font-size="9">Acceptance: ' + expVol.toFixed(2) + ' Gallons</text>';
+
+        // RIGHT: Pressure & Sizing Metrics Card
+        const rx = 390;
+        const ry = 35;
+        const rw = 260;
+        const rh = 345;
+
+        s += '<g transform="translate(' + rx + ', ' + ry + ')">';
+        s += '<rect x="0" y="0" width="' + rw + '" height="' + rh + '" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="15" y="26" fill="#f8fafc" font-size="13" font-weight="700">ASME Sizing Diagnostics</text>';
+
+        s += '<circle cx="24" cy="54" r="6" fill="#38bdf8"/>';
+        s += '<text x="38" y="58" fill="#cbd5e1" font-size="11">Minimum Volume: <tspan fill="#38bdf8" font-weight="700">' + tankVol.toFixed(1) + ' Gal</tspan></text>';
+
+        s += '<circle cx="24" cy="80" r="6" fill="#10b981"/>';
+        s += '<text x="38" y="84" fill="#cbd5e1" font-size="11">Expanded Fluid: <tspan fill="#10b981" font-weight="700">' + expVol.toFixed(2) + ' Gal</tspan></text>';
+
+        s += '<circle cx="24" cy="106" r="6" fill="#f59e0b"/>';
+        s += '<text x="38" y="110" fill="#cbd5e1" font-size="11">Cold Precharge: <tspan fill="#f59e0b" font-weight="700">' + p1.toFixed(1) + ' PSIG</tspan></text>';
+
+        s += '<circle cx="24" cy="132" r="6" fill="#ef4444"/>';
+        s += '<text x="38" y="136" fill="#cbd5e1" font-size="11">Relief Valve Rating: <tspan fill="#ef4444" font-weight="700">' + pRelief + ' PSIG</tspan></text>';
+
+        s += '<line x1="15" y1="156" x2="245" y2="156" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="15" y="180" fill="#94a3b8" font-size="11" font-weight="600">ACCEPTANCE FACTOR:</text>';
+        s += '<text x="15" y="202" fill="#f8fafc" font-size="11" font-family="monospace">Af = 1 - (P1 / P2) = ' + af.toFixed(3) + '</text>';
+        s += '<text x="15" y="220" fill="#94a3b8" font-size="9">' + Math.round(af * 100) + '% of tank holds expanded water</text>';
+
+        s += '<line x1="15" y1="238" x2="245" y2="238" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="15" y="262" fill="#10b981" font-size="11" font-weight="700">INSTALLATION RULE:</text>';
+        s += '<text x="15" y="282" fill="#cbd5e1" font-size="9">Connect tank on the SUCTION side</text>';
+        s += '<text x="15" y="296" fill="#cbd5e1" font-size="9">of the circulator pump. Always</text>';
+        s += '<text x="15" y="310" fill="#cbd5e1" font-size="9">pump AWAY from the expansion tank.</text>';
+
+        s += '<rect x="15" y="322" width="230" height="18" rx="3" fill="#1e293b"/>';
+        s += '<text x="130" y="335" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">Point of No Pressure Change (PONPC)</text>';
+
+        s += '</g>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const btu = inBtu.value;
+        const vol = inVol.value;
+        const t1 = inTInit.value;
+        const t2 = inTMax.value;
+        const height = inHeight.value;
+        const relief = selRelief.value;
+        const glycol = selGlycol.options[selGlycol.selectedIndex].text;
+        const style = selTankType.options[selTankType.selectedIndex].text;
+
+        const tankVol = document.getElementById('resTankVolume').textContent;
+        const model = document.getElementById('resTankModel').textContent;
+        const expGal = document.getElementById('resExpandedGal').textContent;
+        const precharge = document.getElementById('resPrechargePsi').textContent;
+        const stat = document.getElementById('resStatusText').textContent;
+
+        const summary = [
+          '=== HYDRONIC EXPANSION TANK SIZING REPORT (ASME / ASHRAE) ===',
+          'Boiler Heat Output: ' + btu + ' BTU/hr | System Water Volume: ' + vol + ' Gallons',
+          'Operating Temperatures: ' + t1 + '°F Cold Fill to ' + t2 + '°F Max High Limit',
+          'Static Building Height: ' + height + ' ft | Boiler Relief Valve: ' + relief + ' PSIG',
+          'Fluid Specification: ' + glycol + ' | Tank Style: ' + style,
+          '',
+          '--- SIZING CALCULATIONS & SPECIFICATIONS ---',
+          'Required Total Tank Volume: ' + tankVol + ' Gallons',
+          'Recommended Commercial Model: ' + model,
+          'Net Fluid Thermal Expansion: ' + expGal,
+          'Mandatory Air Precharge: ' + precharge + ' (Set BEFORE filling boiler with water)',
+          'Operating Safety Status: ' + stat,
+          '',
+          '--- CRITICAL PIPING ARCHITECTURE ---',
+          'The expansion tank establishes the Point of No Pressure Change (PONPC). The circulator pump must be located downstream, pumping AWAY from the tank connection.',
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/expansion-tank-sizing-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Expansion Tank Sizing Schedule';
+          }, 2500);
+        });
+      });
+
+      selPreset.addEventListener('change', function() {
+        updateVolumePreset();
+        calcTank();
+      });
+      inBtu.addEventListener('input', function() {
+        updateVolumePreset();
+        calcTank();
+      });
+      inVol.addEventListener('input', calcTank);
+      inTInit.addEventListener('input', calcTank);
+      inTMax.addEventListener('input', calcTank);
+      inHeight.addEventListener('input', calcTank);
+      selRelief.addEventListener('change', calcTank);
+      selGlycol.addEventListener('change', calcTank);
+      selTankType.addEventListener('change', calcTank);
+
+      updateVolumePreset();
+      calcTank();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'expansion-tank-sizing-calculator.html'), renderTradePage({
+    title: "Expansion Tank Sizing Calculator: ASME & ASHRAE Boiler Volume | Digital Tools Shed",
+    metaDesc: "Size hydronic heating and boiler expansion tanks per ASME Section VIII and ASHRAE: calculate fluid expansion, acceptance volume, static precharge, and model selection.",
+    canonical: `${DOMAIN}/calc/expansion-tank-sizing-calculator`,
+    bodyContent: expansionTankBody,
+    currentPath: '/calc/expansion-tank-sizing-calculator',
+    faq: [
+      {
+        "q": "What size expansion tank do I need for a 100,000 BTU boiler?",
+        "a": "For a standard 100,000 BTU/hr residential hydronic system with copper fin-tube baseboards (approx. 45 gallons total water volume) operating from 50°F to 180°F, water expands by about 1.4 gallons. An Amtrol Extrol EX-30 (4.4-gallon total volume) provides the required acceptance volume without popping the 30 PSI relief valve."
+      },
+      {
+        "q": "Why must the expansion tank air precharge pressure match static fill pressure?",
+        "a": "If an expansion tank precharge is lower than system static pressure, water immediately enters the tank when cold, compressing the bladder before the boiler even fires and cutting acceptance capacity in half. Precharge must be checked and set with a tire gauge while the tank is isolated from water pressure."
+      },
+      {
+        "q": "Why does my boiler pressure relief valve leak or weep water?",
+        "a": "Boiler relief valve weeping is usually caused by a waterlogged expansion tank where the internal rubber bladder has ruptured or lost its air charge. Without a compressible air cushion, thermal water expansion spikes system pressure above 30 PSIG, forcing the safety relief valve open."
+      },
+      {
+        "q": "How does glycol antifreeze affect expansion tank sizing?",
+        "a": "Propylene glycol expands approximately 15% to 22% more than pure water over standard heating temperature ranges. Sizing an expansion tank for a 50% glycol solar or snow-melt system requires roughly 20% more tank volume than a pure water loop."
+      },
+      {
+        "q": "Where should an expansion tank be installed in a hydronic system?",
+        "a": "The expansion tank should always be installed on the suction side of the circulator pump at the Point of No Pressure Change (PONPC). The pump must pump away from the expansion tank to ensure pump dynamic head is added to the system rather than subtracted from it."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SHELL & TUBE HEAT EXCHANGER AREA, LMTD & TEMA SIZING CALCULATOR
+  // ═══════════════════════════════════════════════════════════════════════════
+  const heatExchangerBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Heat Exchanger Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Shell &amp; Tube Heat Exchanger Sizing &amp; LMTD Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate required heat transfer surface area ($A$), Log Mean Temperature Difference (LMTD), TEMA multipass correction factor ($F$), and tube bundle counts across water-water, steam, and industrial oil shell-and-tube exchangers.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+        Thermal Duty &amp; Fluid Temperatures
+      </h2>
+
+      <!-- Heat Duty Entry -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="heatDutyEntry">Thermal Heat Duty (Q in BTU/hr)</label>
+        <input type="number" id="heatDutyBtu" value="500000" min="10000" max="50000000" step="25000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">500,000 BTU/hr (146.5 kW)</span>
+      </div>
+
+      <!-- Hot Side Temperatures -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:#ef4444;margin-bottom:0.75rem;">Hot Fluid Stream (Shell or Tube)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;" for="tempHotIn">Hot Inlet Temp (Th,in &deg;F)</label>
+            <input type="number" id="tempHotIn" value="180" min="50" max="450" step="5" style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;" for="tempHotOut">Hot Outlet Temp (Th,out &deg;F)</label>
+            <input type="number" id="tempHotOut" value="140" min="40" max="400" step="5" style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Cold Side Temperatures -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:#3b82f6;margin-bottom:0.75rem;">Cold Fluid Stream (Shell or Tube)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;" for="tempColdIn">Cold Inlet Temp (Tc,in &deg;F)</label>
+            <input type="number" id="tempColdIn" value="60" min="30" max="300" step="5" style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;color:var(--text-muted);font-size:0.75rem;margin-bottom:0.25rem;" for="tempColdOut">Cold Outlet Temp (Tc,out &deg;F)</label>
+            <input type="number" id="tempColdOut" value="110" min="40" max="350" step="5" style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Overall U-Value Preset -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="overallUPreset">Overall Heat Transfer Coeff (U)</label>
+        <select id="overallUPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="350" selected>Water to Water (Clean: U = 350 BTU/hr&middot;ft&sup2;&middot;&deg;F)</option>
+          <option value="250">Water to Water (Industrial / Fouled: U = 250)</option>
+          <option value="500">Steam Condensing to Water (U = 500)</option>
+          <option value="80">Light Lubricating Oil to Water (U = 80)</option>
+          <option value="120">Organic Solvents to Water (U = 120)</option>
+          <option value="custom">Custom Specified U-Value</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="customU">Operating U (BTU/hr&middot;ft&sup2;&middot;&deg;F)</label>
+          <input type="number" id="customU" value="350" min="10" max="2000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="exchangerType">Exchanger Flow Topology</label>
+          <select id="exchangerType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="tema_12" selected>TEMA 1-2 (1 Shell Pass, 2 Tube Passes)</option>
+            <option value="counter">Pure Counter-Current Flow (F = 1.0)</option>
+            <option value="parallel">Parallel Flow (Co-Current)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tubeDia">Tube Outer Diameter (OD)</label>
+          <select id="tubeDia" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0.75" selected>3/4" Tube (0.1963 ft&sup2; / ft)</option>
+            <option value="1.0">1.0" Tube (0.2618 ft&sup2; / ft)</option>
+            <option value="0.625">5/8" Tube (0.1636 ft&sup2; / ft)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tubeLength">Tube Length (ft)</label>
+          <select id="tubeLength" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="8">8 ft Tube Length</option>
+            <option value="10" selected>10 ft Tube Length</option>
+            <option value="12">12 ft Tube Length</option>
+            <option value="16">16 ft Tube Length</option>
+            <option value="20">20 ft Tube Length</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Required Heat Transfer Area</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resAreaSqFt">19.5</span> <span style="font-size:1.25rem;font-weight:500;">sq ft</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              <span id="resAreaSqM">1.81</span> m&sup2; &nbsp;|&nbsp; Estimated Shell ID: <strong id="resShellDia" style="color:var(--fg);">6.5 inches</strong>
+            </div>
+          </div>
+          <span id="badgeF" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">F = 0.98 SAFE</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Log Mean Temp Diff (LMTD)</span>
+            <span id="resLmtd" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">74.7&deg;F</span>
+            <span id="resEffectiveMtd" style="font-size:0.75rem;color:var(--primary);display:block;font-weight:600;">Effective MTD: 73.2&deg;F</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">TEMA Correction Factor (F)</span>
+            <span id="resFactorF" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">0.980</span>
+            <span id="resFNote" style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">✓ Excellent Thermal Efficiency</span>
+          </div>
+        </div>
+
+        <!-- TUBE BUNDLE SPECIFICATION CARD -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <h3 style="font-size:0.9rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">TEMA Tube Bundle Architecture</h3>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.5rem;text-align:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Required Tubes</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--primary);margin-top:0.25rem;" id="resTubeCount">10 Tubes</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Total In Bundle</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Tubes Per Pass</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);margin-top:0.25rem;" id="resTubesPerPass">5 Tubes</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">2-Pass Layout</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Thermal Margin</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#10b981;margin-top:0.25rem;" id="resMargin">+10%</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Design Excess</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">TEMA Feasibility Check:</span>
+            <strong id="resStatusText" style="font-family:var(--mono);color:#10b981;">NO TEMPERATURE PINCH</strong>
+          </div>
+          <div id="resStatusAdvice" style="color:var(--text-muted);font-size:0.75rem;">Correction factor F &ge; 0.80 indicates robust thermal driving force without temperature cross penalty.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Heat Exchanger Sizing Report</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE TEMA E-SHELL CUTAWAY SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      Interactive TEMA E-Type Shell &amp; Tube Cutaway Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live engineering section showing shell inlet/outlet nozzles, segmental cross-flow baffles, tube sheets, partitioned channel head (2-pass tube bundle), and temperature gradients.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="hxSvgContainer" style="width:100%;max-width:720px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: LMTD, F-Factor &amp; Surface Area</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        Heat transfer across a shell and tube exchanger is described by Fourier's law of thermal conduction coupled with Newton's law of cooling. The fundamental design equation relates heat duty \( Q \) to effective surface area:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        Q = U &times; A &times; &Delta;T<sub>effective</sub> = U &times; A &times; (F &times; LMTD)
+      </div>
+      <p>
+        Where \( \Delta T_{effective} \) is the product of the Log Mean Temperature Difference (LMTD) and the TEMA geometry correction factor \( F \). For a pure counter-current flow arrangement, LMTD is:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        &Delta;T<sub>1</sub> = T<sub>h,in</sub> - T<sub>c,out</sub>, &nbsp;&nbsp;&nbsp;&nbsp; &Delta;T<sub>2</sub> = T<sub>h,out</sub> - T<sub>c,in</sub>
+        <br><br>
+        LMTD = [ &Delta;T<sub>1</sub> - &Delta;T<sub>2</sub> ] / ln( &Delta;T<sub>1</sub> / &Delta;T<sub>2</sub> )
+      </div>
+      <p>
+        In real-world shell-and-tube exchangers (such as a 1-shell pass, 2-tube pass TEMA E-shell), fluid flows in counter-current along one half of the bundle and in parallel along the other half. The departure from pure counter-current flow is corrected by the <strong>multipass correction factor \( F \)</strong>, computed from thermal effectiveness \( P \) and capacity ratio \( R \):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:0.95rem;text-align:center;">
+        R = (T<sub>h,in</sub> - T<sub>h,out</sub>) / (T<sub>c,out</sub> - T<sub>c,in</sub>)
+        <br><br>
+        P = (T<sub>c,out</sub> - T<sub>c,in</sub>) / (T<sub>h,in</sub> - T<sub>c,in</sub>)
+        <br><br>
+        F = &radic;(R<sup>2</sup> + 1) &times; ln[ (1 - P) / (1 - PR) ] &divide; { (R - 1) &times; ln[ (2 - P(R + 1 - &radic;(R<sup>2</sup> + 1))) / (2 - P(R + 1 + &radic;(R<sup>2</sup> + 1))) ] }
+      </div>
+      <p>
+        Per TEMA standards, if \( F < 0.80 \), the design is unacceptable due to a "temperature cross" condition. Operating below 0.80 requires adding a second shell in series (creating a 2-4 exchanger) to recover thermal efficiency.
+      </p>
+      <p>
+        Once required area \( A = Q / (U \cdot F \cdot \text{LMTD}) \) is known, total tube count \( N_t \) is derived from tube length \( L \) and outer circumference \( \pi D_o \):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        N<sub>t</sub> = A / [ &pi; &times; (D<sub>o</sub> / 12) &times; L ]
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & HEAT EXCHANGER PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Heat Exchanger Design</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: The "Temperature Cross" Single Shell Trap (F &lt; 0.80)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Attempting to cool the hot fluid below the cold fluid's outlet temperature in a single-shell 1-2 exchanger causes a temperature cross. In the parallel-flow pass, heat actually flows backwards from the cold fluid back into the hot fluid. The correction factor F drops steeply below 0.80, requiring exponentially infinite surface area. Whenever a temperature cross exists, engineers must specify two or more shells in series.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Ignoring As-Fouled Heat Transfer Degradation</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Sizing heat exchangers based entirely on theoretical clean-tube overall U-values without adding standard TEMA fouling resistances (typically \( R_f = 0.001 \) to \( 0.002 \text{ hr}\cdot\text{ft}^2\cdot^\circ\text{F/BTU} \)) results in premature process failure. Within 6 months of commissioning, cooling tower biological growth, rust, and calcium carbonate scale reduce actual U-values by 30% to 50%, causing process overheating.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Allocating High-Pressure or Corrosive Fluids to the Shell Side</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Placing corrosive or high-pressure process fluids on the shell side requires fabricating the entire large-diameter shell, thick flanges, and all baffles out of expensive Hastelloy, Titanium, or stainless steel. Directing the corrosive or high-pressure fluid through the <strong>tube side</strong> confines expensive metallurgy strictly to the tubes, tube sheets, and channel heads, while allowing an inexpensive carbon steel shell.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Shell-Side Flow-Induced Tube Vibration</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Designing with wide baffle spacing to minimize shell pressure drop can leave long unsupported tube spans. High inlet nozzle fluid velocities generate Karman vortex shedding that excites acoustic and structural resonance. Tubes vibrate violently against adjacent tubes and baffle hole edges, cutting deep gouges into the tube walls and causing catastrophic cross-contamination leaks within hundreds of hours.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Condensate Stall in Steam-Heated Exchangers</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          When an inlet control valve modulates down to control temperature at low loads, pressure in the steam shell drops below atmospheric pressure. The steam trap cannot discharge against positive condensate backpressure, causing liquid condensate to back up and submerge the lower tube bundle. This causes chronic "thermal stall," erratic temperature swings, and destructive water hammer when fresh steam contacts the subcooled liquid pool.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const inQ = document.getElementById('heatDutyBtu');
+      const inThIn = document.getElementById('tempHotIn');
+      const inThOut = document.getElementById('tempHotOut');
+      const inTcIn = document.getElementById('tempColdIn');
+      const inTcOut = document.getElementById('tempColdOut');
+      const selUPreset = document.getElementById('overallUPreset');
+      const inCustomU = document.getElementById('customU');
+      const selType = document.getElementById('exchangerType');
+      const selDia = document.getElementById('tubeDia');
+      const selLength = document.getElementById('tubeLength');
+
+      function syncU() {
+        const p = selUPreset.value;
+        if (p !== 'custom') {
+          inCustomU.value = p;
+        }
+      }
+
+      function calcExchanger() {
+        const Q = parseFloat(inQ.value) || 500000;
+        const ThIn = parseFloat(inThIn.value) || 180;
+        const ThOut = parseFloat(inThOut.value) || 140;
+        const TcIn = parseFloat(inTcIn.value) || 60;
+        const TcOut = parseFloat(inTcOut.value) || 110;
+        const U = parseFloat(inCustomU.value) || 350;
+        const fType = selType.value;
+        const tubeOD = parseFloat(selDia.value) || 0.75;
+        const tubeLen = parseFloat(selLength.value) || 10;
+
+        // Temperature differences for counter-current
+        // dT1 = Th,in - Tc,out
+        // dT2 = Th,out - Tc,in
+        const dT1 = ThIn - TcOut;
+        const dT2 = ThOut - TcIn;
+
+        let lmtd = 0;
+        if (dT1 <= 0 || dT2 <= 0) {
+          lmtd = 1; // Temperature cross / violation
+        } else if (Math.abs(dT1 - dT2) < 0.01) {
+          lmtd = dT1;
+        } else {
+          lmtd = (dT1 - dT2) / Math.log(dT1 / dT2);
+        }
+
+        // TEMA Correction Factor F
+        let F = 1.0;
+        let R = 1.0;
+        let P = 0.5;
+
+        if (fType === 'tema_12') {
+          const denomR = TcOut - TcIn;
+          const denomP = ThIn - TcIn;
+
+          if (denomR !== 0 && denomP !== 0) {
+            R = (ThIn - ThOut) / denomR;
+            P = (TcOut - TcIn) / denomP;
+
+            const r2Plus1 = Math.sqrt(Math.pow(R, 2) + 1);
+            if (P * R < 1.0 && P < 1.0) {
+              const num = r2Plus1 * Math.log((1 - P) / (1 - P * R));
+              const argDenom1 = 2 - P * (R + 1 - r2Plus1);
+              const argDenom2 = 2 - P * (R + 1 + r2Plus1);
+
+              if (argDenom1 > 0 && argDenom2 > 0 && Math.abs(R - 1.0) > 0.001) {
+                const den = (R - 1) * Math.log(argDenom1 / argDenom2);
+                if (den !== 0) {
+                  F = num / den;
+                }
+              } else if (Math.abs(R - 1.0) <= 0.001) {
+                // Limit as R -> 1
+                const sqrt2 = Math.SQRT2;
+                F = (sqrt2 * (P / (1 - P))) / Math.log((2 - P * (2 - sqrt2)) / (2 - P * (2 + sqrt2)));
+              }
+            } else {
+              F = 0.5; // Severely crossed
+            }
+          }
+        } else if (fType === 'parallel') {
+          // Parallel flow LMTD: dT1 = Th,in - Tc,in, dT2 = Th,out - Tc,out
+          const pDt1 = ThIn - TcIn;
+          const pDt2 = ThOut - TcOut;
+          if (pDt1 > 0 && pDt2 > 0 && Math.abs(pDt1 - pDt2) > 0.01) {
+            lmtd = (pDt1 - pDt2) / Math.log(pDt1 / pDt2);
+          }
+          F = 1.0;
+        }
+
+        // Clamp F between 0.2 and 1.0
+        if (isNaN(F) || F > 1.0) F = 1.0;
+        if (F < 0.2) F = 0.2;
+
+        const effectiveMtd = F * lmtd;
+        document.getElementById('resLmtd').textContent = lmtd.toFixed(1) + '°F';
+        document.getElementById('resEffectiveMtd').textContent = 'Effective MTD: ' + effectiveMtd.toFixed(1) + '°F';
+        document.getElementById('resFactorF').textContent = F.toFixed(3);
+
+        const badgeF = document.getElementById('badgeF');
+        const resFNote = document.getElementById('resFNote');
+        const resStat = document.getElementById('resStatusText');
+        const resAdv = document.getElementById('resStatusAdvice');
+
+        if (F >= 0.85) {
+          badgeF.style.background = '#10b981';
+          badgeF.textContent = 'F = ' + F.toFixed(2) + ' EXCELLENT';
+          resFNote.textContent = '✓ Excellent Thermal Efficiency';
+          resFNote.style.color = '#10b981';
+          resStat.textContent = 'NO TEMPERATURE PINCH';
+          resStat.style.color = '#10b981';
+          resAdv.textContent = 'Correction factor F ≥ 0.80 indicates robust thermal driving force without temperature cross penalty.';
+        } else if (F >= 0.75) {
+          badgeF.style.background = '#f59e0b';
+          badgeF.textContent = 'F = ' + F.toFixed(2) + ' MARGINAL';
+          resFNote.textContent = '⚠️ Marginal Driving Force (F < 0.80)';
+          resFNote.style.color = '#f59e0b';
+          resStat.textContent = 'MILD TEMPERATURE CROSS';
+          resStat.style.color = '#f59e0b';
+          resAdv.textContent = 'F-factor is near the 0.80 TEMA threshold. Consider increasing cold fluid flow or adding a second shell pass.';
+        } else {
+          badgeF.style.background = '#ef4444';
+          badgeF.textContent = 'F = ' + F.toFixed(2) + ' SEVERE CROSS';
+          resFNote.textContent = '⚠️ Severe Temperature Cross';
+          resFNote.style.color = '#ef4444';
+          resStat.textContent = 'TEMPERATURE CROSS VIOLATION';
+          resStat.style.color = '#ef4444';
+          resAdv.textContent = 'Thermal pinch detected. Single shell 1-2 design is infeasible. You must use 2 shells in series.';
+        }
+
+        // Required surface area: A = Q / (U * effectiveMtd)
+        const areaSqFt = Q / (U * Math.max(1, effectiveMtd));
+        const areaSqM = areaSqFt * 0.092903;
+
+        document.getElementById('resAreaSqFt').textContent = areaSqFt.toFixed(1);
+        document.getElementById('resAreaSqM').textContent = areaSqM.toFixed(2);
+
+        // Tube calculations
+        // Surface area per linear foot of tube = pi * Do (ft)
+        const tubeAreaPerFt = Math.PI * (tubeOD / 12);
+        const tubeTotalLengthNeeded = areaSqFt / tubeAreaPerFt;
+        const rawTubes = Math.ceil(tubeTotalLengthNeeded / tubeLen);
+        // Round to even number for 2-pass
+        const totalTubes = rawTubes % 2 === 0 ? rawTubes : rawTubes + 1;
+        const tubesPerPass = Math.round(totalTubes / 2);
+
+        document.getElementById('resTubeCount').textContent = totalTubes + ' Tubes';
+        document.getElementById('resTubesPerPass').textContent = tubesPerPass + ' Tubes';
+
+        // Actual area with integer tubes
+        const actualArea = totalTubes * tubeAreaPerFt * tubeLen;
+        const marginPct = ((actualArea - areaSqFt) / areaSqFt) * 100;
+        document.getElementById('resMargin').textContent = '+' + marginPct.toFixed(0) + '%';
+
+        // Estimated shell diameter (Kern triangular pitch approximation)
+        // Dshell = sqrt(Nt * (1.25 * Do)^2 / 0.785)
+        const pitch = tubeOD * 1.25;
+        const shellIdInches = Math.max(4, Math.sqrt((totalTubes * Math.pow(pitch, 2) * 1.1) / 0.7854));
+        document.getElementById('resShellDia').textContent = shellIdInches.toFixed(1) + ' inches';
+
+        // Draw Interactive SVG
+        drawHxSvg(ThIn, ThOut, TcIn, TcOut, totalTubes, tubeOD, tubeLen, shellIdInches, F, areaSqFt);
+      }
+
+      function drawHxSvg(thIn, thOut, tcIn, tcOut, numTubes, tubeOD, tubeLen, shellDia, F, area) {
+        const container = document.getElementById('hxSvgContainer');
+        const w = 720;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Background
+        s += '<rect x="10" y="10" width="700" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // TEMA E-SHELL EXCHANGER SECTION (Center/Top)
+        const sx = 100;
+        const sy = 80;
+        const sw = 480;
+        const sh = 170;
+
+        // Shell Cylinder (Gray steel vessel)
+        s += '<rect x="' + sx + '" y="' + sy + '" width="' + sw + '" height="' + sh + '" rx="25" fill="#0f172a" stroke="#64748b" stroke-width="3"/>';
+
+        // Shell Fluid Nozzles
+        // Hot Shell Inlet (Top Left)
+        s += '<rect x="' + (sx + 70) + '" y="' + (sy - 35) + '" width="' + 36 + '" height="36" fill="#b91c1c" stroke="#ef4444" stroke-width="1.5"/>';
+        s += '<text x="' + (sx + 88) + '" y="' + (sy - 42) + '" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="700">HOT IN (' + thIn + '°F)</text>';
+
+        // Hot Shell Outlet (Bottom Right)
+        s += '<rect x="' + (sx + sw - 110) + '" y="' + (sy + sh) + '" width="' + 36 + '" height="35" fill="#b91c1c" stroke="#ef4444" stroke-width="1.5"/>';
+        s += '<text x="' + (sx + sw - 92) + '" y="' + (sy + sh + 45) + '" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="700">HOT OUT (' + thOut + '°F)</text>';
+
+        // Segmental Baffles (Alternating top/bottom)
+        const baffleXs = [sx + 140, sx + 220, sx + 300, sx + 380];
+        baffleXs.forEach(function(bx, i) {
+          if (i % 2 === 0) {
+            // Cut at bottom (extends from top)
+            s += '<rect x="' + bx + '" y="' + (sy + 6) + '" width="8" height="' + (sh * 0.72) + '" fill="#475569" stroke="#64748b" stroke-width="1"/>';
+          } else {
+            // Cut at top (extends from bottom)
+            s += '<rect x="' + bx + '" y="' + (sy + sh * 0.28) + '" width="8" height="' + (sh * 0.72 - 6) + '" fill="#475569" stroke="#64748b" stroke-width="1"/>';
+          }
+        });
+
+        // Tube Sheets (Vertical thick plates at ends)
+        s += '<rect x="' + (sx + 35) + '" y="' + (sy + 4) + '" width="12" height="' + (sh - 8) + '" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1"/>';
+        s += '<rect x="' + (sx + sw - 47) + '" y="' + (sy + 4) + '" width="12" height="' + (sh - 8) + '" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1"/>';
+
+        // Tube Bundle Lines (Horizontal tubes with 2 passes)
+        const tubeYsPass1 = [sy + 35, sy + 55, sy + 75];
+        const tubeYsPass2 = [sy + 95, sy + 115, sy + 135];
+
+        // Pass 1 Tubes (Cold fluid heading right)
+        tubeYsPass1.forEach(function(ty) {
+          s += '<line x1="' + (sx + 47) + '" y1="' + ty + '" x2="' + (sx + sw - 47) + '" y2="' + ty + '" stroke="#38bdf8" stroke-width="3"/>';
+        });
+
+        // Return Bonnet / Floating Head on the Right
+        s += '<path d="M ' + (sx + sw - 47) + ' ' + (sy + 20) + ' Q ' + (sx + sw - 5) + ' ' + (sy + sh / 2) + ' ' + (sx + sw - 47) + ' ' + (sy + sh - 20) + '" fill="none" stroke="#38bdf8" stroke-width="6"/>';
+
+        // Pass 2 Tubes (Cold fluid heading back left)
+        tubeYsPass2.forEach(function(ty) {
+          s += '<line x1="' + (sx + sw - 47) + '" y1="' + ty + '" x2="' + (sx + 47) + '" y2="' + ty + '" stroke="#60a5fa" stroke-width="3"/>';
+        });
+
+        // Channel Head Partition on Left (Splits Pass 1 and Pass 2)
+        s += '<line x1="' + (sx + 8) + '" y1="' + (sy + sh / 2) + '" x2="' + (sx + 35) + '" y2="' + (sy + sh / 2) + '" stroke="#e2e8f0" stroke-width="4"/>';
+        s += '<text x="' + (sx + 20) + '" y="' + (sy + sh / 2 - 6) + '" text-anchor="middle" fill="#94a3b8" font-size="7">PARTITION</text>';
+
+        // Cold Tube In / Out Nozzles on Left Bonnet
+        s += '<rect x="' + (sx - 35) + '" y="' + (sy + 30) + '" width="35" height="28" fill="#1d4ed8" stroke="#3b82f6" stroke-width="1.5"/>';
+        s += '<text x="' + (sx - 42) + '" y="' + (sy + 48) + '" text-anchor="end" fill="#3b82f6" font-size="10" font-weight="700">COLD IN (' + tcIn + '°F)</text>';
+
+        s += '<rect x="' + (sx - 35) + '" y="' + (sy + sh - 58) + '" width="35" height="28" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>';
+        s += '<text x="' + (sx - 42) + '" y="' + (sy + sh - 40) + '" text-anchor="end" fill="#60a5fa" font-size="10" font-weight="700">COLD OUT (' + tcOut + '°F)</text>';
+
+        // BOTTOM SUMMARY DASHBOARD
+        s += '<rect x="25" y="305" width="670" height="85" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="45" y="332" fill="#94a3b8" font-size="11" font-weight="600">SURFACE AREA:</text>';
+        s += '<text x="45" y="358" fill="#38bdf8" font-size="18" font-weight="700" font-family="monospace">' + area.toFixed(1) + ' sq ft</text>';
+        s += '<text x="45" y="376" fill="#64748b" font-size="10">' + (area * 0.0929).toFixed(2) + ' m² Active Matrix</text>';
+
+        s += '<text x="240" y="332" fill="#94a3b8" font-size="11" font-weight="600">TUBE BUNDLE:</text>';
+        s += '<text x="240" y="358" fill="#f8fafc" font-size="18" font-weight="700" font-family="monospace">' + numTubes + ' Tubes</text>';
+        s += '<text x="240" y="376" fill="#64748b" font-size="10">' + tubeOD + '" OD x ' + tubeLen + ' ft Length</text>';
+
+        s += '<text x="420" y="332" fill="#94a3b8" font-size="11" font-weight="600">EST SHELL ID:</text>';
+        s += '<text x="420" y="358" fill="#f59e0b" font-size="18" font-weight="700" font-family="monospace">' + shellDia.toFixed(1) + '" Shell</text>';
+        s += '<text x="420" y="376" fill="#64748b" font-size="10">Triangular Pitch Layout</text>';
+
+        s += '<text x="590" y="332" fill="#94a3b8" font-size="11" font-weight="600">TEMA FACTOR F:</text>';
+        s += '<text x="590" y="358" fill="' + (F >= 0.80 ? '#10b981' : '#ef4444') + '" font-size="18" font-weight="700" font-family="monospace">' + F.toFixed(3) + '</text>';
+        s += '<text x="590" y="376" fill="' + (F >= 0.80 ? '#10b981' : '#ef4444') + '" font-size="10">' + (F >= 0.80 ? 'Target ≥ 0.80' : 'Unacceptable Cross') + '</text>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const Q = inQ.value;
+        const thIn = inThIn.value;
+        const thOut = inThOut.value;
+        const tcIn = inTcIn.value;
+        const tcOut = inTcOut.value;
+        const uVal = inCustomU.value;
+        const type = selType.options[selType.selectedIndex].text;
+        const tOD = selDia.options[selDia.selectedIndex].text;
+        const tLen = selLength.options[selLength.selectedIndex].text;
+
+        const area = document.getElementById('resAreaSqFt').textContent;
+        const areaM = document.getElementById('resAreaSqM').textContent;
+        const lmtd = document.getElementById('resLmtd').textContent;
+        const fVal = document.getElementById('resFactorF').textContent;
+        const tubes = document.getElementById('resTubeCount').textContent;
+        const perPass = document.getElementById('resTubesPerPass').textContent;
+        const shell = document.getElementById('resShellDia').textContent;
+        const stat = document.getElementById('resStatusText').textContent;
+
+        const summary = [
+          '=== SHELL & TUBE HEAT EXCHANGER SIZING REPORT (TEMA) ===',
+          'Heat Duty (Q): ' + Q + ' BTU/hr | Overall U: ' + uVal + ' BTU/hr·ft²·°F',
+          'Hot Stream: ' + thIn + '°F Inlet -> ' + thOut + '°F Outlet',
+          'Cold Stream: ' + tcIn + '°F Inlet -> ' + tcOut + '°F Outlet',
+          'Flow Arrangement: ' + type,
+          '',
+          '--- THERMAL & SURFACE AREA RESULTS ---',
+          'Required Surface Area: ' + area + ' sq ft (' + areaM + ' m²)',
+          'Log Mean Temp Difference (LMTD): ' + lmtd,
+          'TEMA Multipass Correction Factor (F): ' + fVal + ' (Standard: >= 0.80)',
+          'Thermal Feasibility: ' + stat,
+          '',
+          '--- TUBE BUNDLE & MECHANICAL GEOMETRY ---',
+          'Tube Dimensions: ' + tOD + ' x ' + tLen,
+          'Total Tube Count: ' + tubes + ' (' + perPass + ' per pass)',
+          'Estimated Shell Inside Diameter: ' + shell,
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/shell-and-tube-heat-exchanger-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Sizing Report Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Sizing Report Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Heat Exchanger Sizing Report';
+          }, 2500);
+        });
+      });
+
+      inQ.addEventListener('input', calcExchanger);
+      inThIn.addEventListener('input', calcExchanger);
+      inThOut.addEventListener('input', calcExchanger);
+      inTcIn.addEventListener('input', calcExchanger);
+      inTcOut.addEventListener('input', calcExchanger);
+      selUPreset.addEventListener('change', function() {
+        syncU();
+        calcExchanger();
+      });
+      inCustomU.addEventListener('input', calcExchanger);
+      selType.addEventListener('change', calcExchanger);
+      selDia.addEventListener('change', calcExchanger);
+      selLength.addEventListener('change', calcExchanger);
+
+      syncU();
+      calcExchanger();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'shell-and-tube-heat-exchanger-calculator.html'), renderTradePage({
+    title: "Shell and Tube Heat Exchanger Calculator: Area, LMTD & TEMA | Digital Tools Shed",
+    metaDesc: "Calculate shell and tube heat exchanger surface area, Log Mean Temperature Difference (LMTD), TEMA multipass F correction factor, and tube bundle counts.",
+    canonical: `${DOMAIN}/calc/shell-and-tube-heat-exchanger-calculator`,
+    bodyContent: heatExchangerBody,
+    currentPath: '/calc/shell-and-tube-heat-exchanger-calculator',
+    faq: [
+      {
+        "q": "What is the TEMA multipass correction factor F and why must it exceed 0.80?",
+        "a": "In multipass shell and tube exchangers (such as a 1-2 design), fluid travels both counter-current and co-current to the shell stream. The F factor corrects the ideal counter-flow LMTD for this cross-flow geometry. If F falls below 0.80, a temperature cross condition occurs, rendering the exchanger thermally unstable and requiring two or more shells in series."
+      },
+      {
+        "q": "How do you calculate required heat exchanger surface area?",
+        "a": "Surface area is calculated using the fundamental equation A = Q / (U * F * LMTD), where Q is heat duty (BTU/hr), U is the overall heat transfer coefficient (BTU/hr·ft²·°F), LMTD is the log mean temperature difference, and F is the multipass geometry correction factor."
+      },
+      {
+        "q": "Why should corrosive or high-pressure fluids be placed on the tube side?",
+        "a": "Placing corrosive or high-pressure fluids on the tube side restricts expensive corrosion-resistant alloys (such as titanium, Hastelloy, or 316 stainless) solely to the tubes, tube sheets, and channel heads, while allowing the large-volume outer pressure shell to be constructed from inexpensive carbon steel."
+      },
+      {
+        "q": "What is fouling resistance and how does it affect heat exchanger sizing?",
+        "a": "Fouling resistance (Rf) accounts for the thermal resistance of scale, mineral deposits, biological slime, and corrosion products that accumulate on tube surfaces over time. Designing without fouling factors results in exchangers that fail to meet cooling capacity after only a few months of operation."
+      },
+      {
+        "q": "What is Kern's method for shell and tube heat exchangers?",
+        "a": "Kern's method is the classical engineering design procedure for predicting shell-side heat transfer coefficients and pressure drops across segmental baffles, balancing cross-flow velocity against pumping power and tube vibration risks."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BOILER CONTINUOUS SURFACE BLOWDOWN RATE & ENERGY LOSS CALCULATOR (ABMA / ASME)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const boilerBlowdownBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Boiler Blowdown Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Boiler Continuous Surface Blowdown Rate &amp; Energy Savings Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate required surface blowdown percentage, mass flow rate (lb/hr), cycles of concentration (COC), and annual fuel dollar losses per ABMA standards. Evaluate flash steam heat recovery potential across steam boiler plants.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Steam Boiler &amp; Water Chemistry Specs
+      </h2>
+
+      <!-- Steam Capacity Entry -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="capacityType">Capacity Rating Mode</label>
+          <select id="capacityType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="bhp" selected>Boiler Horsepower (BHP)</option>
+            <option value="lb_hr">Steam Generation (lb/hr)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boilerCapacityVal" id="lblCapRating">Boiler Horsepower (BHP)</label>
+          <input type="number" id="boilerCapacityVal" value="300" min="10" max="5000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="lblCapSub">300 BHP = 10,350 lb/hr steam</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boilerPressure">Operating Steam Pressure</label>
+          <select id="boilerPressure" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="15">15 PSIG (Low Pressure Steam - 250&deg;F)</option>
+            <option value="100">100 PSIG (Process Steam - 338&deg;F)</option>
+            <option value="125" selected>125 PSIG (Standard Industrial - 353&deg;F)</option>
+            <option value="150">150 PSIG (High Pressure - 366&deg;F)</option>
+            <option value="250">250 PSIG (High Pressure Plant - 406&deg;F)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="condensateReturnPct">Condensate Return Ratio (%)</label>
+          <input type="number" id="condensateReturnPct" value="70" min="0" max="98" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">% returned pure condensate (~0 TDS)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rawMakeupTds">Make-up Water TDS (PPM)</label>
+          <input type="number" id="rawMakeupTds" value="200" min="10" max="1500" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Softened city water total solids</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="targetBoilerTds">Max Target Boiler TDS (PPM)</label>
+          <select id="targetBoilerTds" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="3000" selected>3,000 PPM (ABMA Firetube &le;300 PSI)</option>
+            <option value="2500">2,500 PPM (ABMA Watertube Standard)</option>
+            <option value="3500">3,500 PPM (High Solids Firetube Limit)</option>
+            <option value="1500">1,500 PPM (High-Purity Process / Hospital)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Financial / Fuel Parameters -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="fuelCostTherm">Natural Gas Cost ($/Therm)</label>
+          <input type="number" id="fuelCostTherm" value="0.95" min="0.30" max="3.00" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">1 Therm = 100,000 BTU</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="boilerEfficiency">Boiler Combustion Efficiency</label>
+          <select id="boilerEfficiency" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0.80">80% (Standard Atmospheric / Older Unit)</option>
+            <option value="0.82" selected>82% (Standard Modulating Packaged)</option>
+            <option value="0.85">85% (High Efficiency w/ Economizer)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Blended Feedwater TDS: <strong id="lblFeedTds" style="color:var(--fg);">60.0 PPM</strong></div>
+          <div>Operating Hours: <strong style="color:var(--fg);">8,400 hrs / yr</strong></div>
+          <div>Liquid Enthalpy (hf): <strong id="lblEnthalpy" style="color:var(--fg);">325.0 BTU/lb</strong></div>
+          <div>ABMA Standard: <strong style="color:var(--fg);">Table 1 Guidelines</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Continuous Blowdown Rate</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resBlowdownPct">2.04</span> <span style="font-size:1.25rem;font-weight:500;">%</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              <span id="resBlowdownLbHr">211</span> lb/hr &nbsp;|&nbsp; Cycles of Conc: <strong id="resCoc" style="color:var(--fg);">50.0 COC</strong>
+            </div>
+          </div>
+          <span id="badgeCoc" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">OPTIMAL BLOWDOWN</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Annual Unrecovered Heat Loss</span>
+            <span id="resAnnualCost" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#ef4444;">$6,230 / yr</span>
+            <span id="resHourlyBtu" style="font-size:0.75rem;color:var(--text-muted);display:block;">63,700 BTU/hr discharged</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Heat Recovery Potential</span>
+            <span id="resSavingsPotential" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#10b981;">$4,670 / yr</span>
+            <span style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">75% Recoverable w/ Flash Tank</span>
+          </div>
+        </div>
+
+        <!-- WATER MASS BALANCE SUMMARY -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <h3 style="font-size:0.9rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Plant Mass Balance &amp; Flash Steam Generation</h3>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.5rem;text-align:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Steam Flow</div>
+              <div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--fg);margin-top:0.25rem;" id="resSteamFlow">10,350</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">lb/hr Generated</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Feedwater Flow</div>
+              <div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--primary);margin-top:0.25rem;" id="resFeedwaterFlow">10,561</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">lb/hr Supplied</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Flash Steam (15#)</div>
+              <div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:#10b981;margin-top:0.25rem;" id="resFlashSteam">31.6</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">lb/hr to DA Tank</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">Water Chemistry Diagnosis:</span>
+            <strong id="resStatusText" style="font-family:var(--mono);color:#10b981;">EXCELLENT WATER CONSERVATION</strong>
+          </div>
+          <div id="resStatusAdvice" style="color:var(--text-muted);font-size:0.75rem;">High condensate return maintains clean feedwater TDS, allowing 50 cycles of concentration and keeping blowdown heat loss under 2.5%.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Boiler Blowdown Report</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE BOILER PLANT & HEAT RECOVERY SCHEMATIC SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m4.93 19.07 4.24-4.24"/></svg>
+      Industrial Steam Plant, Continuous Skimmer &amp; Heat Recovery Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live schematic illustrating steam boiler, surface skimmer probe, modulating blowdown valve, bottom mud blowoff, flash vessel (flashing steam back to the deaerator), and blowdown heat recovery exchanger.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="blowdownSvgContainer" style="width:100%;max-width:720px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: Mass Balance &amp; Blowdown Heat Waste</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        As water boils inside a steam drum, pure water molecules evaporate into vapor, leaving virtually all non-volatile mineral salts (calcium, magnesium, silica, sodium) behind in the boiler liquid. Without continuous purge, these dissolved solids concentrate to the point of precipitation, causing hard insulating scale on heat transfer tubes and severe foaming at the water-steam interface.
+      </p>
+      <p>
+        Under steady-state mass conservation, the total mass of dissolved solids entering with the feedwater must exactly equal the mass of solids removed via blowdown:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        M<sub>feedwater</sub> &times; TDS<sub>feedwater</sub> = M<sub>blowdown</sub> &times; TDS<sub>boiler</sub>
+      </div>
+      <p>
+        Since \( M_{feedwater} = M_{steam} + M_{blowdown} \), substituting yields the universal <strong>Blowdown Percentage formula</strong> as a fraction of steam production:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        BD<sub>%</sub> = [ TDS<sub>feedwater</sub> / (TDS<sub>boiler</sub> - TDS<sub>feedwater</sub>) ] &times; 100% = [ 1 / (COC - 1) ] &times; 100%
+      </div>
+      <p>
+        Where <strong>Cycles of Concentration (COC)</strong> is the ratio of boiler water TDS to blended feedwater TDS (\( COC = TDS_{boiler} / TDS_{fw} \)). Blended feedwater TDS accounts for the dilution benefit of returned pure condensate:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        TDS<sub>fw</sub> = TDS<sub>makeup</sub> &times; [ 1 - (% Condensate Return / 100) ]
+      </div>
+      <p>
+        The hourly energy lost when hot saturated liquid at boiler operating pressure (\( h_f \)) is discarded to the drain instead of cold incoming make-up water (\( h_{makeup} \approx 23 \text{ BTU/lb} \) at 55&deg;F) is:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        Q<sub>lost</sub> = M<sub>blowdown</sub> &times; (h<sub>f(boiler)</sub> - h<sub>makeup</sub>) &nbsp;&nbsp;[BTU/hr]
+      </div>
+      <p>
+        By routing high-pressure blowdown through a <strong>Blowdown Flash Vessel</strong> (operating at 15 PSIG to feed the deaerator) followed by a shell-and-tube heat exchanger, <strong>70% to 80%</strong> of this energy is captured to preheat make-up water, slashing fuel costs and paying for the heat recovery equipment in under 9 to 14 months.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & BOILER WATER PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Boiler Blowdown</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: Confusing Bottom Blowdown with Continuous Surface Skimming</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Relying solely on opening the manual bottom blowdown valve for 10 seconds per shift does NOT control dissolved solids (TDS). High-TDS water and dissolved salts concentrate near the steaming water line at the top of the boiler, while the bottom valve only purges heavy suspended mud and sludge. Controlling TDS requires a continuous surface blowdown skimmer tube located 2 to 3 inches below the operating water level.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Low Cycles of Concentration (Over-Blowing Energy Bleed)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Operating a boiler with the surface blowdown valve cracked too wide results in operating at 4 or 5 cycles of concentration instead of the ABMA target of 15 to 30. This wastes 15% to 20% of the boiler's total thermal input, dumping thousands of pounds of expensive water treatment chemicals and softened water down the sewer and burning an extra $15,000 to $40,000 in unneeded fuel every single year.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Foaming, Priming &amp; Destructive Water Carryover</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Allowing boiler water TDS to exceed 3,500 to 4,000 PPM dramatically increases the surface tension of the boiling water. Steam bubbles cannot pop cleanly; instead, a thick lather of mineral foam fills the steam space. Liquid boiler water is sucked into the steam outlet (carryover/priming), slamming into steam headers as high-velocity water slugs, destroying turbine blades, and washing corrosive alkaline salts into food and pharmaceutical processes.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Discharging Hot Blowdown Directly to Municipal Sewers (&gt;140&deg;F)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Under the International Plumbing Code and EPA rules, wastewater discharged into municipal sewer mains cannot exceed <strong>140&deg;F (60&deg;C)</strong>. Discharging 350&deg;F blowdown directly melts PVC sewer lines, damages concrete manholes, and boils water seals in municipal traps, allowing deadly sewer gas into buildings. Blowdown must always pass through a vented blowdown separator tank equipped with an automatic cold-water quenching temper valve.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Operating Without Conductivity-Based Automatic Blowdown</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Manual surface blowdown valves rely on periodic water grab samples taken once or twice a day. When factory steam loads fluctuate from 20% to 100%, boiler water solids drift wildly—either causing dangerous foaming during high production or massive fuel waste during low production. Installing an automated modulating surface blowdown controller with a temperature-compensated conductivity sensor pays for itself in fuel savings within 4 to 8 months.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Saturation Liquid Enthalpies (hf in BTU/lb)
+      const ENTHALPY_DATA = {
+        '15': { hf: 218.5, temp: 250 },
+        '100': { hf: 309.0, temp: 338 },
+        '125': { hf: 324.9, temp: 353 },
+        '150': { hf: 338.5, temp: 366 },
+        '250': { hf: 381.7, temp: 406 }
+      };
+
+      const selCapType = document.getElementById('capacityType');
+      const inCapVal = document.getElementById('boilerCapacityVal');
+      const selPressure = document.getElementById('boilerPressure');
+      const inCondensate = document.getElementById('condensateReturnPct');
+      const inMakeupTds = document.getElementById('rawMakeupTds');
+      const selTargetTds = document.getElementById('targetBoilerTds');
+      const inFuelCost = document.getElementById('fuelCostTherm');
+      const selEfficiency = document.getElementById('boilerEfficiency');
+
+      function updateCapLabel() {
+        const t = selCapType.value;
+        const lbl = document.getElementById('lblCapRating');
+        const sub = document.getElementById('lblCapSub');
+        if (t === 'bhp') {
+          lbl.textContent = 'Boiler Horsepower (BHP)';
+          if (parseFloat(inCapVal.value) > 2000) inCapVal.value = '300';
+          const bhp = parseFloat(inCapVal.value) || 300;
+          sub.textContent = bhp + ' BHP = ' + (bhp * 34.5).toLocaleString() + ' lb/hr steam';
+        } else {
+          lbl.textContent = 'Steam Generation (lb/hr)';
+          if (parseFloat(inCapVal.value) < 1000) inCapVal.value = '10350';
+          const lbHr = parseFloat(inCapVal.value) || 10350;
+          sub.textContent = lbHr.toLocaleString() + ' lb/hr = ' + (lbHr / 34.5).toFixed(1) + ' BHP';
+        }
+      }
+
+      function calcBlowdown() {
+        const capMode = selCapType.value;
+        const capVal = parseFloat(inCapVal.value) || 300;
+        let steamFlowLbHr = 0;
+        if (capMode === 'bhp') {
+          steamFlowLbHr = capVal * 34.5;
+        } else {
+          steamFlowLbHr = capVal;
+        }
+
+        const press = selPressure.value;
+        const enthData = ENTHALPY_DATA[press] || ENTHALPY_DATA['125'];
+        const hfBoiler = enthData.hf;
+
+        document.getElementById('lblEnthalpy').textContent = hfBoiler.toFixed(1) + ' BTU/lb (' + enthData.temp + '°F)';
+
+        const condReturnPct = parseFloat(inCondensate.value) || 70;
+        const makeupTds = parseFloat(inMakeupTds.value) || 200;
+        const targetTds = parseFloat(selTargetTds.value) || 3000;
+
+        // Blended feedwater TDS
+        // Feedwater = (1 - return) * makeupTds + return * condensateTds (~0)
+        const fwTds = makeupTds * (1 - (condReturnPct / 100));
+        document.getElementById('lblFeedTds').textContent = fwTds.toFixed(1) + ' PPM';
+
+        // Cycles of concentration
+        const coc = fwTds > 0 ? (targetTds / fwTds) : 100;
+        document.getElementById('resCoc').textContent = coc.toFixed(1) + ' COC';
+
+        // Blowdown % of steam: BD% = (TDS_fw / (TDS_boiler - TDS_fw)) * 100
+        let bdPct = 0;
+        if (targetTds > fwTds) {
+          bdPct = (fwTds / (targetTds - fwTds)) * 100;
+        } else {
+          bdPct = 10.0;
+        }
+
+        document.getElementById('resBlowdownPct').textContent = bdPct.toFixed(2);
+
+        // Mass flow rate of blowdown
+        const bdLbHr = steamFlowLbHr * (bdPct / 100);
+        const fwFlowLbHr = steamFlowLbHr + bdLbHr;
+
+        document.getElementById('resBlowdownLbHr').textContent = Math.round(bdLbHr).toLocaleString();
+        document.getElementById('resSteamFlow').textContent = Math.round(steamFlowLbHr).toLocaleString();
+        document.getElementById('resFeedwaterFlow').textContent = Math.round(fwFlowLbHr).toLocaleString();
+
+        // Flash steam generation at 15 PSIG (hf_15 = 218.5, hfg_15 = 945.3)
+        // Flash fraction = (hf_boiler - hf_15) / hfg_15
+        const flashFraction = Math.max(0, (hfBoiler - 218.5) / 945.3);
+        const flashSteamLbHr = bdLbHr * flashFraction;
+        document.getElementById('resFlashSteam').textContent = flashSteamLbHr.toFixed(1);
+
+        // Energy & Dollar loss
+        // Heat lost per lb: hf_boiler - hf_makeup (makeup at 55°F = 23 BTU/lb)
+        const heatLossPerLb = hfBoiler - 23.0;
+        const hourlyBtuLost = bdLbHr * heatLossPerLb;
+        document.getElementById('resHourlyBtu').textContent = Math.round(hourlyBtuLost).toLocaleString() + ' BTU/hr discharged';
+
+        const fuelCost = parseFloat(inFuelCost.value) || 0.95;
+        const eff = parseFloat(selEfficiency.value) || 0.82;
+        const annualHours = 8400;
+
+        // Annual dollar loss: (hourlyBtu * 8400 / (eff * 100000)) * fuelCost
+        const annualCost = (hourlyBtuLost * annualHours / (eff * 100000)) * fuelCost;
+        // 75% can be recovered with a flash tank and heat exchanger
+        const savingsPotential = annualCost * 0.75;
+
+        document.getElementById('resAnnualCost').textContent = '$' + Math.round(annualCost).toLocaleString() + ' / yr';
+        document.getElementById('resSavingsPotential').textContent = '$' + Math.round(savingsPotential).toLocaleString() + ' / yr';
+
+        // Compliance / Diagnostic text
+        const badge = document.getElementById('badgeCoc');
+        const resStat = document.getElementById('resStatusText');
+        const resAdv = document.getElementById('resStatusAdvice');
+
+        if (coc >= 20.0) {
+          badge.style.background = '#10b981';
+          badge.textContent = 'OPTIMAL BLOWDOWN';
+          resStat.textContent = 'EXCELLENT WATER CONSERVATION';
+          resStat.style.color = '#10b981';
+          resAdv.textContent = 'High condensate return (' + condReturnPct + '%) keeps blended feedwater TDS low, achieving ' + coc.toFixed(0) + ' cycles of concentration with under 3% blowdown heat loss.';
+        } else if (coc >= 8.0) {
+          badge.style.background = '#3b82f6';
+          badge.textContent = 'MODERATE BLOWDOWN';
+          resStat.textContent = 'ACCEPTABLE INDUSTRIAL RANGE';
+          resStat.style.color = '#3b82f6';
+          resAdv.textContent = 'Operating at ' + coc.toFixed(1) + ' COC. Installing a blowdown heat recovery exchanger would save approximately $' + Math.round(savingsPotential).toLocaleString() + ' per year.';
+        } else {
+          badge.style.background = '#ef4444';
+          badge.textContent = 'EXCESSIVE BLOWDOWN';
+          resStat.textContent = 'SEVERE ENERGY DRAIN (< 8 COC)';
+          resStat.style.color = '#ef4444';
+          resAdv.textContent = 'Low condensate return or poor water softening forces over ' + bdPct.toFixed(1) + '% blowdown. Upgrading condensate return or pre-treatment will save tens of thousands in fuel.';
+        }
+
+        // Draw Interactive SVG
+        drawBlowdownSvg(steamFlowLbHr, bdLbHr, bdPct, coc, press, annualCost, savingsPotential);
+      }
+
+      function drawBlowdownSvg(steamLbHr, bdLbHr, bdPct, coc, press, cost, savings) {
+        const container = document.getElementById('blowdownSvgContainer');
+        const w = 720;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Background
+        s += '<rect x="10" y="10" width="700" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // STEAM BOILER (Center Left)
+        const bx = 160;
+        const by = 80;
+        const bw = 170;
+        const bh = 140;
+
+        // Boiler Drum (Steel Cylinder)
+        s += '<rect x="' + (bx - bw / 2) + '" y="' + by + '" width="' + bw + '" height="' + bh + '" rx="20" fill="#0f172a" stroke="#64748b" stroke-width="3"/>';
+        s += '<text x="' + bx + '" y="' + (by + 45) + '" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">STEAM BOILER</text>';
+        s += '<text x="' + bx + '" y="' + (by + 60) + '" text-anchor="middle" fill="#94a3b8" font-size="9">' + press + ' PSIG (' + Math.round(steamLbHr).toLocaleString() + ' lb/hr)</text>';
+
+        // Boiling Water Level (Lower 65%)
+        s += '<rect x="' + (bx - bw / 2 + 6) + '" y="' + (by + 70) + '" width="' + (bw - 12) + '" height="' + (bh - 76) + '" rx="10" fill="rgba(56, 189, 248, 0.25)"/>';
+        s += '<line x1="' + (bx - bw / 2 + 6) + '" y1="' + (by + 70) + '" x2="' + (bx + bw / 2 - 6) + '" y2="' + (by + 70) + '" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,2"/>';
+        s += '<text x="' + (bx - 20) + '" y="' + (by + 85) + '" fill="#38bdf8" font-size="8">WATER LEVEL</text>';
+
+        // Main Steam Outlet Header (Top of boiler)
+        s += '<path d="M ' + bx + ' ' + by + ' L ' + bx + ' 35 L 340 35" fill="none" stroke="#e2e8f0" stroke-width="5"/>';
+        s += '<polygon points="340,30 355,35 340,40" fill="#e2e8f0"/>';
+        s += '<text x="' + (bx + 75) + '" y="28" fill="#e2e8f0" font-size="10" font-weight="700">STEAM TO PLANT</text>';
+
+        // Continuous Surface Skimmer Tube (Inside water line)
+        s += '<line x1="' + (bx - 40) + '" y1="' + (by + 78) + '" x2="' + (bx + bw / 2) + '" y2="' + (by + 78) + '" stroke="#f59e0b" stroke-width="3"/>';
+        s += '<circle cx="' + (bx - 40) + '" cy="' + (by + 78) + '" r="4" fill="#f59e0b"/>';
+        s += '<text x="' + (bx + 15) + '" y="' + (by + 95) + '" fill="#f59e0b" font-size="7">SURFACE SKIMMER</text>';
+
+        // Modulating Surface Blowdown Line & Valve
+        s += '<path d="M ' + (bx + bw / 2) + ' ' + (by + 78) + ' L 390 ' + (by + 78) + ' L 390 140" fill="none" stroke="#f59e0b" stroke-width="3"/>';
+        // Modulating Control Valve
+        s += '<polygon points="383,140 397,140 390,148" fill="#10b981"/>';
+        s += '<polygon points="383,156 397,156 390,148" fill="#10b981"/>';
+        s += '<text x="404" y="152" fill="#10b981" font-size="8" font-weight="700">TDS VALVE</text>';
+
+        // FLASH TANK (Upper Right)
+        const fx = 470;
+        const fy = 80;
+        const fw = 75;
+        const fh = 120;
+
+        s += '<rect x="' + fx + '" y="' + fy + '" width="' + fw + '" height="' + fh + '" rx="15" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>';
+        s += '<text x="' + (fx + fw / 2) + '" y="' + (fy + 45) + '" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">FLASH TANK</text>';
+        s += '<text x="' + (fx + fw / 2) + '" y="' + (fy + 60) + '" text-anchor="middle" fill="#94a3b8" font-size="8">15 PSIG</text>';
+
+        // Blowdown line enters Flash Tank
+        s += '<path d="M 390 156 L 390 170 L ' + fx + ' 170" fill="none" stroke="#f59e0b" stroke-width="3"/>';
+
+        // Flash Steam leaves top of flash tank -> Deaerator
+        s += '<path d="M ' + (fx + fw / 2) + ' ' + fy + ' L ' + (fx + fw / 2) + ' 45 L 600 45" fill="none" stroke="#38bdf8" stroke-width="3"/>';
+        s += '<polygon points="600,41 612,45 600,49" fill="#38bdf8"/>';
+        s += '<text x="' + (fx + fw / 2 + 10) + '" y="38" fill="#38bdf8" font-size="8" font-weight="700">FLASH STEAM TO DEAERATOR</text>';
+
+        // Residual Hot Brine leaves bottom of flash tank -> Heat Exchanger
+        s += '<path d="M ' + (fx + fw / 2) + ' ' + (fy + fh) + ' L ' + (fx + fw / 2) + ' 240 L 480 240" fill="none" stroke="#f59e0b" stroke-width="3"/>';
+
+        // BLOWDOWN HEAT EXCHANGER (Bottom Right)
+        const hxX = 480;
+        const hxY = 225;
+        const hxW = 140;
+        const hxH = 50;
+
+        s += '<rect x="' + hxX + '" y="' + hxY + '" width="' + hxW + '" height="' + hxH + '" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="2"/>';
+        s += '<text x="' + (hxX + hxW / 2) + '" y="' + (hxY + 22) + '" text-anchor="middle" fill="#10b981" font-size="9" font-weight="700">BLOWDOWN HEAT EXCHANGER</text>';
+        s += '<text x="' + (hxX + hxW / 2) + '" y="' + (hxY + 36) + '" text-anchor="middle" fill="#94a3b8" font-size="8">Preheats Cold Make-Up Water</text>';
+
+        // Cooled drain discharge to sewer (<140°F)
+        s += '<path d="M ' + (hxX + hxW) + ' 250 L 680 250" stroke="#64748b" stroke-width="3"/>';
+        s += '<text x="655" y="242" text-anchor="middle" fill="#94a3b8" font-size="8">COOLED DRAIN &lt;140°F</text>';
+
+        // Bottom Mud Blowdown Line (Manual bottom purge)
+        s += '<path d="M ' + bx + ' ' + (by + bh) + ' L ' + bx + ' 265 L 260 265" fill="none" stroke="#64748b" stroke-width="3"/>';
+        s += '<polygon points="210,260 220,265 210,270" fill="#ef4444"/>';
+        s += '<text x="' + (bx + 40) + '" y="280" fill="#94a3b8" font-size="8">BOTTOM SLUDGE BLOWDOWN</text>';
+
+        // BOTTOM METRICS DASHBOARD
+        s += '<rect x="25" y="315" width="670" height="75" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="45" y="342" fill="#94a3b8" font-size="11" font-weight="600">BLOWDOWN FLOW:</text>';
+        s += '<text x="45" y="368" fill="#f8fafc" font-size="17" font-weight="700" font-family="monospace">' + Math.round(bdLbHr) + ' lb/hr (' + bdPct.toFixed(2) + '%)</text>';
+
+        s += '<text x="260" y="342" fill="#94a3b8" font-size="11" font-weight="600">CYCLES OF CONC:</text>';
+        s += '<text x="260" y="368" fill="#38bdf8" font-size="17" font-weight="700" font-family="monospace">' + coc.toFixed(1) + ' COC</text>';
+
+        s += '<text x="450" y="342" fill="#94a3b8" font-size="11" font-weight="600">UNRECOVERED WASTE:</text>';
+        s += '<text x="450" y="368" fill="#ef4444" font-size="17" font-weight="700" font-family="monospace">$' + Math.round(cost).toLocaleString() + ' / yr</text>';
+
+        s += '<text x="590" y="342" fill="#94a3b8" font-size="11" font-weight="600">HEAT RECOVERY:</text>';
+        s += '<text x="590" y="368" fill="#10b981" font-size="17" font-weight="700" font-family="monospace">$' + Math.round(savings).toLocaleString() + ' / yr</text>';
+
+        s += '</g>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const cap = inCapVal.value + ' ' + selCapType.options[selCapType.selectedIndex].text;
+        const press = selPressure.options[selPressure.selectedIndex].text;
+        const cond = inCondensate.value + '%';
+        const makeup = inMakeupTds.value + ' PPM';
+        const target = selTargetTds.options[selTargetTds.selectedIndex].text;
+
+        const bdPct = document.getElementById('resBlowdownPct').textContent;
+        const bdLbHr = document.getElementById('resBlowdownLbHr').textContent;
+        const coc = document.getElementById('resCoc').textContent;
+        const cost = document.getElementById('resAnnualCost').textContent;
+        const savings = document.getElementById('resSavingsPotential').textContent;
+        const flash = document.getElementById('resFlashSteam').textContent;
+        const stat = document.getElementById('resStatusText').textContent;
+
+        const summary = [
+          '=== BOILER CONTINUOUS SURFACE BLOWDOWN REPORT (ABMA / ASME) ===',
+          'Boiler Capacity: ' + cap + ' | Operating Pressure: ' + press,
+          'Water Chemistry: ' + makeup + ' Raw Make-up | ' + cond + ' Condensate Return',
+          'Boiler Target TDS Limit: ' + target,
+          '',
+          '--- BLOWDOWN RATES & MASS BALANCE ---',
+          'Continuous Blowdown Rate: ' + bdPct + '% of Steaming Rate (' + bdLbHr + ' lb/hr)',
+          'Cycles of Concentration: ' + coc,
+          'Flash Steam Generation (15 PSIG): ' + flash + ' lb/hr',
+          'Water Chemistry Status: ' + stat,
+          '',
+          '--- FINANCIAL & HEAT RECOVERY AUDIT ---',
+          'Annual Unrecovered Blowdown Fuel Loss: ' + cost,
+          'Heat Recovery Savings Potential: ' + savings + ' (via Flash Tank & Heat Exchanger)',
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/boiler-blowdown-rate-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Blowdown Report Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Blowdown Report Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Boiler Blowdown Report';
+          }, 2500);
+        });
+      });
+
+      selCapType.addEventListener('change', function() {
+        updateCapLabel();
+        calcBlowdown();
+      });
+      inCapVal.addEventListener('input', function() {
+        updateCapLabel();
+        calcBlowdown();
+      });
+      selPressure.addEventListener('change', calcBlowdown);
+      inCondensate.addEventListener('input', calcBlowdown);
+      inMakeupTds.addEventListener('input', calcBlowdown);
+      selTargetTds.addEventListener('change', calcBlowdown);
+      inFuelCost.addEventListener('input', calcBlowdown);
+      selEfficiency.addEventListener('change', calcBlowdown);
+
+      updateCapLabel();
+      calcBlowdown();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'boiler-blowdown-rate-calculator.html'), renderTradePage({
+    title: "Boiler Blowdown Rate Calculator: Cycles of Concentration & Heat Recovery | Digital Tools Shed",
+    metaDesc: "Calculate boiler surface blowdown rate (%), mass flow (lb/hr), cycles of concentration (COC), and fuel dollar waste per ABMA guidelines. Evaluate flash steam heat recovery.",
+    canonical: `${DOMAIN}/calc/boiler-blowdown-rate-calculator`,
+    bodyContent: boilerBlowdownBody,
+    currentPath: '/calc/boiler-blowdown-rate-calculator',
+    faq: [
+      {
+        "q": "What is the difference between surface blowdown and bottom blowdown?",
+        "a": "Continuous surface blowdown purges dissolved mineral salts (TDS) that concentrate near the steaming water line to prevent foaming and water carryover. Bottom blowdown is a quick, intermittent manual purge used to flush out heavy precipitated sludge and mud settled at the bottom of the boiler shell."
+      },
+      {
+        "q": "How do you calculate boiler blowdown percentage?",
+        "a": "Blowdown percentage is calculated from water chemistry: Blowdown % = (Feedwater TDS / (Boiler Water TDS - Feedwater TDS)) * 100%, or 1 / (Cycles of Concentration - 1) * 100%. High condensate return reduces feedwater TDS, dramatically lowering required blowdown."
+      },
+      {
+        "q": "What are Cycles of Concentration (COC) in a steam boiler?",
+        "a": "Cycles of Concentration measures how many times dissolved minerals have concentrated in the boiler water compared to the incoming feedwater: COC = Boiler TDS / Feedwater TDS. Typical industrial boilers target between 15 and 30 cycles of concentration."
+      },
+      {
+        "q": "Why is blowing down a boiler directly into the city sewer illegal?",
+        "a": "Plumbing and environmental codes mandate that wastewater discharged to sewers cannot exceed 140°F (60°C). High-pressure boiler blowdown discharges at 300°F to 400°F, melting PVC sewer piping, eroding concrete manholes, and boiling water out of municipal sewer traps. A blowdown separator or flash tank is mandatory."
+      },
+      {
+        "q": "How much energy does a boiler blowdown heat recovery system save?",
+        "a": "A blowdown heat recovery system using a flash vessel and shell-and-tube heat exchanger captures between 70% and 80% of blowdown thermal energy. The flash steam preheats the deaerator, while the heat exchanger warms cold incoming make-up water, typically paying for itself in fuel savings in 6 to 12 months."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (35 calculators in /calc/)');
 }
 
